@@ -15,7 +15,7 @@ namespace topmeperp.Controllers
         // GET: UserManage
         public ActionResult Index()
         {
-            log.Info("index");
+            log.Info("index!111");
             return View();
         }
         [HttpPost]
