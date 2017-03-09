@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 
-namespace topmeperp_v1
+namespace topmeperp
 {
     public static class WebApiConfig
     {

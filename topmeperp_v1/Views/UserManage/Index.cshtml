@@ -1,0 +1,28 @@
+﻿@{
+    ViewBag.Title = "工務管理首頁";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+
+<div class="jumbotron">
+    <h1>使用者管理</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <label for="檔案上傳">檔案上傳範例</label>
+        <form action="" method="post" enctype="multipart/form-data">
+            <label for="projectId">專案編號:</label>
+            <input type="text" name="projectId" id="projectId" />
+            <br />
+            <label for="startrow">開始Row:</label>
+            <input type="text" name="startrow" id="startrow" />
+            <br />
+            <label for="file">整理後標單檔案:</label>
+            <input type="file" name="file" id="file" />
+            <input type="submit" />
+        </form>
+    </div>
+</div>
+<div class="row">
+    <div class="alert-info">@Html.Raw(ViewBag.result)</div>
+</div>

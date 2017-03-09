@@ -9,7 +9,7 @@ using System.Web.Routing;
 using System.Web.Security;
 using System.Web.SessionState;
 
-namespace topmeperp_v1
+namespace topmeperp
 {
     public class MvcApplication : System.Web.HttpApplication
     {
@@ -20,6 +20,9 @@ namespace topmeperp_v1
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+           
+            //add for log4net configuration by ph
+            log4net.Config.XmlConfigurator.Configure();
         }
     }
 }

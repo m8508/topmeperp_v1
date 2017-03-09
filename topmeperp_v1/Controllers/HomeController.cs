@@ -1,30 +1,91 @@
-﻿using System;
+﻿using log4net;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Security;
+using topmeperp.Filter;
+using topmeperp.Models;
+using topmeperp.Service;
 
-namespace topmeperp_v1.Controllers
+namespace topmeperp.Controllers
 {
+    [AuthFilter]
     public class HomeController : Controller
     {
+        private static log4net.ILog Log { get; set; }
+        ILog log = log4net.LogManager.GetLogger(typeof(HomeController));
+
+        private UserService user;
+
+        [AllowAnonymous]
         public ActionResult Index()
         {
+            log.Info("log4net test!!");
             return View();
         }
 
-        public ActionResult About()
+        //
+        // GET: /Home/Login
+        [AllowAnonymous]
+        //List<SYS_FUNCTION> functions = null;
+       
+        public ActionResult Login(string returnUrl)
         {
-            ViewBag.Message = "Your application description page.";
-
+            log.Info("log4net test Login by get!!");
+            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
-
-        public ActionResult Contact()
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        UserService u = null;
+        //
+        // POST: /Home/Login
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public ActionResult Login(SYS_USER model, string returnUrl)
         {
-            ViewBag.Message = "Your contact page.";
+            log.Info("log4net test Login by post:" + model.EMAIL + "," + model.PASSWORD);
+            getPrivilegeByUser(model.EMAIL, model.PASSWORD);
+            //2.檢查權限是否存在
+            if (null == u)
+            {
+                //2.1 當帳號不存在時，將View 設回首頁同時帶入錯誤訊息               
+                log.Info("Login fail");
+                ViewBag.ErrorMessage = "帳號密碼有誤，請洽系統管理者!!";
+                return View();
 
-            return View();
+            } 
+            else
+            {
+                //3.登入成功導入功能主畫面
+                log.Info("Login Success by :" + model.EMAIL);
+                return RedirectToAction("Index", "Home");
+            }
+          
+        }
+
+        private void getPrivilegeByUser(String userid, String passwd)
+        {
+            u = new UserService();
+            u.Login(userid, passwd);
+            Session.Add("user", u.loginUser);
+            Session.Add("functions", u.userPrivilege);   
+        }
+        public ActionResult Logout()
+        {
+            SYS_USER u = (SYS_USER)Session["user"];
+            log.Info(u.USER_ID + " Logout!!");
+            //1.清空Session 
+            Session.RemoveAll();
+            //2.導回登入頁
+            return RedirectToAction("Login", "Home");
+
         }
     }
 }
