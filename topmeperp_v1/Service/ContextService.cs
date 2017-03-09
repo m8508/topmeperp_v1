@@ -30,24 +30,28 @@ namespace topmeperp.Service
         public SYS_USER Login(String userid, String passwd)
         {
             loginUser = null;
-            logger.Info("userid=" + userid + ",passwd=" + passwd);
             using (var context = new topmepEntities())
             {
-                loginUser = context.SYS_USER.SqlQuery("select u.* from SYS_USER u "
-                    + "where u.USER_ID = @userid "
-                    + "and u.PASSWORD = @passwd "
-                   , new SqlParameter("userid", userid), new SqlParameter("passwd", passwd)).First();
-            }
-            
-            
-                logger.Info("get user info=" + loginUser);
-                if (null != loginUser)
+                try
                 {
-                    getPrivilege(userid, passwd);
+                    loginUser = context.SYS_USER.SqlQuery("select u.* from SYS_USER u "
+                        + "where u.USER_ID = @userid "
+                        + "and u.PASSWORD = @passwd "
+                       , new SqlParameter("userid", userid), new SqlParameter("passwd", passwd)).First();
                 }
-                return loginUser;
+                catch (Exception e)
+                {
+                    logger.Error("login fail:" + e.StackTrace);
+                }
             }
-        
+            logger.Info("get user info=" + loginUser);
+            if (null != loginUser)
+            {
+                getPrivilege(userid, passwd);
+            }
+            return loginUser;
+        }
+
         private void getPrivilege(String userid, String passwd)
         {
             userPrivilege = null;
@@ -72,12 +76,6 @@ namespace topmeperp.Service
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         TND_PROJECT project = null;
-        public void test()
-        {
-            TND_PROJECT p = new TND_PROJECT();
-            p.PROJECT_NAME = "test";
-            newProject(p);
-        }
         public void newProject(TND_PROJECT prj)
         {
             //1.建立專案基本資料
