@@ -89,11 +89,21 @@ namespace topmeperp.Service
             }
             //2.建立任務分配表
         }
+        public int delItemByProjectId(string prjid)
+        {
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                i = context.Database.ExecuteSqlCommand("DELETE FROM TND_PROJECT_ITEM WHERE PROJECTID = {0}", prjid);
+                logger.Debug("delete project_item by projectID=" + prjid +",count="+ i);
+            }
+            return i;
+        }
         public void impProjectItem()
         {
             ///1.匯入Excel 內容
         }
-        
+
 
     }
     /*
