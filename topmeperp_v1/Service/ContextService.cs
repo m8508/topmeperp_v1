@@ -81,7 +81,8 @@ namespace topmeperp.Service
             //1.建立專案基本資料
             logger.Info("create new project ");
             using (var context = new topmepEntities())
-            {
+
+{
                 context.TND_PROJECT.Add(prj);
                 int i = context.SaveChanges();
                 logger.Debug("Add project=" + i);
@@ -89,30 +90,20 @@ namespace topmeperp.Service
             }
             //2.建立任務分配表
         }
-        public void newTask(TND_TASKASSIGN task)
+        public int delItemByProjectId(string prjid)
         {
-            logger.Info("assign task");
-            using (var taskassign = new topmepEntities())
-            {
-                taskassign.TND_TASKASSIGN.Add(task);
-                int j = taskassign.SaveChanges();
-                logger.Debug("Add taskitem=" + j);
-                //if (j > 0) { status = true; };
-            }
-        }
-        public TND_PROJECT getProjectById(string prjid)
-        {
+            int i = 0;
             using (var context = new topmepEntities())
             {
-                project = context.TND_PROJECT.SqlQuery("select p.* from TND_PROJECT p "
-                    + "where p.PROJECT_ID = @pid "
-                   , new SqlParameter("pid", prjid)).First();
+                i = context.Database.ExecuteSqlCommand("DELETE FROM TND_PROJECT_ITEM WHERE PROJECTID = {0}", prjid);
+                logger.Debug("delete project_item by projectID=" + prjid +",count="+ i);
             }
-            return project;
+            return i;
         }
         public void impProjectItem()
         {
             ///1.匯入Excel 內容
+            ///TEST To GitHub/ other Update 2
         }
 
 
