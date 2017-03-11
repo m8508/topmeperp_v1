@@ -1,0 +1,33 @@
+﻿@model topmeperp.Models.TND_PROJECT
+@{
+    ViewBag.Title = "備標作業-專案主頁";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+
+<div class="container">
+        <h2>專案主頁</h2>
+    <div>
+        <h3>專案基本資料</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.PROJECT_ID)</th>
+                    <th>@Html.DisplayNameFor(model => model.PROJECT_NAME)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>@Html.DisplayFor(model => model.PROJECT_ID)</td>
+                    <td>@Html.DisplayFor(model => model.PROJECT_NAME)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    </div><br/><br/><br/>
+<div>
+    <h3>工作分派明細表</h3>
+</div>
+<br /><br /><br />
+<div>
+    <h3>檔案上傳區</h3>
+</div>

@@ -3,6 +3,9 @@
     <tr>
         <th></th>
         <th>
+            @Html.DisplayNameFor(model => model.PROJECT_ID)
+        </th>
+        <th>
             @Html.DisplayNameFor(model => model.PROJECT_NAME)
         </th>
         <th>
@@ -18,15 +21,6 @@
             @Html.DisplayNameFor(model => model.STATUS)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.MODIFY_USER_ID)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.MODIFY_DATE)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.CREATE_USER_ID)
-        </th>
-        <th>
             @Html.DisplayNameFor(model => model.CREATE_DATE)
         </th>
     </tr>
@@ -35,9 +29,12 @@
     {
         <tr>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { id = item.PROJECT_ID }) |
-                @Html.ActionLink("Details", "Details", new { id = item.PROJECT_ID }) |
-                @Html.ActionLink("Delete", "Delete", new { id = item.PROJECT_ID })
+                @Html.ActionLink("修改", "Edit", new { id = item.PROJECT_ID }) |
+                @Html.ActionLink("專案主頁", "Details", new { id = item.PROJECT_ID }) |
+                @Html.ActionLink("新增詢價單", "RFQ", new { id = item.PROJECT_ID }) 
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PROJECT_ID)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.PROJECT_NAME)
@@ -53,15 +50,6 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.STATUS)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MODIFY_USER_ID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MODIFY_DATE)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CREATE_USER_ID)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CREATE_DATE)

@@ -89,11 +89,32 @@ namespace topmeperp.Service
             }
             //2.建立任務分配表
         }
+        public void newTask(TND_TASKASSIGN task)
+        {
+            logger.Info("assign task");
+            using (var taskassign = new topmepEntities())
+            {
+                taskassign.TND_TASKASSIGN.Add(task);
+                int j = taskassign.SaveChanges();
+                logger.Debug("Add taskitem=" + j);
+                //if (j > 0) { status = true; };
+            }
+        }
+        public TND_PROJECT getProjectById(string prjid)
+        {
+            using (var context = new topmepEntities())
+            {
+                project = context.TND_PROJECT.SqlQuery("select p.* from TND_PROJECT p "
+                    + "where p.PROJECT_ID = @pid "
+                   , new SqlParameter("pid", prjid)).First();
+            }
+            return project;
+        }
         public void impProjectItem()
         {
             ///1.匯入Excel 內容
         }
-        
+
 
     }
     /*
