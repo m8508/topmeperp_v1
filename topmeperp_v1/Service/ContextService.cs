@@ -81,7 +81,8 @@ namespace topmeperp.Service
             //1.建立專案基本資料
             logger.Info("create new project ");
             using (var context = new topmepEntities())
-            {
+
+{
                 context.TND_PROJECT.Add(prj);
                 int i = context.SaveChanges();
                 logger.Debug("Add project=" + i);
@@ -102,7 +103,7 @@ namespace topmeperp.Service
         public void impProjectItem()
         {
             ///1.匯入Excel 內容
-            ///TEST To GitHub
+            ///TEST To GitHub/ other Update
         }
 
 
