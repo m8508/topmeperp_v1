@@ -1,4 +1,5 @@
-﻿@model topmeperp.Models.TND_PROJECT
+﻿@using topmeperp.Models
+@model TND_PROJECT
 @{
     ViewBag.Title = "備標作業-新增專案";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
@@ -198,153 +199,90 @@
         }
     </div>
 </div>
-<br/><br/>
-    <div class="container-fluid">
-        <div class="col-md-12">
-            <h3>工作分派</h3>
-        </div>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    
-                        <th>勾選</th>
-                        <th>工作任務</th>
-                        <th>負責人員</th>
-                        <th>負責項目</th>
-                        <th>預定完成時間</th>
-                        <th>簽名</th>
-                 </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <div class="col-2">
-                            <input type="checkbox">
-                        </div>
-                    </td>
-                    <td>
-                        <select class="form-control">
-                            <option>11111111</option>
-                            <option>22222222</option>
-                            <option>33333333</option>
-                            <option>44444444</option>
-                            <option>55555555</option>
-                        </select>
-                    </td>
-                    <td>
-                        <label class="input">
-                            <i class="icon-append fa fa-user"></i>
-                            @Html.TextBox("projectid")
-                        </label>
-                    </td>
-                    <td>
-                        <label class="input">
-                            <i class="icon-append fa fa-user"></i>
-                            @Html.TextBox("projectid")
-                        </label>
-                    </td>
-                    <td>
-                        <label class="input">
-                            <i class="icon-append fa fa-user"></i>
-                            @Html.TextBox("projectid")
-                        </label>
-                    </td>
-                    <td>
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">2</th>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-            </tbody>
-        </table><br />
-    </div>
-    <div class="container">
-        <div class="row">
-            <label class="col-4 control-label">備註 : </label>
-            <textarea class="form-control" rows="6"></textarea>
-            <div class="container">
-                <button id="newTask" type="button" class="btn btn-xs btn-info">
-                    新增
-                </button>
 
-                <table style="width:100%;">
-                    <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
-                    <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
-                    <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
-                </table>
-            </div>
-        </div>
-    </div><br /><br /><br />
-    <div class="container-fluid">
+<br /><br />
+<div class="container-fluid">
     <div class="col-md-12">
         <h3>工作分派</h3>
     </div>
-        <form id="form1">
-            <table border="0">
-                <tr><td></td>
-                <tr>
-                    <td>
-                        <table border="1">
-                            <tr>
-                                <td>工作任務</td>
-                                <td>負責人員</td>
-                                <td>負責項目</td>
-                                <td>預定完成時間</td>
-                                <td>簽名</td>
-                            <tr>
-                                <td>
-                                    <div id="DropDownListDiv1">
-                                        <span style="display: inline-block;height: 24px;" id="td1_1"><select id="DropDownList_1" name="DropDownList_1"><option value="清圖">清圖</option><option value="採購">採購</option></select></span><br />
-                                    </div>
-                                <td>
-                                    <div id="TextBoxDiv1">
-                                        <span style="display: inline-block;height: 24px;" id="td2_1"><input type="text" id="TextBox_Username1" name="TextBox_Username1" value="this is Username1" /></span><br />
-                                    </div>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
 
-                                <td>
-                                    <div id="TextBoxDiv2">
-                                        <span style="display: inline-block;height: 24px;" id="td3_1"><input type="text" id="TextBox_Tel1" name="TextBox_Tel1" value="this is TextBox_Tel1" /></span><br />
-                                    </div>
+                <th>勾選</th>
+                <th>工作任務</th>
+                <th>負責人員</th>
+                <th>負責項目</th>
+                <th>預定完成時間</th>
+                <th>簽名</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <div class="col-2">
+                        <input type="checkbox">
+                    </div>
+                </td>
+                <td>
+                    <select class="form-control">
+                        <option>11111111</option>
+                        <option>22222222</option>
+                        <option>33333333</option>
+                        <option>44444444</option>
+                        <option>55555555</option>
+                    </select>
+                </td>
+                <td>
+                    <label class="input">
+                        <i class="icon-append fa fa-user"></i>
+                        @Html.TextBox("projectid")
+                    </label>
+                </td>
+                <td>
+                    <label class="input">
+                        <i class="icon-append fa fa-user"></i>
+                        @Html.TextBox("projectid")
+                    </label>
+                </td>
+                <td>
+                    <label class="input">
+                        <i class="icon-append fa fa-user"></i>
+                        @Html.TextBox("projectid")
+                    </label>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <th scope="row">2</th>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table><br />
+</div>
+<div class="container">
+    <div class="row">
+        <label class="col-4 control-label">備註 : </label>
+        <textarea class="form-control" rows="6"></textarea>
+        <div class="container">
+            <button id="newTask" type="button" class="btn btn-xs btn-info">
+                新增
+            </button>
 
-                                <td>
-                                    <div id="TextBoxDiv3">
-                                        <span style="display: inline-block;height: 24px;" id="td4_1"><input type="text" id="TextBox_Tel2" name="TextBox_Tel2" value="this is TextBox_Tel2" /></span><br />
-                                    </div>
-                                <td>
-                                <td>
-                                    <div id="ButtonDiv1">
-                                        <span style="display: inline-block;height: 24px;" id="td5_1"><input type="button" value="Delete" id="deleteButton1" name="deleteButton1" onclick="delete_item(1)"></span><br />
-                                    </div>
-                        </table>
-                    </td>
-
-            </table><br/>
-
-            <div id="ContentDiv">
-                <input type="button" id="button1" value="增加一筆" />
-                <input type="hidden" id="Count" name="Count" value="2" />
-                <input type="hidden" id="Count_now_records" name="Count_now_records" value="1" />
-                <asp:Button ID="Button1" Text="儲存" OnClick="Button1_Click" />
-
-
-                <div id="ShowValueDiv">
-                    <asp:Label ID="Label1"></asp:Label>
-                    <br>--------<br>
-                    <asp:Label ID="Label2"></asp:Label>
-                    <br>--------<br>
-                    <asp:Label ID="Label3"></asp:Label>
-                    <br>--------<br>
-                    <asp:Label ID="Label4"></asp:Label>
-                    <br>--------<br>
-                    <asp:Label ID="Label5"></asp:Label>
-                </div>
-            </div>
-
-            <asp:Label ID="Label99" Text=""></asp:Label>
-        </form>
+            <table style="width:100%;">
+                <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            </table>
+        </div>
+    </div>
+</div><br /><br /><br />
+<div>
+    @{
+        Html.RenderPartial("Task");
+    }
 </div>

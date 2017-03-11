@@ -10,9 +10,12 @@
     </form>
     <br />
     <h4><span class='glyphicon glyphicon-plus' aria-hidden='true'></span>  @Html.ActionLink("新增專案", "Create")</h4>
-
-
-</div>
+</div><br />
+<div>
+    @{
+        Html.RenderAction("Upload");
+    }
+</div><br /><br />
 <div>
     @ViewBag.SearchResult
     @if (null != Model)
@@ -22,4 +25,3 @@
 </div>
 
 <!--專案列表區域-->
-

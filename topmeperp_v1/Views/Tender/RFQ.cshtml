@@ -1,0 +1,26 @@
+﻿@{
+    ViewBag.Title = "備標作業-新增詢價單";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+<!--專案搜尋區條件區域-->
+<div class="container">
+    <form name="FormSearchProjectItem" id="FormSearchProjectItem" action="Search" method="Post">
+        九宮格: <input id="textCode1" name="textCode1" type="text" />
+        <input id="Submit1" type="submit" value="查詢" />
+        次九宮格: <input id="textCode2" name="textCode2" type="text" />
+        <input id="Submit1" type="submit" value="查詢" /><br />
+        主系統: <input id="textSystemMain" name="textSystemMain" type="text" />
+        <input id="Submit1" type="submit" value="查詢" />
+        次系統: <input id="textSystemSub" name="textSystemSub" type="text" />
+        <input id="Submit1" type="submit" value="查詢" />
+    </form>
+</div><br /><br />
+<div>
+    @ViewBag.SearchResult
+    @if (null != Model)
+    {
+        Html.RenderPartial("~/ Views / Inquiry /Index.cshtml");
+    }
+</div>
+
+<!--專案列表區域-->

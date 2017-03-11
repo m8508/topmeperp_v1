@@ -1,0 +1,63 @@
+﻿@model IEnumerable<topmeperp.Models.TND_PROJECT_ITEM>
+<table class="table">
+    <tr>
+        <th>勾選</th>
+        <th>
+            @Html.DisplayNameFor(model => model.ITEM_ID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ITEM_DESC)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ITEM_UNIT)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ITEM_QUANTITY)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ITEM_UNIT_PRICE)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.MAN_PRICE)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ITEM_REMARK)
+        </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.PROJECT_ID }) |
+                @Html.ActionLink("Details", "Details", new { id = item.PROJECT_ID }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.PROJECT_ID })
+            </td>
+            <td><input type="checkbox"></td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ITEM_ID)
+            <td>
+                @Html.DisplayFor(modelItem => item.ITEM_DESC)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ITEM_UNIT)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ITEM_QUANTITY)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ITEM_UNIT_PRICE)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MAN_PRICE)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ITEM_REMARK)
+            </td>
+        </tr>
+    }
+
+</table>
+
+

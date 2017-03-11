@@ -1,0 +1,77 @@
+﻿@{
+    ViewBag.Title = "工作任務分派";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+<div class="container-fluid">
+    <div class="col-md-12">
+        <h2>工作分派</h2>
+    </div>
+    <form id="form1">
+        <table border="0">
+            <tr><td></td>
+            <tr>
+                <td>
+                    <table border="1">
+                        <tr>
+                            <td>工作任務</td>
+                            <td>負責人員</td>
+                            <td>負責項目</td>
+                            <td>預定完成時間</td>
+                            <td>簽名</td>
+                        <tr>
+                            <td>
+                                <div id="DropDownListDiv1">
+                                    <span style="display: inline-block;height: 24px;" id="td1_1"><select id="DropDownList_1" name="DropDownList_1"><option value="清圖">清圖</option><option value="採購">採購</option></select></span><br />
+                                </div>
+                            <td>
+                                <div id="TextBoxDiv1">
+                                    <span style="display: inline-block;height: 24px;" id="td2_1"><input type="text" id="TextBox_Username1" name="TextBox_Username1" value="this is Username1" /></span><br />
+                                </div>
+
+                            <td>
+                                <div id="TextBoxDiv2">
+                                    <span style="display: inline-block;height: 24px;" id="td3_1"><input type="text" id="TextBox_Tel1" name="TextBox_Tel1" value="this is TextBox_Tel1" /></span><br />
+                                </div>
+
+                            <td>
+                                <div id="TextBoxDiv3">
+                                    <span style="display: inline-block;height: 24px;" id="td4_1"><input type="text" id="TextBox_Tel2" name="TextBox_Tel2" value="this is TextBox_Tel2" /></span><br />
+                                </div>
+                            <td>
+                            <td>
+                                <div id="ButtonDiv1">
+                                    <span style="display: inline-block;height: 24px;" id="td5_1"><input type="button" value="Delete" id="deleteButton1" name="deleteButton1" onclick="delete_item(1)"></span><br />
+                                </div>
+                    </table>
+                </td>
+
+        </table><br />
+
+        <div id="ContentDiv">
+            <input type="button" id="button1" value="增加一筆" />
+            <input type="hidden" id="Count" name="Count" value="2" />
+            <input type="hidden" id="Count_now_records" name="Count_now_records" value="1" />
+            <asp:Button ID="Button1" Text="儲存" OnClick="Button1_Click" />
+
+
+            <div id="ShowValueDiv">
+                <asp:Label ID="Label1"></asp:Label>
+                <br>--------<br>
+                <asp:Label ID="Label2"></asp:Label>
+                <br>--------<br>
+                <asp:Label ID="Label3"></asp:Label>
+                <br>--------<br>
+                <asp:Label ID="Label4"></asp:Label>
+                <br>--------<br>
+                <asp:Label ID="Label5"></asp:Label>
+            </div>
+        </div>
+
+        <asp:Label ID="Label99" Text=""></asp:Label>
+    </form>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" value="Task" class="btn btn-default" />
+        </div>
+    </div>
+</div>

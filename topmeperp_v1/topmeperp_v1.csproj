@@ -233,6 +233,7 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\InquiryController.cs" />
     <Compile Include="Controllers\TenderController.cs" />
     <Compile Include="Controllers\UserManageController.cs" />
     <Compile Include="Filter\TopmepFilter.cs" />
@@ -539,6 +540,12 @@
     <Content Include="Views\Tender\Edit.cshtml" />
     <Content Include="Views\UserManage\Index.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Tender\Details.cshtml" />
+    <Content Include="Views\Tender\Task.cshtml" />
+    <Content Include="Views\Tender\Upload.cshtml" />
+    <Content Include="Views\Tender\RFQ.cshtml" />
+    <Content Include="Views\Inquiry\Index.cshtml" />
+    <Content Include="Views\Tender\InquiryList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
