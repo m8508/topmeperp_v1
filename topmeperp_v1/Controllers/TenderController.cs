@@ -59,7 +59,7 @@ namespace topmeperp.Controllers
         {
             logger.Info("project detail page pojectid = " + id);
             TnderProject service = new TnderProject();
-            TND_PROJECT p = service.getProjectById(id);
+            TND_PROJECT p = null;// service.getProjectById(id);
             return View(p);
         }
 
