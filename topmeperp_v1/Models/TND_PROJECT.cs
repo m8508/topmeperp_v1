@@ -32,5 +32,6 @@ namespace topmeperp.Models
         public string CONTACT_EMAIL { get; set; }
         public Nullable<System.DateTime> RECEIVED_DATE { get; set; }
         public Nullable<System.DateTime> TENDER_DATE { get; set; }
+        public string CONTRUCTION_ADDRESS { get; set; }
     }
 }

@@ -29,14 +29,12 @@
 
         });
         $(function () {
-            $('#datetimepicker1').datetimepicker({
-                viewMode: 'years',
+            $('#received_date').datetimepicker({
                 format: 'YYYY/MM/DD'
             });
         });
         $(function () {
-            $('#datetimepicker2').datetimepicker({
-                viewMode: 'years',
+            $('#tender_date').datetimepicker({
                 format: 'YYYY/MM/DD'
             });
         });
@@ -52,166 +50,132 @@
             <fieldset>
                 <section>
                     <div class="row">
-                        <div class="col-6">
-                            <label class="col-4 control-label">專案編號 : </label>
-                            <div class="col-8">
-                                <label class="input">
-                                    <i class="icon-append fa fa-user"></i>                             
-                                    @Html.TextBoxFor( m => m.PROJECT_ID, new { @class = "form-control" })
-                                </label>
-                            </div>
+                        <label class="col-md-2 control-label">專案編號 : </label>
+                        <div class="col-md-10">
+                            <label class="input">
+                                @Html.TextBoxFor(m => m.PROJECT_ID, new { @class = "form-control" })
+                            </label>
                         </div>
                     </div>
                 </section>
 
                 <section>
                     <div class="row">
-                        <div class="col-6">
-                            <label class="col-4 control-label">專案名稱 : </label>
-                            <div class="col-8">
-                                <label class="input">
-                                    <i class="icon-append fa fa-user"></i>
-                                    @Html.TextBoxFor(m => m.PROJECT_NAME, new { @class = "form-control" })
-                                </label>
-                            </div>
+                        <label class="col-md-2 control-label">專案名稱 : </label>
+                        <div class="col-md-10">
+                            <label class="input">
+                                @Html.TextBoxFor(m => m.PROJECT_NAME, new { @class = "form-control" })
+                            </label>
                         </div>
                     </div>
                 </section>
 
                 <section>
                     <div class="row">
-                        <div class="col-6">
-                            <label class="col-4 control-label">工程名稱 : </label>
-                            <div class="col-8">
-                                <label class="input">
-                                    <i class="icon-append fa fa-user"></i>
-                                    @Html.TextBoxFor(m => m.CONTRUCTION_NAME, new { @class = "form-control" })
-                                </label>
-                            </div>
+                        <label class="col-md-2 control-label">工程名稱 : </label>
+                        <div class="col-md-10">
+                            <label class="input">
+                                @Html.TextBoxFor(m => m.CONTRUCTION_NAME, new { @class = "form-control" })
+                            </label>
                         </div>
                     </div>
                 </section>
                 <section>
                     <div class="row">
-                        <div class="col-6">
-                            <label class="col-4 control-label">標案地址 : </label>
-                            <div class="col-8">
-                                <label class="input">
-                                    <i class="icon-append fa fa-user"></i>
-                 
-                                </label>
-                            </div>
+                        <label class="col-md-2 control-label">標案地址 : </label>
+                        <div class="col-md-10">
+                            <label class="input">
+                                @Html.TextBoxFor(m => m.CONTRUCTION_ADDRESS, new { @class = "form-control" })
+                            </label>
                         </div>
                     </div>
                 </section>
                 <section>
                     <div class="row">
-                        <div class="col-6">
-                            <label class="col-4 control-label">業主 : </label>
-                            <div class="col-8">
-                                <label class="input">
-                                    <i class="icon-append fa fa-user"></i>
-                                    @Html.TextBoxFor(m => m.OWNER_USER_ID, new { @class = "form-control" })
-                                </label>
-                            </div>
+                        <label class="col-md-2 control-label">業主 : </label>
+                        <div class="col-md-10">
+                            <label class="input">
+                                @Html.TextBoxFor(m => m.OWNER_USER_ID, new { @class = "form-control" })
+                            </label>
                         </div>
                     </div>
                 </section>
 
                 <section>
                     <div class="row">
-                        <div class="col-6">
-                            <label class="col-4 control-label">聯絡人 : </label>
-                            <div class="col-8">
-                                <label class="input">
-                                    <i class="icon-append fa fa-user"></i>
-                                    @Html.TextBoxFor(m =>m.CONTACT_NAME, new { @class = "form-control" })
-                                </label>
-                            </div>
+                        <label class="col-md-2 control-label">聯絡人 : </label>
+                        <div class="col-md-10">
+                            <label class="input">
+                                @Html.TextBoxFor(m => m.CONTACT_NAME, new { @class = "form-control" })
+                            </label>
                         </div>
                     </div>
                 </section>
                 <section>
                     <div class="row">
-                        <div class="col-6">
-                            <label class="col-4 control-label">E-mail : </label>
-                            <div class="col-8">
-                                <label class="input">
-                                    <i class="icon-append fa fa-user"></i>
-                                    @Html.TextBoxFor(m => m.CONTACT_EMAIL, new { @class = "form-control" })
-                                </label>
-                            </div>
+                        <label class="col-md-2 control-label">E-mail : </label>
+                        <div class="col-md-10">
+                            <label class="input">
+                                @Html.TextBoxFor(m => m.CONTACT_EMAIL, new { @class = "form-control" })
+                            </label>
                         </div>
                     </div>
                 </section>
                 <section>
                     <div class="row">
-                        <div class="col-6">
-                            <label class="col-4 control-label">電話 : </label>
-                            <div class="col-8">
-                                <label class="input">
-                                    <i class="icon-append fa fa-user"></i>
-                                   @Html.TextBoxFor(m => m.CONTACT_PHONE, new { @class = "form-control" })
-                                </label>
-                            </div>
+                        <label class="col-md-2 control-label">電話 : </label>
+                        <div class="col-md-10">
+                            <label class="input">
+                                @Html.TextBoxFor(m => m.CONTACT_PHONE, new { @class = "form-control" })
+                            </label>
                         </div>
                     </div>
                 </section>
 
                 <section>
                     <div class="row">
-                        <div class="col-6">
-                            <label class="col-4 control-label">傳真 : </label>
-                            <div class="col-8">
-                                <label class="input">
-                                    <i class="icon-append fa fa-user"></i>
-                                   @Html.TextBoxFor(m => m.CONTACT_FAX, new { @class = "form-control" })
-                                </label>
-                            </div>
+                        <label class="col-md-2 control-label">傳真 : </label>
+                        <div class="col-md-10">
+                            <label class="input">
+                                @Html.TextBoxFor(m => m.CONTACT_FAX, new { @class = "form-control" })
+                            </label>
                         </div>
                     </div>
                 </section>
 
 
                 <div class="row">
-                    <div class="col-6">
-                        <label class="col-4 control-label">收件日期 : </label>
-                        <div class='input-group date'>
-                            <input type='text' id='datetimepicker1' />
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-6">
-                        <label class="col-4 control-label">預計投標日期 : </label>
-                        <div class='input-group date'>
-                            <input type='text' id='datetimepicker2' />
-                        </div>
+                    <label class="col-md-2 control-label">收件日期 : </label>
+                    <div class='col-md-10 date'>
+                        <input type='text' id='received_date' name='received_date' />
                     </div>
                 </div>
 
                 <div class="row">
-                    <div class="col-6">
-                        <label class="col-4 control-label">開始Row: </label>
-                        <div class='input-group'>
+                    <label class="col-md-2 control-label">預計投標日期 : </label>
+                    <div class='col-md-10 date'>
+                        <input type='text' id='tender_date' name='tender_date' />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <label class="col-md-2 control-label">開始Row: </label>
+                    <div class='col-md-10'>
+                        <label class="input">
                             @Html.TextBoxFor(m => m.START_ROW_NO, new { @class = "form-control" })
-                        </div>
+                        </label>
                     </div>
                 </div>
 
                 <div class="row">
-                    <div class="col-6">
-                        <label class="col-4 control-label">整理後標單檔案: </label>
-                        <div class='input-group'>
-                            <input type="file" name="file" id="file" />
-                        </div>
+                    <label class="col-md-2 control-label">整理後標單檔案: </label>
+                    <div class='col-md-10'>
+                        <input type="file" name="file" id="file" />
                     </div>
                 </div>
                 <div class="row">
-                    <div class="form-group">
-                        <div class="col-md-offset-2 col-md-10">
-                            <input type="submit" value="新增" class="btn btn-default" />
-                        </div>
+                    <div class="" col-md-6">
+                        <input type="submit" value="新增" class="btn btn-default" />
                     </div>
                 </div>
             </fieldset>
