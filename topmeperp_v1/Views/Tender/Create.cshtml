@@ -42,9 +42,9 @@
 </script>
 <div class="container">
     <div class="col-md-12">
-        <!-- Reg-Form -->
-        @using (Html.BeginForm("Create", "Tender", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "sky-form", role = "form" }))
-            {
+        <!-- Reg-Form new { enctype = "multipart/form-data" } -->
+        @using (Html.BeginForm("Create", "Tender", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "sky-form", role = "form", enctype = "multipart/form-data" }))
+        {
             <h3>專案</h3>
             <br />
             <fieldset>

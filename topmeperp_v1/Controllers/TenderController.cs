@@ -37,10 +37,16 @@ namespace topmeperp.Controllers
         [HttpPost]
         public ActionResult Create(TND_PROJECT prj, HttpPostedFileBase file)
         {
-            logger.Info("create project process! project name=" + prj.PROJECT_NAME + ",ProjectId=" + prj.PROJECT_ID + "Log FileName:" + file.FileName);
-            
-            TnderProject service = new TnderProject();
-            service.newProject(prj);
+            logger.Info("create project process! project name=" + prj.PROJECT_NAME + ",ProjectId=" + prj.PROJECT_ID );
+            //1.更新或新增專案基本資料
+            if (file.ContentLength != 0)
+            {
+                logger.Info("Parser Excel data:" +file.FileName);
+                logger.Info("Delete TND_PROJECT_ITEM By Project ID");
+                logger.Info("Add All TND_PROJECT_ITEM to DB");
+            }
+            //TnderProject service = new TnderProject();
+            //service.newProject(prj);
             return View("~/Views/Tender/Index.cshtml");
         }
         //POST:TaskAssign
