@@ -81,29 +81,52 @@ namespace topmeperp.Service
             //1.建立專案基本資料
             logger.Info("create new project ");
             using (var context = new topmepEntities())
-
-{
+            {
                 context.TND_PROJECT.Add(prj);
                 int i = context.SaveChanges();
                 logger.Debug("Add project=" + i);
                 //if (i > 0) { status = true; };
             }
-            //2.建立任務分配表
         }
-        public int delItemByProjectId(string prjid)
+        //2.建立任務分配表
+        TND_TASKASSIGN task = null;
+        public void newTask(TND_TASKASSIGN task)
         {
-            int i = 0;
+            //1.建立專案基本資料
+            logger.Info("create new task ");
             using (var context = new topmepEntities())
             {
-                i = context.Database.ExecuteSqlCommand("DELETE FROM TND_PROJECT_ITEM WHERE PROJECTID = {0}", prjid);
-                logger.Debug("delete project_item by projectID=" + prjid +",count="+ i);
+                context.TND_TASKASSIGN.Add(task);
+                int i = context.SaveChanges();
+                logger.Debug("Add task=" + i);
+                //if (i > 0) { status = true; };
             }
-            return i;
+        }
+
+        public TND_PROJECT getProjectById(string prjid)
+        {
+            using (var context = new topmepEntities())
+            {
+                project = context.TND_PROJECT.SqlQuery("select p.* from TND_PROJECT p "
+                    + "where p.PROJECT_ID = @pid "
+                   , new SqlParameter("pid", prjid)).First();
+            }
+            return project;
+        }
+       
+        public TND_TASKASSIGN getTaskById(string taskid)
+        {
+            using (var context = new topmepEntities())
+            {
+                task = context.TND_TASKASSIGN.SqlQuery("select t.* from TND_TASKASSIGN t "
+                    + "where t.PROJECT_ID = @taskid "
+                   , new SqlParameter("taskid", taskid)).First();
+            }
+            return task;
         }
         public void impProjectItem()
         {
             ///1.匯入Excel 內容
-            ///TEST To GitHub/ other Update 2
         }
 
 

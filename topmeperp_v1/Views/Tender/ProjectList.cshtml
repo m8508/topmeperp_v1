@@ -3,25 +3,25 @@
     <tr>
         <th></th>
         <th>
-            @Html.DisplayNameFor(model => model.PROJECT_ID)
+            專案編號
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.PROJECT_NAME)
+            專案名稱
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.OWNER_USER_ID)
+            專案負責人
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.EXCEL_FILE_NAME)
+            整理後標單檔名稱
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.START_ROW_NO)
+            整理後標單起始欄
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.STATUS)
+            專案狀態
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.CREATE_DATE)
+            專案建立日期
         </th>
     </tr>
 
@@ -31,6 +31,7 @@
             <td>
                 @Html.ActionLink("修改", "Edit", new { id = item.PROJECT_ID }) |
                 @Html.ActionLink("專案主頁", "Details", new { id = item.PROJECT_ID }) |
+                @Html.ActionLink("工作分派", "Task", new { id = item.PROJECT_ID }) |
                 @Html.ActionLink("新增詢價單", "RFQ", new { id = item.PROJECT_ID })
             </td>
             <td>

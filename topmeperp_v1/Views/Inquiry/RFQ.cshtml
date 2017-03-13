@@ -1,0 +1,61 @@
+﻿@model IEnumerable<topmeperp.Models.TND_PROJECT_ITEM>
+<table class="table">
+    <tr>
+        <th></th>
+        <th>勾選</th>
+        <th>
+            項次
+        </th>
+        <th>
+            項目說明
+        </th>
+        <th>
+            單位
+        </th>
+        <th>
+            數量
+        </th>
+        <th>
+            單價
+        </th>
+        <th>
+            複價
+        </th>
+        <th>
+            備註
+        </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.PROJECT_ITEM_ID }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.PROJECT_ITEM_ID })
+            </td>
+            <td><input type="checkbox" id="#"></td>
+            <td>
+                @Html.DisplayFor(model => item.ITEM_ID)
+            <td>
+                @Html.DisplayFor(model => item.ITEM_DESC)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.ITEM_UNIT)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.ITEM_QUANTITY)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.ITEM_UNIT_PRICE)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.MAN_PRICE)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.ITEM_REMARK)
+            </td>
+        </tr>
+    }
+
+</table>

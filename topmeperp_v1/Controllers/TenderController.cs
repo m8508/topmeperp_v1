@@ -46,23 +46,31 @@ namespace topmeperp.Controllers
         public ActionResult Task()
         {
             logger.Info("task assign page!!");
-            return View();
+            return View(); 
         }
+        
         public ActionResult RFQ()
         {
             logger.Info("inquiry page!!");
-            return View();
+            return RedirectToAction("Index", "Inquiry");
         }
 
         [HttpGet]
         public ActionResult Details(string id)
         {
-            logger.Info("project detail page pojectid = " + id);
+            logger.Info("project detail page projectid = " + id);
             TnderProject service = new TnderProject();
             TND_PROJECT p = service.getProjectById(id);
             return View(p);
         }
-
+        [HttpGet]
+        public ActionResult TaskDetails(string id)
+        {
+            logger.Info("taskassign detail page projectid = " + id);
+            TnderProject service = new TnderProject();
+            TND_TASKASSIGN t = service.getTaskById(id);
+            return View(t);
+        }
         public ActionResult Edit()
         {
             return View();
