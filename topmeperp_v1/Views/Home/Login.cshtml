@@ -15,14 +15,13 @@
                 <hr />
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                 <div class="form-group">
-                    @Html.LabelFor(m => m.EMAIL, new { @class = "col-md-2 control-label" })
+                    <label class="col-md-2 control-label">帳號</label>
                     <div class="col-md-10">
-                        @Html.TextBoxFor(m => m.EMAIL, new { @class = "form-control" })
-                        @Html.ValidationMessageFor(m => m.EMAIL, "", new { @class = "text-danger" })
+                        @Html.TextBoxFor(m => m.USER_ID, new { @class = "form-control" })
                     </div>
                 </div>
                 <div class="form-group">
-                    @Html.LabelFor(m => m.PASSWORD, new { @class = "col-md-2 control-label" })
+                    <label class="col-md-2 control-label">密碼</label>
                     <div class="col-md-10">
                         @Html.PasswordFor(m => m.PASSWORD, new { @class = "form-control" })
                         @Html.ValidationMessageFor(m => m.PASSWORD, "", new { @class = "text-danger" })
@@ -36,9 +35,6 @@
                         <input type="submit" value="登入" class="btn btn-default" />
                     </div>
                 </div>
-                <p>
-                    @Html.ActionLink("註冊為新使用者", "Register")
-                </p>
                 @* 請在啟用密碼重設功能的帳戶確認之後啟用此項目
                     <p>
                         @Html.ActionLink("忘記密碼?", "ForgotPassword")

@@ -42,8 +42,8 @@ namespace topmeperp.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Login(SYS_USER model, string returnUrl)
         {
-            log.Info("log4net test Login by post:" + model.EMAIL + "," + model.PASSWORD);
-            getPrivilegeByUser(model.EMAIL, model.PASSWORD);
+            log.Info("log4net test Login by post:" + model.USER_ID + "," + model.PASSWORD);
+            getPrivilegeByUser(model.USER_ID, model.PASSWORD);
             //2.檢查權限是否存在
             if (null == u)
             {
@@ -56,7 +56,7 @@ namespace topmeperp.Controllers
             else
             {
                 //3.登入成功導入功能主畫面
-                log.Info("Login Success by :" + model.EMAIL);
+                log.Info("Login Success by :" + model.USER_ID);
                 return RedirectToAction("Index", "Home");
             }
           

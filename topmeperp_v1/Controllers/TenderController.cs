@@ -35,9 +35,10 @@ namespace topmeperp.Controllers
             return View();
         }
         [HttpPost]
-        public ActionResult Create(TND_PROJECT prj)
+        public ActionResult Create(TND_PROJECT prj, HttpPostedFileBase file)
         {
-            logger.Info("create project process! project name=" + prj.PROJECT_NAME + ",ProjectId=" + prj.PROJECT_ID);
+            logger.Info("create project process! project name=" + prj.PROJECT_NAME + ",ProjectId=" + prj.PROJECT_ID + "Log FileName:" + file.FileName);
+            
             TnderProject service = new TnderProject();
             service.newProject(prj);
             return View("~/Views/Tender/Index.cshtml");
