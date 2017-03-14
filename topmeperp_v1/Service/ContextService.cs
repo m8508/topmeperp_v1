@@ -199,9 +199,26 @@ namespace topmeperp.Service
             }
             return task;
         }
-        public void impProjectItem()
+        //取得標單品項資料
+        public List<TND_PROJECT_ITEM> getProjectItem(string projectitem1, string projectitem2, string projectitem3, string projectitem4)
         {
-            ///1.匯入Excel 內容
+
+            logger.Info("search projectitem by 九宮格 =" + projectitem1 + "search projectitem by 次九宮格 =" + projectitem2 + "search projectitem by 主系統 =" + projectitem3 + "search projectitem by 次系統 =" + projectitem4);
+            List<topmeperp.Models.TND_PROJECT_ITEM> lstItem = new List<TND_PROJECT_ITEM>();
+            using (var context = new topmepEntities())
+            {
+                lstItem = context.TND_PROJECT_ITEM.SqlQuery("select * from TND_PROJECT_ITEM p "
+                    + "where p.TYPE_CODE_1 Like @typecode1 "
+                    + "or p.TYPE_CODE_2 Like @typecode2 "
+                    + "or p.SYSTEM_MAIN Like @systemMain "
+                    + "or p.SYSTEM_SUB Like  @systemSub",
+                     new SqlParameter("typecode1", "%" + projectitem1 + "%"),
+                     new SqlParameter("typecode2", "%" + projectitem2 + "%"),
+                     new SqlParameter("systemMain", "%" + projectitem3 + "%"),
+                     new SqlParameter("systemSub", "%" + projectitem4 + "%")).ToList();
+            }
+            logger.Info("get projectitem count=" + lstItem.Count);
+            return lstItem;
         }
 
 
