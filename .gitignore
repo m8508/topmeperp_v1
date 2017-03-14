@@ -241,3 +241,4 @@ ModelManifest.xml
 # FAKE - F# Make
 .fake/
 /topmeperp_v1/Web.config
+/topmeperp_v1/UploadFile

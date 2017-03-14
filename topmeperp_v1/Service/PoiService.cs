@@ -164,7 +164,7 @@ namespace topmeperp.Service
             {
                 projectItem.SYSTEM_MAIN = row.Cells[10].ToString();
             }
-            projectItem.PROJECT_ITEM_ID = projId + id;
+            projectItem.PROJECT_ITEM_ID = projId + "-" + id;
             projectItem.EXCEL_ROW_ID = excelrow;
             projectItem.CREATE_DATE = System.DateTime.Now;
 

@@ -1,8 +1,11 @@
 ﻿using log4net;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Data.Entity;
 using System.Data.Entity.Core.Objects;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Web;
 using topmeperp.Models;
@@ -12,6 +15,8 @@ namespace topmeperp.Service
     public class ContextService
     {
         public topmepEntities db;// = new topmepEntities();
+        //定義上傳檔案存放路徑
+        public static string strUploadPath = "~/UploadFile";
 
     }
     /// <summary>
@@ -76,17 +81,87 @@ namespace topmeperp.Service
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         TND_PROJECT project = null;
-        public void newProject(TND_PROJECT prj)
+        string sno_key = "PROJ";
+        public static string UploadFolder = null;
+        public TnderProject()
         {
+            UploadFolder = ConfigurationManager.AppSettings["UploadFolder"];
+            logger.Info("initial upload foler:" + UploadFolder);
+        }
+        public int newProject(TND_PROJECT prj)
+        {
+
             //1.建立專案基本資料
-            logger.Info("create new project ");
+            logger.Info("create new project " + prj.ToString());
+            project = prj;
+            int i = 0;
             using (var context = new topmepEntities())
             {
-                context.TND_PROJECT.Add(prj);
-                int i = context.SaveChanges();
+                //2.取得專案編號
+                SerialKeyService snoservice = new SerialKeyService();
+                project.PROJECT_ID = snoservice.getSerialKey(sno_key);
+                logger.Info("new projecgt object=" + project.ToString());
+                context.TND_PROJECT.Add(project);
+                //3.建立專案存取路徑
+                string projectFolder = UploadFolder + "/" + project.PROJECT_ID;
+                if (Directory.Exists(projectFolder))
+                {
+                    //資料夾存在
+                    logger.Info("Directory Exist:" + projectFolder);
+                }
+                else
+                {
+                    //if directory not exist create it
+                    Directory.CreateDirectory(projectFolder);
+                }
+                i = context.SaveChanges();
                 logger.Debug("Add project=" + i);
-                //if (i > 0) { status = true; };
             }
+            return i;
+        }
+        public int updateProject(TND_PROJECT prj)
+        {
+            //1.建立專案基本資料
+            project = prj;
+            logger.Info("Update project " + project.ToString());
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                context.Entry(project).State = EntityState.Modified;
+                i = context.SaveChanges();
+                logger.Debug("Update project=" + i);
+            }
+            return i;
+        }
+        public int delAllItemByProject()
+        {
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("delete all item by proejct id=" + project.PROJECT_ID);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM TND_PROJECT_ITEM WHERE PROJECT_ID=@projectid", new SqlParameter("@projectid", project.PROJECT_ID));
+            }
+            logger.Debug("delete item count=" + i);
+            return i;
+        }
+        public int refreshProjectItem(List<TND_PROJECT_ITEM> prjItem)
+        {
+            //1.檢查專案是否存在
+            if (null == project) { throw new Exception("Project is not exist !!"); }
+            int i = 0;
+            logger.Info("refreshProjectItem = " + prjItem.Count);
+            //2.將Excel 資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (TND_PROJECT_ITEM item in prjItem)
+                {
+                    item.PROJECT_ID = project.PROJECT_ID;
+                    context.TND_PROJECT_ITEM.Add(item);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("add project item count =" + i);
+            return i;
         }
         //2.建立任務分配表
         TND_TASKASSIGN task = null;
@@ -113,7 +188,7 @@ namespace topmeperp.Service
             }
             return project;
         }
-       
+
         public TND_TASKASSIGN getTaskById(string taskid)
         {
             using (var context = new topmepEntities())
@@ -164,7 +239,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 //1.取得現有序號值
-                string esql = @"SELECT VALUE serialKey FROM TOPMEPEntities.SYS_KEY_SERIAL AS serialKey WHERE serialKey.KEY_ID=@keyId";
+                string esql = @"SELECT * FROM SYS_KEY_SERIAL AS serialKey WHERE serialKey.KEY_ID=@keyId";
                 SnKey = context.SYS_KEY_SERIAL.SqlQuery(esql, new SqlParameter("keyId", keyId)).First();
 
                 logger.Debug("get new key :" + SnKey.KEY_ID + "=" + SnKey.KEY_NO);
