@@ -102,13 +102,6 @@ namespace topmeperp.Controllers
             logger.Info("task assign page!!");
             return View(); 
         }
-        
-        //public ActionResult RFQ(string id)
-        //{
-        //    logger.Info("redirect to Inquery page:projectid=" + id);
-        //    return Redirect("/Inquiry/Index/" + id);
-        //    //return RedirectToAction("Index", "Inquiry");
-        //}
 
         [HttpGet]
         public ActionResult Details(string id)
