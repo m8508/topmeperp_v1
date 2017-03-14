@@ -252,15 +252,6 @@
           </Key>
           <Property Name="PROJECT_ID" Type="varchar" MaxLength="20" Nullable="false" />
           <Property Name="PROJECT_NAME" Type="varchar" MaxLength="200" />
-          <Property Name="CONTRUCTION_NAME" Type="varchar" MaxLength="500" />
-          <Property Name="CONTRUCTION_ADDRESS" Type="varchar" MaxLength="500" />
-          <Property Name="CUSTOMER_NAME" Type="varchar" MaxLength="100" />
-          <Property Name="CONTACT_NAME" Type="varchar" MaxLength="40" />
-          <Property Name="CONTACT_PHONE" Type="varchar" MaxLength="20" />
-          <Property Name="CONTACT_FAX" Type="varchar" MaxLength="20" />
-          <Property Name="CONTACT_EMAIL" Type="varchar" MaxLength="50" />
-          <Property Name="RECEIVED_DATE" Type="datetime" />
-          <Property Name="TENDER_DATE" Type="datetime" />
           <Property Name="OWNER_USER_ID" Type="varchar" MaxLength="30" />
           <Property Name="EXCEL_FILE_NAME" Type="varchar" MaxLength="200" />
           <Property Name="START_ROW_NO" Type="int" />
@@ -269,6 +260,15 @@
           <Property Name="MODIFY_DATE" Type="datetime" />
           <Property Name="CREATE_USER_ID" Type="varchar" MaxLength="30" />
           <Property Name="CREATE_DATE" Type="datetime" />
+          <Property Name="ENG_NAME" Type="varchar" MaxLength="200" />
+          <Property Name="LOCATION" Type="varchar" MaxLength="200" />
+          <Property Name="OWNER_NAME" Type="varchar" MaxLength="100" />
+          <Property Name="CONTACT_NAME" Type="varchar" MaxLength="50" />
+          <Property Name="CONTACT_TEL" Type="varchar" MaxLength="20" />
+          <Property Name="CONTACT_FAX" Type="varchar" MaxLength="20" />
+          <Property Name="CONTACT_EMAIL" Type="varchar" MaxLength="50" />
+          <Property Name="DUE_DATE" Type="datetime" />
+          <Property Name="SCHDL_OFFER_DATE" Type="datetime" />
         </EntityType>
         <EntityType Name="TND_PROJECT_FORM">
           <Key>
@@ -758,15 +758,15 @@
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
           <Property Name="CREATE_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="CONTRUCTION_NAME" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="CUSTOMER_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="CONTACT_NAME" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
-          <Property Name="CONTACT_PHONE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="ENG_NAME" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="LOCATION" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="OWNER_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CONTACT_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="CONTACT_TEL" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="CONTACT_FAX" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="CONTACT_EMAIL" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="RECEIVED_DATE" Type="DateTime" Precision="3" />
-          <Property Name="TENDER_DATE" Type="DateTime" Precision="3" />
-          <Property Name="CONTRUCTION_ADDRESS" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="DUE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="SCHDL_OFFER_DATE" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="TND_PROJECT_FORM">
           <Key>
@@ -1255,15 +1255,15 @@
           <EntitySetMapping Name="TND_PROJECT">
             <EntityTypeMapping TypeName="topmepModel.TND_PROJECT">
               <MappingFragment StoreEntitySet="TND_PROJECT">
-                <ScalarProperty Name="CONTRUCTION_ADDRESS" ColumnName="CONTRUCTION_ADDRESS" />
-                <ScalarProperty Name="TENDER_DATE" ColumnName="TENDER_DATE" />
-                <ScalarProperty Name="RECEIVED_DATE" ColumnName="RECEIVED_DATE" />
+                <ScalarProperty Name="SCHDL_OFFER_DATE" ColumnName="SCHDL_OFFER_DATE" />
+                <ScalarProperty Name="DUE_DATE" ColumnName="DUE_DATE" />
                 <ScalarProperty Name="CONTACT_EMAIL" ColumnName="CONTACT_EMAIL" />
                 <ScalarProperty Name="CONTACT_FAX" ColumnName="CONTACT_FAX" />
-                <ScalarProperty Name="CONTACT_PHONE" ColumnName="CONTACT_PHONE" />
+                <ScalarProperty Name="CONTACT_TEL" ColumnName="CONTACT_TEL" />
                 <ScalarProperty Name="CONTACT_NAME" ColumnName="CONTACT_NAME" />
-                <ScalarProperty Name="CUSTOMER_NAME" ColumnName="CUSTOMER_NAME" />
-                <ScalarProperty Name="CONTRUCTION_NAME" ColumnName="CONTRUCTION_NAME" />
+                <ScalarProperty Name="OWNER_NAME" ColumnName="OWNER_NAME" />
+                <ScalarProperty Name="LOCATION" ColumnName="LOCATION" />
+                <ScalarProperty Name="ENG_NAME" ColumnName="ENG_NAME" />
                 <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
                 <ScalarProperty Name="PROJECT_NAME" ColumnName="PROJECT_NAME" />
                 <ScalarProperty Name="OWNER_USER_ID" ColumnName="OWNER_USER_ID" />

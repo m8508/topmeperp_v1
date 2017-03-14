@@ -11,21 +11,39 @@
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>@Html.DisplayNameFor(model => model.PROJECT_ID)</th>
-                    <th>@Html.DisplayNameFor(model => model.PROJECT_NAME)</th>
+                    <th>專案編號</th>
+                    <th>專案名稱</th>
+                    <th>工程名稱</th>
+                    <th>標案地址</th>
+                    <th>業主</th>
+                    <th>聯絡人</th>
+                    <th>電話</th>
+                    <th>傳真</th>
+                    <th>E-mail</th>
+                    <th>收件日期</th>
+                    <th>預計投標日期</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>@Html.DisplayFor(model => model.PROJECT_ID)</td>
                     <td>@Html.DisplayFor(model => model.PROJECT_NAME)</td>
+                    <td>@Html.DisplayFor(model => model.ENG_NAME)</td>
+                    <td>@Html.DisplayFor(model => model.LOCATION)</td>
+                    <td>@Html.DisplayFor(model => model.OWNER_NAME)</td>
+                    <td>@Html.DisplayFor(model => model.CONTACT_NAME)</td>
+                    <td>@Html.DisplayFor(model => model.CONTACT_TEL)</td>
+                    <td>@Html.DisplayFor(model => model.CONTACT_FAX)</td>
+                    <td>@Html.DisplayFor(model => model.CONTACT_EMAIL)</td>
+                    <td>@Html.DisplayFor(model => model.DUE_DATE)</td>
+                    <td>@Html.DisplayFor(model => model.SCHDL_OFFER_DATE)</td>
                 </tr>
             </tbody>
         </table>
     </div>
 </div><br /><br /><br />
 <div>
-    <h3>工作分派明細表</h3>
+    <h3>工作分派區</h3>
 </div>
 <br /><br /><br />
 <div>
