@@ -3,20 +3,39 @@
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <!--專案搜尋區條件區域-->
+<div class="jumbotron">
+    <div class="row">
+        <div class="col-md-8">
+            <form name="FormSearchProject" id="FormSearchProject" action="Search" method="Post">
+                專案名稱: <input id="textProejctName" name="textProejctName" type="text" />
+                <input id="Submit1" type="submit" value="查詢" />
+            </form>
+            <div id="divProcessing">
+                <img src="~/Content/ajax-loader.gif">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <span class='glyphicon glyphicon-plus' aria-hidden='true'></span>
+            <button class="btn-link">  @Html.ActionLink("新增專案", "Create")</button>
+        </div>
+    </div>
+</div>
+<!--專案列表區域-->
 <div class="container">
-    <form name="FormSearchProject" id="FormSearchProject" action="Search" method="Post">
-        專案名稱: <input id="textProejctName" name="textProejctName" type="text" />
-        <input id="Submit1" type="submit" value="查詢" />
-    </form>
-    <br />
-    <h4><span class='glyphicon glyphicon-plus' aria-hidden='true'></span>  @Html.ActionLink("新增專案", "Create")</h4>
-</div><br />
-<div>
     @ViewBag.SearchResult
     @if (null != Model)
     {
         Html.RenderPartial("ProjectList");
     }
 </div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Hide the "busy" Gif at load:
+        $("#divProcessing").hide();
+        // Attach click handler to the submit button:
+        $('#login').click(function () {
+            $("#divProcessing").show();
+        });
+    });
+</script>
 
-<!--專案列表區域-->

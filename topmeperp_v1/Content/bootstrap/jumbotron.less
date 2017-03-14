@@ -4,9 +4,9 @@
 
 
 .jumbotron {
-  padding-top:    @jumbotron-padding;
-  padding-bottom: @jumbotron-padding;
-  margin-bottom: @jumbotron-padding;
+  padding-top:   10px; // @jumbotron-padding;
+  //padding-bottom: @jumbotron-padding;
+  //margin-bottom: @jumbotron-padding;
   color: @jumbotron-color;
   background-color: @jumbotron-bg;
 
@@ -16,7 +16,7 @@
   }
 
   p {
-    margin-bottom: (@jumbotron-padding / 2);
+    margin-bottom: 10px;//(@jumbotron-padding / 2);
     font-size: @jumbotron-font-size;
     font-weight: 200;
   }
@@ -37,8 +37,8 @@
   }
 
   @media screen and (min-width: @screen-sm-min) {
-    padding-top:    (@jumbotron-padding * 1.6);
-    padding-bottom: (@jumbotron-padding * 1.6);
+    padding-top:    10px;//(@jumbotron-padding * 0.5);
+    padding-bottom: 10px;//(@jumbotron-padding * 0.5);
 
     .container &,
     .container-fluid & {

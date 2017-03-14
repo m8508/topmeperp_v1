@@ -1,5 +1,6 @@
 ﻿using log4net;
 using System;
+using System.Collections.Generic;
 using System.Web.Mvc;
 using topmeperp.Filter;
 using topmeperp.Models;
@@ -12,8 +13,6 @@ namespace topmeperp.Controllers
     {
         private static log4net.ILog Log { get; set; }
         ILog log = log4net.LogManager.GetLogger(typeof(HomeController));
-
-        private UserService user;
 
         [AllowAnonymous]
         public ActionResult Index()
@@ -45,7 +44,7 @@ namespace topmeperp.Controllers
             log.Info("log4net test Login by post:" + model.USER_ID + "," + model.PASSWORD);
             getPrivilegeByUser(model.USER_ID, model.PASSWORD);
             //2.檢查權限是否存在
-            if (null == u)
+            if (null == u.loginUser)
             {
                 //2.1 當帳號不存在時，將View 設回首頁同時帶入錯誤訊息               
                 log.Info("Login fail");
@@ -57,7 +56,9 @@ namespace topmeperp.Controllers
             {
                 //3.登入成功導入功能主畫面
                 log.Info("Login Success by :" + model.USER_ID);
-                return RedirectToAction("Index", "Home");
+                List<SYS_FUNCTION> lst = (List<SYS_FUNCTION>)Session["functions"];
+                log.Debug("redirec to first function=" + lst[0].FUNCTION_URI);
+                return Redirect(lst[0].FUNCTION_URI);
             }
           
         }

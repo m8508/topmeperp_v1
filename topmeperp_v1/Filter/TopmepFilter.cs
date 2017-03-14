@@ -84,10 +84,10 @@ namespace topmeperp.Filter
             {
                 //驗證成功
                 log.Info("session exist!!");
-                if (context.HttpContext.Request.RawUrl == "/")
-                {
-                    log.Info("forward to first function");
-                }
+                //if (context.HttpContext.Request.RawUrl == "/")
+                //{
+                //    log.Info("forward to first function");
+                //}
             }
             else
             {
