@@ -32,13 +32,22 @@
                         </div>
                     </div>
                 </section>
-
                 <section>
                     <div class="row">
                         <label class="col-md-2 control-label">工程名稱 : </label>
                         <div class="col-md-10">
                             <label class="input">
                                 @Html.TextBoxFor(m => m.CONTRUCTION_NAME, new { @class = "form-control" })
+                            </label>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class="row">
+                        <label class="col-md-2 control-label">英文名稱 : </label>
+                        <div class="col-md-10">
+                            <label class="input">
+                                @Html.TextBoxFor(m => m.ENG_NAME, new { @class = "form-control" })
                             </label>
                         </div>
                     </div>
@@ -106,21 +115,23 @@
                     </div>
                 </section>
 
-
-                <div class="row">
-                    <label class="col-md-2 control-label">收件日期 : </label>
-                    <div class='col-md-10 date'>
-                        @Html.TextBoxFor(m => m.DUE_DATE, new { @class = "form-control", @id = "due_date" })
+                <section>
+                    <div class="row">
+                        <label class="col-md-2 control-label">收件日期 : </label>
+                        <div class='col-md-10 date'>
+                            @Html.TextBoxFor(m => m.DUE_DATE, new { @class = "form-control", @id = "due_date" })
+                        </div>
                     </div>
-                </div>
-
-                <div class="row">
-                    <label class="col-md-2 control-label">預計投標日期 : </label>
-                    <div class='col-md-10 date'>
-                        @Html.TextBoxFor(m => m.SCHDL_OFFER_DATE, new { @class = "form-control",@id="schd_offer_date" })
+                </section>
+                <section>
+                    <div class="row">
+                        <label class="col-md-2 control-label">預計投標日期 : </label>
+                        <div class='col-md-10 date'>
+                            @Html.TextBoxFor(m => m.SCHDL_OFFER_DATE, new { @class = "form-control", @id = "schd_offer_date" })
+                        </div>
                     </div>
-                </div>
-
+                </section>
+                <section>
                 <div class="row">
                     <label class="col-md-2 control-label">開始Row: </label>
                     <div class='col-md-10'>
@@ -129,13 +140,15 @@
                         </label>
                     </div>
                 </div>
-
-                <div class="row">
-                    <label class="col-md-2 control-label">整理後標單檔案: </label>
-                    <div class='col-md-10'>
-                        <input type="file" name="file" id="file" />
+                </section>
+                <section>
+                    <div class="row">
+                        <label class="col-md-2 control-label">整理後標單檔案: </label>
+                        <div class='col-md-10'>
+                            <input type="file" name="file" id="file" />
+                        </div>
                     </div>
-                </div>
+                </section>
                 <br />
                 <div class="row">
                     <div class="" col-md-6">
