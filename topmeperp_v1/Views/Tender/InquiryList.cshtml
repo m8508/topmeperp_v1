@@ -1,4 +1,6 @@
-﻿@model IEnumerable<topmeperp.Models.TND_PROJECT_ITEM>
+﻿
+@model IEnumerable<topmeperp.Models.TND_PROJECT_ITEM>
+
 <table class="table">
     <tr>
         <th>勾選</th>
@@ -31,10 +33,9 @@
 
             <td>
                 @Html.ActionLink("Edit", "Edit", new { id = item.PROJECT_ID }) |
-                @Html.ActionLink("Details", "Details", new { id = item.PROJECT_ID }) |
                 @Html.ActionLink("Delete", "Delete", new { id = item.PROJECT_ID })
             </td>
-            <td><input type="checkbox"></td>
+            <td><input type="checkbox" name="itemlist" value="id"></td>
             <td>
                 @Html.DisplayFor(modelItem => item.ITEM_ID)
             <td>
@@ -59,5 +60,10 @@
     }
 
 </table>
+<div class="row">
+    <div class="" col-md-12">
+        <input type="submit" value="儲存" class="btn btn-default" />
+    </div>
+</div>
 
 
