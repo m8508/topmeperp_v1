@@ -31,31 +31,36 @@
         <tr>
 
             <td>
-                @Html.ActionLink("Edit", "Edit", new { id = item.PROJECT_ITEM_ID }) |
-                @Html.ActionLink("Delete", "Delete", new { id = item.PROJECT_ITEM_ID })
+                @Html.ActionLink("Edit", "Edit", new { id = item.PROJECT_ID }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.PROJECT_ID })
             </td>
-            <td><input type="checkbox" id="#"></td>
+            <td><input type="checkbox" name="item[]" value="id"></td>
             <td>
-                @Html.DisplayFor(model => item.ITEM_ID)
+                @Html.DisplayFor(modelItem => item.ITEM_ID)
             <td>
-                @Html.DisplayFor(model => item.ITEM_DESC)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.ITEM_UNIT)
+                @Html.DisplayFor(modelItem => item.ITEM_DESC)
             </td>
             <td>
-                @Html.DisplayFor(model => item.ITEM_QUANTITY)
+                @Html.DisplayFor(modelItem => item.ITEM_UNIT)
             </td>
             <td>
-                @Html.DisplayFor(model => item.ITEM_UNIT_PRICE)
+                @Html.DisplayFor(modelItem => item.ITEM_QUANTITY)
             </td>
             <td>
-                @Html.DisplayFor(model => item.MAN_PRICE)
+                @Html.DisplayFor(modelItem => item.ITEM_UNIT_PRICE)
             </td>
             <td>
-                @Html.DisplayFor(model => item.ITEM_REMARK)
+                @Html.DisplayFor(modelItem => item.MAN_PRICE)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ITEM_REMARK)
             </td>
         </tr>
     }
 
 </table>
+<div class="row">
+    <div class="" col-md-12">
+        <input type="submit" value="儲存" class="btn btn-default" />
+    </div>
+</div>

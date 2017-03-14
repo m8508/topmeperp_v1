@@ -35,7 +35,7 @@
                 @Html.ActionLink("Edit", "Edit", new { id = item.PROJECT_ID }) |
                 @Html.ActionLink("Delete", "Delete", new { id = item.PROJECT_ID })
             </td>
-            <td><input type="checkbox" name="itemlist" value="id"></td>
+            <td><input type="checkbox" name="item[]" value="id"></td>
             <td>
                 @Html.DisplayFor(modelItem => item.ITEM_ID)
             <td>

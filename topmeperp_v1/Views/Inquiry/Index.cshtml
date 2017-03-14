@@ -3,25 +3,42 @@
     ViewBag.Title = "備標作業-新增詢價單";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
-<!--專案搜尋區條件區域-->
+<!--標單項目搜尋區條件區域-->
+<div class="jumbotron">
+    <div class="row">
+        <div class="col-md-8">
+            <form name="FormSearchProject" id="FormSearchProject" action="Search" method="Post">
+                九宮格&nbsp&nbsp : <input id="textCode1" name="textCode1" type="text" />
+                主系統 : <input id="textSystemMain" name="textSystemMain" type="text" /><br />
+                次九宮格: <input id="textCode2" name="textCode2" type="text" />
+                次系統: <input id="textSystemSub" name="textSystemSub" type="text" /> &nbsp&nbsp&nbsp&nbsp
+                <input id="Submit1" type="submit" value="查詢" />
+            </form>
+            <div id="divProcessing">
+                <img src="~/Content/ajax-loader.gif">
+            </div>
+        </div>
+    </div>
+    </div>
+ <!--標單項目代表區域-->
 <div class="container">
-    <form name="FormSearchProject" id="FormSearchProject" action="Search" method="Post">
-        九宮格&nbsp&nbsp : <input id="textCode1" name="textCode1" type="text" />
-        主系統 : <input id="textSystemMain" name="textSystemMain" type="text" /><br />
-        次九宮格: <input id="textCode2" name="textCode2" type="text" />
-        次系統: <input id="textSystemSub" name="textSystemSub" type="text" /> &nbsp&nbsp&nbsp&nbsp
-                  <input id="Submit1" type="submit" value="查詢" />
-    </form>
-</div><br /><br />
-<div>
     @ViewBag.SearchResult
     @if (null != Model)
-    {
-        Html.RenderPartial("RFQ");
-    }
+     {
+       Html.RenderPartial("RFQ");
+     }
 </div>
-
-<!--專案列表區域-->
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Hide the "busy" Gif at load:
+        $("#divProcessing").hide();
+        // Attach click handler to the submit button:
+        $('#login').click(function () {
+            $("#divProcessing").show();
+        });
+    });
+</script>
+       
 
 
 
