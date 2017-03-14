@@ -16,23 +16,24 @@ namespace topmeperp.Controllers
         ILog log = log4net.LogManager.GetLogger(typeof(InquiryController));
 
         // GET: Inquiry
-        public ActionResult Index()
+        public ActionResult Index(string id)
         {
-            log.Info("inquiry index!");
+            log.Info("inquiry index : projectid="+ id);
+            ViewBag.projectId = id;
             return View();
         }
 
         // POST : Search
-        public ActionResult Search()
+        [HttpPost ]
+        public ActionResult Index(FormCollection f)
         {
             TnderProject s = new TnderProject();
-            log.Info("textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"]);
-            List <topmeperp.Models.TND_PROJECT_ITEM> lstProject = s.getProjectItem(Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"]);
+            log.Info("projectid="+ Request["projectid"]+",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"]);
+            List <topmeperp.Models.TND_PROJECT_ITEM> lstProject = s.getProjectItem(Request["projectid"],Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"]);
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
+            ViewBag.projectId = Request["projectid"];
             return View("Index", lstProject);
         }
-
-
     }
 }
 

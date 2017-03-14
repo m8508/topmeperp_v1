@@ -200,7 +200,7 @@ namespace topmeperp.Service
             return task;
         }
         //取得標單品項資料
-        public List<TND_PROJECT_ITEM> getProjectItem(string projectitem1, string projectitem2, string projectitem3, string projectitem4)
+        public List<TND_PROJECT_ITEM> getProjectItem(string projectid,string projectitem1, string projectitem2, string projectitem3, string projectitem4)
         {
 
             logger.Info("search projectitem by 九宮格 =" + projectitem1 + "search projectitem by 次九宮格 =" + projectitem2 + "search projectitem by 主系統 =" + projectitem3 + "search projectitem by 次系統 =" + projectitem4);
