@@ -10,6 +10,9 @@
                 專案名稱: <input id="textProejctName" name="textProejctName" type="text" />
                 <input id="Submit1" type="submit" value="查詢" />
             </form>
+            <div id="divProcessing">
+                <img src="~/Content/ajax-loader.gif">
+            </div>
         </div>
         <div class="col-md-4">
             <span class='glyphicon glyphicon-plus' aria-hidden='true'></span>
@@ -25,3 +28,14 @@
         Html.RenderPartial("ProjectList");
     }
 </div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Hide the "busy" Gif at load:
+        $("#divProcessing").hide();
+        // Attach click handler to the submit button:
+        $('#login').click(function () {
+            $("#divProcessing").show();
+        });
+    });
+</script>
+
