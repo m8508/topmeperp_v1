@@ -24,14 +24,15 @@ namespace topmeperp.Models
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
         public string CREATE_USER_ID { get; set; }
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
-        public string CONTRUCTION_NAME { get; set; }
-        public string CUSTOMER_NAME { get; set; }
+        public string ENG_NAME { get; set; }
+        public string LOCATION { get; set; }
+        public string OWNER_NAME { get; set; }
         public string CONTACT_NAME { get; set; }
-        public string CONTACT_PHONE { get; set; }
+        public string CONTACT_TEL { get; set; }
         public string CONTACT_FAX { get; set; }
         public string CONTACT_EMAIL { get; set; }
-        public Nullable<System.DateTime> RECEIVED_DATE { get; set; }
-        public Nullable<System.DateTime> TENDER_DATE { get; set; }
-        public string CONTRUCTION_ADDRESS { get; set; }
+        public Nullable<System.DateTime> DUE_DATE { get; set; }
+        public Nullable<System.DateTime> SCHDL_OFFER_DATE { get; set; }
+        public string CONTRUCTION_NAME { get; set; }
     }
 }

@@ -48,7 +48,7 @@
                         <label class="col-md-2 control-label">標案地址 : </label>
                         <div class="col-md-10">
                             <label class="input">
-                                @Html.TextBoxFor(m => m.CONTRUCTION_ADDRESS, new { @class = "form-control" })
+                                @Html.TextBoxFor(m => m.LOCATION, new { @class = "form-control" })
                             </label>
                         </div>
                     </div>
@@ -58,7 +58,7 @@
                         <label class="col-md-2 control-label">業主 : </label>
                         <div class="col-md-10">
                             <label class="input">
-                                @Html.TextBoxFor(m => m.OWNER_USER_ID, new { @class = "form-control" })
+                                @Html.TextBoxFor(m => m.OWNER_NAME, new { @class = "form-control" })
                             </label>
                         </div>
                     </div>
@@ -89,7 +89,7 @@
                         <label class="col-md-2 control-label">電話 : </label>
                         <div class="col-md-10">
                             <label class="input">
-                                @Html.TextBoxFor(m => m.CONTACT_PHONE, new { @class = "form-control" })
+                                @Html.TextBoxFor(m => m.CONTACT_TEL, new { @class = "form-control" })
                             </label>
                         </div>
                     </div>
@@ -110,14 +110,14 @@
                 <div class="row">
                     <label class="col-md-2 control-label">收件日期 : </label>
                     <div class='col-md-10 date'>
-                        <input type='text' id='received_date' name='received_date' />
+                        @Html.TextBoxFor(m => m.DUE_DATE, new { @class = "form-control", @id = "due_date" })
                     </div>
                 </div>
 
                 <div class="row">
                     <label class="col-md-2 control-label">預計投標日期 : </label>
                     <div class='col-md-10 date'>
-                        <input type='text' id='tender_date' name='tender_date' />
+                        @Html.TextBoxFor(m => m.SCHDL_OFFER_DATE, new { @class = "form-control",@id="schd_offer_date" })
                     </div>
                 </div>
 
@@ -172,12 +172,12 @@
 
         });
         $(function () {
-            $('#received_date').datetimepicker({
+            $('#schd_offer_date').datetimepicker({
                 format: 'YYYY/MM/DD'
             });
         });
         $(function () {
-            $('#tender_date').datetimepicker({
+            $('#due_date').datetimepicker({
                 format: 'YYYY/MM/DD'
             });
         });

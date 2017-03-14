@@ -37,7 +37,7 @@ namespace topmeperp.Controllers
         [HttpPost]
         public ActionResult Create(TND_PROJECT prj, HttpPostedFileBase file)
         {
-            logger.Info("create project process! project name=" + prj.PROJECT_NAME + ",ProjectId=" + prj.PROJECT_ID );
+            logger.Info("create project process! project =" + prj.ToString());
             //1.更新或新增專案基本資料
             if (file.ContentLength != 0)
             {
