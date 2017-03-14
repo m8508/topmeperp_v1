@@ -3,15 +3,14 @@
 @{
     ViewBag.Title = "登入";
 }
-
-<h2>@ViewBag.Title.</h2>
+<h2 style="padding-top:30px">@ViewBag.Title.</h2>
 <div class="row">
     <div class="col-md-8">
         <section id="loginForm">
             @using (Html.BeginForm("Login", "", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
             {
                 @Html.AntiForgeryToken()
-                <h4>使用本機帳戶登入。</h4>
+                <h4>使用系統帳戶登入。</h4>
                 <hr />
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                 <div class="form-group">
@@ -27,14 +26,18 @@
                         @Html.ValidationMessageFor(m => m.PASSWORD, "", new { @class = "text-danger" })
                     </div>
                 </div>
-                <div>
-                 <h2>@ViewBag.ErrorMessage</h2> 
-                </div>
                 <div class="form-group">
-                    <div class="col-md-offset-2 col-md-10">
-                        <input type="submit" value="登入" class="btn btn-default" />
+                    <div class="col-md-offset-2 col-md-2">
+                        <input id="login" type="submit" value="登入" class="btn btn-default" />
+                    </div>
+                    <div class="col-md-4 alert-danger">
+                        @ViewBag.ErrorMessage
                     </div>
                 </div>
+                <div id="divProcessing">
+                    <img src="~/Content/ajax-loader.gif">
+                </div>
+
                 @* 請在啟用密碼重設功能的帳戶確認之後啟用此項目
                     <p>
                         @Html.ActionLink("忘記密碼?", "ForgotPassword")
@@ -45,11 +48,22 @@
     <!--
     <div class="col-md-4">
         <section id="socialLoginForm">
-       
+
         </section>
     </div>
     -->
 </div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Hide the "busy" Gif at load:
+        $("#divProcessing").hide();
+        // Attach click handler to the submit button:
+        $('#login').click(function () {
+            $("#divProcessing").show();
+        });
+    });
+
+</script>
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
