@@ -4,48 +4,11 @@
     ViewBag.Title = "備標作業-新增專案";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
-<script>
-    $(document).ready(function () {
-        $("#newTask").click(function () {
-            //Ajax sample
-            alert("test");
-            var URLs = "recive.php";
-
-            $.ajax({
-                url: URLs,
-                data: $('#sentToBack').serialize(),
-                type: "POST",
-                dataType: 'text',
-
-                success: function (msg) {
-                    alert(msg);
-                },
-
-                error: function (xhr, ajaxOptions, thrownError) {
-                    alert(xhr.status);
-                    alert(thrownError);
-                }
-            });
-
-        });
-        $(function () {
-            $('#received_date').datetimepicker({
-                format: 'YYYY/MM/DD'
-            });
-        });
-        $(function () {
-            $('#tender_date').datetimepicker({
-                format: 'YYYY/MM/DD'
-            });
-        });
-    })
-</script>
-<div class="container">
-    <div class="col-md-12">
-        <!-- Reg-Form new { enctype = "multipart/form-data" } -->
-        @using (Html.BeginForm("Create", "Tender", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "sky-form", role = "form", enctype = "multipart/form-data" }))
-        {
-            <h3>專案</h3>
+<div class="col-md-12">
+    <!-- Reg-Form new { enctype = "multipart/form-data" } -->
+    @using (Html.BeginForm("Create", "Tender", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <h3>專案</h3>
             <br />
             <fieldset>
                 <section>
@@ -173,100 +136,50 @@
                         <input type="file" name="file" id="file" />
                     </div>
                 </div>
+                <br />
                 <div class="row">
                     <div class="" col-md-6">
                         <input type="submit" value="新增" class="btn btn-default" />
                     </div>
                 </div>
             </fieldset>
-            <br />
-        }
-    </div>
-</div>
 
-<br /><br />
-<div class="container-fluid">
-    <div class="col-md-12">
-        <h3>工作分派</h3>
-    </div>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-
-                <th>勾選</th>
-                <th>工作任務</th>
-                <th>負責人員</th>
-                <th>負責項目</th>
-                <th>預定完成時間</th>
-                <th>簽名</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>
-                    <div class="col-2">
-                        <input type="checkbox">
-                    </div>
-                </td>
-                <td>
-                    <select class="form-control">
-                        <option>11111111</option>
-                        <option>22222222</option>
-                        <option>33333333</option>
-                        <option>44444444</option>
-                        <option>55555555</option>
-                    </select>
-                </td>
-                <td>
-                    <label class="input">
-                        <i class="icon-append fa fa-user"></i>
-                        @Html.TextBox("projectid")
-                    </label>
-                </td>
-                <td>
-                    <label class="input">
-                        <i class="icon-append fa fa-user"></i>
-                        @Html.TextBox("projectid")
-                    </label>
-                </td>
-                <td>
-                    <label class="input">
-                        <i class="icon-append fa fa-user"></i>
-                        @Html.TextBox("projectid")
-                    </label>
-                </td>
-                <td></td>
-            </tr>
-            <tr>
-                <th scope="row">2</th>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-        </tbody>
-    </table><br />
-</div>
-<div class="container">
-    <div class="row">
-        <label class="col-4 control-label">備註 : </label>
-        <textarea class="form-control" rows="6"></textarea>
-        <div class="container">
-            <button id="newTask" type="button" class="btn btn-xs btn-info">
-                新增
-            </button>
-
-            <table style="width:100%;">
-                <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
-                <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
-                <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
-            </table>
-        </div>
-    </div>
-</div><br /><br /><br />
-<div>
-    @{
-        Html.RenderPartial("Task");
     }
 </div>
+
+<script>
+    $(document).ready(function () {
+        $("#newTask").click(function () {
+            //Ajax sample
+            alert("test");
+            var URLs = "recive.php";
+
+            $.ajax({
+                url: URLs,
+                data: $('#sentToBack').serialize(),
+                type: "POST",
+                dataType: 'text',
+
+                success: function (msg) {
+                    alert(msg);
+                },
+
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(xhr.status);
+                    alert(thrownError);
+                }
+            });
+
+        });
+        $(function () {
+            $('#received_date').datetimepicker({
+                format: 'YYYY/MM/DD'
+            });
+        });
+        $(function () {
+            $('#tender_date').datetimepicker({
+                format: 'YYYY/MM/DD'
+            });
+        });
+    })
+</script>
