@@ -189,6 +189,31 @@ namespace topmeperp.Service
             return project;
         }
 
+        TND_PROJECT_FORM form = null;
+        public void newForm(TND_PROJECT_FORM form)
+        {
+            //1.建立詢價單價單樣本
+            logger.Info("create new form template");
+            using (var context = new topmepEntities())
+            {
+                if(null)
+                context.TND_PROJECT_FORM.Add(form);
+                int i = context.SaveChanges();
+                logger.Debug("Add form=" + i);
+                //if (i > 0) { status = true; };
+            }
+        }
+        public TND_PROJECT_FORM getProjectFormById(string prjid)
+        {
+            using (var context = new topmepEntities())
+            {
+                form = context.TND_PROJECT_FORM.SqlQuery("select pf.* from TND_PROJECT_FORM pf "
+                    + "where pf.PROJECT_ID = @pid "
+                   , new SqlParameter("pid", prjid)).First();
+            }
+            return form;
+        }
+
         public TND_TASKASSIGN getTaskById(string taskid)
         {
             using (var context = new topmepEntities())

@@ -549,6 +549,7 @@
     <Content Include="Views\Tender\InquiryList.cshtml" />
     <Content Include="Views\Inquiry\RFQ.cshtml" />
     <Content Include="Views\Tender\TaskDetails.cshtml" />
+    <Content Include="Views\Inquiry\Form_Template.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

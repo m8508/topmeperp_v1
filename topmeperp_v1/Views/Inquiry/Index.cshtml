@@ -23,23 +23,29 @@
     </div>
  <!--詢價單樣本資料區域-->
  <!--標單項目列表區域-->
-     <div class="container">
-     @ViewBag.SearchResult
-     @if (null != Model)
-            {
-              Html.RenderPartial("RFQ");
-            }
-     </div>
-     <script type="text/javascript">
-             $(document).ready(function () {
-             // Hide the "busy" Gif at load:
-             $("#divProcessing").hide();
-             // Attach click handler to the submit button:
-             $('#login').click(function () {
-             $("#divProcessing").show();
-               });
-              });
-      </script>
+<div class="container-fluid">
+
+    @ViewBag.SearchResult
+    @if (null != Model)
+    {
+        Html.RenderPartial("RFQ");
+    }
+ 
+</div>
+ 
+<script type="text/javascript">
+        $(document).ready(function () {
+            // Hide the "busy" Gif at load:
+            $("#divProcessing").hide();
+            // Attach click handler to the submit button:
+            $('#login').click(function () {
+                $("#divProcessing").show();
+            });
+        });
+</script>
+
+
+
 
 
 
