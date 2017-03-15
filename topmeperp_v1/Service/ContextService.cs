@@ -242,9 +242,9 @@ namespace topmeperp.Service
             logger.Info("create new project form ");
             using (var context = new topmepEntities())
             {
-                    context.TND_PROJECT_FORM.Add(form);
-                    int i = context.SaveChanges();
-                    logger.Debug("Add form=" + i);
+                context.TND_PROJECT_FORM.Add(form);
+                int i = context.SaveChanges();
+                logger.Debug("Add form=" + i);
                 //if (i > 0) { status = true; };
             }
         }
@@ -372,6 +372,7 @@ namespace topmeperp.Service
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         //封裝供前端頁面調用
         public UserManageModels userManageModels = new UserManageModels();
+        public string message = "";
         //取得所有角色資料
         public void getAllRole()
         {
@@ -404,37 +405,44 @@ namespace topmeperp.Service
                 }
                 catch (Exception e)
                 {
-                    logger.Error("add new user id fail:" + e.Message);
+                    logger.Error("add new user id fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
                 }
 
             }
             return i;
         }
         //取得帳號資料
-        public void getUserByCriteria (SYS_USER u,string roleid)
+        public void getUserByCriteria(SYS_USER u, string roleid)
         {
-            logger.Info("Criteria= user=" + u.ToString() +",roleId="+roleid);
+            logger.Info("user=" + u.ToString() + ",roleId=" + roleid);
             List<SYS_USER> lstUser = new List<SYS_USER>();
             //處理SQL，預先埋入條件減少後續處理作業
-            string sql = "SELECT * FROM SYS_USER u WHERE 1=1 ";
+            string sql = "SELECT USER_ID,USER_NAME,EMAIL,TEL,TEL_EXT,PASSWORD,FAX,MOBILE,CREATE_ID,CREATE_DATE,MODIFY_ID,MODIFY_DATE,"
+                + "(SELECT ROLE_NAME FROM SYS_ROLE r WHERE r.ROLE_ID = u.ROLE_ID) ROLE_ID "
+                + " FROM SYS_USER u WHERE 1=1 ";
             //定義參數: User ID , User Name, Tel,Roleid
             var parameters = new List<SqlParameter>();
             //處理帳號相關條件
             if (null != u)
             {
                 //帳號
+                logger.Debug("userID=" + u.USER_ID);
                 if (null != u.USER_ID && u.USER_ID != "")
                 {
                     sql = sql + "AND u.USER_ID= @userid ";
                     parameters.Add(new SqlParameter("userid", u.USER_ID));
                 }
                 //姓名
+                logger.Debug("USER_NAME=" + u.USER_NAME);
                 if (null != u.USER_NAME && u.USER_NAME != "")
                 {
                     sql = sql + "AND u.USER_NAME LIKE  @username ";
                     parameters.Add(new SqlParameter("username", "%" + u.USER_NAME + "%"));
                 }
                 //電話
+                logger.Debug("TEL=" + u.TEL);
                 if (null != u.TEL && u.TEL != "")
                 {
                     sql = sql + "AND u.TEL LIKE  @tel ";
@@ -442,17 +450,28 @@ namespace topmeperp.Service
                 }
             }
             //填入角色條件
-            if (null != roleid || roleid != "")
+            if (null != roleid && roleid != "")
             {
+                logger.Debug("ROLE_ID=" + u.ROLE_ID);
                 sql = sql + "AND u.ROLE_ID = @roleid ";
                 parameters.Add(new SqlParameter("roleid", roleid));
             }
             //取得資料
             using (var context = new topmepEntities())
             {
-                lstUser = context.SYS_USER.SqlQuery(sql, parameters.ToArray()).ToList();
+                if (parameters.Count() == 0)
+                {
+                    logger.Debug(sql);
+                    lstUser = context.SYS_USER.SqlQuery(sql).ToList();
+                }
+                else
+                {
+                    logger.Debug(sql);
+                    lstUser = context.SYS_USER.SqlQuery(sql, parameters.ToArray()).ToList();
+                }
+
                 userManageModels.sysUsers = lstUser;
-            } 
+            }
         }
     }
 }

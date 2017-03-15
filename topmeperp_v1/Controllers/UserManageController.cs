@@ -44,15 +44,38 @@ namespace topmeperp.Controllers
             u_user.USER_ID = form.Get("userid");
             u_user.USER_NAME = form.Get("username");
             u_user.TEL = form.Get("tel");
-            userService.getUserByCriteria(u_user, form.Get("roles"));
+            userService.getUserByCriteria(u_user, form.Get("roles").Trim());
             ViewBag.SearchResult = "共" + userService.userManageModels.sysUsers.Count() + "筆資料!!";
             return View(userService.userManageModels);
         } 
         public String addUser(FormCollection form)
         {
             log.Info("form:" + form.Count);
+            string msg = "";
+            //懶得把Form綁SYS_USER 直接先把Form 值填滿
+            SYS_USER u = new SYS_USER();
+            u.USER_ID = form.Get("u_userid").Trim();
+            u.USER_NAME = form.Get("u_name").Trim();
+            u.PASSWORD = form.Get("u_password").Trim();
+            u.EMAIL= form.Get("u_email").Trim();
+            u.TEL = form.Get("u_tel").Trim();
+            u.TEL_EXT = form.Get("u_tel_ext").Trim();
+            u.MOBILE = form.Get("u_mobile").Trim();
+            u.ROLE_ID = form.Get("roles").Trim();
+            SYS_USER loginUser = (SYS_USER)Session["user"];
+            u.CREATE_ID = loginUser.USER_ID;
+            u.CREATE_DATE = DateTime.Now;
+           int i = userService.addNewUser(u);
+            if (i == 0)
+            {
+                msg = userService.message;
+            }else
+            {
+                msg = "帳號新建成功";
+            }
+
             log.Info("Request:user_ID=" + form["u_userid"]);
-            return "增加使用者";
+            return msg;
         }    
     }
 }
