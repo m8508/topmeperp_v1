@@ -23,6 +23,7 @@ namespace topmeperp.Controllers
             SelectList roles = new SelectList(userService.userManageModels.sysRole, "ROLE_ID", "ROLE_NAME");
             ViewBag.roles = roles;
             //將資料存入TempData 減少不斷讀取資料庫
+            TempData.Remove("roles");
             TempData.Add("roles", userService.userManageModels.sysRole);      
             return View();
         }
@@ -46,6 +47,12 @@ namespace topmeperp.Controllers
             userService.getUserByCriteria(u_user, form.Get("roles"));
             ViewBag.SearchResult = "共" + userService.userManageModels.sysUsers.Count() + "筆資料!!";
             return View(userService.userManageModels);
-        }        
+        } 
+        public String addUser(FormCollection form)
+        {
+            log.Info("form:" + form.Count);
+            log.Info("Request:user_ID=" + form["u_userid"]);
+            return "增加使用者";
+        }    
     }
 }
