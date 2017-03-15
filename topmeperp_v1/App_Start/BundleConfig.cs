@@ -32,7 +32,8 @@ namespace topmeperp
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
-                      "~/Content/bootstrap-datetimepicker.css", //new
+                      "~/Content/bootstrap-theme.css",
+                      "~/Content/bootstrap-datetimepicker.css",
                       "~/Content/site.css"));
 
             //jquery ui css by ph
@@ -41,12 +42,6 @@ namespace topmeperp
               "~/Content/themes/base/jquery-ui.structure.css",
               "~/Content/themes/base/jquery-ui.theme.css"
               ));
-
-            //jquery ui tutorial
-            //bundles.Add(new StyleBundle("~/Content/themes/base/css").Include(
-            //            "~/Content/themes/base/jquery.ui.core.css",
-             ///           "~/Content/themes/base/jquery.ui.autocomplete.css",
-            //            "~/Content/themes/base/jquery.ui.theme.css"));
         }
     }
 }

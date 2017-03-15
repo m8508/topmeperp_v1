@@ -23,10 +23,8 @@ namespace topmeperp.Controllers
         {
             log.Info("criteria user_id=" + form.Get("userid")+ ",username=" + form.Get("username")+",tel="+ form.Get("tel"));
             //查詢使用者明細資料
-
-
-
             return View();
         }
+        
     }
 }

@@ -21,30 +21,56 @@
                     <div id="divProcessing">
                         <img src="~/Content/ajax-loader.gif">
                     </div>
-                    <input id="Submit1" type="submit" value="查詢" />
+                    <input class="btn btn-info" id="Submit1" type="submit" value="查詢" />
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-md-12">
-                <span class='glyphicon glyphicon-plus' aria-hidden='true'></span>
-                <button class="btn-link"> @Html.ActionLink("新增帳號", "Create")</button>
+            <div class="col-md-offset-1 col-md-10">
+                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#userInfo">新增使用者</button>
             </div>
         </div>
     </form>
-    <p>
-        <button id="btnOpenDialog" class="ui-state-default ui-corner-all">
-            <span class="ui-icon ui-icon-newwin"></span>Open Dialog
-        </button>
-    </p>
 
+    <!-- Modal :對話框-->
+    <div class="modal fade" id="userInfo" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form id="userInfo" name="userInfo" action="addUser" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">使用者資料</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row "><div class="col-sm-4">帳號</div><div class="col-sm-8"><input type="text" id="u_userid" name="u_userid" /></div></div>
+                        <div class="row "><div class="col-sm-4">姓名</div><div class="col-sm-8"><input type="text" id="u_name" name="u_name" /></div></div>
+                        <div class="row "><div class="col-sm-4">密碼</div><div class="col-sm-8"><input type="text" id="u_password" name="u_password" /></div></div>
+                        <div class="row "><div class="col-sm-4">確認密碼</div><div class="col-sm-8"><input type="text" id="u_confirmpwd" name="u_confirmpwd" /></div></div>
+                        <div class="row "><div class="col-sm-4">EMail</div><div class="col-sm-8"><input type="text" id="u_email" name="u_email" /></div></div>
+                        <div class="row "><div class="col-sm-4">電話</div><div class="col-sm-8"><input type="text" id="u_tel" name="u_tel" /></div></div>
+                        <div class="row "><div class="col-sm-4">分機</div><div class="col-sm-8"><input type="text" id="u_tel_ext" name="u_tel_ext" /></div></div>
+                        <div class="row "><div class="col-sm-4">手機</div><div class="col-sm-8"><input type="text" id="u_mobile" name="u_mobile" /></div></div>
+                        <div class="row ">
+                            <div class="col-sm-4">角色(權限)</div><div class="col-sm-8">
+                                <select id="u_role" name="u_role">
+                                    <option value="admin">admin</option>
+                                    <option value="buyer">採購</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">關閉</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">儲存</button>
+                    </div>
+                </form>
+            </div>
 
-
+        </div>
+    </div>
 </div>
-<!-- ui-dialog -->
-<div id="dialog-1" title="Dialog Title">
-    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-</div>
+
 <div class="row">
 
 </div>
@@ -53,32 +79,8 @@
         // Hide the "busy" Gif at load:
         $("#divProcessing").hide();
         // Attach click handler to the submit button:
-        $("#Submit1").click(function () {
+        $('#login').click(function () {
             $("#divProcessing").show();
-        });
-
-
-        $("#dialog-1").dialog({
-            autoOpen: false,
-            width: 400,
-            buttons: [
-                {
-                    text: "Ok",
-                    click: function () {
-                        $(this).dialog("close");
-                    }
-                },
-                {
-                    text: "Cancel",
-                    click: function () {
-                        $(this).dialog("close");
-                    }
-                }
-            ]
-        });
-
-        $("#btnOpenDialog").click(function () {
-            $("#dialog-1").dialog("open");
         });
     });
 </script>
