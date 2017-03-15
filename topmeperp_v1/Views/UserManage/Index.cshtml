@@ -18,16 +18,17 @@
                     電話: <input id="tel" name="tel" type="text" />
                 </div>
                 <div class="col-md-3">
-                    <div id="divProcessing">
-                        <img src="~/Content/ajax-loader.gif">
-                    </div>
-                    <input class="btn btn-info" id="Submit1" type="submit" value="查詢" />
+                    角色: @Html.DropDownList("roles")
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row" style="padding-top:10px;">
             <div class="col-md-offset-1 col-md-10">
-                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#userInfo">新增使用者</button>
+                <input class="btn btn-info" id="Submit1" type="submit" value="查詢" />
+                <div id="divProcessing">
+                    <img src="~/Content/ajax-loader.gif">
+                </div>
+                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#userInfo">新增使用者</button>
             </div>
         </div>
     </form>
@@ -53,10 +54,7 @@
                         <div class="row "><div class="col-sm-4">手機</div><div class="col-sm-8"><input type="text" id="u_mobile" name="u_mobile" /></div></div>
                         <div class="row ">
                             <div class="col-sm-4">角色(權限)</div><div class="col-sm-8">
-                                <select id="u_role" name="u_role">
-                                    <option value="admin">admin</option>
-                                    <option value="buyer">採購</option>
-                                </select>
+                                角色: @Html.DropDownList("roles")
                             </div>
                         </div>
                     </div>
@@ -70,10 +68,15 @@
         </div>
     </div>
 </div>
-
-<div class="row">
-
+<!--帳號資料清單-->
+<div class="container">
+    @ViewBag.SearchResult
+    @if (null != Model)
+    {
+        Html.RenderPartial("UserList");
+    }
 </div>
+
 <script type="text/javascript">
     $(document).ready(function () {
         // Hide the "busy" Gif at load:

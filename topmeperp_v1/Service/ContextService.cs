@@ -347,7 +347,7 @@ namespace topmeperp.Service
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         //封裝供前端頁面調用
-        UserManageModels userManageModels = new UserManageModels();
+        public UserManageModels userManageModels = new UserManageModels();
         //取得所有角色資料
         public void getAllRole()
         {

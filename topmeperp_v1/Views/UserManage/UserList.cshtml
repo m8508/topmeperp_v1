@@ -1,0 +1,52 @@
+﻿@model  topmeperp.Models.UserManageModels
+<table class="table">
+    <tr>
+        <th></th>
+        <th>
+            帳號
+        </th>
+        <th>
+            姓名
+        </th>
+        <th>
+            EMAIL
+        </th>
+        <th>
+            電話-分機
+        </th>
+        <th>
+            手機
+        </th>
+        <th>
+            修改日期
+        </th>
+    </tr>
+
+    @foreach (var item in Model.sysUsers)
+    {
+        <tr>
+            <td>
+                @Html.ActionLink("修改", "Create", new { id = item.USER_ID }) 
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.USER_ID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.USER_NAME)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EMAIL)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TEL) - @Html.DisplayFor(modelItem => item.TEL_EXT )
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MOBILE )
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MODIFY_DATE )
+            </td>
+        </tr>
+    }
+
+</table>
