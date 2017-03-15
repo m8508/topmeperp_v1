@@ -35,11 +35,10 @@ namespace topmeperp.Controllers
             return View("Index", lstProject);
         }
         //Create Project Form
-        public ActionResult Create(TND_PROJECT_FORM pf)
+        public ActionResult Create()
         {
-            log.Info("create project form ! project form id =" + pf.PROJECT_ID);
-            TnderProject service = new TnderProject();
-            service.newForm(pf); 
+            log.Info("item_list:" + Request["chkItem"]);
+            //TnderProject service = new TnderProject();
             return View("~/Views/Inquiry/FormTemplate.cshtml");
         }
       }
