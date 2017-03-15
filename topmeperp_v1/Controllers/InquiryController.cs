@@ -37,7 +37,15 @@ namespace topmeperp.Controllers
         //Create Project Form
         public ActionResult Create()
         {
+            //取得專案編號
+            log.Info("Project Id:" + Request["prjId"]);
+            //取得使用者勾選品項ID
             log.Info("item_list:" + Request["chkItem"]);
+            string[] lstItemId = Request["chkItem"].ToString().Split(',');
+            log.Info("select count:" + lstItemId.Count());
+            //建立空白詢價單
+            //PROJECT_FOM 完全是需要新增的
+            //PROJECT_FORM_ITEM 可由lstItemId取得對應的標單編號(PROJECT_ITEM)
             //TnderProject service = new TnderProject();
             return View("~/Views/Inquiry/FormTemplate.cshtml");
         }
