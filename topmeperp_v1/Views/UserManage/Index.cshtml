@@ -1,28 +1,111 @@
 ﻿@{
-    ViewBag.Title = "工務管理首頁";
+    ViewBag.Title = "使用者帳號管理";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
-
+<!--搜尋條件區域-->
 <div class="jumbotron">
-    <h1>使用者管理</h1>
-</div>
+    <div class="row"><h3>@ViewBag.Title</h3></div>
+    <form name="formSearch" id="formSearch" action="" method="Post">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-md-3">
+                    帳號: <input id="userid" name="userid" type="text" />
+                </div>
+                <div class="col-md-3">
+                    姓名: <input id="username" name="username" type="text" />
+                </div>
+                <div class="col-md-3">
+                    電話: <input id="tel" name="tel" type="text" />
+                </div>
+                <div class="col-md-3">
+                    角色: @Html.DropDownList("roles")
+                </div>
+            </div>
+        </div>
+        <div class="row" style="padding-top:10px;">
+            <div class="col-md-offset-1 col-md-10">
+                <input class="btn btn-info" id="Submit1" type="submit" value="查詢" />
+                <div id="divProcessing">
+                    <img src="~/Content/ajax-loader.gif">
+                </div>
+                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#userInfo">新增使用者</button>
+            </div>
+        </div>
+    </form>
 
-<div class="row">
-    <div class="col-md-6">
-        <label for="檔案上傳">檔案上傳範例</label>
-        <form action="" method="post" enctype="multipart/form-data">
-            <label for="projectId">專案編號:</label>
-            <input type="text" name="projectId" id="projectId" />
-            <br />
-            <label for="startrow">開始Row:</label>
-            <input type="text" name="startrow" id="startrow" />
-            <br />
-            <label for="file">整理後標單檔案:</label>
-            <input type="file" name="file" id="file" />
-            <input type="submit" />
-        </form>
+    <!-- Modal :對話框-->
+    <div class="modal fade" id="userInfo" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form id="formUser" name="formUser" action="addUser" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">使用者資料</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row "><div class="col-sm-4">帳號</div><div class="col-sm-8"><input type="text" id="u_userid" name="u_userid" /></div></div>
+                        <div class="row "><div class="col-sm-4">姓名</div><div class="col-sm-8"><input type="text" id="u_name" name="u_name" /></div></div>
+                        <div class="row "><div class="col-sm-4">密碼</div><div class="col-sm-8"><input type="text" id="u_password" name="u_password" /></div></div>
+                        <div class="row "><div class="col-sm-4">確認密碼</div><div class="col-sm-8"><input type="text" id="u_confirmpwd" name="u_confirmpwd" /></div></div>
+                        <div class="row "><div class="col-sm-4">EMail</div><div class="col-sm-8"><input type="text" id="u_email" name="u_email" /></div></div>
+                        <div class="row "><div class="col-sm-4">電話</div><div class="col-sm-8"><input type="text" id="u_tel" name="u_tel" /></div></div>
+                        <div class="row "><div class="col-sm-4">分機</div><div class="col-sm-8"><input type="text" id="u_tel_ext" name="u_tel_ext" /></div></div>
+                        <div class="row "><div class="col-sm-4">手機</div><div class="col-sm-8"><input type="text" id="u_mobile" name="u_mobile" /></div></div>
+                        <div class="row ">
+                            <div class="col-sm-4">角色(權限)</div><div class="col-sm-8">
+                                角色: @Html.DropDownList("roles")
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">關閉</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal" id="saveUser">儲存</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
     </div>
 </div>
-<div class="row">
-    <div class="alert-info">@Html.Raw(ViewBag.result)</div>
+<!--帳號資料清單-->
+<div class="container">
+    @ViewBag.SearchResult
+    @if (null != Model)
+    {
+        Html.RenderPartial("UserList");
+    }
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#saveUser").click(function () {
+            //Ajax 功能範例
+           // alert($('#formUser').serialize());
+            //alert($('#formSearch').serialize());
+            
+            var URLs = "addUser";
+            var frm = $('#userInfo');
+            $.ajax({
+                url: URLs,
+                data: $('#formUser').serialize(),
+                type: "POST",
+                dataType: 'text',
+                success: function (msg) {
+                    alert(msg);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(xhr.status);
+                    alert(thrownError);
+                }
+            });
+        });
+
+        // Hide the "busy" Gif at load:
+        $("#divProcessing").hide();
+        // Attach click handler to the submit button:
+        $('#login').click(function () {
+            $("#divProcessing").show();
+        });
+    });
+</script>
