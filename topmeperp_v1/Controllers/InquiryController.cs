@@ -34,13 +34,13 @@ namespace topmeperp.Controllers
             ViewBag.projectId = Request["projectid"];
             return View("Index", lstProject);
         }
-        //Get Form_Template
+        //Create Project Form
         public ActionResult Create(TND_PROJECT_FORM pf)
         {
             log.Info("create project form ! project form id =" + pf.PROJECT_ID);
             TnderProject service = new TnderProject();
             service.newForm(pf); 
-            return View("~/Views/Inquiry/Index.cshtml");
+            return View("~/Views/Inquiry/FormTemplate.cshtml");
         }
       }
     }

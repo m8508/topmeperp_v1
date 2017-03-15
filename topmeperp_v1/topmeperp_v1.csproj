@@ -552,6 +552,7 @@
     <Content Include="Views\Inquiry\RFQ.cshtml" />
     <Content Include="Views\Tender\TaskDetails.cshtml" />
     <Content Include="Views\UserManage\UserList.cshtml" />
+    <Content Include="Views\Inquiry\FormTemplate.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

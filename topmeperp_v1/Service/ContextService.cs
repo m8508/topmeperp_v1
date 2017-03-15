@@ -239,13 +239,12 @@ namespace topmeperp.Service
         public void newForm(TND_PROJECT_FORM form)
         {
             //1.建立詢價單價單樣本
-            logger.Info("create new form template");
+            logger.Info("create new project form ");
             using (var context = new topmepEntities())
             {
-                if(null)
-                context.TND_PROJECT_FORM.Add(form);
-                int i = context.SaveChanges();
-                logger.Debug("Add form=" + i);
+                    context.TND_PROJECT_FORM.Add(form);
+                    int i = context.SaveChanges();
+                    logger.Debug("Add form=" + i);
                 //if (i > 0) { status = true; };
             }
         }
