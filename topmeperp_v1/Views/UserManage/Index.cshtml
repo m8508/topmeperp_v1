@@ -1,28 +1,84 @@
 ﻿@{
-    ViewBag.Title = "工務管理首頁";
+    ViewBag.Title = "使用者帳號管理";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
-
+<!--搜尋條件區域-->
 <div class="jumbotron">
-    <h1>使用者管理</h1>
-</div>
+    <div class="row"><h3>@ViewBag.Title</h3></div>
+    <form name="formSearch" id="formSearch" action="" method="Post">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-md-3">
+                    帳號: <input id="userid" name="userid" type="text" />
+                </div>
+                <div class="col-md-3">
+                    姓名: <input id="username" name="username" type="text" />
+                </div>
+                <div class="col-md-3">
+                    電話: <input id="tel" name="tel" type="text" />
+                </div>
+                <div class="col-md-3">
+                    <div id="divProcessing">
+                        <img src="~/Content/ajax-loader.gif">
+                    </div>
+                    <input id="Submit1" type="submit" value="查詢" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <span class='glyphicon glyphicon-plus' aria-hidden='true'></span>
+                <button class="btn-link"> @Html.ActionLink("新增帳號", "Create")</button>
+            </div>
+        </div>
+    </form>
+    <p>
+        <button id="btnOpenDialog" class="ui-state-default ui-corner-all">
+            <span class="ui-icon ui-icon-newwin"></span>Open Dialog
+        </button>
+    </p>
 
-<div class="row">
-    <div class="col-md-6">
-        <label for="檔案上傳">檔案上傳範例</label>
-        <form action="" method="post" enctype="multipart/form-data">
-            <label for="projectId">專案編號:</label>
-            <input type="text" name="projectId" id="projectId" />
-            <br />
-            <label for="startrow">開始Row:</label>
-            <input type="text" name="startrow" id="startrow" />
-            <br />
-            <label for="file">整理後標單檔案:</label>
-            <input type="file" name="file" id="file" />
-            <input type="submit" />
-        </form>
-    </div>
+
+
+</div>
+<!-- ui-dialog -->
+<div id="dialog-1" title="Dialog Title">
+    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
 </div>
 <div class="row">
-    <div class="alert-info">@Html.Raw(ViewBag.result)</div>
+
 </div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Hide the "busy" Gif at load:
+        $("#divProcessing").hide();
+        // Attach click handler to the submit button:
+        $("#Submit1").click(function () {
+            $("#divProcessing").show();
+        });
+
+
+        $("#dialog-1").dialog({
+            autoOpen: false,
+            width: 400,
+            buttons: [
+                {
+                    text: "Ok",
+                    click: function () {
+                        $(this).dialog("close");
+                    }
+                },
+                {
+                    text: "Cancel",
+                    click: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            ]
+        });
+
+        $("#btnOpenDialog").click(function () {
+            $("#dialog-1").dialog("open");
+        });
+    });
+</script>

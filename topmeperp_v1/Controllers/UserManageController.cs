@@ -19,24 +19,13 @@ namespace topmeperp.Controllers
             return View();
         }
         [HttpPost]
-        public ActionResult Index(HttpPostedFileBase  file,FormCollection form)
+        public ActionResult Index(FormCollection form)
         {
-            log.Info("index for Upload File:" + file.FileName);
-            log.Info("get projectId=" + form.Get("projectId"));
-            log.Info("get startrow=" + form.Get("startrow"));
+            log.Info("criteria user_id=" + form.Get("userid")+ ",username=" + form.Get("username")+",tel="+ form.Get("tel"));
+            //查詢使用者明細資料
 
-            if (file.ContentLength > 0)
-            {
-                var fileName = Path.GetFileName(file.FileName);
-                var path = Path.Combine(Server.MapPath("~/UploadFile/TEST"), fileName);
-                file.SaveAs(path);
-                //Sample Code : 解析Excel 檔案
-                ProjectItemFromExcel poiservice = new ProjectItemFromExcel();
-                poiservice.InitializeWorkbook(path);
-                poiservice.ConvertDataForTenderProject(form.Get("projectId"), int.Parse(form.Get("startrow")));
-                log.Info("convert finish:" + poiservice.lstProjectItem.Count);
-                ViewBag.result = "共" + poiservice.lstProjectItem.Count + "筆資料<br/>" + poiservice.errorMessage;
-            }
+
+
             return View();
         }
     }

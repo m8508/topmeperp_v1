@@ -21,4 +21,11 @@ namespace topmeperp.Models
         //專案相關檔案
         public IEnumerable<TND_FILE> tndFile { get; set; }
     }
+    public class UserManageModels
+    {
+        //帳號資料
+        public IEnumerable<SYS_USER> sysUsers { get; set; }
+        //角色資料
+        public IEnumerable<SYS_ROLE> sysRole { get; set; }
+    }
 }

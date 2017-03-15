@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Core.Objects;
 using System.Data.SqlClient;
@@ -17,6 +18,52 @@ namespace topmeperp.Service
         public topmepEntities db;// = new topmepEntities();
         //定義上傳檔案存放路徑
         public static string strUploadPath = "~/UploadFile";
+        //Sample Code : It can get ADO.NET Dataset
+        public DataSet ExecuteStoreQuery(string sql, CommandType commandType, Dictionary<string, Object> parameters)
+        {
+            var result = new DataSet();
+            // creates a data access context (DbContext descendant)
+            using (var context = new topmepEntities())
+            {
+                // creates a Command 
+                var cmd = context.Database.Connection.CreateCommand();
+                cmd.CommandType = commandType;
+                cmd.CommandText = sql;
+
+                // adds all parameters
+                foreach (var pr in parameters)
+                {
+                    var p = cmd.CreateParameter();
+                    p.ParameterName = pr.Key;
+                    p.Value = pr.Value;
+                    cmd.Parameters.Add(p);
+                }
+
+                try
+                {
+                    // executes
+                    context.Database.Connection.Open();
+                    var reader = cmd.ExecuteReader();
+
+                    // loop through all resultsets (considering that it's possible to have more than one)
+                    do
+                    {
+                        // loads the DataTable (schema will be fetch automatically)
+                        var tb = new DataTable();
+                        tb.Load(reader);
+                        result.Tables.Add(tb);
+
+                    } while (!reader.IsClosed);
+                }
+                finally
+                {
+                    // closes the connection
+                    context.Database.Connection.Close();
+                }
+            }
+            // returns the DataSet
+            return result;
+        }
 
     }
     /// <summary>
@@ -25,7 +72,6 @@ namespace topmeperp.Service
     public class UserService : ContextService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         public SYS_USER loginUser;
         public List<SYS_FUNCTION> userPrivilege;
 
@@ -200,7 +246,7 @@ namespace topmeperp.Service
             return task;
         }
         //取得標單品項資料
-        public List<TND_PROJECT_ITEM> getProjectItem(string projectid,string typeCode1, string typeCode2, string systemMain, string systemSub)
+        public List<TND_PROJECT_ITEM> getProjectItem(string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub)
         {
 
             logger.Info("search projectitem by 九宮格 =" + typeCode1 + "search projectitem by 次九宮格 =" + typeCode2 + "search projectitem by 主系統 =" + systemMain + "search projectitem by 次系統 =" + systemSub);
@@ -210,10 +256,10 @@ namespace topmeperp.Service
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("projectid", projectid));
             //九宮格
-            if (null != typeCode1 && typeCode1 !="")
+            if (null != typeCode1 && typeCode1 != "")
             {
                 sql = sql + "AND p.TYPE_CODE_1 LIKE @typeCode1 ";
-                parameters.Add(new SqlParameter("typeCode1", "%" + typeCode1+ "%"));
+                parameters.Add(new SqlParameter("typeCode1", "%" + typeCode1 + "%"));
             }
             //次九宮格
             if (null != typeCode2 && typeCode2 != "")
@@ -241,8 +287,6 @@ namespace topmeperp.Service
             logger.Info("get projectitem count=" + lstItem.Count);
             return lstItem;
         }
-
-
     }
     /*
      * 序號處理程序
@@ -250,7 +294,6 @@ namespace topmeperp.Service
     public class SerialKeyService : ContextService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         public SerialKeyService()
         {
         }
@@ -295,6 +338,97 @@ namespace topmeperp.Service
                 logger.Info("New KEY :" + SnKey.KEY_ID + "=" + sKey);
             }
             return sKey;
+        }
+    }
+    /*
+     *使用者帳號管理 
+     */
+    public class UserManage : ContextService
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        //封裝供前端頁面調用
+        UserManageModels userManageModels = new UserManageModels();
+        //取得所有角色資料
+        public void getAllRole()
+        {
+            List<SYS_ROLE> lstRoles = null;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    lstRoles = context.SYS_ROLE.SqlQuery("SELECT * FROM SYS_ROLE").ToList();
+                    logger.Debug("get records=" + lstRoles.Count);
+                    //將系統所有角色封裝供前端頁面調用
+                    userManageModels.sysRole = lstRoles;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("fail:" + e.StackTrace);
+                }
+            }
+        }
+        //新增帳號資料
+        public int addNewUser(SYS_USER u)
+        {
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.SYS_USER.Add(u);
+                    i = context.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    logger.Error("add new user id fail:" + e.Message);
+                }
+
+            }
+            return i;
+        }
+        //取得帳號資料
+        public void getUserByCriteria (SYS_USER u,string roleid)
+        {
+            logger.Info("Criteria= user=" + u.ToString() +",roleId="+roleid);
+            List<SYS_USER> lstUser = new List<SYS_USER>();
+            //處理SQL，預先埋入條件減少後續處理作業
+            string sql = "SELECT * FROM SYS_USER u WHERE 1=1 ";
+            //定義參數: User ID , User Name, Tel,Roleid
+            var parameters = new List<SqlParameter>();
+            //處理帳號相關條件
+            if (null != u)
+            {
+                //帳號
+                if (null != u.USER_ID && u.USER_ID != "")
+                {
+                    sql = sql + "AND u.USER_ID= @userid ";
+                    parameters.Add(new SqlParameter("userid", u.USER_ID));
+                }
+                //姓名
+                if (null != u.USER_NAME && u.USER_NAME != "")
+                {
+                    sql = sql + "AND u.USER_NAME LIKE  @username ";
+                    parameters.Add(new SqlParameter("username", "%" + u.USER_NAME + "%"));
+                }
+                //電話
+                if (null != u.TEL && u.TEL != "")
+                {
+                    sql = sql + "AND u.TEL LIKE  @tel ";
+                    parameters.Add(new SqlParameter("tel", "%" + u.TEL + "%"));
+                }
+            }
+            //填入角色條件
+            if (null != roleid || roleid != "")
+            {
+                sql = sql + "AND u.ROLE_ID = @roleid ";
+                parameters.Add(new SqlParameter("roleid", roleid));
+            }
+            //取得資料
+            using (var context = new topmepEntities())
+            {
+                lstUser = context.SYS_USER.SqlQuery(sql, parameters.ToArray()).ToList();
+                userManageModels.sysUsers = lstUser;
+            } 
         }
     }
 }
