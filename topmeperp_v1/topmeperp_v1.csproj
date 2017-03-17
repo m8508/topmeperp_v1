@@ -234,6 +234,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InquiryController.cs" />
+    <Compile Include="Controllers\RoleManageController.cs" />
     <Compile Include="Controllers\TenderController.cs" />
     <Compile Include="Controllers\UserManageController.cs" />
     <Compile Include="Filter\TopmepFilter.cs" />
@@ -531,7 +532,10 @@
     <Content Include="Views\Inquiry\RFQ.cshtml" />
     <Content Include="Views\Tender\TaskDetails.cshtml" />
     <Content Include="Views\UserManage\UserList.cshtml" />
-    <Content Include="Views\Inquiry\Create.cshtml" />
+    <Content Include="Views\Inquiry\FormTemplate.cshtml" />
+    <Content Include="Views\Inquiry\Form_Template.cshtml" />
+    <Content Include="Views\RoleManage\FunctionList.cshtml" />
+    <Content Include="Views\RoleManage\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

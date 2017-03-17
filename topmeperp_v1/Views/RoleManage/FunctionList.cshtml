@@ -1,0 +1,40 @@
+﻿@model IEnumerable<topmeperp.Models.SYS_FUNCTION>
+<table class="table">
+    <tr>
+        <th></th>
+        <th>
+            功能編號
+        </th>
+        <th>
+            模組名稱
+        </th>
+        <th>
+            功能名稱
+        </th>
+        <th>
+            URL
+        </th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                <!--@ Html.CheckBox("hadPrivilege", false, new { Value =item.FUNCTION_ID  })-->
+                
+                <input type="checkbox" id="hadPrivilege" name="hadPrivilege" value="@item.FUNCTION_ID" /> 
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FUNCTION_ID )
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MODULE_NAME)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FUNCTION_NAME)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FUNCTION_URI )
+            </td>
+        </tr>
+    }
+</table>
