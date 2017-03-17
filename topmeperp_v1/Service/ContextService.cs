@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Core.Objects;
+using System.Data.Entity.Migrations;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
@@ -400,7 +401,7 @@ namespace topmeperp.Service
             {
                 try
                 {
-                    context.SYS_USER.Add(u);
+                    context.SYS_USER.AddOrUpdate(u);
                     i = context.SaveChanges();
                 }
                 catch (Exception e)
@@ -485,6 +486,31 @@ namespace topmeperp.Service
                 logger.Debug("function count=" + lstFunction.Count);
             }
             return lstFunction;
+        }
+        //取得使用者資料
+        public SYS_USER getUser(string userid)
+        {
+            logger.Debug("get user by id=" + userid);
+            SYS_USER u = null;
+            using (var context = new topmepEntities())
+            {
+                //設定此2參數，以便取消關聯物件，讓JSON 可以運作
+                // Disable lazy loading
+                context.Configuration.LazyLoadingEnabled = false;
+                // Disable proxies
+                context.Configuration.ProxyCreationEnabled = false;
+                //設定SQL
+                string esql = @"SELECT * FROM SYS_USER u WHERE u.USER_ID=@userid";
+                try
+                {
+                    u = context.SYS_USER.SqlQuery(esql, new SqlParameter("userid", userid)).First();
+                }
+                catch (Exception e)
+                {
+                    logger.Error(e);
+                }
+            }
+            return u;
         }
     }
 }

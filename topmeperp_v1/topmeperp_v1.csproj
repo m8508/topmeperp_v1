@@ -536,6 +536,7 @@
     <Content Include="Views\Inquiry\Form_Template.cshtml" />
     <Content Include="Views\RoleManage\FunctionList.cshtml" />
     <Content Include="Views\RoleManage\Index.cshtml" />
+    <Content Include="Views\UserManage\_User.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
