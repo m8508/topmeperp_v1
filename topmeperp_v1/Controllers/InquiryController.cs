@@ -39,17 +39,33 @@ namespace topmeperp.Controllers
         {
             //取得專案編號
             log.Info("Project Id:" + Request["prjId"]);
+            //取得專案名稱
+            log.Info("Project Name:" + Request["prjId"]);
             //取得使用者勾選品項ID
             log.Info("item_list:" + Request["chkItem"]);
             string[] lstItemId = Request["chkItem"].ToString().Split(',');
             log.Info("select count:" + lstItemId.Count());
+            var i=0;
+            for (i = 0; i < lstItemId.Count(); i++) {
+            log.Info("item_list return:" + lstItemId[i]); }
             //建立空白詢價單
-            //PROJECT_FOM 完全是需要新增的
+            log.Info("create new form template");
+            TnderProject s = new TnderProject();
             //PROJECT_FORM_ITEM 可由lstItemId取得對應的標單編號(PROJECT_ITEM)
-            //TnderProject service = new TnderProject();
-            return View("~/Views/Inquiry/FormTemplate.cshtml");
+            List<topmeperp.Models.TND_PROJECT_ITEM> lstProjectItem = s.getProjectItemId(Request["prjId"], Request["chkItem"]);
+            return View("Create", lstProjectItem);
         }
-      }
+        [HttpPost]
+        public ActionResult ProjectForm(TND_PROJECT_FORM qf)
+        //PROJECT_FOM 完全是需要新增的
+        {
+            log.Info("create inquiry form process! project id=" + qf.PROJECT_ID);
+            TnderProject service = new TnderProject();
+            service.newForm(qf);
+            return View("~/Views/Inquiry/Index.cshtml");
+        }
     }
+}
+    
 
 

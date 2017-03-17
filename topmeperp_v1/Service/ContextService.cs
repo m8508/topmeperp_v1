@@ -209,16 +209,31 @@ namespace topmeperp.Service
             logger.Info("add project item count =" + i);
             return i;
         }
+        TND_PROJECT_FORM form = null;
+        public int newForm(TND_PROJECT_FORM qf)
+        {
+            //1.建立詢價單價單樣本
+            int i = 0;
+            logger.Info("create new project form " + qf.ToString());
+            using (var context = new topmepEntities())
+            {
+                context.TND_PROJECT_FORM.Add(qf);
+                i = context.SaveChanges();
+                logger.Debug("Add form=" + i);
+             }
+            return i;
+        }
         //2.建立任務分配表
         TND_TASKASSIGN task = null;
         public void newTask(TND_TASKASSIGN task)
         {
-            //1.建立專案基本資料
+            //1.建立任務基本資料
             logger.Info("create new task ");
             using (var context = new topmepEntities())
             {
+                int i = 0;
                 context.TND_TASKASSIGN.Add(task);
-                int i = context.SaveChanges();
+                i = context.SaveChanges();
                 logger.Debug("Add task=" + i);
                 //if (i > 0) { status = true; };
             }
@@ -234,31 +249,6 @@ namespace topmeperp.Service
             }
             return project;
         }
-
-        TND_PROJECT_FORM form = null;
-        public void newForm(TND_PROJECT_FORM form)
-        {
-            //1.建立詢價單價單樣本
-            logger.Info("create new project form ");
-            using (var context = new topmepEntities())
-            {
-                context.TND_PROJECT_FORM.Add(form);
-                int i = context.SaveChanges();
-                logger.Debug("Add form=" + i);
-                //if (i > 0) { status = true; };
-            }
-        }
-        public TND_PROJECT_FORM getProjectFormById(string prjid)
-        {
-            using (var context = new topmepEntities())
-            {
-                form = context.TND_PROJECT_FORM.SqlQuery("select pf.* from TND_PROJECT_FORM pf "
-                    + "where pf.PROJECT_ID = @pid "
-                   , new SqlParameter("pid", prjid)).First();
-            }
-            return form;
-        }
-
         public TND_TASKASSIGN getTaskById(string taskid)
         {
             using (var context = new topmepEntities())
@@ -309,6 +299,19 @@ namespace topmeperp.Service
                 lstItem = context.TND_PROJECT_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
             }
             logger.Info("get projectitem count=" + lstItem.Count);
+            return lstItem;
+        }
+
+        
+        public List<TND_PROJECT_ITEM> getProjectItemId(string prjId, string chkItem)
+        {
+            logger.Info("search projectitem by checked checkboxes no. :" + chkItem + " and project id=" + prjId);
+            List<topmeperp.Models.TND_PROJECT_ITEM> lstItem = new List<TND_PROJECT_ITEM>();
+            using (var context = new topmepEntities())
+            {
+                lstItem = context.TND_PROJECT_ITEM.SqlQuery("SELECT * FROM TND_PROJECT_ITEM p WHERE p.PROJECT_ID = @prjId  and PROJECT_ITEM_ID IN (@chkItem);",
+                    new SqlParameter("prjId", prjId), new SqlParameter("chkItem", chkItem)).ToList();
+            }
             return lstItem;
         }
     }

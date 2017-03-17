@@ -95,19 +95,19 @@
         }
     </table><br />
 
-    <input id="Submit1" type="submit" value="新增詢價單" />
+    <input id="Submit1" type="submit" value="新增詢價單樣本" />
 }
 
 
-<script>
-    $(document).ready = (function () {
+<script language="javascript" type="text/javascript">
+    $(document).ready (function () {
         $("#CheckAll").click(function () {
             if ($("#CheckAll").prop("checked")) {
-                $("input[name='Checkboxs']").prop("checked", true);
+                $("input[name='chkItem']").prop("checked", true);
             } else
-                $("input[name='Checkboxs']").prop("checked", false);
-        })
-    })
+                $("input[name='chkItem']").prop("checked", false);
+        });
+    });
 </script>
 
 <script language="javascript" type="text/javascript">
