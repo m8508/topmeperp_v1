@@ -1,0 +1,61 @@
+﻿@{
+    ViewBag.Title = "權限設定";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+<!--搜尋條件區域-->
+<div class="jumbotron">
+    <div class="row"><h5>@ViewBag.Title</h5></div>
+    <form name="formRole" id="formRole" method="Post">
+        <div class="row form-group">
+            <label class="col-md-1">角色:</label>
+            @Html.DropDownList("roles", null, String.Empty, new { @class = "col-md-9 form-control", @onchange = "selectRole(this.value)" })
+            <div id="divProcessing" class="col-md-2">
+                <img src="~/Content/ajax-loader.gif">
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <form id="formPrivilege" name="formPrivilege" action="updatePrivilege">
+        <div id="functionArea" name="functionArea">權限設定區域!!</div>
+    </form>
+    <button class="btn-default" onclick="updatePrivilegr()">送出</button>
+</div>
+<script>
+    // Hide the "busy" Gif at load:
+    $("#divProcessing").hide();
+
+    function selectRole(val) {
+        //Ajax 功能範例:置換部分網頁內容
+        var URLs = "/RoleManage/FunctionList";
+        $("#divProcessing").show();
+        $.ajax({
+            url: URLs,
+            data: $('#formRole').serialize(),
+            type: "POST",
+            dataType: 'html',
+            success: function (result) {
+                $("#functionArea").html(result);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+        $("#divProcessing").hide();
+    }
+    function updatePrivilegr() {
+        alert($('#formPrivilege').serialize());
+        $.ajax({
+            url: "/RoleManage/UpdatePrivilege",
+            data: $('#formPrivilege').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (result) {
+                $("#functionArea").html(result);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    }
+</script>

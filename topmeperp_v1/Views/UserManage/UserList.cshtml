@@ -1,4 +1,6 @@
 ﻿@model  topmeperp.Models.UserManageModels
+
+@ViewBag.SearchResult
 <table class="table">
     <tr>
         <th></th>
@@ -29,7 +31,9 @@
     {
         <tr>
             <td>
-                @Html.ActionLink("修改", "Create", new { id = item.USER_ID })
+                @{
+                    <a onclick="getUser('@item.USER_ID')">修改</a>
+                }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.USER_ID)
@@ -53,5 +57,5 @@
                 @Html.DisplayFor(modelItem => item.MODIFY_DATE)
             </td>
         </tr>
-    }
+                    }
 </table>

@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Core.Objects;
+using System.Data.Entity.Migrations;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
@@ -211,20 +212,17 @@ namespace topmeperp.Service
         }
         //2.建立任務分配表
         TND_TASKASSIGN task = null;
-        public int newTask(TND_TASKASSIGN t)
+        public void newTask(TND_TASKASSIGN task)
         {
-            task = t;
-            //1.建立任務基本資料
-            int i = 0;
-            logger.Info("create new task " + task.ToString());
+            //1.建立專案基本資料
+            logger.Info("create new task ");
             using (var context = new topmepEntities())
             {
                 context.TND_TASKASSIGN.Add(task);
-                i = context.SaveChanges();
+                int i = context.SaveChanges();
                 logger.Debug("Add task=" + i);
                 //if (i > 0) { status = true; };
             }
-            return i;
         }
 
         public TND_PROJECT getProjectById(string prjid)
@@ -237,6 +235,31 @@ namespace topmeperp.Service
             }
             return project;
         }
+
+        TND_PROJECT_FORM form = null;
+        public void newForm(TND_PROJECT_FORM form)
+        {
+            //1.建立詢價單價單樣本
+            logger.Info("create new project form ");
+            using (var context = new topmepEntities())
+            {
+                context.TND_PROJECT_FORM.Add(form);
+                int i = context.SaveChanges();
+                logger.Debug("Add form=" + i);
+                //if (i > 0) { status = true; };
+            }
+        }
+        public TND_PROJECT_FORM getProjectFormById(string prjid)
+        {
+            using (var context = new topmepEntities())
+            {
+                form = context.TND_PROJECT_FORM.SqlQuery("select pf.* from TND_PROJECT_FORM pf "
+                    + "where pf.PROJECT_ID = @pid "
+                   , new SqlParameter("pid", prjid)).First();
+            }
+            return form;
+        }
+
         public TND_TASKASSIGN getTaskById(string taskid)
         {
             using (var context = new topmepEntities())
@@ -287,17 +310,6 @@ namespace topmeperp.Service
                 lstItem = context.TND_PROJECT_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
             }
             logger.Info("get projectitem count=" + lstItem.Count);
-            return lstItem;
-        }
-        public List<TND_PROJECT_ITEM> getProjectItemId(string prjId, string chkItem)
-        {
-            logger.Info("search projectitem by checked checkboxes no. :" + chkItem + " and project id=" + prjId);
-            List<topmeperp.Models.TND_PROJECT_ITEM> lstItem = new List<TND_PROJECT_ITEM>();
-            using (var context = new topmepEntities())
-            {
-                lstItem = context.TND_PROJECT_ITEM.SqlQuery("SELECT * FROM TND_PROJECT_ITEM p WHERE p.PROJECT_ID = @prjId  and PROJECT_ITEM_ID IN (@chkItem);",
-                    new SqlParameter("prjId", prjId), new SqlParameter("chkItem", chkItem)).ToList();
-            }
             return lstItem;
         }
     }
@@ -389,7 +401,7 @@ namespace topmeperp.Service
             {
                 try
                 {
-                    context.SYS_USER.Add(u);
+                    context.SYS_USER.AddOrUpdate(u);
                     i = context.SaveChanges();
                 }
                 catch (Exception e)
@@ -461,6 +473,44 @@ namespace topmeperp.Service
 
                 userManageModels.sysUsers = lstUser;
             }
+        }
+        public List<SYS_FUNCTION> getFunctions(string roleid)
+        {
+            List<SYS_FUNCTION> lstFunction = new List<SYS_FUNCTION>();
+            logger.Info("roleid=" + roleid);
+            //處理SQL
+            string sql = "SELECT * FROM SYS_FUNCTION;";
+            using (var context = new topmepEntities())
+            {
+                lstFunction = context.SYS_FUNCTION.SqlQuery(sql).ToList();
+                logger.Debug("function count=" + lstFunction.Count);
+            }
+            return lstFunction;
+        }
+        //取得使用者資料
+        public SYS_USER getUser(string userid)
+        {
+            logger.Debug("get user by id=" + userid);
+            SYS_USER u = null;
+            using (var context = new topmepEntities())
+            {
+                //設定此2參數，以便取消關聯物件，讓JSON 可以運作
+                // Disable lazy loading
+                context.Configuration.LazyLoadingEnabled = false;
+                // Disable proxies
+                context.Configuration.ProxyCreationEnabled = false;
+                //設定SQL
+                string esql = @"SELECT * FROM SYS_USER u WHERE u.USER_ID=@userid";
+                try
+                {
+                    u = context.SYS_USER.SqlQuery(esql, new SqlParameter("userid", userid)).First();
+                }
+                catch (Exception e)
+                {
+                    logger.Error(e);
+                }
+            }
+            return u;
         }
     }
 }

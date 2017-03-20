@@ -52,8 +52,10 @@ namespace topmeperp.Controllers
             log.Info("create new form template");
             TnderProject s = new TnderProject();
             //PROJECT_FORM_ITEM 可由lstItemId取得對應的標單編號(PROJECT_ITEM)
-            List<topmeperp.Models.TND_PROJECT_ITEM> lstProjectItem = s.getProjectItemId(Request["prjId"], Request["chkItem"]);
-            return View("Create", lstProjectItem);
+            //List<topmeperp.Models.TND_PROJECT_ITEM> lstProjectItem = s.getProjectItemId(Request["prjId"], Request["chkItem"]);
+            // return View("Create", lstProjectItem);
+            //發現問題先註解掉兩行(上面)
+            return View();
         }
         //PROJECT_FOM 完全是需要新增的
     }
