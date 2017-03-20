@@ -1,4 +1,4 @@
-﻿@model IEnumerable<topmeperp.Models.SYS_FUNCTION>
+﻿@model IEnumerable<topmeperp.Models.PrivilegeFunction>
 <table class="table">
     <tr>
         <th></th>
@@ -19,9 +19,15 @@
     {
         <tr>
             <td>
-                <!--@ Html.CheckBox("hadPrivilege", false, new { Value =item.FUNCTION_ID  })-->
-                
-                <input type="checkbox" id="hadPrivilege" name="hadPrivilege" value="@item.FUNCTION_ID" /> 
+                @if (null == item.ROLE_ID || item.ROLE_ID == "")
+                {
+                    <input type="checkbox" id="hadPrivilege" name="hadPrivilege" value="@item.FUNCTION_ID"  />
+                }
+                else
+                {
+                    <input type="checkbox" id="hadPrivilege" name="hadPrivilege" value="@item.FUNCTION_ID" checked/>
+                }
+
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.FUNCTION_ID )

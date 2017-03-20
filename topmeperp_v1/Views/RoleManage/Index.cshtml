@@ -15,12 +15,17 @@
         </div>
     </form>
 </div>
-<div class="row">
-    <form id="formPrivilege" name="formPrivilege" action="updatePrivilege">
-        <div id="functionArea" name="functionArea">權限設定區域!!</div>
+<div class="row body-content">
+    <button class="btn-default" onclick="updatePrivilegr()">送出</button>
+    <form id="formPrivilege" name="formPrivilege">
+        <input type="text" id="roleid" name="roleid" value="" />
+        <div id="privilegeArea" name="privilegeArea">
+            @Html.Partial("FunctionList")
+        </div>
     </form>
     <button class="btn-default" onclick="updatePrivilegr()">送出</button>
 </div>
+
 <script>
     // Hide the "busy" Gif at load:
     $("#divProcessing").hide();
@@ -35,7 +40,8 @@
             type: "POST",
             dataType: 'html',
             success: function (result) {
-                $("#functionArea").html(result);
+                $("#privilegeArea").html(result);
+                $("#roleid").val($("#roles").val());
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);
@@ -44,14 +50,16 @@
         $("#divProcessing").hide();
     }
     function updatePrivilegr() {
-        alert($('#formPrivilege').serialize());
+        var formdata = $('#formPrivilege').serialize();
+        //alert(formdata);
         $.ajax({
             url: "/RoleManage/UpdatePrivilege",
-            data: $('#formPrivilege').serialize(),
+            data: { hadPrivilege:formdata},
             type: "POST",
             dataType: 'text',
             success: function (result) {
-                $("#functionArea").html(result);
+                // $("#functionArea").html(result);
+                alert(result);
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);

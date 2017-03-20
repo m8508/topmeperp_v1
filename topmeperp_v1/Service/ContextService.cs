@@ -512,5 +512,19 @@ namespace topmeperp.Service
             }
             return u;
         }
+        public List<PrivilegeFunction> getPrivilege(string roleid)
+        {
+            List<PrivilegeFunction> lst = new List<PrivilegeFunction>();
+            using (var context = new topmepEntities())
+            {
+                lst = context.Database.SqlQuery<PrivilegeFunction>("SELECT  f.FUNCTION_ID, f.FUNCTION_NAME, f.MODULE_NAME, f.FUNCTION_URI,"
+                    + "f.CREATE_DATE, f.CREATE_ID, f.MODIFY_DATE, f.MODIFY_ID, r.ROLE_ID "
+                    + "FROM  SYS_FUNCTION  f left outer join "
+                    + "(SELECT ROLE_ID, FUNCTION_ID FROM SYS_PRIVILEGE p where p.ROLE_ID = @roleid) r "
+                    + "on f.FUNCTION_ID = r.FUNCTION_ID;", new SqlParameter("roleid", roleid)).ToList();
+            }
+            logger.Info("get function count:" + lst.Count);
+            return lst;
+        }
     }
 }

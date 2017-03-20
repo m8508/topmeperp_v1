@@ -28,4 +28,8 @@ namespace topmeperp.Models
         //角色資料
         public IEnumerable<SYS_ROLE> sysRole { get; set; }
     }
+    public class PrivilegeFunction : SYS_FUNCTION
+    {
+        public string ROLE_ID { get; set; }
+    }
 }

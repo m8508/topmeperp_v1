@@ -19,18 +19,19 @@ namespace topmeperp.Controllers
             userService.getAllRole();
             SelectList roles = new SelectList(userService.userManageModels.sysRole, "ROLE_ID", "ROLE_NAME");
             ViewBag.roles = roles;
-            return View();
+            return View(userService.getPrivilege(""));
         }
         public ActionResult FunctionList()
         {
             string roleid = Request["roles"];
             log.Debug(Request.IsAjaxRequest());
             log.Info("index roleid=" + roleid);
-            return View(userService.getFunctions(roleid));
+            return PartialView(userService.getPrivilege(roleid));
         }
-        public void UpdatePrivilege()
+        public string UpdatePrivilege()
         {
             log.Info("new privilege:" + Request["hadPrivilege"]);
+            return "還沒實作更新完成!!";
         }
     }
 }
