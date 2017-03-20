@@ -209,34 +209,22 @@ namespace topmeperp.Service
             logger.Info("add project item count =" + i);
             return i;
         }
-        TND_PROJECT_FORM form = null;
-        public int newForm(TND_PROJECT_FORM qf)
-        {
-            //1.建立詢價單價單樣本
-            int i = 0;
-            logger.Info("create new project form " + qf.ToString());
-            using (var context = new topmepEntities())
-            {
-                context.TND_PROJECT_FORM.Add(qf);
-                i = context.SaveChanges();
-                logger.Debug("Add form=" + i);
-             }
-            return i;
-        }
         //2.建立任務分配表
         TND_TASKASSIGN task = null;
-        public void newTask(TND_TASKASSIGN task)
+        public int newTask(TND_TASKASSIGN t)
         {
+            task = t;
             //1.建立任務基本資料
-            logger.Info("create new task ");
+            int i = 0;
+            logger.Info("create new task " + task.ToString());
             using (var context = new topmepEntities())
             {
-                int i = 0;
                 context.TND_TASKASSIGN.Add(task);
                 i = context.SaveChanges();
                 logger.Debug("Add task=" + i);
                 //if (i > 0) { status = true; };
             }
+            return i;
         }
 
         public TND_PROJECT getProjectById(string prjid)
@@ -301,8 +289,6 @@ namespace topmeperp.Service
             logger.Info("get projectitem count=" + lstItem.Count);
             return lstItem;
         }
-
-        
         public List<TND_PROJECT_ITEM> getProjectItemId(string prjId, string chkItem)
         {
             logger.Info("search projectitem by checked checkboxes no. :" + chkItem + " and project id=" + prjId);

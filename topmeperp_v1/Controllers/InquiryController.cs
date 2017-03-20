@@ -47,7 +47,7 @@ namespace topmeperp.Controllers
             log.Info("select count:" + lstItemId.Count());
             var i=0;
             for (i = 0; i < lstItemId.Count(); i++) {
-            log.Info("item_list return:" + lstItemId[i]); }
+            log.Info("item_list return No.:" + lstItemId[i]); }
             //建立空白詢價單
             log.Info("create new form template");
             TnderProject s = new TnderProject();
@@ -55,15 +55,7 @@ namespace topmeperp.Controllers
             List<topmeperp.Models.TND_PROJECT_ITEM> lstProjectItem = s.getProjectItemId(Request["prjId"], Request["chkItem"]);
             return View("Create", lstProjectItem);
         }
-        [HttpPost]
-        public ActionResult ProjectForm(TND_PROJECT_FORM qf)
         //PROJECT_FOM 完全是需要新增的
-        {
-            log.Info("create inquiry form process! project id=" + qf.PROJECT_ID);
-            TnderProject service = new TnderProject();
-            service.newForm(qf);
-            return View("~/Views/Inquiry/Index.cshtml");
-        }
     }
 }
     

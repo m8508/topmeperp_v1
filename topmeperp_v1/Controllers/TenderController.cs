@@ -95,14 +95,21 @@ namespace topmeperp.Controllers
             return View(prj);
         }
 
-
         //POST:TaskAssign
         public ActionResult Task()
         {
             logger.Info("task assign page!!");
             return View(); 
         }
-
+        [HttpPost]
+        public ActionResult Task(string id, TND_TASKASSIGN task)
+        {
+            logger.Info("task assign result page and project id =" +id);
+            TnderProject service = new TnderProject();
+            task.PROJECT_ID = id;
+            service.newTask(task);
+            return View(task);
+        }
         [HttpGet]
         public ActionResult Details(string id)
         {
