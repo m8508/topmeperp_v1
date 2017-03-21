@@ -110,23 +110,14 @@ namespace topmeperp.Controllers
             service.newTask(task);
             return View(task);
         }
-        [HttpGet]
-        public ActionResult Details(string id)
-        {
-            logger.Info("project detail page projectid = " + id);
-            TnderProject service = new TnderProject();
-            TND_PROJECT p = null;// service.getProjectById(id);
-            return View(p);
-        }
-        [HttpGet]
-        public ActionResult TaskDetails(string id)
-        {
-            logger.Info("taskassign detail page projectid = " + id);
-            TnderProject service = new TnderProject();
-            TND_TASKASSIGN t = service.getTaskById(id);
-            return View(t);
-        }
-
+        //[HttpGet]
+        //public ActionResult Details(string id)
+        //{
+        //    logger.Info("project detail page projectid = " + id);
+        //    TnderProject service = new TnderProject();
+        //    TND_PROJECT p = null;// service.getProjectById(id);
+        //    return View(p);
+        //}
 
         private List<topmeperp.Models.TND_PROJECT> SearchProjectByName(string projectname)
         {

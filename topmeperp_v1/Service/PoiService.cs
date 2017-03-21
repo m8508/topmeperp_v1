@@ -183,24 +183,5 @@ namespace topmeperp.Service
             }
         }
 
-        //private string getStringArray2String(string[] stringarray)
-        //{
-        //    string returnstring = "";
-        //    for (int i = 0; i < stringarray.Length; i++)
-        //    {
-        //        returnstring = returnstring + stringarray[i] + ".";
-        //    }
-        //    return returnstring;
-        //}
-        //private void logDataTable(DataTable dt)
-        //{
-        //    logger.Debug("datatable :" + dt.TableName + " has columns:" + dt.Columns.Count);
-        //    string column = "";
-        //    for (int i = 0; i < dt.Columns.Count; i++)
-        //    {
-        //        column = column + i + " :" + dt.Columns[i].ColumnName + ",";
-        //    }
-        //    logger.Debug(column);
-        //}
     }
 }

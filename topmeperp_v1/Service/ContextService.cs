@@ -260,15 +260,16 @@ namespace topmeperp.Service
             return form;
         }
 
-        public TND_TASKASSIGN getTaskById(string taskid)
+        public List<TND_TASKASSIGN> getTaskById(string projectid)
         {
+            List<TND_TASKASSIGN> lstTask = new List<TND_TASKASSIGN>();
             using (var context = new topmepEntities())
             {
-                task = context.TND_TASKASSIGN.SqlQuery("select t.* from TND_TASKASSIGN t "
-                    + "where t.PROJECT_ID = @taskid "
-                   , new SqlParameter("taskid", taskid)).First();
+                lstTask = context.TND_TASKASSIGN.SqlQuery("select t.* from TND_TASKASSIGN t "
+                    + "where t.PROJECT_ID = @projectid "
+                   , new SqlParameter("projectid", projectid)).ToList();
             }
-            return task;
+            return lstTask;
         }
         //取得標單品項資料
         public List<TND_PROJECT_ITEM> getProjectItem(string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub)
@@ -407,6 +408,27 @@ namespace topmeperp.Service
                 catch (Exception e)
                 {
                     logger.Error("add new user id fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return i;
+        }
+        //新增角色
+       　public int addOrUpdateRole(SYS_ROLE role)
+        {
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.SYS_ROLE.AddOrUpdate(role);
+                    i = context.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    logger.Error("add new role fail:" + e.ToString());
                     logger.Error(e.StackTrace);
                     message = e.Message;
                 }
