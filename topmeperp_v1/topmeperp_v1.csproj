@@ -526,7 +526,7 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Tender\Details.cshtml" />
     <Content Include="Views\Tender\Task.cshtml" />
-    <Content Include="Views\Tender\Upload.cshtml" />
+    <Content Include="Views\Tender\uploadMapInfo.cshtml" />
     <Content Include="Views\Inquiry\Index.cshtml" />
     <Content Include="Views\Tender\InquiryList.cshtml" />
     <Content Include="Views\Inquiry\RFQ.cshtml" />

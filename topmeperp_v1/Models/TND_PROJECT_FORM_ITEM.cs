@@ -15,8 +15,8 @@ namespace topmeperp.Models
     public partial class TND_PROJECT_FORM_ITEM
     {
         public long FORM_ITEM_ID { get; set; }
-        public Nullable<long> FORM_ID { get; set; }
-        public string PROECT_ITEM_ID { get; set; }
+        public string FORM_ID { get; set; }
+        public string PROJECT_ITEM_ID { get; set; }
         public string TYPE_CODE { get; set; }
         public string SUB_TYPE_CODE { get; set; }
         public string ITEM_DESC { get; set; }
