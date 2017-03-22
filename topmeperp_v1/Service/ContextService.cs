@@ -180,6 +180,7 @@ namespace topmeperp.Service
             }
             return i;
         }
+        #region 標單項目處理
         public int delAllItemByProject()
         {
             int i = 0;
@@ -210,6 +211,7 @@ namespace topmeperp.Service
             logger.Info("add project item count =" + i);
             return i;
         }
+        #endregion
         //2.建立任務分配表
         TND_TASKASSIGN task = null;
         public void newTask(TND_TASKASSIGN task)
@@ -313,6 +315,40 @@ namespace topmeperp.Service
             logger.Info("get projectitem count=" + lstItem.Count);
             return lstItem;
         }
+        #region 消防水圖算數量  
+        //增加消防水圖算數量
+        public int refreshMapFW(List<TND_MAP_FW> items)
+        {
+            //1.檢查專案是否存在
+            if (null == project) { throw new Exception("Project is not exist !!"); }
+            int i = 0;
+            logger.Info("refreshProjectItem = " + items.Count);
+            //2.將Excel 資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (TND_MAP_FW item in items)
+                {
+                    item.PROJECT_ID = project.PROJECT_ID;
+                    context.TND_MAP_FW.Add(item);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("add TND_MAP_FW count =" + i);
+            return i;
+        }
+        public int delMapFWByProject(string projectid)
+        {
+            logger.Info("remove all FW by project ID=" + projectid);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("delete all TND_MAP_FW by proejct id=" + project.PROJECT_ID);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM  TND_MAP_FW WHERE PROJECT_ID=@projectid", new SqlParameter("@projectid", projectid));
+            }
+            logger.Debug("delete TND_MAP_FW count=" + i);
+            return i;
+        }
+        #endregion
     }
     /*
      * 序號處理程序

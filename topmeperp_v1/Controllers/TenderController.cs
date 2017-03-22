@@ -36,7 +36,7 @@ namespace topmeperp.Controllers
             if (null != id)
             {
                 TnderProject service = new TnderProject();
-                p= service.getProjectById(id);
+                p = service.getProjectById(id);
             }
             return View(p);
         }
@@ -48,7 +48,7 @@ namespace topmeperp.Controllers
             SYS_USER u = (SYS_USER)Session["user"];
             string message = "";
             //1.更新或新增專案基本資料
-            if (prj.PROJECT_ID=="" || prj.PROJECT_ID == null)
+            if (prj.PROJECT_ID == "" || prj.PROJECT_ID == null)
             {
                 //新增專案
                 prj.STATUS = "備標";
@@ -83,7 +83,7 @@ namespace topmeperp.Controllers
                 poiservice.InitializeWorkbook(path);
                 poiservice.ConvertDataForTenderProject(prj.PROJECT_ID, (int)prj.START_ROW_NO);
                 //2.3 記錄錯誤訊息
-                message = message +  "標單品項:共" + poiservice.lstProjectItem.Count + "筆資料<br/>" + poiservice.errorMessage;
+                message = message + "標單品項:共" + poiservice.lstProjectItem.Count + "筆資料<br/>" + poiservice.errorMessage;
                 //2.4
                 logger.Info("Delete TND_PROJECT_ITEM By Project ID");
                 service.delAllItemByProject();
@@ -99,12 +99,12 @@ namespace topmeperp.Controllers
         public ActionResult Task()
         {
             logger.Info("task assign page!!");
-            return View(); 
+            return View();
         }
         [HttpPost]
         public ActionResult Task(string id, TND_TASKASSIGN task)
         {
-            logger.Info("task assign result page and project id =" +id);
+            logger.Info("task assign result page and project id =" + id);
             TnderProject service = new TnderProject();
             task.PROJECT_ID = id;
             service.newTask(task);
@@ -127,12 +127,15 @@ namespace topmeperp.Controllers
         }
         [HttpPost]
         public ActionResult uploadMapInfo(HttpPostedFileBase fileDevice, HttpPostedFileBase fileFP,
-            HttpPostedFileBase fileFW, HttpPostedFileBase fileLCP, 
+            HttpPostedFileBase fileFW, HttpPostedFileBase fileLCP,
             HttpPostedFileBase filePEP, HttpPostedFileBase filePLU)
         {
             string projectid = Request["projectId"];
+            TnderProject service = new TnderProject();
             logger.Info("Upload Map Info  for projectid=" + projectid);
+            string message = "";
             //檔案變數名稱需要與前端畫面對應
+            #region 設備清單
             //圖算:設備檔案清單
             if (null != fileDevice && fileDevice.ContentLength != 0)
             {
@@ -149,7 +152,7 @@ namespace topmeperp.Controllers
                 //解析設備圖算數量檔案
                 //poiservice.ConvertDataForTenderProject(prj.PROJECT_ID, (int)prj.START_ROW_NO);
                 //2.3 記錄錯誤訊息
-               // message = message + "標單品項:共" + poiservice.lstProjectItem.Count + "筆資料<br/>" + poiservice.errorMessage;
+                // message = message + "標單品項:共" + poiservice.lstProjectItem.Count + "筆資料<br/>" + poiservice.errorMessage;
                 //2.4
                 logger.Info("Delete TND_MAP_DEVICE By Project ID");
                 //service.delAllItemByProject();
@@ -157,7 +160,8 @@ namespace topmeperp.Controllers
                 logger.Info("Add All TND_MAP_DEVICE to DB");
                 //service.refreshProjectItem(poiservice.lstProjectItem);
             }
-
+            #endregion
+            #region 消防電
             //圖算:消防電(TND_MAP_FP)
             if (null != fileFP && fileFP.ContentLength != 0)
             {
@@ -182,7 +186,32 @@ namespace topmeperp.Controllers
                 logger.Info("Add All TND_MAP_FP to DB");
                 //service.refreshProjectItem(poiservice.lstProjectItem);
             }
-
+            #endregion
+            //圖算:消防水(TND_MAP_FW)
+            if (null != fileFW && fileFW.ContentLength != 0)
+            {
+                //2.解析Excel
+                logger.Info("Parser Excel data:" + fileFW.FileName);
+                //2.1 設定Excel 檔案名稱
+                var fileName = Path.GetFileName(fileFW.FileName);
+                var path = Path.Combine(TnderProject.UploadFolder + "/" + projectid, fileName);
+                logger.Info("save excel file:" + path);
+                fileFW.SaveAs(path);
+                //2.2 開啟Excel 檔案
+                ProjectItemFromExcel poiservice = new ProjectItemFromExcel();
+                poiservice.InitializeWorkbook(path);
+                //解析消防水塗算數量
+                List<TND_MAP_FW> lstMapFW = poiservice.ConvertDataForMapFW(projectid);
+                //2.3 記錄錯誤訊息
+                message = poiservice.errorMessage;
+                //2.4
+                logger.Info("Delete TND_MAP_FW By Project ID");
+                service.delMapFWByProject(projectid);
+                //2.5 
+                logger.Info("Add All TND_MAP_FP to DB");
+                service.refreshMapFW(poiservice.ConvertDataForMapFW(projectid));
+            }
+            ViewBag.result = message;
             return View();
         }
         private List<topmeperp.Models.TND_PROJECT> SearchProjectByName(string projectname)
