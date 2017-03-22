@@ -35,6 +35,7 @@ namespace topmeperp.Controllers
             return View("Index", lstProject);
         }
         //Create Project Form
+        [HttpPost]
         public ActionResult Create(TND_PROJECT_FORM qf)
         {
             //取得專案編號
@@ -55,10 +56,14 @@ namespace topmeperp.Controllers
             qf.PROJECT_ID = Request["prjId"];
             qf.CREATE_ID = u.USER_ID;
             qf.CREATE_DATE = DateTime.Now;
+           TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
+            string fid=s.newForm(qf, lstItemId);
+
             //PROJECT_FORM_ITEM 可由lstItemId取得對應的標單編號(PROJECT_ITEM)
-            TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
-            s.newForm(qf, lstItemId);
-            //List<topmeperp.Models.TND_PROJECT_ITEM> lstProjectItem = s.getProjectItemId(Request["prjId"], Request["chkItem"]);
+            //fi.CREATE_ID = u.USER_ID;
+            //fi.CREATE_DATE = DateTime.Now;
+           // List<topmeperp.Models.TND_PROJECT_FORM_ITEM> lstProjectFormItem = s.getFormItemById(lstItemId);
+           // log.Info("共取得" + lstProjectFormItem.Count + "筆資料");
             // return View("Create", lstProjectItem);
             //發現問題先註解掉兩行(上面)
             return View();

@@ -32,4 +32,12 @@ namespace topmeperp.Models
     {
         public string ROLE_ID { get; set; }
     }
+
+    public class TndFormModels
+    {
+        //詢價單表頭資料
+        public IEnumerable<TND_PROJECT_FORM> tndProjectForm { get; set; }
+        //詢價單明細資料
+        public IEnumerable<TND_PROJECT_FORM_ITEM> tndProjectFormItem { get; set; }
+    }
 }

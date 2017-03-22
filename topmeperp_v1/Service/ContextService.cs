@@ -239,7 +239,7 @@ namespace topmeperp.Service
         }
 
         TND_PROJECT_FORM form = null;
-        public void newForm(TND_PROJECT_FORM form, string[] lstItemId)
+        public string newForm(TND_PROJECT_FORM form, string[] lstItemId)
         {
             //1.建立詢價單價單樣本
             logger.Info("create new project form ");
@@ -252,7 +252,7 @@ namespace topmeperp.Service
                 context.TND_PROJECT_FORM.Add(form);
                 int i = context.SaveChanges();
                 logger.Debug("Add form=" + i);
-                logger.Info("projecgt form id = " + form.FORM_ID);
+                logger.Info("project form id = " + form.FORM_ID);
                 //if (i > 0) { status = true; };
                 List <topmeperp.Models.TND_PROJECT_FORM_ITEM> lstItem = new List<TND_PROJECT_FORM_ITEM>();
                 string ItemId="";
@@ -274,9 +274,8 @@ namespace topmeperp.Service
                     + " from TND_PROJECT_ITEM where PROJECT_ITEM_ID in ("+ ItemId +")";
                 logger.Info("sql ="+ sql);
                 var parameters = new List<SqlParameter>();
-                parameters.Add(new SqlParameter("formid", form.FORM_ID));
-                parameters.Add(new SqlParameter("ItemId", ItemId));
                 i = context.Database.ExecuteSqlCommand(sql);
+                return form.FORM_ID;
             }
         }
         public TND_PROJECT_FORM getProjectFormById(string prjid)
@@ -300,6 +299,32 @@ namespace topmeperp.Service
                    , new SqlParameter("projectid", projectid)).ToList();
             }
             return lstTask;
+        }
+        public List<TND_PROJECT_FORM_ITEM> getFormItemById(string[] lstItemId)
+        {
+            List<TND_PROJECT_FORM_ITEM> lstFormItem = new List<TND_PROJECT_FORM_ITEM> ();
+            int i = 0;
+            string ItemId = "";
+            for (i = 0; i < lstItemId.Count(); i++)
+            {
+                if (i < lstItemId.Count() - 1)
+                {
+                    ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
+                }
+                else
+                {
+                    ItemId = ItemId + "'" + lstItemId[i] + "'";
+                }
+            }
+            
+            using (var context = new topmepEntities())
+            {
+                lstFormItem = context.TND_PROJECT_FORM_ITEM.SqlQuery("select f.* from  TND_PROJECT_FORM_ITEM f "
+                    + "where f.PROJECT_ITEM_ID in (" + ItemId + ");"
+                   , new SqlParameter("ItemId", ItemId)).ToList();
+            }
+           
+            return lstFormItem;
         }
         //取得標單品項資料
         public List<TND_PROJECT_ITEM> getProjectItem(string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub)
@@ -343,8 +368,9 @@ namespace topmeperp.Service
             logger.Info("get projectitem count=" + lstItem.Count);
             return lstItem;
         }
+
         #region 消防水圖算數量  
-        //增加消防水圖算數量
+            //增加消防水圖算數量
         public int refreshMapFW(List<TND_MAP_FW> items)
         {
             //1.檢查專案是否存在
