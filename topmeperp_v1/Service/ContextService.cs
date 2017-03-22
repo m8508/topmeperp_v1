@@ -267,11 +267,12 @@ namespace topmeperp.Service
                     }
                 }
 
-                string sql = "Insert into TND_PROJECT_FORM_ITEM ([FORM_ID],[PROJECT_ITEM_ID],[TYPE_CODE],"
-                    + "[SUB_TYPE_CODE],[ITEM_DESC],[ITEM_QTY],[ITEM_UNIT_PRICE],[EXCEL_ROW_ID])"
-                    + "select" + "'" + form.FORM_ID + "'" + "as FORM_ID, PROJECT_ITEM_ID, TYPE_CODE_1 AS TYPE_CODE,"
-                    + "TYPE_CODE_1 AS SUB_TYPE_CODE,ITEM_DESC, ITEM_QUANTITY, ITEM_UNIT_PRICE, EXCEL_ROW_ID"
-                    + " from TND_PROJECT_ITEM where PROJECT_ITEM_ID in (" + ItemId + ")";
+                string sql = "INSERT INTO TND_PROJECT_FORM_ITEM (FORM_ID, PROJECT_ITEM_ID, TYPE_CODE, "
+                    + "SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_QTY, ITEM_UNIT_PRICE, ITEM_REMARK) "
+                    + "SELECT '" + form.FORM_ID + "' as FORM_ID, PROJECT_ITEM_ID, TYPE_CODE_1 AS TYPE_CODE, "
+                    + "TYPE_CODE_1 AS SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_QUANTITY, ITEM_UNIT_PRICE, ITEM_REMARK "
+                    + "FROM TND_PROJECT_ITEM where PROJECT_ITEM_ID IN ("+ ItemId +")";
+
                 logger.Info("sql =" + sql);
                 var parameters = new List<SqlParameter>();
                 i = context.Database.ExecuteSqlCommand(sql);
@@ -516,6 +517,7 @@ namespace topmeperp.Service
         }
     }
     #endregion
+    #region 系統管理區塊
     /*
      *使用者帳號管理 
      */
@@ -699,4 +701,5 @@ namespace topmeperp.Service
             return lst;
         }
     }
+    #endregion
 }

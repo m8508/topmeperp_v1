@@ -598,17 +598,26 @@ namespace topmeperp.Service
             sheet = (XSSFSheet)hssfworkbook.GetSheet("詢價單");
             //2.填入表頭資料
             logger.Debug("Template Head_1=" + sheet.GetRow(2).Cells[0].ToString());
-            ICell cellHead_1 = sheet.GetRow(2).Cells[1];//專案名稱
+            sheet.GetRow(2).Cells[1].SetCellValue (form.PROJECT_ID);//專案名稱
             logger.Debug("Template Head_2=" + sheet.GetRow(3).Cells[0].ToString());
-            ICell cellHead_2 = sheet.GetRow(3).Cells[1];//採購項目:
+            sheet.GetRow(3).Cells[1].SetCellValue(form.FORM_NAME);//採購項目:
             logger.Debug("Template Head_3=" + sheet.GetRow(4).Cells[0].ToString());
-            ICell cellHead_3 = sheet.GetRow(4).Cells[1];//承辦人:
+            sheet.GetRow(4).Cells[1].SetCellValue (form.OWNER_NAME) ;//承辦人:
             logger.Debug("Template Head_4=" + sheet.GetRow(5).Cells[0].ToString());
-            ICell cellHead_4 = sheet.GetRow(5).Cells[1];//聯絡電話:
+            sheet.GetRow(5).Cells[1].SetCellValue (form.OWNER_TEL);//聯絡電話:
             logger.Debug("Template Head_5=" + sheet.GetRow(6).Cells[0].ToString());
-            ICell cellHead_5 = sheet.GetRow(6).Cells[1];//電子信箱
+            sheet.GetRow(6).Cells[1].SetCellValue(form.OWNER_EMAIL);//EMAIL:
+            //IRow r6 = sheet.GetRow(6);
+            //r6.Cells[1].SetCellValue (form.OWNER_EMAIL);//電子信箱
+            //r6.CreateCell(6).SetCellValue("編號:");
+            //for (int itmp = 2; itmp < 5; itmp++)
+            //{
+            //    r6.CreateCell(itmp);
+            //}
+            //r6.CreateCell(7).SetCellValue (form.FORM_ID);//表單編號:
             logger.Debug("Template Head_6=" + sheet.GetRow(7).Cells[0].ToString());
-            ICell cellHead_6 = sheet.GetRow(7).Cells[1];//FAX:
+            sheet.GetRow(7).Cells[1].SetCellValue(form.OWNER_FAX);//FAX:
+
             //3.填入表單明細
             int idxRow = 9;
             foreach (TND_PROJECT_FORM_ITEM item in formItems)
@@ -618,14 +627,14 @@ namespace topmeperp.Service
                 row.Cells[0].SetCellValue(idxRow - 8);///項次
                 logger.Debug("Inquiry :ITEM DESC="+ item.ITEM_DESC);
                 row.Cells[1].SetCellValue(item.ITEM_DESC);//項目說明
-                row.Cells[2].SetCellValue("缺");// 單位
+                row.Cells[2].SetCellValue(item.ITEM_UNIT );// 單位
                 if (null != item.ITEM_QTY && item.ITEM_QTY.ToString().Trim() != "")
                 {
                     row.Cells[3].SetCellValue(double.Parse(item.ITEM_QTY.ToString())); //數量
                 }
                 // row.Cells[4].SetCellValue(idxRow - 8);//單價
                 // row.Cells[5].SetCellValue(idxRow - 8);複價
-                row.Cells[6].SetCellValue("缺");// 備註
+                row.Cells[6].SetCellValue(item.ITEM_REMARK);// 備註
                 //建立空白欄位
                 for (int iTmp=7;iTmp < 27; iTmp++)
                 {
