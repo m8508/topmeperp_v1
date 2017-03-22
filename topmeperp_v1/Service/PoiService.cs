@@ -1,4 +1,5 @@
-﻿using log4net;
+
+using log4net;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
@@ -32,8 +33,7 @@ namespace topmeperp.Service
             //book1.xls is an Excel-2007-generated file, so some new unknown BIFF records are added. 
             using (FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
-                logger.Info("Read Excel File:" + path);
-                if (file.Name.EndsWith(".xls"))
+                logger.Info("Read Excel File:" + path);                if (file.Name.EndsWith(".xls"))
                 {
                     logger.Debug("process excel file for office 2003");
                     fileformat = ".xls";
@@ -44,7 +44,7 @@ namespace topmeperp.Service
                     logger.Debug("process excel file for office 2007");
                     hssfworkbook = new XSSFWorkbook(file);
                 }
-                file.Close();
+ㄥ                file.Close();
             }
         }
 
@@ -70,6 +70,7 @@ namespace topmeperp.Service
             }
             ConvertExcelToTndProjectItem(startrow);
         }
+        //轉換標單內容物件
         public void ConvertExcelToTndProjectItem(int startrow)
         {
             IRow row = null;
@@ -167,6 +168,7 @@ namespace topmeperp.Service
             logger.Info("TndprojectItem=" + projectItem.ToString());
             return projectItem;
         }
+        
         /**
          * 取得消防水Sheet 資料
          * */
