@@ -1,0 +1,37 @@
+﻿
+@{
+    ViewBag.Title = "備標作業-詢價單下載測試";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+<!--標單項目搜尋區條件區域-->
+<div class="jumbotron">
+    <div class="row">
+        <div class="col-md-8">
+            <form name="FormInquiry" id="FormInquiry" action="" method="Post">
+                詢價單編號:<input id="formid" name="formid" type="text" value="PO-000001" /><br />
+                <input id="Submit1" type="submit" value="查詢" />
+            </form>
+            <div id="divProcessing">
+                <img src="~/Content/ajax-loader.gif">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Hide the "busy" Gif at load:
+        $("#divProcessing").hide();
+        // Attach click handler to the submit button:
+        $('#login').click(function () {
+            $("#divProcessing").show();
+        });
+    });
+</script>
+
+
+
+
+
+
+

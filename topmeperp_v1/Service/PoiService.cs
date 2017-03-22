@@ -556,7 +556,7 @@ namespace topmeperp.Service
                 {
                     decimal dQty = decimal.Parse(row.Cells[15].ToString());
                     logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[15].ToString());
-                    item.PIPE_TOTAL_LENGTH  = dQty;
+                    item.PIPE_TOTAL_LENGTH = dQty;
                 }
                 catch (Exception e)
                 {
@@ -581,4 +581,81 @@ namespace topmeperp.Service
             }
         }
     }
+    #region 詢價單格式處理區段
+    public class InquiryFormToExcel
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        string templateFile = "D:\\VS.NET\\topmeperp_v1\\topmeperp_v1\\UploadFile\\Inquiry_form_template.xlsx";
+        string outputPath = ContextService.strUploadPath;
+
+        IWorkbook hssfworkbook;
+        ISheet sheet = null;
+        string fileformat = "xlsx";
+        public void exportExcel(TND_PROJECT_FORM form, List<TND_PROJECT_FORM_ITEM> formItems)
+        {
+            //1.讀取樣板檔案
+            InitializeWorkbook(templateFile);
+            sheet = (XSSFSheet)hssfworkbook.GetSheet("詢價單");
+            //2.填入表頭資料
+            logger.Debug("Template Head_1=" + sheet.GetRow(2).Cells[0].ToString());
+            ICell cellHead_1 = sheet.GetRow(2).Cells[1];//專案名稱
+            logger.Debug("Template Head_2=" + sheet.GetRow(3).Cells[0].ToString());
+            ICell cellHead_2 = sheet.GetRow(3).Cells[1];//採購項目:
+            logger.Debug("Template Head_3=" + sheet.GetRow(4).Cells[0].ToString());
+            ICell cellHead_3 = sheet.GetRow(4).Cells[1];//承辦人:
+            logger.Debug("Template Head_4=" + sheet.GetRow(5).Cells[0].ToString());
+            ICell cellHead_4 = sheet.GetRow(5).Cells[1];//聯絡電話:
+            logger.Debug("Template Head_5=" + sheet.GetRow(6).Cells[0].ToString());
+            ICell cellHead_5 = sheet.GetRow(6).Cells[1];//電子信箱
+            logger.Debug("Template Head_6=" + sheet.GetRow(7).Cells[0].ToString());
+            ICell cellHead_6 = sheet.GetRow(7).Cells[1];//FAX:
+            //3.填入表單明細
+            int idxRow = 9;
+            foreach (TND_PROJECT_FORM_ITEM item in formItems)
+            {
+                IRow row = sheet.GetRow(idxRow);
+                //項次 項目說明    單位 數量  單價 複價  備註
+                row.Cells[0].SetCellValue(idxRow - 8);///項次
+                logger.Debug("Inquiry :ITEM DESC="+ item.ITEM_DESC);
+                row.Cells[1].SetCellValue(item.ITEM_DESC);//項目說明
+                row.Cells[2].SetCellValue("缺");// 單位
+                if (null != item.ITEM_QTY && item.ITEM_QTY.ToString().Trim() != "")
+                {
+                    row.Cells[3].SetCellValue(double.Parse(item.ITEM_QTY.ToString())); //數量
+                }
+                // row.Cells[4].SetCellValue(idxRow - 8);//單價
+                // row.Cells[5].SetCellValue(idxRow - 8);複價
+                row.Cells[6].SetCellValue("缺");// 備註
+                //填入標單項次編號 PROJECT_ITEM_ID
+                row.CreateCell(7);
+                row.Cells[7].SetCellValue(item.PROJECT_ITEM_ID);
+                idxRow++;
+            }
+            //4.令存新檔至專案所屬目錄
+            var file = new FileStream(outputPath+"\\"+form.PROJECT_ID + "\\sample.xlsx", FileMode.Create);
+            hssfworkbook.Write(file);
+            file.Close();
+        }
+        private void InitializeWorkbook(string path)
+        {
+            //read the template via FileStream, it is suggested to use FileAccess.Read to prevent file lock.
+            //book1.xls is an Excel-2007-generated file, so some new unknown BIFF records are added. 
+            using (FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                logger.Info("Read Excel File:" + path); if (file.Name.EndsWith(".xls"))
+                {
+                    logger.Debug("process excel file for office 2003");
+                    fileformat = "xls";
+                    hssfworkbook = new HSSFWorkbook(file);
+                }
+                else
+                {
+                    logger.Debug("process excel file for office 2007");
+                    hssfworkbook = new XSSFWorkbook(file);
+                }
+                file.Close();
+            }
+        }
+    }
+    #endregion
 }
