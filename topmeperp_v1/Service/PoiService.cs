@@ -626,9 +626,13 @@ namespace topmeperp.Service
                 // row.Cells[4].SetCellValue(idxRow - 8);//單價
                 // row.Cells[5].SetCellValue(idxRow - 8);複價
                 row.Cells[6].SetCellValue("缺");// 備註
+                //建立空白欄位
+                for (int iTmp=7;iTmp < 27; iTmp++)
+                {
+                    row.CreateCell(iTmp);
+                }
                 //填入標單項次編號 PROJECT_ITEM_ID
-                row.CreateCell(7);
-                row.Cells[7].SetCellValue(item.PROJECT_ITEM_ID);
+                row.Cells[26].SetCellValue(item.PROJECT_ITEM_ID);
                 idxRow++;
             }
             //4.令存新檔至專案所屬目錄
