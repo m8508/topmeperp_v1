@@ -44,7 +44,7 @@ namespace topmeperp.Service
                     logger.Debug("process excel file for office 2007");
                     hssfworkbook = new XSSFWorkbook(file);
                 }
-ㄥ                file.Close();
+                file.Close();
             }
         }
 
