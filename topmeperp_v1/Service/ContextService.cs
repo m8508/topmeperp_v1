@@ -377,6 +377,41 @@ namespace topmeperp.Service
             return i;
         }
         #endregion
+        #region 消防電圖算數量  
+        //消防電圖算數量  
+        public int refreshMapFP(List<TND_MAP_FP> items)
+        {
+            //1.檢查專案是否存在
+            if (null == project) { throw new Exception("Project is not exist !!"); }
+            int i = 0;
+            logger.Info("refreshProjectItem = " + items.Count);
+            //2.將Excel 資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (TND_MAP_FP item in items)
+                {
+                    item.PROJECT_ID = project.PROJECT_ID;
+                    context.TND_MAP_FP.Add(item);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("add TND_MAP_FP count =" + i);
+            return i;
+        }
+        public int delMapFPByProject(string projectid)
+        {
+            logger.Info("remove all FP by project ID=" + projectid);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("delete all TND_MAP_FP by proejct id=" + project.PROJECT_ID);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM  TND_MAP_FP WHERE PROJECT_ID=@projectid", new SqlParameter("@projectid", projectid));
+            }
+            logger.Debug("delete TND_MAP_FP count=" + i);
+            return i;
+        }
+        #endregion
+
     }
     /*
      * 序號處理程序

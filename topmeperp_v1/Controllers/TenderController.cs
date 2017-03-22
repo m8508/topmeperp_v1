@@ -166,7 +166,7 @@ namespace topmeperp.Controllers
             if (null != fileFP && fileFP.ContentLength != 0)
             {
                 //2.解析Excel
-                logger.Info("Parser Excel data:" + fileFP.FileName);
+                logger.Info("Parser FP Excel data:" + fileFP.FileName);
                 //2.1 設定Excel 檔案名稱
                 var fileName = Path.GetFileName(fileFP.FileName);
                 var path = Path.Combine(TnderProject.UploadFolder + "/" + projectid, fileName);
@@ -175,18 +175,19 @@ namespace topmeperp.Controllers
                 //2.2 解析Excel 檔案
                 ProjectItemFromExcel poiservice = new ProjectItemFromExcel();
                 poiservice.InitializeWorkbook(path);
-                //解析設備圖算數量檔案
-                //poiservice.ConvertDataForTenderProject(prj.PROJECT_ID, (int)prj.START_ROW_NO);
+                //解析消防電圖算數量檔案
+                List<TND_MAP_FP> lstMapFP = poiservice.ConvertDataForMapFP(projectid);
                 //2.3 記錄錯誤訊息
-                // message = message + "標單品項:共" + poiservice.lstProjectItem.Count + "筆資料<br/>" + poiservice.errorMessage;
+                 message = message + poiservice.errorMessage;
                 //2.4
                 logger.Info("Delete TND_MAP_FP By Project ID");
-                //service.delAllItemByProject();
-                //2.5
+                service.delMapFPByProject(projectid);
+                 //2.5
                 logger.Info("Add All TND_MAP_FP to DB");
-                //service.refreshProjectItem(poiservice.lstProjectItem);
+                service.refreshMapFP(lstMapFP);
             }
             #endregion
+            #region 消防水
             //圖算:消防水(TND_MAP_FW)
             if (null != fileFW && fileFW.ContentLength != 0)
             {
@@ -207,10 +208,13 @@ namespace topmeperp.Controllers
                 //2.4
                 logger.Info("Delete TND_MAP_FW By Project ID");
                 service.delMapFWByProject(projectid);
+                message = message+"<br/>舊有資料刪除成功 !!";
                 //2.5 
                 logger.Info("Add All TND_MAP_FP to DB");
-                service.refreshMapFW(poiservice.ConvertDataForMapFW(projectid));
+                service.refreshMapFW(lstMapFW);
+                message = message + "<br/>資料匯入完成 !!";
             }
+            #endregion
             ViewBag.result = message;
             return View();
         }
