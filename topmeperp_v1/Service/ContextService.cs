@@ -239,16 +239,44 @@ namespace topmeperp.Service
         }
 
         TND_PROJECT_FORM form = null;
-        public void newForm(TND_PROJECT_FORM form)
+        public void newForm(TND_PROJECT_FORM form, string[] lstItemId)
         {
             //1.建立詢價單價單樣本
             logger.Info("create new project form ");
+            string sno_key = "PO";
+            SerialKeyService snoservice = new SerialKeyService();
+            form.FORM_ID = snoservice.getSerialKey(sno_key);
+            logger.Info("new projecgt form =" + form.ToString());
             using (var context = new topmepEntities())
             {
                 context.TND_PROJECT_FORM.Add(form);
                 int i = context.SaveChanges();
                 logger.Debug("Add form=" + i);
+                logger.Info("projecgt form id = " + form.FORM_ID);
                 //if (i > 0) { status = true; };
+                List <topmeperp.Models.TND_PROJECT_FORM_ITEM> lstItem = new List<TND_PROJECT_FORM_ITEM>();
+                string ItemId="";
+                for (i = 0; i < lstItemId.Count(); i++)
+                {  
+                   if(i < lstItemId.Count() - 1) {
+                       ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
+                    }
+                    else
+                    {
+                        ItemId = ItemId + "'" + lstItemId[i] + "'";
+                    }
+                }
+
+                string sql = "Insert into TND_PROJECT_FORM_ITEM ([FORM_ID],[PROJECT_ITEM_ID],[TYPE_CODE],"
+                    + "[SUB_TYPE_CODE],[ITEM_DESC],[ITEM_QTY],[ITEM_UNIT_PRICE],[EXCEL_ROW_ID])"
+                    + "select" +"'"+ form.FORM_ID +"'" +"as FORM_ID, PROJECT_ITEM_ID, TYPE_CODE_1 AS TYPE_CODE,"
+                    + "TYPE_CODE_1 AS SUB_TYPE_CODE,ITEM_DESC, ITEM_QUANTITY, ITEM_UNIT_PRICE, EXCEL_ROW_ID"
+                    + " from TND_PROJECT_ITEM where PROJECT_ITEM_ID in ("+ ItemId +")";
+                logger.Info("sql ="+ sql);
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("formid", form.FORM_ID));
+                parameters.Add(new SqlParameter("ItemId", ItemId));
+                i = context.Database.ExecuteSqlCommand(sql);
             }
         }
         public TND_PROJECT_FORM getProjectFormById(string prjid)

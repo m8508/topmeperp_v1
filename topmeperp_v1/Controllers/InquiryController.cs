@@ -35,7 +35,7 @@ namespace topmeperp.Controllers
             return View("Index", lstProject);
         }
         //Create Project Form
-        public ActionResult Create()
+        public ActionResult Create(TND_PROJECT_FORM qf)
         {
             //取得專案編號
             log.Info("Project Id:" + Request["prjId"]);
@@ -51,7 +51,13 @@ namespace topmeperp.Controllers
             //建立空白詢價單
             log.Info("create new form template");
             TnderProject s = new TnderProject();
+            SYS_USER u = (SYS_USER)Session["user"];
+            qf.PROJECT_ID = Request["prjId"];
+            qf.CREATE_ID = u.USER_ID;
+            qf.CREATE_DATE = DateTime.Now;
             //PROJECT_FORM_ITEM 可由lstItemId取得對應的標單編號(PROJECT_ITEM)
+            TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
+            s.newForm(qf, lstItemId);
             //List<topmeperp.Models.TND_PROJECT_ITEM> lstProjectItem = s.getProjectItemId(Request["prjId"], Request["chkItem"]);
             // return View("Create", lstProjectItem);
             //發現問題先註解掉兩行(上面)
