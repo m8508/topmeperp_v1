@@ -539,6 +539,7 @@
     <Content Include="Views\Inquiry\ProjectFormList.cshtml" />
     <Content Include="Views\Inquiry\Create.cshtml" />
     <Content Include="Views\Inquiry\ExportInquiry.cshtml" />
+    <Content Include="UploadFile\Inquiry_form_template.xlsx" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
