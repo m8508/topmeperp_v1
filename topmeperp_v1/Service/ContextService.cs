@@ -18,7 +18,7 @@ namespace topmeperp.Service
     {
         public topmepEntities db;// = new topmepEntities();
         //定義上傳檔案存放路徑
-        public static string strUploadPath = "~/UploadFile";
+        public static string strUploadPath = ConfigurationManager.AppSettings["UploadFolder"];
         //Sample Code : It can get ADO.NET Dataset
         public DataSet ExecuteStoreQuery(string sql, CommandType commandType, Dictionary<string, Object> parameters)
         {
@@ -121,6 +121,7 @@ namespace topmeperp.Service
         }
 
     }
+    #region 備標處理區段
     /***
      * 備標階段專案管理
      */
@@ -132,8 +133,6 @@ namespace topmeperp.Service
         public static string UploadFolder = null;
         public TnderProject()
         {
-            UploadFolder = ConfigurationManager.AppSettings["UploadFolder"];
-            logger.Info("initial upload foler:" + UploadFolder);
         }
         public int newProject(TND_PROJECT prj)
         {
@@ -254,12 +253,13 @@ namespace topmeperp.Service
                 logger.Debug("Add form=" + i);
                 logger.Info("project form id = " + form.FORM_ID);
                 //if (i > 0) { status = true; };
-                List <topmeperp.Models.TND_PROJECT_FORM_ITEM> lstItem = new List<TND_PROJECT_FORM_ITEM>();
-                string ItemId="";
+                List<topmeperp.Models.TND_PROJECT_FORM_ITEM> lstItem = new List<TND_PROJECT_FORM_ITEM>();
+                string ItemId = "";
                 for (i = 0; i < lstItemId.Count(); i++)
-                {  
-                   if(i < lstItemId.Count() - 1) {
-                       ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
+                {
+                    if (i < lstItemId.Count() - 1)
+                    {
+                        ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
                     }
                     else
                     {
@@ -269,10 +269,10 @@ namespace topmeperp.Service
 
                 string sql = "Insert into TND_PROJECT_FORM_ITEM ([FORM_ID],[PROJECT_ITEM_ID],[TYPE_CODE],"
                     + "[SUB_TYPE_CODE],[ITEM_DESC],[ITEM_QTY],[ITEM_UNIT_PRICE],[EXCEL_ROW_ID])"
-                    + "select" +"'"+ form.FORM_ID +"'" +"as FORM_ID, PROJECT_ITEM_ID, TYPE_CODE_1 AS TYPE_CODE,"
+                    + "select" + "'" + form.FORM_ID + "'" + "as FORM_ID, PROJECT_ITEM_ID, TYPE_CODE_1 AS TYPE_CODE,"
                     + "TYPE_CODE_1 AS SUB_TYPE_CODE,ITEM_DESC, ITEM_QUANTITY, ITEM_UNIT_PRICE, EXCEL_ROW_ID"
-                    + " from TND_PROJECT_ITEM where PROJECT_ITEM_ID in ("+ ItemId +")";
-                logger.Info("sql ="+ sql);
+                    + " from TND_PROJECT_ITEM where PROJECT_ITEM_ID in (" + ItemId + ")";
+                logger.Info("sql =" + sql);
                 var parameters = new List<SqlParameter>();
                 i = context.Database.ExecuteSqlCommand(sql);
                 return form.FORM_ID;
@@ -403,7 +403,66 @@ namespace topmeperp.Service
             return i;
         }
         #endregion
+        #region 消防電圖算數量  
+        //消防電圖算數量  
+        public int refreshMapFP(List<TND_MAP_FP> items)
+        {
+            //1.檢查專案是否存在
+            if (null == project) { throw new Exception("Project is not exist !!"); }
+            int i = 0;
+            logger.Info("refreshProjectItem = " + items.Count);
+            //2.將Excel 資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (TND_MAP_FP item in items)
+                {
+                    item.PROJECT_ID = project.PROJECT_ID;
+                    context.TND_MAP_FP.Add(item);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("add TND_MAP_FP count =" + i);
+            return i;
+        }
+        public int delMapFPByProject(string projectid)
+        {
+            logger.Info("remove all FP by project ID=" + projectid);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("delete all TND_MAP_FP by proejct id=" + project.PROJECT_ID);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM  TND_MAP_FP WHERE PROJECT_ID=@projectid", new SqlParameter("@projectid", projectid));
+            }
+            logger.Debug("delete TND_MAP_FP count=" + i);
+            return i;
+        }
+        #endregion
+
     }
+    //詢價單資料提供作業
+    public class InquiryFormService : ContextService
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        public TND_PROJECT_FORM formInquiry = null;
+        public List<TND_PROJECT_FORM_ITEM> formInquiryItem = null;
+        //取得詢價單
+        public void getIqueryForm(string formid)
+        {
+            logger.Info("get form : formid=" + formid);
+            using (var context = new topmepEntities())
+            {
+                //取得詢價單檔頭資訊
+                formInquiry = context.TND_PROJECT_FORM.SqlQuery("SELECT * FROM TND_PROJECT_FORM WHERE FORM_ID=@formid", new SqlParameter("formid", formid)).First();
+                //取得詢價單明細
+                formInquiryItem = context.TND_PROJECT_FORM_ITEM.SqlQuery("SELECT * FROM TND_PROJECT_FORM_ITEM WHERE FORM_ID=@formid", new SqlParameter("formid", formid)).ToList();
+                logger.Debug("get form item count:" + formInquiryItem.Count);
+            }
+
+        }
+
+    }
+    #endregion
+    #region 序號服務提供區段
     /*
      * 序號處理程序
      */
@@ -456,6 +515,7 @@ namespace topmeperp.Service
             return sKey;
         }
     }
+    #endregion
     /*
      *使用者帳號管理 
      */

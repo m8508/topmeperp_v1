@@ -14,7 +14,7 @@ namespace topmeperp.Controllers
     public class InquiryController : Controller
     {
         ILog log = log4net.LogManager.GetLogger(typeof(InquiryController));
-
+        InquiryFormService service = new InquiryFormService();
         // GET: Inquiry
         public ActionResult Index(string id)
         {
@@ -68,7 +68,20 @@ namespace topmeperp.Controllers
             //發現問題先註解掉兩行(上面)
             return View();
         }
-        //PROJECT_FOM 完全是需要新增的
+        //測試詢價單下載
+        public ActionResult ExportInquiry()
+        {
+            return View();
+        }
+        [HttpPost ]
+        public ActionResult ExportInquiry(FormCollection form)
+        {
+            log.Info("get inquiry form:formid=" + form["formid"]);
+            service.getIqueryForm(form["formid"]);
+            InquiryFormToExcel poi = new InquiryFormToExcel();
+            poi.exportExcel(service.formInquiry, service.formInquiryItem);
+            return View();
+        }
     }
 }
     
