@@ -57,14 +57,6 @@ namespace topmeperp.Controllers
             qf.CREATE_DATE = DateTime.Now;
             TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
             string fid=s.newForm(qf, lstItemId);
-
-            //PROJECT_FORM_ITEM 可由lstItemId取得對應的標單編號(PROJECT_ITEM)
-            //fi.CREATE_ID = u.USER_ID;
-            //fi.CREATE_DATE = DateTime.Now;
-            // List<topmeperp.Models.TND_PROJECT_FORM_ITEM> lstProjectFormItem = s.getFormItemById(lstItemId);
-            // log.Info("共取得" + lstProjectFormItem.Count + "筆資料");
-            // return View("Create", lstProjectItem);
-            //發現問題先註解掉兩行(上面)
             return RedirectToAction("ExportInquiry");
         }
         //測試詢價單下載

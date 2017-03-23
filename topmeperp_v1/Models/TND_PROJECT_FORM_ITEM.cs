@@ -20,15 +20,12 @@ namespace topmeperp.Models
         public string TYPE_CODE { get; set; }
         public string SUB_TYPE_CODE { get; set; }
         public string ITEM_DESC { get; set; }
+        public string ITEM_UNIT { get; set; }
         public Nullable<decimal> ITEM_QTY { get; set; }
         public Nullable<decimal> ITEM_UNIT_PRICE { get; set; }
         public Nullable<decimal> ITEM_QTY_ORG { get; set; }
         public Nullable<decimal> ITEM_UNITPRICE_ORG { get; set; }
-        public Nullable<long> EXCEL_ROW_ID { get; set; }
-        public string MAP_TYPE { get; set; }
-        public Nullable<decimal> MAP_QTY { get; set; }
-        public string CREATE_ID { get; set; }
-        public Nullable<System.DateTime> CREATE_DATE { get; set; }
+        public string ITEM_REMARK { get; set; }
         public string MODIFY_ID { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
     }
