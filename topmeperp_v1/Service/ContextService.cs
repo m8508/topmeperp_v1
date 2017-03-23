@@ -19,6 +19,7 @@ namespace topmeperp.Service
         public topmepEntities db;// = new topmepEntities();
         //定義上傳檔案存放路徑
         public static string strUploadPath = ConfigurationManager.AppSettings["UploadFolder"];
+        public static string quotesFolder = "Quotes"; //廠商報價單路徑
         //Sample Code : It can get ADO.NET Dataset
         public DataSet ExecuteStoreQuery(string sql, CommandType commandType, Dictionary<string, Object> parameters)
         {
