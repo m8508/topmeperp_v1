@@ -22,7 +22,6 @@ namespace topmeperp.Controllers
             ViewBag.projectId = id;
             return View();
         }
-
         // POST : Search
         [HttpPost ]
         public ActionResult Index(FormCollection f)
@@ -81,6 +80,18 @@ namespace topmeperp.Controllers
             InquiryFormToExcel poi = new InquiryFormToExcel();
             poi.exportExcel(service.formInquiry, service.formInquiryItem);
             return View();
+        }
+        public ActionResult InquiryMainPage()
+        {
+            return View();
+        }
+        [HttpPost]
+        public ActionResult InquiryMainPage(string projectid)
+        {
+            log.Info("queryInquiry by projectID=" + projectid);
+            ViewBag.projectid = projectid;
+            List<TND_PROJECT_FORM> lst = service.getFormTemplateByProject(projectid);
+            return View(lst);
         }
     }
 }

@@ -1,0 +1,30 @@
+﻿@model IEnumerable<topmeperp.Models.TND_PROJECT_FORM>
+<div class="container">
+    <h6>請下載需要的詢價單，調整後發給廠商，再行匯入系統!!!</h6>
+    @if (null != Model)
+    {
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>編號</th>
+                    <th>詢價單名稱</th>
+                    <th>下載連結</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.FORM_ID)</td>
+                        <td>@Html.DisplayFor(modelItem => item.FORM_NAME)</td>
+                        <td><a href='@("../UploadFile/"+ViewBag.projectid+"/"+item.FORM_ID+".xlsx")'>下載</a></td>
+</tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>尚未建立相關詢價單樣板，請<a href="#">連結</a>建立空白詢價單!!</p>
+    }
+</div>
