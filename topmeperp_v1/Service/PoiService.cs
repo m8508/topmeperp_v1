@@ -607,14 +607,6 @@ namespace topmeperp.Service
             sheet.GetRow(5).Cells[1].SetCellValue (form.OWNER_TEL);//聯絡電話:
             logger.Debug("Template Head_5=" + sheet.GetRow(6).Cells[0].ToString());
             sheet.GetRow(6).Cells[1].SetCellValue(form.OWNER_EMAIL);//EMAIL:
-            //IRow r6 = sheet.GetRow(6);
-            //r6.Cells[1].SetCellValue (form.OWNER_EMAIL);//電子信箱
-            //r6.CreateCell(6).SetCellValue("編號:");
-            //for (int itmp = 2; itmp < 5; itmp++)
-            //{
-            //    r6.CreateCell(itmp);
-            //}
-            //r6.CreateCell(7).SetCellValue (form.FORM_ID);//表單編號:
             logger.Debug("Template Head_6=" + sheet.GetRow(7).Cells[0].ToString());
             sheet.GetRow(7).Cells[1].SetCellValue(form.OWNER_FAX);//FAX:
 
@@ -645,7 +637,7 @@ namespace topmeperp.Service
                 idxRow++;
             }
             //4.令存新檔至專案所屬目錄
-            var file = new FileStream(outputPath+"\\"+form.PROJECT_ID + "\\sample.xlsx", FileMode.Create);
+            var file = new FileStream(outputPath+"\\"+form.PROJECT_ID + "\\"+ form.FORM_ID +".xlsx", FileMode.Create);
             hssfworkbook.Write(file);
             file.Close();
         }

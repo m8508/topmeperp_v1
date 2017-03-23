@@ -1,0 +1,56 @@
+﻿@{
+    ViewBag.Title = "備標作業-詢價單管理";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+<!--標單項目搜尋區條件區域-->
+<div class="jumbotron">
+    <div class="row">
+        <div class="col-md-12">
+            <form name="formInquirySearch" id="formInquirySearch" action="InquiryMainPage" method="Post">
+                專案編號:<input id="projectid" name="projectid" type="text" value="@ViewBag.projectid" />
+                <input id="Submit1" class="btn btn-primary" type="submit" value="查詢" />
+            </form>
+            <div id="divProcessing">
+                <img src="~/Content/ajax-loader.gif">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#inquiryTemplate">空白詢價單</a></li>
+        <li><a data-toggle="tab" href="#inquiry">廠商報價單</a></li>
+    </ul>
+
+    <div class="tab-content">
+        <div id="inquiryTemplate" class="tab-pane fade in active">
+            @{
+                Html.RenderPartial("_InquiryMainPage");
+            }
+        </div>
+        <div id="inquiry" class="tab-pane fade">
+            @{
+                Html.RenderPartial("_InquirySupplierPage");
+            }
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Hide the "busy" Gif at load:
+        $("#divProcessing").hide();
+        // Attach click handler to the submit button:
+        $('#login').click(function () {
+            $("#divProcessing").show();
+        });
+    });
+</script>
+
+
+
+
+
+
+
