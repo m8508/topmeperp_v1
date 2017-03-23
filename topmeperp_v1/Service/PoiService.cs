@@ -590,7 +590,13 @@ namespace topmeperp.Service
 
         IWorkbook hssfworkbook;
         ISheet sheet = null;
-        string fileformat = "xlsx";
+
+        //存放供應商報價單資料
+        public TND_PROJECT_FORM form = null;
+        public List<TND_PROJECT_FORM_ITEM> formItems = null;
+        
+        // string fileformat = "xlsx";
+        //建立詢價單樣板
         public void exportExcel(TND_PROJECT_FORM form, List<TND_PROJECT_FORM_ITEM> formItems)
         {
             //1.讀取樣板檔案
@@ -598,13 +604,13 @@ namespace topmeperp.Service
             sheet = (XSSFSheet)hssfworkbook.GetSheet("詢價單");
             //2.填入表頭資料
             logger.Debug("Template Head_1=" + sheet.GetRow(2).Cells[0].ToString());
-            sheet.GetRow(2).Cells[1].SetCellValue (form.PROJECT_ID);//專案名稱
+            sheet.GetRow(2).Cells[1].SetCellValue(form.PROJECT_ID);//專案名稱
             logger.Debug("Template Head_2=" + sheet.GetRow(3).Cells[0].ToString());
             sheet.GetRow(3).Cells[1].SetCellValue(form.FORM_NAME);//採購項目:
             logger.Debug("Template Head_3=" + sheet.GetRow(4).Cells[0].ToString());
-            sheet.GetRow(4).Cells[1].SetCellValue (form.OWNER_NAME) ;//承辦人:
+            sheet.GetRow(4).Cells[1].SetCellValue(form.OWNER_NAME);//承辦人:
             logger.Debug("Template Head_4=" + sheet.GetRow(5).Cells[0].ToString());
-            sheet.GetRow(5).Cells[1].SetCellValue (form.OWNER_TEL);//聯絡電話:
+            sheet.GetRow(5).Cells[1].SetCellValue(form.OWNER_TEL);//聯絡電話:
             logger.Debug("Template Head_5=" + sheet.GetRow(6).Cells[0].ToString());
             sheet.GetRow(6).Cells[1].SetCellValue(form.OWNER_EMAIL);//EMAIL:
             logger.Debug("Template Head_6=" + sheet.GetRow(7).Cells[0].ToString());
@@ -617,9 +623,9 @@ namespace topmeperp.Service
                 IRow row = sheet.GetRow(idxRow);
                 //項次 項目說明    單位 數量  單價 複價  備註
                 row.Cells[0].SetCellValue(idxRow - 8);///項次
-                logger.Debug("Inquiry :ITEM DESC="+ item.ITEM_DESC);
+                logger.Debug("Inquiry :ITEM DESC=" + item.ITEM_DESC);
                 row.Cells[1].SetCellValue(item.ITEM_DESC);//項目說明
-                row.Cells[2].SetCellValue(item.ITEM_UNIT );// 單位
+                row.Cells[2].SetCellValue(item.ITEM_UNIT);// 單位
                 if (null != item.ITEM_QTY && item.ITEM_QTY.ToString().Trim() != "")
                 {
                     row.Cells[3].SetCellValue(double.Parse(item.ITEM_QTY.ToString())); //數量
@@ -628,7 +634,7 @@ namespace topmeperp.Service
                 // row.Cells[5].SetCellValue(idxRow - 8);複價
                 row.Cells[6].SetCellValue(item.ITEM_REMARK);// 備註
                 //建立空白欄位
-                for (int iTmp=7;iTmp < 27; iTmp++)
+                for (int iTmp = 7; iTmp < 27; iTmp++)
                 {
                     row.CreateCell(iTmp);
                 }
@@ -637,10 +643,11 @@ namespace topmeperp.Service
                 idxRow++;
             }
             //4.令存新檔至專案所屬目錄
-            var file = new FileStream(outputPath+"\\"+form.PROJECT_ID + "\\"+ form.FORM_ID +".xlsx", FileMode.Create);
+            var file = new FileStream(outputPath + "\\" + form.PROJECT_ID + "\\" + form.FORM_ID + ".xlsx", FileMode.Create);
             hssfworkbook.Write(file);
             file.Close();
         }
+        //開啟Excel 物件備用
         private void InitializeWorkbook(string path)
         {
             //read the template via FileStream, it is suggested to use FileAccess.Read to prevent file lock.
@@ -650,7 +657,7 @@ namespace topmeperp.Service
                 logger.Info("Read Excel File:" + path); if (file.Name.EndsWith(".xls"))
                 {
                     logger.Debug("process excel file for office 2003");
-                    fileformat = "xls";
+                    //fileformat = "xls";
                     hssfworkbook = new HSSFWorkbook(file);
                 }
                 else
@@ -660,6 +667,60 @@ namespace topmeperp.Service
                 }
                 file.Close();
             }
+        }
+        public void convertInquiry2Oject(string fileExcel)
+        {
+            //1.讀取供應商報價單\
+            InitializeWorkbook(fileExcel);
+            //2,讀取Sheet (預設詢價單，否則抓第一張
+            sheet = (XSSFSheet)hssfworkbook.GetSheet("詢價單");
+            if (null == sheet)
+            {
+                sheet = (XSSFSheet)hssfworkbook.GetSheetAt(0);
+            }
+            //3.讀取檔頭 資料
+            //專案名稱
+            logger.Debug("Template Head_1=" + sheet.GetRow(2).Cells[0].ToString() + ",專案名稱:" + sheet.GetRow(2).Cells[1]);
+            logger.Debug("Template Head_1=" + sheet.GetRow(2).Cells[2].ToString() + ",廠商名稱:" + sheet.GetRow(2).Cells[3]);
+            //採購項目:
+            logger.Debug("Template Head_1=" + sheet.GetRow(3).Cells[0].ToString() + ",採購項目:" + sheet.GetRow(3).Cells[1]);
+            logger.Debug("Template Head_1=" + sheet.GetRow(3).Cells[2].ToString() + ",聯絡人:" + sheet.GetRow(3).Cells[3]);
+            //承辦人:
+           // logger.Debug("Template Head_1=" + sheet.GetRow(4).Cells[0].ToString() + ",承辦人:" + sheet.GetRow(4).Cells[1]);
+            //聯絡電話:
+           // logger.Debug("Template Head_1=" + sheet.GetRow(5).Cells[0].ToString() + ",聯絡電話:" + sheet.GetRow(5).Cells[1]);
+            //EMAIL:
+          //  logger.Debug("Template Head_1=" + sheet.GetRow(6).Cells[0].ToString() + ",EMAIL:" + sheet.GetRow(6).Cells[1]);
+            //FAX:
+          //  logger.Debug("Template Head_1=" + sheet.GetRow(7).Cells[0].ToString() + ",FAX:" + sheet.GetRow(7).Cells[1]);
+
+            //3.取得表單明細
+            //int idxRow = 9;
+            //foreach (TND_PROJECT_FORM_ITEM item in formItems)
+            //{
+            //    //IRow row = sheet.GetRow(idxRow);
+            //    ////項次 項目說明    單位 數量  單價 複價  備註
+            //    //row.Cells[0].SetCellValue(idxRow - 8);///項次
+            //    //logger.Debug("Inquiry :ITEM DESC=" + item.ITEM_DESC);
+            //    //row.Cells[1].SetCellValue(item.ITEM_DESC);//項目說明
+            //    //row.Cells[2].SetCellValue(item.ITEM_UNIT);// 單位
+            //    //if (null != item.ITEM_QTY && item.ITEM_QTY.ToString().Trim() != "")
+            //    //{
+            //    //    row.Cells[3].SetCellValue(double.Parse(item.ITEM_QTY.ToString())); //數量
+            //    //}
+            //    //// row.Cells[4].SetCellValue(idxRow - 8);//單價
+            //    //// row.Cells[5].SetCellValue(idxRow - 8);複價
+            //    //row.Cells[6].SetCellValue(item.ITEM_REMARK);// 備註
+            //    ////建立空白欄位
+            //    //for (int iTmp = 7; iTmp < 27; iTmp++)
+            //    //{
+            //    //    row.CreateCell(iTmp);
+            //    //}
+            //    ////填入標單項次編號 PROJECT_ITEM_ID
+            //    //row.Cells[26].SetCellValue(item.PROJECT_ITEM_ID);
+            //    idxRow++;
+            //}
+
         }
     }
     #endregion

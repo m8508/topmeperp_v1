@@ -19,6 +19,8 @@ namespace topmeperp.Service
         public topmepEntities db;// = new topmepEntities();
         //定義上傳檔案存放路徑
         public static string strUploadPath = ConfigurationManager.AppSettings["UploadFolder"];
+        //public static string UploadFolder = null;
+        public static string quotesFolder = "Quotes"; //廠商報價單路徑
         //Sample Code : It can get ADO.NET Dataset
         public DataSet ExecuteStoreQuery(string sql, CommandType commandType, Dictionary<string, Object> parameters)
         {
@@ -130,7 +132,7 @@ namespace topmeperp.Service
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         TND_PROJECT project = null;
         string sno_key = "PROJ";
-        public static string UploadFolder = null;
+
         public TnderProject()
         {
         }
@@ -149,7 +151,7 @@ namespace topmeperp.Service
                 logger.Info("new projecgt object=" + project.ToString());
                 context.TND_PROJECT.Add(project);
                 //3.建立專案存取路徑
-                string projectFolder = UploadFolder + "/" + project.PROJECT_ID;
+                string projectFolder = strUploadPath + "/" + project.PROJECT_ID;
                 if (Directory.Exists(projectFolder))
                 {
                     //資料夾存在
@@ -159,6 +161,8 @@ namespace topmeperp.Service
                 {
                     //if directory not exist create it
                     Directory.CreateDirectory(projectFolder);
+                    //把該建的路徑一併建立
+                    Directory.CreateDirectory(projectFolder+"/"+quotesFolder);
                 }
                 i = context.SaveChanges();
                 logger.Debug("Add project=" + i);

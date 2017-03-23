@@ -18,17 +18,17 @@ namespace topmeperp.Controllers
         // GET: Inquiry
         public ActionResult Index(string id)
         {
-            log.Info("inquiry index : projectid="+ id);
+            log.Info("inquiry index : projectid=" + id);
             ViewBag.projectId = id;
             return View();
         }
         // POST : Search
-        [HttpPost ]
+        [HttpPost]
         public ActionResult Index(FormCollection f)
         {
             TnderProject s = new TnderProject();
-            log.Info("projectid="+ Request["projectid"]+",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"]);
-            List <topmeperp.Models.TND_PROJECT_ITEM> lstProject = s.getProjectItem(Request["projectid"],Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"]);
+            log.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"]);
+            List<topmeperp.Models.TND_PROJECT_ITEM> lstProject = s.getProjectItem(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"]);
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             ViewBag.projectId = Request["projectid"];
             return View("Index", lstProject);
@@ -45,9 +45,11 @@ namespace topmeperp.Controllers
             log.Info("item_list:" + Request["chkItem"]);
             string[] lstItemId = Request["chkItem"].ToString().Split(',');
             log.Info("select count:" + lstItemId.Count());
-            var i=0;
-            for (i = 0; i < lstItemId.Count(); i++) {
-            log.Info("item_list return No.:" + lstItemId[i]); }
+            var i = 0;
+            for (i = 0; i < lstItemId.Count(); i++)
+            {
+                log.Info("item_list return No.:" + lstItemId[i]);
+            }
             //建立空白詢價單
             log.Info("create new form template");
             TnderProject s = new TnderProject();
@@ -56,7 +58,7 @@ namespace topmeperp.Controllers
             qf.CREATE_ID = u.USER_ID;
             qf.CREATE_DATE = DateTime.Now;
             TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
-            string fid=s.newForm(qf, lstItemId);
+            string fid = s.newForm(qf, lstItemId);
             return RedirectToAction("ExportInquiry");
         }
         //測試詢價單下載
@@ -64,7 +66,7 @@ namespace topmeperp.Controllers
         {
             return View();
         }
-        [HttpPost ]
+        [HttpPost]
         public ActionResult ExportInquiry(FormCollection form)
         {
             log.Info("get inquiry form:formid=" + form["formid"]);
@@ -73,30 +75,36 @@ namespace topmeperp.Controllers
             //poi.exportExcel(service.formInquiry, service.formInquiryItem);
             return View();
         }
-        public ActionResult InquiryMainPage()
+
+        public ActionResult InquiryMainPage(string id)
         {
-            return View();
-        }
-        [HttpPost]
-        public ActionResult InquiryMainPage(string projectid)
-        {
-            log.Info("queryInquiry by projectID=" + projectid);
-            ViewBag.projectid = projectid;
-            List<TND_PROJECT_FORM> lst = service.getFormTemplateByProject(projectid);
+            log.Info("queryInquiry by projectID=" + Request["projectid"]);
+            List<TND_PROJECT_FORM> lst = null;
+            if (null != id && id != "")
+            {
+                ViewBag.projectid = id;
+                lst = service.getFormTemplateByProject(id);
+            }
             return View(lst);
         }
+
         //上傳廠商報價單
         public string FileUpload(HttpPostedFileBase file)
         {
-            log.Info("Upload form from supplier:");
-            if (file.ContentLength != 0)
+            log.Info("Upload form from supplier:"+ Request["projectid"]);
+            string projectid = Request["projectid"];
+            //上傳至廠商報價單目錄
+            if (null!=file && file.ContentLength != 0)
             {
-                log.Info("Parser Excel File Begin:"+ file.FileName);
+                var fileName = Path.GetFileName(file.FileName);
+                var path = Path.Combine(ContextService.strUploadPath + "/" + projectid+"/"+ ContextService.quotesFolder, fileName);
+                file.SaveAs(path);
+                log.Info("Parser Excel File Begin:" + file.FileName);
             }
-            return "取得檔案";
+            return "!!!!";
         }
     }
 }
-    
+
 
 
