@@ -71,8 +71,8 @@ namespace topmeperp.Controllers
         {
             log.Info("get inquiry form:formid=" + form["formid"]);
             service.getInqueryForm(form["formid"]);
-            //InquiryFormToExcel poi = new InquiryFormToExcel();
-            //poi.exportExcel(service.formInquiry, service.formInquiryItem);
+            InquiryFormToExcel poi = new InquiryFormToExcel();
+            poi.exportExcel(service.formInquiry, service.formInquiryItem);
             return View();
         }
 
