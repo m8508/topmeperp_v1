@@ -668,7 +668,7 @@ namespace topmeperp.Service
                 file.Close();
             }
         }
-        public void convertInquiry2Oject(string fileExcel)
+        public void convertInquiry2Project(string fileExcel,string projectid)
         {
             //1.讀取供應商報價單\
             InitializeWorkbook(fileExcel);
@@ -680,8 +680,10 @@ namespace topmeperp.Service
             }
             //3.讀取檔頭 資料
             //專案名稱
-            logger.Debug("Template Head_1=" + sheet.GetRow(2).Cells[0].ToString() + ",專案名稱:" + sheet.GetRow(2).Cells[1]);
-            logger.Debug("Template Head_1=" + sheet.GetRow(2).Cells[2].ToString() + ",廠商名稱:" + sheet.GetRow(2).Cells[3]);
+            form = new TND_PROJECT_FORM();
+            form.PROJECT_ID = projectid;
+            logger.Debug("Template Head_1=" + sheet.GetRow(2).Cells[0].ToString() + "," + sheet.GetRow(2).Cells[1]);
+            logger.Debug("Template Head_1=" + sheet.GetRow(2).Cells[2].ToString() + "," + sheet.GetRow(2).Cells[3]);
             //採購項目:
             logger.Debug("Template Head_1=" + sheet.GetRow(3).Cells[0].ToString() + ",採購項目:" + sheet.GetRow(3).Cells[1]);
             logger.Debug("Template Head_1=" + sheet.GetRow(3).Cells[2].ToString() + ",聯絡人:" + sheet.GetRow(3).Cells[3]);

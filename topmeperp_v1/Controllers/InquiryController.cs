@@ -100,6 +100,9 @@ namespace topmeperp.Controllers
                 var path = Path.Combine(ContextService.strUploadPath + "/" + projectid+"/"+ ContextService.quotesFolder, fileName);
                 file.SaveAs(path);
                 log.Info("Parser Excel File Begin:" + file.FileName);
+                InquiryFormToExcel quoteFormService = new InquiryFormToExcel();
+                quoteFormService.convertInquiry2Project(path);
+
             }
             return "!!!!";
         }
