@@ -93,6 +93,16 @@ namespace topmeperp.Controllers
             List<TND_PROJECT_FORM> lst = service.getFormTemplateByProject(projectid);
             return View(lst);
         }
+        //上傳廠商報價單
+        public string FileUpload(HttpPostedFileBase file)
+        {
+            log.Info("Upload form from supplier:");
+            if (file.ContentLength != 0)
+            {
+                log.Info("Parser Excel File Begin:"+ file.FileName);
+            }
+            return "取得檔案";
+        }
     }
 }
     
