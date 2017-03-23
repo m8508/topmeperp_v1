@@ -28,6 +28,7 @@ namespace topmeperp
                       "~/Scripts/bootstrap.js",
                       "~/Scripts/moment-with-locales.js", //new
                       "~/Scripts/bootstrap-datetimepicker.js", //new
+                      "~/Scripts/jquery.form.js", //new
                       "~/Scripts/respond.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
