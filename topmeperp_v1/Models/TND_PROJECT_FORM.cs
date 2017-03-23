@@ -17,15 +17,9 @@ namespace topmeperp.Models
         public string FORM_ID { get; set; }
         public string PROJECT_ID { get; set; }
         public string FORM_NAME { get; set; }
-        public string OWNER_NAME { get; set; }
-        public string OWNER_TEL { get; set; }
-        public string OWNER_EMAIL { get; set; }
-        public string OWNER_FAX { get; set; }
-        public string SUPPLIER_ID { get; set; }
-        public string CONTACT_NAME { get; set; }
-        public string CONTACT_EMAIL { get; set; }
-        public Nullable<System.DateTime> DUEDATE { get; set; }
-        public string REF_ID { get; set; }
+        public string FORM_TYPE { get; set; }
+        public string OTHER { get; set; }
+        public string REMARK { get; set; }
         public string CREATE_ID { get; set; }
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public string MODIFY_ID { get; set; }

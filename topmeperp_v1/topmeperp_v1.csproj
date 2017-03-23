@@ -533,12 +533,11 @@
     <Content Include="Views\Inquiry\RFQ.cshtml" />
     <Content Include="Views\Tender\TaskDetails.cshtml" />
     <Content Include="Views\UserManage\UserList.cshtml" />
-    <Content Include="Views\Inquiry\FormTemplate.cshtml" />
+    <Content Include="Views\Inquiry\FormItemList.cshtml" />
     <Content Include="Views\RoleManage\FunctionList.cshtml" />
     <Content Include="Views\RoleManage\Index.cshtml" />
     <Content Include="Views\UserManage\_User.cshtml" />
     <Content Include="Views\Inquiry\ProjectFormList.cshtml" />
-    <Content Include="Views\Inquiry\Create.cshtml" />
     <Content Include="Views\Inquiry\ExportInquiry.cshtml" />
     <Content Include="UploadFile\Inquiry_form_template.xlsx" />
     <Content Include="Views\Inquiry\InquiryMainPage.cshtml" />
