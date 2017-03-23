@@ -59,7 +59,7 @@ namespace topmeperp.Controllers
             qf.CREATE_DATE = DateTime.Now;
             TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
             string fid = s.newForm(qf, lstItemId);
-            return RedirectToAction("ExportInquiry");
+            return RedirectToAction("InquiryMainPage/" + qf.PROJECT_ID);
         }
         //測試詢價單下載
         public ActionResult ExportInquiry()
