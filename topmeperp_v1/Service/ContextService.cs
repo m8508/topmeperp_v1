@@ -19,8 +19,6 @@ namespace topmeperp.Service
         public topmepEntities db;// = new topmepEntities();
         //定義上傳檔案存放路徑
         public static string strUploadPath = ConfigurationManager.AppSettings["UploadFolder"];
-        //public static string UploadFolder = null;
-        public static string quotesFolder = "Quotes"; //廠商報價單路徑
         //Sample Code : It can get ADO.NET Dataset
         public DataSet ExecuteStoreQuery(string sql, CommandType commandType, Dictionary<string, Object> parameters)
         {
@@ -96,6 +94,7 @@ namespace topmeperp.Service
                 catch (Exception e)
                 {
                     logger.Error("login fail:" + e.StackTrace);
+                    throw e;
                 }
             }
             logger.Info("get user info=" + loginUser);
@@ -132,7 +131,7 @@ namespace topmeperp.Service
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         TND_PROJECT project = null;
         string sno_key = "PROJ";
-
+        public static string UploadFolder = null;
         public TnderProject()
         {
         }
@@ -151,7 +150,7 @@ namespace topmeperp.Service
                 logger.Info("new projecgt object=" + project.ToString());
                 context.TND_PROJECT.Add(project);
                 //3.建立專案存取路徑
-                string projectFolder = strUploadPath + "/" + project.PROJECT_ID;
+                string projectFolder = UploadFolder + "/" + project.PROJECT_ID;
                 if (Directory.Exists(projectFolder))
                 {
                     //資料夾存在
@@ -161,8 +160,6 @@ namespace topmeperp.Service
                 {
                     //if directory not exist create it
                     Directory.CreateDirectory(projectFolder);
-                    //把該建的路徑一併建立
-                    Directory.CreateDirectory(projectFolder+"/"+quotesFolder);
                 }
                 i = context.SaveChanges();
                 logger.Debug("Add project=" + i);
@@ -306,7 +303,7 @@ namespace topmeperp.Service
         }
         public List<TND_PROJECT_FORM_ITEM> getFormItemById(string[] lstItemId)
         {
-            List<TND_PROJECT_FORM_ITEM> lstFormItem = new List<TND_PROJECT_FORM_ITEM> ();
+            List<TND_PROJECT_FORM_ITEM> lstFormItem = new List<TND_PROJECT_FORM_ITEM>();
             int i = 0;
             string ItemId = "";
             for (i = 0; i < lstItemId.Count(); i++)
@@ -320,14 +317,14 @@ namespace topmeperp.Service
                     ItemId = ItemId + "'" + lstItemId[i] + "'";
                 }
             }
-            
+
             using (var context = new topmepEntities())
             {
                 lstFormItem = context.TND_PROJECT_FORM_ITEM.SqlQuery("select f.* from  TND_PROJECT_FORM_ITEM f "
                     + "where f.PROJECT_ITEM_ID in (" + ItemId + ");"
                    , new SqlParameter("ItemId", ItemId)).ToList();
             }
-           
+
             return lstFormItem;
         }
         //取得標單品項資料
@@ -374,7 +371,7 @@ namespace topmeperp.Service
         }
 
         #region 消防水圖算數量  
-            //增加消防水圖算數量
+        //增加消防水圖算數量
         public int refreshMapFW(List<TND_MAP_FW> items)
         {
             //1.檢查專案是否存在
@@ -404,6 +401,108 @@ namespace topmeperp.Service
                 i = context.Database.ExecuteSqlCommand("DELETE FROM  TND_MAP_FW WHERE PROJECT_ID=@projectid", new SqlParameter("@projectid", projectid));
             }
             logger.Debug("delete TND_MAP_FW count=" + i);
+            return i;
+        }
+        #endregion
+        #region 給排水圖算數量  
+        //增加給排水圖算數量
+        public int refreshMapPLU(List<TND_MAP_PLU> items)
+        {
+            //1.檢查專案是否存在
+            if (null == project) { throw new Exception("Project is not exist !!"); }
+            int i = 0;
+            logger.Info("refreshProjectItem = " + items.Count);
+            //2.將Excel 資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (TND_MAP_PLU item in items)
+                {
+                    item.PROJECT_ID = project.PROJECT_ID;
+                    context.TND_MAP_PLU.Add(item);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("add TND_MAP_PLU count =" + i);
+            return i;
+        }
+        public int delMapPLUByProject(string projectid)
+        {
+            logger.Info("remove all PLU by project ID=" + projectid);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("delete all TND_MAP_PLU by proejct id=" + project.PROJECT_ID);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM  TND_MAP_PLU WHERE PROJECT_ID=@projectid", new SqlParameter("@projectid", projectid));
+            }
+            logger.Debug("delete TND_MAP_PLU count=" + i);
+            return i;
+        }
+        #endregion
+        #region 弱電管線圖算數量  
+        //增加弱電管線圖算數量
+        public int refreshMapLCP(List<TND_MAP_LCP> items)
+        {
+            //1.檢查專案是否存在
+            if (null == project) { throw new Exception("Project is not exist !!"); }
+            int i = 0;
+            logger.Info("refreshProjectItem = " + items.Count);
+            //2.將Excel 資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (TND_MAP_LCP item in items)
+                {
+                    item.PROJECT_ID = project.PROJECT_ID;
+                    context.TND_MAP_LCP.Add(item);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("add TND_MAP_LCP count =" + i);
+            return i;
+        }
+        public int delMapLCPByProject(string projectid)
+        {
+            logger.Info("remove all LCP by project ID=" + projectid);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("delete all TND_MAP_LCP by proejct id=" + project.PROJECT_ID);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM  TND_MAP_LCP WHERE PROJECT_ID=@projectid", new SqlParameter("@projectid", projectid));
+            }
+            logger.Debug("delete TND_MAP_LCP count=" + i);
+            return i;
+        }
+        #endregion
+        #region 電氣管線圖算數量  
+        //增加電氣管線圖算數量
+        public int refreshMapPEP(List<TND_MAP_PEP> items)
+        {
+            //1.檢查專案是否存在
+            if (null == project) { throw new Exception("Project is not exist !!"); }
+            int i = 0;
+            logger.Info("refreshProjectItem = " + items.Count);
+            //2.將Excel 資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (TND_MAP_PEP item in items)
+                {
+                    item.PROJECT_ID = project.PROJECT_ID;
+                    context.TND_MAP_PEP.Add(item);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("add TND_MAP_PEP count =" + i);
+            return i;
+        }
+        public int delMapPEPByProject(string projectid)
+        {
+            logger.Info("remove all PEP by project ID=" + projectid);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("delete all TND_MAP_PEP by proejct id=" + project.PROJECT_ID);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM  TND_MAP_PEP WHERE PROJECT_ID=@projectid", new SqlParameter("@projectid", projectid));
+            }
+            logger.Debug("delete TND_MAP_PEP count=" + i);
             return i;
         }
         #endregion
@@ -441,8 +540,8 @@ namespace topmeperp.Service
             return i;
         }
         #endregion
-
     }
+  
     //詢價單資料提供作業
     public class InquiryFormService : ContextService
     {

@@ -75,7 +75,7 @@ namespace topmeperp.Controllers
                 prj.EXCEL_FILE_NAME = file.FileName;
                 //2.2 將上傳檔案存檔
                 var fileName = Path.GetFileName(file.FileName);
-                var path = Path.Combine(TnderProject.strUploadPath + "/" + prj.PROJECT_ID, fileName);
+                var path = Path.Combine(TnderProject.UploadFolder + "/" + prj.PROJECT_ID, fileName);
                 logger.Info("save excel file:" + path);
                 file.SaveAs(path);
                 //2.2 解析Excel 檔案
@@ -143,7 +143,7 @@ namespace topmeperp.Controllers
                 logger.Info("Parser Excel data:" + fileDevice.FileName);
                 //2.1 設定Excel 檔案名稱
                 var fileName = Path.GetFileName(fileDevice.FileName);
-                var path = Path.Combine(TnderProject.strUploadPath + "/" + projectid, fileName);
+                var path = Path.Combine(TnderProject.UploadFolder + "/" + projectid, fileName);
                 logger.Info("save excel file:" + path);
                 fileDevice.SaveAs(path);
                 //2.2 解析Excel 檔案
@@ -169,7 +169,7 @@ namespace topmeperp.Controllers
                 logger.Info("Parser FP Excel data:" + fileFP.FileName);
                 //2.1 設定Excel 檔案名稱
                 var fileName = Path.GetFileName(fileFP.FileName);
-                var path = Path.Combine(TnderProject.strUploadPath + "/" + projectid, fileName);
+                var path = Path.Combine(TnderProject.UploadFolder + "/" + projectid, fileName);
                 logger.Info("save excel file:" + path);
                 fileFP.SaveAs(path);
                 //2.2 解析Excel 檔案
@@ -178,11 +178,11 @@ namespace topmeperp.Controllers
                 //解析消防電圖算數量檔案
                 List<TND_MAP_FP> lstMapFP = poiservice.ConvertDataForMapFP(projectid);
                 //2.3 記錄錯誤訊息
-                 message = message + poiservice.errorMessage;
+                message = message + poiservice.errorMessage;
                 //2.4
                 logger.Info("Delete TND_MAP_FP By Project ID");
                 service.delMapFPByProject(projectid);
-                 //2.5
+                //2.5
                 logger.Info("Add All TND_MAP_FP to DB");
                 service.refreshMapFP(lstMapFP);
             }
@@ -195,7 +195,7 @@ namespace topmeperp.Controllers
                 logger.Info("Parser Excel data:" + fileFW.FileName);
                 //2.1 設定Excel 檔案名稱
                 var fileName = Path.GetFileName(fileFW.FileName);
-                var path = Path.Combine(TnderProject.strUploadPath + "/" + projectid, fileName);
+                var path = Path.Combine(TnderProject.UploadFolder + "/" + projectid, fileName);
                 logger.Info("save excel file:" + path);
                 fileFW.SaveAs(path);
                 //2.2 開啟Excel 檔案
@@ -208,36 +208,121 @@ namespace topmeperp.Controllers
                 //2.4
                 logger.Info("Delete TND_MAP_FW By Project ID");
                 service.delMapFWByProject(projectid);
-                message = message+"<br/>舊有資料刪除成功 !!";
+                message = message + "<br/>舊有資料刪除成功 !!";
                 //2.5 
                 logger.Info("Add All TND_MAP_FP to DB");
                 service.refreshMapFW(lstMapFW);
                 message = message + "<br/>資料匯入完成 !!";
             }
             #endregion
+            #region 給排水
+            //圖算:給排水(TND_MAP_PLU)
+            if (null != filePLU && filePLU.ContentLength != 0)
+            {
+                //2.解析Excel
+                logger.Info("Parser Excel data:" + filePLU.FileName);
+                //2.1 設定Excel 檔案名稱
+                var fileName = Path.GetFileName(filePLU.FileName);
+                var path = Path.Combine(TnderProject.UploadFolder + "/" + projectid, fileName);
+                logger.Info("save excel file:" + path);
+                filePLU.SaveAs(path);
+                //2.2 開啟Excel 檔案
+                ProjectItemFromExcel poiservice = new ProjectItemFromExcel();
+                poiservice.InitializeWorkbook(path);
+                //解析給排水圖算數量
+                List<TND_MAP_PLU> lstMapPLU = poiservice.ConvertDataForMapPLU(projectid);
+                //2.3 記錄錯誤訊息
+                message = poiservice.errorMessage;
+                //2.4
+                logger.Info("Delete TND_MAP_PLU By Project ID");
+                service.delMapPLUByProject(projectid);
+                message = message + "<br/>舊有資料刪除成功 !!";
+                //2.5 
+                logger.Info("Add All TND_MAP_PLU to DB");
+                service.refreshMapPLU(lstMapPLU);
+                message = message + "<br/>資料匯入完成 !!";
+            }
+            #endregion
+            #region 弱電管線
+            //圖算:弱電管線(TND_MAP_LCP)
+            if (null != fileLCP && fileLCP.ContentLength != 0)
+            {
+                //2.解析Excel
+                logger.Info("Parser Excel data:" + fileLCP.FileName);
+                //2.1 設定Excel 檔案名稱
+                var fileName = Path.GetFileName(fileLCP.FileName);
+                var path = Path.Combine(TnderProject.UploadFolder + "/" + projectid, fileName);
+                logger.Info("save excel file:" + path);
+                fileLCP.SaveAs(path);
+                //2.2 開啟Excel 檔案
+                ProjectItemFromExcel poiservice = new ProjectItemFromExcel();
+                poiservice.InitializeWorkbook(path);
+                //解析弱電管線圖算數量
+                List<TND_MAP_LCP> lstMapLCP = poiservice.ConvertDataForMapLCP(projectid);
+                //2.3 記錄錯誤訊息
+                message = poiservice.errorMessage;
+                //2.4
+                logger.Info("Delete TND_MAP_LCP By Project ID");
+                service.delMapLCPByProject(projectid);
+                message = message + "<br/>舊有資料刪除成功 !!";
+                //2.5 
+                logger.Info("Add All TND_MAP_LCP to DB");
+                service.refreshMapLCP(lstMapLCP);
+                message = message + "<br/>資料匯入完成 !!";
+            }
+            #endregion
+            #region 電氣管線
+            //圖算:電氣管線(TND_MAP_PEP)
+            if (null != filePEP && filePEP.ContentLength != 0)
+            {
+                //2.解析Excel
+                logger.Info("Parser Excel data:" + filePEP.FileName);
+                //2.1 設定Excel 檔案名稱
+                var fileName = Path.GetFileName(filePEP.FileName);
+                var path = Path.Combine(TnderProject.UploadFolder + "/" + projectid, fileName);
+                logger.Info("save excel file:" + path);
+                filePEP.SaveAs(path);
+                //2.2 開啟Excel 檔案
+                ProjectItemFromExcel poiservice = new ProjectItemFromExcel();
+                poiservice.InitializeWorkbook(path);
+                //解析電氣管線圖算數量
+                List<TND_MAP_PEP> lstMapPEP = poiservice.ConvertDataForMapPEP(projectid);
+                //2.3 記錄錯誤訊息
+                message = poiservice.errorMessage;
+                //2.4
+                logger.Info("Delete TND_MAP_PEP By Project ID");
+                service.delMapPEPByProject(projectid);
+                message = message + "<br/>舊有資料刪除成功 !!";
+                //2.5 
+                logger.Info("Add All TND_MAP_PEP to DB");
+                service.refreshMapPEP(lstMapPEP);
+                message = message + "<br/>資料匯入完成 !!";
+            }
+            #endregion
             ViewBag.result = message;
             return View();
         }
-        private List<topmeperp.Models.TND_PROJECT> SearchProjectByName(string projectname)
+
+private List<topmeperp.Models.TND_PROJECT> SearchProjectByName(string projectname)
+{
+    if (projectname != null)
+    {
+        logger.Info("search project by 名稱 =" + projectname);
+        List<topmeperp.Models.TND_PROJECT> lstProject = new List<TND_PROJECT>();
+        using (var context = new topmepEntities())
         {
-            if (projectname != null)
-            {
-                logger.Info("search project by 名稱 =" + projectname);
-                List<topmeperp.Models.TND_PROJECT> lstProject = new List<TND_PROJECT>();
-                using (var context = new topmepEntities())
-                {
-                    lstProject = context.TND_PROJECT.SqlQuery("select * from TND_PROJECT p "
-                        + "where p.PROJECT_NAME Like '%' + @projectname + '%';",
-                         new SqlParameter("projectname", projectname)).ToList();
-                }
-                logger.Info("get project count=" + lstProject.Count);
-                return lstProject;
-            }
-            else
-            {
-                return null;
-            }
+            lstProject = context.TND_PROJECT.SqlQuery("select * from TND_PROJECT p "
+                + "where p.PROJECT_NAME Like '%' + @projectname + '%';",
+                 new SqlParameter("projectname", projectname)).ToList();
         }
+        logger.Info("get project count=" + lstProject.Count);
+        return lstProject;
+    }
+    else
+    {
+        return null;
+    }
+}
 
     }
 }

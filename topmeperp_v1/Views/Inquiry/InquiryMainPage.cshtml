@@ -6,8 +6,8 @@
 <div class="jumbotron">
     <div class="row">
         <div class="col-md-12">
-            <form name="formInquirySearch" id="formInquirySearch" action="InquiryMainPage">
-                專案編號:<input id="id" name="id" type="text" value="@ViewBag.projectid" />
+            <form name="formInquirySearch" id="formInquirySearch" action="InquiryMainPage" method="Post">
+                專案編號:<input id="projectid" name="projectid" type="text" value="@ViewBag.projectid" />
                 <input id="Submit1" class="btn btn-primary" type="submit" value="查詢" />
             </form>
             <div id="divProcessing">

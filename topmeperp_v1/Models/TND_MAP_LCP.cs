@@ -41,5 +41,6 @@ namespace topmeperp.Models
         public Nullable<decimal> PIPE_2_TOTAL_LEN { get; set; }
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public string CREATE_ID { get; set; }
+        public string EXCEL_ITEM { get; set; }
     }
 }
