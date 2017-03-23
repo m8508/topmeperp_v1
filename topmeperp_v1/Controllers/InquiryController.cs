@@ -56,17 +56,17 @@ namespace topmeperp.Controllers
             qf.PROJECT_ID = Request["prjId"];
             qf.CREATE_ID = u.USER_ID;
             qf.CREATE_DATE = DateTime.Now;
-           TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
+            TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
             string fid=s.newForm(qf, lstItemId);
 
             //PROJECT_FORM_ITEM 可由lstItemId取得對應的標單編號(PROJECT_ITEM)
             //fi.CREATE_ID = u.USER_ID;
             //fi.CREATE_DATE = DateTime.Now;
-           // List<topmeperp.Models.TND_PROJECT_FORM_ITEM> lstProjectFormItem = s.getFormItemById(lstItemId);
-           // log.Info("共取得" + lstProjectFormItem.Count + "筆資料");
+            // List<topmeperp.Models.TND_PROJECT_FORM_ITEM> lstProjectFormItem = s.getFormItemById(lstItemId);
+            // log.Info("共取得" + lstProjectFormItem.Count + "筆資料");
             // return View("Create", lstProjectItem);
             //發現問題先註解掉兩行(上面)
-            return View();
+            return RedirectToAction("ExportInquiry");
         }
         //測試詢價單下載
         public ActionResult ExportInquiry()
@@ -77,9 +77,9 @@ namespace topmeperp.Controllers
         public ActionResult ExportInquiry(FormCollection form)
         {
             log.Info("get inquiry form:formid=" + form["formid"]);
-            service.getIqueryForm(form["formid"]);
-            InquiryFormToExcel poi = new InquiryFormToExcel();
-            poi.exportExcel(service.formInquiry, service.formInquiryItem);
+            service.getInqueryForm(form["formid"]);
+            //InquiryFormToExcel poi = new InquiryFormToExcel();
+            //poi.exportExcel(service.formInquiry, service.formInquiryItem);
             return View();
         }
     }

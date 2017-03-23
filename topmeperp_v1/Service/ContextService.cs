@@ -271,8 +271,7 @@ namespace topmeperp.Service
                     + "SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_QTY, ITEM_UNIT_PRICE, ITEM_REMARK) "
                     + "SELECT '" + form.FORM_ID + "' as FORM_ID, PROJECT_ITEM_ID, TYPE_CODE_1 AS TYPE_CODE, "
                     + "TYPE_CODE_1 AS SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_QUANTITY, ITEM_UNIT_PRICE, ITEM_REMARK "
-                    + "FROM TND_PROJECT_ITEM where PROJECT_ITEM_ID IN ("+ ItemId +")";
-
+                    + "FROM TND_PROJECT_ITEM where PROJECT_ITEM_ID IN (" + ItemId + ")";
                 logger.Info("sql =" + sql);
                 var parameters = new List<SqlParameter>();
                 i = context.Database.ExecuteSqlCommand(sql);
@@ -447,7 +446,7 @@ namespace topmeperp.Service
         public TND_PROJECT_FORM formInquiry = null;
         public List<TND_PROJECT_FORM_ITEM> formInquiryItem = null;
         //取得詢價單
-        public void getIqueryForm(string formid)
+        public void getInqueryForm(string formid)
         {
             logger.Info("get form : formid=" + formid);
             using (var context = new topmepEntities())
