@@ -104,7 +104,7 @@ namespace topmeperp.Controllers
                 quoteFormService.convertInquiry2Project(path, projectid);
 
             }
-            return "!!!!";
+            return "檔案匯入成功!!";
         }
     }
 }

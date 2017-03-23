@@ -75,7 +75,7 @@ namespace topmeperp.Controllers
                 prj.EXCEL_FILE_NAME = file.FileName;
                 //2.2 將上傳檔案存檔
                 var fileName = Path.GetFileName(file.FileName);
-                var path = Path.Combine(TnderProject.UploadFolder + "/" + prj.PROJECT_ID, fileName);
+                var path = Path.Combine(ContextService.strUploadPath + "/" + prj.PROJECT_ID, fileName);
                 logger.Info("save excel file:" + path);
                 file.SaveAs(path);
                 //2.2 解析Excel 檔案
@@ -143,7 +143,7 @@ namespace topmeperp.Controllers
                 logger.Info("Parser Excel data:" + fileDevice.FileName);
                 //2.1 設定Excel 檔案名稱
                 var fileName = Path.GetFileName(fileDevice.FileName);
-                var path = Path.Combine(TnderProject.UploadFolder + "/" + projectid, fileName);
+                var path = Path.Combine(ContextService.strUploadPath + "/" + projectid, fileName);
                 logger.Info("save excel file:" + path);
                 fileDevice.SaveAs(path);
                 //2.2 解析Excel 檔案
@@ -169,7 +169,7 @@ namespace topmeperp.Controllers
                 logger.Info("Parser FP Excel data:" + fileFP.FileName);
                 //2.1 設定Excel 檔案名稱
                 var fileName = Path.GetFileName(fileFP.FileName);
-                var path = Path.Combine(TnderProject.UploadFolder + "/" + projectid, fileName);
+                var path = Path.Combine(ContextService.strUploadPath + "/" + projectid, fileName);
                 logger.Info("save excel file:" + path);
                 fileFP.SaveAs(path);
                 //2.2 解析Excel 檔案
@@ -195,7 +195,7 @@ namespace topmeperp.Controllers
                 logger.Info("Parser Excel data:" + fileFW.FileName);
                 //2.1 設定Excel 檔案名稱
                 var fileName = Path.GetFileName(fileFW.FileName);
-                var path = Path.Combine(TnderProject.UploadFolder + "/" + projectid, fileName);
+                var path = Path.Combine(ContextService.strUploadPath + "/" + projectid, fileName);
                 logger.Info("save excel file:" + path);
                 fileFW.SaveAs(path);
                 //2.2 開啟Excel 檔案
@@ -223,7 +223,7 @@ namespace topmeperp.Controllers
                 logger.Info("Parser Excel data:" + filePLU.FileName);
                 //2.1 設定Excel 檔案名稱
                 var fileName = Path.GetFileName(filePLU.FileName);
-                var path = Path.Combine(TnderProject.UploadFolder + "/" + projectid, fileName);
+                var path = Path.Combine(ContextService.strUploadPath + "/" + projectid, fileName);
                 logger.Info("save excel file:" + path);
                 filePLU.SaveAs(path);
                 //2.2 開啟Excel 檔案
@@ -251,7 +251,7 @@ namespace topmeperp.Controllers
                 logger.Info("Parser Excel data:" + fileLCP.FileName);
                 //2.1 設定Excel 檔案名稱
                 var fileName = Path.GetFileName(fileLCP.FileName);
-                var path = Path.Combine(TnderProject.UploadFolder + "/" + projectid, fileName);
+                var path = Path.Combine(ContextService.strUploadPath + "/" + projectid, fileName);
                 logger.Info("save excel file:" + path);
                 fileLCP.SaveAs(path);
                 //2.2 開啟Excel 檔案
@@ -279,7 +279,7 @@ namespace topmeperp.Controllers
                 logger.Info("Parser Excel data:" + filePEP.FileName);
                 //2.1 設定Excel 檔案名稱
                 var fileName = Path.GetFileName(filePEP.FileName);
-                var path = Path.Combine(TnderProject.UploadFolder + "/" + projectid, fileName);
+                var path = Path.Combine(ContextService.strUploadPath + "/" + projectid, fileName);
                 logger.Info("save excel file:" + path);
                 filePEP.SaveAs(path);
                 //2.2 開啟Excel 檔案
