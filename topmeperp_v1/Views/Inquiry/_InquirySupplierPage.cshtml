@@ -1,10 +1,12 @@
 ﻿<div class="container">
     <div class="row">
-        <form id="uploadForm"  name="uploadForm" action="uploadForm" method="post" enctype="multipart/form-data">
+        <form id="UploadForm"  name="UploadForm" action="FileUpload" method="post" enctype="multipart/form-data">
             <label for="file">廠商報價單匯入:</label>
-            <input type="file" name="fileInquiry" id="file" />
-            <input type="submit" class="btn-primary" value="送出" />
+            <input type="text" name="projectid" id="projectid" value="@ViewBag.projectid" />
+            <input type="file" name="file" id="file" />
+            <input id="btnUploadfile" name="btnUploadfile" type="submit" class="btn-primary" value="匯入檔案" />
         </form>
+
     </div>
 
     <div class="row" style="padding-top:5px;">
@@ -20,31 +22,31 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>PO00012</td>
-                    <td>變壓器-模鑄變壓器</td>
-                    <td>協成</td>
-                    <td>333,000</td>
-                    <td><a href="#">下載</a><a href="#">明細</a></td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>PO00012</td>
-                    <td>變壓器-模鑄變壓器</td>
-                    <td>協成</td>
-                    <td>333,000</td>
-                    <td><a href="#">下載</a><a href="#">明細</a></td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td>PO00012</td>
-                    <td>變壓器-模鑄變壓器</td>
-                    <td>協成</td>
-                    <td>333,000</td>
-                    <td><a href="#">下載</a><a href="#">明細</a></td>
-                </tr>
             </tbody>
         </table>
     </div>
 </div>
+<script type="text/javascript">
+    $(function () {
+        $("#UploadForm").ajaxForm({
+            iframe: true,
+            dataType: "text",
+            beforeSubmit: function () {
+                var fileContent = $.trim($('#file').val());
+                if (fileContent.length == 0) {
+                    alert('請選擇要上傳的檔案.');
+                    return false;
+                }
+                return true;
+            },
+            success: function (result) {
+                $('#UploadForm').resetForm();
+                alert(result);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                $('#UploadForm').resetForm();
+                alert('檔案上傳錯誤.');
+            }
+        });
+    });
+</script>
