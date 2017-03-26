@@ -375,7 +375,7 @@ namespace topmeperp.Service
         public int refreshMapFW(List<TND_MAP_FW> items)
         {
             //1.檢查專案是否存在
-            //if (null == project) { throw new Exception("Project is not exist !!" + project); }
+            if (null == project) { throw new Exception("Project is not exist !!"); }
             int i = 0;
             logger.Info("refreshProjectItem = " + items.Count);
             //2.將Excel 資料寫入 
@@ -383,6 +383,7 @@ namespace topmeperp.Service
             {
                 foreach (TND_MAP_FW item in items)
                 {
+                    item.PROJECT_ID = project.PROJECT_ID;
                     context.TND_MAP_FW.Add(item);
                 }
                 i = context.SaveChanges();
@@ -396,8 +397,8 @@ namespace topmeperp.Service
             int i = 0;
             using (var context = new topmepEntities())
             {
-                logger.Info("delete all TND_MAP_FW by proejct id=" + projectid);
-                i = context.Database.ExecuteSqlCommand("DELETE FROM TND_MAP_FW WHERE PROJECT_ID=@projectid", new SqlParameter("@projectid", projectid));
+                logger.Info("delete all TND_MAP_FW by proejct id=" + project.PROJECT_ID);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM  TND_MAP_FW WHERE PROJECT_ID=@projectid", new SqlParameter("@projectid", projectid));
             }
             logger.Debug("delete TND_MAP_FW count=" + i);
             return i;
@@ -510,8 +511,7 @@ namespace topmeperp.Service
         public int refreshMapFP(List<TND_MAP_FP> items)
         {
             //1.檢查專案是否存在
-            //if (null == project) { throw new Exception("Project is not exist !!"); } 先註解掉,因為讀取不到project,會造成null == project is true,
-            //而導致錯誤, 因為已設定是直接由專案頁面導入上傳圖算畫面，故不會有專案不存在的bug
+            if (null == project) { throw new Exception("Project is not exist !!"); }
             int i = 0;
             logger.Info("refreshProjectItem = " + items.Count);
             //2.將Excel 資料寫入 
@@ -519,7 +519,7 @@ namespace topmeperp.Service
             {
                 foreach (TND_MAP_FP item in items)
                 {
-                    //item.PROJECT_ID = project.PROJECT_ID;先註解掉,因為專案編號一開始已經設定了，會直接代入
+                    item.PROJECT_ID = project.PROJECT_ID;
                     context.TND_MAP_FP.Add(item);
                 }
                 i = context.SaveChanges();
@@ -533,7 +533,7 @@ namespace topmeperp.Service
             int i = 0;
             using (var context = new topmepEntities())
             {
-                logger.Info("delete all TND_MAP_FP by proejct id=" + projectid);
+                logger.Info("delete all TND_MAP_FP by proejct id=" + project.PROJECT_ID);
                 i = context.Database.ExecuteSqlCommand("DELETE FROM  TND_MAP_FP WHERE PROJECT_ID=@projectid", new SqlParameter("@projectid", projectid));
             }
             logger.Debug("delete TND_MAP_FP count=" + i);
