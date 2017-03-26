@@ -574,6 +574,18 @@ namespace topmeperp.Service
             }
             return lst;
         }
+        public List<TND_PROJECT_FORM> getFormByProject(string projectid)
+        {
+            logger.Info("get inquiry template by projectid=" + projectid);
+            List<TND_PROJECT_FORM> lst = new List<TND_PROJECT_FORM>();
+            using (var context = new topmepEntities())
+            {
+                //取得詢價單樣本資訊
+                lst = context.TND_PROJECT_FORM.SqlQuery("SELECT * FROM TND_PROJECT_FORM WHERE SUPPLIER_ID IS NOT NULL AND　PROJECT_ID=@projectid",
+                    new SqlParameter("projectid", projectid)).ToList();
+            }
+            return lst;
+        }
         public int createInquiryFormFromSupplier(TND_PROJECT_FORM  form,List<TND_PROJECT_FORM_ITEM> items)
         {
             int i = 0;

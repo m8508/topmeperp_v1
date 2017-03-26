@@ -40,4 +40,15 @@ namespace topmeperp.Models
         //詢價單明細資料
         public IEnumerable<TND_PROJECT_FORM_ITEM> tndProjectFormItem { get; set; }
     }
+    public class InquiryFormModel
+    {
+        /// <summary>
+        /// 詢價單樣本
+        /// </summary>
+        public IEnumerable<TND_PROJECT_FORM> tndTemplateProjectForm { get; set; }
+        /// <summary>
+        /// 供應商報價單
+        /// </summary>
+        public IEnumerable<TND_PROJECT_FORM> tndProjectFormFromSupplier { get; set; }
+    }
 }

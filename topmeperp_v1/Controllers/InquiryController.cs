@@ -79,13 +79,14 @@ namespace topmeperp.Controllers
         public ActionResult InquiryMainPage(string id)
         {
             log.Info("queryInquiry by projectID=" + Request["projectid"]);
-            List<TND_PROJECT_FORM> lst = null;
+            InquiryFormModel formData = new InquiryFormModel();
             if (null != id && id != "")
             {
                 ViewBag.projectid = id;
-                lst = service.getFormTemplateByProject(id);
+                formData.tndTemplateProjectForm= service.getFormTemplateByProject(id);
+                formData.tndProjectFormFromSupplier = service.getFormByProject(id);
             }
-            return View(lst);
+            return View(formData);
         }
 
         //上傳廠商報價單
