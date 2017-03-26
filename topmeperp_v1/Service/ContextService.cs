@@ -574,7 +574,29 @@ namespace topmeperp.Service
             }
             return lst;
         }
+        public int createInquiryFormFromSupplier(TND_PROJECT_FORM  form,List<TND_PROJECT_FORM_ITEM> items)
+        {
+            int i = 0;
+            //1.建立詢價單價單樣本
+            string sno_key = "PO";
+            SerialKeyService snoservice = new SerialKeyService();
+            form.FORM_ID = snoservice.getSerialKey(sno_key);
+            logger.Info("Inquiry form from supplier =" + form.ToString());
+            using (var context = new topmepEntities())
+            {
+                context.TND_PROJECT_FORM.Add(form);
 
+                logger.Info("project form id = " + form.FORM_ID);
+                //if (i > 0) { status = true; };
+                foreach (TND_PROJECT_FORM_ITEM item in items)
+                {
+                    item.FORM_ID = form.FORM_ID;
+                    context.TND_PROJECT_FORM_ITEM.Add(item);
+                }
+                i = context.SaveChanges();
+            }
+            return i;
+        }
     }
     #endregion
     #region 序號服務提供區段

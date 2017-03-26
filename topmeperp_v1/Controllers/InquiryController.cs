@@ -102,7 +102,8 @@ namespace topmeperp.Controllers
                 log.Info("Parser Excel File Begin:" + file.FileName);
                 InquiryFormToExcel quoteFormService = new InquiryFormToExcel();
                 quoteFormService.convertInquiry2Project(path, projectid);
-
+                int i =service.createInquiryFormFromSupplier(quoteFormService.form, quoteFormService.formItems);
+                log.Info("add supplier form record count=" + i);
             }
             return "檔案匯入成功!!";
         }

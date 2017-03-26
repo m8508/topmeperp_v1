@@ -1430,49 +1430,111 @@ namespace topmeperp.Service
             //3.讀取檔頭 資料
             //專案名稱
             form = new TND_PROJECT_FORM();
-            form.PROJECT_ID = projectid;
             //專案名稱:	P0120
             logger.Debug(sheet.GetRow(2).Cells[0].ToString() + "," + sheet.GetRow(2).Cells[1]);
+            form.PROJECT_ID = projectid;
             //廠商名稱:	Supplier
             logger.Debug(sheet.GetRow(2).Cells[2].ToString() + "," + sheet.GetRow(2).Cells[3]);
+            form.SUPPLIER_ID = sheet.GetRow(2).Cells[3].ToString(); //用供應商名稱暫代供應商編號
             //採購項目:	 詢價單名稱	
             logger.Debug(sheet.GetRow(3).Cells[0].ToString() + "," + sheet.GetRow(3).Cells[1]);
+            form.FORM_NAME = sheet.GetRow(3).Cells[1].ToString();
             //聯絡人:	contact
             logger.Debug(sheet.GetRow(3).Cells[2].ToString() + "," + sheet.GetRow(3).Cells[3]);
+            form.CONTACT_NAME = sheet.GetRow(3).Cells[3].ToString();
             //承辦人:
             logger.Debug(sheet.GetRow(4).Cells[0].ToString() + "," + sheet.GetRow(4).Cells[1]);
+            form.OWNER_NAME = sheet.GetRow(4).Cells[1].ToString();
             //電子信箱:	contact@email.com
             logger.Debug(sheet.GetRow(4).Cells[2].ToString() + "," + sheet.GetRow(4).Cells[3]);
+            form.CONTACT_EMAIL = sheet.GetRow(4).Cells[3].ToString();
             //聯絡電話:	08888888				
             logger.Debug(sheet.GetRow(5).Cells[0].ToString() + "," + sheet.GetRow(5).Cells[1]);
+            form.OWNER_TEL = sheet.GetRow(5).Cells[1].ToString();
             //報價期限:	2017/1/25
-            logger.Debug(sheet.GetRow(5).Cells[2].ToString() + "," + sheet.GetRow(5).Cells[3] + "," + sheet.GetRow(5).Cells[3].CellType);
+            logger.Debug(sheet.GetRow(5).Cells[2].ToString() + "," + sheet.GetRow(5).Cells[3].ToString() + "," + sheet.GetRow(5).Cells[3].CellType);
+            //long lDate = long.Parse(sheet.GetRow(5).Cells[3].ToString());
+            //DateTime dDate = new DateTime(lDate);
+            //logger.Info("Due Date=" + dDate);
+            form.DUEDATE = DateTime.Parse(sheet.GetRow(5).Cells[3].ToString());
             //電子信箱:	admin@topmep
             logger.Debug(sheet.GetRow(6).Cells[0].ToString() + "," + sheet.GetRow(6).Cells[1]);
+            form.CONTACT_EMAIL = sheet.GetRow(6).Cells[1].ToString();
             //編號: REF - 001
             logger.Debug(sheet.GetRow(6).Cells[2].ToString() + "," + sheet.GetRow(6).Cells[3]);
             //FAX:
             logger.Debug(sheet.GetRow(7).Cells[0].ToString());
+            form.OWNER_FAX = sheet.GetRow(7).Cells[0].ToString();
 
             //3.取得表單明細,逐行讀取資料
             IRow row = null;
             int iRowIndex = 9; //0 表 Row 1
             bool hasMore = true;
             //循序處理每一筆資料之欄位!!
+            formItems = new List<TND_PROJECT_FORM_ITEM>();
             while (hasMore)
             {
                 row = sheet.GetRow(iRowIndex);
                 logger.Info("excel rowid=" + iRowIndex + ",cell count=" + row.Cells.Count);
                 if (row.Cells.Count < 11)
                 {
-                    logger.Info("Row Index=" + iRowIndex +"column count has wrong" + row.Cells.Count);
+                    logger.Info("Row Index=" + iRowIndex + "column count has wrong" + row.Cells.Count);
                     return;
                 }
                 else
                 {
-                    logger.Debug("row id="+ iRowIndex+ "Cells Count="+row.Cells.Count + ",form item vllue:" + row.Cells[0].ToString() +","
-                        + row.Cells[1] +","+ row.Cells[2] + "," + row.Cells[3]+"," +","
-                        + row.Cells[4]+"," +"," + row.Cells[5]+","+ row.Cells[6]+",project item id=" + row.Cells[10]);
+                    logger.Debug("row id=" + iRowIndex + "Cells Count=" + row.Cells.Count + ",form item vllue:" + row.Cells[0].ToString() + ","
+                        + row.Cells[1] + "," + row.Cells[2] + "," + row.Cells[3] + "," + ","
+                        + row.Cells[4] + "," + "," + row.Cells[5] + "," + row.Cells[6] + ",project item id=" + row.Cells[10]);
+                    TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
+                    item.ITEM_DESC = row.Cells[1].ToString();
+                    item.ITEM_UNIT = row.Cells[2].ToString();
+                    //標單數量
+                    if (null != row.Cells[3] || row.Cells[3].ToString() != "")
+                    {
+                        try
+                        {
+                            decimal dQty = decimal.Parse(row.Cells[3].ToString());
+                            item.ITEM_QTY = dQty;
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.Error("Format ERROR : row id=" + iRowIndex + "col3="+ row.Cells[3] +",project item id=" + row.Cells[10]);
+                            logger.Error(ex);
+                        }
+                    }
+                    //報價單單價
+                    if (null != row.Cells[4] || row.Cells[4].ToString() != "")
+                    {
+                        try
+                        {
+                            decimal dUnitPrice = decimal.Parse(row.Cells[4].ToString());
+                            item.ITEM_UNIT_PRICE = dUnitPrice;
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.Error("Format ERROR : row id=" + iRowIndex + "col4=" + row.Cells[4] + ",project item id=" + row.Cells[10]);
+                            logger.Error(ex);
+                        }
+                    }
+                    //報價單複價
+                    //if (null != row.Cells[5] || row.Cells[5].ToString() != "")
+                    //{
+                    //    try
+                    //    {
+                    //        decimal dUnitPrice = decimal.Parse(row.Cells[5].ToString());
+                    //        item.ITEM_UNIT_PRICE = dUnitPrice;
+                    //    }
+                    //    catch (Exception ex)
+                    //    {
+                    //        logger.Error("Format ERROR : row id=" + iRowIndex + "Cells Count=" + row.Cells.Count + ",form item vllue:" + row.Cells[0].ToString() + ","
+                    //    + row.Cells[1] + "," + row.Cells[2] + "," + ",project item id=" + row.Cells[10]);
+                    //        logger.Error(ex);
+                    //    }
+                    //}
+                    item.ITEM_REMARK  = row.Cells[6].ToString();
+                    item.PROJECT_ITEM_ID = row.Cells[10].ToString();
+                    formItems.Add(item);
                 }
                 iRowIndex++;
             }
