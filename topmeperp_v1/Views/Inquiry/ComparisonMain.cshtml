@@ -37,24 +37,20 @@
                 <div id="divProcessing">
                     <img src="~/Content/ajax-loader.gif">
                 </div>
-                <input id="Submit1" class="btn btn-info" type="button" onclick="getComparisonData()" value="查詢" />
+                <input id="query" class="btn btn-info" type="button" onclick="getComparisonData()" value="查詢" />
             </div>
         </div>
     </form>
 </div>
 
 <div class="container">
+    <h5>查詢結果</h5>
     <div class="row" id="comparisonData"></div>
-            <!--Html.RenderPartial("_InquiryMainPage");-->
 </div>
     <script type="text/javascript">
         $(document).ready(function () {
             // Hide the "busy" Gif at load:
             $("#divProcessing").hide();
-            // Attach click handler to the submit button:
-            $('#login').click(function () {
-                $("#divProcessing").show();
-            });
         });
         function getComparisonData(){
             //Ajax 功能範例:置換部分網頁內容
