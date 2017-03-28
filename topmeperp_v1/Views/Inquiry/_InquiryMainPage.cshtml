@@ -1,7 +1,6 @@
-﻿@model IEnumerable<topmeperp.Models.TND_PROJECT_FORM>
-<div class="container">
+﻿<div class="container">
     <h6>請下載需要的詢價單，調整後發給廠商，再行匯入系統!!!</h6>
-    @if (null != Model)
+    @if (null != Model.tndTemplateProjectForm)
     {
         <table class="table table-bordered">
             <thead>
@@ -12,13 +11,13 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model)
+                @foreach (var item in Model.tndTemplateProjectForm)
                 {
                     <tr>
-                        <td>@Html.DisplayFor(modelItem => item.FORM_ID)</td>
-                        <td>@Html.DisplayFor(modelItem => item.FORM_NAME)</td>
+                        <td>@item.FORM_ID</td>
+                        <td>@item.FORM_NAME</td>
                         <td><a href='@("../UploadFile/"+ViewBag.projectid+"/"+item.FORM_ID+".xlsx")'>下載</a></td>
-</tr>
+                    </tr>
                 }
             </tbody>
         </table>

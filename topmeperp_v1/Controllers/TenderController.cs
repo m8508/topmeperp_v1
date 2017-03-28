@@ -182,11 +182,9 @@ namespace topmeperp.Controllers
                 //2.4
                 logger.Info("Delete TND_MAP_FP By Project ID");
                 service.delMapFPByProject(projectid);
-                message = message + "<br/>舊有資料刪除成功 !!";
                 //2.5
                 logger.Info("Add All TND_MAP_FP to DB");
                 service.refreshMapFP(lstMapFP);
-                message = message + "<br/>資料匯入完成 !!";
             }
             #endregion
             #region 消防水
@@ -212,7 +210,7 @@ namespace topmeperp.Controllers
                 service.delMapFWByProject(projectid);
                 message = message + "<br/>舊有資料刪除成功 !!";
                 //2.5 
-                logger.Info("Add All TND_MAP_FW to DB");
+                logger.Info("Add All TND_MAP_FP to DB");
                 service.refreshMapFW(lstMapFW);
                 message = message + "<br/>資料匯入完成 !!";
             }

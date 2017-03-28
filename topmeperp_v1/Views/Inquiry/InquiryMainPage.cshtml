@@ -1,4 +1,5 @@
-﻿@{
+﻿@model topmeperp.Models.InquiryFormModel
+@{
     ViewBag.Title = "備標作業-詢價單管理";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
@@ -26,7 +27,7 @@
     <div class="tab-content">
         <div id="inquiryTemplate" class="tab-pane fade in active">
             @{
-                Html.RenderPartial("_InquiryMainPage");
+               Html.RenderPartial("_InquiryMainPage");
             }
         </div>
         <div id="inquiry" class="tab-pane fade">
@@ -47,10 +48,3 @@
         });
     });
 </script>
-
-
-
-
-
-
-
