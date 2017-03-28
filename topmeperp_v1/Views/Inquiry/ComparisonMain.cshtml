@@ -6,7 +6,7 @@
 <!--標單項目搜尋區條件區域-->
 <div class="jumbotron">
     <h5>@ViewBag.Title</h5>
-    <form name="formSearch" id="formSearch" action="" method="post" class="form-inline">
+    <form name="formSearch" id="formSearch"  method="post" class="form-inline">
         <div class="row">
             <div class="col-md-6 form-group">
                 <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.id" class="form-control" />
@@ -44,6 +44,7 @@
 </div>
 
 <div class="container">
+    <div class="row" id="comparisonData"></div>
             <!--Html.RenderPartial("_InquiryMainPage");-->
 </div>
     <script type="text/javascript">
@@ -56,6 +57,21 @@
             });
         });
         function getComparisonData(){
-            alert("Query");
+            //Ajax 功能範例:置換部分網頁內容
+            var URLs = "/Inquiry/ComparisonData";
+            $("#divProcessing").show();
+            $.ajax({
+                url: URLs,
+                data: $('#formSearch').serialize(),
+                type: "POST",
+                dataType: 'html',
+                success: function (result) {
+                    $("#comparisonData").html(result);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                }
+            });
+            $("#divProcessing").hide();
         }
     </script>

@@ -664,15 +664,88 @@ namespace topmeperp.Service
             }
             return lst;
         }
+        public List<COMPARASION_DATA> getComparisonData(string projectid, string typecode1, string typecode2, string systemMain, string systemSub)
+        {
+            List<COMPARASION_DATA> lst = new List<COMPARASION_DATA>();
+            string sql = "SELECT  pItem.PROJECT_ITEM_ID,"
+                + "pItem.PROJECT_ID,"
+                + "pItem.ITEM_ID ,"
+                + "pItem.ITEM_DESC,"
+                + "pItem.ITEM_UNIT,"
+                + "pItem.ITEM_QUANTITY,"
+                + "pItem.ITEM_UNIT_PRICE,"
+                + "pItem.MAN_PRICE,"
+                + "pItem.ITEM_REMARK,"
+                + "pItem.TYPE_CODE_1,"
+                + "pItem.TYPE_CODE_2,"
+                + "pItem.SUB_TYPE_CODE,"
+                + "pItem.SYSTEM_MAIN,"
+                + "pItem.SYSTEM_SUB,"
+                + "pItem.MODIFY_USER_ID,"
+                + "pItem.MODIFY_DATE,"
+                + "pItem.CREATE_USER_ID,"
+                + "pItem.CREATE_DATE,"
+                + "pItem.SHEET_NAME,"
+                + "pItem.EXCEL_ROW_ID,"
+                + "pItem.DISCOUNT_RATIO,"
+                + "pfItem.FORM_ID AS FORM_ID,"
+                + "pfItem.ITEM_UNIT_PRICE AS QUOTATION_PRICE,"
+                + "pfItem.ITEM_QTY AS OFFER_QTY,"
+                + "(SELECT SUPPLIER_ID  FROM TND_PROJECT_FORM pf WHERE pf.FORM_ID=pfItem.FORM_ID) as SUPPLIER_NAME "
+                + "FROM TND_PROJECT_ITEM pItem LEFT OUTER JOIN "
+                + "TND_PROJECT_FORM_ITEM pfItem ON pItem.PROJECT_ITEM_ID = pfItem.PROJECT_ITEM_ID WHERE pItem.PROJECT_ID=@projectid ";
+
+            var parameters = new List<SqlParameter>();
+            //設定專案名編號資料
+            parameters.Add(new SqlParameter("projectid", projectid));
+            //九宮格條件
+            if (null != typecode1 && "" != typecode1)
+            {
+                //sql = sql + " AND pItem.TYPE_CODE_1='"+ typecode1 + "'";
+                sql = sql + " AND pItem.TYPE_CODE_1=@typecode1";
+                parameters.Add(new SqlParameter("typecode1", typecode1));
+            }
+            //次九宮格條件
+            if (null != typecode2 && "" != typecode2)
+            {
+                //sql = sql + " AND pItem.TYPE_CODE_2='" + typecode2 + "'";
+                sql = sql + " AND pItem.TYPE_CODE_2=@typecode2";
+                parameters.Add(new SqlParameter("typecode2", typecode2));
+            }
+            //主系統條件
+            if (null != systemMain && "" != systemMain)
+            {
+               // sql = sql + " AND pItem.SYSTEM_MAIN='" + systemMain + "'";
+                sql = sql + " AND pItem.SYSTEM_MAIN=@systemMain";
+                parameters.Add(new SqlParameter("systemMain", systemMain));
+            }
+            //次系統條件
+            if (null != systemSub && "" != systemSub)
+            {
+                //sql = sql + " AND pItem.SYSTEM_SUB='" + systemSub + "'";
+                sql = sql + " AND pItem.SYSTEM_SUB=@systemSub";
+                parameters.Add(new SqlParameter("systemSub", systemSub));
+            }
+            //增加排序條件
+            sql = sql + " ORDER BY pItem.EXCEL_ROW_ID;";
+            logger.Info("comparison data sql=" + sql);
+            using (var context = new topmepEntities())
+            {
+                //取得主系統選單
+                lst = context.Database.SqlQuery<COMPARASION_DATA>(sql, parameters.ToArray()).ToList();
+                logger.Info("Get ComparisonData Count=" + lst.Count);
+            }
+            return lst;
+        }
         //取得專案詢價單樣板(供應商欄位為0)
         public List<TND_PROJECT_FORM> getFormTemplateByProject(string projectid)
         {
             logger.Info("get inquiry template by projectid=" + projectid);
-            List <TND_PROJECT_FORM> lst = new List<TND_PROJECT_FORM>();
+            List<TND_PROJECT_FORM> lst = new List<TND_PROJECT_FORM>();
             using (var context = new topmepEntities())
             {
                 //取得詢價單樣本資訊
-                lst = context.TND_PROJECT_FORM.SqlQuery("SELECT * FROM TND_PROJECT_FORM WHERE SUPPLIER_ID IS NULL AND　PROJECT_ID=@projectid", 
+                lst = context.TND_PROJECT_FORM.SqlQuery("SELECT * FROM TND_PROJECT_FORM WHERE SUPPLIER_ID IS NULL AND　PROJECT_ID=@projectid",
                     new SqlParameter("projectid", projectid)).ToList();
             }
             return lst;
@@ -689,7 +762,7 @@ namespace topmeperp.Service
             }
             return lst;
         }
-        public int createInquiryFormFromSupplier(TND_PROJECT_FORM  form,List<TND_PROJECT_FORM_ITEM> items)
+        public int createInquiryFormFromSupplier(TND_PROJECT_FORM form, List<TND_PROJECT_FORM_ITEM> items)
         {
             int i = 0;
             //1.建立詢價單價單樣本
