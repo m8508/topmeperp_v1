@@ -1,0 +1,74 @@
+﻿@{
+    ViewBag.Title = "備標作業-圖算數量查詢";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+<!--標單項目搜尋區條件區域-->
+<div class="jumbotron">
+    <div class="row">
+        <div class="col-md-12">
+            <form name="FormMapInfo" id="FormMapInfo">
+                專案編號:<input id="id" name="id" type="text" value="@ViewBag.projectid" /><br>
+            </form>
+            <div id="divProcessing">
+                <img src="~/Content/ajax-loader.gif">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#MapFP">消防電</a></li>
+        <li><a data-toggle="tab" href="#MapFW">消防水</a></li>
+        <li><a data-toggle="tab" href="#inquiry">給排水</a></li>
+        <li><a data-toggle="tab" href="#inquiry">電氣管線</a></li>
+        <li><a data-toggle="tab" href="#inquiry">弱電管線</a></li>
+        <li><a data-toggle="tab" href="#inquiry">設備清單</a></li>
+    </ul>
+
+    <div class="tab-content">
+        <div id="MapFP" class="tab-pane fade in active">
+            @{
+                Html.RenderPartial("_MapFPMainPage");
+            }
+        </div>
+        <div id="MapFW" class="tab-pane fade">
+            @{
+                Html.RenderPartial("_MapFWPage");
+            }
+            
+        </div>
+        <div id="MapPLU" class="tab-pane fade">
+            @{
+                Html.RenderPartial("_MapPLUPage");
+            }
+        </div>
+        <div id="MapLCP" class="tab-pane fade">
+            @{
+                Html.RenderPartial("_MapLCPPage");
+            }
+        </div>
+        <div id="MapPEP" class="tab-pane fade">
+            @{
+                Html.RenderPartial("_MapPEPPage");
+            }
+        </div>
+        <div id="MapDevice" class="tab-pane fade">
+            @{
+                Html.RenderPartial("_MapDevicePage");
+            }
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Hide the "busy" Gif at load:
+        $("#divProcessing").hide();
+        // Attach click handler to the submit button:
+        $('#login').click(function () {
+            $("#divProcessing").show();
+        });
+    });
+</script>
+

@@ -33,11 +33,19 @@ namespace topmeperp.Models
         public string ROLE_ID { get; set; }
     }
 
-    public class TndFormModels
+    public class MapInfoModels
     {
-        //詢價單表頭資料
-        public IEnumerable<TND_PROJECT_FORM> tndProjectForm { get; set; }
-        //詢價單明細資料
-        public IEnumerable<TND_PROJECT_FORM_ITEM> tndProjectFormItem { get; set; }
+        //圖算消防電資料
+        public IEnumerable<TND_MAP_FP> mapFP { get; set; }
+        //圖算消防電資料
+        public IEnumerable<TND_MAP_FW> mapFW { get; set; }
+        //圖算給排水資料
+        public IEnumerable<TND_MAP_PLU> mapPLU { get; set; }
+        //圖算弱電管線資料
+        public IEnumerable<TND_MAP_LCP> mapLCP { get; set; }
+        //圖算電氣管線資料
+        public IEnumerable<TND_MAP_PEP> mapPEP { get; set; }
+        //圖算設備清單資料
+        public IEnumerable<TND_MAP_DEVICE> mapDEVICE { get; set; }
     }
 }

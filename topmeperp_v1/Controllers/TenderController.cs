@@ -130,7 +130,7 @@ namespace topmeperp.Controllers
             HttpPostedFileBase fileFW, HttpPostedFileBase fileLCP,
             HttpPostedFileBase filePEP, HttpPostedFileBase filePLU)
         {
-            string projectid = Request["projectId"];
+            string projectid = Request["projectid"];
             TnderProject service = new TnderProject();
             logger.Info("Upload Map Info  for projectid=" + projectid);
             string message = "";
@@ -302,29 +302,50 @@ namespace topmeperp.Controllers
             }
             #endregion
             ViewBag.result = message;
-            return View();
+            return RedirectToAction("MapInfoMainPage/" + projectid);
         }
 
-private List<topmeperp.Models.TND_PROJECT> SearchProjectByName(string projectname)
-{
-    if (projectname != null)
-    {
-        logger.Info("search project by 名稱 =" + projectname);
-        List<topmeperp.Models.TND_PROJECT> lstProject = new List<TND_PROJECT>();
-        using (var context = new topmepEntities())
+        public ActionResult MapInfoMainPage(string id)
         {
-            lstProject = context.TND_PROJECT.SqlQuery("select * from TND_PROJECT p "
-                + "where p.PROJECT_NAME Like '%' + @projectname + '%';",
-                 new SqlParameter("projectname", projectname)).ToList();
+            string projectid = Request["projectid"];
+            logger.Info("mapinfo by projectID=" + id);
+            List<TND_MAP_FP> lstFP = null;
+            List<TND_MAP_FW> lstFW = null;
+            if (null != id && id != "")
+            {
+                TnderProject service = new TnderProject();
+                lstFP = service.getMapFPById(id);
+                lstFW = service.getMapFWById(id);
+                MapInfoModels viewModel = new MapInfoModels();
+                viewModel.mapFP = lstFP;
+                viewModel.mapFW = lstFW;
+
+                return View(viewModel);
+            }
+            return RedirectToAction("MapInfoMainPage/" + projectid);
         }
-        logger.Info("get project count=" + lstProject.Count);
-        return lstProject;
-    }
-    else
-    {
-        return null;
-    }
-}
+        
+
+        private List<topmeperp.Models.TND_PROJECT> SearchProjectByName(string projectname)
+        {
+            if (projectname != null)
+            {
+                logger.Info("search project by 名稱 =" + projectname);
+                List<topmeperp.Models.TND_PROJECT> lstProject = new List<TND_PROJECT>();
+                using (var context = new topmepEntities())
+                {
+                    lstProject = context.TND_PROJECT.SqlQuery("select * from TND_PROJECT p "
+                        + "where p.PROJECT_NAME Like '%' + @projectname + '%';",
+                         new SqlParameter("projectname", projectname)).ToList();
+                }
+                logger.Info("get project count=" + lstProject.Count);
+                return lstProject;
+            }
+            else
+            {
+                return null;
+            }
+        }
 
     }
 }

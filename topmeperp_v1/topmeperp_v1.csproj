@@ -530,6 +530,13 @@
     <Content Include="Views\Inquiry\InquiryMainPage.cshtml" />
     <Content Include="Views\Inquiry\_InquiryMainPage.cshtml" />
     <Content Include="Views\Inquiry\_InquirySupplierPage.cshtml" />
+    <Content Include="Views\Tender\MapInfoMainPage.cshtml" />
+    <Content Include="Views\Tender\_MapFWPage.cshtml" />
+    <Content Include="Views\Tender\_MapFPMainPage.cshtml" />
+    <Content Include="Views\Tender\_MapPLUPage.cshtml" />
+    <Content Include="Views\Tender\_MapLCPPage.cshtml" />
+    <Content Include="Views\Tender\_MapPEPPage.cshtml" />
+    <Content Include="Views\Tender\_MapDevicePage.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

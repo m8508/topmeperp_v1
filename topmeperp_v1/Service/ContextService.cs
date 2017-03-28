@@ -540,8 +540,86 @@ namespace topmeperp.Service
             return i;
         }
         #endregion
+
+        //取得消防電圖算資料
+        public List<TND_MAP_FP> getMapFPById(string projectid)
+        {
+            logger.Info("get map FP info by projectid=" + projectid);
+            List<TND_MAP_FP> lstFP = new List<TND_MAP_FP>();
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                lstFP = context.TND_MAP_FP.SqlQuery("SELECT * FROM TND_MAP_FP WHERE PROJECT_ID=@projectid",
+                new SqlParameter("projectid", projectid)).ToList();
+            }
+            return lstFP;
+        }
+        //取得消防水圖算資料
+        public List<TND_MAP_FW> getMapFWById(string projectid)
+        {
+            logger.Info("get map FW info by projectid=" + projectid);
+            List<TND_MAP_FW> lstFW = new List<TND_MAP_FW>();
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                lstFW = context.TND_MAP_FW.SqlQuery("SELECT * FROM TND_MAP_FW WHERE PROJECT_ID=@projectid",
+                new SqlParameter("projectid", projectid)).ToList();
+            }
+            return lstFW;
+        }
+        //取得給排水圖算資料
+        public List<TND_MAP_PLU> getMapPLUById(string projectid)
+        {
+            logger.Info("get map PLU info by projectid=" + projectid);
+            List<TND_MAP_PLU> lstPLU = new List<TND_MAP_PLU>();
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                lstPLU = context.TND_MAP_PLU.SqlQuery("SELECT * FROM TND_MAP_PLU WHERE PROJECT_ID=@projectid",
+                new SqlParameter("projectid", projectid)).ToList();
+            }
+            return lstPLU;
+        }
+        //取得電氣管線圖算資料
+        public List<TND_MAP_PEP> getMapPEPById(string projectid)
+        {
+            logger.Info("get map PEP info by projectid=" + projectid);
+            List<TND_MAP_PEP> lstPEP = new List<TND_MAP_PEP>();
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                lstPEP = context.TND_MAP_PEP.SqlQuery("SELECT * FROM TND_MAP_PEP WHERE PROJECT_ID=@projectid",
+                new SqlParameter("projectid", projectid)).ToList();
+            }
+            return lstPEP;
+        }
+        //取得弱電管線圖算資料
+        public List<TND_MAP_LCP> getMapLCPById(string projectid)
+        {
+            logger.Info("get map LCP info by projectid=" + projectid);
+            List<TND_MAP_LCP> lstLCP = new List<TND_MAP_LCP>();
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                lstLCP = context.TND_MAP_LCP.SqlQuery("SELECT * FROM TND_MAP_LCP WHERE PROJECT_ID=@projectid",
+                new SqlParameter("projectid", projectid)).ToList();
+            }
+            return lstLCP;
+        }
+        //取得設備清單圖算資料
+        public List<TND_MAP_DEVICE> getMapDEVICEById(string projectid)
+        {
+            logger.Info("get map DEVICE info by projectid=" + projectid);
+            List<TND_MAP_DEVICE> lstDEVICE = new List<TND_MAP_DEVICE>();
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                lstDEVICE = context.TND_MAP_DEVICE.SqlQuery("SELECT * FROM TND_MAP_DEVICE WHERE PROJECT_ID=@projectid",
+                new SqlParameter("projectid", projectid)).ToList();
+            }
+            return lstDEVICE;
+        }
     }
-  
     //詢價單資料提供作業
     public class InquiryFormService : ContextService
     {
