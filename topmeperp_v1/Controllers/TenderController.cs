@@ -305,19 +305,28 @@ namespace topmeperp.Controllers
 
         public ActionResult MapInfoMainPage(string id)
         {
-            string projectid = Request["projectid"];
             logger.Info("mapinfo by projectID=" + id);
+            ViewBag.projectid = id;
+            string projectid = Request["projectid"];
             List<TND_MAP_FP> lstFP = null;
             List<TND_MAP_FW> lstFW = null;
+            List<TND_MAP_PEP> lstPEP = null;
+            List<TND_MAP_PLU> lstPLU = null;
+            List<TND_MAP_LCP> lstLCP = null;
             if (null != id && id != "")
             {
                 TnderProject service = new TnderProject();
                 lstFP = service.getMapFPById(id);
                 lstFW = service.getMapFWById(id);
+                lstPEP = service.getMapPEPById(id);
+                lstPLU = service.getMapPLUById(id);
+                lstLCP = service.getMapLCPById(id);
                 MapInfoModels viewModel = new MapInfoModels();
                 viewModel.mapFP = lstFP;
                 viewModel.mapFW = lstFW;
-
+                viewModel.mapPEP = lstPEP;
+                viewModel.mapPLU = lstPLU;
+                viewModel.mapLCP = lstLCP;
                 return View(viewModel);
             }
             return RedirectToAction("MapInfoMainPage/" + projectid);
