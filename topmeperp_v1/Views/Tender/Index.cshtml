@@ -5,18 +5,16 @@
 <!--專案搜尋區條件區域-->
 <div class="jumbotron">
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-12">
             <form name="FormSearchProject" id="FormSearchProject" action="Search" method="Post">
-                專案名稱: <input id="textProejctName" name="textProejctName" type="text" />
-                <input id="Submit1" type="submit" value="查詢" />
+                專案名稱: <input class="form-control" id="textProejctName" name="textProejctName" type="text" />
+                <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
+
+                <a href="Create" class="btn btn-warning">新增專案</a>
+                <div id="divProcessing">
+                    <img src="~/Content/ajax-loader.gif">
+                </div>
             </form>
-            <div id="divProcessing">
-                <img src="~/Content/ajax-loader.gif">
-            </div>
-        </div>
-        <div class="col-md-4">
-            <span class='glyphicon glyphicon-plus' aria-hidden='true'></span>
-            <button class="btn-link">  @Html.ActionLink("新增專案", "Create")</button>
         </div>
     </div>
 </div>

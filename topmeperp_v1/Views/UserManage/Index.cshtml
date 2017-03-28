@@ -5,8 +5,9 @@
 <!--搜尋條件區域-->
 <div class="jumbotron">
     <div class="row"><h5>@ViewBag.Title</h5></div>
-    <form name="formSearch" id="formSearch">
-        <div class="row form-group">
+
+    <div class="row form-group">
+        <form name="formSearch" id="formSearch">
             <div class="col-md-12">
                 <div class="col-md-3">
                     帳號: <input id="userid" name="userid" type="text" class="form-control" />
@@ -21,8 +22,9 @@
                     角色: @Html.DropDownList("roles", null, String.Empty, new { @class = "form-control" })
                 </div>
             </div>
-        </div>
-    </form>
+        </form>
+    </div>
+
     <div class="row" style="padding-top:10px;">
         <div class="col-md-12">
             <button class="btn btn-info" id="btnQuery" name="btnQuery">查詢</button>
@@ -99,7 +101,7 @@
         $.ajax({
             url: "getUser",
             type: "GET",
-            data: {userid:userid},
+            data: { userid: userid },
             dataType: "JSON",
             success: function (data) {
                 $('#u_userid').val(data.USER_ID);
