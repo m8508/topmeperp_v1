@@ -621,7 +621,7 @@ namespace topmeperp.Service
         }
     }
     //詢價單資料提供作業
-    public class InquiryFormService : ContextService
+    public class InquiryFormService : TnderProject
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public TND_PROJECT_FORM formInquiry = null;
@@ -638,6 +638,31 @@ namespace topmeperp.Service
                 formInquiryItem = context.TND_PROJECT_FORM_ITEM.SqlQuery("SELECT * FROM TND_PROJECT_FORM_ITEM WHERE FORM_ID=@formid", new SqlParameter("formid", formid)).ToList();
                 logger.Debug("get form item count:" + formInquiryItem.Count);
             }
+        }
+        //取得主系統選單
+        public List<string> getSystemMain(string projectid)
+        {
+            List<string> lst = new List<string>();
+            using (var context = new topmepEntities())
+            {
+                //取得主系統選單
+                lst = context.Database.SqlQuery<string>("SELECT DISTINCT SYSTEM_MAIN FROM TND_PROJECT_ITEM　WHERE PROJECT_ID=@projectid;", new SqlParameter("projectid", projectid)).ToList();
+                logger.Info("Get System Main Count=" + lst.Count);
+            }
+            return lst;
+        }
+        //取得主系統選單
+        public List<string> getSystemSub(string projectid)
+        {
+            List<string> lst = new List<string>();
+            using (var context = new topmepEntities())
+            {
+                //取得主系統選單
+                lst = context.Database.SqlQuery<string>("SELECT DISTINCT SYSTEM_SUB FROM TND_PROJECT_ITEM WHERE PROJECT_ID=@projectid;", new SqlParameter("projectid", projectid)).ToList();
+                //lst = context.TND_PROJECT_ITEM.SqlQuery("SELECT DISTINCT SYSTEM_SUB FROM TND_PROJECT_ITEM　WHERE PROJECT_ID=@projectid;", new SqlParameter("projectid", projectid)).ToList();
+                logger.Info("Get System Sub Count=" + lst.Count);
+            }
+            return lst;
         }
         //取得專案詢價單樣板(供應商欄位為0)
         public List<TND_PROJECT_FORM> getFormTemplateByProject(string projectid)

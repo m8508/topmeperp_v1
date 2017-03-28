@@ -1,7 +1,6 @@
 ﻿using log4net;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -83,7 +82,7 @@ namespace topmeperp.Controllers
             if (null != id && id != "")
             {
                 ViewBag.projectid = id;
-                formData.tndTemplateProjectForm= service.getFormTemplateByProject(id);
+                formData.tndTemplateProjectForm = service.getFormTemplateByProject(id);
                 formData.tndProjectFormFromSupplier = service.getFormByProject(id);
             }
             return View(formData);
@@ -92,24 +91,78 @@ namespace topmeperp.Controllers
         //上傳廠商報價單
         public string FileUpload(HttpPostedFileBase file)
         {
-            log.Info("Upload form from supplier:"+ Request["projectid"]);
+            log.Info("Upload form from supplier:" + Request["projectid"]);
             string projectid = Request["projectid"];
             //上傳至廠商報價單目錄
-            if (null!=file && file.ContentLength != 0)
+            if (null != file && file.ContentLength != 0)
             {
                 var fileName = Path.GetFileName(file.FileName);
-                var path = Path.Combine(ContextService.strUploadPath + "/" + projectid+"/"+ ContextService.quotesFolder, fileName);
+                var path = Path.Combine(ContextService.strUploadPath + "/" + projectid + "/" + ContextService.quotesFolder, fileName);
                 file.SaveAs(path);
                 log.Info("Parser Excel File Begin:" + file.FileName);
                 InquiryFormToExcel quoteFormService = new InquiryFormToExcel();
                 quoteFormService.convertInquiry2Project(path, projectid);
-                int i =service.createInquiryFormFromSupplier(quoteFormService.form, quoteFormService.formItems);
+                int i = service.createInquiryFormFromSupplier(quoteFormService.form, quoteFormService.formItems);
                 log.Info("add supplier form record count=" + i);
             }
             return "檔案匯入成功!!";
         }
+        [AllowAnonymous]
+        public ActionResult ComparisonMain(string id)
+        {
+            //傳入專案編號，
+            log.Info("start project id=" + id);
+
+            //取得專案基本資料
+            TND_PROJECT p = service.getProjectById(id);
+            ViewBag.id = p.PROJECT_ID;
+            ViewBag.projectName = p.PROJECT_NAME;
+
+            SelectListItem empty = new SelectListItem();
+            empty.Value = "";
+            empty.Text = "";
+            //取得主系統資料
+            List<SelectListItem> selectMain = new List<SelectListItem>();
+            foreach (string itm in service.getSystemMain(id))
+            {
+                log.Debug("Main System=" + itm);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = itm;
+                selectI.Text = itm;
+                if (null != itm && "" != itm)
+                {
+                    selectMain.Add(selectI);
+                }
+            }
+           // selectMain.Add(empty);
+            ViewBag.SystemMain = selectMain;
+            //取得次系統資料
+            List<SelectListItem> selectSub = new List<SelectListItem>();
+            foreach (string itm in service.getSystemSub(id))
+            {
+                log.Debug("Sub System=" + itm);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = itm;
+                selectI.Text = itm;
+                if (null != itm && "" != itm)
+                {
+                    selectSub.Add(selectI);
+                }
+            }
+            //selectSub.Add(empty);
+            ViewBag.SystemSub = selectSub;
+
+            //設定查詢條件
+            return View();
+        }
+        [HttpPost]
+        public ActionResult ComparisonMain(FormCollection form)
+        {
+            //傳入查詢條件
+            log.Info("start project id=" + form["id"]+ ",TypeCode1="+ form["typeCode1"]+ ",typecode2="+ form["typeCode2"]+ ",SystemMain="+ form["SystemMain"]+",Sytem Sub=" + form["SystemSub"]);
+            //取得備標品項與詢價資料
+            //產生畫面
+            return View();
+        }
     }
 }
-
-
-
