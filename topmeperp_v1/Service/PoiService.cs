@@ -786,8 +786,8 @@ namespace topmeperp.Service
             {
                 rows.MoveNext();
                 iRowIndex++;
-               // row = (IRow)rows.Current;
-               // logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
+                // row = (IRow)rows.Current;
+                // logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
             }
             //循序處理每一筆資料之欄位!!
             iRowIndex++;
@@ -820,9 +820,9 @@ namespace topmeperp.Service
             TND_MAP_LCP item = new TND_MAP_LCP();
             item.PROJECT_ID = projId;
             if (row.Cells[0].ToString().Trim() != "")//0.項次
-           {
-               item.EXCEL_ITEM = row.Cells[0].ToString();
-           }
+            {
+                item.EXCEL_ITEM = row.Cells[0].ToString();
+            }
             if (row.Cells[1].ToString().Trim() != "")//1.圖號
             {
                 item.MAP_NO = row.Cells[1].ToString();
@@ -1098,8 +1098,8 @@ namespace topmeperp.Service
             {
                 rows.MoveNext();
                 iRowIndex++;
-               //row = (IRow)rows.Current;
-               //logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
+                //row = (IRow)rows.Current;
+                //logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
             }
             //循序處理每一筆資料之欄位!!
             iRowIndex++;
@@ -1331,6 +1331,91 @@ namespace topmeperp.Service
             }
         }
     }
+    #region 功率下載表格格式處理區段
+    public class WageFormToExcel
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        string wageFile = "D:\\Topmep_Web\\topmeperp_v1\\topmeperp_v1_master\\topmeperp_v1\\UploadFile";
+        string outputPath = ContextService.strUploadPath;
+
+        IWorkbook hssfworkbook;
+        ISheet sheet = null;
+        string fileformat = "xlsx";
+        //存放工率資料
+        public TND_PROJECT project = null;
+        public List<TND_PROJECT_ITEM> projectItems = null;
+        //建立工率下載表格
+        public void exportExcel(TND_PROJECT project, List<TND_PROJECT_ITEM> projectItems)
+        {
+            //1.讀取功率表格檔案
+            InitializeWorkbook(wageFile);
+            sheet = (XSSFSheet)hssfworkbook.GetSheet("工率");
+
+            //2.填入表頭資料
+            logger.Debug("Table Head_1=" + sheet.GetRow(1).Cells[0].ToString());
+            sheet.GetRow(1).Cells[1].SetCellValue(project.PROJECT_ID);//專案編號
+            logger.Debug("Table Head_2=" + sheet.GetRow(2).Cells[0].ToString());
+            sheet.GetRow(2).Cells[1].SetCellValue(project.PROJECT_NAME);//專案名稱
+
+            //3.填入表單明細
+            int idxRow = 4;
+            foreach (TND_PROJECT_ITEM item in projectItems)
+            {
+                IRow row = sheet.GetRow(idxRow);
+                //PK(PROJECT_ITEM_ID) 項次 名稱 單位 數量 單價 備註 九宮格 次九宮格 主系統 次系統
+                row.Cells[0].SetCellValue(idxRow - 3);///PK(PROJECT_ITEM_ID)
+                row.Cells[1].SetCellValue(idxRow - 3);///項次
+                logger.Debug("Wage :ITEM DESC=" + item.ITEM_DESC);
+                row.Cells[2].SetCellValue(item.ITEM_DESC);//項目說明
+                row.Cells[3].SetCellValue(item.ITEM_UNIT);// 單位
+                if (null != item.ITEM_QUANTITY && item.ITEM_QUANTITY.ToString().Trim() != "")
+                {
+                    row.Cells[4].SetCellValue(double.Parse(item.ITEM_QUANTITY.ToString())); //數量
+                }
+                if (null != item.ITEM_UNIT_PRICE && item.ITEM_UNIT_PRICE.ToString().Trim() != "")
+                {
+                    row.Cells[5].SetCellValue(double.Parse(item.ITEM_UNIT_PRICE.ToString())); //單價
+                }
+                row.Cells[6].SetCellValue(item.ITEM_REMARK);// 備註
+                row.Cells[7].SetCellValue(item.TYPE_CODE_1);// 九宮格
+                row.Cells[8].SetCellValue(item.TYPE_CODE_2);// 次九宮格
+                row.Cells[9].SetCellValue(item.SYSTEM_MAIN);// 主系統
+                row.Cells[10].SetCellValue(item.SYSTEM_SUB);// 次系統
+                //建立空白欄位
+                for (int iTmp = 11; iTmp < 20; iTmp++)
+                {
+                    row.CreateCell(iTmp);
+                }
+                idxRow++;
+            }
+            //4.令存新檔至專案所屬目錄
+            var file = new FileStream(outputPath + "\\" + project.PROJECT_ID + "\\" + ".xlsx", FileMode.Create);
+            hssfworkbook.Write(file);
+            file.Close();
+        }
+        private void InitializeWorkbook(string path)
+        {
+            //read the wage file via FileStream, it is suggested to use FileAccess.Read to prevent file lock.
+            //book1.xls is an Excel-2007-generated file, so some new unknown BIFF records are added. 
+            using (FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                logger.Info("Read Excel File:" + path); if (file.Name.EndsWith(".xls"))
+                {
+                    logger.Debug("process excel file for office 2003");
+                    //fileformat = "xls";
+                    hssfworkbook = new HSSFWorkbook(file);
+                }
+                else
+                {
+                    logger.Debug("process excel file for office 2007");
+                    hssfworkbook = new XSSFWorkbook(file);
+                }
+                file.Close();
+            }
+        }
+    }
+    #endregion
+
     #region 詢價單格式處理區段
     public class InquiryFormToExcel
     {
@@ -1383,7 +1468,7 @@ namespace topmeperp.Service
                 // row.Cells[4].SetCellValue(idxRow - 8);//單價
                 // row.Cells[5].SetCellValue(idxRow - 8);複價
                 row.Cells[6].SetCellValue(item.ITEM_REMARK);// 備註
-                //建立空白欄位
+                                                            //建立空白欄位
                 for (int iTmp = 7; iTmp < 27; iTmp++)
                 {
                     row.CreateCell(iTmp);
@@ -1436,7 +1521,7 @@ namespace topmeperp.Service
             //廠商名稱:	Supplier
             logger.Debug(sheet.GetRow(2).Cells[2].ToString() + "," + sheet.GetRow(2).Cells[3]);
             form.SUPPLIER_ID = sheet.GetRow(2).Cells[3].ToString(); //用供應商名稱暫代供應商編號
-            //採購項目:	 詢價單名稱	
+                                                                    //採購項目:	 詢價單名稱	
             logger.Debug(sheet.GetRow(3).Cells[0].ToString() + "," + sheet.GetRow(3).Cells[1]);
             form.FORM_NAME = sheet.GetRow(3).Cells[1].ToString();
             //聯絡人:	contact

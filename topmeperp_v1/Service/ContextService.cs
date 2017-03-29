@@ -183,16 +183,16 @@ namespace topmeperp.Service
         public int updateMapFP(TND_MAP_FP mapfp)
         {
             //1.建立消防電基本資料
-            logger.Info("Update fp " + mapfp.FP_ID +","+  mapfp.ToString());
+            logger.Info("Update fp " + mapfp.FP_ID + "," + mapfp.ToString());
             int i = 0;
             using (var context = new topmepEntities())
             {
-                 context.TND_MAP_FP.AddOrUpdate(mapfp);
+                context.TND_MAP_FP.AddOrUpdate(mapfp);
                 i = context.SaveChanges();
                 logger.Debug("Update mapfp=" + i);
             }
             return i;
-        } 
+        }
         #region 標單項目處理
         public int delAllItemByProject()
         {
@@ -464,7 +464,7 @@ namespace topmeperp.Service
                 foreach (TND_MAP_LCP item in items)
                 {
                     //item.PROJECT_ID = project.PROJECT_ID;先註解掉,因為專案編號一開始已經設定了，會直接代入
-                    logger.Info("Item = " + item.LCP_ID +","+item.PRIMARY_SIDE_NAME);
+                    logger.Info("Item = " + item.LCP_ID + "," + item.PRIMARY_SIDE_NAME);
                     context.TND_MAP_LCP.Add(item);
                 }
                 i = context.SaveChanges();
@@ -644,6 +644,27 @@ namespace topmeperp.Service
             return fp;
         }
     }
+
+    //工率相關資料提供作業
+    public class WageTableService : TnderProject
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        public TND_PROJECT wageTable = null;
+        public List<TND_PROJECT_ITEM> wageTableItem = null;
+        //取得工率表單
+        public void getProjectId(string projectid)
+        {
+            logger.Info("get project : projectid=" + projectid);
+            using (var context = new topmepEntities())
+            {
+                //取得工率表單檔頭資訊
+                wageTable = context.TND_PROJECT.SqlQuery("SELECT * FROM TND_PROJECT WHERE PROJECT_ID=@projectid", new SqlParameter("projectid", projectid)).First();
+                //取得詢價單明細
+                wageTableItem = context.TND_PROJECT_ITEM.SqlQuery("SELECT * FROM TND_PROJECT_ITEM WHERE PROJECT_ID=@projectid", new SqlParameter("projectid", projectid)).ToList();
+                logger.Debug("get project item count:" + wageTableItem.Count);
+            }
+        }
+    }
     //詢價單資料提供作業
     public class InquiryFormService : TnderProject
     {
@@ -739,7 +760,7 @@ namespace topmeperp.Service
             //主系統條件
             if (null != systemMain && "" != systemMain)
             {
-               // sql = sql + " AND pItem.SYSTEM_MAIN='" + systemMain + "'";
+                // sql = sql + " AND pItem.SYSTEM_MAIN='" + systemMain + "'";
                 sql = sql + " AND pItem.SYSTEM_MAIN=@systemMain";
                 parameters.Add(new SqlParameter("systemMain", systemMain));
             }
