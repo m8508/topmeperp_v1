@@ -237,6 +237,7 @@
     <Compile Include="Controllers\RoleManageController.cs" />
     <Compile Include="Controllers\TenderController.cs" />
     <Compile Include="Controllers\UserManageController.cs" />
+    <Compile Include="Controllers\WageController.cs" />
     <Compile Include="Filter\TopmepFilter.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -543,6 +544,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\Wage\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
