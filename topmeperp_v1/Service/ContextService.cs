@@ -95,7 +95,7 @@ namespace topmeperp.Service
                 catch (Exception e)
                 {
                     logger.Error("login fail:" + e.StackTrace);
-                    throw e;
+                    //throw e;
                 }
             }
             logger.Info("get user info=" + loginUser);
