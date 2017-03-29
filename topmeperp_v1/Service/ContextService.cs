@@ -137,7 +137,6 @@ namespace topmeperp.Service
         }
         public int newProject(TND_PROJECT prj)
         {
-
             //1.建立專案基本資料
             logger.Info("create new project " + prj.ToString());
             project = prj;
@@ -148,6 +147,7 @@ namespace topmeperp.Service
                 SerialKeyService snoservice = new SerialKeyService();
                 project.PROJECT_ID = snoservice.getSerialKey(sno_key);
                 logger.Info("new projecgt object=" + project.ToString());
+                project.STATUS = "備標";
                 context.TND_PROJECT.Add(project);
                 //3.建立專案存取路徑
                 string projectFolder = ContextService.strUploadPath + "/" + project.PROJECT_ID;
