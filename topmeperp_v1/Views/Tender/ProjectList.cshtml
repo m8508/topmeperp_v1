@@ -30,12 +30,11 @@
         <tr>
             <td>
                 @Html.ActionLink("修改", "Create", new { id = item.PROJECT_ID }) |
-                @*Html.ActionLink("專案主頁", "Details", new { id = item.PROJECT_ID }) |
-                @Html.ActionLink("工作分派", "Task", new { id = item.PROJECT_ID }) |*@
+                @Html.ActionLink("專案主頁", "Details", new { id = item.PROJECT_ID }) |
+                @Html.ActionLink("工作分派", "Task", new { id = item.PROJECT_ID }) |
                 @Html.ActionLink("上傳圖算數量", "uploadMapInfo", new { id = item.PROJECT_ID }) |
                 @Html.ActionLink("圖算數量修改", "MapInfoMainPage", new { id = item.PROJECT_ID }) |
-                @Html.ActionLink("新增詢價單", "../Inquiry/Index", new { id = item.PROJECT_ID })|
-                @Html.ActionLink("比價作業", "../Inquiry/ComparisonMain", new { id = item.PROJECT_ID })
+                @Html.ActionLink("新增詢價單", "../Inquiry/Index", new { id = item.PROJECT_ID })
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.PROJECT_ID)

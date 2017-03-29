@@ -539,6 +539,7 @@
     <Content Include="Views\Tender\_MapDevicePage.cshtml" />
     <Content Include="Views\Inquiry\ComparisonMain.cshtml" />
     <Content Include="Views\Inquiry\ComparisonData.cshtml" />
+    <Content Include="Views\Tender\EditForFP.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
