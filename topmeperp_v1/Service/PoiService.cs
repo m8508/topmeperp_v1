@@ -1335,7 +1335,7 @@ namespace topmeperp.Service
     public class WageFormToExcel
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        string wageFile = "D:\\Topmep_Web\\topmeperp_v1\\topmeperp_v1_master\\topmeperp_v1\\UploadFile";
+        string wageFile = "D:\\Topmep_Web\\topmeperp_v1\\topmeperp_v1_master\\topmeperp_v1\\UploadFile\\wage_form.xlsx";
         string outputPath = ContextService.strUploadPath;
 
         IWorkbook hssfworkbook;
@@ -1361,26 +1361,26 @@ namespace topmeperp.Service
             int idxRow = 4;
             foreach (TND_PROJECT_ITEM item in projectItems)
             {
-                IRow row = sheet.GetRow(idxRow);
+                IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
                 //PK(PROJECT_ITEM_ID) 項次 名稱 單位 數量 單價 備註 九宮格 次九宮格 主系統 次系統
-                row.Cells[0].SetCellValue(idxRow - 3);///PK(PROJECT_ITEM_ID)
-                row.Cells[1].SetCellValue(idxRow - 3);///項次
+                row.CreateCell(0).SetCellValue(item.PROJECT_ITEM_ID);//PK(PROJECT_ITEM_ID)
+                row.CreateCell(1).SetCellValue(item.ITEM_ID);//項次
                 logger.Debug("Wage :ITEM DESC=" + item.ITEM_DESC);
-                row.Cells[2].SetCellValue(item.ITEM_DESC);//項目說明
-                row.Cells[3].SetCellValue(item.ITEM_UNIT);// 單位
+                row.CreateCell(2).SetCellValue(item.ITEM_DESC);//項目說明
+                row.CreateCell(3).SetCellValue(item.ITEM_UNIT);// 單位
                 if (null != item.ITEM_QUANTITY && item.ITEM_QUANTITY.ToString().Trim() != "")
-                {
-                    row.Cells[4].SetCellValue(double.Parse(item.ITEM_QUANTITY.ToString())); //數量
-                }
+               {
+                    row.CreateCell(4).SetCellValue(double.Parse(item.ITEM_QUANTITY.ToString())); //數量
+               }
                 if (null != item.ITEM_UNIT_PRICE && item.ITEM_UNIT_PRICE.ToString().Trim() != "")
-                {
-                    row.Cells[5].SetCellValue(double.Parse(item.ITEM_UNIT_PRICE.ToString())); //單價
-                }
-                row.Cells[6].SetCellValue(item.ITEM_REMARK);// 備註
-                row.Cells[7].SetCellValue(item.TYPE_CODE_1);// 九宮格
-                row.Cells[8].SetCellValue(item.TYPE_CODE_2);// 次九宮格
-                row.Cells[9].SetCellValue(item.SYSTEM_MAIN);// 主系統
-                row.Cells[10].SetCellValue(item.SYSTEM_SUB);// 次系統
+               {
+                    row.CreateCell(5).SetCellValue(double.Parse(item.ITEM_UNIT_PRICE.ToString())); //單價
+               }
+                row.CreateCell(6).SetCellValue(item.ITEM_REMARK);// 備註
+                row.CreateCell(7).SetCellValue(item.TYPE_CODE_1);// 九宮格
+                row.CreateCell(8).SetCellValue(item.TYPE_CODE_2);// 次九宮格
+                row.CreateCell(9).SetCellValue(item.SYSTEM_MAIN);// 主系統
+                row.CreateCell(10).SetCellValue(item.SYSTEM_SUB);// 次系統
                 //建立空白欄位
                 for (int iTmp = 11; iTmp < 20; iTmp++)
                 {
@@ -1389,7 +1389,7 @@ namespace topmeperp.Service
                 idxRow++;
             }
             //4.令存新檔至專案所屬目錄
-            var file = new FileStream(outputPath + "\\" + project.PROJECT_ID + "\\" + ".xlsx", FileMode.Create);
+            var file = new FileStream(outputPath + "\\" + project.PROJECT_ID + "\\" +"工率.xlsx", FileMode.Create);
             hssfworkbook.Write(file);
             file.Close();
         }
@@ -1420,7 +1420,7 @@ namespace topmeperp.Service
     public class InquiryFormToExcel
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        string templateFile = "D:\\VS.NET\\topmeperp_v1\\topmeperp_v1\\UploadFile\\Inquiry_form_template.xlsx";
+        string templateFile = "D:\\Topmep_Web\\topmeperp_v1\\topmeperp_v1_master\\topmeperp_v1\\UploadFile\\Inquiry_form_template.xlsx";
         string outputPath = ContextService.strUploadPath;
 
         IWorkbook hssfworkbook;

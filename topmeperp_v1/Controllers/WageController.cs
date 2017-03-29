@@ -14,16 +14,10 @@ namespace topmeperp.Controllers
         ILog log = log4net.LogManager.GetLogger(typeof(WageController));
         WageTableService service = new WageTableService();
         // GET: Wage
-        public ActionResult Index()
+        public ActionResult Index(string id, FormCollection form)
         {
-            return View();
-        }
-
-        [HttpPost]
-        public ActionResult Index(FormCollection form)
-        {
-            log.Info("get project item :projectid=" + form["projectid"]);
-            service.getProjectId(form["projectid"]);
+            log.Info("get project item :projectid=" + id);
+            service.getProjectId(id);
             WageFormToExcel poi = new WageFormToExcel();
             poi.exportExcel(service.wageTable, service.wageTableItem);
             return View();

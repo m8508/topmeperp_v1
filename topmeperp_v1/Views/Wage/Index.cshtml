@@ -1,0 +1,32 @@
+﻿
+@{
+    ViewBag.Title = "備標作業-工率表下載作業";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+
+<div class="container">
+    <h6></h6>
+    @using (Html.BeginForm("Index", "Wage", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <form name="FormProject" id="FormProject" action="" method="Post">
+            <div class="row">
+                <div class="form-group">
+                    <label for="inputprojectname" class="col-md-2 control-label">專案名稱</label>
+                    <div class="col-md-4">
+                        @ViewBag.id
+                    </div>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>專案編號</th>
+                                <th>專案名稱</th>
+                                <th>下載連結</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+    </form>
+    }
+    </div>

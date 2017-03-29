@@ -41,19 +41,20 @@
             </div>
         </div>
     </form>
-    <!--進度對話框-->
-    <div class="modal fade" id="progressInfo">
-        <div class="modal-dialog" id="pleaseWaitDialog">
-            <div class="progress progress-striped active" style="height:44px;">
-                <div id="progressBar" class="bar" style="height:44px;width:1%;background-color:green"></div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <div class="container">
     <div class="row" id="comparisonData"></div>
 </div>
+
+<div class="modal hide" id="pleaseWaitDialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-body">
+        <div class="progress progress-striped active" style="height:44px;">
+            <div id="progressBar" class="bar" style="height:44px;width:1%;background-color:green"></div>
+        </div>
+    </div>
+</div>
+
 
 <script type="text/javascript">
     $(document).ready(function () {
@@ -83,60 +84,41 @@
             }
         });
     }
-    //更新合約單價以利成本分析
     function clickPrice(itemid, price) {
         var itemLoc = "cost_" + itemid;
         //alert(itemLoc + " choice price:" + price);
-        $('#progressInfo').modal('show');
+        $('#pleaseWaitDialog').modal('show');
         $("#" + itemLoc).val(price);
-        //假的純粹要看效果
-        $('#progressBar').css('width','50%');
-        $('#progressBar').html('50%');
-        jQuery.ajax({
-            url: "/Inquiry/UpdateCost4Item",
-            async: true,
-            data: { "pitmid": itemid, "price": price },
-            type: "POST",
-            dataType: 'text',
-            success: function (result) {
-                alert(result);
-            },
-        });
-        $('#progressInfo').modal('hide');
+
+        for (var i = 0; i < 100; i++) {
+            updateProgress(i);
+            setTimeout(function () {
+                console.log(new Date());   //It's you code
+            }, 1000);
+        }
+       // $('#pleaseWaitDialog').modal('hide');
+        //ajax aync method
+       
+        //jQuery.ajax({
+        //    url: strUrl,
+        //    data: { "pitmid": "" },
+        //    type: "POST",
+        //    dataType: 'html',
+        //    success: function (html) {
+        //        strReturn = html;
+        //    },
+        //    async: false
+        //});
+        //myApp.hidePleaseWait();
+    }
+    function clickSupplier(formid) {
+        alert(formid + " Had selected");
     }
 
-    function clickSupplier(formid) {
-        jQuery.ajax({
-            url: "/Inquiry/BatchUpdateCost",
-            async: true,
-            data: { "formid": formid},
-            type: "POST",
-            dataType: 'text',
-            success: function (result) {
-                alert(result);
-                getComparisonData();
-            },
-        });
-    }
 
     function updateProgress(percentage) {
         if (percentage > 100) percentage = 100;
         $('#progressBar').css('width', percentage + '%');
         $('#progressBar').html(percentage + '%');
     }
-    //$.ajax({
-    //    type: 'GET',
-    //    url: 'js/scanhelper.php',
-    //    async: true,
-    //    data: {
-    //        ip: ipToCheck
-    //    }
-    //}).done(function (msg) {
-    //    hostsDone++;
-    //    updateProgress((hostsDone / hosts) * 100);
-    //    if (msg != 0) {
-    //        logSuccess(ipToCheck);
-    //    }
-    //});
-    //http://stackoverflow.com/questions/13973781/asynchronously-updating-a-bootstrap-progress-bar-with-jquerys-ajax
 </script>
