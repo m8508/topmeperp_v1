@@ -6,7 +6,7 @@
 <!--標單項目搜尋區條件區域-->
 <div class="jumbotron">
     <h5>@ViewBag.Title</h5>
-    <form name="formSearch" id="formSearch"  method="post" class="form-inline">
+    <form name="formSearch" id="formSearch" method="post" class="form-inline">
         <div class="row">
             <div class="col-md-6 form-group">
                 <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.id" class="form-control" />
@@ -37,7 +37,7 @@
                 <div id="divProcessing">
                     <img src="~/Content/ajax-loader.gif">
                 </div>
-                <input id="Submit1" class="btn btn-info" type="button" onclick="getComparisonData()" value="查詢" />
+                <input id="btnQuery" class="btn btn-info" type="button" onclick="getComparisonData()" value="查詢" />
             </div>
         </div>
     </form>
@@ -45,33 +45,42 @@
 
 <div class="container">
     <div class="row" id="comparisonData"></div>
-            <!--Html.RenderPartial("_InquiryMainPage");-->
+    <form id="formCompData" name="formData"></form>
 </div>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            // Hide the "busy" Gif at load:
-            $("#divProcessing").hide();
-            // Attach click handler to the submit button:
-            $('#login').click(function () {
-                $("#divProcessing").show();
-            });
-        });
-        function getComparisonData(){
-            //Ajax 功能範例:置換部分網頁內容
-            var URLs = "/Inquiry/ComparisonData";
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Hide the "busy" Gif at load:
+        $("#divProcessing").hide();
+        // Attach click handler to the submit button:
+        $('#btnQuery').click(function () {
             $("#divProcessing").show();
-            $.ajax({
-                url: URLs,
-                data: $('#formSearch').serialize(),
-                type: "POST",
-                dataType: 'html',
-                success: function (result) {
-                    $("#comparisonData").html(result);
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    alert(thrownError);
-                }
-            });
-            $("#divProcessing").hide();
-        }
-    </script>
+        });
+    });
+    function getComparisonData() {
+        //Ajax 功能範例:置換部分網頁內容
+        var URLs = "/Inquiry/ComparisonData";
+        $("#divProcessing").show();
+        $.ajax({
+            url: URLs,
+            data: $('#formSearch').serialize(),
+            type: "POST",
+            dataType: 'html',
+            success: function (result) {
+                $("#comparisonData").html(result);
+                $("#divProcessing").hide();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+                $("#divProcessing").hide();
+            }
+        });
+    }
+    function clickPrice(itemid, price) {
+        var itemLoc = "cost_" + itemid;
+        //alert(itemLoc + " choice price:" + price);
+        $("#" + itemLoc).val(price);
+    }
+    function clickSupplier(formid) {
+        alert(formid + " Had selected");
+    }
+</script>

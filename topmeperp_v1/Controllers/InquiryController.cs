@@ -32,6 +32,10 @@ namespace topmeperp.Controllers
             ViewBag.projectId = Request["projectid"];
             return View("Index", lstProject);
         }
+        public ActionResult Create()
+        {
+            return View();
+        }
         //Create Project Form
         [HttpPost]
         public ActionResult Create(TND_PROJECT_FORM qf)
@@ -159,12 +163,12 @@ namespace topmeperp.Controllers
         public ActionResult ComparisonData(FormCollection form)
         {
             //傳入查詢條件
-            log.Info("start project id=" + form["id"]+ ",TypeCode1="+ form["typeCode1"]+ ",typecode2="+ form["typeCode2"]+ ",SystemMain="+ form["SystemMain"]+",Sytem Sub=" + form["SystemSub"]);
+            log.Info("start project id=" + form["id"] + ",TypeCode1=" + form["typeCode1"] + ",typecode2=" + form["typeCode2"] + ",SystemMain=" + form["SystemMain"] + ",Sytem Sub=" + form["SystemSub"]);
             //取得備標品項與詢價資料
             List<COMPARASION_DATA> lst = service.getComparisonData(form["id"], form["typeCode1"], form["typeCode2"], form["SystemMain"], form["SystemSub"]);
             log.Info("get Records=" + lst.Count);
             //產生畫面
-            return View(lst);
+            return PartialView(lst);
         }
     }
 }
