@@ -207,8 +207,8 @@ namespace topmeperp.Service
             {
                 rows.MoveNext();
                 iRowIndex++;
-                //row = (IRow)rows.Current;
-                //logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
+                row = (IRow)rows.Current;
+                logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
             }
             //循序處理每一筆資料之欄位!!
             iRowIndex++;
@@ -381,8 +381,8 @@ namespace topmeperp.Service
             {
                 rows.MoveNext();
                 iRowIndex++;
-                //row = (IRow)rows.Current;
-                //logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
+                row = (IRow)rows.Current;
+                logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
             }
             //循序處理每一筆資料之欄位!!
             iRowIndex++;
@@ -595,7 +595,7 @@ namespace topmeperp.Service
             return ConverData2MapPLU();
         }
         /**
-         * 轉換圖算數量:給排水
+         * 轉換圖算數量:消防水
          * */
         protected List<TND_MAP_PLU> ConverData2MapPLU()
         {
@@ -610,8 +610,8 @@ namespace topmeperp.Service
             {
                 rows.MoveNext();
                 iRowIndex++;
-                //row = (IRow)rows.Current;
-                //logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
+                row = (IRow)rows.Current;
+                logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
             }
             //循序處理每一筆資料之欄位!!
             iRowIndex++;
@@ -786,8 +786,8 @@ namespace topmeperp.Service
             {
                 rows.MoveNext();
                 iRowIndex++;
-               // row = (IRow)rows.Current;
-               // logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
+                row = (IRow)rows.Current;
+                logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
             }
             //循序處理每一筆資料之欄位!!
             iRowIndex++;
@@ -820,9 +820,9 @@ namespace topmeperp.Service
             TND_MAP_LCP item = new TND_MAP_LCP();
             item.PROJECT_ID = projId;
             if (row.Cells[0].ToString().Trim() != "")//0.項次
-           {
-               item.EXCEL_ITEM = row.Cells[0].ToString();
-           }
+            {
+                item.EXCEL_ITEM = row.Cells[0].ToString();
+            }
             if (row.Cells[1].ToString().Trim() != "")//1.圖號
             {
                 item.MAP_NO = row.Cells[1].ToString();
@@ -1098,8 +1098,8 @@ namespace topmeperp.Service
             {
                 rows.MoveNext();
                 iRowIndex++;
-               //row = (IRow)rows.Current;
-               //logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
+                row = (IRow)rows.Current;
+                logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
             }
             //循序處理每一筆資料之欄位!!
             iRowIndex++;
@@ -1264,12 +1264,12 @@ namespace topmeperp.Service
                 }
             }
 
-            if (row.Cells[15].ToString().Trim() != "") //15.管材名稱
+            if (row.Cells[15].ToString().Trim() != "") //15.管材名稱1
             {
                 item.PIPE_NAME = row.Cells[15].ToString();
             }
 
-            if (row.Cells[16].ToString().Trim() != "")//16.管長
+            if (row.Cells[16].ToString().Trim() != "")//16.管長1
             {
                 try
                 {
@@ -1284,7 +1284,7 @@ namespace topmeperp.Service
                 }
             }
 
-            if (row.Cells[17].ToString().Trim() != "")//17.管組數
+            if (row.Cells[17].ToString().Trim() != "")//17.管組數1
             {
                 try
                 {
@@ -1299,7 +1299,7 @@ namespace topmeperp.Service
                 }
             }
 
-            if (row.Cells[18].ToString().Trim() != "")//18.管總長
+            if (row.Cells[18].ToString().Trim() != "")//18.管總長1
             {
                 try
                 {
@@ -1499,7 +1499,7 @@ namespace topmeperp.Service
                         }
                         catch (Exception ex)
                         {
-                            logger.Error("Format ERROR : row id=" + iRowIndex + "col3=" + row.Cells[3] + ",project item id=" + row.Cells[10]);
+                            logger.Error("Format ERROR : row id=" + iRowIndex + "col3="+ row.Cells[3] +",project item id=" + row.Cells[10]);
                             logger.Error(ex);
                         }
                     }
@@ -1532,7 +1532,7 @@ namespace topmeperp.Service
                     //        logger.Error(ex);
                     //    }
                     //}
-                    item.ITEM_REMARK = row.Cells[6].ToString();
+                    item.ITEM_REMARK  = row.Cells[6].ToString();
                     item.PROJECT_ITEM_ID = row.Cells[10].ToString();
                     formItems.Add(item);
                 }

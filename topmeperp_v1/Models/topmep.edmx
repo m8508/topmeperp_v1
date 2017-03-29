@@ -168,7 +168,7 @@
           <Key>
             <PropertyRef Name="LCP_ID" />
           </Key>
-          <Property Name="LCP_ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LCP_ID" Type="bigint" Nullable="false" />
           <Property Name="PROJECT_ID" Type="varchar" MaxLength="20" />
           <Property Name="PROJECT_ITEM_ID" Type="varchar" MaxLength="50" />
           <Property Name="MAP_NO" Type="varchar" MaxLength="20" />
@@ -230,7 +230,7 @@
           <Key>
             <PropertyRef Name="PLU_ID" />
           </Key>
-          <Property Name="PLU_ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PLU_ID" Type="bigint" Nullable="false" />
           <Property Name="PROJECT_ID" Type="varchar" MaxLength="20" />
           <Property Name="PROJECT_ITEM_ID" Type="varchar" MaxLength="50" />
           <Property Name="MAP_NO" Type="varchar" MaxLength="20" />
@@ -668,6 +668,39 @@
           <Property Name="EXCEL_ITEM" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
           <Property Name="PIPE_CNT" Type="Decimal" Precision="18" Scale="2" />
         </EntityType>
+        <EntityType Name="TND_MAP_LCP">
+          <Key>
+            <PropertyRef Name="LCP_ID" />
+          </Key>
+          <Property Name="LCP_ID" Type="Int64" Nullable="false" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="PROJECT_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="MAP_NO" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="BUILDING_NO" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PRIMARY_SIDE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="PRIMARY_SIDE_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="SECONDARY_SIDE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="SECONDARY_SIDE_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="WIRE_NAME" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="WIRE_QTY_SET" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="WIRE_SET_CNT" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="WIRE_LENGTH" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="WIRE_TOTAL_LENGTH" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="GROUND_WIRE_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="GROUND_WIRE_QTY" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="GROUND_WIRE_TOTAL_LENGTH" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="PIPE_1_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="PIPE_1_LENGTH" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="PIPE_1_SET" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="PIPE_1_TOTAL_LEN" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="PIPE_2_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="PIPE_2_LENGTH" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="PIPE_2_SET" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="PIPE_2_TOTAL_LEN" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="EXCEL_ITEM" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+        </EntityType>
         <EntityType Name="TND_MAP_PEP">
           <Key>
             <PropertyRef Name="PEP_ID" />
@@ -693,6 +726,28 @@
           <Property Name="PIPE_LENGTH" Type="Decimal" Precision="18" Scale="2" />
           <Property Name="PIPE_SET" Type="Decimal" Precision="18" Scale="2" />
           <Property Name="PIPE_TOTAL_LENGTH" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="EXCEL_ITEM" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="TND_MAP_PLU">
+          <Key>
+            <PropertyRef Name="PLU_ID" />
+          </Key>
+          <Property Name="PLU_ID" Type="Int64" Nullable="false" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="PROJECT_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="MAP_NO" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="BUILDING_NO" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PRIMARY_SIDE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="PRIMARY_SIDE_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="SECONDARY_SIDE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="SECONDARY_SIDE_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="PIPE_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="PIPE_COUNT_SET" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="PIPE_SET_QTY" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="PIPE_LENGTH" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="PIPE_TOTAL_LENGTH" Type="Decimal" Precision="18" Scale="0" />
           <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
           <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="EXCEL_ITEM" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
@@ -857,7 +912,9 @@
           <EntitySet Name="TND_MAP_DEVICE" EntityType="Self.TND_MAP_DEVICE" />
           <EntitySet Name="TND_MAP_FP" EntityType="Self.TND_MAP_FP" />
           <EntitySet Name="TND_MAP_FW" EntityType="Self.TND_MAP_FW" />
+          <EntitySet Name="TND_MAP_LCP" EntityType="Self.TND_MAP_LCP" />
           <EntitySet Name="TND_MAP_PEP" EntityType="Self.TND_MAP_PEP" />
+          <EntitySet Name="TND_MAP_PLU" EntityType="Self.TND_MAP_PLU" />
           <EntitySet Name="TND_PROJECT_ITEM" EntityType="Self.TND_PROJECT_ITEM" />
           <EntitySet Name="TND_SUP_INQUIRY" EntityType="Self.TND_SUP_INQUIRY" />
           <EntitySet Name="TND_SUP_INQUIRY_ITEM" EntityType="Self.TND_SUP_INQUIRY_ITEM" />
@@ -880,8 +937,6 @@
           <EntitySet Name="TND_PROJECT" EntityType="topmepModel.TND_PROJECT" />
           <EntitySet Name="TND_PROJECT_FORM" EntityType="topmepModel.TND_PROJECT_FORM" />
           <EntitySet Name="TND_PROJECT_FORM_ITEM" EntityType="topmepModel.TND_PROJECT_FORM_ITEM" />
-          <EntitySet Name="TND_MAP_LCP" EntityType="topmepModel.TND_MAP_LCP" />
-          <EntitySet Name="TND_MAP_PLU" EntityType="topmepModel.TND_MAP_PLU" />
         </EntityContainer>
         <EntityType Name="TND_PROJECT">
           <Key>
@@ -947,61 +1002,6 @@
           <Property Name="ITEM_REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
           <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
-        </EntityType>
-        <EntityType Name="TND_MAP_LCP">
-          <Key>
-            <PropertyRef Name="LCP_ID" />
-          </Key>
-          <Property Name="LCP_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="PROJECT_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="MAP_NO" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="BUILDING_NO" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PRIMARY_SIDE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="PRIMARY_SIDE_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="SECONDARY_SIDE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="SECONDARY_SIDE_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="WIRE_NAME" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="WIRE_QTY_SET" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="WIRE_SET_CNT" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="WIRE_LENGTH" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="WIRE_TOTAL_LENGTH" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="GROUND_WIRE_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="GROUND_WIRE_QTY" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="GROUND_WIRE_TOTAL_LENGTH" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="PIPE_1_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="PIPE_1_LENGTH" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="PIPE_1_SET" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="PIPE_1_TOTAL_LEN" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="PIPE_2_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="PIPE_2_LENGTH" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="PIPE_2_SET" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="PIPE_2_TOTAL_LEN" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="EXCEL_ITEM" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="TND_MAP_PLU">
-          <Key>
-            <PropertyRef Name="PLU_ID" />
-          </Key>
-          <Property Name="PLU_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="PROJECT_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="MAP_NO" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="BUILDING_NO" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PRIMARY_SIDE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="PRIMARY_SIDE_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="SECONDARY_SIDE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="SECONDARY_SIDE_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="PIPE_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="PIPE_COUNT_SET" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="PIPE_SET_QTY" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="PIPE_LENGTH" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="PIPE_TOTAL_LENGTH" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="EXCEL_ITEM" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1179,6 +1179,40 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="TND_MAP_LCP">
+            <EntityTypeMapping TypeName="topmepModel.TND_MAP_LCP">
+              <MappingFragment StoreEntitySet="TND_MAP_LCP">
+                <ScalarProperty Name="EXCEL_ITEM" ColumnName="EXCEL_ITEM" />
+                <ScalarProperty Name="LCP_ID" ColumnName="LCP_ID" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
+                <ScalarProperty Name="PROJECT_ITEM_ID" ColumnName="PROJECT_ITEM_ID" />
+                <ScalarProperty Name="MAP_NO" ColumnName="MAP_NO" />
+                <ScalarProperty Name="BUILDING_NO" ColumnName="BUILDING_NO" />
+                <ScalarProperty Name="PRIMARY_SIDE" ColumnName="PRIMARY_SIDE" />
+                <ScalarProperty Name="PRIMARY_SIDE_NAME" ColumnName="PRIMARY_SIDE_NAME" />
+                <ScalarProperty Name="SECONDARY_SIDE" ColumnName="SECONDARY_SIDE" />
+                <ScalarProperty Name="SECONDARY_SIDE_NAME" ColumnName="SECONDARY_SIDE_NAME" />
+                <ScalarProperty Name="WIRE_NAME" ColumnName="WIRE_NAME" />
+                <ScalarProperty Name="WIRE_QTY_SET" ColumnName="WIRE_QTY_SET" />
+                <ScalarProperty Name="WIRE_SET_CNT" ColumnName="WIRE_SET_CNT" />
+                <ScalarProperty Name="WIRE_LENGTH" ColumnName="WIRE_LENGTH" />
+                <ScalarProperty Name="WIRE_TOTAL_LENGTH" ColumnName="WIRE_TOTAL_LENGTH" />
+                <ScalarProperty Name="GROUND_WIRE_NAME" ColumnName="GROUND_WIRE_NAME" />
+                <ScalarProperty Name="GROUND_WIRE_QTY" ColumnName="GROUND_WIRE_QTY" />
+                <ScalarProperty Name="GROUND_WIRE_TOTAL_LENGTH" ColumnName="GROUND_WIRE_TOTAL_LENGTH" />
+                <ScalarProperty Name="PIPE_1_NAME" ColumnName="PIPE_1_NAME" />
+                <ScalarProperty Name="PIPE_1_LENGTH" ColumnName="PIPE_1_LENGTH" />
+                <ScalarProperty Name="PIPE_1_SET" ColumnName="PIPE_1_SET" />
+                <ScalarProperty Name="PIPE_1_TOTAL_LEN" ColumnName="PIPE_1_TOTAL_LEN" />
+                <ScalarProperty Name="PIPE_2_NAME" ColumnName="PIPE_2_NAME" />
+                <ScalarProperty Name="PIPE_2_LENGTH" ColumnName="PIPE_2_LENGTH" />
+                <ScalarProperty Name="PIPE_2_SET" ColumnName="PIPE_2_SET" />
+                <ScalarProperty Name="PIPE_2_TOTAL_LEN" ColumnName="PIPE_2_TOTAL_LEN" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="TND_MAP_PEP">
             <EntityTypeMapping TypeName="topmepModel.TND_MAP_PEP">
               <MappingFragment StoreEntitySet="TND_MAP_PEP">
@@ -1203,6 +1237,29 @@
                 <ScalarProperty Name="PIPE_NAME" ColumnName="PIPE_NAME" />
                 <ScalarProperty Name="PIPE_LENGTH" ColumnName="PIPE_LENGTH" />
                 <ScalarProperty Name="PIPE_SET" ColumnName="PIPE_SET" />
+                <ScalarProperty Name="PIPE_TOTAL_LENGTH" ColumnName="PIPE_TOTAL_LENGTH" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TND_MAP_PLU">
+            <EntityTypeMapping TypeName="topmepModel.TND_MAP_PLU">
+              <MappingFragment StoreEntitySet="TND_MAP_PLU">
+                <ScalarProperty Name="EXCEL_ITEM" ColumnName="EXCEL_ITEM" />
+                <ScalarProperty Name="PLU_ID" ColumnName="PLU_ID" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
+                <ScalarProperty Name="PROJECT_ITEM_ID" ColumnName="PROJECT_ITEM_ID" />
+                <ScalarProperty Name="MAP_NO" ColumnName="MAP_NO" />
+                <ScalarProperty Name="BUILDING_NO" ColumnName="BUILDING_NO" />
+                <ScalarProperty Name="PRIMARY_SIDE" ColumnName="PRIMARY_SIDE" />
+                <ScalarProperty Name="PRIMARY_SIDE_NAME" ColumnName="PRIMARY_SIDE_NAME" />
+                <ScalarProperty Name="SECONDARY_SIDE" ColumnName="SECONDARY_SIDE" />
+                <ScalarProperty Name="SECONDARY_SIDE_NAME" ColumnName="SECONDARY_SIDE_NAME" />
+                <ScalarProperty Name="PIPE_NAME" ColumnName="PIPE_NAME" />
+                <ScalarProperty Name="PIPE_COUNT_SET" ColumnName="PIPE_COUNT_SET" />
+                <ScalarProperty Name="PIPE_SET_QTY" ColumnName="PIPE_SET_QTY" />
+                <ScalarProperty Name="PIPE_LENGTH" ColumnName="PIPE_LENGTH" />
                 <ScalarProperty Name="PIPE_TOTAL_LENGTH" ColumnName="PIPE_TOTAL_LENGTH" />
                 <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
                 <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
@@ -1393,63 +1450,6 @@
                 <ScalarProperty Name="PROJECT_ITEM_ID" ColumnName="PROJECT_ITEM_ID" />
                 <ScalarProperty Name="FORM_ID" ColumnName="FORM_ID" />
                 <ScalarProperty Name="FORM_ITEM_ID" ColumnName="FORM_ITEM_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="TND_MAP_LCP">
-            <EntityTypeMapping TypeName="topmepModel.TND_MAP_LCP">
-              <MappingFragment StoreEntitySet="TND_MAP_LCP">
-                <ScalarProperty Name="EXCEL_ITEM" ColumnName="EXCEL_ITEM" />
-                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="PIPE_2_TOTAL_LEN" ColumnName="PIPE_2_TOTAL_LEN" />
-                <ScalarProperty Name="PIPE_2_SET" ColumnName="PIPE_2_SET" />
-                <ScalarProperty Name="PIPE_2_LENGTH" ColumnName="PIPE_2_LENGTH" />
-                <ScalarProperty Name="PIPE_2_NAME" ColumnName="PIPE_2_NAME" />
-                <ScalarProperty Name="PIPE_1_TOTAL_LEN" ColumnName="PIPE_1_TOTAL_LEN" />
-                <ScalarProperty Name="PIPE_1_SET" ColumnName="PIPE_1_SET" />
-                <ScalarProperty Name="PIPE_1_LENGTH" ColumnName="PIPE_1_LENGTH" />
-                <ScalarProperty Name="PIPE_1_NAME" ColumnName="PIPE_1_NAME" />
-                <ScalarProperty Name="GROUND_WIRE_TOTAL_LENGTH" ColumnName="GROUND_WIRE_TOTAL_LENGTH" />
-                <ScalarProperty Name="GROUND_WIRE_QTY" ColumnName="GROUND_WIRE_QTY" />
-                <ScalarProperty Name="GROUND_WIRE_NAME" ColumnName="GROUND_WIRE_NAME" />
-                <ScalarProperty Name="WIRE_TOTAL_LENGTH" ColumnName="WIRE_TOTAL_LENGTH" />
-                <ScalarProperty Name="WIRE_LENGTH" ColumnName="WIRE_LENGTH" />
-                <ScalarProperty Name="WIRE_SET_CNT" ColumnName="WIRE_SET_CNT" />
-                <ScalarProperty Name="WIRE_QTY_SET" ColumnName="WIRE_QTY_SET" />
-                <ScalarProperty Name="WIRE_NAME" ColumnName="WIRE_NAME" />
-                <ScalarProperty Name="SECONDARY_SIDE_NAME" ColumnName="SECONDARY_SIDE_NAME" />
-                <ScalarProperty Name="SECONDARY_SIDE" ColumnName="SECONDARY_SIDE" />
-                <ScalarProperty Name="PRIMARY_SIDE_NAME" ColumnName="PRIMARY_SIDE_NAME" />
-                <ScalarProperty Name="PRIMARY_SIDE" ColumnName="PRIMARY_SIDE" />
-                <ScalarProperty Name="BUILDING_NO" ColumnName="BUILDING_NO" />
-                <ScalarProperty Name="MAP_NO" ColumnName="MAP_NO" />
-                <ScalarProperty Name="PROJECT_ITEM_ID" ColumnName="PROJECT_ITEM_ID" />
-                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
-                <ScalarProperty Name="LCP_ID" ColumnName="LCP_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="TND_MAP_PLU">
-            <EntityTypeMapping TypeName="topmepModel.TND_MAP_PLU">
-              <MappingFragment StoreEntitySet="TND_MAP_PLU">
-                <ScalarProperty Name="EXCEL_ITEM" ColumnName="EXCEL_ITEM" />
-                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="PIPE_TOTAL_LENGTH" ColumnName="PIPE_TOTAL_LENGTH" />
-                <ScalarProperty Name="PIPE_LENGTH" ColumnName="PIPE_LENGTH" />
-                <ScalarProperty Name="PIPE_SET_QTY" ColumnName="PIPE_SET_QTY" />
-                <ScalarProperty Name="PIPE_COUNT_SET" ColumnName="PIPE_COUNT_SET" />
-                <ScalarProperty Name="PIPE_NAME" ColumnName="PIPE_NAME" />
-                <ScalarProperty Name="SECONDARY_SIDE_NAME" ColumnName="SECONDARY_SIDE_NAME" />
-                <ScalarProperty Name="SECONDARY_SIDE" ColumnName="SECONDARY_SIDE" />
-                <ScalarProperty Name="PRIMARY_SIDE_NAME" ColumnName="PRIMARY_SIDE_NAME" />
-                <ScalarProperty Name="PRIMARY_SIDE" ColumnName="PRIMARY_SIDE" />
-                <ScalarProperty Name="BUILDING_NO" ColumnName="BUILDING_NO" />
-                <ScalarProperty Name="MAP_NO" ColumnName="MAP_NO" />
-                <ScalarProperty Name="PROJECT_ITEM_ID" ColumnName="PROJECT_ITEM_ID" />
-                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
-                <ScalarProperty Name="PLU_ID" ColumnName="PLU_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

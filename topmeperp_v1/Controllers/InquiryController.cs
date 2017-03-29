@@ -164,7 +164,7 @@ namespace topmeperp.Controllers
             List<COMPARASION_DATA> lst = service.getComparisonData(form["id"], form["typeCode1"], form["typeCode2"], form["SystemMain"], form["SystemSub"]);
             log.Info("get Records=" + lst.Count);
             //產生畫面
-            return View(lst);
+            return PartialView(lst);
         }
     }
 }

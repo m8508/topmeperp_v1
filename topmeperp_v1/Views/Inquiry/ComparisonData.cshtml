@@ -1,40 +1,62 @@
 ﻿@model IEnumerable<topmeperp.Models.COMPARASION_DATA>
-
-<div class="container">
-    @if (null != Model)
-    {
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>標單項次</th>
-                    <th width="30%">名稱</th>
-                    <th>單位</th>
-                    <th>數量</th>
-                    <th>單價</th>
-                    <th>報價</th>
-                    <th>廠商</th>
-                    <th>報價單號</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
+@if (null != Model)
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>代碼</th>
+                <th>標單項次</th>
+                <th width="30%">名稱</th>
+                <th>單位</th>
+                <th>數量</th>
+                <th>成本</th>
+                <th>報價</th>
+                <th>廠商</th>
+                <th>報價單號</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                var curItemDesc = "";
+            }
+            @foreach (var item in Model)
+            {
+                if (curItemDesc != item.ITEM_DESC)
                 {
+                    curItemDesc = item.ITEM_DESC;
+                    //品項相同欄位不在輸出
                     <tr>
+                        <td>@item.PROJECT_ITEM_ID </td>
                         <td>@item.ITEM_ID</td>
                         <td style="word-break:break-all">@item.ITEM_DESC</td>
+
                         <td>@item.ITEM_UNIT</td>
                         <td>@item.ITEM_QUANTITY</td>
-                        <td><input type="text" id="cost_@item.ITEM_ID" name="cost_@item.ITEM_ID" size="5"/></td>
+                        <td><input type="text" id="cost_@item.ITEM_ID" name="cost_@item.ITEM_ID" size="5" /></td>
                         <td>@item.QUOTATION_PRICE </td>
                         <td>@item.SUPPLIER_NAME </td>
                         <td><a href="#@item.FORM_ID">@item.FORM_ID</a> </td>
                     </tr>
                 }
-            </tbody>
-        </table>
-    }
-    else
-    {
-        <p>查無資料!!</p>
-    }
-</div>
+                else
+                {
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>@item.QUOTATION_PRICE </td>
+                        <td>@item.SUPPLIER_NAME </td>
+                        <td><a href="#@item.FORM_ID">@item.FORM_ID</a> </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+                }
+                else
+                {
+                    <p>查無資料!!</p>
+                }

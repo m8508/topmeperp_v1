@@ -30,8 +30,8 @@
                 {
                     <tr>
                         <td>
-                            @Html.ActionLink("修改", "EditForFP", new { id = item.FP_ID }) |
-                            @Html.ActionLink("刪除", "DeleteForFP", new { id = item.FP_ID })
+                            @Html.ActionLink("Edit", "Edit", new { id = item.FP_ID }) |
+                            @Html.ActionLink("Delete", "Delete", new { id = item.FP_ID })
                         </td>
                         <td>@Html.DisplayFor(modelItem => item.EXCEL_ITEM)</td>
                         <td>@Html.DisplayFor(modelItem => item.MAP_NO)</td>
