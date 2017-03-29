@@ -132,7 +132,7 @@ namespace topmeperp.Controllers
         {
             string projectid = Request["projectid"];
             TnderProject service = new TnderProject();
-            logger.Info("Upload Map Info  for projectid=" + projectid);
+            logger.Info("Upload Map Info for projectid=" + projectid);
             string message = "";
             //檔案變數名稱需要與前端畫面對應
             #region 設備清單
@@ -302,28 +302,57 @@ namespace topmeperp.Controllers
             ViewBag.result = message;
             return RedirectToAction("MapInfoMainPage/" + projectid);
         }
-
+        //建立各類別圖算數量檢視頁面
         public ActionResult MapInfoMainPage(string id)
         {
-            string projectid = Request["projectid"];
             logger.Info("mapinfo by projectID=" + id);
+            ViewBag.projectid = id;
+            string projectid = Request["projectid"];
             List<TND_MAP_FP> lstFP = null;
             List<TND_MAP_FW> lstFW = null;
+            List<TND_MAP_PEP> lstPEP = null;
+            List<TND_MAP_PLU> lstPLU = null;
+            List<TND_MAP_LCP> lstLCP = null;
             if (null != id && id != "")
             {
                 TnderProject service = new TnderProject();
                 lstFP = service.getMapFPById(id);
                 lstFW = service.getMapFWById(id);
+                lstPEP = service.getMapPEPById(id);
+                lstPLU = service.getMapPLUById(id);
+                lstLCP = service.getMapLCPById(id);
                 MapInfoModels viewModel = new MapInfoModels();
                 viewModel.mapFP = lstFP;
                 viewModel.mapFW = lstFW;
-
+                viewModel.mapPEP = lstPEP;
+                viewModel.mapPLU = lstPLU;
+                viewModel.mapLCP = lstLCP;
                 return View(viewModel);
             }
             return RedirectToAction("MapInfoMainPage/" + projectid);
         }
-        
-
+        //編輯消防電圖算數量
+        #region 消防電
+        public ActionResult EditForFP(string id)
+        {
+            logger.Info("get map fp for update:fp_id=" + id);
+            TND_MAP_FP fp = null;
+            if (null != id)
+            {
+                TnderProject service = new TnderProject();
+                fp = service.getFPById(id);
+            }
+            return View(fp);
+        }
+        [HttpPost]
+        public ActionResult EditForFP(TND_MAP_FP mapfp)
+        {
+            logger.Info("update map fp:fp_id="+ mapfp.FP_ID +","+ mapfp.EXCEL_ITEM);
+            TnderProject service = new TnderProject();
+            service.updateMapFP(mapfp);
+            return View(mapfp);
+        }
+        #endregion
         private List<topmeperp.Models.TND_PROJECT> SearchProjectByName(string projectname)
         {
             if (projectname != null)
