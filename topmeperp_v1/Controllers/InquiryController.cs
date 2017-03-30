@@ -115,7 +115,7 @@ namespace topmeperp.Controllers
             }
             return "檔案匯入成功!!";
         }
-        [AllowAnonymous]
+        //比價功能資料頁
         public ActionResult ComparisonMain(string id)
         {
             //傳入專案編號，
@@ -142,7 +142,7 @@ namespace topmeperp.Controllers
                     selectMain.Add(selectI);
                 }
             }
-           // selectMain.Add(empty);
+            // selectMain.Add(empty);
             ViewBag.SystemMain = selectMain;
             //取得次系統資料
             List<SelectListItem> selectSub = new List<SelectListItem>();
@@ -163,6 +163,7 @@ namespace topmeperp.Controllers
             //設定查詢條件
             return View();
         }
+        //取得比價資料
         [HttpPost]
         public ActionResult ComparisonData(FormCollection form)
         {
@@ -173,6 +174,29 @@ namespace topmeperp.Controllers
             log.Info("get Records=" + lst.Count);
             //產生畫面
             return PartialView(lst);
+        }
+        //更新單項成本資料
+        public string UpdateCost4Item()
+        {
+            log.Info("ProjectItemID=" + Request["pitmid"] + ",Cost=" + Request["price"]);
+            try
+            {
+                decimal cost = decimal.Parse(Request["price"]);
+                service.updateCostFromQuote(Request["pitmid"], cost);
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex.StackTrace);
+                return "更新失敗(請檢查資料格式是否有誤)!!";
+            }
+            return "更新成功!!";
+        }
+        //依據詢價單內容，更新標單所有單價
+        public string BatchUpdateCost(string formid)
+        {
+            log.Info("formid=" + Request["formid"]);
+            int i = service.batchUpdateCostFromQuote(Request["formid"]);
+            return "更新成功!!";
         }
     }
 }

@@ -431,7 +431,7 @@ namespace topmeperp.Service
                 {
                     //item.PROJECT_ID = project.PROJECT_ID;先註解掉,因為專案編號一開始已經設定了，會直接代入
                     logger.Info("Item = " + item.PLU_ID + "," + item.PRIMARY_SIDE_NAME);
-                    context.TND_MAP_PLU.Add(item);
+                    context.TND_MAP_PLU.AddOrUpdate(item);
                 }
                 i = context.SaveChanges();
             }
@@ -829,6 +829,41 @@ namespace topmeperp.Service
                 }
                 i = context.SaveChanges();
             }
+            return i;
+        }
+        //由報價單資料更新標單資料
+        public int updateCostFromQuote(string projectItemid, decimal price)
+        {
+            int i = 0;
+            logger.Info("Update Cost:project item id=" + projectItemid + ",price=" + price);
+            db = new topmepEntities();
+            string sql = "UPDATE TND_PROJECT_ITEM SET ITEM_UNIT_PRICE=@price WHERE PROJECT_ITEM_ID=@pitemid ";
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("price", price));
+            parameters.Add(new SqlParameter("pitemid", projectItemid));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            db = null;
+            logger.Info("Update Cost:" + i);
+            return i;
+        }
+        public int batchUpdateCostFromQuote(string formid)
+        {
+            int i = 0;
+            logger.Info("Copy cost from Quote to Tnd by form id" + formid);
+            string sql = "UPDATE  TND_PROJECT_ITEM SET item_unit_price = i.ITEM_UNIT_PRICE "
+                + "FROM (select i.project_item_id, fi.ITEM_UNIT_PRICE, fi.FORM_ID from TND_PROJECT_ITEM i "
+                + ", TND_PROJECT_FORM_ITEM fi "
+                + "where i.PROJECT_ITEM_ID = fi.PROJECT_ITEM_ID and FORM_ID = @formid) i "
+                + "WHERE  i.project_item_id = TND_PROJECT_ITEM.PROJECT_ITEM_ID";
+            logger.Debug("batch sql:" + sql);
+            db = new topmepEntities();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("formid", formid));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            logger.Info("Update Record:" + i);
+            db = null;
             return i;
         }
     }

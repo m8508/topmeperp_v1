@@ -13,44 +13,26 @@ namespace topmeperp.Controllers
     {
         ILog log = log4net.LogManager.GetLogger(typeof(WageController));
         WageTableService service = new WageTableService();
-        // GET: Wage
+        // GET: 下載工率excel表格
         public ActionResult Index(string id, FormCollection form)
         {
             log.Info("get project item :projectid=" + id);
+            ViewBag.projectid = id;
             service.getProjectId(id);
             WageFormToExcel poi = new WageFormToExcel();
             poi.exportExcel(service.wageTable, service.wageTableItem);
             return View();
         }
-
-        // GET: Wage/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: Wage/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Wage/Create
+        //上傳工率
         [HttpPost]
-        public ActionResult Create(FormCollection collection)
+        public ActionResult uploadWageTable(string id)
         {
-            try
-            {
-                // TODO: Add insert logic here
-
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return View();
-            }
+            log.Info("upload wage table for projectid=" + id);
+            ViewBag.projectid = id;
+            return View();
         }
 
+        
         // GET: Wage/Edit/5
         public ActionResult Edit(int id)
         {

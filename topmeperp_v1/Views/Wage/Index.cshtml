@@ -5,28 +5,26 @@
 }
 
 <div class="container">
-    <h6></h6>
-    @using (Html.BeginForm("Index", "Wage", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
-    {
-        <form name="FormProject" id="FormProject" action="" method="Post">
-            <div class="row">
-                <div class="form-group">
-                    <label for="inputprojectname" class="col-md-2 control-label">專案名稱</label>
-                    <div class="col-md-4">
-                        @ViewBag.id
-                    </div>
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>專案編號</th>
-                                <th>專案名稱</th>
-                                <th>下載連結</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-    </form>
-    }
+    <h2>工率下載與上傳作業</h2><br />
+    <div class="row col-md-12">
+        <label for="projectId">專案編號:</label>
+        <input type="text" name="projectid" id="projectid" value="@ViewBag.projectid" />
     </div>
+    <div class="row col-md-12">
+        <label for="projectId">專案編號:</label>
+        <input type="text" name="projectid" id="projectid" value="@ViewBag.projectid" />
+    </div><br />
+    <div class="row col-md-12">
+        <label>工率填寫表連結</label>
+        <a href='@("../UploadFile/"+ViewBag.projectid+"/"+ViewBag.projectid + "_工率.xlsx")'>下載</a>
+    </div><br />
+    <div class="row col-md-12">
+        <form id="UploadForm" name="UploadForm" action="FileUpload" method="post" enctype="multipart/form-data">
+            <label for="file">廠商報價單匯入:</label>
+            <input type="hidden" name="projectid" id="projectid" value="@ViewBag.projectid" />
+            <input type="file" name="file" id="file" />
+            <input id="btnUploadfile" name="btnUploadfile" type="submit" class="btn-primary" value="匯入檔案" />
+        </form>
+    </div>
+        </div>
+   
