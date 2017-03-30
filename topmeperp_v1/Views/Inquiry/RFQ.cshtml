@@ -2,10 +2,9 @@
 @using (Html.BeginForm("Create", "Inquiry", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     <!--不好的方式但檔著先屆時設為Hidden-->
-    <input type="text" id="prjId" name="prjId" value="@ViewBag.projectid"/>
+    <input type="hidden" id="prjId" name="prjId" value="@ViewBag.projectid"/>
     <table class="table">
         <tr>
-            <th></th>
             <th><input type="checkbox" name="CheckAll" id="CheckAll">全選</th>
             <th>
                 No.
@@ -48,10 +47,6 @@
         @foreach (var item in Model)
         {
             <tr>
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { id = item.PROJECT_ID }) |
-                    @Html.ActionLink("Delete", "Delete", new { id = item.PROJECT_ID })
-                </td>
                 <td>
                     <input type="checkbox" id="chkItem" name="chkItem" value="@item.PROJECT_ITEM_ID" />
                 </td>

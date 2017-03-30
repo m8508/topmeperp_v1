@@ -32,10 +32,6 @@ namespace topmeperp.Controllers
             ViewBag.projectId = Request["projectid"];
             return View("Index", lstProject);
         }
-        public ActionResult Create()
-        {
-            return View();
-        }
         //Create Project Form
         [HttpPost]
         public ActionResult Create(TND_PROJECT_FORM qf)
@@ -68,6 +64,24 @@ namespace topmeperp.Controllers
             poi.exportExcel(service.formInquiry, service.formInquiryItem);
             return RedirectToAction("InquiryMainPage/" + qf.PROJECT_ID);
         }
+        //顯示單一詢價單、報價單功能
+        public ActionResult SinglePrjForm(string id)
+        {
+            log.Info("http get mehtod:" + id);
+            InquiryFormDetail singleForm = new InquiryFormDetail();
+            service.getInqueryForm(id);
+            singleForm.prjForm = service.formInquiry;
+            singleForm.prjFormItem = service.formInquiryItem;
+            singleForm.prj = service.getProjectById(singleForm.prjForm.PROJECT_ID);
+            log.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
+            return View(singleForm);
+        }
+        public string UpdatePrjForm(FormCollection form)
+        {
+            log.Info("Not Yet!!");
+            return "還沒好";
+        }
+
         //測試詢價單下載
         public ActionResult ExportInquiry()
         {

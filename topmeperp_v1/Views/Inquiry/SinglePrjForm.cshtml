@@ -1,0 +1,115 @@
+﻿@model topmeperp.Models.InquiryFormDetail
+@{
+    ViewBag.Title = "備標作業-詢價單/報價單 ";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+@using (Html.BeginForm("UpdatePrjForm", "Inquiry", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post))
+{
+    <div class="page-header">
+        <div class="row">
+            <div class="col-md-12"><h3 class="text-center">協成水電工程事業有限公司-採購詢價單</h3></div>
+        </div>
+        <!-- Reg-Form new { enctype = "multipart/form-data" } -->
+
+        <div class="row">
+            <div class="form-group">
+                <label for="inputprojectname" class="col-md-2 control-label">專案名稱</label>
+                <div class="col-md-4">
+                    @Model.prj.PROJECT_NAME
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputsuppliername" class="col-md-2 control-label">廠商名稱 </label>
+                <div class="col-md-4 ">
+                    <input type="text" class="form-control" id="inputsuppliername" value="@Model.prjForm.SUPPLIER_ID">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <label for="inputitem" class="col-md-2 control-label">採購項目</label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="inputitem" value="@Model.prjForm.FORM_NAME">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputcontact" class="col-md-2 control-label">聯絡人</label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="inputcontact" value="@Model.prjForm.CONTACT_NAME">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <label for="inputowner" class="col-md-2 control-label">承辦人</label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="inputowner" value="@Model.prjForm.OWNER_NAME">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputemail" class="col-md-2 control-label">E-mail</label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="inputemail" value="@Model.prjForm.CONTACT_EMAIL">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <label for="inputphone" class=col-md-2 control-label">聯絡電話</label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="inputphone" value="@Model.prjForm.OWNER_TEL">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputdeteline" class="col-md-2 control-label">報價期限</label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="inputdateline" value='@Model.prjForm.DUEDATE.Value.ToString("yyyy/MM/dd")'>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <label for="inputowneremail" class="col-md-2 control-label">承辦人E-mail</label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="inputowneremail" value="@Model.prjForm.OWNER_EMAIL">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputformnumber" class="col-md-2 control-label">詢價單編號</label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="inputformnumber" value="@Model.prjForm.FORM_ID">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <label for="inputownerfax" class="col-md-2 control-label">承辦人傳真</label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="inputownerfax" value="@Model.prjForm.OWNER_FAX">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="contailer">
+        @{
+            Html.RenderPartial("_SinglePrjForm");
+        }
+    </div>
+    <!--div class="row">
+        <div class="col-md-12">
+            <input class="btn btn-info" id="Submit2" type="button" value="" />
+        </div>
+    </!--div>
+        -->
+            }
+<script>
+    $(document).ready(function () {
+        $(function () {
+            $('#inputdateline').datetimepicker({
+                format: 'YYYY/MM/DD'
+            });
+        });
+    })
+</script>
+
+
