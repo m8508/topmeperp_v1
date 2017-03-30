@@ -334,6 +334,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service\ContextService.cs" />
     <Compile Include="Service\PoiService.cs" />
+    <Compile Include="Service\ReportContextService.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>

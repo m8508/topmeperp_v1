@@ -141,7 +141,7 @@ namespace topmeperp.Service
             }
             if (row.Cells[6].ToString().Trim() != "")//備註
             {
-                projectItem.ITEM_DESC = row.Cells[6].ToString();
+                projectItem.ITEM_REMARK = row.Cells[6].ToString();
             }
             if (row.Cells[7].ToString().Trim() != "")//九宮格
             {
