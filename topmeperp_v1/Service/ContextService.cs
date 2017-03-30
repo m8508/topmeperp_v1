@@ -430,6 +430,7 @@ namespace topmeperp.Service
                 foreach (TND_MAP_PLU item in items)
                 {
                     //item.PROJECT_ID = project.PROJECT_ID;先註解掉,因為專案編號一開始已經設定了，會直接代入
+                    logger.Info("Item = " + item.PLU_ID + "," + item.PRIMARY_SIDE_NAME);
                     context.TND_MAP_PLU.Add(item);
                 }
                 i = context.SaveChanges();

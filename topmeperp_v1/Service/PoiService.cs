@@ -1389,7 +1389,7 @@ namespace topmeperp.Service
                 idxRow++;
             }
             //4.令存新檔至專案所屬目錄
-            var file = new FileStream(outputPath + "\\" + project.PROJECT_ID + "\\" +"工率.xlsx", FileMode.Create);
+            var file = new FileStream(outputPath + "\\" + project.PROJECT_ID + "\\" + project.PROJECT_ID + "_工率.xlsx", FileMode.Create);
             hssfworkbook.Write(file);
             file.Close();
         }
