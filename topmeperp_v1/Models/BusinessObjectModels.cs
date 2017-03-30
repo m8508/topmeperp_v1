@@ -21,6 +21,7 @@ namespace topmeperp.Models
         //專案相關檔案
         public IEnumerable<TND_FILE> tndFile { get; set; }
     }
+    #region 系統管理相關
     public class UserManageModels
     {
         //帳號資料
@@ -32,7 +33,7 @@ namespace topmeperp.Models
     {
         public string ROLE_ID { get; set; }
     }
-
+    #endregion
     public class MapInfoModels
     {
         //圖算消防電資料
@@ -59,7 +60,15 @@ namespace topmeperp.Models
         /// </summary>
         public IEnumerable<TND_PROJECT_FORM> tndProjectFormFromSupplier { get; set; }
     }
-
+    /// <summary>
+    /// 提供詢價單、報價單所需資料結構
+    /// </summary>
+    public class InquiryFormDetail
+    {
+        public TND_PROJECT prj { get; set; }
+        public TND_PROJECT_FORM prjForm { get; set; }
+        public IEnumerable<TND_PROJECT_FORM_ITEM> prjFormItem { get; set; }
+    }
     public class COMPARASION_DATA:TND_PROJECT_ITEM
     {
         //報價單編號
