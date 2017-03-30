@@ -100,6 +100,10 @@
                             @Html.TextBoxFor(m => m.START_ROW_NO, new { @class = "form-control" })
                         </label>
                     </div>
+                    <label class="col-md-2 control-label">專案狀態 : </label>
+                    <div class='col-md-10 date'>
+                        @Html.TextBoxFor(m => m.STATUS , new { @class = "form-control", @id = "schd_offer_date" })
+                    </div>
 
                     <label class="col-md-3 control-label">整理後標單檔案: </label>
                     <div class='col-md-9'>
