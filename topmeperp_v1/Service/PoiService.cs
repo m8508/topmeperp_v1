@@ -1335,7 +1335,7 @@ namespace topmeperp.Service
     public class WageFormToExcel
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        string wageFile = "D:\\Topmep_Web\\topmeperp_v1\\topmeperp_v1_master\\topmeperp_v1\\UploadFile\\wage_form.xlsx";
+        string wageFile = ContextService.strUploadPath +"\\wage_form.xlsx";
         string outputPath = ContextService.strUploadPath;
 
         IWorkbook hssfworkbook;

@@ -544,6 +544,7 @@
     <Content Include="Views\Wage\Index.cshtml" />
     <Content Include="Views\Wage\WageTableItem.cshtml" />
     <Content Include="Views\Tender\EditForFP.cshtml" />
+    <Content Include="UploadFile\wage_form.xlsx" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
