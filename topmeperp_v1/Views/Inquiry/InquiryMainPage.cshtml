@@ -4,15 +4,18 @@
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <!--標單項目搜尋區條件區域-->
-<div class="jumbotron">
+<div class="page-header">
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-12 form-group">
             <form name="formInquirySearch" id="formInquirySearch" action="InquiryMainPage">
-                專案編號:<input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control" />
-                <div id="divProcessing">
-                    <img src="~/Content/ajax-loader.gif">
+                <label for="id" class="col-md-2">專案編號</label>
+                <div id="id" class="col-md-4 text-left">
+                    <input id="id" name="id" type="text" value="@ViewBag.projectid"  class="form-control"/>
                 </div>
                 <input id="Submit1" class="btn btn-info" type="submit" value="查詢" />
+                <div id="divProcessing" class="col-md-2">
+                    <img src="~/Content/ajax-loader.gif">
+                </div>
             </form>
         </div>
     </div>
@@ -43,7 +46,7 @@
         // Hide the "busy" Gif at load:
         $("#divProcessing").hide();
         // Attach click handler to the submit button:
-        $('#login').click(function () {
+        $('#Submit1').click(function () {
             $("#divProcessing").show();
         });
     });
