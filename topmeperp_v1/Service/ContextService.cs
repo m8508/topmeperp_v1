@@ -652,6 +652,9 @@ namespace topmeperp.Service
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public TND_PROJECT wageTable = null;
         public List<TND_PROJECT_ITEM> wageTableItem = null;
+        public WageTableService()
+        {
+        }
         //取得工率表單
         public void getProjectId(string projectid)
         {
@@ -665,6 +668,41 @@ namespace topmeperp.Service
                 logger.Debug("get project item count:" + wageTableItem.Count);
             }
         }
+        #region 工率數量  
+        //工率上傳數量  
+        public int refreshWage(List<TND_WAGE> items)
+        {
+            //1.檢查專案是否存在
+            //if (null == project) { throw new Exception("Project is not exist !!"); } 先註解掉,因為讀取不到project,會造成null == project is true,
+            //而導致錯誤, 因為已設定是直接由專案頁面導入上傳圖算畫面，故不會有專案不存在的bug
+            int i = 0;
+            logger.Info("refreshProjectItem = " + items.Count);
+            //2.將Excel 資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (TND_WAGE item in items)
+                {
+                    //item.PROJECT_ID = project.PROJECT_ID;先註解掉,因為專案編號一開始已經設定了，會直接代入
+                    context.TND_WAGE.Add(item);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("add TND_WAGE count =" + i);
+            return i;
+        }
+        public int delWageByProject(string projectid)
+        {
+            logger.Info("remove all wage by project ID=" + projectid);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("delete all TND_WAGE by proejct id=" + projectid);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM TND_WAGE WHERE PROJECT_ID=@projectid", new SqlParameter("@projectid", projectid));
+            }
+            logger.Debug("delete TND_WAGE count=" + i);
+            return i;
+        }
+        #endregion
     }
     //詢價單資料提供作業
     public class InquiryFormService : TnderProject

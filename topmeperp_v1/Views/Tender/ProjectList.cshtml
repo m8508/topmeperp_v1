@@ -36,7 +36,8 @@
                 @Html.ActionLink("圖算數量修改", "MapInfoMainPage", new { id = item.PROJECT_ID })|
                 @Html.ActionLink("新增詢價單", "../Inquiry/Index", new { id = item.PROJECT_ID })|
                 @Html.ActionLink("比價作業", "../Inquiry/ComparisonMain", new { id = item.PROJECT_ID })|
-                @Html.ActionLink("工率表下載作業", "../Wage/Index", new { id = item.PROJECT_ID })
+                @Html.ActionLink("工率表下載", "../Wage/Index", new { id = item.PROJECT_ID })
+                
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.PROJECT_ID)

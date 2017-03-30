@@ -22,5 +22,6 @@ namespace topmeperp.Models
         public string LOC_DESC { get; set; }
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public string CREATE_ID { get; set; }
+        public Nullable<decimal> QTY { get; set; }
     }
 }

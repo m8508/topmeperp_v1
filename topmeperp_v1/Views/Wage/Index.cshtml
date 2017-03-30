@@ -19,10 +19,10 @@
         <a href='@("/UploadFile/"+ViewBag.projectid+"/"+ViewBag.projectid + "_工率.xlsx")'>下載</a>
     </div><br />
     <div class="row col-md-12">
-        <form id="UploadForm" name="UploadForm" action="FileUpload" method="post" enctype="multipart/form-data">
-            <label for="file">廠商報價單匯入:</label>
+        <form id="UploadForm" name="UploadForm" action="~/Wage/uploadWageTable" method="post" enctype="multipart/form-data">
+            <label for="file">工率表匯入:</label>
             <input type="hidden" name="projectid" id="projectid" value="@ViewBag.projectid" />
-            <input type="file" name="file" id="file" />
+            <input type="file" name="fileWage" id="fileWage" />
             <input id="btnUploadfile" name="btnUploadfile" type="submit" class="btn-primary" value="匯入檔案" />
         </form>
     </div>
