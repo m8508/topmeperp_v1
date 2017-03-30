@@ -34,7 +34,7 @@
 
                                 <td>@item.ITEM_UNIT</td>
                                 <td>@item.ITEM_QUANTITY</td>
-                                <td><input type="text" id="cost_@item.PROJECT_ITEM_ID" name="cost_@item.PROJECT_ITEM_ID" size="5" /></td>
+                                <td><input type="text" id="cost_@item.PROJECT_ITEM_ID" name="cost_@item.PROJECT_ITEM_ID" size="5" value="@item.ITEM_UNIT_PRICE"/></td>
                                 <td><button class="btn-link" onclick="clickPrice('@item.PROJECT_ITEM_ID', '@item.QUOTATION_PRICE')">@item.QUOTATION_PRICE</button> </td>
                                 <td><button class="btn-link" onclick="clickSupplier('@item.FORM_ID')">@item.SUPPLIER_NAME </button></td>
                                 <td><a href="/Inquiry/SinglePrjForm/@item.FORM_ID" target="_blank">@item.FORM_ID</a> </td>
