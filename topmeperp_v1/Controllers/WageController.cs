@@ -63,7 +63,19 @@ namespace topmeperp.Controllers
             return View("Index");
         }
 
-
+        public ActionResult WageTable(string id)
+        {
+            log.Info("wage ratio by projectID=" + id);
+            ViewBag.projectid = id;
+            List<TND_WAGE> lstWage = null;
+            if (null != id && id != "")
+            {
+                WageTableService service = new WageTableService();
+                lstWage = service.getWageById(id);
+                ViewBag.Result = "共有" + lstWage.Count + "筆資料";
+            }
+            return View(lstWage);
+        }
         // GET: Wage/Edit/5
         public ActionResult Edit(int id)
         {

@@ -1,7 +1,35 @@
-﻿
-@{
-    ViewBag.Title = "_MapDevicePage";
-}
+﻿@model topmeperp.Models.MapInfoModels
+<div class="container-fluid">
+    <h3>設備圖算數量</h3><br/>
+    <h5>@ViewBag.Result</h5><br />
+    @if (null != Model)
+    {
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>修改/刪除</th>
+                    <th>PK</th>
+                    <th>設備清單數量</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.mapDEVICE)
+                {
+                    <tr>
+                        <td>
+                            @Html.ActionLink("修改", "", new { id = item.DEVIVE_ID }) |
+                            @Html.ActionLink("刪除", "", new { id = item.DEVIVE_ID })
+                        </td>
+                        <td>@Html.DisplayFor(modelItem => item.PROJECT_ITEM_ID)</td>
+                        <td>@Html.DisplayFor(modelItem => item.QTY)</td>
 
-<h2>_MapDevicePage</h2>
-
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p></p>
+    }
+</div>

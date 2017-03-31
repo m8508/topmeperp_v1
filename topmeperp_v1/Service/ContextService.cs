@@ -746,6 +746,19 @@ namespace topmeperp.Service
             return i;
         }
         #endregion
+        //取得工率資料
+        public List<TND_WAGE> getWageById(string id)
+        {
+            logger.Info("get wage ratio by projectid=" + id);
+            List<TND_WAGE> lstWage = new List<TND_WAGE>();
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                lstWage = context.TND_WAGE.SqlQuery("SELECT * FROM TND_WAGE WHERE PROJECT_ID=@id",
+                new SqlParameter("id", id)).ToList();
+            }
+            return lstWage;
+        }
     }
     //詢價單資料提供作業
     public class InquiryFormService : TnderProject

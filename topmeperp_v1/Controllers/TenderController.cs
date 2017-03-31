@@ -313,6 +313,7 @@ namespace topmeperp.Controllers
             List<TND_MAP_PEP> lstPEP = null;
             List<TND_MAP_PLU> lstPLU = null;
             List<TND_MAP_LCP> lstLCP = null;
+            List<TND_MAP_DEVICE> lstDEVICE = null;
             if (null != id && id != "")
             {
                 TnderProject service = new TnderProject();
@@ -321,12 +322,15 @@ namespace topmeperp.Controllers
                 lstPEP = service.getMapPEPById(id);
                 lstPLU = service.getMapPLUById(id);
                 lstLCP = service.getMapLCPById(id);
+                lstDEVICE = service.getMapDEVICEById(id);
                 MapInfoModels viewModel = new MapInfoModels();
                 viewModel.mapFP = lstFP;
                 viewModel.mapFW = lstFW;
                 viewModel.mapPEP = lstPEP;
                 viewModel.mapPLU = lstPLU;
                 viewModel.mapLCP = lstLCP;
+                viewModel.mapDEVICE = lstDEVICE;
+                ViewBag.Result = "共有" + lstDEVICE.Count + "筆資料";
                 return View(viewModel);
             }
             return RedirectToAction("MapInfoMainPage/" + projectid);
