@@ -4,38 +4,39 @@
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <div class="container-fluid">
-    <div><h3>工率資料</h3></div><br />
     <div class="row col-md-12">
-        <label for="projectId">專案編號:</label>
-        <input type="text" name="projectid" id="projectid" value="@ViewBag.projectid" />
+        <fieldset disabled>
+            <label for="projectid">專案編號:</label>
+            <input type="text" name="projectid" id="projectid" value="@ViewBag.projectid" />
+        </fieldset><br />
+    </div>
+    <div class="row col-md-12">
+        <h3>工率資料</h3>
     </div><br />
-    <div><h5>@ViewBag.Result</h5></div>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>修改/刪除</th>
-                    <th>PK</th>
-                    <th>工率</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
+    <div class="row col-md-12">
+        <h5>@ViewBag.Result</h5>
+    </div>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>PK</th>
+                <th>工率</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
             {
-                    <tr>
-                        <td>
-                            @Html.ActionLink("修改", "", new { id = item.WAGE_ID }) |
-                            @Html.ActionLink("刪除", "", new { id = item.WAGE_ID })
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.PROJECT_ITEM_ID)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.RATIO)
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PROJECT_ITEM_ID)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.RATIO)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 
-    </div>
+

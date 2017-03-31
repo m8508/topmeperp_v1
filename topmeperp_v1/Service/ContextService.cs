@@ -180,9 +180,10 @@ namespace topmeperp.Service
             }
             return i;
         }
+        #region 更新消防電圖算數量  
         public int updateMapFP(TND_MAP_FP mapfp)
         {
-            //1.建立消防電基本資料
+            //更新消防電圖算資料
             logger.Info("Update fp " + mapfp.FP_ID + "," + mapfp.ToString());
             int i = 0;
             using (var context = new topmepEntities())
@@ -193,6 +194,67 @@ namespace topmeperp.Service
             }
             return i;
         }
+        #endregion
+        #region 更新消防水圖算數量  
+        public int updateMapFW(TND_MAP_FW mapfw)
+        {
+            //更新消防水圖算資料
+            logger.Info("Update fw " + mapfw.FW_ID + "," + mapfw.ToString());
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                context.TND_MAP_FW.AddOrUpdate(mapfw);
+                i = context.SaveChanges();
+                logger.Debug("Update mapfw=" + i);
+            }
+            return i;
+        }
+        #endregion
+        #region 更新電氣管線圖算數量  
+        public int updateMapPEP(TND_MAP_PEP mappep)
+        {
+            //更新電氣管線圖算資料
+            logger.Info("Update pep " + mappep.PEP_ID + "," + mappep.ToString());
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                context.TND_MAP_PEP.AddOrUpdate(mappep);
+                i = context.SaveChanges();
+                logger.Debug("Update mappep=" + i);
+            }
+            return i;
+        }
+        #endregion
+        #region 更新弱電管線圖算數量  
+        public int updateMapLCP(TND_MAP_LCP maplcp)
+        {
+            //更新弱電管線圖算資料
+            logger.Info("Update lcp " + maplcp.LCP_ID + "," + maplcp.ToString());
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                context.TND_MAP_LCP.AddOrUpdate(maplcp);
+                i = context.SaveChanges();
+                logger.Debug("Update maplcp=" + i);
+            }
+            return i;
+        }
+        #endregion
+        #region 更新給排水管線圖算數量  
+        public int updateMapPLU(TND_MAP_PLU mapplu)
+        {
+            //更新給排水圖算資料
+            logger.Info("Update plu " + mapplu.PLU_ID + "," + mapplu.ToString());
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                context.TND_MAP_PLU.AddOrUpdate(mapplu);
+                i = context.SaveChanges();
+                logger.Debug("Update mapplu=" + i);
+            }
+            return i;
+        }
+        #endregion
         #region 標單項目處理
         public int delAllItemByProject()
         {
@@ -664,6 +726,7 @@ namespace topmeperp.Service
             return lstLCP;
         }
         //取得設備清單圖算資料
+        #region 設備清單資料
         public List<TND_MAP_DEVICE> getMapDEVICEById(string projectid)
         {
             logger.Info("get map DEVICE info by projectid=" + projectid);
@@ -676,6 +739,9 @@ namespace topmeperp.Service
             }
             return lstDEVICE;
         }
+        #endregion 
+        //取得消防電修改資料
+        #region 消防電資料
         TND_MAP_FP fp = null;
         public TND_MAP_FP getFPById(string id)
         {
@@ -687,6 +753,63 @@ namespace topmeperp.Service
             }
             return fp;
         }
+        #endregion
+        //取得消防水修改資料
+        #region 消防水資料
+        TND_MAP_FW fw = null;
+        public TND_MAP_FW getFWById(string id)
+        {
+            using (var context = new topmepEntities())
+            {
+                fw = context.TND_MAP_FW.SqlQuery("select fw.* from TND_MAP_FW fw "
+                    + "where fw.FW_ID = @id "
+                   , new SqlParameter("id", id)).First();
+            }
+            return fw;
+        }
+        #endregion
+        //取得電氣管線修改資料
+        #region 電氣管線資料
+        TND_MAP_PEP pep = null;
+        public TND_MAP_PEP getPEPById(string id)
+        {
+            using (var context = new topmepEntities())
+            {
+                pep = context.TND_MAP_PEP.SqlQuery("select pep.* from TND_MAP_PEP pep "
+                    + "where pep.PEP_ID = @id "
+                   , new SqlParameter("id", id)).First();
+            }
+            return pep;
+        }
+        #endregion
+        //取得弱電管線修改資料
+        #region 弱電管線資料
+        TND_MAP_LCP lcp = null;
+        public TND_MAP_LCP getLCPById(string id)
+        {
+            using (var context = new topmepEntities())
+            {
+                lcp = context.TND_MAP_LCP.SqlQuery("select lcp.* from TND_MAP_LCP lcp "
+                    + "where lcp.LCP_ID = @id "
+                   , new SqlParameter("id", id)).First();
+            }
+            return lcp;
+        }
+        #endregion
+        //取得給排水修改資料
+        #region 給排水資料
+        TND_MAP_PLU plu = null;
+        public TND_MAP_PLU getPLUById(string id)
+        {
+            using (var context = new topmepEntities())
+            {
+                plu = context.TND_MAP_PLU.SqlQuery("select plu.* from TND_MAP_PLU plu "
+                    + "where plu.PLU_ID = @id "
+                   , new SqlParameter("id", id)).First();
+            }
+            return plu;
+        }
+        #endregion 
     }
 
     //工率相關資料提供作業
@@ -695,6 +818,7 @@ namespace topmeperp.Service
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public TND_PROJECT wageTable = null;
         public List<TND_PROJECT_ITEM> wageTableItem = null;
+        public TND_PROJECT name = null;
         public WageTableService()
         {
         }
@@ -706,7 +830,7 @@ namespace topmeperp.Service
             {
                 //取得工率表單檔頭資訊
                 wageTable = context.TND_PROJECT.SqlQuery("SELECT * FROM TND_PROJECT WHERE PROJECT_ID=@projectid", new SqlParameter("projectid", projectid)).First();
-                //取得詢價單明細
+                //取得工率表單明細
                 wageTableItem = context.TND_PROJECT_ITEM.SqlQuery("SELECT * FROM TND_PROJECT_ITEM WHERE PROJECT_ID=@projectid", new SqlParameter("projectid", projectid)).ToList();
                 logger.Debug("get project item count:" + wageTableItem.Count);
             }

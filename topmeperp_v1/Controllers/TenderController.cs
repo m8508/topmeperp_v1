@@ -330,7 +330,12 @@ namespace topmeperp.Controllers
                 viewModel.mapPLU = lstPLU;
                 viewModel.mapLCP = lstLCP;
                 viewModel.mapDEVICE = lstDEVICE;
-                ViewBag.Result = "共有" + lstDEVICE.Count + "筆資料";
+                ViewBag.Result1 = "共有" + lstDEVICE.Count + "筆資料";
+                ViewBag.Result2 = "共有" + lstFP.Count + "筆資料";
+                ViewBag.Result3 = "共有" + lstFW.Count + "筆資料";
+                ViewBag.Result4 = "共有" + lstPEP.Count + "筆資料";
+                ViewBag.Result5 = "共有" + lstLCP.Count + "筆資料";
+                ViewBag.Result6 = "共有" + lstPLU.Count + "筆資料";
                 return View(viewModel);
             }
             return RedirectToAction("MapInfoMainPage/" + projectid);
@@ -355,6 +360,94 @@ namespace topmeperp.Controllers
             TnderProject service = new TnderProject();
             service.updateMapFP(mapfp);
             return View(mapfp);
+        }
+        #endregion
+        //編輯消防水圖算數量
+        #region 消防水
+        public ActionResult EditForFW(string id)
+        {
+            logger.Info("get map fw for update:fp_id=" + id);
+            TND_MAP_FW fw = null;
+            if (null != id)
+            {
+                TnderProject service = new TnderProject();
+                fw = service.getFWById(id);
+            }
+            return View(fw);
+        }
+        [HttpPost]
+        public ActionResult EditForFW(TND_MAP_FW mapfw)
+        {
+            logger.Info("update map fw:fw_id=" + mapfw.FW_ID + "," + mapfw.EXCEL_ITEM);
+            TnderProject service = new TnderProject();
+            service.updateMapFW(mapfw);
+            return View(mapfw);
+        }
+        #endregion
+        //編輯電氣管線圖算數量
+        #region 電氣管線
+        public ActionResult EditForPEP(string id)
+        {
+            logger.Info("get mappep for update:pep_id=" + id);
+            TND_MAP_PEP pep = null;
+            if (null != id)
+            {
+                TnderProject service = new TnderProject();
+                pep = service.getPEPById(id);
+            }
+            return View(pep);
+        }
+        [HttpPost]
+        public ActionResult EditForPEP(TND_MAP_PEP mappep)
+        {
+            logger.Info("update map pep:pep_id=" + mappep.PEP_ID + "," + mappep.EXCEL_ITEM);
+            TnderProject service = new TnderProject();
+            service.updateMapPEP(mappep);
+            return View(mappep);
+        }
+        #endregion
+        //編輯弱電管線圖算數量
+        #region 弱電管線
+        public ActionResult EditForLCP(string id)
+        {
+            logger.Info("get maplcp for update:lcp_id=" + id);
+            TND_MAP_LCP lcp = null;
+            if (null != id)
+            {
+                TnderProject service = new TnderProject();
+                lcp = service.getLCPById(id);
+            }
+            return View(lcp);
+        }
+        [HttpPost]
+        public ActionResult EditForLCP(TND_MAP_LCP maplcp)
+        {
+            logger.Info("update map lcp:lcp_id=" + maplcp.LCP_ID + "," + maplcp.EXCEL_ITEM);
+            TnderProject service = new TnderProject();
+            service.updateMapLCP(maplcp);
+            return View(maplcp);
+        }
+        #endregion
+        //編輯給排水圖算數量
+        #region 給排水
+        public ActionResult EditForPLU(string id)
+        {
+            logger.Info("get mapplu for update:plu_id=" + id);
+            TND_MAP_PLU plu = null;
+            if (null != id)
+            {
+                TnderProject service = new TnderProject();
+                plu = service.getPLUById(id);
+            }
+            return View(plu);
+        }
+        [HttpPost]
+        public ActionResult EditForPLU(TND_MAP_PLU mapplu)
+        {
+            logger.Info("update map plu:plu_id=" + mapplu.PLU_ID + "," + mapplu.EXCEL_ITEM);
+            TnderProject service = new TnderProject();
+            service.updateMapPLU(mapplu);
+            return View(mapplu);
         }
         #endregion
         private List<topmeperp.Models.TND_PROJECT> SearchProjectByName(string projectname)

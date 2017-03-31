@@ -546,6 +546,10 @@
     <Content Include="Views\Wage\WageTable.cshtml" />
     <Content Include="Views\Tender\EditForFP.cshtml" />
     <Content Include="UploadFile\wage_form.xlsx" />
+    <Content Include="Views\Tender\EditForFW.cshtml" />
+    <Content Include="Views\Tender\EditForPEP.cshtml" />
+    <Content Include="Views\Tender\EditForLCP.cshtml" />
+    <Content Include="Views\Tender\EditForPLU.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

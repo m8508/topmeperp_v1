@@ -1,6 +1,7 @@
 ﻿@model topmeperp.Models.MapInfoModels
 <div class="container-fluid">
-    <h6></h6>
+    <h3>消防水圖算數量</h3><br/>
+    <h5>@ViewBag.Result3</h5>
     @if (null != Model)
     {
         <table class="table table-bordered">
@@ -26,7 +27,7 @@
                 {
                     <tr>
                         <td>
-                            @Html.ActionLink("修改", "Edit", new { id = item.FW_ID }) |
+                            @Html.ActionLink("修改", "EditForFW", new { id = item.FW_ID }) |
                             @Html.ActionLink("刪除", "Delete", new { id = item.FW_ID })
                         </td>
                         <td>@Html.DisplayFor(modelItem => item.EXCEL_ITEM)</td>

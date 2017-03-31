@@ -1,6 +1,7 @@
 ﻿@model topmeperp.Models.MapInfoModels
 <div class="container-fluid">
-    <h6></h6>
+    <h3>弱電管線圖算數量</h3><br/>
+    <h5>@ViewBag.Result5</h5>
     @if (null != Model)
     {
         <table class="table table-bordered">
@@ -37,7 +38,7 @@
                 {
                     <tr>
                         <td>
-                            @Html.ActionLink("修改", "Edit", new { id = item.LCP_ID }) |
+                            @Html.ActionLink("修改", "EditForLCP", new { id = item.LCP_ID }) |
                             @Html.ActionLink("刪除", "Delete", new { id = item.LCP_ID })
                         </td>
                         <td>@Html.DisplayFor(modelItem => item.EXCEL_ITEM)</td>
