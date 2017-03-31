@@ -150,15 +150,15 @@ namespace topmeperp.Controllers
                 ProjectItemFromExcel poiservice = new ProjectItemFromExcel();
                 poiservice.InitializeWorkbook(path);
                 //解析設備圖算數量檔案
-                //poiservice.ConvertDataForTenderProject(prj.PROJECT_ID, (int)prj.START_ROW_NO);
+                List<TND_MAP_DEVICE> lstMapDEVICE = poiservice.ConvertDataForMapDEVICE(projectid);
                 //2.3 記錄錯誤訊息
-                // message = message + "標單品項:共" + poiservice.lstProjectItem.Count + "筆資料<br/>" + poiservice.errorMessage;
+                message = message + poiservice.errorMessage;
                 //2.4
                 logger.Info("Delete TND_MAP_DEVICE By Project ID");
-                //service.delAllItemByProject();
+                service.delMapDEVICEByProject(projectid);
                 //2.5
                 logger.Info("Add All TND_MAP_DEVICE to DB");
-                //service.refreshProjectItem(poiservice.lstProjectItem);
+                service.refreshMapDEVICE(lstMapDEVICE);
             }
             #endregion
             #region 消防電

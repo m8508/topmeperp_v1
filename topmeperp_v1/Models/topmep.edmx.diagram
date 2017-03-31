@@ -13,7 +13,6 @@
         <EntityTypeShape EntityType="topmepModel.SYS_ROLE" Width="1.5" PointX="0.75" PointY="4.875" IsExpanded="false" />
         <EntityTypeShape EntityType="topmepModel.SYS_USER" Width="1.5" PointX="3" PointY="7.375" IsExpanded="false" />
         <EntityTypeShape EntityType="topmepModel.TND_FILE" Width="1.5" PointX="7.75" PointY="2.375" IsExpanded="false" />
-        <EntityTypeShape EntityType="topmepModel.TND_MAP_DEVICE" Width="3.125" PointX="8.875" PointY="5.25" IsExpanded="true" />
         <EntityTypeShape EntityType="topmepModel.TND_MAP_FP" Width="1.5" PointX="3.625" PointY="10" IsExpanded="true" />
         <EntityTypeShape EntityType="topmepModel.TND_MAP_FW" Width="1.5" PointX="9.75" PointY="2.375" IsExpanded="false" />
         <EntityTypeShape EntityType="topmepModel.TND_MAP_PEP" Width="1.5" PointX="0.75" PointY="12.375" IsExpanded="false" />
@@ -32,6 +31,7 @@
         <EntityTypeShape EntityType="topmepModel.TND_PROJECT_FORM_ITEM" Width="1.5" PointX="16.375" PointY="6.75" IsExpanded="false" />
         <EntityTypeShape EntityType="topmepModel.TND_MAP_LCP" Width="1.5" PointX="8.375" PointY="8.75" />
         <EntityTypeShape EntityType="topmepModel.TND_MAP_PLU" Width="1.5" PointX="16.375" PointY="8.75" />
+        <EntityTypeShape EntityType="topmepModel.TND_MAP_DEVICE" Width="1.5" PointX="0.75" PointY="8.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -383,6 +383,41 @@ namespace topmeperp.Service
             return lstItem;
         }
 
+        #region 設備清單圖算數量  
+        //設備清單圖算數量  
+        public int refreshMapDEVICE(List<TND_MAP_DEVICE> items)
+        {
+            //1.檢查專案是否存在
+            //if (null == project) { throw new Exception("Project is not exist !!"); } 先註解掉,因為讀取不到project,會造成null == project is true,
+            //而導致錯誤, 因為已設定是直接由專案頁面導入上傳圖算畫面，故不會有專案不存在的bug
+            int i = 0;
+            logger.Info("refreshProjectItem = " + items.Count);
+            //2.將Excel 資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (TND_MAP_DEVICE item in items)
+                {
+                    //item.PROJECT_ID = project.PROJECT_ID;先註解掉,因為專案編號一開始已經設定了，會直接代入
+                    context.TND_MAP_DEVICE.Add(item);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("add TND_MAP_DEVICE count =" + i);
+            return i;
+        }
+        public int delMapDEVICEByProject(string projectid)
+        {
+            logger.Info("remove all DEVICE by project ID=" + projectid);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("delete all TND_MAP_DEVICE by proejct id=" + projectid);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM TND_MAP_DEVICE WHERE PROJECT_ID=@projectid", new SqlParameter("@projectid", projectid));
+            }
+            logger.Debug("delete TND_MAP_DEVICE count=" + i);
+            return i;
+        }
+        #endregion
         #region 消防水圖算數量  
         //增加消防水圖算數量
         public int refreshMapFW(List<TND_MAP_FW> items)
@@ -433,7 +468,15 @@ namespace topmeperp.Service
                     logger.Info("Item = " + item.PLU_ID + "," + item.PRIMARY_SIDE_NAME);
                     context.TND_MAP_PLU.AddOrUpdate(item);
                 }
-                i = context.SaveChanges();
+                try
+                {
+                    i = context.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.StackTrace);
+                    throw ex;
+                }
             }
             logger.Info("add TND_MAP_PLU count =" + i);
             return i;
