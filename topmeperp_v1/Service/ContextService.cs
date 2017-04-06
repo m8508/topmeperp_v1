@@ -915,7 +915,7 @@ namespace topmeperp.Service
             }
             return lst;
         }
-        //取得主系統選單
+        //取得次系統選單
         public List<string> getSystemSub(string projectid)
         {
             List<string> lst = new List<string>();

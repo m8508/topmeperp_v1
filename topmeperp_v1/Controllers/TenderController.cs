@@ -102,12 +102,12 @@ namespace topmeperp.Controllers
             return View();
         }
         [HttpPost]
-        public ActionResult Task(string id, TND_TASKASSIGN task)
+        public ActionResult Task(string id, TND_TASKASSIGN task, FormCollection f)
         {
-            logger.Info("task assign result page and project id =" + id);
+
             TnderProject service = new TnderProject();
             task.PROJECT_ID = id;
-            service.newTask(task);
+            logger.Info("task :" + Request["TaskDatas.index"]);
             return View(task);
         }
 
@@ -300,7 +300,9 @@ namespace topmeperp.Controllers
             }
             #endregion
             ViewBag.result = message;
+            TempData["result"] = message;
             return RedirectToAction("MapInfoMainPage/" + projectid);
+
         }
         //建立各類別圖算數量檢視頁面
         public ActionResult MapInfoMainPage(string id)
@@ -356,7 +358,7 @@ namespace topmeperp.Controllers
         [HttpPost]
         public ActionResult EditForFP(TND_MAP_FP mapfp)
         {
-            logger.Info("update map fp:fp_id="+ mapfp.FP_ID +","+ mapfp.EXCEL_ITEM);
+            logger.Info("update map fp:fp_id=" + mapfp.FP_ID + "," + mapfp.EXCEL_ITEM);
             TnderProject service = new TnderProject();
             service.updateMapFP(mapfp);
             return View(mapfp);

@@ -18,10 +18,13 @@ namespace topmeperp.Controllers
         public ActionResult Index(string id, FormCollection form)
         {
             log.Info("get project item :projectid=" + id);
+            //取得專案基本資料
             ViewBag.projectid = id;
             service.getProjectId(id);
             WageFormToExcel poi = new WageFormToExcel();
             poi.exportExcel(service.wageTable, service.wageTableItem);
+            TND_PROJECT p = service.getProjectById(id);
+            ViewBag.projectName = p.PROJECT_NAME;
             return View();
         }
         //上傳工率
@@ -59,8 +62,8 @@ namespace topmeperp.Controllers
                 service.refreshWage(lstWage);
                 message = message + "<br/>資料匯入完成 !!";
             }
-            ViewBag.result = message;
-            return View("Index");
+            TempData["result"] = message;
+            return RedirectToAction("WageTable/" + projectid);
         }
 
         public ActionResult WageTable(string id)

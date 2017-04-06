@@ -4,11 +4,16 @@
 }
 <h3>更新圖算數量</h3>
 <div class="row col-md-12">
-    <div class="col-md-10 form-group" >
+    <div class="col-md-10 form-group">
         <form action="upLoadMAPInfo" method="post" enctype="multipart/form-data">
             <div class="row col-md-12">
-                <label for="projectId" >專案編號:</label>
-                <input type="text" name="projectId" id="projectId" value="@ViewBag.projectid" />
+                <div class="row col-md-6">
+                    <label for="projectId">專案編號:</label>
+                    <input type="text" name="projectId" id="projectId" value="@ViewBag.projectid" />
+                </div>
+                <div class="col-md-6">
+                    <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+                </div>
             </div>
             <div class="row col-md-12">
                 <label for="file">*物料清單(設備:TND_MAP_DEVICE):</label>
@@ -16,7 +21,7 @@
             </div>
             <div class="row col-md-12">
                 <label for="file">消防電(TND_MAP_FP):</label>
-                <input type="file" name="fileFP" id="file"  />
+                <input type="file" name="fileFP" id="file" />
             </div>
             <div class="row col-md-12">
                 <label for="file">消防水(TND_MAP_FW):</label>
@@ -35,7 +40,7 @@
 
             <div class="row col-md-12">
                 <label for="file">*給排水(TND_MAP_PLU):</label>
-                <input type="file" name="filePLU" id="file"/>
+                <input type="file" name="filePLU" id="file" />
             </div>
             <input type="submit" class="btn-primary" value="送出" />
         </form>

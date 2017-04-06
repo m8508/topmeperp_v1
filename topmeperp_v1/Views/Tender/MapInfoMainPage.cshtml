@@ -6,15 +6,26 @@
 <div class="jumbotron">
     <div class="row">
         <div class="col-md-12">
-            <form name="FormMapInfo" id="FormMapInfo">
-                專案編號:<input id="id" name="id" type="text" value="@ViewBag.projectid" /><br>
-            </form>
+            <div class="col-md-4">
+                <form name="FormMapInfo" id="FormMapInfo">
+                    專案編號:<input id="id" name="id" type="text" value="@ViewBag.projectid" /><br>
+                </form>
+            </div>
+            <div class="col-md-8">
+                <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+            </div>
             <div id="divProcessing">
                 <img src="~/Content/ajax-loader.gif">
             </div>
         </div>
     </div>
-</div>
+    <div class="col-md-12">
+        <div class="col-md-8"></div>
+            <div class="col-md-4 alert-info">
+                @Html.Raw(TempData["result"])
+            </div>
+        </div>
+    </div>
 
 <div class="container-fluid">
     <ul class="nav nav-tabs">
@@ -36,7 +47,7 @@
             @{
                 Html.RenderPartial("_MapFWPage");
             }
-            
+
         </div>
         <div id="MapPLU" class="tab-pane fade">
             @{
