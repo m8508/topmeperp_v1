@@ -1783,7 +1783,7 @@ namespace topmeperp.Service
             {
                 row = sheet.GetRow(iRowIndex);
                 logger.Info("excel rowid=" + iRowIndex + ",cell count=" + row.Cells.Count);
-                if (row.Cells.Count < 11)
+                if (row.Cells.Count < 8)
                 {
                     logger.Info("Row Index=" + iRowIndex + "column count has wrong" + row.Cells.Count);
                     return;
@@ -1792,7 +1792,7 @@ namespace topmeperp.Service
                 {
                     logger.Debug("row id=" + iRowIndex + "Cells Count=" + row.Cells.Count + ",form item vllue:" + row.Cells[0].ToString() + ","
                         + row.Cells[1] + "," + row.Cells[2] + "," + row.Cells[3] + "," + ","
-                        + row.Cells[4] + "," + "," + row.Cells[5] + "," + row.Cells[6] + ",project item id=" + row.Cells[10]);
+                        + row.Cells[4] + "," + "," + row.Cells[5] + "," + row.Cells[6] + ",project item id=" + row.Cells[7]);
                     TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
                     item.ITEM_DESC = row.Cells[1].ToString();
                     item.ITEM_UNIT = row.Cells[2].ToString();
@@ -1820,7 +1820,7 @@ namespace topmeperp.Service
                         }
                         catch (Exception ex)
                         {
-                            logger.Error("Format ERROR : row id=" + iRowIndex + "col4=" + row.Cells[4] + ",project item id=" + row.Cells[10]);
+                            logger.Error("Format ERROR : row id=" + iRowIndex + "col4=" + row.Cells[4] + ",project item id=" + row.Cells[7]);
                             logger.Error(ex);
                         }
                     }
@@ -1840,7 +1840,7 @@ namespace topmeperp.Service
                     //    }
                     //}
                     item.ITEM_REMARK = row.Cells[6].ToString();
-                    item.PROJECT_ITEM_ID = row.Cells[10].ToString();
+                    item.PROJECT_ITEM_ID = row.Cells[7].ToString();
                     formItems.Add(item);
                 }
                 iRowIndex++;

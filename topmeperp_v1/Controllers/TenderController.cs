@@ -111,14 +111,13 @@ namespace topmeperp.Controllers
             return View(task);
         }
 
-        //[HttpGet]
-        //public ActionResult Details(string id)
-        //{
-        //    logger.Info("project detail page projectid = " + id);
-        //    TnderProject service = new TnderProject();
-        //    TND_PROJECT p = null;// service.getProjectById(id);
-        //    return View(p);
-        //}
+        public ActionResult Details(string id)
+        {
+            logger.Info("project detail page projectid = " + id);
+            TnderProject service = new TnderProject();
+            TND_PROJECT p = service.getProjectById(id);
+            return View(p);
+        }
         public ActionResult uploadMapInfo(string id)
         {
             logger.Info("upload map info for projectid=" + id);

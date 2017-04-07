@@ -1,52 +1,35 @@
-﻿@model topmeperp.Models.TND_PROJECT
+﻿@using topmeperp.Models
+@model TND_PROJECT
 @{
-    ViewBag.Title = "備標作業-專案主頁";
+    ViewBag.Title = "備標作業-新增專案";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 
 <div class="container">
-    <h2>專案主頁</h2>
+    <h1>專案主頁</h1>
     <div>
-        <h3>專案基本資料</h3>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>專案編號</th>
-                    <th>專案名稱</th>
-                    <th>工程名稱</th>
-                    <th>標案地址</th>
-                    <th>業主</th>
-                    <th>聯絡人</th>
-                    <th>電話</th>
-                    <th>傳真</th>
-                    <th>E-mail</th>
-                    <th>收件日期</th>
-                    <th>預計投標日期</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>@Html.DisplayFor(model => model.PROJECT_ID)</td>
-                    <td>@Html.DisplayFor(model => model.PROJECT_NAME)</td>
-                    <td>@Html.DisplayFor(model => model.CONTRUCTION_NAME)</td>
-                    <td>@Html.DisplayFor(model => model.LOCATION)</td>
-                    <td>@Html.DisplayFor(model => model.OWNER_NAME)</td>
-                    <td>@Html.DisplayFor(model => model.CONTACT_NAME)</td>
-                    <td>@Html.DisplayFor(model => model.CONTACT_TEL)</td>
-                    <td>@Html.DisplayFor(model => model.CONTACT_FAX)</td>
-                    <td>@Html.DisplayFor(model => model.CONTACT_EMAIL)</td>
-                    <td>@Html.DisplayFor(model => model.DUE_DATE)</td>
-                    <td>@Html.DisplayFor(model => model.SCHDL_OFFER_DATE)</td>
-                </tr>
-            </tbody>
-        </table>
+        <h3>備標作業功能區</h3>
+        <p><button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Create","Tender", new { id = @Model.PROJECT_ID})'; ">修改專案基本資料</button></p>
+        <p>
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("uploadMapInfo","Tender", new { id = @Model.PROJECT_ID})'; ">上傳圖算數量</button>
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("MapInfoMainPage","Tender", new { id = @Model.PROJECT_ID})'; ">圖算數量修改</button>
+        </p>
+        <p>
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Index","Inquiry", new { id = @Model.PROJECT_ID})'; ">新增詢價單 </button>
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("ComparisonMain","Inquiry", new { id = @Model.PROJECT_ID})'; ">比價作業</button>
+        </p>
+        <p>
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Index","Wage", new { id = @Model.PROJECT_ID})'; ">工率表下載</button>
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Index","Wage", new { id = @Model.PROJECT_ID})'; ">工率表上傳</button>
+        </p>
+
     </div>
 </div><br /><br /><br />
 <div>
-    <h3>工作分派區</h3>
+       <h3>工作分派區</h3>
 </div>
 <br /><br /><br />
 <div>
-    <h3>檔案上傳區</h3>
+       <h3>檔案上傳區</h3>
 </div>
 
