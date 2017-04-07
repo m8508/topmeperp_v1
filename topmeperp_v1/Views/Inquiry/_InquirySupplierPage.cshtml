@@ -27,8 +27,8 @@
                     @foreach (var item in Model.tndProjectFormFromSupplier)
                     {
                         <tr>
-                            <th>項次</th>
-                            <td>@item.FORM_ID</td>
+                            <th>項次</th>                 
+                            <td><a href="/Inquiry/SinglePrjForm/@item.FORM_ID" target="_blank">@item.FORM_ID</a></td>
                             <td>@item.FORM_NAME</td>
                             <td>@item.SUPPLIER_ID</td>
                             <td>Not Ready</td>

@@ -831,7 +831,7 @@ namespace topmeperp.Service
                 //取得工率表單檔頭資訊
                 wageTable = context.TND_PROJECT.SqlQuery("SELECT * FROM TND_PROJECT WHERE PROJECT_ID=@projectid", new SqlParameter("projectid", projectid)).First();
                 //取得工率表單明細
-                wageTableItem = context.TND_PROJECT_ITEM.SqlQuery("SELECT * FROM TND_PROJECT_ITEM WHERE PROJECT_ID=@projectid", new SqlParameter("projectid", projectid)).ToList();
+                wageTableItem = context.TND_PROJECT_ITEM.SqlQuery("SELECT * FROM TND_PROJECT_ITEM WHERE PROJECT_ID=@projectid ORDER BY EXCEL_ROW_ID;", new SqlParameter("projectid", projectid)).ToList();
                 logger.Debug("get project item count:" + wageTableItem.Count);
             }
         }
@@ -883,6 +883,11 @@ namespace topmeperp.Service
             }
             return lstWage;
         }
+    }
+    //提供成本分析資料
+    public class CostAnalysisDataService : WageTableService
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
     }
     //詢價單資料提供作業
     public class InquiryFormService : TnderProject

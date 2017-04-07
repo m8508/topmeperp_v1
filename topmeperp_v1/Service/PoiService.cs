@@ -15,8 +15,8 @@ namespace topmeperp.Service
     public class ProjectItemFromExcel
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        IWorkbook hssfworkbook;
-        ISheet sheet = null;
+        public IWorkbook hssfworkbook;
+        public ISheet sheet = null;
         string fileformat = "xlsx";
         string projId = null;
         public List<TND_PROJECT_ITEM> lstProjectItem = null;
@@ -1846,6 +1846,120 @@ namespace topmeperp.Service
                 iRowIndex++;
             }
         }
+    }
+    #endregion
+    #region 成本分析樣本輸入
+    public class CostAnalysisOutput : ProjectItemFromExcel
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        string outputPath = ContextService.strUploadPath;
+        string templateFile = ContextService.strUploadPath + "\\Cost_Analysis_Template_v1.xlsx";
+        CostAnalysisDataService service = new CostAnalysisDataService();
+
+        public TND_PROJECT project = null;
+        public List<TND_PROJECT_ITEM> projectItems = null;
+
+        public void exportExcel(string projectid)
+        {
+            //1 取得資料庫資料
+            logger.Info("get data from DB,id=" + projectid);
+            service.getProjectId(projectid);
+            project = service.wageTable;
+            projectItems = service.wageTableItem;
+            //2.開啟檔案
+            logger.Info("InitializeWorkbook");
+            InitializeWorkbook(templateFile);
+
+            //3寫入初期成本邊單 僅提供office 格式2007 
+            getInitialQuotation();
+            //4建立報價標單Sheet
+            getFinalQuotation();
+            //4.令存新檔至專案所屬目錄
+            var file = new FileStream(outputPath + "\\" + project.PROJECT_ID + "\\" + project.PROJECT_ID + "_CostAnalysis.xlsx", FileMode.Create);
+            logger.Info("output file=" + file.Name);
+            hssfworkbook.Write(file);
+            file.Close();
+        }
+
+        private void getInitialQuotation()
+        {
+            //2.寫入初期成本邊單 僅提供office 格式2007 
+            sheet = (XSSFSheet)hssfworkbook.GetSheet("初期成本標單");
+            logger.Debug("InitialQuotation  Head_1=" + sheet.GetRow(1).Cells[0].ToString());
+            sheet.GetRow(2).Cells[1].SetCellValue(project.PROJECT_ID);//專案編號
+            logger.Debug("InitialQuotation Table Head_2=" + sheet.GetRow(2).Cells[0].ToString());
+            sheet.GetRow(3).Cells[1].SetCellValue(project.PROJECT_NAME);//專案名稱
+            int idxRow = 4;
+            foreach (TND_PROJECT_ITEM item in projectItems)
+            {
+                logger.Info("Row Id=" + idxRow);
+                IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+                //PK(PROJECT_ITEM_ID) 項次 名稱 單位 數量 單價 備註 九宮格 次九宮格 主系統 次系統
+                row.CreateCell(0).SetCellValue(item.PROJECT_ITEM_ID);//PK(PROJECT_ITEM_ID)
+                row.CreateCell(1).SetCellValue(item.ITEM_ID);//項次
+                logger.Debug("ITEM DESC=" + item.ITEM_DESC);
+                row.CreateCell(2).SetCellValue(item.ITEM_DESC);//項目說明
+                row.CreateCell(3).SetCellValue(item.ITEM_UNIT);// 單位
+                if (null != item.ITEM_QUANTITY && item.ITEM_QUANTITY.ToString().Trim() != "")
+                {
+                    row.CreateCell(4).SetCellValue(double.Parse(item.ITEM_QUANTITY.ToString())); //數量
+                }
+                if (null != item.ITEM_UNIT_PRICE && item.ITEM_UNIT_PRICE.ToString().Trim() != "")
+                {
+                    logger.Debug("UNIT PRICE=" + item.ITEM_UNIT_PRICE);
+                    row.CreateCell(5).SetCellValue(double.Parse(item.ITEM_UNIT_PRICE.ToString())); //單價
+                }
+                ICell cel7 = row.CreateCell(6);
+                if (null != item.ITEM_QUANTITY && null != item.ITEM_UNIT_PRICE)
+                {
+                    logger.Debug("Fomulor=" + "E" + idxRow + "*F" + idxRow);
+                    cel7.CellFormula = "E" + idxRow + "*F" + idxRow;
+                }
+                row.CreateCell(7).SetCellValue(item.ITEM_REMARK);// 備註
+                row.CreateCell(8).SetCellValue(item.TYPE_CODE_1);// 九宮格
+                row.CreateCell(9).SetCellValue(item.TYPE_CODE_2);// 次九宮格
+                row.CreateCell(10).SetCellValue(item.SYSTEM_MAIN);// 主系統
+                row.CreateCell(11).SetCellValue(item.SYSTEM_SUB);// 次系統
+                idxRow++;
+            }
+        }
+        private void getFinalQuotation()
+        {
+            //2.寫入報價標單 僅提供office 格式2007 
+            sheet = (XSSFSheet)hssfworkbook.GetSheet("報價標單");
+            logger.Debug("FinalQuotation Head_1=" + sheet.GetRow(1).Cells[0].ToString());
+            sheet.GetRow(2).Cells[1].SetCellValue(project.PROJECT_ID);//專案編號
+            logger.Debug("FinalQuotation Head_2=" + sheet.GetRow(2).Cells[0].ToString());
+            sheet.GetRow(3).Cells[1].SetCellValue(project.PROJECT_NAME);//專案名稱
+            int idxRow = 4;
+            foreach (TND_PROJECT_ITEM item in projectItems)
+            {
+                IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+                logger.Info("Row Id=" + idxRow);
+                //PK(PROJECT_ITEM_ID) 項次 名稱 單位 數量 單價 備註 九宮格 次九宮格 主系統 次系統
+                row.CreateCell(0).SetCellValue(item.PROJECT_ITEM_ID);//PK(PROJECT_ITEM_ID)
+                row.CreateCell(1).SetCellValue(item.ITEM_ID);//項次
+                row.CreateCell(2).SetCellValue(item.ITEM_DESC);//項目說明
+                row.CreateCell(3).SetCellValue(item.ITEM_UNIT);// 單位
+                if (null != item.ITEM_QUANTITY && item.ITEM_QUANTITY.ToString().Trim() != "")
+                {
+                    row.CreateCell(4).SetCellValue(double.Parse(item.ITEM_QUANTITY.ToString())); //數量
+                }
+                //單價先不填入
+                if (null != item.ITEM_UNIT_PRICE && item.ITEM_UNIT_PRICE.ToString().Trim() != "")
+                {
+                    //row.CreateCell(5).SetCellValue(""); //單價
+                }
+                row.CreateCell(6);
+                row.CreateCell(7).SetCellValue(item.ITEM_REMARK);// 備註
+                row.CreateCell(8).SetCellValue(item.TYPE_CODE_1);// 九宮格
+                row.CreateCell(9).SetCellValue(item.TYPE_CODE_2);// 次九宮格
+                row.CreateCell(10).SetCellValue(item.SYSTEM_MAIN);// 主系統
+                row.CreateCell(11).SetCellValue(item.SYSTEM_SUB);// 次系統
+                idxRow++;
+            }
+        }
+
     }
     #endregion
 }
