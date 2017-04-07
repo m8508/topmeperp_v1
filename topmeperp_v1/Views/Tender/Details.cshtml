@@ -1,13 +1,14 @@
 ﻿@using topmeperp.Models
 @model TND_PROJECT
 @{
-    ViewBag.Title = "備標作業-新增專案";
+    ViewBag.Title = "備標作業-專案功能區";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 
 <div class="container">
     <h1>專案主頁</h1>
     <div>
+
         <h3>備標作業功能區</h3>
         <p><button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Create","Tender", new { id = @Model.PROJECT_ID})'; ">修改專案基本資料</button></p>
         <p>
