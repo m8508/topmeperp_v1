@@ -63,7 +63,13 @@
             <div class="form-group">
                 <label for="inputdeteline" class="col-md-2 control-label">報價期限</label>
                 <div class="col-md-4">
+                    @if (Model.prjForm.DUEDATE != null) { 
                     <input type="text" class="form-control" id="inputdateline" value='@Model.prjForm.DUEDATE.Value.ToString("yyyy/MM/dd")'>
+                    }
+                    else
+                    {
+                        <input type="text" class="form-control" id="inputdateline" value="">
+                    }
                 </div>
             </div>
         </div>

@@ -14,7 +14,7 @@
                 @foreach (var item in Model.tndTemplateProjectForm)
                 {
                     <tr>
-                        <td>@item.FORM_ID</td>
+                        <td><a href="/Inquiry/SinglePrjForm/@item.FORM_ID" target="_blank">@item.FORM_ID</a></td>
                         <td>@item.FORM_NAME</td>
                         <td><a href='@("../UploadFile/"+ViewBag.projectid+"/"+item.FORM_ID+".xlsx")'>下載</a></td>
                     </tr>
