@@ -74,6 +74,24 @@ namespace topmeperp.Controllers
             singleForm.prjFormItem = service.formInquiryItem;
             singleForm.prj = service.getProjectById(singleForm.prjForm.PROJECT_ID);
             log.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
+            //取得供應商資料
+            SelectListItem empty = new SelectListItem();
+            empty.Value = "";
+            empty.Text = "";
+            List<SelectListItem> selectSupplier = new List<SelectListItem>();
+            foreach (string itm in service.getSupplier())
+            {
+                log.Debug("Supplier=" + itm);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = itm;
+                selectI.Text = itm;
+                if (null != itm && "" != itm)
+                {
+                    selectSupplier.Add(selectI);
+                }
+            }
+            // selectSupplier.Add(empty);
+            ViewBag.Supplier = selectSupplier;
             return View(singleForm);
         }
         public string UpdatePrjForm(FormCollection form)
@@ -173,7 +191,6 @@ namespace topmeperp.Controllers
             }
             //selectSub.Add(empty);
             ViewBag.SystemSub = selectSub;
-
             //設定查詢條件
             return View();
         }

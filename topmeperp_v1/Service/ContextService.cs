@@ -287,6 +287,7 @@ namespace topmeperp.Service
             return i;
         }
         #endregion
+
         //2.建立任務分配表
         TND_TASKASSIGN task = null;
         public void newTask(TND_TASKASSIGN task)
@@ -301,7 +302,6 @@ namespace topmeperp.Service
                 //if (i > 0) { status = true; };
             }
         }
-
         public TND_PROJECT getProjectById(string prjid)
         {
             using (var context = new topmepEntities())
@@ -933,6 +933,18 @@ namespace topmeperp.Service
             }
             return lst;
         }
+        //取得供應商選單
+        public List<string> getSupplier()
+        {
+            List<string> lst = new List<string>();
+            using (var context = new topmepEntities())
+            {
+                //取得供應商選單
+                lst = context.Database.SqlQuery<string>("SELECT DISTINCT COMPANY_NAME FROM TND_SUPPLIER ;").ToList();
+                logger.Info("Get Supplier Count=" + lst.Count);
+            }
+            return lst;
+        }
         public List<COMPARASION_DATA> getComparisonData(string projectid, string typecode1, string typecode2, string systemMain, string systemSub)
         {
             List<COMPARASION_DATA> lst = new List<COMPARASION_DATA>();
@@ -1327,6 +1339,56 @@ namespace topmeperp.Service
             }
             logger.Info("get function count:" + lst.Count);
             return lst;
+        }
+    }
+    #endregion
+    #region 供應商管理區塊
+    /*
+     *供應商管理 
+     */
+    public class SupplierManage : ContextService
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        TND_SUPPLIER supplier = null;
+        string sno_key = "SUP";
+        public void newSupplier(TND_SUPPLIER sup)
+        {
+            //1.建立供應商基本資料
+            logger.Info("create new supplier ");
+            supplier = sup;
+            using (var context = new topmepEntities())
+            {
+                //2.取得供應商編號
+                SerialKeyService snoservice = new SerialKeyService();
+                supplier.SUPPLIER_ID = snoservice.getSerialKey(sno_key);
+                logger.Info("new supplier object=" + supplier.ToString());
+                context.TND_SUPPLIER.Add(supplier);
+                int i = context.SaveChanges();
+                logger.Debug("Add supplier=" + i);
+                //if (i > 0) { status = true; };
+            }
+        }
+        public TND_SUPPLIER getSupplierById(string supid)
+        {
+            using (var context = new topmepEntities())
+            {
+                supplier = context.TND_SUPPLIER.SqlQuery("select s.* from TND_SUPPLIER s "
+                    + "where s.SUPPLIER_ID = @sid "
+                   , new SqlParameter("sid", supid)).First();
+            }
+            return supplier;
+        }
+        public void updateSupplier(TND_SUPPLIER sup)
+        {
+            //1.更新供應商基本資料
+            supplier = sup;
+            logger.Info("Update supplier information");
+            using (var context = new topmepEntities())
+            {
+                context.Entry(supplier).State = EntityState.Modified;
+                int i = context.SaveChanges();
+                logger.Debug("Update project=" + i);
+            }
         }
     }
     #endregion

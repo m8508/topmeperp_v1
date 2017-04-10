@@ -1,27 +1,34 @@
-﻿@model topmeperp.Models.TND_TASKASSIGN
+﻿@model IEnumerable<topmeperp.Models.TND_TASKASSIGN> 
 
 <div class="container">
     <h2>工作分派明細表</h2>
     <div>
         <table class="table table-bordered">
-            <thead>
                 <tr>
-                    <th>工作任務</th>
                     <th>負責人員</th>
                     <th>負責項目</th>
                     <th>備註</th>
                     <th>預定完成時間</th>
+                    <th>簽名</th>
                 </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>@Html.DisplayFor(model => model.TASK_TYPE)</td>
-                    <td>@Html.DisplayFor(model => model.USER_ID)</td>
-                    <td>@Html.DisplayFor(model => model.TASK_ITEM)</td>
-                    <td>@Html.DisplayFor(model => model.REMARK)</td>
-                    <td>@Html.DisplayFor(model => model.FINISH_DATE)</td>
-                </tr>
-            </tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.USER_ID)
+                        <td>
+                            @Html.DisplayFor(modelItem => item.TASK_ITEM)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.FINISH_DATE)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.REMARK)
+                        </td>
+                        <td></td>
+                    </tr>
+                }
         </table>
     </div>
 </div>
+

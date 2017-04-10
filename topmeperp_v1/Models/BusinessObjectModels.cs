@@ -80,4 +80,9 @@ namespace topmeperp.Models
         //供應商名稱(尚未由供應商主檔取得)，需另外調整
         public string SUPPLIER_NAME { get; set; }
     }
+    public class SupplierManageModels
+    {
+        //供應商資料
+        public IEnumerable<TND_SUPPLIER> suppliers { get; set; }
+    }
 }

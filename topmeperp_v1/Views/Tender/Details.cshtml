@@ -8,9 +8,12 @@
 <div class="container">
     <h1>專案主頁</h1>
     <div>
-
-        <h3>備標作業功能區</h3>
-        <p><button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Create","Tender", new { id = @Model.PROJECT_ID})'; ">修改專案基本資料</button></p>
+        <h3 class="bg-info">備標作業功能區</h3>
+        <p>
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Create","Tender", new { id = @Model.PROJECT_ID})'; ">修改專案基本資料</button>
+            <!--<button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Task","Tender", new { id = @Model.PROJECT_ID})'; ">任務分派</button> </!--
+                -->
+        </p>
         <p>
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("uploadMapInfo","Tender", new { id = @Model.PROJECT_ID})'; ">上傳圖算數量</button>
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("MapInfoMainPage","Tender", new { id = @Model.PROJECT_ID})'; ">圖算數量修改</button>
@@ -27,10 +30,10 @@
     </div>
 </div><br /><br /><br />
 <div>
-       <h3>工作分派區</h3>
+    <h3 class="bg-info">工作分派區</h3>
 </div>
 <br /><br /><br />
 <div>
-       <h3>檔案上傳區</h3>
+    <h3 class="bg-info">檔案上傳區</h3>
 </div>
 
