@@ -289,18 +289,23 @@ namespace topmeperp.Service
         #endregion
 
         //2.建立任務分配表
-        TND_TASKASSIGN task = null;
-        public void newTask(TND_TASKASSIGN task)
+        public int refreshTask(List<TND_TASKASSIGN> task)
         {
-            //1.建立專案基本資料
-            logger.Info("create new task ");
+            //1.新增任務分派資料
+            int i = 0;
+            logger.Info("refreshTask = " + task.Count);
+            //2.將任務資料寫入 
             using (var context = new topmepEntities())
             {
-                context.TND_TASKASSIGN.Add(task);
-                int i = context.SaveChanges();
-                logger.Debug("Add task=" + i);
-                //if (i > 0) { status = true; };
+                foreach (TND_TASKASSIGN item in task)
+                {
+                    item.CREATE_DATE = DateTime.Now;
+                    context.TND_TASKASSIGN.Add(item);
+                }
+                i = context.SaveChanges();
             }
+            logger.Info("add task count =" + i);
+            return i;
         }
         public TND_PROJECT getProjectById(string prjid)
         {

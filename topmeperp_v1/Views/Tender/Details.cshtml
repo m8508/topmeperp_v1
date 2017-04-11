@@ -11,8 +11,7 @@
         <h3 class="bg-info">備標作業功能區</h3>
         <p>
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Create","Tender", new { id = @Model.PROJECT_ID})'; ">修改專案基本資料</button>
-            <!--<button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Task","Tender", new { id = @Model.PROJECT_ID})'; ">任務分派</button> </!--
-                -->
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Task","Tender", new { id = @Model.PROJECT_ID})'; ">任務分派</button> 
         </p>
         <p>
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("uploadMapInfo","Tender", new { id = @Model.PROJECT_ID})'; ">上傳圖算數量</button>

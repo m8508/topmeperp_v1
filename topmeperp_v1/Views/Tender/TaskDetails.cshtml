@@ -1,34 +1,43 @@
-﻿@model IEnumerable<topmeperp.Models.TND_TASKASSIGN> 
+﻿@model IEnumerable<topmeperp.Models.TND_TASKASSIGN>
 
 <div class="container">
-    <h2>工作分派明細表</h2>
-    <div>
-        <table class="table table-bordered">
+    @using (Html.BeginForm("Task", "Tender", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <h2>工作分派明細表</h2>
+        <div>
+            <table class="table table-bordered">
                 <tr>
+                    <th>任務類型</th>
                     <th>負責人員</th>
                     <th>負責項目</th>
-                    <th>備註</th>
                     <th>預定完成時間</th>
+                    <th>備註</th>
                     <th>簽名</th>
                 </tr>
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td>
+                        <td width="150">
+                            @Html.DisplayFor(modelItem => item.TASK_TYPE)
+                        </td>
+                        <td width="100">
                             @Html.DisplayFor(modelItem => item.USER_ID)
-                        <td>
+                        </td>
+                        <td width="250">
                             @Html.DisplayFor(modelItem => item.TASK_ITEM)
                         </td>
-                        <td>
+                        <td width="100">
                             @Html.DisplayFor(modelItem => item.FINISH_DATE)
                         </td>
-                        <td>
+                        <td width="200">
                             @Html.DisplayFor(modelItem => item.REMARK)
                         </td>
-                        <td></td>
+                        <td width="150"></td>
+                        @Html.HiddenFor(modelItem => item.PROJECT_ID)
+                        @Html.HiddenFor(modelItem => item.CREATE_ID)
                     </tr>
                 }
-        </table>
-    </div>
+            </table>
+        </div>
+    }
 </div>
-

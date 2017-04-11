@@ -6,6 +6,7 @@
 @using (Html.BeginForm("UpdatePrjForm", "Inquiry", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post))
 {
     <div class="page-header">
+        <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.9.1.js"></script>
         <div class="row">
             <div class="col-md-12"><h3 class="text-center">協成水電工程事業有限公司-採購詢價單</h3></div>
         </div>
@@ -35,7 +36,7 @@
             <div class="form-group">
                 <label for="inputcontact" class="col-md-2 control-label">聯絡人</label>
                 <div class="col-md-4">
-                    <input type="text" class="form-control" id="inputcontact" value="@Model.prjForm.CONTACT_NAME">
+                    <input type="text" class="form-control" id="inputcontact" style="background: #CCC">
                 </div>
             </div>
         </div>
@@ -49,7 +50,7 @@
             <div class="form-group">
                 <label for="inputemail" class="col-md-2 control-label">E-mail</label>
                 <div class="col-md-4">
-                    <input type="text" class="form-control" id="inputemail" value="@Model.prjForm.CONTACT_EMAIL">
+                    <input type="text" class="form-control" id="inputemail" style="background: #CCC">
                 </div>
             </div>
         </div>
@@ -117,5 +118,20 @@
         });
     })
 </script>
+<script>
+$(function () {
+    $("#inputsuppliername").keyup(
+                function () {
+                    $(this).doTimeout("findinputcontact",
+                        1000, function () {
+                            $.get(
+                                "DataSrc.ashx",
+                                { key: $(this).val() },
+                                function (res) {
+                                    $("#inputcontact").val(res);
+                                });
+                        });
+            });
+        });
 
-
+</script>
