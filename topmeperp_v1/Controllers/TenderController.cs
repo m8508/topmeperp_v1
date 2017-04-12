@@ -98,6 +98,9 @@ namespace topmeperp.Controllers
         {
             logger.Info("task assign page!!");
             ViewBag.projectid = id;
+            TnderProject service = new TnderProject();
+            TND_PROJECT p = service.getProjectById(id);
+            ViewBag.projectName = p.PROJECT_NAME;
             SYS_USER u = (SYS_USER)Session["user"];
             ViewBag.createid = u.USER_ID;
             return View();
@@ -112,6 +115,7 @@ namespace topmeperp.Controllers
             service.refreshTask(TaskDatas);
             return View(TaskDatas);
         }
+
         public ActionResult Details(string id)
         {
             logger.Info("project detail page projectid = " + id);

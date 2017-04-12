@@ -186,7 +186,7 @@ namespace topmeperp.Service
             }
             if (null == sheet)
             {
-                logger.Error("檔案內沒有整理後標單資料(Sheet)! filename=" + fileformat);
+                logger.Error("檔案內沒有消防水資料(Sheet)! filename=" + fileformat);
                 throw new Exception("檔案內沒有[消防水]資料");
             }
             return ConverData2MapFW();
@@ -276,7 +276,7 @@ namespace topmeperp.Service
                 item.PIPE_NAME = row.Cells[7].ToString();
             }
 
-            if (row.Cells[8].ToString().Trim() != "")// 8管數/組
+            if (null != row.Cells[8].ToString().Trim() || row.Cells[8].ToString().Trim() != "")// 8管數/組
             {
                 try
                 {
@@ -291,7 +291,7 @@ namespace topmeperp.Service
                 }
             }
 
-            if (row.Cells[9].ToString().Trim() != "")// 9.管組數	
+            if (null != row.Cells[9].ToString().Trim() || row.Cells[9].ToString().Trim() != "")// 9.管組數	
             {
                 try
                 {
@@ -307,7 +307,7 @@ namespace topmeperp.Service
                 }
             }
 
-            if (row.Cells[10].ToString().Trim() != "")// 10管長度/組數
+            if (null != row.Cells[10].ToString().Trim() || row.Cells[10].ToString().Trim() != "")// 10管長度/組數
             {
                 try
                 {
@@ -323,7 +323,7 @@ namespace topmeperp.Service
             }
 
 
-            if (row.Cells[11].ToString().Trim() != "")// 11管總長
+            if (null != row.Cells[11].ToString().Trim() || row.Cells[11].ToString().Trim() != "")// 11管總長
             {
                 try
                 {
@@ -360,7 +360,7 @@ namespace topmeperp.Service
             }
             if (null == sheet)
             {
-                logger.Error("檔案內沒有整理後標單資料(Sheet)! filename=" + fileformat);
+                logger.Error("檔案內沒有消防電資料(Sheet)! filename=" + fileformat);
                 throw new Exception("檔案內沒有[消防電]資料");
             }
             return ConverData2MapFP();
@@ -587,7 +587,7 @@ namespace topmeperp.Service
             }
             if (null == sheet)
             {
-                logger.Error("檔案內沒有整理後標單資料(Sheet)! filename=" + fileformat);
+                logger.Error("檔案內沒有設備清單資料(Sheet)! filename=" + fileformat);
                 throw new Exception("檔案內沒有[工率]資料");
             }
             return ConverData2MapDEVICE();
@@ -652,7 +652,7 @@ namespace topmeperp.Service
             {
                 item.PROJECT_ITEM_ID = row.Cells[0].ToString();
             }
-            if (row.Cells[row.Cells.Count - 2].ToString().Trim() != "")//1.設備清單
+            if (null != row.Cells[row.Cells.Count - 2].ToString().Trim() || row.Cells[row.Cells.Count - 2].ToString().Trim() != "")//1.設備清單
             {
                 try
                 {
@@ -662,8 +662,8 @@ namespace topmeperp.Service
                 }
                 catch (Exception e)
                 {
-                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Cells[11].value=" + row.Cells[row.Cells.Count - 2].ToString());
-                    logger.Error(e.Message);
+                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[11].value=" + row.Cells[row.Cells.Count - 2].ToString());
+                    logger.Error(e);
                 }
             }
             item.CREATE_DATE = System.DateTime.Now;
@@ -691,7 +691,7 @@ namespace topmeperp.Service
             }
             if (null == sheet)
             {
-                logger.Error("檔案內沒有整理後標單資料(Sheet)! filename=" + fileformat);
+                logger.Error("檔案內沒有給排水資料(Sheet)! filename=" + fileformat);
                 throw new Exception("檔案內沒有[給排水]資料");
             }
             return ConverData2MapPLU();
@@ -867,7 +867,7 @@ namespace topmeperp.Service
             }
             if (null == sheet)
             {
-                logger.Error("檔案內沒有整理後標單資料(Sheet)! filename=" + fileformat);
+                logger.Error("檔案內沒有弱電管線資料(Sheet)! filename=" + fileformat);
                 throw new Exception("檔案內沒有[弱電管線]資料");
             }
             return ConverData2MapLCP();
@@ -1179,7 +1179,7 @@ namespace topmeperp.Service
             }
             if (null == sheet)
             {
-                logger.Error("檔案內沒有整理後標單資料(Sheet)! filename=" + fileformat);
+                logger.Error("檔案內沒有電氣管線資料(Sheet)! filename=" + fileformat);
                 throw new Exception("檔案內沒有[電氣管線]資料");
             }
             return ConverData2MapPEP();
@@ -1540,7 +1540,7 @@ namespace topmeperp.Service
             }
             if (null == sheet)
             {
-                logger.Error("檔案內沒有整理後標單資料(Sheet)! filename=" + fileformat);
+                logger.Error("檔案內沒有工率資料(Sheet)! filename=" + fileformat);
                 throw new Exception("檔案內沒有[工率]資料");
             }
             return ConverData2Wage();
@@ -1605,7 +1605,7 @@ namespace topmeperp.Service
             {
                 item.PROJECT_ITEM_ID = row.Cells[0].ToString();
             }
-            if (row.Cells[row.Cells.Count - 1].ToString().Trim() != "")//1.工率
+            if (null != row.Cells[row.Cells.Count - 1].ToString().Trim() || row.Cells[row.Cells.Count - 1].ToString().Trim() != "")//1.工率
             {
                 try
                 {
@@ -1615,8 +1615,8 @@ namespace topmeperp.Service
                 }
                 catch (Exception e)
                 {
-                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Cells[12].value=" + row.Cells[row.Cells.Count - 1].ToString());
-                    logger.Error(e.Message);
+                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[12].value=" + row.Cells[row.Cells.Count - 1].ToString());
+                    logger.Error(e);
                 }
             }
             item.CREATE_DATE = System.DateTime.Now;
@@ -1728,8 +1728,18 @@ namespace topmeperp.Service
         {
             //1.讀取供應商報價單\
             InitializeWorkbook(fileExcel);
-            //2,讀取Sheet (預設詢價單，否則抓第一張
-            sheet = (XSSFSheet)hssfworkbook.GetSheet("詢價單");
+            //2.依據檔案附檔名使用不同物件讀取Excel 檔案，並開啟廠商報價單Sheet
+            if (fileformat == "xls")
+            {
+                logger.Debug("office 2003:" + fileformat);
+                sheet = (HSSFSheet)hssfworkbook.GetSheet("詢價單");
+            }
+            else
+            {
+                logger.Debug("office 2007:" + fileformat);
+                sheet = (XSSFSheet)hssfworkbook.GetSheet("詢價單");
+            }
+            //3,讀取Sheet (預設詢價單，否則抓第一張)
             if (null == sheet)
             {
                 sheet = (XSSFSheet)hssfworkbook.GetSheetAt(0);

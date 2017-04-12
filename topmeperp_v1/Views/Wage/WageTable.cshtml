@@ -4,7 +4,7 @@
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <div class="container-fluid">
-    <div class="row">
+    <div class="row"><br/><br/>
         <div class="row col-md-12">
             <div class="col-md-4">
                 <fieldset disabled>
@@ -16,15 +16,16 @@
                 <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
             </div>
             </div>
-            <div class="col-md-12">
-                <div class="col-md-8"></div>
-                <div class="col-md-4 alert-info">
-                    @Html.Raw(TempData["result"])
-                </div>
+    </div>
+        <div class="col-md-12">
+            <div class="col-md-8"></div>
+            <div class="col-md-4 alert-info">
+                @Html.Raw(TempData["result"])
             </div>
     </div><br/>
     <div class="row col-md-12">
         <h3>工率資料</h3>
+        <h5>@ViewBag.Result</h5>
     </div><br />
     <table class="table table-bordered">
         <thead>
