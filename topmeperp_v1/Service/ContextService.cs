@@ -289,18 +289,23 @@ namespace topmeperp.Service
         #endregion
 
         //2.建立任務分配表
-        TND_TASKASSIGN task = null;
-        public void newTask(TND_TASKASSIGN task)
+        public int refreshTask(List<TND_TASKASSIGN> task)
         {
-            //1.建立專案基本資料
-            logger.Info("create new task ");
+            //1.新增任務分派資料
+            int i = 0;
+            logger.Info("refreshTask = " + task.Count);
+            //2.將任務資料寫入 
             using (var context = new topmepEntities())
             {
-                context.TND_TASKASSIGN.Add(task);
-                int i = context.SaveChanges();
-                logger.Debug("Add task=" + i);
-                //if (i > 0) { status = true; };
+                foreach (TND_TASKASSIGN item in task)
+                {
+                    item.CREATE_DATE = DateTime.Now;
+                    context.TND_TASKASSIGN.Add(item);
+                }
+                i = context.SaveChanges();
             }
+            logger.Info("add task count =" + i);
+            return i;
         }
         public TND_PROJECT getProjectById(string prjid)
         {
@@ -888,6 +893,45 @@ namespace topmeperp.Service
     public class CostAnalysisDataService : WageTableService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        public List<DirectCost> getDirectCost(string projectid)
+        {
+            List<DirectCost> lstDirecCost = null; 
+            using (var context = new topmepEntities())
+            {
+                lstDirecCost = context.Database.SqlQuery<DirectCost>("SELECT " +
+                    "(select TYPE_CODE_1 + TYPE_CODE_2 from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE, "+
+                    "(select TYPE_DESC from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE_DESC ," +
+                    "(select SUB_TYPE_ID from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) T_SUB_CODE, " +
+                    "TYPE_CODE_2 SUB_CODE," +
+                    "(select TYPE_DESC from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) SUB_DESC," +
+                    "SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) MATERIAL_COST,SUM(ITEM_QUANTITY * RATIO) MAN_DAY,count(*) ITEM_COUNT " +
+                    "FROM (SELECT it.*, w.RATIO, w.PRICE FROM TND_PROJECT_ITEM it LEFT OUTER JOIN TND_WAGE w " +
+                    "ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID WHERE it.project_id = @projectid) A " +
+                    "GROUP BY TYPE_CODE_1, TYPE_CODE_2 ORDER BY TYPE_CODE_1,TYPE_CODE_2;",
+                    new SqlParameter("projectid", projectid)).ToList();
+
+                logger.Info("Get DirectCost Record Count=" + lstDirecCost.Count);
+            }
+            return lstDirecCost;
+        }
+        public List<SystemCost> getSystemCost(string projectid)
+        {
+            List<SystemCost> lstSystemCost = null;
+            using (var context = new topmepEntities())
+            {
+                lstSystemCost = context.Database.SqlQuery<SystemCost>("SELECT SYSTEM_MAIN,SYSTEM_SUB," +
+                    "SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) MATERIAL_COST, SUM(ITEM_QUANTITY * RATIO) MAN_DAY, count(*) ITEM_COUNT "+
+                    "FROM (SELECT it.*, w.RATIO, w.PRICE FROM TND_PROJECT_ITEM it LEFT OUTER JOIN TND_WAGE w " +
+                    "ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID "+
+                    "WHERE it.project_id = @projectid) A " +
+                    "GROUP BY SYSTEM_MAIN, SYSTEM_SUB " +
+                    "ORDER BY SYSTEM_MAIN, SYSTEM_SUB;",
+                    new SqlParameter("projectid", projectid)).ToList();
+
+                logger.Info("Get SystemCost Record Count=" + lstSystemCost.Count);
+            }
+            return lstSystemCost;
+        }
     }
     //詢價單資料提供作業
     public class InquiryFormService : TnderProject

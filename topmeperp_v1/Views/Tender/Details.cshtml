@@ -6,34 +6,90 @@
 }
 
 <div class="container">
-    <h1>專案主頁</h1>
-    <div>
+    <h1 style="padding-top:10px;">專案主頁</h1>
+    <div style="padding-top:10px;"><input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁"></div>
+    <div style="padding-top:10px;">
         <h3 class="bg-info">備標作業功能區</h3>
-        <p>
+        <p style="padding-top:10px;">
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Create","Tender", new { id = @Model.PROJECT_ID})'; ">修改專案基本資料</button>
-            <!--<button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Task","Tender", new { id = @Model.PROJECT_ID})'; ">任務分派</button> </!--
-                -->
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Task","Tender", new { id = @Model.PROJECT_ID})'; ">任務分派</button>
         </p>
-        <p>
+        <p style="padding-top:10px;">
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("uploadMapInfo","Tender", new { id = @Model.PROJECT_ID})'; ">上傳圖算數量</button>
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("MapInfoMainPage","Tender", new { id = @Model.PROJECT_ID})'; ">圖算數量修改</button>
         </p>
-        <p>
+        <p style="padding-top:10px;">
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Index","Inquiry", new { id = @Model.PROJECT_ID})'; ">新增詢價單 </button>
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("ComparisonMain","Inquiry", new { id = @Model.PROJECT_ID})'; ">比價作業</button>
         </p>
-        <p>
+        <p style="padding-top:10px;">
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Index","Wage", new { id = @Model.PROJECT_ID})'; ">工率表下載</button>
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Index","Wage", new { id = @Model.PROJECT_ID})'; ">工率表上傳</button>
         </p>
-
+        <p style="padding-top:10px;">
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("costAnalysis","Inquiry", new { id = @Model.PROJECT_ID})'; ">成本分析</button>            
+        </p>
     </div>
-</div><br /><br /><br />
-<div>
-    <h3 class="bg-info">工作分派區</h3>
-</div>
-<br /><br /><br />
-<div>
-    <h3 class="bg-info">檔案上傳區</h3>
+    <div>
+        <h3 class="bg-info">備標會辦單</h3>
+        <div class="page-header">
+            <div class="col-md-12"><h2 class="text-center">協成水電工程事業有限公司</h2></div>
+            <div class="col-md-12"><h2 class="text-center">備標會辦單</h2></div>
+            <div class="row">
+                <div class="form-group">
+                    <label for="" class="col-md-2 control-label" style="padding-top:30px;">收件日期:</label>
+                    <div class="col-md-4" style="padding-top:30px;">
+                        @Html.DisplayFor(m => m.DUE_DATE)
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="" class="col-md-3 control-label" style="padding-top:30px;">預定報價完成日: </label>
+                    <div class="col-md-3" style="padding-top:30px;">
+                        @Html.DisplayFor(m => m.SCHDL_OFFER_DATE)
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <label for="" class="col-md-2 control-label">工程名稱:</label>
+                <div class="col-md-10">
+                    @Html.DisplayFor(m => m.CONTRUCTION_NAME)
+                </div>
+            </div>
+            <div class="row">
+                <label for="" class="col-md-2 control-label">標案地址:</label>
+                <div class="col-md-10">
+                    @Html.DisplayFor(m => m.LOCATION)
+                </div>
+            </div>
+            <div class="row">
+                <label for="" class="col-md-2 control-label">業主:</label>
+                <div class="col-md-10">
+                    @Html.DisplayFor(m => m.OWNER_NAME)
+                </div>
+            </div>
+            <div class="row">
+                <label for="" class="col-md-2 control-label">聯絡人:</label>
+                <div class="col-md-10">
+                    @Html.DisplayFor(m => m.CONTACT_NAME)
+                </div>
+            </div>
+            <div class="row">
+                <label for="" class="col-md-2 control-label">連絡電話:</label>
+                <div class="col-md-10">
+                    @Html.DisplayFor(m => m.CONTACT_TEL)
+                </div>
+            </div>
+            <div class="row">
+                <label for="" class="col-md-2 control-label">E-mail:</label>
+                <div class="col-md-10">
+                    @Html.DisplayFor(m => m.CONTACT_EMAIL)
+                </div>
+            </div>
+        </div>
+    </div>
+    <br /><br /><br />
+    <div>
+        <h3 class="bg-info">檔案上傳區</h3>
+    </div>
 </div>
 
