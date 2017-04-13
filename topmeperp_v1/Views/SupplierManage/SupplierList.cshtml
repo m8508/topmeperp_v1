@@ -1,0 +1,50 @@
+﻿
+@model IEnumerable<topmeperp.Models.TND_SUPPLIER>
+<table class="table">
+    <tr>
+        <th>
+            供應商名稱
+        </th>
+        <th>
+            聯絡人
+        </th>
+        <th>
+            聯絡電話
+        </th>
+        <th>
+            傳真
+        </th>
+        <th>
+            E-Mail
+        </th>
+        <th>
+           行動電話
+        </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                <a href="/SupplierManage/Create/@Html.DisplayFor(modelItem => item.SUPPLIER_ID)">@Html.DisplayFor(modelItem => item.COMPANY_NAME)</a>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CONTACT_NAME)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.COMPANY_TEL)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.COMPANY_FAX)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CONTACT_EMAIL)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CONTACT_MOBILE)
+            </td>
+        </tr>
+    }
+
+</table>
+
