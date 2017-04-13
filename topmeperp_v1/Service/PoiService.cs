@@ -1882,9 +1882,15 @@ namespace topmeperp.Service
 
             //3寫入初期成本邊單 僅提供office 格式2007 
             getInitialQuotation();
-            //4建立報價標單Sheet
+            logger.Info("generate direct cost by projectid=" + project.PROJECT_ID);
+            //4取得直接成本
+            getDirectCost(service.getDirectCost(project.PROJECT_ID));
+            //5建立報價標單Sheet
             getFinalQuotation();
-            //4.令存新檔至專案所屬目錄
+            logger.Info("generate syten cost by projectid=" + project.PROJECT_ID);
+            //6建立報價標單Sheet
+            getSystemCost(service.getSystemCost(project.PROJECT_ID));
+            //7.令存新檔至專案所屬目錄
             var file = new FileStream(outputPath + "\\" + project.PROJECT_ID + "\\" + project.PROJECT_ID + "_CostAnalysis.xlsx", FileMode.Create);
             logger.Info("output file=" + file.Name);
             hssfworkbook.Write(file);
@@ -1969,7 +1975,112 @@ namespace topmeperp.Service
                 idxRow++;
             }
         }
+        //取得直接成本資料
+        private void getDirectCost(List<DirectCost> direcCostItems)
+        {
+            //2.寫入直接成本 僅提供office 格式2007 
+            sheet = (XSSFSheet)hssfworkbook.GetSheet("直接成本");
 
+            int idxRow = 1;
+            foreach (DirectCost item in direcCostItems)
+            {
+                IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+                logger.Info("Row Id=" + idxRow);
+                //主九宮格編碼、次九宮格編碼、分項名稱(成本價)、廠商報價、工資、報價複價	
+                row.CreateCell(0).SetCellValue(item.MAINCODE);//主九宮格編碼)
+
+                if (null != item.SUB_CODE && item.SUB_CODE.ToString().Trim() != "")
+                {
+                    row.CreateCell(1).SetCellValue(double.Parse(item.SUB_CODE.ToString()));//次九宮格編碼
+                }
+
+                logger.Debug("ITEM DESC=" + item.MAINCODE_DESC);
+                row.CreateCell(2).SetCellValue(item.MAINCODE_DESC + "-" + item.SUB_DESC);//分項名稱(成本價
+                //廠商報價
+                if (null != item.MATERIAL_COST && item.MATERIAL_COST.ToString().Trim() != "")
+                {
+                    row.CreateCell(3).SetCellValue(double.Parse(item.MATERIAL_COST.ToString()));
+                }
+                //工資
+                if (null != item.MAN_DAY && item.MAN_DAY.ToString().Trim() != "")
+                {
+                    row.CreateCell(4).SetCellValue(double.Parse(item.MAN_DAY.ToString()));
+                }
+                row.CreateCell(5).CellFormula = "D" + (idxRow + 1) + "+E" + (idxRow + 1); //報價複價(填入公式)
+
+                //材料設備折扣率、材料設備執行預算、工資折扣率、工資執行預算、投標係數
+                row.CreateCell(6).SetCellValue("100%");// 材料設備折扣率
+                row.CreateCell(7).SetCellValue("0");// 材料設備執行預算
+                row.CreateCell(8).SetCellValue("100%");// 工資折扣率
+                row.CreateCell(9).SetCellValue("0");// 工資執行預算
+                row.CreateCell(10).SetCellValue("100%");// 投標係數
+                //執行預算複價，比例，項數
+                row.CreateCell(11).SetCellValue("0");// 執行預算複價
+                row.CreateCell(12).SetCellValue("0");// 比例
+                if (null != item.ITEM_COUNT && item.ITEM_COUNT.ToString().Trim() != "")
+                {
+                    row.CreateCell(13).SetCellValue(int.Parse(item.ITEM_COUNT.ToString())); //項數
+                }
+                idxRow++;
+            }
+            //加入小計欄位
+            logger.Debug("add row for summary:" + idxRow);
+            IRow summaryRow = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+            for (int i = 0; i < 14; i++)
+            {
+                summaryRow.CreateCell(i);
+            }
+            summaryRow.Cells[2].SetCellValue("小計");
+            summaryRow.Cells[3].SetCellFormula("SUM(D2:D" + (idxRow - 1) + ")");
+            summaryRow.Cells[4].SetCellFormula("SUM(E2:E" + (idxRow - 1) + ")");
+            summaryRow.Cells[13].SetCellFormula("SUM(N2:N" + (idxRow - 1) + ")");
+        }
+        private void getSystemCost(List<SystemCost> systemCostItems)
+        {
+            //1.寫系統分析成本 僅提供office 格式2007 
+            sheet = (XSSFSheet)hssfworkbook.GetSheet("系統分析");
+
+            int idxRow = 1;
+            foreach (SystemCost item in systemCostItems)
+            {
+                IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+                logger.Info("Row Id=" + idxRow);
+                //分項名稱(成本價)	材料成本總計	折數	工資	打折預算	未打折預算	係數	比例
+                row.CreateCell(0).SetCellValue(item.SYSTEM_MAIN + "-" + item.SYSTEM_SUB);//主九宮格編碼)
+
+                if (null != item.MATERIAL_COST && item.MATERIAL_COST.ToString().Trim() != "")
+                {
+                    row.CreateCell(1).SetCellValue(double.Parse(item.MATERIAL_COST.ToString()));
+                }
+                row.CreateCell(2).SetCellValue("100%");// 折數
+                //工資
+                if (null != item.MAN_DAY && item.MAN_DAY.ToString().Trim() != "")
+                {
+                    row.CreateCell(3).SetCellValue(double.Parse(item.MAN_DAY.ToString()));
+                }
+                row.CreateCell(4);//打折預算
+                row.CreateCell(5);//未打折預算	
+                row.CreateCell(6).SetCellValue("100%");// 係數
+                row.CreateCell(7);//比例
+                if (null != item.ITEM_COUNT && item.ITEM_COUNT.ToString().Trim() != "")
+                {
+                    row.CreateCell(8).SetCellValue(int.Parse(item.ITEM_COUNT.ToString())); //項數
+                }
+                idxRow++;
+            }
+            //加入小計欄位
+            logger.Debug("add row for summary:" + idxRow);
+            IRow summaryRow = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+            for (int i = 0; i < 9; i++)
+            {
+                summaryRow.CreateCell(i);
+            }
+            summaryRow.Cells[0].SetCellValue("直接工程費(小計)");
+            summaryRow.Cells[1].SetCellFormula("SUM(B2:B" + (idxRow - 1) + ")");
+            summaryRow.Cells[3].SetCellFormula("SUM(D2:D" + (idxRow - 1) + ")");
+            summaryRow.Cells[4].SetCellFormula("SUM(E2:E" + (idxRow - 1) + ")");
+            summaryRow.Cells[8].SetCellFormula("SUM(I2:I" + (idxRow - 1) + ")");
+        }
     }
     #endregion
 }

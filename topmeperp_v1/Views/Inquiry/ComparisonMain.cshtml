@@ -5,14 +5,14 @@
 }
 <!--標單項目搜尋區條件區域-->
 <div class="jumbotron">
-    <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
+    <h5>@ViewBag.Title</h5>
     <form name="formSearch" id="formSearch" method="post" class="form-inline">
         <div class="row">
-            <div class="col-md-6 form-group" style="padding-top:10px">
-                <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.id" class="form-control" style="background-color:#cccccc;" readonly="readonly"/>
+            <div class="col-md-6 form-group">
+                <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.id" class="form-control" />
             </div>
-            <div class="col-md-6" style="padding-top:10px">
-                <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly"/>
+            <div class="col-md-6">
+                <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" />
             </div>
         </div>
         <hr style="border-top: 1px solid #8c8b8b;" />
@@ -38,7 +38,6 @@
                     <img src="~/Content/ajax-loader.gif">
                 </div>
                 <input id="btnQuery" class="btn btn-info" type="button" onclick="getComparisonData()" value="查詢" />
-                <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
             </div>
         </div>
     </form>

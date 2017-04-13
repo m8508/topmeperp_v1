@@ -4,30 +4,25 @@
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <!--標單項目搜尋區條件區域-->
-<div  class="jumbotron">
+<div class="page-header">
     <div class="row">
         <div class="col-md-12 form-group">
             <form name="FormSearchProject" id="FormSearchProject" action="" method="Post">
                 <div class="row col-md-12">
-                    <label for="projectid" class="col-md-2 text-right">專案編號</label><input class="form-control col-md-3" id="projectid" name="projectid" type="text" value="@ViewBag.projectid"  style="background-color:#cccccc;" readonly="readonly" />
+                    <label for="projectid" class="col-md-1 text-right">專案編號</label><input class="form-control col-md-3" id="projectid" name="projectid" type="text" value="@ViewBag.projectid" />
                 </div>
-                <div class="row col-md-12" style="padding-top:5px;">
-                    <label for="textCode1" class="col-md-2 text-right" style="padding-top:15px;">九宮格</label><input class="form-control col-md-3" id="textCode1" name="textCode1" type="text"  />
-                    <label for="textCode2" class="col-md-2 text-right" style="padding-top:15px;">次九宮格</label><input class="form-control col-md-3" id="textCode2" name="textCode2" type="text" />
-                    <div class="col-md-1 pull-left">
-                        <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
-                    </div>
-                 </div>
                 <div class="row col-md-12">
-                    <label for="textSystemMain" class="col-md-2 text-right" style="padding-top:15px;">主系統</label> <input class="form-control col-md-3" id="textSystemMain" name="textSystemMain" type="text" />
-                    <label for="textSystemSub" class="col-md-2 text-right" style="padding-top:15px;">次系統</label> <input class="form-control col-md-3" id="textSystemSub" name="textSystemSub" type="text" />
-                    <div class="col-md-1 pull-left">
-                        <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
+                    <label for="textCode1" class="col-md-1 text-right">九宮格</label><input class="form-control col-md-3" id="textCode1" name="textCode1" type="text" />
+                    <label for="textCode2" class="col-md-1 text-right">次九宮格</label><input class="form-control col-md-3" id="textCode2" name="textCode2" type="text" />
+                </div>
+                <div class="row col-md-12">
+                    <label for="textSystemMain" class="col-md-1 text-right">主系統</label> <input class="form-control col-md-3" id="textSystemMain" name="textSystemMain" type="text" />
+                    <label for="textSystemSub" class="col-md-1 text-right">次系統</label> <input class="form-control col-md-3" id="textSystemSub" name="textSystemSub" type="text" />
+                    <input id="Submit1" type="submit" class="btn btn-info col-md-1" value="查詢" />
+                    <div id="divProcessing" class="col-md-2">
+                        <img src="~/Content/ajax-loader.gif">
                     </div>
-                        <div id="divProcessing" class="col-md-1">
-                            <img src="~/Content/ajax-loader.gif">
-                        </div>
-                    </div>
+                </div>
                 <div class="row col-md-6 text-right">
 
                 </div>

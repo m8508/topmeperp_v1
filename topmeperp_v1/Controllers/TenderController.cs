@@ -108,27 +108,20 @@ namespace topmeperp.Controllers
 
         //POST:TaskAssign
         [HttpPost]
-        
-        public ActionResult Task(string id, List<TND_TASKASSIGN> TaskDatas)
+        public ActionResult Task(List<TND_TASKASSIGN> TaskDatas)
         {
             logger.Info("task :" + Request["TaskDatas.index"]);
             TnderProject service = new TnderProject();
             service.refreshTask(TaskDatas);
-            ViewBag.projectid = id;
-            return View();
+            return View(TaskDatas);
         }
 
         public ActionResult Details(string id)
         {
             logger.Info("project detail page projectid = " + id);
-            List<TND_TASKASSIGN> lstTask = null;
             TnderProject service = new TnderProject();
-            lstTask = service.getTaskById(id);
             TND_PROJECT p = service.getProjectById(id);
-            TndProjectModels viewModel = new TndProjectModels();
-            viewModel.tndProject = p;
-            viewModel.tndTaskAssign = lstTask;
-            return View(viewModel);
+            return View(p);
         }
         public ActionResult uploadMapInfo(string id)
         {
