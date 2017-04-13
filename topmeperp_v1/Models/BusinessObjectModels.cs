@@ -69,7 +69,7 @@ namespace topmeperp.Models
         public TND_PROJECT_FORM prjForm { get; set; }
         public IEnumerable<TND_PROJECT_FORM_ITEM> prjFormItem { get; set; }
     }
-    public class COMPARASION_DATA:TND_PROJECT_ITEM
+    public class COMPARASION_DATA : TND_PROJECT_ITEM
     {
         //報價單編號
         public string FORM_ID { get; set; }
@@ -84,5 +84,31 @@ namespace topmeperp.Models
     {
         //供應商資料
         public IEnumerable<TND_SUPPLIER> suppliers { get; set; }
+    }
+    public class DirectCost
+    {
+        /// 九宮格編碼長度 2 
+        public string MAINCODE { get; set; }
+        /// 九宮格名稱
+        public string MAINCODE_DESC { get; set; }
+        //完整地次九宮格編碼
+        public Nullable<int> T_SUB_CODE { get; set; }
+        //次九宮格編碼
+        public string SUB_CODE { get; set; }
+        //次九宮格名稱
+        public string SUB_DESC { get; set; }
+        public Nullable<decimal> MATERIAL_COST { get; set; }
+        public Nullable<decimal> MAN_DAY { get; set; }
+        public Nullable<int> ITEM_COUNT { get; set; }
+    }
+    public class SystemCost
+    {
+        /// 九宮格編碼長度 2 
+        public string SYSTEM_MAIN { get; set; }
+        /// 九宮格名稱
+        public string SYSTEM_SUB { get; set; }
+        public Nullable<decimal> MATERIAL_COST { get; set; }
+        public Nullable<decimal> MAN_DAY { get; set; }
+        public Nullable<int> ITEM_COUNT { get; set; }
     }
 }

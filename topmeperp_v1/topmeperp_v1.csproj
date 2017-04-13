@@ -238,7 +238,6 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InquiryController.cs" />
     <Compile Include="Controllers\RoleManageController.cs" />
-    <Compile Include="Controllers\SupplierManageController.cs" />
     <Compile Include="Controllers\TenderController.cs" />
     <Compile Include="Controllers\UserManageController.cs" />
     <Compile Include="Controllers\WageController.cs" />
@@ -555,9 +554,6 @@
     <Content Include="Views\Tender\EditForPLU.cshtml" />
     <Content Include="UploadFile\Cost_Analysis_Template_v1.xlsx" />
     <Content Include="Views\Inquiry\costAnalysis.cshtml" />
-    <Content Include="Views\SupplierManage\Index.cshtml" />
-    <Content Include="Views\SupplierManage\SupplierList.cshtml" />
-    <Content Include="Views\SupplierManage\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
