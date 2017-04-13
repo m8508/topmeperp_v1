@@ -108,20 +108,27 @@ namespace topmeperp.Controllers
 
         //POST:TaskAssign
         [HttpPost]
-        public ActionResult Task(List<TND_TASKASSIGN> TaskDatas)
+        
+        public ActionResult Task(string id, List<TND_TASKASSIGN> TaskDatas)
         {
             logger.Info("task :" + Request["TaskDatas.index"]);
             TnderProject service = new TnderProject();
             service.refreshTask(TaskDatas);
-            return View(TaskDatas);
+            ViewBag.projectid = id;
+            return View();
         }
 
         public ActionResult Details(string id)
         {
             logger.Info("project detail page projectid = " + id);
+            List<TND_TASKASSIGN> lstTask = null;
             TnderProject service = new TnderProject();
+            lstTask = service.getTaskById(id);
             TND_PROJECT p = service.getProjectById(id);
-            return View(p);
+            TndProjectModels viewModel = new TndProjectModels();
+            viewModel.tndProject = p;
+            viewModel.tndTaskAssign = lstTask;
+            return View(viewModel);
         }
         public ActionResult uploadMapInfo(string id)
         {
@@ -363,8 +370,11 @@ namespace topmeperp.Controllers
         public ActionResult EditForFP(TND_MAP_FP mapfp)
         {
             logger.Info("update map fp:fp_id=" + mapfp.FP_ID + "," + mapfp.EXCEL_ITEM);
+            string message = "";
             TnderProject service = new TnderProject();
             service.updateMapFP(mapfp);
+            message = "消防電圖算資料修改成功，ID :" + mapfp.FP_ID;
+            ViewBag.result = message;
             return View(mapfp);
         }
         #endregion
@@ -385,8 +395,11 @@ namespace topmeperp.Controllers
         public ActionResult EditForFW(TND_MAP_FW mapfw)
         {
             logger.Info("update map fw:fw_id=" + mapfw.FW_ID + "," + mapfw.EXCEL_ITEM);
+            string message = "";
             TnderProject service = new TnderProject();
             service.updateMapFW(mapfw);
+            message = "消防水圖算資料修改成功，ID :" + mapfw.FW_ID;
+            ViewBag.result = message;
             return View(mapfw);
         }
         #endregion
@@ -407,8 +420,11 @@ namespace topmeperp.Controllers
         public ActionResult EditForPEP(TND_MAP_PEP mappep)
         {
             logger.Info("update map pep:pep_id=" + mappep.PEP_ID + "," + mappep.EXCEL_ITEM);
+            string message = "";
             TnderProject service = new TnderProject();
             service.updateMapPEP(mappep);
+            message = "電氣管線圖算資料修改成功，ID :" + mappep.PEP_ID;
+            ViewBag.result = message;
             return View(mappep);
         }
         #endregion
@@ -429,8 +445,11 @@ namespace topmeperp.Controllers
         public ActionResult EditForLCP(TND_MAP_LCP maplcp)
         {
             logger.Info("update map lcp:lcp_id=" + maplcp.LCP_ID + "," + maplcp.EXCEL_ITEM);
+            string message = "";
             TnderProject service = new TnderProject();
             service.updateMapLCP(maplcp);
+            message = "弱電管線圖算資料修改成功，ID :" + maplcp.LCP_ID;
+            ViewBag.result = message;
             return View(maplcp);
         }
         #endregion
@@ -451,8 +470,11 @@ namespace topmeperp.Controllers
         public ActionResult EditForPLU(TND_MAP_PLU mapplu)
         {
             logger.Info("update map plu:plu_id=" + mapplu.PLU_ID + "," + mapplu.EXCEL_ITEM);
+            string message = "";
             TnderProject service = new TnderProject();
             service.updateMapPLU(mapplu);
+            message = "給排水圖算資料修改成功，ID :" + mapplu.PLU_ID;
+            ViewBag.result = message;
             return View(mapplu);
         }
         #endregion

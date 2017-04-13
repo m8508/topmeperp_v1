@@ -238,7 +238,6 @@ namespace topmeperp.Controllers
         public ActionResult costAnalysis(string id)
         {
             log.Info("Cost Analysis for projectid=" + id);
-            ViewBag.projectid = id;
             CostAnalysisOutput excel = new CostAnalysisOutput();
             excel.exportExcel(id);
             return View();
