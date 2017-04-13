@@ -17,7 +17,7 @@ namespace topmeperp.Models
         //標單上品項明細資料
         public IEnumerable<TND_PROJECT_ITEM> tndProjectItem { get; set; }
         //專案任務分工
-        public IEnumerable<TND_TASKASSIGN> tndTaskAsign { get; set; }
+        public IEnumerable<TND_TASKASSIGN> tndTaskAssign { get; set; }
         //專案相關檔案
         public IEnumerable<TND_FILE> tndFile { get; set; }
     }

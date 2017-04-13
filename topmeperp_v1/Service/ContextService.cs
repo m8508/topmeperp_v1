@@ -364,7 +364,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 form = context.TND_PROJECT_FORM.SqlQuery("select pf.* from TND_PROJECT_FORM pf "
-                    + "where pf.PROJECT_ID = @pid "
+                    + "where pf.PROJECT_ID = @pid"
                    , new SqlParameter("pid", prjid)).First();
             }
             return form;
@@ -1031,7 +1031,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 //取得詢價單樣本資訊
-                lst = context.TND_PROJECT_FORM.SqlQuery("SELECT * FROM TND_PROJECT_FORM WHERE SUPPLIER_ID IS NULL AND　PROJECT_ID=@projectid",
+                lst = context.TND_PROJECT_FORM.SqlQuery("SELECT * FROM TND_PROJECT_FORM WHERE SUPPLIER_ID IS NULL AND　PROJECT_ID=@projectid ORDER BY FORM_ID DESC",
                     new SqlParameter("projectid", projectid)).ToList();
             }
             return lst;

@@ -1,5 +1,4 @@
-﻿@using topmeperp.Models
-@model TND_PROJECT
+﻿@model topmeperp.Models.TndProjectModels
 @{
     ViewBag.Title = "備標作業-專案功能區";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
@@ -11,20 +10,20 @@
     <div style="padding-top:10px;">
         <h3 class="bg-info">備標作業功能區</h3>
         <p style="padding-top:10px;">
-            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Create","Tender", new { id = @Model.PROJECT_ID})'; ">修改專案基本資料</button>
-            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Task","Tender", new { id = @Model.PROJECT_ID})'; ">任務分派</button>
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Create","Tender", new { id = @Model.tndProject.PROJECT_ID})'; ">修改專案基本資料</button>
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Task","Tender", new { id = @Model.tndProject.PROJECT_ID})'; ">任務分派</button>
         </p>
         <p style="padding-top:10px;">
-            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("uploadMapInfo","Tender", new { id = @Model.PROJECT_ID})'; ">上傳圖算數量</button>
-            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("MapInfoMainPage","Tender", new { id = @Model.PROJECT_ID})'; ">圖算數量修改</button>
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("uploadMapInfo","Tender", new { id = @Model.tndProject.PROJECT_ID})'; ">上傳圖算數量</button>
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("MapInfoMainPage","Tender", new { id = @Model.tndProject.PROJECT_ID})'; ">圖算數量修改</button>
         </p>
         <p style="padding-top:10px;">
-            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Index","Inquiry", new { id = @Model.PROJECT_ID})'; ">新增詢價單 </button>
-            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("ComparisonMain","Inquiry", new { id = @Model.PROJECT_ID})'; ">比價作業</button>
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Index","Inquiry", new { id = @Model.tndProject.PROJECT_ID})'; ">新增詢價單 </button>
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("ComparisonMain","Inquiry", new { id = @Model.tndProject.PROJECT_ID})'; ">比價作業</button>
         </p>
         <p style="padding-top:10px;">
-            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Index","Wage", new { id = @Model.PROJECT_ID})'; ">工率表下載</button>
-            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Index","Wage", new { id = @Model.PROJECT_ID})'; ">工率表上傳</button>
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Index","Wage", new { id = @Model.tndProject.PROJECT_ID})'; ">工率表下載</button>
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Index","Wage", new { id = @Model.tndProject.PROJECT_ID})'; ">工率表上傳</button>
         </p>
     </div><br /><br />
     <div>
@@ -36,55 +35,60 @@
                 <div class="form-group">
                     <label for="" class="col-md-2 control-label" style="padding-top:30px;">收件日期:</label>
                     <div class="col-md-4" style="padding-top:30px;">
-                        @Html.DisplayFor(m => m.DUE_DATE)
+                        @Html.DisplayFor(m => m.tndProject.DUE_DATE)
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="" class="col-md-3 control-label" style="padding-top:30px;">預定報價完成日: </label>
-                    <div class="col-md-3" style="padding-top:30px;">
-                        @Html.DisplayFor(m => m.SCHDL_OFFER_DATE)
+                    <label for="" class="col-md-2 control-label center-block" style="padding-top:20px;">預定報價完成日: </label>
+                    <div class="col-md-4" style="padding-top:20px;">
+                        @Html.DisplayFor(m => m.tndProject.SCHDL_OFFER_DATE)
                     </div>
                 </div>
             </div>
             <div class="row">
-                <label for="" class="col-md-2 control-label">工程名稱:</label>
-                <div class="col-md-10">
-                    @Html.DisplayFor(m => m.CONTRUCTION_NAME)
+                <label for="" class="col-md-2 control-label" style="padding-top:20px;">工程名稱:</label>
+                <div class="col-md-10" style="padding-top:20px;">
+                    @Html.DisplayFor(m => m.tndProject.CONTRUCTION_NAME)
                 </div>
             </div>
             <div class="row">
-                <label for="" class="col-md-2 control-label">標案地址:</label>
-                <div class="col-md-10">
-                    @Html.DisplayFor(m => m.LOCATION)
+                <label for="" class="col-md-2 control-label" style="padding-top:20px;">標案地址:</label>
+                <div class="col-md-10" style="padding-top:20px;">
+                    @Html.DisplayFor(m => m.tndProject.LOCATION)
                 </div>
             </div>
             <div class="row">
-                <label for="" class="col-md-2 control-label">業主:</label>
-                <div class="col-md-10">
-                    @Html.DisplayFor(m => m.OWNER_NAME)
+                <label for="" class="col-md-2 control-label" style="padding-top:20px;">業主:</label>
+                <div class="col-md-10" style="padding-top:20px;">
+                    @Html.DisplayFor(m => m.tndProject.OWNER_NAME)
                 </div>
             </div>
             <div class="row">
-                <label for="" class="col-md-2 control-label">聯絡人:</label>
-                <div class="col-md-10">
-                    @Html.DisplayFor(m => m.CONTACT_NAME)
+                <label for="" class="col-md-2 control-label" style="padding-top:20px;">聯絡人:</label>
+                <div class="col-md-10" style="padding-top:20px;">
+                    @Html.DisplayFor(m => m.tndProject.CONTACT_NAME)
                 </div>
             </div>
             <div class="row">
-                <label for="" class="col-md-2 control-label">連絡電話:</label>
-                <div class="col-md-10">
-                    @Html.DisplayFor(m => m.CONTACT_TEL)
+                <label for="" class="col-md-2 control-label" style="padding-top:20px;">連絡電話:</label>
+                <div class="col-md-10" style="padding-top:20px;">
+                    @Html.DisplayFor(m => m.tndProject.CONTACT_TEL)
                 </div>
             </div>
             <div class="row">
-                <label for="" class="col-md-2 control-label">E-mail:</label>
-                <div class="col-md-10">
-                    @Html.DisplayFor(m => m.CONTACT_EMAIL)
+                <label for="" class="col-md-2 control-label" style="padding-top:20px;">E-mail:</label>
+                <div class="col-md-10" style="padding-top:20px;">
+                    @Html.DisplayFor(m => m.tndProject.CONTACT_EMAIL)
                 </div>
+            </div>
+            <div class="row" style="padding-top:10px;">
+                @{
+                    Html.RenderPartial("TaskDetails");
+                }
             </div>
         </div>
     </div>
-    <br /><br /><br />
+    <br />
     <div>
         <h3 class="bg-info">檔案上傳區</h3>
     </div>
