@@ -889,10 +889,48 @@ namespace topmeperp.Service
             return lstWage;
         }
     }
-    //提供成本分析資料
     public class CostAnalysisDataService : WageTableService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        public List<DirectCost> getDirectCost(string projectid)
+        {
+            List<DirectCost> lstDirecCost = null;
+            using (var context = new topmepEntities())
+            {
+                lstDirecCost = context.Database.SqlQuery<DirectCost>("SELECT " +
+                    "(select TYPE_CODE_1 + TYPE_CODE_2 from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE, " +
+                    "(select TYPE_DESC from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE_DESC ," +
+                    "(select SUB_TYPE_ID from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) T_SUB_CODE, " +
+                    "TYPE_CODE_2 SUB_CODE," +
+                    "(select TYPE_DESC from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) SUB_DESC," +
+                    "SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) MATERIAL_COST,SUM(ITEM_QUANTITY * RATIO) MAN_DAY,count(*) ITEM_COUNT " +
+                    "FROM (SELECT it.*, w.RATIO, w.PRICE FROM TND_PROJECT_ITEM it LEFT OUTER JOIN TND_WAGE w " +
+                    "ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID WHERE it.project_id = @projectid) A " +
+                    "GROUP BY TYPE_CODE_1, TYPE_CODE_2 ORDER BY TYPE_CODE_1,TYPE_CODE_2;",
+                    new SqlParameter("projectid", projectid)).ToList();
+
+                logger.Info("Get DirectCost Record Count=" + lstDirecCost.Count);
+            }
+            return lstDirecCost;
+        }
+        public List<SystemCost> getSystemCost(string projectid)
+        {
+            List<SystemCost> lstSystemCost = null;
+            using (var context = new topmepEntities())
+            {
+                lstSystemCost = context.Database.SqlQuery<SystemCost>("SELECT SYSTEM_MAIN,SYSTEM_SUB," +
+                    "SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) MATERIAL_COST, SUM(ITEM_QUANTITY * RATIO) MAN_DAY, count(*) ITEM_COUNT " +
+                    "FROM (SELECT it.*, w.RATIO, w.PRICE FROM TND_PROJECT_ITEM it LEFT OUTER JOIN TND_WAGE w " +
+                    "ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID " +
+                    "WHERE it.project_id = @projectid) A " +
+                    "GROUP BY SYSTEM_MAIN, SYSTEM_SUB " +
+                    "ORDER BY SYSTEM_MAIN, SYSTEM_SUB;",
+                    new SqlParameter("projectid", projectid)).ToList();
+
+                logger.Info("Get SystemCost Record Count=" + lstSystemCost.Count);
+            }
+            return lstSystemCost;
+        }
     }
     //詢價單資料提供作業
     public class InquiryFormService : TnderProject
