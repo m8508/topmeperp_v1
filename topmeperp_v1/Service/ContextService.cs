@@ -31,7 +31,6 @@ namespace topmeperp.Service
                 var cmd = context.Database.Connection.CreateCommand();
                 cmd.CommandType = commandType;
                 cmd.CommandText = sql;
-
                 // adds all parameters
                 foreach (var pr in parameters)
                 {
@@ -40,7 +39,6 @@ namespace topmeperp.Service
                     p.Value = pr.Value;
                     cmd.Parameters.Add(p);
                 }
-
                 try
                 {
                     // executes
@@ -66,7 +64,6 @@ namespace topmeperp.Service
             // returns the DataSet
             return result;
         }
-
     }
     /// <summary>
     /// System User service
@@ -1060,6 +1057,55 @@ namespace topmeperp.Service
                 logger.Info("Get ComparisonData Count=" + lst.Count);
             }
             return lst;
+        }
+        public DataTable getComparisonDataToPivot(string projectid, string typecode1, string typecode2, string systemMain, string systemSub)
+        {
+
+            string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PROJECT_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
+                "(SELECT SUPPLIER_ID FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID) as SUPPLIER_NAME, " +
+                "pitem.ITEM_UNIT_PRICE 單價,fitem.ITEM_UNIT_PRICE " +
+                "from TND_PROJECT_ITEM pitem " +
+                "left join TND_PROJECT_FORM_ITEM fitem " +
+                " on pitem.PROJECT_ITEM_ID = fitem.PROJECT_ITEM_ID " +
+                "where pitem.PROJECT_ID = @projectid ";
+
+            var parameters = new Dictionary<string, Object>();
+            //設定專案名編號資料
+            parameters.Add("projectid", projectid);
+            //九宮格條件
+            if (null != typecode1 && "" != typecode1)
+            {
+                //sql = sql + " AND pItem.TYPE_CODE_1='"+ typecode1 + "'";
+                sql = sql + " AND pItem.TYPE_CODE_1=@typecode1";
+                parameters.Add("typecode1", typecode1);
+            }
+            //次九宮格條件
+            if (null != typecode2 && "" != typecode2)
+            {
+                //sql = sql + " AND pItem.TYPE_CODE_2='" + typecode2 + "'";
+                sql = sql + " AND pItem.TYPE_CODE_2=@typecode2";
+                parameters.Add("typecode2", typecode2);
+            }
+            //主系統條件
+            if (null != systemMain && "" != systemMain)
+            {
+                // sql = sql + " AND pItem.SYSTEM_MAIN='" + systemMain + "'";
+                sql = sql + " AND pItem.SYSTEM_MAIN=@systemMain";
+                parameters.Add("systemMain", systemMain);
+            }
+            //次系統條件
+            if (null != systemSub && "" != systemSub)
+            {
+                //sql = sql + " AND pItem.SYSTEM_SUB='" + systemSub + "'";
+                sql = sql + " AND pItem.SYSTEM_SUB=@systemSub";
+                parameters.Add("systemSub", systemSub);
+            }
+            sql = sql + ") souce pivot(MIN(ITEM_UNIT_PRICE) FOR SUPPLIER_NAME IN([供應商123],[供應商456])) as pvt ORDER BY 行數; ";
+
+            logger.Info("comparison data sql=" + sql);
+            DataSet ds = ExecuteStoreQuery(sql, CommandType.Text, parameters);
+            //Pivot pvt = new Pivot(ds.Tables[0]);
+            return ds.Tables[0];
         }
         //取得專案詢價單樣板(供應商欄位為0)
         public List<TND_PROJECT_FORM> getFormTemplateByProject(string projectid)
