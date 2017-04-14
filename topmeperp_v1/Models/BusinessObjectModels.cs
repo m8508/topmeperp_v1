@@ -75,6 +75,7 @@ namespace topmeperp.Models
         public string FORM_ID { get; set; }
         //供應商名稱
         public string SUPPLIER_NAME { get; set; }
+        public Nullable<decimal> TAmount { get; set; }
     }
     public class SupplierManageModels
     {

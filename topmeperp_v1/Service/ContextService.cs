@@ -16,6 +16,7 @@ namespace topmeperp.Service
 {
     public class ContextService
     {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public topmepEntities db;// = new topmepEntities();
         //定義上傳檔案存放路徑
         public static string strUploadPath = ConfigurationManager.AppSettings["UploadFolder"];
@@ -31,6 +32,7 @@ namespace topmeperp.Service
                 var cmd = context.Database.Connection.CreateCommand();
                 cmd.CommandType = commandType;
                 cmd.CommandText = sql;
+                logger.Info("sql=" + sql);
                 // adds all parameters
                 foreach (var pr in parameters)
                 {
@@ -44,7 +46,6 @@ namespace topmeperp.Service
                     // executes
                     context.Database.Connection.Open();
                     var reader = cmd.ExecuteReader();
-
                     // loop through all resultsets (considering that it's possible to have more than one)
                     do
                     {
@@ -955,6 +956,7 @@ namespace topmeperp.Service
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public TND_PROJECT_FORM formInquiry = null;
         public List<TND_PROJECT_FORM_ITEM> formInquiryItem = null;
+        public Dictionary<string, COMPARASION_DATA> dirSupplierQuo=null;
         public string message = "";
         //取得詢價單
         public void getInqueryForm(string formid)
@@ -1010,11 +1012,12 @@ namespace topmeperp.Service
         public List<COMPARASION_DATA> getComparisonData(string projectid, string typecode1, string typecode2, string systemMain, string systemSub)
         {
             List<COMPARASION_DATA> lst = new List<COMPARASION_DATA>();
-            string sql = "SELECT  DISTINCT pfItem.FORM_ID AS FORM_ID,"
-                + "(SELECT SUPPLIER_ID  FROM TND_PROJECT_FORM pf WHERE pf.FORM_ID=pfItem.FORM_ID) as SUPPLIER_NAME "
-                + "FROM TND_PROJECT_ITEM pItem LEFT OUTER JOIN "
-                + "TND_PROJECT_FORM_ITEM pfItem ON pItem.PROJECT_ITEM_ID = pfItem.PROJECT_ITEM_ID WHERE pItem.PROJECT_ID=@projectid ";
-
+            string sql = "SELECT  pfItem.FORM_ID AS FORM_ID, " +
+                "SUPPLIER_ID as SUPPLIER_NAME,SUM(pfitem.ITEM_UNIT_PRICE) as TAmount " +
+                "FROM TND_PROJECT_ITEM pItem LEFT OUTER JOIN " +
+                "TND_PROJECT_FORM_ITEM pfItem ON pItem.PROJECT_ITEM_ID = pfItem.PROJECT_ITEM_ID " +
+                "inner join TND_PROJECT_FORM f on pfItem.FORM_ID = f.FORM_ID " +
+                "WHERE pItem.PROJECT_ID = @projectid AND SUPPLIER_ID is not null ";
             var parameters = new List<SqlParameter>();
             //設定專案名編號資料
             parameters.Add(new SqlParameter("projectid", projectid));
@@ -1046,7 +1049,7 @@ namespace topmeperp.Service
                 sql = sql + " AND pItem.SYSTEM_SUB=@systemSub";
                 parameters.Add(new SqlParameter("systemSub", systemSub));
             }
-
+            sql=sql + " GROUP BY pfItem.FORM_ID ,SUPPLIER_ID;";
             logger.Info("comparison data sql=" + sql);
             using (var context = new topmepEntities())
             {
@@ -1056,6 +1059,7 @@ namespace topmeperp.Service
             }
             return lst;
         }
+        //比價資料
         public DataTable getComparisonDataToPivot(string projectid, string typecode1, string typecode2, string systemMain, string systemSub)
         {
 
@@ -1100,6 +1104,12 @@ namespace topmeperp.Service
             }
             //取的欄位維度條件
             List<COMPARASION_DATA> lstSuppluerQuo = getComparisonData( projectid,  typecode1,  typecode2,  systemMain,  systemSub);
+            if (lstSuppluerQuo.Count == 0)
+            {
+                throw new Exception("相關條件沒有任何報價資料!!");
+            }
+            //設定供應商報價資料，供前端畫面調用
+            dirSupplierQuo = new Dictionary<string, COMPARASION_DATA>();
             string dimString = "";
             foreach (var it in lstSuppluerQuo)
             {
@@ -1112,7 +1122,10 @@ namespace topmeperp.Service
                 {
                     dimString = dimString + ",[" + it.SUPPLIER_NAME + "|" + it.FORM_ID + "]";
                 }
+                //設定供應商報價資料，供前端畫面調用
+                dirSupplierQuo.Add(it.FORM_ID, it);
             }
+
             logger.Debug("dimString=" + dimString);
             sql = sql + ") souce pivot(MIN(ITEM_UNIT_PRICE) FOR SUPPLIER_NAME IN("+ dimString+ ")) as pvt ORDER BY 行數; ";
 

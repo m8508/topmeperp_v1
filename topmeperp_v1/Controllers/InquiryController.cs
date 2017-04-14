@@ -142,7 +142,7 @@ namespace topmeperp.Controllers
         public string UpdatePrjForm(FormCollection form)
         {
             log.Info("form:" + form.Count);
-            
+
             return "還沒好";
         }
 
@@ -247,65 +247,77 @@ namespace topmeperp.Controllers
             //傳入查詢條件
             log.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"]);
             //取得備標品項與詢價資料
-            DataTable dt = service.getComparisonDataToPivot(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
-            @ViewBag.ResultMsg = "共" + dt.Rows.Count + "筆";
-            string htmlString = "<table class='table table-bordered'><tr>";
-            //處理表頭
-            for (int i = 1; i < 6; i++)
+            try
             {
-                log.Debug("column name=" + dt.Columns[i].ColumnName);
-                htmlString = htmlString + "<th>" + dt.Columns[i].ColumnName + "</th>";
-            }
-            //處理供應商表頭
-            for (int i = 6; i < dt.Columns.Count; i++)
-            {
-                log.Debug("column name=" + dt.Columns[i].ColumnName);
-                string[] tmpString = dt.Columns[i].ColumnName.Split('|');
-                //<a href="/Inquiry/SinglePrjForm/@item.FORM_ID" target="_blank">@item.FORM_ID</a>
-                htmlString = htmlString + "<th>" + tmpString[0] +
-                    "<button type='button' class='btn-xs' onclick=\"clickSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>" +
-                    "<button type='button' class='btn-xs'><a href='/Inquiry/SinglePrjForm/" + tmpString[1] + "'" + " target='_blank'><span class='glyphicon glyphicon-list-alt' aria-hidden='true'></span></a>" +
-                    "</button>";
-            }
-            htmlString = htmlString + "</tr>";
-            //處理資料表
-            foreach (DataRow dr in dt.Rows)
-            {
-                htmlString = htmlString + "<tr>";
-                for (int i = 1; i < 5; i++)
+                DataTable dt = service.getComparisonDataToPivot(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
+                @ViewBag.ResultMsg = "共" + dt.Rows.Count + "筆";
+                string htmlString = "<table class='table table-bordered'><tr>";
+                //處理表頭
+                for (int i = 1; i < 6; i++)
                 {
-                    htmlString = htmlString + "<td>" + dr[i] + "</td>";
+                    log.Debug("column name=" + dt.Columns[i].ColumnName);
+                    htmlString = htmlString + "<th>" + dt.Columns[i].ColumnName + "</th>";
                 }
-                //單價欄位  <input type='text' id='cost_@item.PROJECT_ITEM_ID' name='cost_@item.PROJECT_ITEM_ID' size='5' />
-                //decimal price = decimal.Parse(dr[5].ToString());
-                if (dr[5].ToString() != "")
-                {
-                    log.Debug("data row col 5=" + (decimal)dr[5]);
-                    htmlString = htmlString + "<td><input type='text' id='cost_" + dr[1] + "' name='cost_" + dr[1] + "' size='5' value='" + String.Format("{0:N0}", (decimal)dr[5]) + "' /></td>";
-                }
-                else
-                {
-                    htmlString = htmlString + "<td></td>";
-                }
-                //String.Format("{0:C}", 0);
-                //處理報價資料
+                //處理供應商表頭
+                Dictionary<string, COMPARASION_DATA> dirSupplierQuo = service.dirSupplierQuo;
                 for (int i = 6; i < dt.Columns.Count; i++)
                 {
-                    //<td><button class="btn-link" onclick="clickPrice('@item.PROJECT_ITEM_ID', '@item.QUOTATION_PRICE')">@item.QUOTATION_PRICE</button> </td>
-                    if (dr[i].ToString() != "")
+                    log.Debug("column name=" + dt.Columns[i].ColumnName);
+                    string[] tmpString = dt.Columns[i].ColumnName.Split('|');
+                    //<a href="/Inquiry/SinglePrjForm/@item.FORM_ID" target="_blank">@item.FORM_ID</a>
+                    decimal tAmount = (decimal)dirSupplierQuo[tmpString[1]].TAmount;
+
+                    htmlString = htmlString + "<th>" + tmpString[0] + "(" + tAmount + ")" +
+                        "<button type='button' class='btn-xs' onclick=\"clickSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>" +
+                        "<button type='button' class='btn-xs'><a href='/Inquiry/SinglePrjForm/" + tmpString[1] + "'" + " target='_blank'><span class='glyphicon glyphicon-list-alt' aria-hidden='true'></span></a>" +
+                        "</button>";
+                }
+                htmlString = htmlString + "</tr>";
+                //處理資料表
+                foreach (DataRow dr in dt.Rows)
+                {
+                    htmlString = htmlString + "<tr>";
+                    for (int i = 1; i < 5; i++)
                     {
-                        htmlString = htmlString + "<td><button class='btn-link' onclick=\"clickPrice('" + dr[1] + "', '" + dr[i] + "')\">" + String.Format("{0:N0}", (decimal)dr[i]) + "</button> </td>";
-                    }else
+                        htmlString = htmlString + "<td>" + dr[i] + "</td>";
+                    }
+                    //單價欄位  <input type='text' id='cost_@item.PROJECT_ITEM_ID' name='cost_@item.PROJECT_ITEM_ID' size='5' />
+                    //decimal price = decimal.Parse(dr[5].ToString());
+                    if (dr[5].ToString() != "")
+                    {
+                        log.Debug("data row col 5=" + (decimal)dr[5]);
+                        htmlString = htmlString + "<td><input type='text' id='cost_" + dr[1] + "' name='cost_" + dr[1] + "' size='5' value='" + String.Format("{0:N0}", (decimal)dr[5]) + "' /></td>";
+                    }
+                    else
                     {
                         htmlString = htmlString + "<td></td>";
                     }
+                    //String.Format("{0:C}", 0);
+                    //處理報價資料
+                    for (int i = 6; i < dt.Columns.Count; i++)
+                    {
+                        //<td><button class="btn-link" onclick="clickPrice('@item.PROJECT_ITEM_ID', '@item.QUOTATION_PRICE')">@item.QUOTATION_PRICE</button> </td>
+                        if (dr[i].ToString() != "")
+                        {
+                            htmlString = htmlString + "<td><button class='btn-link' onclick=\"clickPrice('" + dr[1] + "', '" + dr[i] + "')\">" + String.Format("{0:N0}", (decimal)dr[i]) + "</button> </td>";
+                        }
+                        else
+                        {
+                            htmlString = htmlString + "<td></td>";
+                        }
+                    }
+                    htmlString = htmlString + "</tr>";
                 }
-                htmlString = htmlString + "</tr>";
+                htmlString = htmlString + "</table>";
+                //產生畫面
+                IHtmlString str = new HtmlString(htmlString);
+                ViewBag.htmlString = str;
             }
-            htmlString = htmlString + "</table>";
-            //產生畫面
-            IHtmlString str = new HtmlString(htmlString);
-            ViewBag.htmlString = str;
+            catch (Exception e)
+            {
+                log.Error("Ex" + e.Message);
+                ViewBag.htmlString = e.Message;
+            }
             return PartialView();
         }
         //更新單項成本資料
