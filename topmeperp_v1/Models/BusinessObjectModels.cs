@@ -69,15 +69,11 @@ namespace topmeperp.Models
         public TND_PROJECT_FORM prjForm { get; set; }
         public IEnumerable<TND_PROJECT_FORM_ITEM> prjFormItem { get; set; }
     }
-    public class COMPARASION_DATA:TND_PROJECT_ITEM
+    public class COMPARASION_DATA
     {
         //報價單編號
         public string FORM_ID { get; set; }
-        //供應商報價
-        public Nullable<decimal> QUOTATION_PRICE { get; set; }
-        //供應商提供數量(理論上同詢價單價格)
-        public Nullable<decimal> OFFER_QTY { get; set; }
-        //供應商名稱(尚未由供應商主檔取得)，需另外調整
+        //供應商名稱
         public string SUPPLIER_NAME { get; set; }
     }
     public class SupplierManageModels
