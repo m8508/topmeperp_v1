@@ -264,8 +264,8 @@ namespace topmeperp.Controllers
                 //<a href="/Inquiry/SinglePrjForm/@item.FORM_ID" target="_blank">@item.FORM_ID</a>
                 htmlString = htmlString + "<th>" + tmpString[0] +
                     "<button type='button' class='btn-xs' onclick=\"clickSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>" +
-                    "<a href='/Inquiry/SinglePrjForm/" + tmpString[1] + "'" + " target='_blank' class='btn-sm' ><span class='glyphicon glyphicon-list-alt' aria-hidden='true'></a>" +
-                    "</span></button>";
+                    "<button type='button' class='btn-xs'><a href='/Inquiry/SinglePrjForm/" + tmpString[1] + "'" + " target='_blank'><span class='glyphicon glyphicon-list-alt' aria-hidden='true'></span></a>" +
+                    "</button>";
             }
             htmlString = htmlString + "</tr>";
             //處理資料表
