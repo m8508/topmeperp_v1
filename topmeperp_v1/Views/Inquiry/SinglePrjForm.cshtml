@@ -3,7 +3,9 @@
     ViewBag.Title = "備標作業-詢價單/報價單 ";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
-@using (Html.BeginForm("UpdatePrjForm", "Inquiry", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post))
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" href="/resources/demos/style.css">
+@using (Html.BeginForm("GetSupplierInfo", "Inquiry", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post))
 {
     <div class="page-header">
 
@@ -95,6 +97,7 @@
                 <div class="col-md-4">
                     <input type="text" class="form-control" id="inputownerfax" value="@Model.prjForm.OWNER_FAX">
                 </div>
+                @Html.HiddenFor(m => m.prjForm.PROJECT_ID, new { id = @Model.prjForm.PROJECT_ID })
             </div>
         </div>
     </div>
@@ -109,7 +112,13 @@
         </div>
     </!--div>
         -->
+
             }
+<div class="row">
+    <div class="" col-md-12">
+        <input type="button" value="儲存" class="btn btn-default" id="saveForm"" />
+    </div>
+</div>
 <script>
     $(document).ready(function () {
         $(function () {
@@ -119,23 +128,6 @@
         });
     })
 </script>
-<script>
-    $(function () {
-        $("#inputsuppliername").keyup(
-                    function () {
-                        $(this).doTimeout("findinputcontact",
-                            1000, function () {
-                                $.get(
-                                    "DataSrc.ashx",
-                                    { key: $(this).val() },
-                                    function (res) {
-                                        $("#inputcontact").val(res);
-                                    });
-                            });
-                    });
-    });
-
-</script>
 <script type="text/javascript">
     $(document).ready(function () {
         $('#Supplier').change(function (e) {
@@ -143,13 +135,43 @@
             SupplierChangeEventHandler();
         });
         //將 Supplier下拉選單給置換為 Autocomplete Combobox
-        $("#Supplier").combobox();
+        $("#Supplier").combobox({
+            panelHeight: '80px',
+            panelWidth: 250
+        });
     });
-    function SupplierChangeEventHandler() {
-        var selectedValue = $('#Supplier option:selected').val();
-        if ($.trim(selectedValue).length > 0) {
-            GetSupplierInfo($.trim(selectedValue));
-        }
+    $("#saveForm").click(function () {
+        var URLs = "addSupplierForm";
+        $.ajax({
+            url: URLs,
+            data: $('#formUser').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    });
+
+    function Getinputcontact(SUPPLIER_ID) {
+        alert('submit');
+        $.ajax({
+            url: '@Url.Action("GetSupplierInfo", "Inquiry")',
+            data: { SUPPLIER_ID: SUPPLIER_ID },
+            type: 'post',
+            cache: false,
+            async: false,
+            dataType: 'json',
+            success: function (data) {
+                if (data.length > 0) {
+                    $('#inputcontact').empty();
+                    $('#inputcontact').json(data);
+                }
+            }
+        });
     }
     (function ($) {
         $.widget("ui.combobox", {
@@ -206,7 +228,7 @@
                                          "(?![^&;]+;)(?!<[^<>]*)(" +
                                         $.ui.autocomplete.escapeRegex(request.term) +
                                          ")(?![^<>]*>)(?![^&;]+;)", "gi"
-                                          ), "<strong>$1</strong>"),
+                                          ), "$1"),
                                         value: text,
                                         option: this
                                     };
@@ -277,3 +299,6 @@
         });
     })(jQuery);
 </script>
+
+
+
