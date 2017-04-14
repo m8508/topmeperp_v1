@@ -94,9 +94,54 @@ namespace topmeperp.Controllers
             ViewBag.Supplier = selectSupplier;
             return View(singleForm);
         }
+        // 新增供應商詢價單
+        public String addSupplierForm(FormCollection form)
+        {
+            log.Info("form:" + form.Count);
+            TnderProject s = new TnderProject();
+            string msg = "";
+            // 取得供應商詢價單資料
+            TND_PROJECT_FORM fm = new TND_PROJECT_FORM();
+            fm.FORM_NAME = form.Get("inputitem").Trim();
+            fm.CONTACT_EMAIL = form.Get("inputemail").Trim();
+            fm.CONTACT_NAME = form.Get("inputcontact").Trim();
+            fm.PROJECT_ID = form.Get("id").Trim();
+            fm.DUEDATE = Convert.ToDateTime(form.Get("inputdateline"));
+            fm.OWNER_NAME = form.Get("inputowner").Trim();
+            fm.OWNER_TEL = form.Get("inputphone").Trim();
+            fm.OWNER_FAX = form.Get("inputownerfax").Trim();
+            fm.OWNER_EMAIL = form.Get("inputowneremail").Trim();
+            SYS_USER loginUser = (SYS_USER)Session["user"];
+            fm.CREATE_ID = loginUser.USER_ID;
+            fm.CREATE_DATE = DateTime.Now;
+            int i = service.addNewSupplierForm(fm);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "新增供應商詢價單成功";
+            }
+
+            log.Info("Request:FORM_ID=" + form["inputitem"]);
+            return msg;
+        }
+
+        // 取得某一供應商基本資料
+        public string getSupplier(string supplierid)
+        {
+            log.Info("get supplier id=" + supplierid);
+            TND_SUPPLIER s = service.getSupplier(supplierid);
+            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            string supplierJson = objSerializer.Serialize(s);
+            log.Info("supplier info=" + supplierJson);
+            return supplierJson;
+        }
         public string UpdatePrjForm(FormCollection form)
         {
-            log.Info("Not Yet!!");
+            log.Info("form:" + form.Count);
+            
             return "還沒好";
         }
 

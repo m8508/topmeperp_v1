@@ -449,6 +449,26 @@ namespace topmeperp.Service
             logger.Info("get projectitem count=" + lstItem.Count);
             return lstItem;
         }
+        TND_PROJECT_FORM supplierform = null;
+        public int newSupplierForm(TND_PROJECT_FORM sf)
+        {
+            //1.建立廠商詢價單
+            logger.Info("create new supplier form ");
+            string sno_key = "PO";
+            supplierform = sf;
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                //2.取得廠商詢價單編號
+                SerialKeyService snoservice = new SerialKeyService();
+                supplierform.FORM_ID = snoservice.getSerialKey(sno_key);
+                logger.Info("new supplier form object=" + supplierform.ToString());
+                context.TND_PROJECT_FORM.Add(supplierform);
+                i = context.SaveChanges();
+                logger.Debug("Add supplier form =" + i);
+            }
+            return i;
+        }
 
         #region 設備清單圖算數量  
         //設備清單圖算數量  
@@ -900,6 +920,7 @@ namespace topmeperp.Service
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public TND_PROJECT_FORM formInquiry = null;
         public List<TND_PROJECT_FORM_ITEM> formInquiryItem = null;
+        public string message = "";
         //取得詢價單
         public void getInqueryForm(string formid)
         {
@@ -945,7 +966,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 //取得供應商選單
-                lst = context.Database.SqlQuery<string>("SELECT DISTINCT COMPANY_NAME FROM TND_SUPPLIER ;").ToList();
+                lst = context.Database.SqlQuery<string>("SELECT (SELECT SUPPLIER_ID + '' + COMPANY_NAME FROM TND_SUPPLIER s2 WHERE s2.SUPPLIER_ID = s1.SUPPLIER_ID for XML PATH('')) AS suppliers FROM TND_SUPPLIER s1 ;").ToList();
                 logger.Info("Get Supplier Count=" + lst.Count);
             }
             return lst;
@@ -1070,6 +1091,56 @@ namespace topmeperp.Service
                 i = context.SaveChanges();
             }
             return i;
+        }
+        //新增供應商詢價單
+        public int addNewSupplierForm(TND_PROJECT_FORM sf)
+        {
+            string message = "";
+            string sno_key = "PO";
+            SerialKeyService snoservice = new SerialKeyService();
+            sf.FORM_ID = snoservice.getSerialKey(sno_key);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.TND_PROJECT_FORM.AddOrUpdate(sf);
+                    i = context.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    logger.Error("add new supplier form id fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return i;
+        }
+        //取得供應商資料
+        public TND_SUPPLIER getSupplier(string supplierid)
+        {
+            logger.Debug("get supplier by id=" + supplierid);
+            TND_SUPPLIER s = null;
+            using (var context = new topmepEntities())
+            {
+                //設定此2參數，以便取消關聯物件，讓JSON 可以運作
+                // Disable lazy loading
+                context.Configuration.LazyLoadingEnabled = false;
+                // Disable proxies
+                context.Configuration.ProxyCreationEnabled = false;
+                //設定SQL
+                string esql = @"SELECT * FROM TND_SUPPLIER s WHERE s.SUPPLIER_ID=@supplierid";
+                try
+                {
+                    s = context.TND_SUPPLIER.SqlQuery(esql, new SqlParameter("supplierid", supplierid)).First();
+                }
+                catch (Exception e)
+                {
+                    logger.Error(e);
+                }
+            }
+            return s;
         }
         //由報價單資料更新標單資料
         public int updateCostFromQuote(string projectItemid, decimal price)
