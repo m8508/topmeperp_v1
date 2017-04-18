@@ -25,7 +25,7 @@ namespace topmeperp.Controllers
         // GET: /Home/Login
         [AllowAnonymous]
         //List<SYS_FUNCTION> functions = null;
-       
+
         public ActionResult Login(string returnUrl)
         {
             log.Info("log4net test Login by get!!");
@@ -51,16 +51,26 @@ namespace topmeperp.Controllers
                 ViewBag.ErrorMessage = "帳號密碼有誤，請洽系統管理者!!";
                 return View();
 
-            } 
+            }
             else
             {
                 //3.登入成功導入功能主畫面
                 log.Info("Login Success by :" + model.USER_ID);
                 List<SYS_FUNCTION> lst = (List<SYS_FUNCTION>)Session["functions"];
-                log.Debug("redirec to first function=" + lst[0].FUNCTION_URI);
-                return Redirect(lst[0].FUNCTION_URI);
+                //4.假如沒有授權資料，導回登入頁說明錯誤訊息
+                if (null == lst || lst.Count == 0)
+                {
+                    log.Info("not privilege");
+                    ViewBag.ErrorMessage = "您的權限有問題，請洽系統管理者!!";
+                    return View();
+                }
+                else
+                {
+                    log.Debug("redirec to first function=" + lst[0].FUNCTION_URI);
+                    return Redirect(lst[0].FUNCTION_URI);
+                }
             }
-          
+
         }
 
         private void getPrivilegeByUser(String userid, String passwd)
@@ -68,7 +78,7 @@ namespace topmeperp.Controllers
             u = new UserService();
             u.Login(userid, passwd);
             Session.Add("user", u.loginUser);
-            Session.Add("functions", u.userPrivilege);   
+            Session.Add("functions", u.userPrivilege);
         }
         public ActionResult Logout()
         {
