@@ -277,16 +277,13 @@ namespace topmeperp.Controllers
             return "更新成功!!";
         }
         //成本分析
-        public ActionResult costAnalysis()
-        {
-            return View();
-        }
-        [HttpPost]
         public ActionResult costAnalysis(string id)
         {
+            ViewBag.projectid = id;
             log.Info("Cost Analysis for projectid=" + id);
             CostAnalysisOutput excel = new CostAnalysisOutput();
             excel.exportExcel(id);
+            ViewBag.url = "/UploadFile/" + id + "/" + id + "_CostAnalysis.xlsx";
             return View();
         }
     }
