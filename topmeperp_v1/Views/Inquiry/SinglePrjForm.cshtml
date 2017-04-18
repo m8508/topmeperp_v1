@@ -5,9 +5,9 @@
 }
 <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 <link rel="stylesheet" href="/resources/demos/style.css">
-@using (Html.BeginForm("GetSupplierInfo", "Inquiry", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post))
-{
-    <div class="page-header">
+<div class="page-header">
+    <form id="formSupplier" name="formSupplier" action="UpdatePrjForm" method="post">
+
 
         <div class="row">
             <div class="col-md-12"><h3 class="text-center">協成水電工程事業有限公司-採購詢價單</h3></div>
@@ -24,7 +24,14 @@
             <div class="form-group">
                 <label for="inputsuppliername" class="col-md-2 control-label">廠商名稱 </label>
                 <div class="col-md-4 ">
-                    @Html.DropDownList("Supplier", (IEnumerable<SelectListItem>)ViewBag.Supplier, String.Empty, new { @class = "form-control selectpicker" })
+                    @if (Model.prjForm.SUPPLIER_ID != null)
+                    {
+                        @Model.prjForm.SUPPLIER_ID
+                    }
+                    else
+                    {
+                        @Html.DropDownList("Supplier", (IEnumerable<SelectListItem>)ViewBag.Supplier, String.Empty, new { id = "Supplier", @class = "easyui-combobox" })
+                    }
                 </div>
             </div>
         </div>
@@ -32,13 +39,27 @@
             <div class="form-group">
                 <label for="inputitem" class="col-md-2 control-label">採購項目</label>
                 <div class="col-md-4">
-                    <input type="text" class="form-control" id="inputitem" value="@Model.prjForm.FORM_NAME">
+                    @if (Model.prjForm.FORM_NAME != null)
+                    {
+                        @Model.prjForm.FORM_NAME
+                    }
+                    else
+                    {
+                        <input type="text" id="formname" name="formname" class="form-control" />
+                    }
                 </div>
             </div>
             <div class="form-group">
                 <label for="inputcontact" class="col-md-2 control-label">聯絡人</label>
                 <div class="col-md-4">
-                    <input type="text" class="form-control" id="inputcontact" style="background: #CCC">
+                    @if (Model.prjForm.CONTACT_NAME != null)
+                    {
+                        @Model.prjForm.CONTACT_NAME
+                    }
+                    else
+                    {
+                        <input type="text" class="form-control" id="inputemail" style="background: #CCC" readonly="readonly">
+                    }
                 </div>
             </div>
         </div>
@@ -46,13 +67,20 @@
             <div class="form-group">
                 <label for="inputowner" class="col-md-2 control-label">承辦人</label>
                 <div class="col-md-4">
-                    <input type="text" class="form-control" id="inputowner" value="@Model.prjForm.OWNER_NAME">
+                    <input type="text" class="form-control" name="inputowner" id="inputowner" value="@Model.prjForm.OWNER_NAME">
                 </div>
             </div>
             <div class="form-group">
                 <label for="inputemail" class="col-md-2 control-label">E-mail</label>
                 <div class="col-md-4">
-                    <input type="text" class="form-control" id="inputemail" style="background: #CCC">
+                    @if (Model.prjForm.CONTACT_EMAIL != null)
+                    {
+                        @Model.prjForm.CONTACT_EMAIL
+                    }
+                    else
+                    {
+                        <input type="text" class="form-control" id="inputemail" style="background: #CCC" readonly="readonly">
+                    }
                 </div>
             </div>
         </div>
@@ -60,7 +88,7 @@
             <div class="form-group">
                 <label for="inputphone" class=col-md-2 control-label">聯絡電話</label>
                 <div class="col-md-4">
-                    <input type="text" class="form-control" id="inputphone" value="@Model.prjForm.OWNER_TEL">
+                    <input type="text" class="form-control" name="inputphone" id="inputphone" value="@Model.prjForm.OWNER_TEL">
                 </div>
             </div>
             <div class="form-group">
@@ -68,11 +96,11 @@
                 <div class="col-md-4">
                     @if (Model.prjForm.DUEDATE != null)
                     {
-                        <input type="text" class="form-control" id="inputdateline" value='@Model.prjForm.DUEDATE.Value.ToString("yyyy/MM/dd")'>
+                        <input type="text" class="form-control" name="inputdateline" id="inputdateline" value="@Model.prjForm.DUEDATE.Value.ToString("yyyy/MM/dd")">
                     }
                     else
                     {
-                        <input type="text" class="form-control" id="inputdateline" value="">
+                        <input type="text" class="form-control" name="inputdateline" id="inputdateline" value="">
                     }
                 </div>
             </div>
@@ -81,13 +109,13 @@
             <div class="form-group">
                 <label for="inputowneremail" class="col-md-2 control-label">承辦人E-mail</label>
                 <div class="col-md-4">
-                    <input type="text" class="form-control" id="inputowneremail" value="@Model.prjForm.OWNER_EMAIL">
+                    <input type="text" class="form-control" name="inputowneremail" id="inputowneremail" value="@Model.prjForm.OWNER_EMAIL">
                 </div>
             </div>
             <div class="form-group">
                 <label for="inputformnumber" class="col-md-2 control-label">詢價單編號</label>
                 <div class="col-md-4">
-                    <input type="text" class="form-control" id="inputformnumber" value="@Model.prjForm.FORM_ID">
+                    @Model.prjForm.FORM_ID
                 </div>
             </div>
         </div>
@@ -95,30 +123,87 @@
             <div class="form-group">
                 <label for="inputownerfax" class="col-md-2 control-label">承辦人傳真</label>
                 <div class="col-md-4">
-                    <input type="text" class="form-control" id="inputownerfax" value="@Model.prjForm.OWNER_FAX">
+                    <input type="text" class="form-control" name="inputownerfax" id="inputownerfax" value="@Model.prjForm.OWNER_FAX">
                 </div>
-                @Html.HiddenFor(m => m.prjForm.PROJECT_ID, new { id = @Model.prjForm.PROJECT_ID })
+                <input type="hidden" name="projectid" id="projectid" value="@Model.prjForm.PROJECT_ID" />
+
             </div>
         </div>
-    </div>
-    <div class="contailer">
-        @{
-            Html.RenderPartial("_SinglePrjForm");
-        }
-    </div>
-    <!--div class="row">
-        <div class="col-md-12">
-            <input class="btn btn-info" id="Submit2" type="button" value="" />
-        </div>
-    </!--div>
-        -->
+        <br/><br />
+        <div class="contailer">
+            <table class="table">
+                <tr>
+                    <th>
+                        No.
+                    </th>
+                    <th>
+                        項次
+                    </th>
+                    <th>
+                        項目說明
+                    </th>
+                    <th>
+                        單位
+                    </th>
+                    <th>
+                        數量
+                    </th>
+                    <th>
+                        單價
+                    </th>
+                    <th>
+                        複價
+                    </th>
+                    <th>
+                        備註
+                    </th>
 
-            }
+                </tr>
+                @foreach (var item in Model.prjFormItem)
+                {
+
+                    <tr>
+                        <td>
+                            @Html.TextBox("formitemid", @item.FORM_ITEM_ID, new { style = "width:50px" })
+                        </td>
+                        <td>
+                            @item.PROJECT_ITEM_ID
+                        </td>
+                        <td>
+                            @item.ITEM_DESC
+                        </td>
+                        <td>
+                            @item.ITEM_UNIT
+                        </td>
+                        <td>
+                            @item.ITEM_QTY
+                        </td>
+                        <td>
+                            <input type="text" name="formunitprice" id="formunitprice" value="@item.ITEM_UNIT_PRICE" style="width:100px" />
+                        </td>
+
+                        <td></td>
+                        <td>@item.ITEM_REMARK</td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </form>
+</div>
+<!--div class="row">
+    <div class="col-md-12">
+        <input class="btn btn-info" id="Submit2" type="button" value="" />
+    </div>
+</!--div>
+    -->
+
+
 <div class="row">
     <div class="" col-md-12">
-        <input type="button" value="儲存" class="btn btn-default" id="saveForm"" />
+        <input type="button" value="儲存" class="btn btn-default" id="saveForm" />
     </div>
 </div>
+
 <script>
     $(document).ready(function () {
         $(function () {
@@ -137,22 +222,7 @@
         //將 Supplier下拉選單給置換為 Autocomplete Combobox
         $("#Supplier").combobox({
             panelHeight: '80px',
-            panelWidth: 250
-        });
-    });
-    $("#saveForm").click(function () {
-        var URLs = "addSupplierForm";
-        $.ajax({
-            url: URLs,
-            data: $('#formUser').serialize(),
-            type: "POST",
-            dataType: 'text',
-            success: function (msg) {
-                alert(msg);
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert(thrownError);
-            }
+            panelWidth: 350
         });
     });
 
@@ -299,6 +369,21 @@
         });
     })(jQuery);
 </script>
-
+<script type="text/javascript">
+    $("#saveForm").click(function () {
+        $.ajax({
+            url: '@Url.Action("UpdatePrjForm", "Inquiry")',
+            data: $('#formSupplier').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    });
+</script>
 
 
