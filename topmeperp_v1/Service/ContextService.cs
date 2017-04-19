@@ -515,7 +515,43 @@ namespace topmeperp.Service
             }
             return sf.FORM_ID;
         }
+        //更新廠商詢價單資料
+        public int refreshSupplierForm(string formid, TND_PROJECT_FORM sf, List<TND_PROJECT_FORM_ITEM> lstItem)
+        {
+            logger.Info("Update supplier inquiry form id =" + formid);
+            form = sf;
+            int i = 0;
+            int j = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.Entry(form).State = EntityState.Modified;
+                    j = context.SaveChanges();
+                    logger.Debug("Update supplier inquiry form =" + i);
+                    logger.Info("supplier inquiry form item = " + lstItem.Count);
+                    //2.將item資料寫入 
+                    foreach (TND_PROJECT_FORM_ITEM item in lstItem)
+                    {
+                        TND_PROJECT_FORM_ITEM existItem = context.TND_PROJECT_FORM_ITEM.Find(item.FORM_ITEM_ID);
+                        logger.Debug("find exist item=" + existItem.ITEM_DESC);
+                        existItem.ITEM_UNIT_PRICE = item.ITEM_UNIT_PRICE;
+                        context.TND_PROJECT_FORM_ITEM.AddOrUpdate(existItem);
+                    }
+                    j = context.SaveChanges();
+                    logger.Debug("Update supplier inquiry form item =" + j);
+                    return j;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("update new supplier form id fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
 
+            }
+            return i;
+        }
 
         TND_SUPPLIER supplier = null;
         //取得供應商資料
