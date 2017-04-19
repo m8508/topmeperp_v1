@@ -77,11 +77,6 @@ namespace topmeperp.Models
         public string SUPPLIER_NAME { get; set; }
         public Nullable<decimal> TAmount { get; set; }
     }
-    public class SupplierManageModels
-    {
-        //供應商資料
-        public IEnumerable<TND_SUPPLIER> suppliers { get; set; }
-    }
     public class DirectCost
     {
         /// 九宮格編碼長度 2 

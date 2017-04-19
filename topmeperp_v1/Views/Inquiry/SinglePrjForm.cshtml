@@ -58,7 +58,7 @@
                     }
                     else
                     {
-                        <input type="text" class="form-control" id="inputcontact" style="background: #CCC" readonly="readonly">
+                        <input type="text" class="form-control" id="inputcontact" style="background: #CCC" readonly="readonly" placeholder="不須輸入，由系統自動帶入">
                     }
                 </div>
             </div>
@@ -79,7 +79,7 @@
                     }
                     else
                     {
-                        <input type="text" class="form-control" id="inputemail" style="background: #CCC" readonly="readonly">
+                        <input type="text" class="form-control" id="inputemail" style="background: #CCC" readonly="readonly" placeholder="不須輸入，由系統自動帶入">
                     }
                 </div>
             </div>
@@ -182,11 +182,11 @@
                         <td>
                             @if (@item.ITEM_UNIT_PRICE != null)
                             {
-                                <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="@item.ITEM_UNIT_PRICE">
+                                <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="@item.ITEM_UNIT_PRICE" style="width:180px">
                             }
                             else
                             {
-                                <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="">
+                                <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="" style="width:180px">
                             }
                         </td>
 
@@ -386,6 +386,12 @@
     </script>
     <script type="text/javascript">
         $("#saveForm").click(function () {
+            if ($("#Supplier").val() == "") { alert("廠商名稱欄位不可空白，請輸入廠商名稱!!"); return false; }
+            if ($("#inputdateline").val() == "") { alert("報價期限欄位不可為空白!!"); return false; }
+            if ($("#formname").val() == "") { alert("採購項目欄位不可為空白!!"); return false; }
+            if ($("#inputownerfax").val() == "") { alert("承辦人傳真欄位不可為空白!!"); return false; }
+            if ($("#inputowneremail").val() == "") { alert("承辦人E-mail欄位不可為空白!!"); return false; }
+            if ($("#inputphone").val() == "") { alert("聯絡電話欄位不可為空白!!"); return false; }
             $.ajax({
                 url: '@Url.Action("UpdatePrjForm", "Inquiry")',
                 data: $('#formSupplier').serialize(),

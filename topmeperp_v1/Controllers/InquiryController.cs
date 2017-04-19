@@ -52,10 +52,16 @@ namespace topmeperp.Controllers
             //建立空白詢價單
             log.Info("create new form template");
             TnderProject s = new TnderProject();
+            UserService us = new UserService();
             SYS_USER u = (SYS_USER)Session["user"];
+            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
             qf.PROJECT_ID = Request["prjId"];
             qf.CREATE_ID = u.USER_ID;
             qf.CREATE_DATE = DateTime.Now;
+            qf.OWNER_NAME = uInfo.USER_NAME;
+            qf.OWNER_EMAIL = uInfo.EMAIL;
+            qf.OWNER_TEL = uInfo.TEL;
+            qf.OWNER_FAX = uInfo.FAX;
             TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
             string fid = s.newForm(qf, lstItemId);
             //產生詢價單實體檔案
@@ -185,10 +191,10 @@ namespace topmeperp.Controllers
             }
             else
             {
-                msg = "更新供應商詢價單成功";
+                msg = "更新供應商詢價單成功，FORM_ID =" + formid;
             }
 
-            log.Info("Request:FORM_NAME=" + form["formname"] + "SUPPLIER_NAME =" + form["supplier"]);
+            log.Info("Request: FORM_ID = " + formid + "FORM_NAME =" + form["formname"] + "SUPPLIER_NAME =" + form["supplier"] );
             return msg;
         }
         //測試詢價單下載
