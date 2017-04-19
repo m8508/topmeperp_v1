@@ -1672,6 +1672,16 @@ namespace topmeperp.Service
             sheet.GetRow(6).Cells[1].SetCellValue(form.OWNER_EMAIL);//EMAIL:
             logger.Debug("Template Head_6=" + sheet.GetRow(7).Cells[0].ToString());
             sheet.GetRow(7).Cells[1].SetCellValue(form.OWNER_FAX);//FAX:
+            logger.Debug("Template Head_1=" + sheet.GetRow(2).Cells[2].ToString());
+            sheet.GetRow(2).Cells[3].SetCellValue(form.SUPPLIER_ID);//廠商名稱
+            logger.Debug("Template Head_2=" + sheet.GetRow(3).Cells[2].ToString());
+            sheet.GetRow(3).Cells[3].SetCellValue(form.CONTACT_NAME);//聯絡人
+            logger.Debug("Template Head_3=" + sheet.GetRow(4).Cells[2].ToString());
+            sheet.GetRow(4).Cells[3].SetCellValue(form.CONTACT_EMAIL);//電子信箱
+            logger.Debug("Template Head_4=" + sheet.GetRow(5).Cells[2].ToString());
+            sheet.GetRow(5).Cells[3].SetCellValue((form.DUEDATE).ToString());//報價期限
+            logger.Debug("Template Head_5=" + sheet.GetRow(6).Cells[2].ToString());
+            sheet.GetRow(6).Cells[3].SetCellValue(form.FORM_ID);//編號
 
             //3.填入表單明細
             int idxRow = 9;
