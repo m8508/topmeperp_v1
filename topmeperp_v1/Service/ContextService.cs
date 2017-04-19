@@ -494,10 +494,12 @@ namespace topmeperp.Service
                         }
                     }
 
-                    string sql = "INSERT INTO TND_PROJECT_FORM_ITEM (FORM_ID, PROJECT_ITEM_ID, ITEM_DESC, "
-                        + "ITEM_UNIT, ITEM_QTY, ITEM_UNIT_PRICE, ITEM_REMARK) "
-                        + "SELECT '" + sf.FORM_ID + "' as FORM_ID, PROJECT_ITEM_ID, ITEM_DESC, ITEM_UNIT, "
-                        + "ITEM_QTY, ITEM_UNIT_PRICE, ITEM_REMARK "
+                    string sql = "INSERT INTO TND_PROJECT_FORM_ITEM (FORM_ID, PROJECT_ITEM_ID,"
+                        + "TYPE_CODE, SUB_TYPE_CODE,ITEM_DESC,ITEM_UNIT, ITEM_QTY,"
+                        + "ITEM_UNIT_PRICE, ITEM_REMARK) "
+                        + "SELECT '" + sf.FORM_ID + "' as FORM_ID, PROJECT_ITEM_ID, TYPE_CODE,"
+                        + "SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT,ITEM_QTY, ITEM_UNIT_PRICE,"
+                        + "ITEM_REMARK "
                         + "FROM TND_PROJECT_FORM_ITEM where FORM_ITEM_ID IN (" + ItemId + ")";
 
                     logger.Info("sql =" + sql);

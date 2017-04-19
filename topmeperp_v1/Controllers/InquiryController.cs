@@ -101,8 +101,6 @@ namespace topmeperp.Controllers
             ViewBag.Supplier = selectSupplier;
             return View(singleForm);
         }
-
-
         public String UpdatePrjForm(FormCollection form)
         {
             log.Info("form:" + form.Count);
