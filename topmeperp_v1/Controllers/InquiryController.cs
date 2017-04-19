@@ -69,7 +69,8 @@ namespace topmeperp.Controllers
             service.getInqueryForm(fid);
             InquiryFormToExcel poi = new InquiryFormToExcel();
             poi.exportExcel(service.formInquiry, service.formInquiryItem);
-            return RedirectToAction("InquiryMainPage/" + qf.PROJECT_ID);
+            return Redirect("InquiryMainPage?id=" + qf.PROJECT_ID);
+            //return RedirectToAction("InquiryMainPage","Inquiry", qf.PROJECT_ID);
         }
         //顯示單一詢價單、報價單功能
         public ActionResult SinglePrjForm(string id)
