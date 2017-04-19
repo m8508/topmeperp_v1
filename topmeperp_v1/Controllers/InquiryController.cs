@@ -65,7 +65,7 @@ namespace topmeperp.Controllers
             qf.OWNER_FAX = uInfo.FAX;
             TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
             string fid = s.newForm(qf, lstItemId);
-            //產生詢價單實體檔案
+            //產生詢價單實體檔案-old
             service.getInqueryForm(fid);
             InquiryFormToExcel poi = new InquiryFormToExcel();
             poi.exportExcel(service.formInquiry, service.formInquiryItem);
