@@ -110,7 +110,6 @@ namespace topmeperp.Controllers
 
         //POST:TaskAssign
         [HttpPost]
-
         public ActionResult Task(string id, List<TND_TASKASSIGN> TaskDatas)
         {
             logger.Info("task :" + Request["TaskDatas.index"]);
@@ -501,5 +500,9 @@ namespace topmeperp.Controllers
             }
         }
 
+        public ActionResult EditProjectItem()
+        {
+            return View();
+        }
     }
 }

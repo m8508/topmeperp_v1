@@ -567,6 +567,7 @@
     <Content Include="Views\SupplierManage\Index.cshtml" />
     <Content Include="Views\SupplierManage\SupplierList.cshtml" />
     <Content Include="Views\SupplierManage\Create.cshtml" />
+    <Content Include="Views\Tender\EditProjectItem.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

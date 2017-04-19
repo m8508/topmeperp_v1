@@ -1642,7 +1642,7 @@ namespace topmeperp.Service
     public class InquiryFormToExcel
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        string templateFile = "D:\\Topmep_Web\\topmeperp_v1\\topmeperp_v1_master\\topmeperp_v1\\UploadFile\\Inquiry_form_template.xlsx";
+        string templateFile = ContextService.strUploadPath + "\\Inquiry_form_template.xlsx";
         string outputPath = ContextService.strUploadPath;
 
         IWorkbook hssfworkbook;
