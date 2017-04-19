@@ -882,7 +882,7 @@ namespace topmeperp.Service
             }
             return lstDEVICE;
         }
-        #endregion
+        #endregion 
         //取得消防電修改資料
         #region 消防電資料
         TND_MAP_FP fp = null;
@@ -952,7 +952,7 @@ namespace topmeperp.Service
             }
             return plu;
         }
-        #endregion
+        #endregion 
     }
 
     //工率相關資料提供作業
@@ -1077,7 +1077,8 @@ namespace topmeperp.Service
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public TND_PROJECT_FORM formInquiry = null;
         public List<TND_PROJECT_FORM_ITEM> formInquiryItem = null;
-
+        public Dictionary<string, COMPARASION_DATA> dirSupplierQuo = null;
+        public string message = "";
         //取得詢價單
         public void getInqueryForm(string formid)
         {
@@ -1128,37 +1129,16 @@ namespace topmeperp.Service
             }
             return lst;
         }
+        //取得特定專案報價之供應商資料
         public List<COMPARASION_DATA> getComparisonData(string projectid, string typecode1, string typecode2, string systemMain, string systemSub)
         {
             List<COMPARASION_DATA> lst = new List<COMPARASION_DATA>();
-            string sql = "SELECT  pItem.PROJECT_ITEM_ID,"
-                + "pItem.PROJECT_ID,"
-                + "pItem.ITEM_ID ,"
-                + "pItem.ITEM_DESC,"
-                + "pItem.ITEM_UNIT,"
-                + "pItem.ITEM_QUANTITY,"
-                + "pItem.ITEM_UNIT_PRICE,"
-                + "pItem.MAN_PRICE,"
-                + "pItem.ITEM_REMARK,"
-                + "pItem.TYPE_CODE_1,"
-                + "pItem.TYPE_CODE_2,"
-                + "pItem.SUB_TYPE_CODE,"
-                + "pItem.SYSTEM_MAIN,"
-                + "pItem.SYSTEM_SUB,"
-                + "pItem.MODIFY_USER_ID,"
-                + "pItem.MODIFY_DATE,"
-                + "pItem.CREATE_USER_ID,"
-                + "pItem.CREATE_DATE,"
-                + "pItem.SHEET_NAME,"
-                + "pItem.EXCEL_ROW_ID,"
-                + "pItem.DISCOUNT_RATIO,"
-                + "pfItem.FORM_ID AS FORM_ID,"
-                + "pfItem.ITEM_UNIT_PRICE AS QUOTATION_PRICE,"
-                + "pfItem.ITEM_QTY AS OFFER_QTY,"
-                + "(SELECT SUPPLIER_ID  FROM TND_PROJECT_FORM pf WHERE pf.FORM_ID=pfItem.FORM_ID) as SUPPLIER_NAME "
-                + "FROM TND_PROJECT_ITEM pItem LEFT OUTER JOIN "
-                + "TND_PROJECT_FORM_ITEM pfItem ON pItem.PROJECT_ITEM_ID = pfItem.PROJECT_ITEM_ID WHERE pItem.PROJECT_ID=@projectid ";
-
+            string sql = "SELECT  pfItem.FORM_ID AS FORM_ID, " +
+                "SUPPLIER_ID as SUPPLIER_NAME,SUM(pfitem.ITEM_UNIT_PRICE) as TAmount " +
+                "FROM TND_PROJECT_ITEM pItem LEFT OUTER JOIN " +
+                "TND_PROJECT_FORM_ITEM pfItem ON pItem.PROJECT_ITEM_ID = pfItem.PROJECT_ITEM_ID " +
+                "inner join TND_PROJECT_FORM f on pfItem.FORM_ID = f.FORM_ID " +
+                "WHERE pItem.PROJECT_ID = @projectid AND SUPPLIER_ID is not null ";
             var parameters = new List<SqlParameter>();
             //設定專案名編號資料
             parameters.Add(new SqlParameter("projectid", projectid));
@@ -1190,8 +1170,7 @@ namespace topmeperp.Service
                 sql = sql + " AND pItem.SYSTEM_SUB=@systemSub";
                 parameters.Add(new SqlParameter("systemSub", systemSub));
             }
-            //增加排序條件
-            sql = sql + " ORDER BY pItem.EXCEL_ROW_ID;";
+            sql = sql + " GROUP BY pfItem.FORM_ID ,SUPPLIER_ID;";
             logger.Info("comparison data sql=" + sql);
             using (var context = new topmepEntities())
             {
@@ -1201,11 +1180,12 @@ namespace topmeperp.Service
             }
             return lst;
         }
+        //比價資料
         public DataTable getComparisonDataToPivot(string projectid, string typecode1, string typecode2, string systemMain, string systemSub)
         {
 
             string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PROJECT_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
-                "(SELECT SUPPLIER_ID FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID) as SUPPLIER_NAME, " +
+                "(SELECT SUPPLIER_ID+'|'+ fitem.FORM_ID FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID) as SUPPLIER_NAME, " +
                 "pitem.ITEM_UNIT_PRICE 單價,fitem.ITEM_UNIT_PRICE " +
                 "from TND_PROJECT_ITEM pitem " +
                 "left join TND_PROJECT_FORM_ITEM fitem " +
@@ -1243,7 +1223,32 @@ namespace topmeperp.Service
                 sql = sql + " AND pItem.SYSTEM_SUB=@systemSub";
                 parameters.Add("systemSub", systemSub);
             }
-            sql = sql + ") souce pivot(MIN(ITEM_UNIT_PRICE) FOR SUPPLIER_NAME IN([供應商123],[供應商456])) as pvt ORDER BY 行數; ";
+            //取的欄位維度條件
+            List<COMPARASION_DATA> lstSuppluerQuo = getComparisonData(projectid, typecode1, typecode2, systemMain, systemSub);
+            if (lstSuppluerQuo.Count == 0)
+            {
+                throw new Exception("相關條件沒有任何報價資料!!");
+            }
+            //設定供應商報價資料，供前端畫面調用
+            dirSupplierQuo = new Dictionary<string, COMPARASION_DATA>();
+            string dimString = "";
+            foreach (var it in lstSuppluerQuo)
+            {
+                logger.Debug("Supplier=" + it.SUPPLIER_NAME + "," + it.FORM_ID);
+                if (dimString == "")
+                {
+                    dimString = "[" + it.SUPPLIER_NAME + "|" + it.FORM_ID + "]";
+                }
+                else
+                {
+                    dimString = dimString + ",[" + it.SUPPLIER_NAME + "|" + it.FORM_ID + "]";
+                }
+                //設定供應商報價資料，供前端畫面調用
+                dirSupplierQuo.Add(it.FORM_ID, it);
+            }
+
+            logger.Debug("dimString=" + dimString);
+            sql = sql + ") souce pivot(MIN(ITEM_UNIT_PRICE) FOR SUPPLIER_NAME IN(" + dimString + ")) as pvt ORDER BY 行數; ";
 
             logger.Info("comparison data sql=" + sql);
             DataSet ds = ExecuteStoreQuery(sql, CommandType.Text, parameters);
@@ -1440,7 +1445,7 @@ namespace topmeperp.Service
             return i;
         }
         //新增角色
-        public int addOrUpdateRole(SYS_ROLE role)
+       　public int addOrUpdateRole(SYS_ROLE role)
         {
             int i = 0;
             using (var context = new topmepEntities())

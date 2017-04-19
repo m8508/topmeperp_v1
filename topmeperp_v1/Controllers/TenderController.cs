@@ -19,12 +19,14 @@ namespace topmeperp.Controllers
         [topmeperp.Filter.AuthFilter]
         public ActionResult Index()
         {
-            return View();
+            List<topmeperp.Models.TND_PROJECT> lstProject = SearchProjectByName("", "備標");
+            ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
+            return View(lstProject);
         }
         // POST : Search
         public ActionResult Search()
         {
-            List<topmeperp.Models.TND_PROJECT> lstProject = SearchProjectByName(Request["textProejctName"]);
+            List<topmeperp.Models.TND_PROJECT> lstProject = SearchProjectByName(Request["textProejctName"], "備標");
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             return View("Index", lstProject);
         }
@@ -108,7 +110,7 @@ namespace topmeperp.Controllers
 
         //POST:TaskAssign
         [HttpPost]
-        
+
         public ActionResult Task(string id, List<TND_TASKASSIGN> TaskDatas)
         {
             logger.Info("task :" + Request["TaskDatas.index"]);
@@ -478,7 +480,7 @@ namespace topmeperp.Controllers
             return View(mapplu);
         }
         #endregion
-        private List<topmeperp.Models.TND_PROJECT> SearchProjectByName(string projectname)
+        private List<topmeperp.Models.TND_PROJECT> SearchProjectByName(string projectname, string status)
         {
             if (projectname != null)
             {
@@ -487,8 +489,8 @@ namespace topmeperp.Controllers
                 using (var context = new topmepEntities())
                 {
                     lstProject = context.TND_PROJECT.SqlQuery("select * from TND_PROJECT p "
-                        + "where p.PROJECT_NAME Like '%' + @projectname + '%';",
-                         new SqlParameter("projectname", projectname)).ToList();
+                        + "where p.PROJECT_NAME Like '%' + @projectname + '%' AND STATUS=@status;",
+                         new SqlParameter("projectname", projectname), new SqlParameter("status", status)).ToList();
                 }
                 logger.Info("get project count=" + lstProject.Count);
                 return lstProject;
