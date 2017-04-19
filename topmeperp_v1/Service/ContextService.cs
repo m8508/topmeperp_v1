@@ -169,6 +169,8 @@ namespace topmeperp.Service
                 {
                     //if directory not exist create it
                     Directory.CreateDirectory(projectFolder);
+                    //把該建的路徑一併建立
+                    Directory.CreateDirectory(projectFolder + "/" + quotesFolder);
                 }
                 i = context.SaveChanges();
                 logger.Debug("Add project=" + i);
