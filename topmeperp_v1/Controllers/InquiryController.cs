@@ -160,21 +160,25 @@ namespace topmeperp.Controllers
             fm.CONTACT_EMAIL = form.Get("inputemail").Trim();
             fm.FORM_ID = form.Get("inputformnumber").Trim();
             fm.FORM_NAME = form.Get("formname").Trim();
-            fm.CREATE_ID = loginUser.USER_ID;
-            fm.CREATE_DATE = DateTime.Now;
+            fm.CREATE_ID = form.Get("createid").Trim();
+            fm.CREATE_DATE = Convert.ToDateTime(form.Get("createdate"));
             fm.MODIFY_ID = loginUser.USER_ID;
             fm.MODIFY_DATE = DateTime.Now;
             string formid = form.Get("inputformnumber").Trim();
+
             string[] lstItemId = form.Get("formitemid").Split(',');
-            log.Info("select count:" + lstItemId.Count());
-            var j = 0;
-            for (j = 0; j < lstItemId.Count(); j++)
+            string[] lstPrice = form.Get("formunitprice").Split(',');
+            List<TND_PROJECT_FORM_ITEM> lstItem = new List<TND_PROJECT_FORM_ITEM>();
+            for (int j = 0; j < lstItemId.Count(); j++)
             {
-                log.Info("item_list return No.:" + lstItemId[j]);
+                TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
+                item.FORM_ITEM_ID = int.Parse(lstItemId[j]);
+                item.ITEM_UNIT_PRICE = decimal.Parse(lstPrice[j]);
+                log.Debug("Item No=" + item.FORM_ITEM_ID + "=" + item.ITEM_UNIT_PRICE);
+                lstItem.Add(item);
             }
-            decimal price = decimal.Parse(form.Get("formunitprice").Trim());
-            TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
-            int i = service.refreshSupplierForm(fm, formid, lstItemId, price);
+
+            int i = service.refreshSupplierForm(formid, fm, lstItem);
             if (i == 0)
             {
                 msg = service.message;

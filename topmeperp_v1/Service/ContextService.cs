@@ -516,41 +516,31 @@ namespace topmeperp.Service
             return sf.FORM_ID;
         }
         //更新廠商詢價單資料
-        public int refreshSupplierForm(TND_PROJECT_FORM sf, string formid, string[] lstItemId, decimal price)
+        public int refreshSupplierForm(string formid, TND_PROJECT_FORM sf, List<TND_PROJECT_FORM_ITEM> lstItem)
         {
-            form = sf;
             logger.Info("Update supplier inquiry form id =" + formid);
+            form = sf;
             int i = 0;
+            int j = 0;
             using (var context = new topmepEntities())
             {
                 try
                 {
                     context.Entry(form).State = EntityState.Modified;
-                    i = context.SaveChanges();
+                    j = context.SaveChanges();
                     logger.Debug("Update supplier inquiry form =" + i);
-                    List<topmeperp.Models.TND_PROJECT_FORM_ITEM> lstItem = new List<TND_PROJECT_FORM_ITEM>();
-                    string ItemId = "";
-                    for (i = 0; i < lstItemId.Count(); i++)
+                    logger.Info("supplier inquiry form item = " + lstItem.Count);
+                    //2.將item資料寫入 
+                    foreach (TND_PROJECT_FORM_ITEM item in lstItem)
                     {
-                        if (i < lstItemId.Count() - 1)
-                        {
-                            ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
-                        }
-                        else
-                        {
-                            ItemId = ItemId + "'" + lstItemId[i] + "'";
-                        }
+                        TND_PROJECT_FORM_ITEM existItem = context.TND_PROJECT_FORM_ITEM.Find(item.FORM_ITEM_ID);
+                        logger.Debug("find exist item=" + existItem.ITEM_DESC);
+                        existItem.ITEM_UNIT_PRICE = item.ITEM_UNIT_PRICE;
+                        context.TND_PROJECT_FORM_ITEM.AddOrUpdate(existItem);
                     }
-                    db = new topmepEntities();
-                    string sql = "UPDATE TND_PROJECT_FORM_ITEM SET ITEM_UNIT_PRICE = @price WHERE FORM_ID = @formid and FORM_ITEM_ID IN (" + ItemId + ")";
-                    logger.Info("sql =" + sql);
-                    var parameters = new List<SqlParameter>();
-                    parameters.Add(new SqlParameter("price", price));
-                    parameters.Add(new SqlParameter("formid", formid));
-                    db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
-                    i = db.SaveChanges();
-                    db = null;
-                    logger.Info("Update form item :" + i);
+                    j = context.SaveChanges();
+                    logger.Debug("Update supplier inquiry form item =" + j);
+                    return j;
                 }
                 catch (Exception e)
                 {
@@ -892,7 +882,7 @@ namespace topmeperp.Service
             }
             return lstDEVICE;
         }
-        #endregion 
+        #endregion
         //取得消防電修改資料
         #region 消防電資料
         TND_MAP_FP fp = null;
@@ -962,7 +952,7 @@ namespace topmeperp.Service
             }
             return plu;
         }
-        #endregion 
+        #endregion
     }
 
     //工率相關資料提供作業
@@ -1450,7 +1440,7 @@ namespace topmeperp.Service
             return i;
         }
         //新增角色
-       　public int addOrUpdateRole(SYS_ROLE role)
+        public int addOrUpdateRole(SYS_ROLE role)
         {
             int i = 0;
             using (var context = new topmepEntities())
