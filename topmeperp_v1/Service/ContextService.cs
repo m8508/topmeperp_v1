@@ -475,10 +475,10 @@ namespace topmeperp.Service
                     //logger.Info("project form id = " + form.FORM_ID);
                     //if (i > 0) { status = true; };
                     //foreach (TND_PROJECT_FORM_ITEM item in items)
-                   // {
-                     //   item.FORM_ID = form.FORM_ID;
-                     //   context.TND_PROJECT_FORM_ITEM.Add(item);
-                  //  }
+                    // {
+                    //   item.FORM_ID = form.FORM_ID;
+                    //   context.TND_PROJECT_FORM_ITEM.Add(item);
+                    //  }
                     i = context.SaveChanges();
                     List<topmeperp.Models.TND_PROJECT_FORM_ITEM> lstItem = new List<TND_PROJECT_FORM_ITEM>();
                     string ItemId = "";
@@ -496,14 +496,14 @@ namespace topmeperp.Service
 
                     string sql = "INSERT INTO TND_PROJECT_FORM_ITEM (FORM_ID, PROJECT_ITEM_ID, ITEM_DESC, "
                         + "ITEM_UNIT, ITEM_QTY, ITEM_UNIT_PRICE, ITEM_REMARK) "
-                        + "SELECT '" + sf.FORM_ID + "' as FORM_ID, PROJECT_ITEM_ID, ITEM_DESC, ITEM_UNIT, " 
+                        + "SELECT '" + sf.FORM_ID + "' as FORM_ID, PROJECT_ITEM_ID, ITEM_DESC, ITEM_UNIT, "
                         + "ITEM_QTY, ITEM_UNIT_PRICE, ITEM_REMARK "
                         + "FROM TND_PROJECT_FORM_ITEM where FORM_ITEM_ID IN (" + ItemId + ")";
-                    
+
                     logger.Info("sql =" + sql);
                     var parameters = new List<SqlParameter>();
                     i = context.Database.ExecuteSqlCommand(sql);
-                    
+
                 }
                 catch (Exception e)
                 {
@@ -515,7 +515,54 @@ namespace topmeperp.Service
             }
             return sf.FORM_ID;
         }
-        
+        //更新廠商詢價單資料
+        public int refreshSupplierForm(TND_PROJECT_FORM sf, string formid, string[] lstItemId, decimal price)
+        {
+            form = sf;
+            logger.Info("Update supplier inquiry form id =" + formid);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.Entry(form).State = EntityState.Modified;
+                    i = context.SaveChanges();
+                    logger.Debug("Update supplier inquiry form =" + i);
+                    List<topmeperp.Models.TND_PROJECT_FORM_ITEM> lstItem = new List<TND_PROJECT_FORM_ITEM>();
+                    string ItemId = "";
+                    for (i = 0; i < lstItemId.Count(); i++)
+                    {
+                        if (i < lstItemId.Count() - 1)
+                        {
+                            ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
+                        }
+                        else
+                        {
+                            ItemId = ItemId + "'" + lstItemId[i] + "'";
+                        }
+                    }
+                    db = new topmepEntities();
+                    string sql = "UPDATE TND_PROJECT_FORM_ITEM SET ITEM_UNIT_PRICE = @price WHERE FORM_ID = @formid and FORM_ITEM_ID IN (" + ItemId + ")";
+                    logger.Info("sql =" + sql);
+                    var parameters = new List<SqlParameter>();
+                    parameters.Add(new SqlParameter("price", price));
+                    parameters.Add(new SqlParameter("formid", formid));
+                    db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+                    i = db.SaveChanges();
+                    db = null;
+                    logger.Info("Update form item :" + i);
+                }
+                catch (Exception e)
+                {
+                    logger.Error("update new supplier form id fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return i;
+        }
+
         TND_SUPPLIER supplier = null;
         //取得供應商資料
         public TND_SUPPLIER getSupplierInfo(string supplierid)
@@ -1238,7 +1285,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 //取得詢價單樣本資訊
-                lst = context.TND_PROJECT_FORM.SqlQuery("SELECT * FROM TND_PROJECT_FORM WHERE SUPPLIER_ID IS NOT NULL AND　PROJECT_ID=@projectid",
+                lst = context.TND_PROJECT_FORM.SqlQuery("SELECT * FROM TND_PROJECT_FORM WHERE SUPPLIER_ID IS NOT NULL AND　PROJECT_ID=@projectid ORDER BY FORM_ID DESC",
                     new SqlParameter("projectid", projectid)).ToList();
             }
             return lst;

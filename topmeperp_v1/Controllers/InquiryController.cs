@@ -126,6 +126,10 @@ namespace topmeperp.Controllers
             }
             TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
             string i = service.addNewSupplierForm(fm, lstItemId);
+            //產生廠商詢價單實體檔案
+            service.getInqueryForm(i);
+            InquiryFormToExcel poi = new InquiryFormToExcel();
+            poi.exportExcel(service.formInquiry, service.formInquiryItem);
             if (i == "")
             {
                 msg = service.message;
@@ -135,19 +139,55 @@ namespace topmeperp.Controllers
                 msg = "新增供應商詢價單成功";
             }
 
-            log.Info("Request:FORM_NAME=" + form["formname"]);
+            log.Info("Request:FORM_NAME=" + form["formname"] + "SUPPLIER_NAME =" + form["Supplier"]);
             return msg;
         }
-        public string getSupplier(string Supplier)
+        //更新廠商詢價單資料
+        public String RefreshPrjForm(string id, FormCollection form)
         {
-            log.Info("get supplier id=" + Supplier);
-            TND_SUPPLIER s = service.getSupplierInfo(Supplier);
-            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            string supplierJson = objSerializer.Serialize(s);
-            log.Info("supplier info=" + supplierJson);
-            return supplierJson;
-        }
+            log.Info("form:" + form.Count);
+            string msg = "";
+            // 取得供應商詢價單資料
+            TND_PROJECT_FORM fm = new TND_PROJECT_FORM();
+            SYS_USER loginUser = (SYS_USER)Session["user"];
+            fm.PROJECT_ID = form.Get("projectid").Trim();
+            fm.SUPPLIER_ID = form.Get("supplier").Trim();
+            fm.DUEDATE = Convert.ToDateTime(form.Get("inputdateline"));
+            fm.OWNER_NAME = form.Get("inputowner").Trim();
+            fm.OWNER_TEL = form.Get("inputphone").Trim();
+            fm.OWNER_FAX = form.Get("inputownerfax").Trim();
+            fm.OWNER_EMAIL = form.Get("inputowneremail").Trim();
+            fm.CONTACT_NAME = form.Get("inputcontact").Trim();
+            fm.CONTACT_EMAIL = form.Get("inputemail").Trim();
+            fm.FORM_ID = form.Get("inputformnumber").Trim();
+            fm.FORM_NAME = form.Get("formname").Trim();
+            fm.CREATE_ID = loginUser.USER_ID;
+            fm.CREATE_DATE = DateTime.Now;
+            fm.MODIFY_ID = loginUser.USER_ID;
+            fm.MODIFY_DATE = DateTime.Now;
+            string formid = form.Get("inputformnumber").Trim();
+            string[] lstItemId = form.Get("formitemid").Split(',');
+            log.Info("select count:" + lstItemId.Count());
+            var j = 0;
+            for (j = 0; j < lstItemId.Count(); j++)
+            {
+                log.Info("item_list return No.:" + lstItemId[j]);
+            }
+            decimal price = decimal.Parse(form.Get("formunitprice").Trim());
+            TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
+            int i = service.refreshSupplierForm(fm, formid, lstItemId, price);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "更新供應商詢價單成功";
+            }
 
+            log.Info("Request:FORM_NAME=" + form["formname"] + "SUPPLIER_NAME =" + form["supplier"]);
+            return msg;
+        }
         //測試詢價單下載
         public ActionResult ExportInquiry()
         {
@@ -195,6 +235,7 @@ namespace topmeperp.Controllers
             }
             return "檔案匯入成功!!";
         }
+        //比價功能資料頁
         public ActionResult ComparisonMain(string id)
         {
             //傳入專案編號，

@@ -26,7 +26,7 @@ namespace topmeperp.Controllers
         // POST : Search
         public ActionResult Search()
         {
-            List<topmeperp.Models.TND_PROJECT> lstProject = SearchProjectByName(Request["textProejctName"],"備標");
+            List<topmeperp.Models.TND_PROJECT> lstProject = SearchProjectByName(Request["textProejctName"], "備標");
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             return View("Index", lstProject);
         }
@@ -480,7 +480,7 @@ namespace topmeperp.Controllers
             return View(mapplu);
         }
         #endregion
-        private List<topmeperp.Models.TND_PROJECT> SearchProjectByName(string projectname,string status)
+        private List<topmeperp.Models.TND_PROJECT> SearchProjectByName(string projectname, string status)
         {
             if (projectname != null)
             {
