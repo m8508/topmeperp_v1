@@ -1281,6 +1281,7 @@ namespace topmeperp.Service
                 //取得詢價單樣本資訊
                 lst = context.TND_PROJECT_FORM.SqlQuery("SELECT * FROM TND_PROJECT_FORM WHERE SUPPLIER_ID IS NOT NULL AND　PROJECT_ID=@projectid ORDER BY FORM_ID DESC",
                     new SqlParameter("projectid", projectid)).ToList();
+
             }
             return lst;
         }

@@ -17,6 +17,7 @@
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("MapInfoMainPage","Tender", new { id = @Model.tndProject.PROJECT_ID})'; ">圖算數量修改</button>
 
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Index","Inquiry", new { id = @Model.tndProject.PROJECT_ID})'; ">新增詢價單 </button>
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("InquiryMainPage","Inquiry", new { id = @Model.tndProject.PROJECT_ID})'; ">詢價單樣板/廠商詢價單查詢 </button>
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("ComparisonMain","Inquiry", new { id = @Model.tndProject.PROJECT_ID})'; ">比價作業</button>
 
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Index","Wage", new { id = @Model.tndProject.PROJECT_ID})'; ">工率表下載</button>
@@ -25,8 +26,10 @@
         </p>
     </div>
     <div>
-        <h3 class="bg-info">備標會辦單</h3>
-        <div class="page-header">
+        <h3 class="bg-info" >備標會辦單</h3>
+        <div style="padding-bottom:20px"></div>
+        <input id="btnPrint" type="button" class="btn btn-info" value="列印備標會辦單" onclick="javascript: printpage('printarea')" />
+        <div class="page-header" id="printarea">
             <div class="col-md-12"><h2 class="text-center">協成水電工程事業有限公司</h2></div>
             <div class="col-md-12"><h2 class="text-center">備標會辦單</h2></div>
             <div class="row">
@@ -92,3 +95,17 @@
     </div>
 </div>
 
+<script language="javascript" type="text/javascript">
+
+    function printpage(printarea) {
+
+        //var newstr = document.all.item(printarea).innerHTML;
+        var newstr = document.getElementById(printarea).innerHTML;
+        alert(newstr);
+        var oldstr = document.body.innerHTML;
+        document.body.innerHTML = newstr;
+        window.print();
+        document.body.innerHTML = oldstr;
+        return false;
+    }
+</script>

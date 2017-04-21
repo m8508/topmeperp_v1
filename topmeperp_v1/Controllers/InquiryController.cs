@@ -194,7 +194,7 @@ namespace topmeperp.Controllers
                 msg = "更新供應商詢價單成功，FORM_ID =" + formid;
             }
 
-            log.Info("Request: FORM_ID = " + formid + "FORM_NAME =" + form["formname"] + "SUPPLIER_NAME =" + form["supplier"] );
+            log.Info("Request: FORM_ID = " + formid + "FORM_NAME =" + form["formname"] + "SUPPLIER_NAME =" + form["supplier"]);
             return msg;
         }
         //測試詢價單下載
@@ -219,8 +219,11 @@ namespace topmeperp.Controllers
             if (null != id && id != "")
             {
                 ViewBag.projectid = id;
+                TND_PROJECT p = service.getProjectById(id);
+                ViewBag.projectName = p.PROJECT_NAME;
                 formData.tndTemplateProjectForm = service.getFormTemplateByProject(id);
                 formData.tndProjectFormFromSupplier = service.getFormByProject(id);
+               
             }
             return View(formData);
         }
@@ -250,7 +253,7 @@ namespace topmeperp.Controllers
             //傳入專案編號，
             log.Info("start project id=" + id);
 
-            //取得專案基本資料
+            //取得專案基本資料fc
             TND_PROJECT p = service.getProjectById(id);
             ViewBag.id = p.PROJECT_ID;
             ViewBag.projectName = p.PROJECT_NAME;
