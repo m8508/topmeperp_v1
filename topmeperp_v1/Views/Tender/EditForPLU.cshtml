@@ -8,7 +8,17 @@
     <!-- Reg-Form new { enctype = "multipart/form-data" } -->
     @using (Html.BeginForm("EditForFW", "Tender", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
     {
-        <h3>給排水圖算數量</h3>
+        <div class="row">
+            <br />
+            <div class="row col-md-12" style="padding-bottom:30px;">
+                <div class="col-md-4">
+                    <h3>給排水圖算數量</h3>
+                </div>
+                <div class="col-md-8" style="padding-top:10px;">
+                    <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+                </div>
+            </div>
+        </div>
         <div class="row">
             <div class="col-md-8">
                 <div class="row ">

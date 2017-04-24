@@ -8,7 +8,9 @@
         <div class="col-md-12">
             <div class="col-md-4">
                 <form name="FormMapInfo" id="FormMapInfo">
-                    專案編號:<input id="id" name="id" type="text" value="@ViewBag.projectid" /><br>
+                        <label for="projectid">專案編號:</label>
+                        <input type="text" style="background-color:#cccccc;" name="id" id="id" value="@ViewBag.projectid" />
+                    <br />
                 </form>
             </div>
             <div class="col-md-8">
@@ -21,11 +23,11 @@
     </div>
     <div class="col-md-12">
         <div class="col-md-8"></div>
-            <div class="col-md-4 alert-info">
-                @Html.Raw(TempData["result"])
-            </div>
+        <div class="col-md-4 alert-info">
+            @Html.Raw(TempData["result"])
         </div>
     </div>
+</div>
 
 <div class="container-fluid">
     <ul class="nav nav-tabs">
