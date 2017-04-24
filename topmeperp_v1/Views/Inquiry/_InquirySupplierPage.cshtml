@@ -27,11 +27,24 @@
                     @foreach (var item in Model.tndProjectFormFromSupplier)
                     {
                         <tr>
-                            <th>@item.REF_ID</th>                 
+                            <th>@item.NO</th>
                             <td><a href="/Inquiry/SinglePrjForm/@item.FORM_ID" target="_blank">@item.FORM_ID</a></td>
                             <td>@item.FORM_NAME</td>
                             <td>@item.SUPPLIER_ID</td>
-                            <td>Not Ready</td>
+                            <td>
+                                @if(item.TOTAL_PRICE == null)
+                                {
+                                <span style="font-weight:bold;color:dodgerblue">
+                                    @item.TOTAL_PRICE
+                                </span>
+                                }
+                                else
+                                {
+                                <span style="font-weight:bold;color:dodgerblue">
+                                    @item.TOTAL_PRICE.ToString("N2")
+                                </span>
+                                }
+                            </td>
                             <td><a href='@("../UploadFile/" + ViewBag.projectid + "/" + item.FORM_ID + ".xlsx")'>下載</a></td>
                         </tr>
                     }
@@ -39,28 +52,28 @@
             </table>
         </div>
     }
-    </div>
-    <script type="text/javascript">
-        $(function () {
-            $("#UploadForm").ajaxForm({
-                iframe: true,
-                dataType: "text",
-                beforeSubmit: function () {
-                    var fileContent = $.trim($('#file').val());
-                    if (fileContent.length == 0) {
-                        alert('請選擇要上傳的檔案.');
-                        return false;
-                    }
-                    return true;
-                },
-                success: function (result) {
-                    $('#UploadForm').resetForm();
-                    alert(result);
-                },
-                error: function (xhr, textStatus, errorThrown) {
-                    $('#UploadForm').resetForm();
-                    alert('檔案上傳錯誤.');
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#UploadForm").ajaxForm({
+            iframe: true,
+            dataType: "text",
+            beforeSubmit: function () {
+                var fileContent = $.trim($('#file').val());
+                if (fileContent.length == 0) {
+                    alert('請選擇要上傳的檔案.');
+                    return false;
                 }
-            });
+                return true;
+            },
+            success: function (result) {
+                $('#UploadForm').resetForm();
+                alert(result);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                $('#UploadForm').resetForm();
+                alert('檔案上傳錯誤.');
+            }
         });
-    </script>
+    });
+</script>

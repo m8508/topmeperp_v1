@@ -568,6 +568,7 @@
     <Content Include="Views\SupplierManage\SupplierList.cshtml" />
     <Content Include="Views\SupplierManage\Create.cshtml" />
     <Content Include="Views\Tender\EditProjectItem.cshtml" />
+    <Content Include="Views\Shared\DisplayTemplates\LongDateTime.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

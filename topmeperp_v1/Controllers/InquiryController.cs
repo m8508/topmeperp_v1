@@ -179,11 +179,17 @@ namespace topmeperp.Controllers
             {
                 TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
                 item.FORM_ITEM_ID = int.Parse(lstItemId[j]);
-                item.ITEM_UNIT_PRICE = decimal.Parse(lstPrice[j]);
+                if (lstPrice[j].ToString() == "")
+                {
+                    item.ITEM_UNIT_PRICE = null;
+                }
+                else
+                {
+                    item.ITEM_UNIT_PRICE = decimal.Parse(lstPrice[j]);
+                }
                 log.Debug("Item No=" + item.FORM_ITEM_ID + "=" + item.ITEM_UNIT_PRICE);
                 lstItem.Add(item);
             }
-
             int i = service.refreshSupplierForm(formid, fm, lstItem);
             if (i == 0)
             {
@@ -214,16 +220,14 @@ namespace topmeperp.Controllers
 
         public ActionResult InquiryMainPage(string id)
         {
-            log.Info("queryInquiry by projectID=" + Request["projectid"]);
+            log.Info("queryInquiry by projectID=" + id);
             InquiryFormModel formData = new InquiryFormModel();
             if (null != id && id != "")
             {
                 ViewBag.projectid = id;
-                TND_PROJECT p = service.getProjectById(id);
-                ViewBag.projectName = p.PROJECT_NAME;
                 formData.tndTemplateProjectForm = service.getFormTemplateByProject(id);
                 formData.tndProjectFormFromSupplier = service.getFormByProject(id);
-               
+                
             }
             return View(formData);
         }

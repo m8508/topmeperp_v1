@@ -531,7 +531,7 @@ namespace topmeperp.Service
                 try
                 {
                     context.Entry(form).State = EntityState.Modified;
-                    j = context.SaveChanges();
+                    i = context.SaveChanges();
                     logger.Debug("Update supplier inquiry form =" + i);
                     logger.Info("supplier inquiry form item = " + lstItem.Count);
                     //2.將item資料寫入 
@@ -1272,20 +1272,17 @@ namespace topmeperp.Service
             }
             return lst;
         }
-        public List<TND_PROJECT_FORM> getFormByProject(string projectid)
+        public List<SupplierFormFunction> getFormByProject(string projectid)
         {
-            logger.Info("get inquiry template by projectid=" + projectid);
-            List<TND_PROJECT_FORM> lst = new List<TND_PROJECT_FORM>();
+            List<SupplierFormFunction> lst = new List<SupplierFormFunction>();
             using (var context = new topmepEntities())
             {
-                //取得詢價單樣本資訊
-                lst = context.TND_PROJECT_FORM.SqlQuery("SELECT * FROM TND_PROJECT_FORM WHERE SUPPLIER_ID IS NOT NULL AND　PROJECT_ID=@projectid ORDER BY FORM_ID DESC",
-                    new SqlParameter("projectid", projectid)).ToList();
-
+                lst = context.Database.SqlQuery<SupplierFormFunction>("SELECT a.FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, SUM(b.ITEM_QTY*b.ITEM_UNIT_PRICE) AS TOTAL_PRICE, ROW_NUMBER() OVER(ORDER BY a.FORM_ID DESC) AS NO FROM TND_PROJECT_FORM a left JOIN TND_PROJECT_FORM_ITEM b ON a.FORM_ID = b.FORM_ID GROUP BY a.FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, a.PROJECT_ID HAVING  a.SUPPLIER_ID IS NOT NULL AND a.PROJECT_ID =@projectid ORDER BY a.FORM_ID DESC;", new SqlParameter("projectid", projectid)).ToList();
             }
+            logger.Info("get function count:" + lst.Count);
             return lst;
         }
-        public int createInquiryFormFromSupplier(TND_PROJECT_FORM form, List<TND_PROJECT_FORM_ITEM> items)
+    public int createInquiryFormFromSupplier(TND_PROJECT_FORM form, List<TND_PROJECT_FORM_ITEM> items)
         {
             int i = 0;
             //1.建立詢價單價單樣本

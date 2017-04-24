@@ -103,4 +103,9 @@ namespace topmeperp.Models
         public Nullable<decimal> MAN_DAY { get; set; }
         public Nullable<int> ITEM_COUNT { get; set; }
     }
+    public class SupplierFormFunction : TND_PROJECT_FORM
+    {
+        public Int64 NO { get; set; }
+        public Nullable<decimal> TOTAL_PRICE { get; set; }
+    }
 }

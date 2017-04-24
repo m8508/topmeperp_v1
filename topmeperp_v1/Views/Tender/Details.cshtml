@@ -17,7 +17,7 @@
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("MapInfoMainPage","Tender", new { id = @Model.tndProject.PROJECT_ID})'; ">圖算數量修改</button>
 
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Index","Inquiry", new { id = @Model.tndProject.PROJECT_ID})'; ">新增詢價單 </button>
-            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("InquiryMainPage","Inquiry", new { id = @Model.tndProject.PROJECT_ID})'; ">詢價單樣板/廠商詢價單查詢 </button>
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("InquiryMainPage", "Inquiry", new { id = @Model.tndProject.PROJECT_ID})'; ">詢價單樣板/廠商詢價單查詢 </button>
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("ComparisonMain","Inquiry", new { id = @Model.tndProject.PROJECT_ID})'; ">比價作業</button>
 
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Index","Wage", new { id = @Model.tndProject.PROJECT_ID})'; ">工率表下載</button>
@@ -36,13 +36,13 @@
                 <div class="form-group">
                     <label for="" class="col-md-2 control-label" style="padding-top:30px;">收件日期:</label>
                     <div class="col-md-4" style="padding-top:30px;">
-                        @Html.DisplayFor(m => m.tndProject.DUE_DATE)
+                        @Html.DisplayFor(m => m.tndProject.DUE_DATE,"LongDateTime")
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="" class="col-md-2 control-label center-block" style="padding-top:20px;">預定報價完成日: </label>
                     <div class="col-md-4" style="padding-top:20px;">
-                        @Html.DisplayFor(m => m.tndProject.SCHDL_OFFER_DATE)
+                        @Html.DisplayFor(m => m.tndProject.SCHDL_OFFER_DATE, "LongDateTime")
                     </div>
                 </div>
             </div>
