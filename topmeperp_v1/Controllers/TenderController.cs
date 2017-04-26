@@ -144,9 +144,12 @@ namespace topmeperp.Controllers
             {
                 taskassign.FINISH_DATE = DateTime.Now;
             }
+            //當任務類型無輸入值時，將View返回頁面同時帶入錯誤訊息
             if (taskassign.TASK_TYPE == null)
             {
-                taskassign.TASK_TYPE = "請輸入任務類型";
+                logger.Info("updates fail");
+                ViewBag.ErrorMessage = "修改不成功，請重新輸入任務類型，此欄位不可為空白!!";
+                return View(taskassign);
             }
             service.updateTask(taskassign);
             message = "任務分派資料修改成功，任務類型為 " + taskassign.TASK_TYPE;

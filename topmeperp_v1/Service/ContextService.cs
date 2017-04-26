@@ -366,7 +366,7 @@ namespace topmeperp.Service
                 string sql = "INSERT INTO TND_PROJECT_FORM_ITEM (FORM_ID, PROJECT_ITEM_ID, TYPE_CODE, "
                     + "SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_QTY, ITEM_UNIT_PRICE, ITEM_REMARK) "
                     + "SELECT '" + form.FORM_ID + "' as FORM_ID, PROJECT_ITEM_ID, TYPE_CODE_1 AS TYPE_CODE, "
-                    + "TYPE_CODE_1 AS SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_QUANTITY, ITEM_UNIT_PRICE, ITEM_REMARK "
+                    + "TYPE_CODE_2 AS SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_QUANTITY, ITEM_UNIT_PRICE, ITEM_REMARK "
                     + "FROM TND_PROJECT_ITEM where PROJECT_ITEM_ID IN (" + ItemId + ")";
                 logger.Info("sql =" + sql);
                 var parameters = new List<SqlParameter>();
@@ -447,6 +447,31 @@ namespace topmeperp.Service
             }
 
             return lstFormItem;
+        }
+        public TND_PROJECT_ITEM getTypeCodeById(string[] lstItemId)
+        {
+            TND_PROJECT_ITEM lstTypeCode = new TND_PROJECT_ITEM();
+            int i = 0;
+            string ItemId = "";
+            for (i = 0; i < lstItemId.Count(); i++)
+            {
+                if (i < lstItemId.Count() - 1)
+                {
+                    ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
+                }
+                else
+                {
+                    ItemId = ItemId + "'" + lstItemId[i] + "'";
+                }
+            }
+
+            using (var context = new topmepEntities())
+            {
+                lstTypeCode = context.TND_PROJECT_ITEM.SqlQuery("SELSCT TYPE_CODE_1 FROM TND_PROJECT_ITEM where PROJECT_ITEM_ID IN (" + ItemId + ")"
+                   , new SqlParameter("ItemId", ItemId)).First();
+            }
+
+            return lstTypeCode;
         }
         //取得標單品項資料
         public List<TND_PROJECT_ITEM> getProjectItem(string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub)
@@ -1312,7 +1337,7 @@ namespace topmeperp.Service
             logger.Info("get function count:" + lst.Count);
             return lst;
         }
-    public int createInquiryFormFromSupplier(TND_PROJECT_FORM form, List<TND_PROJECT_FORM_ITEM> items)
+        public int createInquiryFormFromSupplier(TND_PROJECT_FORM form, List<TND_PROJECT_FORM_ITEM> items)
         {
             int i = 0;
             //1.建立詢價單價單樣本
