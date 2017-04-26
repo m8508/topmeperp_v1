@@ -1710,7 +1710,7 @@ namespace topmeperp.Service
                 idxRow++;
             }
             //4.令存新檔至專案所屬目錄
-            var file = new FileStream(outputPath + "\\" + ContextService.quotesFolder + "\\" + form.PROJECT_ID + "\\" + form.FORM_ID + ".xlsx", FileMode.Create);
+            var file = new FileStream(outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx", FileMode.Create);
             hssfworkbook.Write(file);
             file.Close();
         }
