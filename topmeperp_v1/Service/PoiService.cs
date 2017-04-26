@@ -1841,7 +1841,7 @@ namespace topmeperp.Service
                         }
                         catch (Exception ex)
                         {
-                            logger.Error("Format ERROR : row id=" + iRowIndex + "col4=" + row.Cells[4] + ",project item id=" + row.Cells[7]);
+                            logger.Error("Format ERROR : row id=" + iRowIndex + "col4=" + row.Cells[4] + ",project item id=" + row.Cells[10]);
                             logger.Error(ex);
                         }
                     }
@@ -1861,7 +1861,7 @@ namespace topmeperp.Service
                     //    }
                     //}
                     item.ITEM_REMARK = row.Cells[6].ToString();
-                    item.PROJECT_ITEM_ID = row.Cells[7].ToString();
+                    item.PROJECT_ITEM_ID = row.Cells[10].ToString();
                     formItems.Add(item);
                 }
                 iRowIndex++;

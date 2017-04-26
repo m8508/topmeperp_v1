@@ -250,7 +250,7 @@ namespace topmeperp.Controllers
                 InquiryFormToExcel quoteFormService = new InquiryFormToExcel();
                 quoteFormService.convertInquiry2Project(path, projectid);
                 int i = 0;
-                //如果詢價單編號為空白，新增詢價單資料，否則更新相關詢價單資料
+                //如果詢價單編號為空白，新增詢價單資料，否則更新相關詢價單資料-new
                 if (null != quoteFormService.form.FORM_ID && quoteFormService.form.FORM_ID != "")
                 {
                     log.Info("Update Form for Inquiry:" + quoteFormService.form.FORM_ID);

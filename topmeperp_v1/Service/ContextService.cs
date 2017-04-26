@@ -592,14 +592,19 @@ namespace topmeperp.Service
                     //2.將item資料寫入 
                     foreach (TND_PROJECT_FORM_ITEM item in lstItem)
                     {
-                        TND_PROJECT_FORM_ITEM existItem = context.TND_PROJECT_FORM_ITEM.Find(item.FORM_ITEM_ID);
-                        if (null == existItem)
+                        TND_PROJECT_FORM_ITEM existItem = null;
+                        logger.Debug("form item id=" + item.FORM_ITEM_ID);
+                        if (item.FORM_ITEM_ID  != 0)
                         {
+                            existItem = context.TND_PROJECT_FORM_ITEM.Find(item.FORM_ITEM_ID);
+                        }else                        {
                             var parameters = new List<SqlParameter>();
                             parameters.Add(new SqlParameter("formid", formid));
                             parameters.Add(new SqlParameter("itemid", item.PROJECT_ITEM_ID));
-                            logger.Info("find item by form id & projectitemid ,formID- " + formid +",project_item_id="+ item.PROJECT_ITEM_ID);
-                            existItem = context.TND_PROJECT_FORM_ITEM.SqlQuery("SELECT * FROM TND_PROJECT_FORM_ITEM WHERE FORM_ID=@formid AND PROJECT_ITEM_ID=@itemid", parameters).First();
+                            string sql = "SELECT * FROM TND_PROJECT_FORM_ITEM WHERE FORM_ID=@formid AND PROJECT_ITEM_ID=@itemid";
+                            logger.Info(sql + " ;" + formid + ",project_item_id=" + item.PROJECT_ITEM_ID);
+                            TND_PROJECT_FORM_ITEM excelItem = context.TND_PROJECT_FORM_ITEM.SqlQuery(sql, parameters).First();
+                            existItem = context.TND_PROJECT_FORM_ITEM.Find(excelItem.FORM_ITEM_ID);
 
                         }
                         logger.Debug("find exist item=" + existItem.ITEM_DESC);
