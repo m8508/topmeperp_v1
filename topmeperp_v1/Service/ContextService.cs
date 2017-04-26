@@ -1168,7 +1168,7 @@ namespace topmeperp.Service
         {
             List<COMPARASION_DATA> lst = new List<COMPARASION_DATA>();
             string sql = "SELECT  pfItem.FORM_ID AS FORM_ID, " +
-                "SUPPLIER_ID as SUPPLIER_NAME,SUM(pfitem.ITEM_UNIT_PRICE) as TAmount " +
+                "SUPPLIER_ID as SUPPLIER_NAME,SUM(pfitem.ITEM_UNIT_PRICE*pfitem.ITEM_QTY) as TAmount " +
                 "FROM TND_PROJECT_ITEM pItem LEFT OUTER JOIN " +
                 "TND_PROJECT_FORM_ITEM pfItem ON pItem.PROJECT_ITEM_ID = pfItem.PROJECT_ITEM_ID " +
                 "inner join TND_PROJECT_FORM f on pfItem.FORM_ID = f.FORM_ID " +
