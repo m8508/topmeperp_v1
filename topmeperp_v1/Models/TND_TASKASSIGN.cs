@@ -17,7 +17,7 @@ namespace topmeperp.Models
         public long TASK_ID { get; set; }
         public string PROJECT_ID { get; set; }
         public string USER_ID { get; set; }
-        public byte[] TASK_TYPE { get; set; }
+        public string TASK_TYPE { get; set; }
         public string TASK_ITEM { get; set; }
         public string REMARK { get; set; }
         public Nullable<System.DateTime> FINISH_DATE { get; set; }

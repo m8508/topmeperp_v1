@@ -118,13 +118,41 @@ namespace topmeperp.Controllers
             ViewBag.projectid = id;
             return View();
         }
+        //編輯任務分派資料
+        #region 任務分派
+        public ActionResult EditForTask(string id)
+        {
+            logger.Info("get taskassign for update:task_id=" + id);
+            TND_TASKASSIGN ta = null;
+            if (null != id)
+            {
+                TnderProject service = new TnderProject();
+                ta = service.getTaskById(id);
+            }
+            return View(ta);
+        }
+        [HttpPost]
+        public ActionResult EditForTask(TND_TASKASSIGN taskassign)
+        {
+            logger.Info("update task assign:task_id=" + taskassign.TASK_ID);
+            string message = "";
+            TnderProject service = new TnderProject();
+            SYS_USER u = (SYS_USER)Session["user"];
+            taskassign.MODIFY_ID = u.USER_ID;
+            taskassign.MODIFY_DATE = DateTime.Now;
+            service.updateTask(taskassign);
+            message = "任務分派資料修改成功，任務類型為 " + taskassign.TASK_TYPE;
+            ViewBag.result = message;
+            return View(taskassign);
+        }
+        #endregion
 
         public ActionResult Details(string id)
         {
             logger.Info("project detail page projectid = " + id);
             List<TND_TASKASSIGN> lstTask = null;
             TnderProject service = new TnderProject();
-            lstTask = service.getTaskById(id);
+            lstTask = service.getTaskByPrjId(id);
             TND_PROJECT p = service.getProjectById(id);
             TndProjectModels viewModel = new TndProjectModels();
             viewModel.tndProject = p;

@@ -310,6 +310,10 @@ namespace topmeperp.Service
             {
                 foreach (TND_TASKASSIGN item in task)
                 {
+                    if (item.FINISH_DATE.ToString() == "")
+                    {
+                        item.FINISH_DATE = DateTime.Now;
+                    }
                     item.CREATE_DATE = DateTime.Now;
                     context.TND_TASKASSIGN.Add(item);
                 }
@@ -381,7 +385,7 @@ namespace topmeperp.Service
             return form;
         }
 
-        public List<TND_TASKASSIGN> getTaskById(string projectid)
+        public List<TND_TASKASSIGN> getTaskByPrjId(string projectid)
         {
             List<TND_TASKASSIGN> lstTask = new List<TND_TASKASSIGN>();
             using (var context = new topmepEntities())
@@ -392,6 +396,32 @@ namespace topmeperp.Service
             }
             return lstTask;
         }
+        public TND_TASKASSIGN getTaskById(string taskid)
+        {
+            TND_TASKASSIGN lst = new TND_TASKASSIGN();
+            using (var context = new topmepEntities())
+            {
+                lst = context.TND_TASKASSIGN.SqlQuery("select t.* from TND_TASKASSIGN t "
+                    + "where t.TASK_ID = @taskid "
+                   , new SqlParameter("taskid", taskid)).First();
+            }
+            return lst;
+        }
+        #region 更新任務分派資料 
+        public int updateTask(TND_TASKASSIGN task)
+        {
+            //更新任務分派資料
+            logger.Info("Update task id " + task.TASK_ID);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                context.TND_TASKASSIGN.AddOrUpdate(task);
+                i = context.SaveChanges();
+                logger.Debug("Update task=" + i);
+            }
+            return i;
+        }
+        #endregion
         public List<TND_PROJECT_FORM_ITEM> getFormItemById(string[] lstItemId)
         {
             List<TND_PROJECT_FORM_ITEM> lstFormItem = new List<TND_PROJECT_FORM_ITEM>();
@@ -1277,7 +1307,7 @@ namespace topmeperp.Service
             List<SupplierFormFunction> lst = new List<SupplierFormFunction>();
             using (var context = new topmepEntities())
             {
-                lst = context.Database.SqlQuery<SupplierFormFunction>("SELECT a.FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, SUM(b.ITEM_QTY*b.ITEM_UNIT_PRICE) AS TOTAL_PRICE, ROW_NUMBER() OVER(ORDER BY a.FORM_ID DESC) AS NO FROM TND_PROJECT_FORM a left JOIN TND_PROJECT_FORM_ITEM b ON a.FORM_ID = b.FORM_ID GROUP BY a.FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, a.PROJECT_ID HAVING  a.SUPPLIER_ID IS NOT NULL AND a.PROJECT_ID =@projectid ORDER BY a.FORM_ID DESC;", new SqlParameter("projectid", projectid)).ToList();
+                lst = context.Database.SqlQuery<SupplierFormFunction>("SELECT a.FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, SUM(b.ITEM_QTY*b.ITEM_UNIT_PRICE) AS TOTAL_PRICE, ROW_NUMBER() OVER(ORDER BY a.FORM_ID DESC) AS NO FROM TND_PROJECT_FORM a left JOIN TND_PROJECT_FORM_ITEM b ON a.FORM_ID = b.FORM_ID GROUP BY a.FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, a.PROJECT_ID HAVING  a.SUPPLIER_ID IS NOT NULL AND a.PROJECT_ID =@projectid ORDER BY a.FORM_ID DESC, a.FORM_NAME ;", new SqlParameter("projectid", projectid)).ToList();
             }
             logger.Info("get function count:" + lst.Count);
             return lst;

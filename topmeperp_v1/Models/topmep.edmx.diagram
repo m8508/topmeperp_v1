@@ -20,7 +20,6 @@
         <EntityTypeShape EntityType="topmepModel.TND_SUP_INQUIRY" Width="1.5" PointX="11.875" PointY="1.25" IsExpanded="false" />
         <EntityTypeShape EntityType="topmepModel.TND_SUP_INQUIRY_ITEM" Width="1.5" PointX="13.75" PointY="6.375" IsExpanded="false" />
         <EntityTypeShape EntityType="topmepModel.TND_SUPPLIER" Width="1.5" PointX="13.75" PointY="11.375" IsExpanded="false" />
-        <EntityTypeShape EntityType="topmepModel.TND_TASKASSIGN" Width="2.375" PointX="13.75" PointY="15.375" IsExpanded="false" />
         <EntityTypeShape EntityType="topmepModel.TND_TOTALCOST_ITEM" Width="1.5" PointX="2.875" PointY="17.375" IsExpanded="false" />
         <EntityTypeShape EntityType="topmepModel.TND_WAGE" Width="1.5" PointX="9.5" PointY="16.25" IsExpanded="false" />
         <AssociationConnector Association="topmepModel.FK_SYS_PRIVILEGE_SYS_FUNCTION" ManuallyRouted="false" />
@@ -32,6 +31,8 @@
         <EntityTypeShape EntityType="topmepModel.TND_MAP_LCP" Width="1.5" PointX="8.375" PointY="8.75" />
         <EntityTypeShape EntityType="topmepModel.TND_MAP_PLU" Width="1.5" PointX="16.375" PointY="8.75" />
         <EntityTypeShape EntityType="topmepModel.TND_MAP_DEVICE" Width="1.5" PointX="0.75" PointY="8.75" />
+        <EntityTypeShape EntityType="topmepModel.sysdiagrams" Width="1.5" PointX="8.375" PointY="3.75" />
+        <EntityTypeShape EntityType="topmepModel.TND_TASKASSIGN" Width="1.5" PointX="10.375" PointY="3.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
