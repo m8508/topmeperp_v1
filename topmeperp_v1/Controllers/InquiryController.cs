@@ -328,8 +328,9 @@ namespace topmeperp.Controllers
                     string[] tmpString = dt.Columns[i].ColumnName.Split('|');
                     //<a href="/Inquiry/SinglePrjForm/@item.FORM_ID" target="_blank">@item.FORM_ID</a>
                     decimal tAmount = (decimal)dirSupplierQuo[tmpString[1]].TAmount;
+                    string strAmout = string.Format("{0:C0}", tAmount);
 
-                    htmlString = htmlString + "<th>" + tmpString[0] + "(" + tAmount + ")" +
+                    htmlString = htmlString + "<th>" + tmpString[0] + "(" + strAmout + ")" +
                         "<button type='button' class='btn-xs' onclick=\"clickSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>" +
                         "<button type='button' class='btn-xs'><a href='/Inquiry/SinglePrjForm/" + tmpString[1] + "'" + " target='_blank'><span class='glyphicon glyphicon-list-alt' aria-hidden='true'></span></a>" +
                         "</button>";
