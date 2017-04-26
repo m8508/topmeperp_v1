@@ -230,7 +230,7 @@ namespace topmeperp.Controllers
                 ViewBag.projectid = id;
                 formData.tndTemplateProjectForm = service.getFormTemplateByProject(id);
                 formData.tndProjectFormFromSupplier = service.getFormByProject(id);
-                
+
             }
             return View(formData);
         }
@@ -249,7 +249,17 @@ namespace topmeperp.Controllers
                 log.Info("Parser Excel File Begin:" + file.FileName);
                 InquiryFormToExcel quoteFormService = new InquiryFormToExcel();
                 quoteFormService.convertInquiry2Project(path, projectid);
-                int i = service.createInquiryFormFromSupplier(quoteFormService.form, quoteFormService.formItems);
+                int i = 0;
+                //如果詢價單編號為空白，新增詢價單資料，否則更新相關詢價單資料
+                if (null != quoteFormService.form.FORM_ID && quoteFormService.form.FORM_ID != "")
+                {
+                    log.Info("Update Form for Inquiry:" + quoteFormService.form.FORM_ID);
+                    i = service.refreshSupplierForm(quoteFormService.form.FORM_ID, quoteFormService.form, quoteFormService.formItems);
+                }else
+                {
+                    log.Info("Create New Form for Inquiry:");
+                    i = service.createInquiryFormFromSupplier(quoteFormService.form, quoteFormService.formItems);
+                }
                 log.Info("add supplier form record count=" + i);
             }
             return "檔案匯入成功!!";

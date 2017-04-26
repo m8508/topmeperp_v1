@@ -568,6 +568,15 @@ namespace topmeperp.Service
                     foreach (TND_PROJECT_FORM_ITEM item in lstItem)
                     {
                         TND_PROJECT_FORM_ITEM existItem = context.TND_PROJECT_FORM_ITEM.Find(item.FORM_ITEM_ID);
+                        if (null == existItem)
+                        {
+                            var parameters = new List<SqlParameter>();
+                            parameters.Add(new SqlParameter("formid", formid));
+                            parameters.Add(new SqlParameter("itemid", item.PROJECT_ITEM_ID));
+                            logger.Info("find item by form id & projectitemid ,formID- " + formid +",project_item_id="+ item.PROJECT_ITEM_ID);
+                            existItem = context.TND_PROJECT_FORM_ITEM.SqlQuery("SELECT * FROM TND_PROJECT_FORM_ITEM WHERE FORM_ID=@formid AND PROJECT_ITEM_ID=@itemid", parameters).First();
+
+                        }
                         logger.Debug("find exist item=" + existItem.ITEM_DESC);
                         existItem.ITEM_UNIT_PRICE = item.ITEM_UNIT_PRICE;
                         context.TND_PROJECT_FORM_ITEM.AddOrUpdate(existItem);
