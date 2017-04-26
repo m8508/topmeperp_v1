@@ -593,6 +593,15 @@ namespace topmeperp.Service
                     foreach (TND_PROJECT_FORM_ITEM item in lstItem)
                     {
                         TND_PROJECT_FORM_ITEM existItem = context.TND_PROJECT_FORM_ITEM.Find(item.FORM_ITEM_ID);
+                        if (null == existItem)
+                        {
+                            var parameters = new List<SqlParameter>();
+                            parameters.Add(new SqlParameter("formid", formid));
+                            parameters.Add(new SqlParameter("itemid", item.PROJECT_ITEM_ID));
+                            logger.Info("find item by form id & projectitemid ,formID- " + formid +",project_item_id="+ item.PROJECT_ITEM_ID);
+                            existItem = context.TND_PROJECT_FORM_ITEM.SqlQuery("SELECT * FROM TND_PROJECT_FORM_ITEM WHERE FORM_ID=@formid AND PROJECT_ITEM_ID=@itemid", parameters).First();
+
+                        }
                         logger.Debug("find exist item=" + existItem.ITEM_DESC);
                         existItem.ITEM_UNIT_PRICE = item.ITEM_UNIT_PRICE;
                         context.TND_PROJECT_FORM_ITEM.AddOrUpdate(existItem);
@@ -1193,7 +1202,7 @@ namespace topmeperp.Service
         {
             List<COMPARASION_DATA> lst = new List<COMPARASION_DATA>();
             string sql = "SELECT  pfItem.FORM_ID AS FORM_ID, " +
-                "SUPPLIER_ID as SUPPLIER_NAME,SUM(pfitem.ITEM_UNIT_PRICE) as TAmount " +
+                "SUPPLIER_ID as SUPPLIER_NAME,SUM(pfitem.ITEM_UNIT_PRICE*pfitem.ITEM_QTY) as TAmount " +
                 "FROM TND_PROJECT_ITEM pItem LEFT OUTER JOIN " +
                 "TND_PROJECT_FORM_ITEM pfItem ON pItem.PROJECT_ITEM_ID = pfItem.PROJECT_ITEM_ID " +
                 "inner join TND_PROJECT_FORM f on pfItem.FORM_ID = f.FORM_ID " +

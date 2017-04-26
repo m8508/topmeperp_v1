@@ -1788,7 +1788,8 @@ namespace topmeperp.Service
             logger.Debug(sheet.GetRow(6).Cells[0].ToString() + "," + sheet.GetRow(6).Cells[1]);
             form.CONTACT_EMAIL = sheet.GetRow(6).Cells[1].ToString();
             //編號: REF - 001
-            logger.Debug(sheet.GetRow(6).Cells[2].ToString() + "," + sheet.GetRow(6).Cells[3]);
+            logger.Debug("REF_ID=" + sheet.GetRow(6).Cells[2].ToString() + "," + sheet.GetRow(6).Cells[3]);
+            form.FORM_ID = sheet.GetRow(6).Cells[3].ToString().Trim() ;
             //FAX:
             logger.Debug(sheet.GetRow(7).Cells[0].ToString());
             form.OWNER_FAX = sheet.GetRow(7).Cells[0].ToString();
@@ -1812,7 +1813,7 @@ namespace topmeperp.Service
                 {
                     logger.Debug("row id=" + iRowIndex + "Cells Count=" + row.Cells.Count + ",form item vllue:" + row.Cells[0].ToString() + ","
                         + row.Cells[1] + "," + row.Cells[2] + "," + row.Cells[3] + "," + ","
-                        + row.Cells[4] + "," + "," + row.Cells[5] + "," + row.Cells[6] + ",project item id=" + row.Cells[7]);
+                        + row.Cells[4] + "," + "," + row.Cells[5] + "," + row.Cells[6] + ",project item id=" + row.Cells[10]);
                     TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
                     item.ITEM_DESC = row.Cells[1].ToString();
                     item.ITEM_UNIT = row.Cells[2].ToString();
@@ -1826,7 +1827,7 @@ namespace topmeperp.Service
                         }
                         catch (Exception ex)
                         {
-                            logger.Error("Format ERROR : row id=" + iRowIndex + "col3=" + row.Cells[3] + ",project item id=" + row.Cells[10]);
+                            logger.Error("Format ERROR : row id=" + iRowIndex + "col3=" + row.Cells[3] + ",project item id=" + row.Cells[7]);
                             logger.Error(ex);
                         }
                     }
