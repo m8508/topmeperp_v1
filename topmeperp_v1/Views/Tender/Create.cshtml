@@ -8,7 +8,7 @@
     <!-- Reg-Form new { enctype = "multipart/form-data" } -->
     @using (Html.BeginForm("Create", "Tender", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
     {
-        <h3>專案</h3><input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+        <h3>專案</h3><input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "Tender")'" value="回首頁">
         <div class="row" style="padding-top:10px;">
             <div class="col-md-8">
                 <div class="row ">

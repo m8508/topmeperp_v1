@@ -140,6 +140,14 @@ namespace topmeperp.Controllers
             SYS_USER u = (SYS_USER)Session["user"];
             taskassign.MODIFY_ID = u.USER_ID;
             taskassign.MODIFY_DATE = DateTime.Now;
+            if (taskassign.FINISH_DATE.ToString() == "")
+            {
+                taskassign.FINISH_DATE = DateTime.Now;
+            }
+            if (taskassign.TASK_TYPE == null)
+            {
+                taskassign.TASK_TYPE = "請輸入任務類型";
+            }
             service.updateTask(taskassign);
             message = "任務分派資料修改成功，任務類型為 " + taskassign.TASK_TYPE;
             ViewBag.result = message;

@@ -14,10 +14,10 @@
             {
                 <tr>
                     <td width="100">
-                        @Html.DisplayFor(modelItem => item.TASK_TYPE)
+                        <a href="/Tender/EditForTask/@Html.DisplayFor(modelItem => item.TASK_ID)">@Html.DisplayFor(modelItem => item.TASK_TYPE)</a>
                     </td>
                     <td width="100">
-                        <a href="/Tender/EditForTask/@Html.DisplayFor(modelItem => item.TASK_ID)">@Html.DisplayFor(modelItem => item.USER_ID)</a>
+                        @Html.DisplayFor(modelItem => item.USER_ID)
                     </td>
                     <td width="250">
                         @Html.DisplayFor(modelItem => item.TASK_ITEM)
