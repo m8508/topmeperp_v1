@@ -1779,17 +1779,33 @@ namespace topmeperp.Service
             logger.Debug(sheet.GetRow(5).Cells[0].ToString() + "," + sheet.GetRow(5).Cells[1]);
             form.OWNER_TEL = sheet.GetRow(5).Cells[1].ToString();
             //報價期限:	2017/1/25
-            logger.Debug(sheet.GetRow(5).Cells[2].ToString() + "," + sheet.GetRow(5).Cells[3].ToString() + "," + sheet.GetRow(5).Cells[3].CellType);
-            //long lDate = long.Parse(sheet.GetRow(5).Cells[3].ToString());
-            //DateTime dDate = new DateTime(lDate);
-            //logger.Info("Due Date=" + dDate);
-            form.DUEDATE = DateTime.Parse(sheet.GetRow(5).Cells[3].ToString());
+            try
+            {
+                logger.Debug(sheet.GetRow(5).Cells[2].ToString() + "," + sheet.GetRow(5).Cells[3].ToString() + "," + sheet.GetRow(5).Cells[3].CellType);
+                //long lDate = long.Parse(sheet.GetRow(5).Cells[3].ToString());
+                //DateTime dDate = new DateTime(lDate);
+                //logger.Info("Due Date=" + dDate);
+                form.DUEDATE = DateTime.Parse(sheet.GetRow(5).Cells[3].ToString());
+
+            }
+            catch (Exception ex)
+            {
+                logger.Error("Datetime format error: "+ ex.Message);
+                throw new Exception("日期格式有錯(YYYY/MM/DD");
+            }
             //電子信箱:	admin@topmep
             logger.Debug(sheet.GetRow(6).Cells[0].ToString() + "," + sheet.GetRow(6).Cells[1]);
             form.CONTACT_EMAIL = sheet.GetRow(6).Cells[1].ToString();
             //編號: REF - 001
-            logger.Debug("REF_ID=" + sheet.GetRow(6).Cells[2].ToString() + "," + sheet.GetRow(6).Cells[3]);
-            form.FORM_ID = sheet.GetRow(6).Cells[3].ToString().Trim() ;
+            try
+            {
+                logger.Debug("REF_ID=" + sheet.GetRow(6).Cells[2].ToString() + "," + sheet.GetRow(6).Cells[3]);
+                form.FORM_ID = sheet.GetRow(6).Cells[3].ToString().Trim();
+            }
+            catch (Exception ex)
+            {
+                logger.Error("Not Reference ID:"+ ex.Message);
+            }
             //FAX:
             logger.Debug(sheet.GetRow(7).Cells[0].ToString());
             form.OWNER_FAX = sheet.GetRow(7).Cells[0].ToString();
@@ -1804,10 +1820,10 @@ namespace topmeperp.Service
             {
                 row = sheet.GetRow(iRowIndex);
                 logger.Info("excel rowid=" + iRowIndex + ",cell count=" + row.Cells.Count);
-                if (row.Cells.Count < 8)
+                if (row.Cells.Count != 11)
                 {
                     logger.Info("Row Index=" + iRowIndex + "column count has wrong" + row.Cells.Count);
-                    return;
+                    throw new Exception ("詢價單明細欄位有問題，請調漲欄位相關資料("+ row.Cells.Count +")");
                 }
                 else
                 {

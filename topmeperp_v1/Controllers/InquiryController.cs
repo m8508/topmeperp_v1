@@ -241,29 +241,37 @@ namespace topmeperp.Controllers
             log.Info("Upload form from supplier:" + Request["projectid"]);
             string projectid = Request["projectid"];
             //上傳至廠商報價單目錄
-            if (null != file && file.ContentLength != 0)
+            try
             {
-                var fileName = Path.GetFileName(file.FileName);
-                var path = Path.Combine(ContextService.strUploadPath + "/" + projectid + "/" + ContextService.quotesFolder, fileName);
-                file.SaveAs(path);
-                log.Info("Parser Excel File Begin:" + file.FileName);
-                InquiryFormToExcel quoteFormService = new InquiryFormToExcel();
-                quoteFormService.convertInquiry2Project(path, projectid);
-                int i = 0;
-                //如果詢價單編號為空白，新增詢價單資料，否則更新相關詢價單資料-new
-                if (null != quoteFormService.form.FORM_ID && quoteFormService.form.FORM_ID != "")
+                if (null != file && file.ContentLength != 0)
                 {
-                    log.Info("Update Form for Inquiry:" + quoteFormService.form.FORM_ID);
-                    i = service.refreshSupplierForm(quoteFormService.form.FORM_ID, quoteFormService.form, quoteFormService.formItems);
+                    var fileName = Path.GetFileName(file.FileName);
+                    var path = Path.Combine(ContextService.strUploadPath + "/" + projectid + "/" + ContextService.quotesFolder, fileName);
+                    file.SaveAs(path);
+                    log.Info("Parser Excel File Begin:" + file.FileName);
+                    InquiryFormToExcel quoteFormService = new InquiryFormToExcel();
+                    quoteFormService.convertInquiry2Project(path, projectid);
+                    int i = 0;
+                    //如果詢價單編號為空白，新增詢價單資料，否則更新相關詢價單資料-new
+                    if (null != quoteFormService.form.FORM_ID && quoteFormService.form.FORM_ID != "")
+                    {
+                        log.Info("Update Form for Inquiry:" + quoteFormService.form.FORM_ID);
+                        i = service.refreshSupplierForm(quoteFormService.form.FORM_ID, quoteFormService.form, quoteFormService.formItems);
+                    }
+                    else
+                    {
+                        log.Info("Create New Form for Inquiry:");
+                        i = service.createInquiryFormFromSupplier(quoteFormService.form, quoteFormService.formItems);
+                    }
+                    log.Info("add supplier form record count=" + i);
                 }
-                else
-                {
-                    log.Info("Create New Form for Inquiry:");
-                    i = service.createInquiryFormFromSupplier(quoteFormService.form, quoteFormService.formItems);
-                }
-                log.Info("add supplier form record count=" + i);
+                return "檔案匯入成功!!";
             }
-            return "檔案匯入成功!!";
+            catch (Exception ex)
+            {
+                log.Error(ex.Message);
+                return ex.Message;
+            }
         }
         //比價功能資料頁
         public ActionResult ComparisonMain(string id)
@@ -341,10 +349,10 @@ namespace topmeperp.Controllers
                     decimal tAmount = (decimal)dirSupplierQuo[tmpString[1]].TAmount;
                     string strAmout = string.Format("{0:C0}", tAmount);
 
-                    htmlString = htmlString + "<th><table><tr><td>" + tmpString[0] + 
+                    htmlString = htmlString + "<th><table><tr><td>" + tmpString[0] +
                         "<button type='button' class='btn-xs' onclick=\"clickSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>" +
                         "<button type='button' class='btn-xs'><a href='/Inquiry/SinglePrjForm/" + tmpString[1] + "'" + " target='_blank'><span class='glyphicon glyphicon-list-alt' aria-hidden='true'></span></a>" +
-                        "</button></td><tr><td style='text-align:center;background-color:yellow;' >" + strAmout +"</td></tr></table></th>";
+                        "</button></td><tr><td style='text-align:center;background-color:yellow;' >" + strAmout + "</td></tr></table></th>";
                 }
                 htmlString = htmlString + "</tr>";
                 //處理資料表
