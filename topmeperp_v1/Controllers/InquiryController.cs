@@ -341,10 +341,10 @@ namespace topmeperp.Controllers
                     decimal tAmount = (decimal)dirSupplierQuo[tmpString[1]].TAmount;
                     string strAmout = string.Format("{0:C0}", tAmount);
 
-                    htmlString = htmlString + "<th>" + tmpString[0] + "(" + strAmout + ")" +
+                    htmlString = htmlString + "<th><table><tr><td>" + tmpString[0] + 
                         "<button type='button' class='btn-xs' onclick=\"clickSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>" +
                         "<button type='button' class='btn-xs'><a href='/Inquiry/SinglePrjForm/" + tmpString[1] + "'" + " target='_blank'><span class='glyphicon glyphicon-list-alt' aria-hidden='true'></span></a>" +
-                        "</button>";
+                        "</button></td><tr><td style='text-align:center;background-color:yellow;' >" + strAmout +"</td></tr></table></th>";
                 }
                 htmlString = htmlString + "</tr>";
                 //處理資料表
