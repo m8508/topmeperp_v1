@@ -1,0 +1,62 @@
+﻿@model IEnumerable<topmeperp.Models.TND_PROJECT>
+<table class="table">
+    <tr>
+        <th>
+            專案編號
+        </th>
+        <th>
+            專案名稱
+        </th>
+        <th>
+            專案負責人
+        </th>
+        <th>
+            得標標單檔名稱
+        </th>
+        <th>
+            專案狀態
+        </th>
+        <th>
+            專案執行日期
+        </th>
+        <th>
+            功能區
+        </th>
+
+
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.PROJECT_ID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PROJECT_NAME)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OWNER_USER_ID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EXCEL_FILE_NAME)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.STATUS)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MODIFY_DATE)
+            </td>
+            <td>
+                <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("PurchaseMain", "Plan", new { id = item.PROJECT_ID })'; ">議約採購</button>
+                <button type="button" class="btn btn-info" onclick="location.href='@Url.Action("Budget", "Plan", new { id = item.PROJECT_ID })'">預算作業</button>
+                <button type="button" class="btn btn-warning" onclick="location.href=''">工務管理</button>
+            </td>
+        </tr>
+    }
+
+</table>
+
+
+
+

@@ -448,7 +448,7 @@ namespace topmeperp.Service
 
             return lstFormItem;
         }
-        
+
         //取得標單品項資料
         public List<TND_PROJECT_ITEM> getProjectItem(string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub)
         {
@@ -570,10 +570,12 @@ namespace topmeperp.Service
                     {
                         TND_PROJECT_FORM_ITEM existItem = null;
                         logger.Debug("form item id=" + item.FORM_ITEM_ID);
-                        if (item.FORM_ITEM_ID  != 0)
+                        if (item.FORM_ITEM_ID != 0)
                         {
                             existItem = context.TND_PROJECT_FORM_ITEM.Find(item.FORM_ITEM_ID);
-                        }else                        {
+                        }
+                        else
+                        {
                             var parameters = new List<SqlParameter>();
                             parameters.Add(new SqlParameter("formid", formid));
                             parameters.Add(new SqlParameter("itemid", item.PROJECT_ITEM_ID));

@@ -33,6 +33,8 @@
         <EntityTypeShape EntityType="topmepModel.TND_MAP_DEVICE" Width="1.5" PointX="0.75" PointY="8.75" />
         <EntityTypeShape EntityType="topmepModel.sysdiagrams" Width="1.5" PointX="8.375" PointY="3.75" />
         <EntityTypeShape EntityType="topmepModel.TND_TASKASSIGN" Width="1.5" PointX="10.375" PointY="3.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_ITEM" Width="1.5" PointX="14.375" PointY="13.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_BUDGET" Width="1.5" PointX="10.375" PointY="7.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

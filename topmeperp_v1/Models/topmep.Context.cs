@@ -50,5 +50,7 @@ namespace topmeperp.Models
         public virtual DbSet<TND_MAP_DEVICE> TND_MAP_DEVICE { get; set; }
         public virtual DbSet<sysdiagrams> sysdiagrams { get; set; }
         public virtual DbSet<TND_TASKASSIGN> TND_TASKASSIGN { get; set; }
+        public virtual DbSet<PLAN_ITEM> PLAN_ITEM { get; set; }
+        public virtual DbSet<PLAN_BUDGET> PLAN_BUDGET { get; set; }
     }
 }

@@ -1,0 +1,31 @@
+﻿@model IEnumerable<topmeperp.Models.DirectCost>
+@{
+    ViewBag.Title = "執行預算作業";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <h3>執行預算作業</h3><br />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>九宮格</th>
+                <th>次九宮格</th>
+                <th>名稱</th>
+                <th>預算金額</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.MAINCODE</td>
+                    <td>@item.SUB_CODE</td>
+                    <td>@item.MAINCODE_DESC</td>
+                    <td></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

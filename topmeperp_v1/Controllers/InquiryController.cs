@@ -215,7 +215,9 @@ namespace topmeperp.Controllers
         public ActionResult ExportInquiry(FormCollection form)
         {
             log.Info("get inquiry form:formid=" + form["formid"]);
+            log.Info("get form's project id :projectid=" + form["prjId"]);
             service.getInqueryForm(form["formid"]);
+
             InquiryFormToExcel poi = new InquiryFormToExcel();
             poi.exportExcel(service.formInquiry, service.formInquiryItem);
             return View();

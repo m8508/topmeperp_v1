@@ -245,6 +245,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InquiryController.cs" />
+    <Compile Include="Controllers\PlanController.cs" />
     <Compile Include="Controllers\RoleManageController.cs" />
     <Compile Include="Controllers\SupplierManageController.cs" />
     <Compile Include="Controllers\TenderController.cs" />
@@ -257,6 +258,12 @@
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\BusinessObjectModels.cs" />
     <Compile Include="Models\PivotDataModel.cs" />
+    <Compile Include="Models\PLAN_BUDGET.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PLAN_ITEM.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\REF_TYPE_MAIN.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
@@ -349,6 +356,7 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service\ContextService.cs" />
+    <Compile Include="Service\ContextService4po.cs" />
     <Compile Include="Service\PoiService.cs" />
     <Compile Include="Service\ReportContextService.cs" />
     <Compile Include="Startup.cs" />
@@ -582,6 +590,10 @@
     <Content Include="Views\Tender\EditProjectItem.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\LongDateTime.cshtml" />
     <Content Include="Views\Tender\EditForTask.cshtml" />
+    <Content Include="Views\Plan\Index.cshtml" />
+    <Content Include="Views\Plan\ProjectList.cshtml" />
+    <Content Include="Views\Plan\PurchaseMain.cshtml" />
+    <Content Include="Views\Plan\Budget.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
