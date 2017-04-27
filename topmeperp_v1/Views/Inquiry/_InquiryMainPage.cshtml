@@ -1,5 +1,7 @@
 ﻿<div class="container">
     <h6>請下載需要的詢價單，調整後發給廠商，再行匯入系統!!!</h6>
+    <input id="btnCreateTemplate" name="btnCreateTemplate" type="button" class="btn btn-info" value="批次建立詢價單" onclick="createTemplate()" />
+    
     @if (null != Model.tndTemplateProjectForm)
     {
         <table class="table table-bordered">
@@ -16,7 +18,7 @@
                     <tr>
                         <td><a href="/Inquiry/SinglePrjForm/@item.FORM_ID" target="_blank">@item.FORM_ID</a></td>
                         <td>@item.FORM_NAME</td>
-                        <td><a href='@("../UploadFile/"+ViewBag.projectid+"/"+item.FORM_ID+".xlsx")'>下載</a></td>
+                        <td><a href='@("../../UploadFile/"+ViewBag.projectid+"/Quotes/"+item.FORM_ID+".xlsx")'>下載</a></td>
                     </tr>
                 }
             </tbody>

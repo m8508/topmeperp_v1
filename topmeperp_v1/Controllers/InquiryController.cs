@@ -8,7 +8,6 @@ using topmeperp.Models;
 using topmeperp.Service;
 using System.IO;
 using System.Data;
-using PagedList;
 
 
 
@@ -236,7 +235,6 @@ namespace topmeperp.Controllers
             }
             return View(formData);
         }
-
         //上傳廠商報價單
         public string FileUpload(HttpPostedFileBase file)
         {
@@ -250,9 +248,17 @@ namespace topmeperp.Controllers
                 file.SaveAs(path);
                 log.Info("Parser Excel File Begin:" + file.FileName);
                 InquiryFormToExcel quoteFormService = new InquiryFormToExcel();
-                quoteFormService.convertInquiry2Project(path, projectid);
+                try
+                {
+                    quoteFormService.convertInquiry2Project(path, projectid);
+                }
+                catch (Exception ex)
+                {
+                    log.Error(ex.StackTrace);
+                }
                 int i = 0;
                 //如果詢價單編號為空白，新增詢價單資料，否則更新相關詢價單資料-new
+                log.Debug("Parser Excel File Finish!");
                 if (null != quoteFormService.form.FORM_ID && quoteFormService.form.FORM_ID != "")
                 {
                     log.Info("Update Form for Inquiry:" + quoteFormService.form.FORM_ID);
@@ -343,10 +349,10 @@ namespace topmeperp.Controllers
                     decimal tAmount = (decimal)dirSupplierQuo[tmpString[1]].TAmount;
                     string strAmout = string.Format("{0:C0}", tAmount);
 
-                    htmlString = htmlString + "<th>" + tmpString[0] + "(" + strAmout + ")" +
+                    htmlString = htmlString + "<th><table><tr><td>" + tmpString[0] +
                         "<button type='button' class='btn-xs' onclick=\"clickSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>" +
                         "<button type='button' class='btn-xs'><a href='/Inquiry/SinglePrjForm/" + tmpString[1] + "'" + " target='_blank'><span class='glyphicon glyphicon-list-alt' aria-hidden='true'></span></a>" +
-                        "</button>";
+                        "</button></td><tr><td style='text-align:center;background-color:yellow;' >" + strAmout + "</td></tr></table></th>";
                 }
                 htmlString = htmlString + "</tr>";
                 //處理資料表
@@ -429,6 +435,15 @@ namespace topmeperp.Controllers
             excel.exportExcel(id);
             ViewBag.url = "/UploadFile/" + id + "/" + id + "_CostAnalysis.xlsx";
             return View();
+        }
+        //批次產生空白詢價單
+        public string createEmptyForm()
+        {
+            log.Info("project id=" + Request["projectid"]);
+            SYS_USER u = (SYS_USER)Session["user"];
+            int i =service.createEmptyForm(Request["projectid"], u);
+            
+            return "共產生 "+ i + "空白詢價單樣本!!";
         }
     }
 }
