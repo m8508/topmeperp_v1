@@ -108,4 +108,12 @@ namespace topmeperp.Models
         public Int64 NO { get; set; }
         public Nullable<decimal> TOTAL_PRICE { get; set; }
     }
+    //九宮格與次九宮格索引 for 專案建立空白詢價單
+    public class TYPE_CODE_INDEX
+    {
+        public string TYPE_CODE_1 { get; set; }
+        public string TYPE_CODE_1_NAME { get; set; }
+        public string TYPE_CODE_2 { get; set; }
+        public string TYPE_CODE_2_NAME { get; set; }
+    }
 }

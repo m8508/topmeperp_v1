@@ -332,6 +332,86 @@ namespace topmeperp.Service
             }
             return project;
         }
+        //批次產生空白表單
+        public int createEmptyForm(string projectid, SYS_USER loginUser)
+        {
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                //1.依據專案取得九宮格次九宮格分類.
+                string sql = "SELECT DISTINCT isnull(TYPE_CODE_1,'未分類') TYPE_CODE_1," +
+                    "(SELECT TYPE_DESC FROM REF_TYPE_MAIN m WHERE m.TYPE_CODE_1 + m.TYPE_CODE_2 = p.TYPE_CODE_1) as TYPE_CODE_1_NAME, " +
+                    "isnull(TYPE_CODE_2,'未分類') TYPE_CODE_2," +
+                    "(SELECT TYPE_DESC FROM REF_TYPE_SUB sub WHERE sub.TYPE_CODE_ID = p.TYPE_CODE_1 AND sub.SUB_TYPE_CODE = p.TYPE_CODE_2) as TYPE_CODE_2_NAME " +
+                    "FROM TND_PROJECT_ITEM p WHERE PROJECT_ID = @projectid ORDER BY TYPE_CODE_1 ,Type_CODE_2; ";
+
+                List<TYPE_CODE_INDEX> lstType = context.Database.SqlQuery<TYPE_CODE_INDEX>(sql, new SqlParameter("projectid", projectid)).ToList();
+                logger.Debug("get type index count=" + lstType.Count);
+                foreach (TYPE_CODE_INDEX idx in lstType)
+                {
+                    var parameters = new List<SqlParameter>();
+                    parameters.Add(new SqlParameter("projectid", projectid));
+                    sql = "SELECT * FROM TND_PROJECT_ITEM WHERE PROJECT_ID = @projectid ";
+                    if (idx.TYPE_CODE_1 == "未分類")
+                    {
+                        sql = sql + "AND TYPE_CODE_1 is null ";
+                    }
+                    else
+                    {
+                        sql = sql + "AND TYPE_CODE_1=@typecode1 ";
+                        parameters.Add(new SqlParameter("typecode1", idx.TYPE_CODE_1));
+                    }
+
+                    if (idx.TYPE_CODE_2 == "未分類")
+                    {
+                        sql = sql + "AND TYPE_CODE_2 is null ";
+                    }
+                    else
+                    {
+                        sql = sql + "AND TYPE_CODE_2=@typecode2 ";
+                        parameters.Add(new SqlParameter("typecode2", idx.TYPE_CODE_2));
+                    }
+                    //2.依據分類取得詢價單項次
+                    List<TND_PROJECT_ITEM> lstProjectItem = context.TND_PROJECT_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
+                    logger.Debug("get project item count=" + lstProjectItem.Count + ", by typecode1=" + idx.TYPE_CODE_1 + ",typeCode2=" + idx.TYPE_CODE_2);
+                    string[] itemId = new string[lstProjectItem.Count];
+                    int j = 0;
+                    foreach (TND_PROJECT_ITEM item in lstProjectItem)
+                    {
+                        itemId[j] = item.PROJECT_ITEM_ID;
+                        j++;
+                    }
+                    //3.建立詢價單基本資料
+                    TND_PROJECT_FORM f = new TND_PROJECT_FORM();
+                    if (idx.TYPE_CODE_1 == "未分類")
+                    {
+                        f.FORM_NAME = "未分類";
+                    }
+                    else
+                    {
+                        f.FORM_NAME = idx.TYPE_CODE_1_NAME;
+                    }
+
+                    if (idx.TYPE_CODE_2 != "未分類")
+                    {
+                        f.FORM_NAME = f.FORM_NAME + "-" + idx.TYPE_CODE_2_NAME;
+                    }
+                    f.PROJECT_ID = projectid;
+                    f.CREATE_ID = loginUser.USER_ID;
+                    f.CREATE_DATE = DateTime.Now;
+                    f.OWNER_NAME = loginUser.USER_NAME;
+                    f.OWNER_EMAIL = loginUser.EMAIL;
+                    f.OWNER_TEL = loginUser.TEL;
+                    f.OWNER_FAX = loginUser.FAX;
+                    //4.建立表單
+                    string fid =newForm(f, itemId);
+                    logger.Info("create template form:" + fid);
+                    i++;
+                }
+            }
+            logger.Info("create form count" + i);
+            return i;
+        }
 
         TND_PROJECT_FORM form = null;
         public string newForm(TND_PROJECT_FORM form, string[] lstItemId)
@@ -448,7 +528,7 @@ namespace topmeperp.Service
 
             return lstFormItem;
         }
-        
+
         //取得標單品項資料
         public List<TND_PROJECT_ITEM> getProjectItem(string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub)
         {
@@ -505,13 +585,6 @@ namespace topmeperp.Service
                 try
                 {
                     context.TND_PROJECT_FORM.AddOrUpdate(sf);
-                    //logger.Info("project form id = " + form.FORM_ID);
-                    //if (i > 0) { status = true; };
-                    //foreach (TND_PROJECT_FORM_ITEM item in items)
-                    // {
-                    //   item.FORM_ID = form.FORM_ID;
-                    //   context.TND_PROJECT_FORM_ITEM.Add(item);
-                    //  }
                     i = context.SaveChanges();
                     List<topmeperp.Models.TND_PROJECT_FORM_ITEM> lstItem = new List<TND_PROJECT_FORM_ITEM>();
                     string ItemId = "";
@@ -570,10 +643,12 @@ namespace topmeperp.Service
                     {
                         TND_PROJECT_FORM_ITEM existItem = null;
                         logger.Debug("form item id=" + item.FORM_ITEM_ID);
-                        if (item.FORM_ITEM_ID  != 0)
+                        if (item.FORM_ITEM_ID != 0)
                         {
                             existItem = context.TND_PROJECT_FORM_ITEM.Find(item.FORM_ITEM_ID);
-                        }else                        {
+                        }
+                        else
+                        {
                             var parameters = new List<SqlParameter>();
                             parameters.Add(new SqlParameter("formid", formid));
                             parameters.Add(new SqlParameter("itemid", item.PROJECT_ITEM_ID));

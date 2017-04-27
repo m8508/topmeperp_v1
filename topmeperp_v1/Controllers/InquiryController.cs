@@ -233,7 +233,6 @@ namespace topmeperp.Controllers
             }
             return View(formData);
         }
-
         //上傳廠商報價單
         public string FileUpload(HttpPostedFileBase file)
         {
@@ -434,6 +433,15 @@ namespace topmeperp.Controllers
             excel.exportExcel(id);
             ViewBag.url = "/UploadFile/" + id + "/" + id + "_CostAnalysis.xlsx";
             return View();
+        }
+        //批次產生空白詢價單
+        public string createEmptyForm()
+        {
+            log.Info("project id=" + Request["projectid"]);
+            SYS_USER u = (SYS_USER)Session["user"];
+            int i =service.createEmptyForm(Request["projectid"], u);
+            
+            return "共產生 "+ i + "空白詢價單樣本!!";
         }
     }
 }

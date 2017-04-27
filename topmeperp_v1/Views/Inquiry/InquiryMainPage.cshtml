@@ -12,11 +12,11 @@
                 <div id="id" class="col-md-2 text-left">
                     <input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control" />
                 </div>
-                    <label for="name" class="col-md-2" style="text-align:right">專案名稱 :</label>
-                    <div id="name" class="col-md-4 text-left">
-                        <input id="name" name="name" type="text" value="@ViewBag.projectName" class="form-control" readonly="readonly"/>
+                <label for="name" class="col-md-2" style="text-align:right">專案名稱 :</label>
+                <div id="name" class="col-md-4 text-left">
+                    <input id="name" name="name" type="text" value="@ViewBag.projectName" class="form-control" readonly="readonly" />
                 </div>
-                <input id="Submit1" class="btn btn-info" type="submit" value="確認選商"/>
+                <input id="Submit1" class="btn btn-info" type="submit" value="確認選商" />
                 <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
                 <div id="divProcessing" class="col-md-2">
                     <img src="~/Content/ajax-loader.gif">
@@ -55,4 +55,23 @@
             $("#divProcessing").show();
         });
     });
+    function createTemplate() {
+        var projectid = $("input[id=id]").val();
+        var URLs = "/Inquiry/createEmptyForm";
+        $("#divProcessing").show();
+        $.ajax({
+            url: URLs,
+            data: {"projectid": projectid },
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+                $("#divProcessing").hide();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+                $("#divProcessing").hide();
+            }
+        });
+    }
 </script>
