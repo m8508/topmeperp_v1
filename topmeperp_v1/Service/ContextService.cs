@@ -579,7 +579,7 @@ namespace topmeperp.Service
                             parameters.Add(new SqlParameter("itemid", item.PROJECT_ITEM_ID));
                             string sql = "SELECT * FROM TND_PROJECT_FORM_ITEM WHERE FORM_ID=@formid AND PROJECT_ITEM_ID=@itemid";
                             logger.Info(sql + " ;" + formid + ",project_item_id=" + item.PROJECT_ITEM_ID);
-                            TND_PROJECT_FORM_ITEM excelItem = context.TND_PROJECT_FORM_ITEM.SqlQuery(sql, parameters).First();
+                            TND_PROJECT_FORM_ITEM excelItem = context.TND_PROJECT_FORM_ITEM.SqlQuery(sql, parameters.ToArray()).First();
                             existItem = context.TND_PROJECT_FORM_ITEM.Find(excelItem.FORM_ITEM_ID);
 
                         }
