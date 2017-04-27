@@ -255,7 +255,8 @@ namespace topmeperp.Controllers
                 {
                     log.Info("Update Form for Inquiry:" + quoteFormService.form.FORM_ID);
                     i = service.refreshSupplierForm(quoteFormService.form.FORM_ID, quoteFormService.form, quoteFormService.formItems);
-                }else
+                }
+                else
                 {
                     log.Info("Create New Form for Inquiry:");
                     i = service.createInquiryFormFromSupplier(quoteFormService.form, quoteFormService.formItems);

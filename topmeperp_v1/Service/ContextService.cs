@@ -448,31 +448,7 @@ namespace topmeperp.Service
 
             return lstFormItem;
         }
-        public TND_PROJECT_ITEM getTypeCodeById(string[] lstItemId)
-        {
-            TND_PROJECT_ITEM lstTypeCode = new TND_PROJECT_ITEM();
-            int i = 0;
-            string ItemId = "";
-            for (i = 0; i < lstItemId.Count(); i++)
-            {
-                if (i < lstItemId.Count() - 1)
-                {
-                    ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
-                }
-                else
-                {
-                    ItemId = ItemId + "'" + lstItemId[i] + "'";
-                }
-            }
-
-            using (var context = new topmepEntities())
-            {
-                lstTypeCode = context.TND_PROJECT_ITEM.SqlQuery("SELSCT TYPE_CODE_1 FROM TND_PROJECT_ITEM where PROJECT_ITEM_ID IN (" + ItemId + ")"
-                   , new SqlParameter("ItemId", ItemId)).First();
-            }
-
-            return lstTypeCode;
-        }
+        
         //取得標單品項資料
         public List<TND_PROJECT_ITEM> getProjectItem(string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub)
         {
