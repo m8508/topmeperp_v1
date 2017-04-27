@@ -1850,7 +1850,7 @@ namespace topmeperp.Service
                     catch (Exception ex)
                     {
                         logger.Error("Row Data Error:" + iRowIndex);
-                        logger.Error(ex.StackTrace);
+                        logger.Error(ex.GetType() + ":" + ex.StackTrace);
                     }
                 }
                 iRowIndex++;
