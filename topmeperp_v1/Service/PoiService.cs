@@ -1643,7 +1643,7 @@ namespace topmeperp.Service
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         string templateFile = ContextService.strUploadPath + "\\Inquiry_form_template.xlsx";
-        string outputPath = ContextService.strUploadPath;
+        public string outputPath = ContextService.strUploadPath;
 
         IWorkbook hssfworkbook;
         ISheet sheet = null;
