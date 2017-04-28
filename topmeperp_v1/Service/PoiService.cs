@@ -1432,6 +1432,17 @@ namespace topmeperp.Service
                 errorMessage = errorMessage + "<br/>" + message;
             }
         }
+        public XSSFCellStyle getContentStyle()
+        {
+            XSSFCellStyle oStyle = (XSSFCellStyle)hssfworkbook.CreateCellStyle();
+
+            //設定上下左右的框線
+            oStyle.BorderBottom = NPOI.SS.UserModel.BorderStyle.Thin;//粗
+            oStyle.BorderLeft = NPOI.SS.UserModel.BorderStyle.Thin;//細實線
+            oStyle.BorderRight = NPOI.SS.UserModel.BorderStyle.Thin;//虛線
+            oStyle.BorderTop = NPOI.SS.UserModel.BorderStyle.Thin;//...  
+            return oStyle;
+        }
     }
     #region 功率下載表格格式處理區段
     public class WageFormToExcel
@@ -1870,6 +1881,8 @@ namespace topmeperp.Service
         public TND_PROJECT project = null;
         public List<PROJECT_ITEM_WITH_WAGE> projectItems = null;
 
+        XSSFCellStyle style = null;
+
         public void exportExcel(string projectid)
         {
             //1 取得資料庫資料
@@ -1877,9 +1890,11 @@ namespace topmeperp.Service
             service.getProjectId(projectid);
             project = service.wageTable;
             projectItems = service.wageTableItem;
+
             //2.開啟檔案
             logger.Info("InitializeWorkbook");
             InitializeWorkbook(templateFile);
+            style = getContentStyle();
 
             //3寫入初期成本邊單 僅提供office 格式2007 
             getInitialQuotation();
@@ -1907,6 +1922,7 @@ namespace topmeperp.Service
             logger.Debug("InitialQuotation Table Head_2=" + sheet.GetRow(2).Cells[0].ToString());
             sheet.GetRow(3).Cells[1].SetCellValue(project.PROJECT_NAME);//專案名稱
             int idxRow = 4;
+
             foreach (PROJECT_ITEM_WITH_WAGE item in projectItems)
             {
                 logger.Info("Row Id=" + idxRow);
@@ -1947,6 +1963,11 @@ namespace topmeperp.Service
                     row.CreateCell(12).SetCellValue("");// 工率
                     row.CreateCell(13).SetCellValue("");// 工資試算
                 }
+                logger.Debug("set cell style rowid=" + idxRow);
+                foreach(ICell c in row.Cells)
+                {
+                    c.CellStyle = style;
+                }
                 idxRow++;
             }
         }
@@ -1983,6 +2004,11 @@ namespace topmeperp.Service
                 row.CreateCell(9).SetCellValue(item.TYPE_CODE_2);// 次九宮格
                 row.CreateCell(10).SetCellValue(item.SYSTEM_MAIN);// 主系統
                 row.CreateCell(11).SetCellValue(item.SYSTEM_SUB);// 次系統
+                logger.Debug("set cell style rowid=" + idxRow);
+                foreach (ICell c in row.Cells)
+                {
+                    c.CellStyle = style;
+                }
                 idxRow++;
             }
         }
@@ -2033,6 +2059,11 @@ namespace topmeperp.Service
                 {
                     row.CreateCell(13).SetCellValue(int.Parse(item.ITEM_COUNT.ToString())); //項數
                 }
+                logger.Debug("set cell style rowid=" + idxRow);
+                foreach (ICell c in row.Cells)
+                {
+                    c.CellStyle = style;
+                }
                 idxRow++;
             }
             //加入小計欄位
@@ -2046,6 +2077,11 @@ namespace topmeperp.Service
             summaryRow.Cells[3].SetCellFormula("SUM(D2:D" + (idxRow - 1) + ")");
             summaryRow.Cells[4].SetCellFormula("SUM(E2:E" + (idxRow - 1) + ")");
             summaryRow.Cells[13].SetCellFormula("SUM(N2:N" + (idxRow - 1) + ")");
+            logger.Debug("set cell style rowid=" + idxRow);
+            foreach (ICell c in summaryRow.Cells)
+            {
+                c.CellStyle = style;
+            }
         }
         private void getSystemCost(List<SystemCost> systemCostItems)
         {
@@ -2078,6 +2114,10 @@ namespace topmeperp.Service
                 {
                     row.CreateCell(8).SetCellValue(int.Parse(item.ITEM_COUNT.ToString())); //項數
                 }
+                foreach (ICell c in row.Cells)
+                {
+                    c.CellStyle = style;
+                }
                 idxRow++;
             }
             //加入小計欄位
@@ -2092,6 +2132,10 @@ namespace topmeperp.Service
             summaryRow.Cells[3].SetCellFormula("SUM(D2:D" + (idxRow - 1) + ")");
             summaryRow.Cells[4].SetCellFormula("SUM(E2:E" + (idxRow - 1) + ")");
             summaryRow.Cells[8].SetCellFormula("SUM(I2:I" + (idxRow - 1) + ")");
+            foreach (ICell c in summaryRow.Cells)
+            {
+                c.CellStyle = style;
+            }
         }
     }
     #endregion
