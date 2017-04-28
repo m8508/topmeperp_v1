@@ -1445,11 +1445,11 @@ namespace topmeperp.Service
         string fileformat = "xlsx";
         //存放工率資料
         public TND_PROJECT project = null;
-        public List<TND_PROJECT_ITEM> projectItems = null;
+        public List<PROJECT_ITEM_WITH_WAGE> projectItems = null;
         public string errorMessage = null;
         string projId = null;
         //建立工率下載表格
-        public void exportExcel(TND_PROJECT project, List<TND_PROJECT_ITEM> projectItems)
+        public void exportExcel(TND_PROJECT project, List<PROJECT_ITEM_WITH_WAGE> projectItems)
         {
             //1.讀取功率表格檔案
             InitializeWorkbook(wageFile);
@@ -1714,7 +1714,7 @@ namespace topmeperp.Service
             hssfworkbook.Write(file);
             file.Close();
         }
-        
+
         private void InitializeWorkbook(string path)
         {
             //read the template via FileStream, it is suggested to use FileAccess.Read to prevent file lock.
@@ -1868,7 +1868,7 @@ namespace topmeperp.Service
         CostAnalysisDataService service = new CostAnalysisDataService();
 
         public TND_PROJECT project = null;
-        public List<TND_PROJECT_ITEM> projectItems = null;
+        public List<PROJECT_ITEM_WITH_WAGE> projectItems = null;
 
         public void exportExcel(string projectid)
         {
@@ -1900,14 +1900,14 @@ namespace topmeperp.Service
 
         private void getInitialQuotation()
         {
-            //2.寫入初期成本邊單 僅提供office 格式2007 
+            //2.寫入初期成本標單 僅提供office 格式2007 
             sheet = (XSSFSheet)hssfworkbook.GetSheet("初期成本標單");
             logger.Debug("InitialQuotation  Head_1=" + sheet.GetRow(1).Cells[0].ToString());
             sheet.GetRow(2).Cells[1].SetCellValue(project.PROJECT_ID);//專案編號
             logger.Debug("InitialQuotation Table Head_2=" + sheet.GetRow(2).Cells[0].ToString());
             sheet.GetRow(3).Cells[1].SetCellValue(project.PROJECT_NAME);//專案名稱
             int idxRow = 4;
-            foreach (TND_PROJECT_ITEM item in projectItems)
+            foreach (PROJECT_ITEM_WITH_WAGE item in projectItems)
             {
                 logger.Info("Row Id=" + idxRow);
                 IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
@@ -1937,6 +1937,16 @@ namespace topmeperp.Service
                 row.CreateCell(9).SetCellValue(item.TYPE_CODE_2);// 次九宮格
                 row.CreateCell(10).SetCellValue(item.SYSTEM_MAIN);// 主系統
                 row.CreateCell(11).SetCellValue(item.SYSTEM_SUB);// 次系統
+                if (null != item.RATIO)
+                {
+                    row.CreateCell(12).SetCellValue(double.Parse(item.RATIO.ToString()));// 工率
+                    ICell cel13 = row.CreateCell(13);
+                    cel13.CellFormula = "M" + (idxRow+1) + "*M3";
+                }else
+                {
+                    row.CreateCell(12).SetCellValue("");// 工率
+                    row.CreateCell(13).SetCellValue("");// 工資試算
+                }
                 idxRow++;
             }
         }
@@ -2005,7 +2015,8 @@ namespace topmeperp.Service
                 //工資
                 if (null != item.MAN_DAY && item.MAN_DAY.ToString().Trim() != "")
                 {
-                    row.CreateCell(4).SetCellValue(double.Parse(item.MAN_DAY.ToString()));
+                    //row.CreateCell(4).SetCellValue(double.Parse(item.MAN_DAY.ToString()));
+                    row.CreateCell(4).SetCellValue("");
                 }
                 row.CreateCell(5).CellFormula = "D" + (idxRow + 1) + "+E" + (idxRow + 1); //報價複價(填入公式)
 

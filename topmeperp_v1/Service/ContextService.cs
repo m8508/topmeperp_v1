@@ -1094,7 +1094,7 @@ namespace topmeperp.Service
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public TND_PROJECT wageTable = null;
-        public List<TND_PROJECT_ITEM> wageTableItem = null;
+        public List<PROJECT_ITEM_WITH_WAGE> wageTableItem = null;
         public TND_PROJECT name = null;
         public WageTableService()
         {
@@ -1108,7 +1108,9 @@ namespace topmeperp.Service
                 //取得工率表單檔頭資訊
                 wageTable = context.TND_PROJECT.SqlQuery("SELECT * FROM TND_PROJECT WHERE PROJECT_ID=@projectid", new SqlParameter("projectid", projectid)).First();
                 //取得工率表單明細
-                wageTableItem = context.TND_PROJECT_ITEM.SqlQuery("SELECT * FROM TND_PROJECT_ITEM WHERE PROJECT_ID=@projectid ORDER BY EXCEL_ROW_ID;", new SqlParameter("projectid", projectid)).ToList();
+                wageTableItem = context.Database.SqlQuery<PROJECT_ITEM_WITH_WAGE>(" SELECT i.*,w.ratio,w.price FROM TND_PROJECT_ITEM i LEFT OUTER JOIN "+
+                    " TND_WAGE w ON i.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID "+
+                    " WHERE i.project_id = @projectid  ORDER BY i.EXCEL_ROW_ID; ; ", new SqlParameter("projectid", projectid)).ToList();
                 logger.Debug("get project item count:" + wageTableItem.Count);
             }
         }
