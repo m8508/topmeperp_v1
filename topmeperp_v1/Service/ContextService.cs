@@ -553,25 +553,25 @@ namespace topmeperp.Service
             if (null != typeCode1 && typeCode1 != "")
             {
                 sql = sql + "AND p.TYPE_CODE_1 = @typeCode1 ";
-                parameters.Add(new SqlParameter("typeCode1",  typeCode1 ));
+                parameters.Add(new SqlParameter("typeCode1", typeCode1));
             }
             //次九宮格
             if (null != typeCode2 && typeCode2 != "")
             {
                 sql = sql + "AND p.TYPE_CODE_2 = @typeCode2 ";
-                parameters.Add(new SqlParameter("typeCode2",  typeCode2 ));
+                parameters.Add(new SqlParameter("typeCode2",typeCode2));
             }
             //主系統
             if (null != systemMain && systemMain != "")
             {
-                sql = sql + "AND p.SYSTEM_MAIN LIKE '%" + systemMain +"%' ";
-                //parameters.Add(new SqlParameter("systemMain", "%" + systemMain + "%"));
+                sql = sql + "AND p.SYSTEM_MAIN LIKE @systemMain ";
+                parameters.Add(new SqlParameter("systemMain", "%" + systemMain + "%"));
             }
             //次系統
             if (null != systemSub && systemSub != "")
             {
-                sql = sql + "AND p.SYSTEM_SUB LIKE '%" + systemSub + "%' ";
-               // parameters.Add(new SqlParameter("systemSub", "%" + systemSub + "%"));
+                sql = sql + "AND p.SYSTEM_SUB LIKE @systemSub ";
+                parameters.Add(new SqlParameter("systemSub", "%" + systemSub + "%"));
             }
 
             using (var context = new topmepEntities())
