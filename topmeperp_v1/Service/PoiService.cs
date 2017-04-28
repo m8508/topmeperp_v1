@@ -155,9 +155,9 @@ namespace topmeperp.Service
             {
                 projectItem.SYSTEM_MAIN = row.Cells[9].ToString();
             }
-            if (row.Cells[10].ToString().Trim() != "")//主系統
+            if (row.Cells[10].ToString().Trim() != "")//次系統
             {
-                projectItem.SYSTEM_MAIN = row.Cells[10].ToString();
+                projectItem.SYSTEM_SUB = row.Cells[10].ToString();
             }
             projectItem.PROJECT_ITEM_ID = projId + "-" + id;
             projectItem.EXCEL_ROW_ID = excelrow;
@@ -1432,6 +1432,17 @@ namespace topmeperp.Service
                 errorMessage = errorMessage + "<br/>" + message;
             }
         }
+        public XSSFCellStyle getContentStyle()
+        {
+            XSSFCellStyle oStyle = (XSSFCellStyle)hssfworkbook.CreateCellStyle();
+
+            //設定上下左右的框線
+            oStyle.BorderBottom = NPOI.SS.UserModel.BorderStyle.Thin;//粗
+            oStyle.BorderLeft = NPOI.SS.UserModel.BorderStyle.Thin;//細實線
+            oStyle.BorderRight = NPOI.SS.UserModel.BorderStyle.Thin;//虛線
+            oStyle.BorderTop = NPOI.SS.UserModel.BorderStyle.Thin;//...  
+            return oStyle;
+        }
     }
     #region 功率下載表格格式處理區段
     public class WageFormToExcel
@@ -1445,11 +1456,11 @@ namespace topmeperp.Service
         string fileformat = "xlsx";
         //存放工率資料
         public TND_PROJECT project = null;
-        public List<TND_PROJECT_ITEM> projectItems = null;
+        public List<PROJECT_ITEM_WITH_WAGE> projectItems = null;
         public string errorMessage = null;
         string projId = null;
         //建立工率下載表格
-        public void exportExcel(TND_PROJECT project, List<TND_PROJECT_ITEM> projectItems)
+        public void exportExcel(TND_PROJECT project, List<PROJECT_ITEM_WITH_WAGE> projectItems)
         {
             //1.讀取功率表格檔案
             InitializeWorkbook(wageFile);
@@ -1643,7 +1654,7 @@ namespace topmeperp.Service
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         string templateFile = ContextService.strUploadPath + "\\Inquiry_form_template.xlsx";
-        string outputPath = ContextService.strUploadPath;
+        public string outputPath = ContextService.strUploadPath;
 
         IWorkbook hssfworkbook;
         ISheet sheet = null;
@@ -1714,7 +1725,7 @@ namespace topmeperp.Service
             hssfworkbook.Write(file);
             file.Close();
         }
-        
+
         private void InitializeWorkbook(string path)
         {
             //read the template via FileStream, it is suggested to use FileAccess.Read to prevent file lock.
@@ -1868,7 +1879,9 @@ namespace topmeperp.Service
         CostAnalysisDataService service = new CostAnalysisDataService();
 
         public TND_PROJECT project = null;
-        public List<TND_PROJECT_ITEM> projectItems = null;
+        public List<PROJECT_ITEM_WITH_WAGE> projectItems = null;
+
+        XSSFCellStyle style = null;
 
         public void exportExcel(string projectid)
         {
@@ -1877,9 +1890,11 @@ namespace topmeperp.Service
             service.getProjectId(projectid);
             project = service.wageTable;
             projectItems = service.wageTableItem;
+
             //2.開啟檔案
             logger.Info("InitializeWorkbook");
             InitializeWorkbook(templateFile);
+            style = getContentStyle();
 
             //3寫入初期成本邊單 僅提供office 格式2007 
             getInitialQuotation();
@@ -1900,14 +1915,15 @@ namespace topmeperp.Service
 
         private void getInitialQuotation()
         {
-            //2.寫入初期成本邊單 僅提供office 格式2007 
+            //2.寫入初期成本標單 僅提供office 格式2007 
             sheet = (XSSFSheet)hssfworkbook.GetSheet("初期成本標單");
             logger.Debug("InitialQuotation  Head_1=" + sheet.GetRow(1).Cells[0].ToString());
             sheet.GetRow(2).Cells[1].SetCellValue(project.PROJECT_ID);//專案編號
             logger.Debug("InitialQuotation Table Head_2=" + sheet.GetRow(2).Cells[0].ToString());
             sheet.GetRow(3).Cells[1].SetCellValue(project.PROJECT_NAME);//專案名稱
             int idxRow = 4;
-            foreach (TND_PROJECT_ITEM item in projectItems)
+
+            foreach (PROJECT_ITEM_WITH_WAGE item in projectItems)
             {
                 logger.Info("Row Id=" + idxRow);
                 IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
@@ -1937,6 +1953,21 @@ namespace topmeperp.Service
                 row.CreateCell(9).SetCellValue(item.TYPE_CODE_2);// 次九宮格
                 row.CreateCell(10).SetCellValue(item.SYSTEM_MAIN);// 主系統
                 row.CreateCell(11).SetCellValue(item.SYSTEM_SUB);// 次系統
+                if (null != item.RATIO)
+                {
+                    row.CreateCell(12).SetCellValue(double.Parse(item.RATIO.ToString()));// 工率
+                    ICell cel13 = row.CreateCell(13);
+                    cel13.CellFormula = "M" + (idxRow+1) + "*M3";
+                }else
+                {
+                    row.CreateCell(12).SetCellValue("");// 工率
+                    row.CreateCell(13).SetCellValue("");// 工資試算
+                }
+                logger.Debug("set cell style rowid=" + idxRow);
+                foreach(ICell c in row.Cells)
+                {
+                    c.CellStyle = style;
+                }
                 idxRow++;
             }
         }
@@ -1973,6 +2004,11 @@ namespace topmeperp.Service
                 row.CreateCell(9).SetCellValue(item.TYPE_CODE_2);// 次九宮格
                 row.CreateCell(10).SetCellValue(item.SYSTEM_MAIN);// 主系統
                 row.CreateCell(11).SetCellValue(item.SYSTEM_SUB);// 次系統
+                logger.Debug("set cell style rowid=" + idxRow);
+                foreach (ICell c in row.Cells)
+                {
+                    c.CellStyle = style;
+                }
                 idxRow++;
             }
         }
@@ -2005,7 +2041,8 @@ namespace topmeperp.Service
                 //工資
                 if (null != item.MAN_DAY && item.MAN_DAY.ToString().Trim() != "")
                 {
-                    row.CreateCell(4).SetCellValue(double.Parse(item.MAN_DAY.ToString()));
+                    //row.CreateCell(4).SetCellValue(double.Parse(item.MAN_DAY.ToString()));
+                    row.CreateCell(4).SetCellValue("");
                 }
                 row.CreateCell(5).CellFormula = "D" + (idxRow + 1) + "+E" + (idxRow + 1); //報價複價(填入公式)
 
@@ -2022,6 +2059,11 @@ namespace topmeperp.Service
                 {
                     row.CreateCell(13).SetCellValue(int.Parse(item.ITEM_COUNT.ToString())); //項數
                 }
+                logger.Debug("set cell style rowid=" + idxRow);
+                foreach (ICell c in row.Cells)
+                {
+                    c.CellStyle = style;
+                }
                 idxRow++;
             }
             //加入小計欄位
@@ -2035,6 +2077,11 @@ namespace topmeperp.Service
             summaryRow.Cells[3].SetCellFormula("SUM(D2:D" + (idxRow - 1) + ")");
             summaryRow.Cells[4].SetCellFormula("SUM(E2:E" + (idxRow - 1) + ")");
             summaryRow.Cells[13].SetCellFormula("SUM(N2:N" + (idxRow - 1) + ")");
+            logger.Debug("set cell style rowid=" + idxRow);
+            foreach (ICell c in summaryRow.Cells)
+            {
+                c.CellStyle = style;
+            }
         }
         private void getSystemCost(List<SystemCost> systemCostItems)
         {
@@ -2067,6 +2114,10 @@ namespace topmeperp.Service
                 {
                     row.CreateCell(8).SetCellValue(int.Parse(item.ITEM_COUNT.ToString())); //項數
                 }
+                foreach (ICell c in row.Cells)
+                {
+                    c.CellStyle = style;
+                }
                 idxRow++;
             }
             //加入小計欄位
@@ -2081,6 +2132,10 @@ namespace topmeperp.Service
             summaryRow.Cells[3].SetCellFormula("SUM(D2:D" + (idxRow - 1) + ")");
             summaryRow.Cells[4].SetCellFormula("SUM(E2:E" + (idxRow - 1) + ")");
             summaryRow.Cells[8].SetCellFormula("SUM(I2:I" + (idxRow - 1) + ")");
+            foreach (ICell c in summaryRow.Cells)
+            {
+                c.CellStyle = style;
+            }
         }
     }
     #endregion

@@ -168,6 +168,20 @@ namespace topmeperp.Controllers
             TndProjectModels viewModel = new TndProjectModels();
             viewModel.tndProject = p;
             viewModel.tndTaskAssign = lstTask;
+            //畫面上權限管理控制
+            //頁面上使用ViewBag 定義開關\@ViewBag.F00003
+            //由Session 取得權限清單
+            List<SYS_FUNCTION> lstFunctions = (List<SYS_FUNCTION>)Session["functions"];
+            //開關預設關閉
+            @ViewBag.F00003 = "disabled";
+            //輪巡功能清單，若全線存在則將開關打開 @ViewBag.F00003 = "";
+            foreach (SYS_FUNCTION f in lstFunctions)
+            {
+                if (f.FUNCTION_ID== "F00003")
+                {
+                    @ViewBag.F00003 = "";
+                }
+            }
             return View(viewModel);
         }
 

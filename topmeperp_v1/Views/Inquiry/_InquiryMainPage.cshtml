@@ -18,7 +18,7 @@
                     <tr>
                         <td><a href="/Inquiry/SinglePrjForm/@item.FORM_ID" target="_blank">@item.FORM_ID</a></td>
                         <td>@item.FORM_NAME</td>
-                        <td><a href='@("../../UploadFile/"+ViewBag.projectid+"/Quotes/"+item.FORM_ID+".xlsx")'>下載</a></td>
+                        <td><a href="/Inquiry/downLoadInquiryForm?formid=@item.FORM_ID" target="_blank">下載</a></td>
                     </tr>
                 }
             </tbody>
@@ -26,6 +26,6 @@
     }
     else
     {
-        <p>尚未建立相關詢價單樣板，請<a href="#">連結</a>建立空白詢價單!!</p>
+        <p>尚未建立相關詢價單樣板，透過批次建立詢價單或新增詢價單建立空白詢價單!!</p>
     }
 </div>

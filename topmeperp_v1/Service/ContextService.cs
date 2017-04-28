@@ -336,14 +336,23 @@ namespace topmeperp.Service
         public int createEmptyForm(string projectid, SYS_USER loginUser)
         {
             int i = 0;
+            int i2 = 0;
             using (var context = new topmepEntities())
             {
+                //0.清除所有空白詢價單樣板
+                string sql = "DELETE FROM TND_PROJECT_FORM_ITEM WHERE FORM_ID IN (SELECT FORM_ID FROM TND_PROJECT_FORM WHERE SUPPLIER_ID IS NULL AND PROJECT_ID=@projectid);";
+                i2 = context.Database.ExecuteSqlCommand(sql, new SqlParameter("projectid", projectid));
+                logger.Info("delete template inquiry form item  by porjectid=" + projectid + ",result=" + i2);
+                sql = "DELETE FROM TND_PROJECT_FORM WHERE SUPPLIER_ID IS NULL AND PROJECT_ID=@projectid; ";
+                i2 = context.Database.ExecuteSqlCommand(sql, new SqlParameter("projectid", projectid));
+                logger.Info("delete template inquiry form  by porjectid=" + projectid + ",result=" + i2);
+
                 //1.依據專案取得九宮格次九宮格分類.
-                string sql = "SELECT DISTINCT isnull(TYPE_CODE_1,'未分類') TYPE_CODE_1," +
-                    "(SELECT TYPE_DESC FROM REF_TYPE_MAIN m WHERE m.TYPE_CODE_1 + m.TYPE_CODE_2 = p.TYPE_CODE_1) as TYPE_CODE_1_NAME, " +
-                    "isnull(TYPE_CODE_2,'未分類') TYPE_CODE_2," +
-                    "(SELECT TYPE_DESC FROM REF_TYPE_SUB sub WHERE sub.TYPE_CODE_ID = p.TYPE_CODE_1 AND sub.SUB_TYPE_CODE = p.TYPE_CODE_2) as TYPE_CODE_2_NAME " +
-                    "FROM TND_PROJECT_ITEM p WHERE PROJECT_ID = @projectid ORDER BY TYPE_CODE_1 ,Type_CODE_2; ";
+                sql = "SELECT DISTINCT isnull(TYPE_CODE_1,'未分類') TYPE_CODE_1," +
+                   "(SELECT TYPE_DESC FROM REF_TYPE_MAIN m WHERE m.TYPE_CODE_1 + m.TYPE_CODE_2 = p.TYPE_CODE_1) as TYPE_CODE_1_NAME, " +
+                   "isnull(TYPE_CODE_2,'未分類') TYPE_CODE_2," +
+                   "(SELECT TYPE_DESC FROM REF_TYPE_SUB sub WHERE sub.TYPE_CODE_ID = p.TYPE_CODE_1 AND sub.SUB_TYPE_CODE = p.TYPE_CODE_2) as TYPE_CODE_2_NAME " +
+                   "FROM TND_PROJECT_ITEM p WHERE PROJECT_ID = @projectid ORDER BY TYPE_CODE_1 ,Type_CODE_2; ";
 
                 List<TYPE_CODE_INDEX> lstType = context.Database.SqlQuery<TYPE_CODE_INDEX>(sql, new SqlParameter("projectid", projectid)).ToList();
                 logger.Debug("get type index count=" + lstType.Count);
@@ -396,6 +405,7 @@ namespace topmeperp.Service
                     {
                         f.FORM_NAME = f.FORM_NAME + "-" + idx.TYPE_CODE_2_NAME;
                     }
+                    f.FORM_NAME = f.FORM_NAME + "(" + idx.TYPE_CODE_1 + "," +idx.TYPE_CODE_2 +")";
                     f.PROJECT_ID = projectid;
                     f.CREATE_ID = loginUser.USER_ID;
                     f.CREATE_DATE = DateTime.Now;
@@ -404,7 +414,7 @@ namespace topmeperp.Service
                     f.OWNER_TEL = loginUser.TEL;
                     f.OWNER_FAX = loginUser.FAX;
                     //4.建立表單
-                    string fid =newForm(f, itemId);
+                    string fid = newForm(f, itemId);
                     logger.Info("create template form:" + fid);
                     i++;
                 }
@@ -542,14 +552,14 @@ namespace topmeperp.Service
             //九宮格
             if (null != typeCode1 && typeCode1 != "")
             {
-                sql = sql + "AND p.TYPE_CODE_1 LIKE @typeCode1 ";
-                parameters.Add(new SqlParameter("typeCode1", "%" + typeCode1 + "%"));
+                sql = sql + "AND p.TYPE_CODE_1 = @typeCode1 ";
+                parameters.Add(new SqlParameter("typeCode1", typeCode1));
             }
             //次九宮格
             if (null != typeCode2 && typeCode2 != "")
             {
-                sql = sql + "AND p.TYPE_CODE_2 LIKE @typeCode2 ";
-                parameters.Add(new SqlParameter("typeCode2", "%" + typeCode2 + "%"));
+                sql = sql + "AND p.TYPE_CODE_2 = @typeCode2 ";
+                parameters.Add(new SqlParameter("typeCode2",typeCode2));
             }
             //主系統
             if (null != systemMain && systemMain != "")
@@ -566,6 +576,7 @@ namespace topmeperp.Service
 
             using (var context = new topmepEntities())
             {
+                logger.Debug("get project item sql=" + sql);
                 lstItem = context.TND_PROJECT_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
             }
             logger.Info("get projectitem count=" + lstItem.Count);
@@ -1084,7 +1095,7 @@ namespace topmeperp.Service
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public TND_PROJECT wageTable = null;
-        public List<TND_PROJECT_ITEM> wageTableItem = null;
+        public List<PROJECT_ITEM_WITH_WAGE> wageTableItem = null;
         public TND_PROJECT name = null;
         public WageTableService()
         {
@@ -1098,7 +1109,9 @@ namespace topmeperp.Service
                 //取得工率表單檔頭資訊
                 wageTable = context.TND_PROJECT.SqlQuery("SELECT * FROM TND_PROJECT WHERE PROJECT_ID=@projectid", new SqlParameter("projectid", projectid)).First();
                 //取得工率表單明細
-                wageTableItem = context.TND_PROJECT_ITEM.SqlQuery("SELECT * FROM TND_PROJECT_ITEM WHERE PROJECT_ID=@projectid ORDER BY EXCEL_ROW_ID;", new SqlParameter("projectid", projectid)).ToList();
+                wageTableItem = context.Database.SqlQuery<PROJECT_ITEM_WITH_WAGE>(" SELECT i.*,w.ratio,w.price FROM TND_PROJECT_ITEM i LEFT OUTER JOIN "+
+                    " TND_WAGE w ON i.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID "+
+                    " WHERE i.project_id = @projectid  ORDER BY i.EXCEL_ROW_ID; ; ", new SqlParameter("projectid", projectid)).ToList();
                 logger.Debug("get project item count:" + wageTableItem.Count);
             }
         }

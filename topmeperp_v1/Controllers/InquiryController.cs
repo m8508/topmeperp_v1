@@ -9,8 +9,6 @@ using topmeperp.Service;
 using System.IO;
 using System.Data;
 
-
-
 namespace topmeperp.Controllers
 {
     public class InquiryController : Controller
@@ -441,9 +439,25 @@ namespace topmeperp.Controllers
         {
             log.Info("project id=" + Request["projectid"]);
             SYS_USER u = (SYS_USER)Session["user"];
-            int i =service.createEmptyForm(Request["projectid"], u);
-            
+            int i =service.createEmptyForm(Request["projectid"], u);     
             return "共產生 "+ i + "空白詢價單樣本!!";
+        }
+        public void downLoadInquiryForm()
+        {
+            string formid = Request["formid"];
+            service.getInqueryForm(formid);
+            if (null != service.formInquiry)
+            {
+                InquiryFormToExcel poi = new InquiryFormToExcel();
+                poi.exportExcel(service.formInquiry, service.formInquiryItem);
+                Response.Clear();
+                Response.Charset = "utf-8";
+                Response.ContentType = "text/xls";
+                Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", service.formInquiry.FORM_ID + ".xlsx"));
+                //"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx"
+                Response.WriteFile(poi.outputPath+ "\\" + service.formInquiry.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + service.formInquiry.FORM_ID + ".xlsx");
+                Response.End();
+            }
         }
     }
 }

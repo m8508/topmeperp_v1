@@ -7,7 +7,7 @@
       <Diagram DiagramId="a7c7dccd404c413991f0ed2a1ca31c76" Name="Diagram1" ZoomLevel="69">
         <EntityTypeShape EntityType="topmepModel.REF_TYPE_MAIN" Width="1.5" PointX="5.75" PointY="2.375" IsExpanded="false" />
         <EntityTypeShape EntityType="topmepModel.REF_TYPE_SUB" Width="1.5" PointX="5.75" PointY="5.375" IsExpanded="false" />
-        <EntityTypeShape EntityType="topmepModel.SYS_FUNCTION" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="topmepModel.SYS_FUNCTION" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="topmepModel.SYS_KEY_SERIAL" Width="1.5" PointX="5.75" PointY="8.375" IsExpanded="true" />
         <EntityTypeShape EntityType="topmepModel.SYS_PRIVILEGE" Width="1.5" PointX="3" PointY="3.875" IsExpanded="false" />
         <EntityTypeShape EntityType="topmepModel.SYS_ROLE" Width="1.5" PointX="0.75" PointY="4.875" IsExpanded="false" />

@@ -117,4 +117,9 @@ namespace topmeperp.Models
         public string TYPE_CODE_2 { get; set; }
         public string TYPE_CODE_2_NAME { get; set; }
     }
+    public class PROJECT_ITEM_WITH_WAGE : TND_PROJECT_ITEM
+    {
+        public Nullable<decimal> RATIO { get; set; }
+        public Nullable<decimal> PRICE { get; set; }
+    }
 }
