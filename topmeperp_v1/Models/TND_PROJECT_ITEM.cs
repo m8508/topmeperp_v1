@@ -34,6 +34,6 @@ namespace topmeperp.Models
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public string SHEET_NAME { get; set; }
         public Nullable<long> EXCEL_ROW_ID { get; set; }
-        public Nullable<decimal> DISCOUNT_RATIO { get; set; }
+        public Nullable<decimal> QUO_PRICE { get; set; }
     }
 }

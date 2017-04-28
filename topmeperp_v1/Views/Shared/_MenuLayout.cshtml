@@ -8,7 +8,7 @@
     <title>協成水電-工務管理系統 </title>
     @Styles.Render("~/Content/css")
     @Styles.Render("~/Content/themes/base/css")
-   
+
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render("~/bundles/jqueryui")
@@ -33,42 +33,44 @@
 
                 @foreach (var item in model)
                 {
-                    if (item.MODULE_NAME != modulename)
+                    if (item.ISMENU == "Y")
                     {
-                        if (modulename != "")
+                        if (item.MODULE_NAME != modulename)
                         {
-                            @Html.Raw(new HtmlString("</ul></li>"))
+                            if (modulename != "")
+                            {
+                                @Html.Raw(new HtmlString("</ul></li>"))
+                            }
+                            @Html.Raw(new HtmlString("<li class=\"dropdown\">"));
+                            @Html.Raw(new HtmlString("<a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\" role=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\">"));
+                            @Html.Raw(new HtmlString(item.MODULE_NAME));
+                            @Html.Raw(new HtmlString("<span class=\"caret\"></span></a>"));
+                            @Html.Raw(new HtmlString("<ul class=\"dropdown-menu\">"));
+                            modulename = item.MODULE_NAME;
                         }
-                        @Html.Raw(new HtmlString("<li class=\"dropdown\">"));
-                        @Html.Raw(new HtmlString("<a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\" role=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\">"));
-                        @Html.Raw(new HtmlString(item.MODULE_NAME));
-                        @Html.Raw(new HtmlString("<span class=\"caret\"></span></a>"));
-                        @Html.Raw(new HtmlString("<ul class=\"dropdown-menu\">"));
-                        modulename = item.MODULE_NAME;
+                        <li>
+                            <a href=@item.FUNCTION_URI>@item.FUNCTION_NAME</a>
+                        </li>
                     }
-                    <li>
-                        <a href=@item.FUNCTION_URI>@item.FUNCTION_NAME</a>
-                    </li>
-
                 }
                 @Html.Raw(new HtmlString("</ul></li>"))
             </ul>
 
-                <ul class="nav navbar-nav navbar-right">
-                    <li>
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="welcome"><i class="fa fa-fw fa-user"></i>admin <span class="caret"></span></a>
-                        <ul class="dropdown-menu" aria-labelledby="welcome">
-                            <li><a href="#changePassword" data-toggle="modal" data-target="#changePassword">變更密碼</a></li>
-                            <!--
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="welcome"><i class="fa fa-fw fa-user"></i>admin <span class="caret"></span></a>
+                    <ul class="dropdown-menu" aria-labelledby="welcome">
+                        <li><a href="#changePassword" data-toggle="modal" data-target="#changePassword">變更密碼</a></li>
+                        <!--
                         <li><a href="">變更基本資料</a></li>
                          -->
-                            <li><a href="~/Home/Logout">登出</a></li>
-                        </ul>
-                    </li>
+                        <li><a href="~/Home/Logout">登出</a></li>
+                    </ul>
+                </li>
 
-                </ul>
-            </div>
+            </ul>
         </div>
+    </div>
 
     <div class="container body-content" style="padding-top:30px;">
         @RenderBody()
