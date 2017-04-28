@@ -92,6 +92,7 @@ namespace topmeperp.Models
         public Nullable<decimal> MATERIAL_COST { get; set; }
         public Nullable<decimal> MAN_DAY { get; set; }
         public Nullable<int> ITEM_COUNT { get; set; }
+        public Nullable<decimal> BUDGET_AMOUNT { get; set; }
     }
     public class SystemCost
     {
