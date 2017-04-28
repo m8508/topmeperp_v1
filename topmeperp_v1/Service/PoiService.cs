@@ -155,9 +155,9 @@ namespace topmeperp.Service
             {
                 projectItem.SYSTEM_MAIN = row.Cells[9].ToString();
             }
-            if (row.Cells[10].ToString().Trim() != "")//主系統
+            if (row.Cells[10].ToString().Trim() != "")//次系統
             {
-                projectItem.SYSTEM_MAIN = row.Cells[10].ToString();
+                projectItem.SYSTEM_SUB = row.Cells[10].ToString();
             }
             projectItem.PROJECT_ITEM_ID = projId + "-" + id;
             projectItem.EXCEL_ROW_ID = excelrow;
