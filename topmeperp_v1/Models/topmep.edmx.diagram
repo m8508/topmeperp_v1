@@ -16,7 +16,6 @@
         <EntityTypeShape EntityType="topmepModel.TND_MAP_FP" Width="1.5" PointX="3.625" PointY="10" IsExpanded="true" />
         <EntityTypeShape EntityType="topmepModel.TND_MAP_FW" Width="1.5" PointX="9.75" PointY="2.375" IsExpanded="false" />
         <EntityTypeShape EntityType="topmepModel.TND_MAP_PEP" Width="1.5" PointX="0.75" PointY="12.375" IsExpanded="false" />
-        <EntityTypeShape EntityType="topmepModel.TND_PROJECT_ITEM" Width="1.5" PointX="11.75" PointY="11.375" IsExpanded="true" />
         <EntityTypeShape EntityType="topmepModel.TND_SUP_INQUIRY" Width="1.5" PointX="11.875" PointY="1.25" IsExpanded="false" />
         <EntityTypeShape EntityType="topmepModel.TND_SUP_INQUIRY_ITEM" Width="1.5" PointX="13.75" PointY="6.375" IsExpanded="false" />
         <EntityTypeShape EntityType="topmepModel.TND_SUPPLIER" Width="1.5" PointX="13.75" PointY="11.375" IsExpanded="false" />
@@ -35,6 +34,7 @@
         <EntityTypeShape EntityType="topmepModel.TND_TASKASSIGN" Width="1.5" PointX="10.375" PointY="3.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_ITEM" Width="1.5" PointX="14.375" PointY="13.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_BUDGET" Width="1.5" PointX="10.375" PointY="7.75" />
+        <EntityTypeShape EntityType="topmepModel.TND_PROJECT_ITEM" Width="1.5" PointX="16.375" PointY="13.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

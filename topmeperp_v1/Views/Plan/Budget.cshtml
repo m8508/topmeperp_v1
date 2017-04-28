@@ -4,28 +4,67 @@
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 
-<div class="container-fluid">
-    <h3>執行預算作業</h3><br />
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>九宮格</th>
-                <th>次九宮格</th>
-                <th>名稱</th>
-                <th>預算金額</th>
+<div class="page-header">
+    <h2 style="padding-bottom:30px;">執行預算作業 : </h2>
+    <div class="col-md-12 form-group">
+        <form id="formBudget" name="formBudget" action="UpdateBudget" method="post">
+            <label for="id" class="col-md-2" style="text-align:right">專案編號 :</label>
+            <div id="id" class="col-md-2 text-left">
+                <input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control" readonly="readonly" />
+            </div>
+            <label for="name" class="col-md-2" style="text-align:right">專案名稱 :</label>
+            <div id="name" class="col-md-4 text-left">
+                <input id="name" name="name" type="text" value="@ViewBag.projectName" class="form-control" readonly="readonly" />
+            </div>
+            <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
 
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
+            <div style="padding-top:30px"></div>
+            <h5>@ViewBag.Result</h5>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>九宮格</th>
+                        <th>次九宮格</th>
+                        <th>名稱</th>
+                        <th>成本</th>
+                        <th>預算金額</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
             {
-                <tr>
-                    <td>@item.MAINCODE</td>
-                    <td>@item.SUB_CODE</td>
-                    <td>@item.MAINCODE_DESC</td>
-                    <td></td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                        <tr>
+                            <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px" })</td>
+                            <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px" })</td>
+                            <td>@item.MAINCODE_DESC _ @item.SUB_DESC</td>
+                            <td>@item.MATERIAL_COST</td>
+                            <td><input type="text" class="form-control" name="inputbudget" id="inputbudget" value=""></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </form>
+    </div>
 </div>
+<div class="row">
+    <div class="col-md-12">
+        <input type="button" value="儲存" class="btn btn-default" id="updateForm" />
+    </div>
+</div>
+<script type="text/javascript">
+    $("#updateForm").click(function () {
+        $.ajax({
+            url: '@Url.Action("UpdateBudget", "Plan")',
+            data: $('#formBudget').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    });
+</script>

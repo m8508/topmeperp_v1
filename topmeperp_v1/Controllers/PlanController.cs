@@ -14,7 +14,7 @@ namespace topmeperp.Controllers
     public class PlanController : Controller
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-     
+        PlanService service = new PlanService();
 
         // GET: Plan
         [topmeperp.Filter.AuthFilter]
@@ -49,10 +49,54 @@ namespace topmeperp.Controllers
         {
             logger.Info("budget info for projectid=" + id);
             ViewBag.projectid = id;
+            TnderProject service = new TnderProject();
+            TND_PROJECT p = service.getProjectById(id);
+            ViewBag.projectName = p.PROJECT_NAME;
             //取得直接成本資料
-            CostAnalysisDataService service = new CostAnalysisDataService();
-            List<DirectCost> budget = service.getDirectCost(id);
+            CostAnalysisDataService s = new CostAnalysisDataService();
+            List<DirectCost> budget = s.getDirectCost(id);
+            ViewBag.result = "共有" + budget.Count + "筆資料"; ;
             return View(budget);
+        }
+        public String UpdateBudget(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            SYS_USER u = (SYS_USER)Session["user"];
+            string msg = "";
+            string[] lsttypecode = form.Get("code1").Split(',');
+            string[] lsttypesub = form.Get("code2").Split(',');
+            string[] lstPrice = form.Get("inputbudget").Split(',');
+            List<PLAN_BUDGET> lstItem = new List<PLAN_BUDGET>();
+            for (int j = 0; j < lstPrice.Count(); j++)
+            {
+                PLAN_BUDGET item = new PLAN_BUDGET();
+                item.PROJECT_ID = form["id"];
+                if (lstPrice[j].ToString() == "")
+                {
+                    item.BUDGET_AMOUNT = null;
+                }
+                else
+                {
+                    item.BUDGET_AMOUNT = decimal.Parse(lstPrice[j]);
+                }
+                item.TYPE_CODE_1 = lsttypecode[j];
+                item.TYPE_CODE_2 = lsttypesub[j];
+                item.CREATE_ID = u.USER_ID;
+                logger.Debug("Item Project id =" + item.PROJECT_ID + "且九宮格組合為" + item.TYPE_CODE_1 + item.TYPE_CODE_2);
+                lstItem.Add(item);
+            }
+            int i = service.addBudget(lstItem);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "新增預算資料成功，PROJECT_ID =" + form["id"];
+            }
+
+            logger.Info("Request:PROJECT_ID =" + form["id"]);
+            return msg;
         }
 
         // GET: Purchasing/Details/5
@@ -102,6 +146,5 @@ namespace topmeperp.Controllers
             //設定查詢條件
             return View();
         }
-    
     }
 }

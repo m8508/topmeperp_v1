@@ -17,8 +17,26 @@ namespace topmeperp.Service
     public class PlanService : ContextService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        public string message = "";
 
-
+        public int addBudget( List<PLAN_BUDGET> lstItem )
+        {
+            //1.新增預算資料
+            int i = 0;
+            logger.Info("add budget = " + lstItem.Count);
+            //2.將預算資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (PLAN_BUDGET item in lstItem)
+                {
+                    item.CREATE_DATE = DateTime.Now;
+                    context.PLAN_BUDGET.Add(item);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("add budget count =" + i);
+            return i;
+        }
     }
     public class PurchaseService : TnderProject
     {

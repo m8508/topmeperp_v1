@@ -32,5 +32,7 @@ namespace topmeperp.Models
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
         public string CREATE_USER_ID { get; set; }
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
+        public Nullable<long> EXCEL_ROW_ID { get; set; }
+        public Nullable<decimal> QUO_PRICE { get; set; }
     }
 }
