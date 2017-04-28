@@ -68,6 +68,7 @@ namespace topmeperp.Service
     /// <summary>
     /// System User service
     /// </summary>
+    #region 使用者管理與權限設定
     public class UserService : ContextService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -132,6 +133,7 @@ namespace topmeperp.Service
             return user;
         }
     }
+    #endregion
     #region 備標處理區段
     /***
      * 備標階段專案管理
@@ -1711,6 +1713,29 @@ namespace topmeperp.Service
             }
             logger.Info("get function count:" + lst.Count);
             return lst;
+        }
+        public int updatePrivilege(string roleid, string[] functions)
+        {
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                //1.移除該角色所有權限
+                string sql = "DELETE FROM SYS_PRIVILEGE WHERE ROLE_ID=@roleid;";
+                i = context.Database.ExecuteSqlCommand(sql, new SqlParameter("roleid", roleid));
+                logger.Info("Remove privilege count=" + i);
+                //2.逐一加入授權資料
+                for (int j = 0; j < functions.Length; j++)
+                {
+                    SYS_PRIVILEGE p = new SYS_PRIVILEGE();
+                    p.PRIVILEGE_ID = roleid + "-" + functions[j];
+                    p.ROLE_ID = roleid;
+                    p.FUNCTION_ID = functions[j];
+                    context.SYS_PRIVILEGE.Add(p);
+                }
+                i = context.SaveChanges();
+                logger.Info("create privlilege data count:" + i);
+            }
+            return i;
         }
     }
     #endregion

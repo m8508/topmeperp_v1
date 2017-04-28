@@ -32,7 +32,14 @@ namespace topmeperp.Controllers
         public string UpdatePrivilege()
         {
             log.Info("new privilege:" + Request["hadPrivilege"]);
-            return "還沒實作更新完成!!";
+            string roleid = Request.Params["roleid"];
+            string[] funs=new string[0];
+            if (null != Request.Params["hadPrivilege"])
+            {
+                funs = Request.Params["hadPrivilege"].Split(',');
+            }
+            userService.updatePrivilege(roleid, funs);
+            return "權限已經更新!!";
         }
         public string addOrUpdateRole()
         {
@@ -40,7 +47,7 @@ namespace topmeperp.Controllers
             SYS_ROLE r = new SYS_ROLE();
             r.ROLE_ID = Request["r_roleid"];
             r.ROLE_NAME = Request["r_name"];
-            
+
             if (userService.addOrUpdateRole(r) > 0)
             {
                 return "更新成功!!";
