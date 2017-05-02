@@ -20,7 +20,7 @@
 <div class="row body-content">
     <button class="btn-default" onclick="updatePrivilegr()">送出</button>
     <form id="formPrivilege" name="formPrivilege">
-        <input type="text" id="roleid" name="roleid" value="" />
+        <input type="hidden" id="roleid" name="roleid" value=""/>
         <div id="privilegeArea" name="privilegeArea">
             @Html.Partial("FunctionList")
         </div>
@@ -95,7 +95,7 @@
         //alert(formdata);
         $.ajax({
             url: "/RoleManage/UpdatePrivilege",
-            data: { hadPrivilege:formdata},
+            data: formdata,
             type: "POST",
             dataType: 'text',
             success: function (result) {
