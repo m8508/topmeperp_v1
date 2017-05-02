@@ -33,14 +33,31 @@
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
-            {
-                        <tr>
-                            <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px" })</td>
-                            <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px" })</td>
-                            <td>@item.MAINCODE_DESC _ @item.SUB_DESC</td>
-                            <td>@item.MATERIAL_COST</td>
-                            <td><input type="text" class="form-control" name="inputbudget" id="inputbudget" value=""></td>
-                        </tr>
+                    {
+                        if (item.MAINCODE != null && item.SUB_CODE != "0")
+                        {
+                            <tr>
+                                <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
+                                <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
+                                <td>
+                                    @item.MAINCODE_DESC _ @item.SUB_DESC
+                                </td>
+                                <td>@item.MATERIAL_COST</td>
+                                <td><input type="text" class="form-control" name="inputbudget" id="inputbudget" value="@item.BUDGET"></td>
+                            </tr>
+                        }
+                        else if (item.SUB_CODE == "0")
+                        {
+                            <tr>
+                                <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
+                                <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
+                                <td>
+                                    @item.MAINCODE_DESC
+                                </td>
+                                <td>@item.MATERIAL_COST</td>
+                                <td><input type="text" class="form-control" name="inputbudget" id="inputbudget" value="@item.BUDGET"></td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </table>
@@ -49,7 +66,16 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-        <input type="button" value="儲存" class="btn btn-default" id="updateForm" />
+
+            @if (ViewBag.budgetdata != null)
+            {
+                <input type="button" value="儲存" class="btn btn-default" id="saveForm" />
+            }
+            else
+            {
+                <input type="button" value="儲存" class="btn btn-default" id="updateForm" />
+            }
+        
     </div>
 </div>
 <script type="text/javascript">
@@ -68,3 +94,21 @@
         });
     });
 </script>
+<script type="text/javascript">
+    $("#saveForm").click(function () {
+        $.ajax({
+            url: '@Url.Action("RefreshBudget", "Plan")',
+            data: $('#formBudget').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    });
+</script>
+
+

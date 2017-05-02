@@ -1834,7 +1834,7 @@ namespace topmeperp.Service
                 if (row.Cells.Count < 6)
                 {
                     logger.Info("Row Index=" + iRowIndex + "column count has wrong" + row.Cells.Count);
-                    throw new Exception("詢價單明細欄位有問題，請調漲欄位相關資料(" + row.Cells.Count + ")");
+                    throw new Exception("詢價單明細欄位有問題，請調整欄位相關資料(" + row.Cells.Count + ")");
                 }
                 else
                 {

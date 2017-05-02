@@ -1,0 +1,37 @@
+﻿@model IEnumerable<topmeperp.Models.TND_PROJECT>
+<table class="table">
+    <tr>
+        <th>
+            專案名稱
+        </th>
+        <th>
+            業主名稱
+        </th>
+        <th>
+            專案狀態
+        </th>
+        <th>
+            功能連結
+        </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.PROJECT_NAME)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OWNER_NAME)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.STATUS)
+            </td>
+            <td>
+                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("FormIndex","PurchaseForm", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">新增詢價單</button>
+                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("FormMainPage","PurchaseForm", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">空白詢價單/廠商詢價單</button>
+            </td>
+        </tr>
+    }
+
+</table>

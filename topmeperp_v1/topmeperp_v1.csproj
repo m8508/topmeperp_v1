@@ -246,6 +246,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InquiryController.cs" />
     <Compile Include="Controllers\PlanController.cs" />
+    <Compile Include="Controllers\PurchaseFormController.cs" />
     <Compile Include="Controllers\RoleManageController.cs" />
     <Compile Include="Controllers\SupplierManageController.cs" />
     <Compile Include="Controllers\TenderController.cs" />
@@ -262,6 +263,12 @@
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\PLAN_ITEM.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PLAN_SUP_INQUIRY.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PLAN_SUP_INQUIRY_ITEM.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\REF_TYPE_MAIN.cs">
@@ -358,6 +365,7 @@
     <Compile Include="Service\ContextService.cs" />
     <Compile Include="Service\ContextService4po.cs" />
     <Compile Include="Service\PoiService.cs" />
+    <Compile Include="Service\PoiSrevice4po.cs" />
     <Compile Include="Service\ReportContextService.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Controllers\aspx\ComparisionForm.aspx.cs">
@@ -594,6 +602,13 @@
     <Content Include="Views\Plan\ProjectList.cshtml" />
     <Content Include="Views\Plan\PurchaseMain.cshtml" />
     <Content Include="Views\Plan\Budget.cshtml" />
+    <Content Include="Views\PurchaseForm\Index.cshtml" />
+    <Content Include="Views\PurchaseForm\ProjectList.cshtml" />
+    <Content Include="Views\PurchaseForm\FormIndex.cshtml" />
+    <Content Include="Views\PurchaseForm\PlanItemList.cshtml" />
+    <Content Include="Views\PurchaseForm\FormMainPage.cshtml" />
+    <Content Include="Views\PurchaseForm\_FormMainPage.cshtml" />
+    <Content Include="Views\PurchaseForm\_PurchaseSupplierPage.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

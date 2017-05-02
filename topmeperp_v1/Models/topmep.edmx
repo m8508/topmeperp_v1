@@ -9,7 +9,7 @@
           <Key>
             <PropertyRef Name="PLAN_BUDGET_ID" />
           </Key>
-          <Property Name="PLAN_BUDGET_ID" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="PLAN_BUDGET_ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="PROJECT_ID" Type="varchar" MaxLength="30" />
           <Property Name="TYPE_CODE_1" Type="varchar" MaxLength="5" />
           <Property Name="TYPE_CODE_2" Type="varchar" MaxLength="5" />
@@ -46,6 +46,46 @@
           <Property Name="CREATE_DATE" Type="datetime" />
           <Property Name="EXCEL_ROW_ID" Type="bigint" />
           <Property Name="QUO_PRICE" Type="decimal" Precision="18" Scale="3" />
+        </EntityType>
+        <EntityType Name="PLAN_SUP_INQUIRY">
+          <Key>
+            <PropertyRef Name="INQUIRY_FORM_ID" />
+          </Key>
+          <Property Name="INQUIRY_FORM_ID" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="PROJECT_ID" Type="varchar" MaxLength="30" />
+          <Property Name="FORM_NAME" Type="varchar" MaxLength="150" />
+          <Property Name="OWNER_NAME" Type="varchar" MaxLength="50" />
+          <Property Name="OWNER_TEL" Type="varchar" MaxLength="100" />
+          <Property Name="OWNER_EMAIL" Type="varchar" MaxLength="100" />
+          <Property Name="OWNER_FAX" Type="varchar" MaxLength="100" />
+          <Property Name="SUPPLIER_ID" Type="varchar" MaxLength="200" />
+          <Property Name="CONTACT_NAME" Type="varchar" MaxLength="100" />
+          <Property Name="CONTACT_EMAIL" Type="varchar" MaxLength="100" />
+          <Property Name="DUEDATE" Type="datetime" />
+          <Property Name="REF_ID" Type="varchar" MaxLength="50" />
+          <Property Name="CREATE_ID" Type="varchar" MaxLength="30" />
+          <Property Name="CREATE_DATE" Type="datetime" />
+          <Property Name="MODIFY_ID" Type="varchar" MaxLength="30" />
+          <Property Name="MODIFY_DATE" Type="datetime" />
+        </EntityType>
+        <EntityType Name="PLAN_SUP_INQUIRY_ITEM">
+          <Key>
+            <PropertyRef Name="INQUIRY_ITEM_ID" />
+          </Key>
+          <Property Name="INQUIRY_ITEM_ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="INQUIRY_FORM_ID" Type="varchar" MaxLength="50" />
+          <Property Name="PLAN_ITEM_ID" Type="varchar" MaxLength="50" />
+          <Property Name="TYPE_CODE" Type="varchar" MaxLength="6" />
+          <Property Name="SUB_TYPE_CODE" Type="varchar" MaxLength="6" />
+          <Property Name="ITEM_DESC" Type="varchar" MaxLength="500" />
+          <Property Name="ITEM_UNIT" Type="varchar" MaxLength="10" />
+          <Property Name="ITEM_QTY" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="ITEM_UNIT_PRICE" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="ITEM_QTY_ORG" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="ITEM_UNITPRICE_ORG" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="ITEM_REMARK" Type="varchar" MaxLength="1000" />
+          <Property Name="MODIFY_ID" Type="varchar" MaxLength="30" />
+          <Property Name="MODIFY_DATE" Type="datetime" />
         </EntityType>
         <EntityType Name="REF_TYPE_MAIN">
           <Key>
@@ -517,6 +557,8 @@
         </Association>
         <EntityContainer Name="topmepModelStoreContainer">
           <EntitySet Name="PLAN_BUDGET" EntityType="Self.PLAN_BUDGET" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PLAN_SUP_INQUIRY" EntityType="Self.PLAN_SUP_INQUIRY" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PLAN_SUP_INQUIRY_ITEM" EntityType="Self.PLAN_SUP_INQUIRY_ITEM" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="REF_TYPE_MAIN" EntityType="Self.REF_TYPE_MAIN" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="REF_TYPE_SUB" EntityType="Self.REF_TYPE_SUB" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SYS_FUNCTION" EntityType="Self.SYS_FUNCTION" Schema="dbo" store:Type="Tables" />
@@ -909,8 +951,10 @@
           <EntitySet Name="sysdiagrams" EntityType="topmepModel.sysdiagrams" />
           <EntitySet Name="TND_TASKASSIGN" EntityType="topmepModel.TND_TASKASSIGN" />
           <EntitySet Name="PLAN_ITEM" EntityType="topmepModel.PLAN_ITEM" />
-          <EntitySet Name="PLAN_BUDGET" EntityType="topmepModel.PLAN_BUDGET" />
           <EntitySet Name="TND_PROJECT_ITEM" EntityType="topmepModel.TND_PROJECT_ITEM" />
+          <EntitySet Name="PLAN_BUDGET" EntityType="topmepModel.PLAN_BUDGET" />
+          <EntitySet Name="PLAN_SUP_INQUIRY" EntityType="topmepModel.PLAN_SUP_INQUIRY" />
+          <EntitySet Name="PLAN_SUP_INQUIRY_ITEM" EntityType="topmepModel.PLAN_SUP_INQUIRY_ITEM" />
         </EntityContainer>
         <EntityType Name="TND_PROJECT">
           <Key>
@@ -1098,20 +1142,6 @@
           <Property Name="EXCEL_ROW_ID" Type="Int64" />
           <Property Name="QUO_PRICE" Type="Decimal" Precision="18" Scale="3" />
         </EntityType>
-        <EntityType Name="PLAN_BUDGET">
-          <Key>
-            <PropertyRef Name="PLAN_BUDGET_ID" />
-          </Key>
-          <Property Name="PLAN_BUDGET_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PROJECT_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="TYPE_CODE_1" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
-          <Property Name="TYPE_CODE_2" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
-          <Property Name="BUDGET_AMOUNT" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
-        </EntityType>
         <EntityType Name="TND_PROJECT_ITEM">
           <Key>
             <PropertyRef Name="PROJECT_ITEM_ID" />
@@ -1137,6 +1167,60 @@
           <Property Name="SHEET_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="EXCEL_ROW_ID" Type="Int64" />
           <Property Name="QUO_PRICE" Type="Decimal" Precision="18" Scale="3" />
+        </EntityType>
+        <EntityType Name="PLAN_BUDGET">
+          <Key>
+            <PropertyRef Name="PLAN_BUDGET_ID" />
+          </Key>
+          <Property Name="PLAN_BUDGET_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="TYPE_CODE_1" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="TYPE_CODE_2" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="BUDGET_AMOUNT" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="PLAN_SUP_INQUIRY">
+          <Key>
+            <PropertyRef Name="INQUIRY_FORM_ID" />
+          </Key>
+          <Property Name="INQUIRY_FORM_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="FORM_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="OWNER_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="OWNER_TEL" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="OWNER_EMAIL" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="OWNER_FAX" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="SUPPLIER_ID" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="CONTACT_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CONTACT_EMAIL" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="DUEDATE" Type="DateTime" Precision="3" />
+          <Property Name="REF_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="PLAN_SUP_INQUIRY_ITEM">
+          <Key>
+            <PropertyRef Name="INQUIRY_ITEM_ID" />
+          </Key>
+          <Property Name="INQUIRY_ITEM_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="INQUIRY_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PLAN_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="TYPE_CODE" Type="String" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="SUB_TYPE_CODE" Type="String" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="ITEM_DESC" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="ITEM_UNIT" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="ITEM_QTY" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="ITEM_UNIT_PRICE" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="ITEM_QTY_ORG" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="ITEM_UNITPRICE_ORG" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="ITEM_REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1600,21 +1684,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_BUDGET">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_BUDGET">
-              <MappingFragment StoreEntitySet="PLAN_BUDGET">
-                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
-                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
-                <ScalarProperty Name="BUDGET_AMOUNT" ColumnName="BUDGET_AMOUNT" />
-                <ScalarProperty Name="TYPE_CODE_2" ColumnName="TYPE_CODE_2" />
-                <ScalarProperty Name="TYPE_CODE_1" ColumnName="TYPE_CODE_1" />
-                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
-                <ScalarProperty Name="PLAN_BUDGET_ID" ColumnName="PLAN_BUDGET_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="TND_PROJECT_ITEM">
             <EntityTypeMapping TypeName="topmepModel.TND_PROJECT_ITEM">
               <MappingFragment StoreEntitySet="TND_PROJECT_ITEM">
@@ -1639,6 +1708,63 @@
                 <ScalarProperty Name="ITEM_ID" ColumnName="ITEM_ID" />
                 <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
                 <ScalarProperty Name="PROJECT_ITEM_ID" ColumnName="PROJECT_ITEM_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_BUDGET">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_BUDGET">
+              <MappingFragment StoreEntitySet="PLAN_BUDGET">
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+                <ScalarProperty Name="BUDGET_AMOUNT" ColumnName="BUDGET_AMOUNT" />
+                <ScalarProperty Name="TYPE_CODE_2" ColumnName="TYPE_CODE_2" />
+                <ScalarProperty Name="TYPE_CODE_1" ColumnName="TYPE_CODE_1" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
+                <ScalarProperty Name="PLAN_BUDGET_ID" ColumnName="PLAN_BUDGET_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_SUP_INQUIRY">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_SUP_INQUIRY">
+              <MappingFragment StoreEntitySet="PLAN_SUP_INQUIRY">
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+                <ScalarProperty Name="REF_ID" ColumnName="REF_ID" />
+                <ScalarProperty Name="DUEDATE" ColumnName="DUEDATE" />
+                <ScalarProperty Name="CONTACT_EMAIL" ColumnName="CONTACT_EMAIL" />
+                <ScalarProperty Name="CONTACT_NAME" ColumnName="CONTACT_NAME" />
+                <ScalarProperty Name="SUPPLIER_ID" ColumnName="SUPPLIER_ID" />
+                <ScalarProperty Name="OWNER_FAX" ColumnName="OWNER_FAX" />
+                <ScalarProperty Name="OWNER_EMAIL" ColumnName="OWNER_EMAIL" />
+                <ScalarProperty Name="OWNER_TEL" ColumnName="OWNER_TEL" />
+                <ScalarProperty Name="OWNER_NAME" ColumnName="OWNER_NAME" />
+                <ScalarProperty Name="FORM_NAME" ColumnName="FORM_NAME" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
+                <ScalarProperty Name="INQUIRY_FORM_ID" ColumnName="INQUIRY_FORM_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_SUP_INQUIRY_ITEM">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_SUP_INQUIRY_ITEM">
+              <MappingFragment StoreEntitySet="PLAN_SUP_INQUIRY_ITEM">
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
+                <ScalarProperty Name="ITEM_REMARK" ColumnName="ITEM_REMARK" />
+                <ScalarProperty Name="ITEM_UNITPRICE_ORG" ColumnName="ITEM_UNITPRICE_ORG" />
+                <ScalarProperty Name="ITEM_QTY_ORG" ColumnName="ITEM_QTY_ORG" />
+                <ScalarProperty Name="ITEM_UNIT_PRICE" ColumnName="ITEM_UNIT_PRICE" />
+                <ScalarProperty Name="ITEM_QTY" ColumnName="ITEM_QTY" />
+                <ScalarProperty Name="ITEM_UNIT" ColumnName="ITEM_UNIT" />
+                <ScalarProperty Name="ITEM_DESC" ColumnName="ITEM_DESC" />
+                <ScalarProperty Name="SUB_TYPE_CODE" ColumnName="SUB_TYPE_CODE" />
+                <ScalarProperty Name="TYPE_CODE" ColumnName="TYPE_CODE" />
+                <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
+                <ScalarProperty Name="INQUIRY_FORM_ID" ColumnName="INQUIRY_FORM_ID" />
+                <ScalarProperty Name="INQUIRY_ITEM_ID" ColumnName="INQUIRY_ITEM_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

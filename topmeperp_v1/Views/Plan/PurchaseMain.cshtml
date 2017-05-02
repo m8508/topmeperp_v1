@@ -6,7 +6,7 @@
 <!--標單項目搜尋區條件區域-->
 <div class="jumbotron">
     <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("UploadCounterOffer", "Plan", new { id = ViewBag.id })'; ">上傳議價報價</button>
-    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("InquiryForPlan", "Plan", new { id = ViewBag.id })'; ">新增詢價單</button>
+    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("TimeForPurchase", "Plan", new { id = ViewBag.id })'; ">上傳物料採購時程</button>
     <div style="padding-top:20px"></div>
     <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
      <form name="formSearch" id="formSearch" method="post" class="form-inline">

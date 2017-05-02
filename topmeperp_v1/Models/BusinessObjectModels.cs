@@ -92,7 +92,7 @@ namespace topmeperp.Models
         public Nullable<decimal> MATERIAL_COST { get; set; }
         public Nullable<decimal> MAN_DAY { get; set; }
         public Nullable<int> ITEM_COUNT { get; set; }
-        public Nullable<decimal> BUDGET_AMOUNT { get; set; }
+        public Nullable<decimal> BUDGET { get; set; }
     }
     public class SystemCost
     {
@@ -121,5 +121,27 @@ namespace topmeperp.Models
     {
         public Nullable<decimal> RATIO { get; set; }
         public Nullable<decimal> PRICE { get; set; }
+    }
+    public class PurchaseFormModel
+    {
+        /// <summary>
+        /// 採購詢價單樣本
+        /// </summary>
+        public IEnumerable<PLAN_SUP_INQUIRY> planTemplateForm { get; set; }
+        /// <summary>
+        /// 採購供應商報價單
+        /// </summary>
+        public IEnumerable<PLAN_SUP_INQUIRY> planFormFromSupplier { get; set; }
+    }
+    public class PlanSupplierFormFunction : PLAN_SUP_INQUIRY
+    {
+        public Int64 NO { get; set; }
+        public Nullable<decimal> TOTAL_PRICE { get; set; }
+    }
+    public class PurchaseFormDetail
+    {
+        public TND_PROJECT prj { get; set; }
+        public PLAN_SUP_INQUIRY planForm { get; set; }
+        public IEnumerable<PLAN_SUP_INQUIRY_ITEM> planFormItem { get; set; }
     }
 }
