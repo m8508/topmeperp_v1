@@ -84,7 +84,6 @@ namespace topmeperp.Controllers
             }
             //建立空白詢價單
             log.Info("create new form template");
-            PlanService s = new PlanService();
             UserService us = new UserService();
             SYS_USER u = (SYS_USER)Session["user"];
             SYS_USER uInfo = us.getUserInfo(u.USER_ID);
@@ -96,11 +95,12 @@ namespace topmeperp.Controllers
             qf.OWNER_TEL = uInfo.TEL;
             qf.OWNER_FAX = uInfo.FAX;
             PLAN_SUP_INQUIRY_ITEM item = new PLAN_SUP_INQUIRY_ITEM();
-            string fid = s.newPlanForm(qf, lstItemId);
-            //產生採購詢價單實體檔案
-            service.getInqueryForm(fid);
-            PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
-            poi.exportExcel4po(service.formInquiry, service.formInquiryItem);
+            string fid = service.newPlanForm(qf, lstItemId);
+            //產生採購詢價單實體檔案(先註解掉，因為空白詢價單不用產生實體檔，
+            //樣本轉廠商採購單時再產生即可)
+            //service.getInqueryForm(fid);
+            //PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
+            //poi.exportExcel4po(service.formInquiry, service.formInquiryItem);
             return Redirect("FormMainPage?id=" + qf.PROJECT_ID);
             //return RedirectToAction("InquiryMainPage","Inquiry", qf.PROJECT_ID);
         }
@@ -147,6 +147,34 @@ namespace topmeperp.Controllers
             return View(singleForm);
         }
 
+        public String UpdateFormName(FormCollection form)
+        {
+            log.Info("form:" + form.Count);
+            string msg = "";
+            // 取得空白詢價單名稱
+            string[] formId = form.Get("inquiryformid").Split(',');
+            string[] formName = form.Get("formname").Split(',');
+            List<PLAN_SUP_INQUIRY> lstItem = new List<PLAN_SUP_INQUIRY>();
+            for (int j = 0; j < formId.Count(); j++)
+            {
+                PLAN_SUP_INQUIRY item = new PLAN_SUP_INQUIRY();
+                item.INQUIRY_FORM_ID = formId[j];
+                item.FORM_NAME = formName[j];
+                log.Debug("plan form id =" + item.INQUIRY_FORM_ID + "，form name =" + item.FORM_NAME);
+                lstItem.Add(item);
+            }
+            int i = service.addFormName(lstItem);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "更新空白詢價單名稱成功";
+            }
+            return msg;
+        }
+    
         public String UpdatePrjForm(FormCollection form)
         {
             log.Info("form:" + form.Count);
@@ -162,11 +190,11 @@ namespace topmeperp.Controllers
             fm.OWNER_FAX = form.Get("inputownerfax").Trim();
             fm.OWNER_EMAIL = form.Get("inputowneremail").Trim();
             fm.FORM_NAME = form.Get("formname").Trim();
+            fm.CREATE_ID = loginUser.USER_ID;
+            fm.CREATE_DATE = DateTime.Now;
             TND_SUPPLIER s = service.getSupplierInfo(form.Get("Supplier").Substring(0, 7).Trim());
             fm.CONTACT_NAME = s.CONTACT_NAME;
             fm.CONTACT_EMAIL = s.CONTACT_EMAIL;
-            fm.CREATE_ID = loginUser.USER_ID;
-            fm.CREATE_DATE = DateTime.Now;
             string[] lstItemId = form.Get("formitemid").Split(',');
             log.Info("select count:" + lstItemId.Count());
             var j = 0;
@@ -186,7 +214,7 @@ namespace topmeperp.Controllers
             }
             else
             {
-                msg = "新增供應商詢價單成功";
+                msg = "新增供應商採購詢價單成功";
             }
 
             log.Info("Request:FORM_NAME=" + form["formname"] + "SUPPLIER_NAME =" + form["Supplier"]);
@@ -242,7 +270,7 @@ namespace topmeperp.Controllers
             }
             else
             {
-                msg = "更新供應商詢價單成功，INQUIRY_FORM_ID =" + formid;
+                msg = "更新供應商採購詢價單成功，INQUIRY_FORM_ID =" + formid;
             }
 
             log.Info("Request: INQUIRY_FORM_ID = " + formid + "FORM_NAME =" + form["formname"] + "SUPPLIER_NAME =" + form["supplier"]);
@@ -286,6 +314,31 @@ namespace topmeperp.Controllers
                 log.Info("add plan supplier form record count=" + i);
             }
             return "檔案匯入成功!!";
+        }
+        //批次產生採購空白詢價單
+        public string createPlanEmptyForm()
+        {
+            log.Info("project id=" + Request["projectid"]);
+            SYS_USER u = (SYS_USER)Session["user"];
+            int i = service.createPlanEmptyForm(Request["projectid"], u);
+            return "共產生 " + i + "空白詢價單樣本!!";
+        }
+        public void downLoadInquiryForm()
+        {
+            string formid = Request["formid"];
+            service.getInqueryForm(formid);
+            if (null != service.formInquiry)
+            {
+                PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
+                poi.exportExcel4po(service.formInquiry, service.formInquiryItem);
+                Response.Clear();
+                Response.Charset = "utf-8";
+                Response.ContentType = "text/xls";
+                Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", service.formInquiry.INQUIRY_FORM_ID + ".xlsx"));
+                //"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx"
+                Response.WriteFile(poi.outputPath + "\\" + service.formInquiry.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + service.formInquiry.INQUIRY_FORM_ID + ".xlsx");
+                Response.End();
+            }
         }
     }
 }

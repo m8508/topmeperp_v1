@@ -609,6 +609,7 @@
     <Content Include="Views\PurchaseForm\FormMainPage.cshtml" />
     <Content Include="Views\PurchaseForm\_FormMainPage.cshtml" />
     <Content Include="Views\PurchaseForm\_PurchaseSupplierPage.cshtml" />
+    <Content Include="Views\PurchaseForm\SinglePrjForm.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

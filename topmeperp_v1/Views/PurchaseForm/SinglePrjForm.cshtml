@@ -1,0 +1,424 @@
+﻿@model topmeperp.Models.PurchaseFormDetail
+@{
+    ViewBag.Title = "專案執行-採購詢價單/報價單 ";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" href="/resources/demos/style.css">
+<div class="page-header">
+    <form id="formSupplier" name="formSupplier" action="UpdatePrjForm" method="post">
+
+
+        <div class="row">
+            <div class="col-md-12"><h3 class="text-center">協成水電工程事業有限公司-採購詢價單</h3></div>
+        </div>
+        <!-- Reg-Form new { enctype = "multipart/form-data" } -->
+
+        <div class="row">
+            <div class="form-group">
+                <label for="inputprojectname" class="col-md-2 control-label">專案名稱</label>
+                <div class="col-md-4">
+                    @Model.prj.PROJECT_NAME
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputsuppliername" class="col-md-2 control-label">廠商名稱 </label>
+                <div class="col-md-4 ">
+                    @if (Model.planForm.SUPPLIER_ID != null)
+                    {
+                        <input type="text" class="form-control" name="supplier" id="supplier" value="@Model.planForm.SUPPLIER_ID" readonly="readonly">
+                    }
+                    else
+                    {
+                        @Html.DropDownList("Supplier", (IEnumerable<SelectListItem>)ViewBag.Supplier, String.Empty, new { id = "Supplier", @class = "easyui-combobox" })
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <label for="inputitem" class="col-md-2 control-label">採購項目</label>
+                <div class="col-md-4">
+                    @if (Model.planForm.FORM_NAME != null)
+                    {
+                        <input type="text" class="form-control" name="formname" id="formname" value="@Model.planForm.FORM_NAME" readonly="readonly">
+                    }
+                    else
+                    {
+                        <input type="text" id="formname" name="formname" class="form-control" />
+                    }
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputcontact" class="col-md-2 control-label">聯絡人</label>
+                <div class="col-md-4">
+                    @if (Model.planForm.CONTACT_NAME != null)
+                    {
+                        <input type="text" class="form-control" name="inputcontact" id="inputcontact" value="@Model.planForm.CONTACT_NAME" readonly="readonly">
+                    }
+                    else
+                    {
+                        <input type="text" class="form-control" id="inputcontact" style="background: #CCC" readonly="readonly" placeholder="不須輸入，由系統自動帶入">
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <label for="inputowner" class="col-md-2 control-label">承辦人</label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="inputowner" id="inputowner" value="@Model.planForm.OWNER_NAME">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputemail" class="col-md-2 control-label">E-mail</label>
+                <div class="col-md-4">
+                    @if (Model.planForm.CONTACT_EMAIL != null)
+                    {
+                        <input type="text" class="form-control" name="inputemail" id="inputemail" value="@Model.planForm.CONTACT_EMAIL" readonly="readonly">
+                    }
+                    else
+                    {
+                        <input type="text" class="form-control" id="inputemail" style="background: #CCC" readonly="readonly" placeholder="不須輸入，由系統自動帶入">
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <label for="inputphone" class=col-md-2 control-label">聯絡電話</label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="inputphone" id="inputphone" value="@Model.planForm.OWNER_TEL">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputdeteline" class="col-md-2 control-label">報價期限</label>
+                <div class="col-md-4">
+                    @if (Model.planForm.DUEDATE != null)
+                    {
+                        <input type="text" class="form-control" name="inputdateline" id="inputdateline" value="@Model.planForm.DUEDATE.Value.ToString("yyyy/MM/dd")">
+                    }
+                    else
+                    {
+                        <input type="text" class="form-control" name="inputdateline" id="inputdateline" value="">
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <label for="inputowneremail" class="col-md-2 control-label">承辦人E-mail</label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="inputowneremail" id="inputowneremail" value="@Model.planForm.OWNER_EMAIL">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputformnumber" class="col-md-2 control-label">詢價單編號</label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="inputformnumber" id="inputformnumber" value="@Model.planForm.INQUIRY_FORM_ID" readonly="readonly">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <label for="inputownerfax" class="col-md-2 control-label">承辦人傳真</label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="inputownerfax" id="inputownerfax" value="@Model.planForm.OWNER_FAX">
+                </div>
+                <input type="hidden" name="projectid" id="projectid" value="@Model.planForm.PROJECT_ID" />
+                <input type="hidden" name="createid" id="createid" value="@Model.planForm.CREATE_ID" />
+                <input type="hidden" name="createdate" id="createdate" value="@Model.planForm.CREATE_DATE" />
+            </div>
+        </div>
+        <br /><br />
+        <div class="contailer">
+            <table class="table">
+                <tr>
+                    <th>
+                        No.
+                    </th>
+                    <th>
+                        項次
+                    </th>
+                    <th>
+                        項目說明
+                    </th>
+                    <th>
+                        單位
+                    </th>
+                    <th>
+                        數量
+                    </th>
+                    <th>
+                        單價
+                    </th>
+                    <th>
+                        複價
+                    </th>
+                    <th>
+                        備註
+                    </th>
+
+                </tr>
+                @foreach (var item in Model.planFormItem)
+                {
+
+                    <tr>
+                        <td>
+                            @Html.TextBox("formitemid", @item.INQUIRY_ITEM_ID, new { style = "width:50px", @readonly = "readonly" })
+                        </td>
+                        <td>
+                            @item.PLAN_ITEM_ID
+                        </td>
+                        <td>
+                            @item.ITEM_DESC
+                        </td>
+                        <td>
+                            @item.ITEM_UNIT
+                        </td>
+                        <td>
+                            @item.ITEM_QTY
+                        </td>
+                        <td>
+                            @if (@item.ITEM_UNIT_PRICE != null)
+                            {
+                                <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="@item.ITEM_UNIT_PRICE" style="width:180px">
+                            }
+                            else
+                            {
+                                <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="" style="width:180px">
+                            }
+                        </td>
+
+                        <td></td>
+                        <td>@item.ITEM_REMARK</td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </form>
+</div>
+<!--div class="row">
+    <div class="col-md-12">
+        <input class="btn btn-info" id="Submit2" type="button" value="" />
+    </div>
+</!--div>
+    -->
+
+
+<div class="row">
+    <div class="" col-md-12">
+        @if (Model.planForm.DUEDATE != null)
+        {
+            <input type="button" value="儲存" class="btn btn-default" id="updateForm" />
+        }
+        else
+        {
+            <input type="button" value="儲存" class="btn btn-default" id="saveForm" />
+        }
+    </div>
+</div>
+
+<script>
+        $(document).ready(function () {
+            $(function () {
+                $('#inputdateline').datetimepicker({
+                    format: 'YYYY/MM/DD'
+                });
+            });
+        })
+</script>
+<script type="text/javascript">
+        $(document).ready(function () {
+            $('#Supplier').change(function (e) {
+                e.preventDefault();
+                SupplierChangeEventHandler();
+            });
+            //將 Supplier下拉選單給置換為 Autocomplete Combobox
+            $("#Supplier").combobox({
+                panelHeight: '80px',
+                panelWidth: 350
+            });
+        });
+
+        function Getinputcontact(SUPPLIER_ID) {
+            alert('submit');
+            $.ajax({
+                url: '@Url.Action("GetSupplierInfo", "Inquiry")',
+                data: { SUPPLIER_ID: SUPPLIER_ID },
+                type: 'post',
+                cache: false,
+                async: false,
+                dataType: 'json',
+                success: function (data) {
+                    if (data.length > 0) {
+                        $('#inputcontact').empty();
+                        $('#inputcontact').json(data);
+                    }
+                }
+            });
+        }
+        (function ($) {
+            $.widget("ui.combobox", {
+                _create: function () {
+                    var input,
+                        that = this,
+                        select = this.element.hide(),
+                        selected = select.children(":selected"),
+                         value = selected.val() ? selected.text() : "",
+                        wrapper = this.wrapper = $("<span>")
+                            .addClass("ui-combobox")
+                           .insertAfter(select);
+
+                    function removeIfInvalid(element) {
+                        var value = $(element).val(),
+                            matcher = new RegExp("^" + $.ui.autocomplete.escapeRegex(value) + "$", "i"),
+                            valid = false;
+                        select.children("option").each(function () {
+                            if ($(this).text().match(matcher)) {
+                                this.selected = valid = true;
+                                return false;
+                            }
+                        });
+                        if (!valid) {
+                            // remove invalid value, as it didn't match anything
+                            $(element)
+                                .val("")
+                                .attr("title", value + " 沒有符合的廠商，請重新輸入")
+                               .tooltip("open");
+                            select.val("");
+                            setTimeout(function () {
+                                input.tooltip("close").attr("title", "");
+                            }, 2500);
+                            input.data("autocomplete").term = "";
+                            return false;
+                        }
+                    }
+                    input = $("<input>")
+                        .appendTo(wrapper)
+                        .val(value)
+                        .attr("title", "")
+                        .addClass("ui-state-default ui-combobox-input")
+                        .autocomplete({
+                            delay: 0,
+                            minLength: 0,
+                            source: function (request, response) {
+                                var matcher = new RegExp($.ui.autocomplete.escapeRegex(request.term), "i");
+                                response(select.children("option").map(function () {
+                                    var text = $(this).text();
+                                    if (this.value && (!request.term || matcher.test(text)))
+                                        return {
+                                            label: text.replace(
+                                            new RegExp(
+                                             "(?![^&;]+;)(?!<[^<>]*)(" +
+                                            $.ui.autocomplete.escapeRegex(request.term) +
+                                             ")(?![^<>]*>)(?![^&;]+;)", "gi"
+                                              ), "$1"),
+                                            value: text,
+                                            option: this
+                                        };
+                                }));
+                            },
+                            select: function (event, ui) {
+                                ui.item.option.selected = true;
+                                that._trigger("selected", event, {
+                                    item: ui.item.option
+                                });
+                            },
+                            change: function (event, ui) {
+                                if (!ui.item)
+                                    return removeIfInvalid(this);
+                            }
+                        })
+            .addClass("ui-widget ui-widget-content ui-corner-left");
+
+                    input.data("autocomplete")._renderItem = function (ul, item) {
+                        return $("<li>")
+                        .data("item.autocomplete", item)
+                        .append("<a>" + item.label + "</a>")
+                        .appendTo(ul);
+                    };
+
+                    $("<a>")
+                    .attr("tabIndex", -1)
+                    .attr("title", "Show All Items")
+                    .tooltip()
+                    .appendTo(wrapper)
+                    .button({
+                        icons: {
+                            primary: "ui-icon-triangle-1-s"
+                        },
+                        text: false
+                    })
+                 .removeClass("ui-corner-all")
+                    .addClass("ui-corner-right ui-combobox-toggle")
+                    .click(function () {
+                        // close if already visible
+                        if (input.autocomplete("widget").is(":visible")) {
+                            input.autocomplete("close");
+                            removeIfInvalid(input);
+                            return;
+                        }
+                        // work around a bug (likely same cause as #5265)
+                        $(this).blur();
+                        1
+                        // pass empty string as value to search for, displaying all results
+                        input.autocomplete("search", "");
+                        input.focus();
+                    });
+
+                    input
+                    .tooltip({
+                        position: {
+                            of: this.button
+                        },
+                        tooltipClass: "ui-state-highlight"
+                    });
+                },
+
+                destroy: function () {
+                    this.wrapper.remove();
+                    this.element.show();
+                    $.Widget.prototype.destroy.call(this);
+                }
+            });
+        })(jQuery);
+</script>
+<script type="text/javascript">
+        $("#saveForm").click(function () {
+            if ($("#Supplier").val() == "") { alert("廠商名稱欄位不可空白，請輸入廠商名稱!!"); return false; }
+            if ($("#inputdateline").val() == "") { alert("報價期限欄位不可為空白!!"); return false; }
+            if ($("#formname").val() == "") { alert("採購項目欄位不可為空白!!"); return false; }
+            if ($("#inputownerfax").val() == "") { alert("承辦人傳真欄位不可為空白!!"); return false; }
+            if ($("#inputowneremail").val() == "") { alert("承辦人E-mail欄位不可為空白!!"); return false; }
+            if ($("#inputphone").val() == "") { alert("聯絡電話欄位不可為空白!!"); return false; }
+            $.ajax({
+                url: '@Url.Action("UpdatePrjForm", "PurchaseForm")',
+                data: $('#formSupplier').serialize(),
+                type: "POST",
+                dataType: 'text',
+                success: function (msg) {
+                    alert(msg);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                }
+            });
+        });
+</script>
+<script type="text/javascript">
+        $("#updateForm").click(function () {
+            $.ajax({
+                url: '@Url.Action("RefreshPrjForm", "PurchaseForm")',
+                data: $('#formSupplier').serialize(),
+                type: "POST",
+                dataType: 'text',
+                success: function (msg) {
+                    alert(msg);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                }
+            });
+        });
+</script>

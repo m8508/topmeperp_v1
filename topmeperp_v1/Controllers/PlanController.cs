@@ -168,7 +168,7 @@ namespace topmeperp.Controllers
             return msg;
         }
 
-        // GET: Purchasing/Details/5
+        //採購比價功能資料頁
         public ActionResult PurchaseMain(string id)
         {
             //傳入專案編號，
