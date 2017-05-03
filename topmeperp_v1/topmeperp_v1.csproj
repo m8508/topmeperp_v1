@@ -614,6 +614,7 @@
     <Content Include="Views\TypeManage\Index.cshtml" />
     <Content Include="Views\TypeManage\_getSubType.cshtml" />
     <Content Include="Views\TypeManage\EditMainType.cshtml" />
+    <Content Include="Views\PurchaseForm\SinglePrjForm.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -64,47 +64,6 @@ namespace topmeperp.Service
             return lstItem;
         }
 
-        PLAN_SUP_INQUIRY form = null;
-        public string newPlanForm(PLAN_SUP_INQUIRY form, string[] lstItemId)
-        {
-            //1.建立詢價單價單樣本
-            logger.Info("create new plan form ");
-            string sno_key = "PO";
-            SerialKeyService snoservice = new SerialKeyService();
-            form.INQUIRY_FORM_ID = snoservice.getSerialKey(sno_key);
-            logger.Info("new plan form =" + form.ToString());
-            using (var context = new topmepEntities())
-            {
-                context.PLAN_SUP_INQUIRY.Add(form);
-                int i = context.SaveChanges();
-                logger.Debug("Add form=" + i);
-                logger.Info("plan form id = " + form.INQUIRY_FORM_ID);
-                //if (i > 0) { status = true; };
-                List<topmeperp.Models.PLAN_SUP_INQUIRY_ITEM> lstItem = new List<PLAN_SUP_INQUIRY_ITEM>();
-                string ItemId = "";
-                for (i = 0; i < lstItemId.Count(); i++)
-                {
-                    if (i < lstItemId.Count() - 1)
-                    {
-                        ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
-                    }
-                    else
-                    {
-                        ItemId = ItemId + "'" + lstItemId[i] + "'";
-                    }
-                }
-
-                string sql = "INSERT INTO PLAN_SUP_INQUIRY_ITEM (INQUIRY_FORM_ID, INQUIRY_ITEM_ID, TYPE_CODE, "
-                    + "SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_QTY, ITEM_UNIT_PRICE, ITEM_REMARK) "
-                    + "SELECT '" + form.INQUIRY_FORM_ID + "' as INQUIRY_FORM_ID, INQUIRY_ITEM_ID, TYPE_CODE_1 AS TYPE_CODE, "
-                    + "TYPE_CODE_2 AS SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_QUANTITY, ITEM_UNIT_PRICE, ITEM_REMARK "
-                    + "FROM PLAN_ITEM where PLAN_ITEM_ID IN (" + ItemId + ")";
-                logger.Info("sql =" + sql);
-                var parameters = new List<SqlParameter>();
-                i = context.Database.ExecuteSqlCommand(sql);
-                return form.INQUIRY_FORM_ID;
-            }
-        }
         public string getBudgetById(string prjid)
         {
             string projectid = null;
@@ -210,6 +169,138 @@ namespace topmeperp.Service
         public PLAN_SUP_INQUIRY formInquiry = null;
         public List<PLAN_SUP_INQUIRY_ITEM> formInquiryItem = null;
 
+
+        //批次產生空白表單
+        public int createPlanEmptyForm(string projectid, SYS_USER loginUser)
+        {
+            int i = 0;
+            int i2 = 0;
+            using (var context = new topmepEntities())
+            {
+                //0.清除所有空白詢價單樣板
+                string sql = "DELETE FROM PLAN_SUP_INQUIRY_ITEM WHERE INQUIRY_FORM_ID IN (SELECT INQUIRY_FORM_ID FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NULL AND PROJECT_ID=@projectid);";
+                i2 = context.Database.ExecuteSqlCommand(sql, new SqlParameter("projectid", projectid));
+                logger.Info("delete template inquiry form item  by porjectid=" + projectid + ",result=" + i2);
+                sql = "DELETE FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NULL AND PROJECT_ID=@projectid; ";
+                i2 = context.Database.ExecuteSqlCommand(sql, new SqlParameter("projectid", projectid));
+                logger.Info("delete template inquiry form  by porjectid=" + projectid + ",result=" + i2);
+
+                //1.依據專案取得九宮格次九宮格分類.
+                sql = "SELECT DISTINCT isnull(TYPE_CODE_1,'未分類') TYPE_CODE_1," +
+                   "(SELECT TYPE_DESC FROM REF_TYPE_MAIN m WHERE m.TYPE_CODE_1 + m.TYPE_CODE_2 = p.TYPE_CODE_1) as TYPE_CODE_1_NAME, " +
+                   "isnull(TYPE_CODE_2,'未分類') TYPE_CODE_2," +
+                   "(SELECT TYPE_DESC FROM REF_TYPE_SUB sub WHERE sub.TYPE_CODE_ID = p.TYPE_CODE_1 AND sub.SUB_TYPE_CODE = p.TYPE_CODE_2) as TYPE_CODE_2_NAME " +
+                   "FROM PLAN_ITEM p WHERE PROJECT_ID = @projectid ORDER BY TYPE_CODE_1 ,Type_CODE_2; ";
+
+                List<TYPE_CODE_INDEX> lstType = context.Database.SqlQuery<TYPE_CODE_INDEX>(sql, new SqlParameter("projectid", projectid)).ToList();
+                logger.Debug("get type index count=" + lstType.Count);
+                foreach (TYPE_CODE_INDEX idx in lstType)
+                {
+                    var parameters = new List<SqlParameter>();
+                    parameters.Add(new SqlParameter("projectid", projectid));
+                    sql = "SELECT * FROM PLAN_ITEM WHERE PROJECT_ID = @projectid ";
+                    if (idx.TYPE_CODE_1 == "未分類")
+                    {
+                        sql = sql + "AND TYPE_CODE_1 is null ";
+                    }
+                    else
+                    {
+                        sql = sql + "AND TYPE_CODE_1=@typecode1 ";
+                        parameters.Add(new SqlParameter("typecode1", idx.TYPE_CODE_1));
+                    }
+
+                    if (idx.TYPE_CODE_2 == "未分類")
+                    {
+                        sql = sql + "AND TYPE_CODE_2 is null ";
+                    }
+                    else
+                    {
+                        sql = sql + "AND TYPE_CODE_2=@typecode2 ";
+                        parameters.Add(new SqlParameter("typecode2", idx.TYPE_CODE_2));
+                    }
+                    //2.依據分類取得詢價單項次
+                    List<PLAN_ITEM> lstProjectItem = context.PLAN_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
+                    logger.Debug("get plan item count=" + lstProjectItem.Count + ", by typecode1=" + idx.TYPE_CODE_1 + ",typeCode2=" + idx.TYPE_CODE_2);
+                    string[] itemId = new string[lstProjectItem.Count];
+                    int j = 0;
+                    foreach (PLAN_ITEM item in lstProjectItem)
+                    {
+                        itemId[j] = item.PLAN_ITEM_ID;
+                        j++;
+                    }
+                    //3.建立詢價單基本資料
+                    PLAN_SUP_INQUIRY f = new PLAN_SUP_INQUIRY();
+                    if (idx.TYPE_CODE_1 == "未分類")
+                    {
+                        f.FORM_NAME = "未分類";
+                    }
+                    else
+                    {
+                        f.FORM_NAME = idx.TYPE_CODE_1_NAME;
+                    }
+
+                    if (idx.TYPE_CODE_2 != "未分類")
+                    {
+                        f.FORM_NAME = f.FORM_NAME + "-" + idx.TYPE_CODE_2_NAME;
+                    }
+                    f.FORM_NAME = f.FORM_NAME + "(" + idx.TYPE_CODE_1 + "," + idx.TYPE_CODE_2 + ")";
+                    f.PROJECT_ID = projectid;
+                    f.CREATE_ID = loginUser.USER_ID;
+                    f.CREATE_DATE = DateTime.Now;
+                    f.OWNER_NAME = loginUser.USER_NAME;
+                    f.OWNER_EMAIL = loginUser.EMAIL;
+                    f.OWNER_TEL = loginUser.TEL;
+                    f.OWNER_FAX = loginUser.FAX;
+                    //4.建立表單
+                    string fid = newPlanForm(f, itemId);
+                    logger.Info("create template form:" + fid);
+                    i++;
+                }
+            }
+            logger.Info("create form count" + i);
+            return i;
+        }
+
+        public string newPlanForm(PLAN_SUP_INQUIRY form, string[] lstItemId)
+        {
+            //1.建立詢價單價單樣本
+            logger.Info("create new plan form ");
+            string sno_key = "PP";
+            SerialKeyService snoservice = new SerialKeyService();
+            form.INQUIRY_FORM_ID = snoservice.getSerialKey(sno_key);
+            logger.Info("new plan form =" + form.ToString());
+            using (var context = new topmepEntities())
+            {
+                context.PLAN_SUP_INQUIRY.Add(form);
+                int i = context.SaveChanges();
+                logger.Debug("Add form=" + i);
+                logger.Info("plan form id = " + form.INQUIRY_FORM_ID);
+                //if (i > 0) { status = true; };
+                List<topmeperp.Models.PLAN_SUP_INQUIRY_ITEM> lstItem = new List<PLAN_SUP_INQUIRY_ITEM>();
+                string ItemId = "";
+                for (i = 0; i < lstItemId.Count(); i++)
+                {
+                    if (i < lstItemId.Count() - 1)
+                    {
+                        ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
+                    }
+                    else
+                    {
+                        ItemId = ItemId + "'" + lstItemId[i] + "'";
+                    }
+                }
+
+                string sql = "INSERT INTO PLAN_SUP_INQUIRY_ITEM (INQUIRY_FORM_ID, PLAN_ITEM_ID, TYPE_CODE, "
+                    + "SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_QTY, ITEM_UNIT_PRICE, ITEM_REMARK) "
+                    + "SELECT '" + form.INQUIRY_FORM_ID + "' as INQUIRY_FORM_ID, PLAN_ITEM_ID, TYPE_CODE_1 AS TYPE_CODE, "
+                    + "TYPE_CODE_2 AS SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_QUANTITY, ITEM_UNIT_PRICE, ITEM_REMARK "
+                    + "FROM PLAN_ITEM where PLAN_ITEM_ID IN (" + ItemId + ")";
+                logger.Info("sql =" + sql);
+                var parameters = new List<SqlParameter>();
+                i = context.Database.ExecuteSqlCommand(sql);
+                return form.INQUIRY_FORM_ID;
+            }
+        }
         //取得採購詢價單
         public void getInqueryForm(string formid)
         {
@@ -247,11 +338,57 @@ namespace topmeperp.Service
             return lst;
         }
 
-        //新增採購供應商詢價單
+        public int addFormName(List<PLAN_SUP_INQUIRY> lstItem)
+        {
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    logger.Info(" No. of plan form to refresh  = " + lstItem.Count);
+                    //2.將plan form資料寫入 
+                    foreach (PLAN_SUP_INQUIRY item in lstItem)
+                    {
+                        PLAN_SUP_INQUIRY existItem = null;
+                        logger.Debug("plan form id=" + item.INQUIRY_FORM_ID);
+                        if (item.INQUIRY_FORM_ID != null)
+                        {
+                            existItem = context.PLAN_SUP_INQUIRY.Find(item.INQUIRY_FORM_ID);
+                        }
+                        else
+                        {
+                            var parameters = new List<SqlParameter>();
+                            parameters.Add(new SqlParameter("formid", item.INQUIRY_FORM_ID));
+                            string sql = "SELECT * FROM PLAN_SUP_INQUIRY WHERE INQUIRY_FORM_ID=@formid";
+                            logger.Info(sql + " ;" + item.INQUIRY_FORM_ID);
+                            PLAN_SUP_INQUIRY excelItem = context.PLAN_SUP_INQUIRY.SqlQuery(sql, parameters.ToArray()).First();
+                            existItem = context.PLAN_SUP_INQUIRY.Find(excelItem.INQUIRY_FORM_ID);
+
+                        }
+                        logger.Debug("find exist item=" + existItem.PROJECT_ID + " ;" + existItem.INQUIRY_FORM_ID);
+                        existItem.FORM_NAME = item.FORM_NAME;
+                        context.PLAN_SUP_INQUIRY.AddOrUpdate(existItem);
+                    }
+                    i = context.SaveChanges();
+                    logger.Debug("No. of update plan form =" + i);
+                    return i;
+
+                }
+                catch (Exception e)
+                {
+                    logger.Error("update  plan  form  fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+            }
+            return i;
+        }
+    
+        //新增供應商採購詢價單
         public string addSupplierForm(PLAN_SUP_INQUIRY sf, string[] lstItemId)
         {
             string message = "";
-            string sno_key = "PO";
+            string sno_key = "PP";
             SerialKeyService snoservice = new SerialKeyService();
             sf.INQUIRY_FORM_ID = snoservice.getSerialKey(sno_key);
             int i = 0;
@@ -281,7 +418,7 @@ namespace topmeperp.Service
                         + "SELECT '" + sf.INQUIRY_FORM_ID + "' as INQUIRY_FORM_ID, PLAN_ITEM_ID, TYPE_CODE,"
                         + "SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT,ITEM_QTY, ITEM_UNIT_PRICE,"
                         + "ITEM_REMARK "
-                        + "FROM PLAN_SUP_INQUIRY_ITEM where INQUIRY_FORM_ITEM_ID IN (" + ItemId + ")";
+                        + "FROM PLAN_SUP_INQUIRY_ITEM where INQUIRY_ITEM_ID IN (" + ItemId + ")";
 
                     logger.Info("sql =" + sql);
                     var parameters = new List<SqlParameter>();
@@ -298,8 +435,10 @@ namespace topmeperp.Service
             }
             return sf.INQUIRY_FORM_ID;
         }
+
+
         PLAN_SUP_INQUIRY form = null;
-        //更新採購廠商詢價單資料
+        //更新供應商採購詢價單資料
         public int refreshPlanSupplierForm(string formid, PLAN_SUP_INQUIRY sf, List<PLAN_SUP_INQUIRY_ITEM> lstItem)
         {
             logger.Info("Update plan supplier inquiry form id =" + formid);
@@ -357,7 +496,7 @@ namespace topmeperp.Service
         {
             int i = 0;
             //1.建立詢價單價單樣本
-            string sno_key = "PO";
+            string sno_key = "PP";
             SerialKeyService snoservice = new SerialKeyService();
             form.INQUIRY_FORM_ID = snoservice.getSerialKey(sno_key);
             logger.Info("Plan form from supplier =" + form.ToString());
