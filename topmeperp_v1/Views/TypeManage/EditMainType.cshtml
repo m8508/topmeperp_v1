@@ -1,0 +1,25 @@
+﻿@model IEnumerable<topmeperp.Models.REF_TYPE_SUB>
+<!--九宮格基本資料區塊-->
+<div class="jumbotron">
+    <div class="row"><h5>@ViewBag.Title</h5></div>
+</div>
+<!--次九宮格基本資料區塊-->
+<table class="table">
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.SUB_TYPE_ID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TYPE_CODE_ID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SUB_TYPE_CODE)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TYPE_DESC)
+            </td>
+        </tr>
+    }
+</table>
