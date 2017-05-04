@@ -35,13 +35,18 @@
                     {
                         @Html.Raw(rowHTML + "</tr>");
                     }
-                    rowHTML = "<tr><td class='bg-primary'> " + item.TYPE_CODE_1 + "</td><td class='bg-primary'>" + item.CODE_1_DESC
-                        + "</td><td style='padding:2px'><input type='button' class='btn-link btn-xs' onclick=\"selectType('" + item.TYPE_CODE_1 + "','" + item.TYPE_CODE_2 + "')\" value='" + item.TYPE_DESC + "'/></td>";
+                    rowHTML = "<tr><td class='bg-primary'> " + item.TYPE_CODE_1 + "</td><td class='bg-primary'>" + item.CODE_1_DESC + "</td>" +
+                         "<td style='padding:2px'>" +
+                         "<input type='button' class='btn-link btn-xs' onclick=\"selectType('" + item.TYPE_CODE_1 + "','" + item.TYPE_CODE_2 + "')\" value='" + item.TYPE_DESC + "'/>" +
+                         "<a href=\"EditMainType?typecode1=" + item.TYPE_CODE_1 + "&typecode2=" + item.TYPE_CODE_2 + "\"><span class=\"glyphicon glyphicon-pencil\"></span></a></td>"; 
                     curType1 = item.TYPE_CODE_1;
                 }
                 else
                 {
-                    rowHTML = rowHTML + "<td style='padding:2px'><input type='button' class='btn-link btn-xs' onclick=\"selectType('" + item.TYPE_CODE_1 + "','" + item.TYPE_CODE_2 + "')\" value='" + item.TYPE_DESC + "'/></td>";
+                    //  @ViewBag.Typecode = "<a href =\"EditMainType?typecode1=" + typecod1 + "&typecode2=" + typecod2 + "\">編輯</a>";
+                    rowHTML = rowHTML + "<td style='padding:2px'>" +
+                         "<input type='button' class='btn-link btn-xs' onclick=\"selectType('" + item.TYPE_CODE_1 + "','" + item.TYPE_CODE_2 + "')\" value='" + item.TYPE_DESC + "'/>" +
+                         "<a href=\"EditMainType?typecode1=" + item.TYPE_CODE_1 + "&typecode2=" + item.TYPE_CODE_2 + "\"><span class=\"glyphicon glyphicon-pencil\"></span></a></td>";
                 }
             }
             @Html.Raw(rowHTML + "</tr>")

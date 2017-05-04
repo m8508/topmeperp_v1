@@ -144,4 +144,12 @@ namespace topmeperp.Models
         public PLAN_SUP_INQUIRY planForm { get; set; }
         public IEnumerable<PLAN_SUP_INQUIRY_ITEM> planFormItem { get; set; }
     }
+    /// <summary>
+    /// 九宮格次九宮格編輯物件
+    /// </summary>
+    public class TyepManageModel
+    {
+        public REF_TYPE_MAIN MainType { get; set; }
+        public IEnumerable<REF_TYPE_SUB> SubTypes { get; set; }
+    }
 }
