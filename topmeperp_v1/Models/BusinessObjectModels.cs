@@ -144,4 +144,18 @@ namespace topmeperp.Models
         public PLAN_SUP_INQUIRY planForm { get; set; }
         public IEnumerable<PLAN_SUP_INQUIRY_ITEM> planFormItem { get; set; }
     }
-}
+    public class COMPARASION_DATA_4PLAN
+    {
+        //報價單編號
+        public string INQUIRY_FORM_ID { get; set; }
+        //供應商名稱
+        public string SUPPLIER_NAME { get; set; }
+        public Nullable<decimal> TAmount { get; set; }
+    }
+    public class budgetsummary
+    {
+        public string TYPE_CODE_1 { get; set; }
+        public string TYPE_CODE_2 { get; set; }
+        public Nullable<decimal> BAmount { get; set; }
+    }
+    }

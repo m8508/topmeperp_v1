@@ -167,53 +167,5 @@ namespace topmeperp.Controllers
             logger.Info("Request:PROJECT_ID =" + form["id"]);
             return msg;
         }
-
-        //採購比價功能資料頁
-        public ActionResult PurchaseMain(string id)
-        {
-            //傳入專案編號，
-            logger.Info("start project id=" + id);
-
-            //取得專案基本資料
-            PurchaseFormService service = new PurchaseFormService();
-            TND_PROJECT p = service.getProjectById(id);
-            ViewBag.id = p.PROJECT_ID;
-            ViewBag.projectName = p.PROJECT_NAME;
-            SelectListItem empty = new SelectListItem();
-            empty.Value = "";
-            empty.Text = "";
-            //取得主系統資料
-            List<SelectListItem> selectMain = new List<SelectListItem>();
-            foreach (string itm in service.getSystemMain(id))
-            {
-                logger.Debug("Main System=" + itm);
-                SelectListItem selectI = new SelectListItem();
-                selectI.Value = itm;
-                selectI.Text = itm;
-                if (null != itm && "" != itm)
-                {
-                    selectMain.Add(selectI);
-                }
-            }
-            // selectMain.Add(empty);
-            ViewBag.SystemMain = selectMain;
-            //取得次系統資料
-            List<SelectListItem> selectSub = new List<SelectListItem>();
-            foreach (string itm in service.getSystemSub(id))
-            {
-                logger.Debug("Sub System=" + itm);
-                SelectListItem selectI = new SelectListItem();
-                selectI.Value = itm;
-                selectI.Text = itm;
-                if (null != itm && "" != itm)
-                {
-                    selectSub.Add(selectI);
-                }
-            }
-            //selectSub.Add(empty);
-            ViewBag.SystemSub = selectSub;
-            //設定查詢條件
-            return View();
-        }
     }
 }

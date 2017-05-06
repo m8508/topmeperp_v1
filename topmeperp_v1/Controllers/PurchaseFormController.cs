@@ -152,27 +152,34 @@ namespace topmeperp.Controllers
             log.Info("form:" + form.Count);
             string msg = "";
             // 取得空白詢價單名稱
-            string[] formId = form.Get("inquiryformid").Split(',');
-            string[] formName = form.Get("formname").Split(',');
-            List<PLAN_SUP_INQUIRY> lstItem = new List<PLAN_SUP_INQUIRY>();
-            for (int j = 0; j < formId.Count(); j++)
+            if (form.Get("inquiryformid") != null)
             {
-                PLAN_SUP_INQUIRY item = new PLAN_SUP_INQUIRY();
-                item.INQUIRY_FORM_ID = formId[j];
-                item.FORM_NAME = formName[j];
-                log.Debug("plan form id =" + item.INQUIRY_FORM_ID + "，form name =" + item.FORM_NAME);
-                lstItem.Add(item);
-            }
-            int i = service.addFormName(lstItem);
-            if (i == 0)
-            {
-                msg = service.message;
+                string[] formId = form.Get("inquiryformid").Split(',');
+                string[] formName = form.Get("formname").Split(',');
+                List<PLAN_SUP_INQUIRY> lstItem = new List<PLAN_SUP_INQUIRY>();
+                for (int j = 0; j < formId.Count(); j++)
+                {
+                    PLAN_SUP_INQUIRY item = new PLAN_SUP_INQUIRY();
+                    item.INQUIRY_FORM_ID = formId[j];
+                    item.FORM_NAME = formName[j];
+                    log.Debug("plan form id =" + item.INQUIRY_FORM_ID + "，form name =" + item.FORM_NAME);
+                    lstItem.Add(item);
+                }
+                int i = service.addFormName(lstItem);
+                if (i == 0)
+                {
+                    msg = service.message;
+                }
+                else
+                {
+                    msg = "更新空白詢價單名稱成功";
+                }
+                return msg;
             }
             else
             {
-                msg = "更新空白詢價單名稱成功";
+                return "無詢價單名稱需要輸入，所以無法更新詢價單名稱";
             }
-            return msg;
         }
     
         public String UpdatePrjForm(FormCollection form)
@@ -335,10 +342,156 @@ namespace topmeperp.Controllers
                 Response.Charset = "utf-8";
                 Response.ContentType = "text/xls";
                 Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", service.formInquiry.INQUIRY_FORM_ID + ".xlsx"));
-                //"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx"
+                //"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.INQUIRY_FORM_ID + ".xlsx"
                 Response.WriteFile(poi.outputPath + "\\" + service.formInquiry.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + service.formInquiry.INQUIRY_FORM_ID + ".xlsx");
                 Response.End();
             }
+        }
+        //採購比價功能資料頁
+        public ActionResult PurchaseMain(string id)
+        {
+            //傳入專案編號，
+            log.Info("start project id=" + id);
+
+            //取得專案基本資料
+            PurchaseFormService service = new PurchaseFormService();
+            TND_PROJECT p = service.getProjectById(id);
+            ViewBag.id = p.PROJECT_ID;
+            ViewBag.projectName = p.PROJECT_NAME;
+            SelectListItem empty = new SelectListItem();
+            empty.Value = "";
+            empty.Text = "";
+            //取得主系統資料
+            List<SelectListItem> selectMain = new List<SelectListItem>();
+            foreach (string itm in service.getSystemMain(id))
+            {
+                log.Debug("Main System=" + itm);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = itm;
+                selectI.Text = itm;
+                if (null != itm && "" != itm)
+                {
+                    selectMain.Add(selectI);
+                }
+            }
+            // selectMain.Add(empty);
+            ViewBag.SystemMain = selectMain;
+            //取得次系統資料
+            List<SelectListItem> selectSub = new List<SelectListItem>();
+            foreach (string itm in service.getSystemSub(id))
+            {
+                log.Debug("Sub System=" + itm);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = itm;
+                selectI.Text = itm;
+                if (null != itm && "" != itm)
+                {
+                    selectSub.Add(selectI);
+                }
+            }
+            //selectSub.Add(empty);
+            ViewBag.SystemSub = selectSub;
+            //設定查詢條件
+            return View();
+        }
+        //取得比價資料
+        [HttpPost]
+        public ActionResult ComparisonData(FormCollection form)
+        {
+            //傳入查詢條件
+            log.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"]);
+            //取得備標品項與詢價資料
+            budgetsummary budget = null;
+            try
+            {
+                DataTable dt = service.getComparisonDataToPivot(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
+                @ViewBag.ResultMsg = "共" + dt.Rows.Count + "筆";
+                string htmlString = "<table class='table table-bordered'><tr>";
+                //處理表頭
+                for (int i = 1; i < 6; i++)
+                {
+                    log.Debug("column name=" + dt.Columns[i].ColumnName);
+                    htmlString = htmlString + "<th>" + dt.Columns[i].ColumnName + "</th>";
+                }
+                //處理供應商表頭
+                Dictionary<string, COMPARASION_DATA_4PLAN> dirSupplierQuo = service.dirSupplierQuo;
+                log.Debug("Column Count=" + dt.Columns.Count);
+                for (int i = 6; i < dt.Columns.Count; i++)
+                {
+                    log.Debug("column name=" + dt.Columns[i].ColumnName);
+                    string[] tmpString = dt.Columns[i].ColumnName.Split('|');
+                    //<a href="/PurchaseForm/SinglePrjForm/@item.INQUIRY_FORM_ID" target="_blank">@item.INQUIRY_FORM_ID</a>
+                    decimal tAmount = (decimal)dirSupplierQuo[tmpString[1]].TAmount;
+                    string strAmout = string.Format("{0:C0}", tAmount);
+
+                    htmlString = htmlString + "<th><table><tr><td>" + tmpString[0] +
+                        "<button type='button' class='btn-xs' onclick=\"clickSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>" +
+                        "<button type='button' class='btn-xs'><a href='/PurchaseForm/SinglePrjForm/" + tmpString[1] + "'" + " target='_blank'><span class='glyphicon glyphicon-list-alt' aria-hidden='true'></span></a>" +
+                        "</button>" + "<button type = 'button' class='btn-xs' onclick=\"removeSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-remove' aria-hidden='true'></span></button>" +
+                        "<button type ='button' class='btn-xs' onclick=\"tagSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-tag' aria-hidden='true'></span></button>" +
+                        "</td><tr><td style='text-align:center;background-color:yellow;' >" + strAmout + "</td>" + 
+                        "</tr></table></th>";
+                }
+                htmlString = htmlString + "</tr>";
+                //處理資料表
+                foreach (DataRow dr in dt.Rows)
+                {
+                    htmlString = htmlString + "<tr>";
+                    for (int i = 1; i < 5; i++)
+                    {
+                        htmlString = htmlString + "<td>" + dr[i] + "</td>";
+                    }
+                    //單價欄位  <input type='text' id='cost_@item.INQUIRY_ITEM_ID' name='cost_@item.INQUIRY_ITEM_ID' size='5' />
+                    //decimal price = decimal.Parse(dr[5].ToString());
+                    if (dr[5].ToString() != "")
+                    {
+                        log.Debug("data row col 5=" + (decimal)dr[5]);
+                        htmlString = htmlString + "<td><input type='text' id='cost_" + dr[1] + "' name='cost_" + dr[1] + "' size='5' value='" + String.Format("{0:N0}", (decimal)dr[5]) + "' /></td>";
+                    }
+                    else
+                    {
+                        htmlString = htmlString + "<td></td>";
+                    }
+                    //String.Format("{0:C}", 0);
+                    //處理報價資料
+                    for (int i = 6; i < dt.Columns.Count; i++)
+                    {
+                        //<td><button class="btn-link" onclick="clickPrice('@item.INQUIRY_ITEM_ID', '@item.QUOTATION_PRICE')">@item.QUOTATION_PRICE</button> </td>
+                        if (dr[i].ToString() != "")
+                        {
+                            htmlString = htmlString + "<td><button class='btn-link' onclick=\"clickPrice('" + dr[1] + "', '" + dr[i] + "')\">" + String.Format("{0:N0}", (decimal)dr[i]) + "</button> </td>";
+                        }
+                        else
+                        {
+                            htmlString = htmlString + "<td></td>";
+                        }
+                    }
+                    htmlString = htmlString + "</tr>";
+                }
+                htmlString = htmlString + "</table>";
+                //產生畫面
+                IHtmlString str = new HtmlString(htmlString);
+                PlanService s = new PlanService();
+                budget = s.getBudgetForComparison(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
+                if (budget != null)
+                {
+                    ViewBag.result = string.Format("{0:N0}", budget.BAmount);
+                    log.Debug("預算金額 = " + budget.BAmount);
+                }
+                ViewBag.htmlString = str;
+            }
+            catch (Exception e)
+            {
+                log.Error("Ex" + e.Message);
+                ViewBag.htmlString = e.Message;
+            }
+            return PartialView(budget);
+        }
+        public string RemoveSupplierForm(string formid)
+        {
+            log.Info("formid=" + Request["formid"]);
+            int i = service.removeSuplplierFormFromQuote(Request["formid"]);
+            return "更新成功!!";
         }
     }
 }

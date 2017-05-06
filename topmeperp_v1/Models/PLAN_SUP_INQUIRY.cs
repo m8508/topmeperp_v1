@@ -30,5 +30,6 @@ namespace topmeperp.Models
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public string MODIFY_ID { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
+        public string COUNTER_OFFER { get; set; }
     }
 }
