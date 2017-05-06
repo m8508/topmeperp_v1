@@ -250,6 +250,7 @@
     <Compile Include="Controllers\RoleManageController.cs" />
     <Compile Include="Controllers\SupplierManageController.cs" />
     <Compile Include="Controllers\TenderController.cs" />
+    <Compile Include="Controllers\TypeManageController.cs" />
     <Compile Include="Controllers\UserManageController.cs" />
     <Compile Include="Controllers\WageController.cs" />
     <Compile Include="Filter\TopmepFilter.cs" />
@@ -364,6 +365,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service\ContextService.cs" />
     <Compile Include="Service\ContextService4po.cs" />
+    <Compile Include="Service\ContextService4System.cs" />
     <Compile Include="Service\PoiService.cs" />
     <Compile Include="Service\PoiSrevice4po.cs" />
     <Compile Include="Service\ReportContextService.cs" />
@@ -608,12 +610,16 @@
     <Content Include="Views\PurchaseForm\FormMainPage.cshtml" />
     <Content Include="Views\PurchaseForm\_FormMainPage.cshtml" />
     <Content Include="Views\PurchaseForm\_PurchaseSupplierPage.cshtml" />
+    <Content Include="Views\TypeManage\Index.cshtml" />
+    <Content Include="Views\TypeManage\_getSubType.cshtml" />
+    <Content Include="Views\TypeManage\EditMainType.cshtml" />
     <Content Include="Views\PurchaseForm\SinglePrjForm.cshtml" />
     <Content Include="Views\PurchaseForm\ComparisonData.cshtml" />
     <Content Include="Views\PurchaseForm\PurchaseMain.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\SupplierInquiryForm\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

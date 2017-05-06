@@ -1804,7 +1804,7 @@ namespace topmeperp.Service
             }
             //電子信箱:	admin@topmep
             logger.Debug(sheet.GetRow(6).Cells[0].ToString() + "," + sheet.GetRow(6).Cells[1]);
-            form.CONTACT_EMAIL = sheet.GetRow(6).Cells[1].ToString();
+            form.OWNER_EMAIL = sheet.GetRow(6).Cells[1].ToString();
             //編號: REF - 001
             try
             {
