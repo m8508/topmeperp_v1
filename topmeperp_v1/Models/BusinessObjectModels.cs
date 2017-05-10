@@ -158,4 +158,12 @@ namespace topmeperp.Models
         public string TYPE_CODE_2 { get; set; }
         public Nullable<decimal> BAmount { get; set; }
     }
+    /// <summary>
+    /// 九宮格次九宮格編輯物件
+    /// </summary>
+    public class TyepManageModel
+    {
+        public REF_TYPE_MAIN MainType { get; set; }
+        public IEnumerable<REF_TYPE_SUB> SubTypes { get; set; }
     }
+}
