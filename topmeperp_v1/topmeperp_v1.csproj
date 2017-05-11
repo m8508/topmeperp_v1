@@ -627,6 +627,7 @@
     <Content Include="Views\PurchaseForm\ComparisonDataForMultiple.cshtml" />
     <Content Include="Views\Tender\ManageProjectItem.cshtml" />
     <Content Include="Views\Tender\ShowProejctItems.cshtml" />
+    <Content Include="Views\Tender\_ProjectItem.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -407,7 +407,7 @@ namespace topmeperp.Service
                     {
                         f.FORM_NAME = f.FORM_NAME + "-" + idx.TYPE_CODE_2_NAME;
                     }
-                    f.FORM_NAME = f.FORM_NAME + "(" + idx.TYPE_CODE_1 + "," +idx.TYPE_CODE_2 +")";
+                    f.FORM_NAME = f.FORM_NAME + "(" + idx.TYPE_CODE_1 + "," + idx.TYPE_CODE_2 + ")";
                     f.PROJECT_ID = projectid;
                     f.CREATE_ID = loginUser.USER_ID;
                     f.CREATE_DATE = DateTime.Now;
@@ -544,7 +544,6 @@ namespace topmeperp.Service
         //取得標單品項資料
         public List<TND_PROJECT_ITEM> getProjectItem(string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub)
         {
-
             logger.Info("search projectitem by 九宮格 =" + typeCode1 + "search projectitem by 次九宮格 =" + typeCode2 + "search projectitem by 主系統 =" + systemMain + "search projectitem by 次系統 =" + systemSub);
             List<topmeperp.Models.TND_PROJECT_ITEM> lstItem = new List<TND_PROJECT_ITEM>();
             //處理SQL 預先填入專案代號,設定集合處理參數
@@ -561,7 +560,7 @@ namespace topmeperp.Service
             if (null != typeCode2 && typeCode2 != "")
             {
                 sql = sql + "AND p.TYPE_CODE_2 = @typeCode2 ";
-                parameters.Add(new SqlParameter("typeCode2",typeCode2));
+                parameters.Add(new SqlParameter("typeCode2", typeCode2));
             }
             //主系統
             if (null != systemMain && systemMain != "")
@@ -1090,6 +1089,44 @@ namespace topmeperp.Service
             return plu;
         }
         #endregion 
+        /// <summary>
+        /// project item 基本資料
+        /// </summary>
+        /// <param name="itemid"></param>
+        /// <returns></returns>
+        public TND_PROJECT_ITEM getProjectItem(string itemid)
+        {
+            logger.Debug("get project item by id=" + itemid);
+            TND_PROJECT_ITEM pitem = null; 
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                pitem = context.TND_PROJECT_ITEM.SqlQuery("SELECT * FROM TND_PROJECT_ITEM WHERE PROJECT_ITEM_ID=@itemid",
+                new SqlParameter("itemid", itemid)).First();
+            }
+            return pitem;
+        }
+        public int updateProjectItem(TND_PROJECT_ITEM item)
+        {
+            int i=0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.TND_PROJECT_ITEM.AddOrUpdate(item);
+                    i = context.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    logger.Error("updateProjectItem  fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return i;
+        }
+
     }
 
     //工率相關資料提供作業
@@ -1111,8 +1148,8 @@ namespace topmeperp.Service
                 //取得工率表單檔頭資訊
                 wageTable = context.TND_PROJECT.SqlQuery("SELECT * FROM TND_PROJECT WHERE PROJECT_ID=@projectid", new SqlParameter("projectid", projectid)).First();
                 //取得工率表單明細
-                wageTableItem = context.Database.SqlQuery<PROJECT_ITEM_WITH_WAGE>(" SELECT i.*,w.ratio,w.price FROM TND_PROJECT_ITEM i LEFT OUTER JOIN "+
-                    " TND_WAGE w ON i.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID "+
+                wageTableItem = context.Database.SqlQuery<PROJECT_ITEM_WITH_WAGE>(" SELECT i.*,w.ratio,w.price FROM TND_PROJECT_ITEM i LEFT OUTER JOIN " +
+                    " TND_WAGE w ON i.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID " +
                     " WHERE i.project_id = @projectid  ORDER BY i.EXCEL_ROW_ID; ; ", new SqlParameter("projectid", projectid)).ToList();
                 logger.Debug("get project item count:" + wageTableItem.Count);
             }
@@ -1477,7 +1514,7 @@ namespace topmeperp.Service
         }
     }
     #endregion
-   
+
     #region 供應商管理區塊
     /*
      *供應商管理 
