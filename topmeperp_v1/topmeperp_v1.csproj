@@ -625,9 +625,12 @@
     <Content Include="Views\PurchaseForm\ContractItems.cshtml" />
     <Content Include="Views\PurchaseForm\ComparisonForMultiple.cshtml" />
     <Content Include="Views\PurchaseForm\ComparisonDataForMultiple.cshtml" />
+    <Content Include="Views\Tender\ManageProjectItem.cshtml" />
+    <Content Include="Views\Tender\ShowProejctItems.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\SupplierInquiryForm\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

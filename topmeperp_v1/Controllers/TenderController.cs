@@ -85,7 +85,9 @@ namespace topmeperp.Controllers
                 poiservice.InitializeWorkbook(path);
                 poiservice.ConvertDataForTenderProject(prj.PROJECT_ID, (int)prj.START_ROW_NO);
                 //2.3 記錄錯誤訊息
-                message = message + "標單品項:共" + poiservice.lstProjectItem.Count + "筆資料<br/>" + poiservice.errorMessage;
+                message = message + "標單品項:共" + poiservice.lstProjectItem.Count + "筆資料，";
+                message = message + "<a target=\"_blank\" href=\"/Tender/ManageProjectItem?id=" + prj.PROJECT_ID +"\"> 標單明細檢視畫面單</a><br/>" + poiservice.errorMessage;
+                //        < button type = "button" class="btn btn-primary" onclick="location.href='@Url.Action("ManageProjectItem","Tender", new { id = @Model.tndProject.PROJECT_ID})'; ">標單明細</button>
                 //2.4
                 logger.Info("Delete TND_PROJECT_ITEM By Project ID");
                 service.delAllItemByProject();
@@ -553,10 +555,71 @@ namespace topmeperp.Controllers
                 return null;
             }
         }
-
-        public ActionResult EditProjectItem()
+        /// <summary>
+        /// 設定標單品項查詢條件
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ActionResult ManageProjectItem(string id)
         {
+            //傳入專案編號，
+            InquiryFormService service = new InquiryFormService();
+            logger.Info("start project id=" + id);
+
+            //取得專案基本資料fc
+            TND_PROJECT p = service.getProjectById(id);
+            ViewBag.id = p.PROJECT_ID;
+            ViewBag.projectName = p.PROJECT_NAME;
+
+            SelectListItem empty = new SelectListItem();
+            empty.Value = "";
+            empty.Text = "";
+            //取得主系統資料
+            List<SelectListItem> selectMain = new List<SelectListItem>();
+            foreach (string itm in service.getSystemMain(id))
+            {
+                logger.Debug("Main System=" + itm);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = itm;
+                selectI.Text = itm;
+                if (null != itm && "" != itm)
+                {
+                    selectMain.Add(selectI);
+                }
+            }
+            // selectMain.Add(empty);
+            ViewBag.SystemMain = selectMain;
+            //取得次系統資料
+            List<SelectListItem> selectSub = new List<SelectListItem>();
+            foreach (string itm in service.getSystemSub(id))
+            {
+                logger.Debug("Sub System=" + itm);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = itm;
+                selectI.Text = itm;
+                if (null != itm && "" != itm)
+                {
+                    selectSub.Add(selectI);
+                }
+            }
+            //selectSub.Add(empty);
+            ViewBag.SystemSub = selectSub;
+            //設定查詢條件
             return View();
         }
+        /// <summary>
+        /// 取得標單明細資料
+        /// </summary>
+        /// <param name="form"></param>
+        /// <returns></returns>
+        public ActionResult ShowProejctItems(FormCollection form)
+        {
+            InquiryFormService service = new InquiryFormService();
+            logger.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"]);
+            List<TND_PROJECT_ITEM> lstItems = service.getProjectItem(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
+            ViewBag.Result = "共幾" + lstItems .Count + "筆資料";
+            return PartialView(lstItems);
+        }
+
     }
 }

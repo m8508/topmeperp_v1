@@ -91,7 +91,7 @@ namespace topmeperp.Service
             while (rows.MoveNext())
             {
                 row = (IRow)rows.Current;
-                logger.Debug("Excel Value:" + row.Cells[0].ToString() + row.Cells[1] + row.Cells[2]);
+                logger.Debug("Cells Count=" + row.Cells.Count + ",Excel Value:" + row.Cells[0].ToString() + row.Cells[1]);
                 //將各Row 資料寫入物件內
                 //項次,名稱,單位,數量,單價,複價,備註,九宮格,次九宮格,主系統,次系統
                 if (row.Cells[0].ToString().ToUpper() != "END")
@@ -119,10 +119,30 @@ namespace topmeperp.Service
             {
                 projectItem.ITEM_DESC = row.Cells[1].ToString();
             }
+            if (row.Cells.Count < 3)
+            {
+                logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
+                logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
+                projectItem.PROJECT_ITEM_ID = projId + "-" + id;
+                projectItem.EXCEL_ROW_ID = excelrow;
+                projectItem.CREATE_DATE = System.DateTime.Now;
+                return projectItem;
+            }
             if (row.Cells[2].ToString().Trim() != "")//單位
             {
                 projectItem.ITEM_UNIT = row.Cells[2].ToString();
             }
+
+            if (row.Cells.Count < 5)
+            {
+                logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
+                logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
+                projectItem.PROJECT_ITEM_ID = projId + "-" + id;
+                projectItem.EXCEL_ROW_ID = excelrow;
+                projectItem.CREATE_DATE = System.DateTime.Now;
+                return projectItem;
+            }
+
             if (row.Cells[3].ToString().Trim() != "")//數量
             {
                 try
@@ -142,6 +162,15 @@ namespace topmeperp.Service
             if (row.Cells[6].ToString().Trim() != "")//備註
             {
                 projectItem.ITEM_REMARK = row.Cells[6].ToString();
+            }
+            if (row.Cells.Count < 11)
+            {
+                logErrorMessage("data format warring on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
+                logger.Error("data format warring on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
+                projectItem.PROJECT_ITEM_ID = projId + "-" + id;
+                projectItem.EXCEL_ROW_ID = excelrow;
+                projectItem.CREATE_DATE = System.DateTime.Now;
+                return projectItem;
             }
             if (row.Cells[7].ToString().Trim() != "")//九宮格
             {
