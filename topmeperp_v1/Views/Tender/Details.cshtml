@@ -10,6 +10,7 @@
     <div style="padding-top:10px;">
         <h3 class="bg-info">備標作業功能區</h3>
         <p style="padding-top:10px;">
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("ManageProjectItem","Tender", new { id = @Model.tndProject.PROJECT_ID})'; ">標單明細</button>
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Create","Tender", new { id = @Model.tndProject.PROJECT_ID})'; ">修改專案基本資料</button>
             <button type="button" class="btn btn-primary"  @ViewBag.F00003 onclick="location.href='@Url.Action("Task","Tender", new { id = @Model.tndProject.PROJECT_ID})'; ">任務分派</button>
 
