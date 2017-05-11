@@ -270,5 +270,72 @@ namespace topmeperp.Service
         }
     }
     #endregion
-    
+    #region 九宮格次九宮格管理區塊
+    public class TypeManageService
+    {
+        TyepManageModel typeManageModel = null;
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        public List<REF_TYPE_MAIN> getMainType()
+        {
+            List<REF_TYPE_MAIN> lst = new List<REF_TYPE_MAIN>();
+            using (var context = new topmepEntities())
+            {
+                lst = context.REF_TYPE_MAIN.SqlQuery("SELECT * FROM REF_TYPE_MAIN ORDER BY TYPE_CODE_1 ,TYPE_CODE_2;").ToList();
+                logger.Debug("get Main Type Count" + lst.Count);
+            }
+            return lst;
+        }
+        public List<REF_TYPE_SUB> getSubType(string typecodeid)
+        {
+            List<REF_TYPE_SUB> lst = new List<REF_TYPE_SUB>();
+            using (var context = new topmepEntities())
+            {
+                lst = context.REF_TYPE_SUB.SqlQuery("SELECT * FROM REF_TYPE_SUB WHERE TYPE_CODE_ID=@typecodeid ORDER BY SUB_TYPE_CODE;", new SqlParameter("typecodeid", typecodeid)).ToList();
+                logger.Debug("get sub Type Count" + lst.Count);
+            }
+            return lst;
+        }
+        public TyepManageModel getTypeManageModel(string typecode1, string typecode2)
+        {
+            TyepManageModel typeManageModel = new TyepManageModel();
+            //List<REF_TYPE_MAIN> lstMainType = new List<REF_TYPE_MAIN>();
+            using (var context = new topmepEntities())
+            {
+                var parameters = new List<SqlParameter>();
+                string sql = "SELECT * FROM REF_TYPE_MAIN WHERE TYPE_CODE_1=@code1 AND TYPE_CODE_2=@code2 ";
+                logger.Debug(sql);
+                parameters.Add(new SqlParameter("code1", typecode1));
+                parameters.Add(new SqlParameter("code2", typecode2));
+                //lstMainType = context.REF_TYPE_MAIN.SqlQuery(sql, parameters.ToArray()).ToList();
+                typeManageModel.MainType = context.REF_TYPE_MAIN.SqlQuery(sql, parameters.ToArray()).First();
+            }
+            typeManageModel.SubTypes = getSubType(typeManageModel.MainType.TYPE_CODE_1 + typeManageModel.MainType.TYPE_CODE_2);
+            logger.Debug("get Main Type Count" + typeManageModel.MainType.TYPE_DESC + ",sub type count" + typeManageModel.SubTypes.Count());
+            return typeManageModel;
+        }
+        public void updateTypeManageModel(REF_TYPE_MAIN mainType, List<REF_TYPE_SUB> lstSubType)
+        {
+            using (var context = new topmepEntities())
+            {
+                //修改九宮格內容
+                context.REF_TYPE_MAIN.AddOrUpdate(mainType);
+                int i = 0;
+                i = context.SaveChanges();
+                logger.Debug("Modify MainType :" + i);
+                string sql = "DELETE FROM REF_TYPE_SUB WHERE TYPE_CODE_ID=@typecodeid";
+                logger.Debug("Remove SubType=" + sql + ",TypeCode=" + mainType.TYPE_CODE_1 + mainType.TYPE_CODE_2);
+                context.Database.ExecuteSqlCommand(sql, new SqlParameter("typecodeid", mainType.TYPE_CODE_1 + mainType.TYPE_CODE_2));
+
+                foreach (REF_TYPE_SUB subType in lstSubType)
+                {
+                    logger.Debug("subTypeId=" + subType.SUB_TYPE_ID + ",mainTypeId=" + subType.TYPE_CODE_ID + ",subTypeCode=" + subType.SUB_TYPE_CODE + ",subTypeDesc=" + subType.TYPE_DESC);
+                    subType.CREATE_DATE = System.DateTime.Now;
+                    context.REF_TYPE_SUB.Add(subType);
+                }
+                i = context.SaveChanges();
+                logger.Debug("Modify MainSub :" + i);
+            }
+        }
+    }
+    #endregion
 }
