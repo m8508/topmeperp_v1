@@ -616,10 +616,18 @@
     <Content Include="Views\PurchaseForm\SinglePrjForm.cshtml" />
     <Content Include="Views\PurchaseForm\ComparisonData.cshtml" />
     <Content Include="Views\PurchaseForm\PurchaseMain.cshtml" />
+    <Content Include="Views\PurchaseForm\_CounterOfferFormPage.cshtml" />
+    <Content Include="Views\PurchaseForm\FirstComparison.cshtml" />
+    <Content Include="Views\PurchaseForm\FormListForOffer.cshtml" />
+    <Content Include="Views\PurchaseForm\ComparisonForCounterOffer.cshtml" />
+    <Content Include="Views\PurchaseForm\FirstComparisonData.cshtml" />
+    <Content Include="Views\PurchaseForm\PurchasingContract.cshtml" />
+    <Content Include="Views\PurchaseForm\ContractItems.cshtml" />
+    <Content Include="Views\PurchaseForm\ComparisonForMultiple.cshtml" />
+    <Content Include="Views\PurchaseForm\ComparisonDataForMultiple.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\SupplierInquiryForm\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

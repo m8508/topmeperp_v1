@@ -30,6 +30,7 @@
     <ul class="nav nav-tabs">
         <li class="active"><a data-toggle="tab" href="#inquiryTemplate">空白詢價單</a></li>
         <li><a data-toggle="tab" href="#inquiry">廠商報價單</a></li>
+        <li><a data-toggle="tab" href="#counteroffer">廠商議價報價單</a></li>
     </ul>
 
     <div class="tab-content">
@@ -41,6 +42,11 @@
         <div id="inquiry" class="tab-pane fade">
             @{
                 Html.RenderPartial("_PurchaseSupplierPage");
+            }
+        </div>
+        <div id="counteroffer" class="tab-pane fade">
+            @{
+                Html.RenderPartial("_CounterOfferFormPage");
             }
         </div>
     </div>

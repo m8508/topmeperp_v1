@@ -295,7 +295,7 @@ namespace topmeperp.Service
             }
             return lst;
         }
-        public TyepManageModel getTypeManageModel(string typecode1,string typecode2)
+        public TyepManageModel getTypeManageModel(string typecode1, string typecode2)
         {
             TyepManageModel typeManageModel = new TyepManageModel();
             //List<REF_TYPE_MAIN> lstMainType = new List<REF_TYPE_MAIN>();
@@ -320,12 +320,12 @@ namespace topmeperp.Service
                 //修改九宮格內容
                 context.REF_TYPE_MAIN.AddOrUpdate(mainType);
                 int i = 0;
-                i= context.SaveChanges();
+                i = context.SaveChanges();
                 logger.Debug("Modify MainType :" + i);
                 string sql = "DELETE FROM REF_TYPE_SUB WHERE TYPE_CODE_ID=@typecodeid";
-                logger.Debug("Remove SubType=" + sql + ",TypeCode="+ mainType.TYPE_CODE_1 + mainType.TYPE_CODE_2);
-                context.Database.ExecuteSqlCommand(sql, new SqlParameter("typecodeid", mainType.TYPE_CODE_1+ mainType.TYPE_CODE_2));
-                
+                logger.Debug("Remove SubType=" + sql + ",TypeCode=" + mainType.TYPE_CODE_1 + mainType.TYPE_CODE_2);
+                context.Database.ExecuteSqlCommand(sql, new SqlParameter("typecodeid", mainType.TYPE_CODE_1 + mainType.TYPE_CODE_2));
+
                 foreach (REF_TYPE_SUB subType in lstSubType)
                 {
                     logger.Debug("subTypeId=" + subType.SUB_TYPE_ID + ",mainTypeId=" + subType.TYPE_CODE_ID + ",subTypeCode=" + subType.SUB_TYPE_CODE + ",subTypeDesc=" + subType.TYPE_DESC);
