@@ -99,6 +99,20 @@
         });
     }
 
+    function filterSupplier(formid) {
+        jQuery.ajax({
+            url: "/PurchaseForm/FilterSupplierForm",
+            async: true,
+            data: { "formid": formid},
+            type: "POST",
+            dataType: 'text',
+            success: function (result) {
+                alert(result);
+                getFirstComparisonData();
+            },
+        });
+    }
+
     function updateProgress(percentage) {
         if (percentage > 100) percentage = 100;
         $('#progressBar').css('width', percentage + '%');

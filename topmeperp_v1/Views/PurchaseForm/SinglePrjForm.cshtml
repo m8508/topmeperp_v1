@@ -156,6 +156,9 @@
                         複價
                     </th>
                     <th>
+                        議價單價
+                    </th>
+                    <th>
                         備註
                     </th>
 
@@ -180,7 +183,7 @@
                             @item.ITEM_QTY
                         </td>
                         <td>
-                            @if (@item.ITEM_UNIT_PRICE != null)
+                            @if (@item.ITEM_UNIT_PRICE != null )
                             {
                                 <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="@item.ITEM_UNIT_PRICE" style="width:180px">
                             }
@@ -189,8 +192,17 @@
                                 <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="" style="width:180px">
                             }
                         </td>
-
                         <td></td>
+                        <td>
+                            @if (@item.ITEM_COUNTER_OFFER != null)
+                            {
+                                <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="@item.ITEM_COUNTER_OFFER" style="width:180px">
+                            }
+                            else 
+                            {
+                                <input type="text" class="form-control" name="formunitcounteroffer" id="formunitcounteroffer" value="" style="width:180px">
+                            }
+                        </td>
                         <td>@item.ITEM_REMARK</td>
                     </tr>
                 }

@@ -177,7 +177,7 @@ namespace topmeperp.Models
     public class purchasesummary
     {
         public DateTime CREATE_DATE { get; set; }
-        public string TYPECODE { get; set; }
+        public string FORM_NAME { get; set; }
         public string INQUIRY_FORM_ID { get; set; }
         public string SUPPLIER_ID { get; set; }
         public Nullable<int> TOTALROWS { get; set; }

@@ -47,6 +47,7 @@
           <Property Name="EXCEL_ROW_ID" Type="bigint" />
           <Property Name="FORM_NAME" Type="varchar" MaxLength="150" />
           <Property Name="SUPPLIER_ID" Type="varchar" MaxLength="200" />
+          <Property Name="CONTRACT_ID" Type="varchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="PLAN_SUP_INQUIRY">
           <Key>
@@ -609,7 +610,8 @@
     [PLAN_ITEM].[CREATE_DATE] AS [CREATE_DATE], 
     [PLAN_ITEM].[EXCEL_ROW_ID] AS [EXCEL_ROW_ID], 
     [PLAN_ITEM].[FORM_NAME] AS [FORM_NAME], 
-    [PLAN_ITEM].[SUPPLIER_ID] AS [SUPPLIER_ID]
+    [PLAN_ITEM].[SUPPLIER_ID] AS [SUPPLIER_ID], 
+    [PLAN_ITEM].[CONTRACT_ID] AS [CONTRACT_ID]
     FROM [dbo].[PLAN_ITEM] AS [PLAN_ITEM]</DefiningQuery>
           </EntitySet>
           <AssociationSet Name="FK_SYS_PRIVILEGE_SYS_FUNCTION" Association="Self.FK_SYS_PRIVILEGE_SYS_FUNCTION">
@@ -1228,6 +1230,7 @@
           <Property Name="EXCEL_ROW_ID" Type="Int64" />
           <Property Name="FORM_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
           <Property Name="SUPPLIER_ID" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="CONTRACT_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1754,6 +1757,7 @@
           <EntitySetMapping Name="PLAN_ITEM">
             <EntityTypeMapping TypeName="topmepModel.PLAN_ITEM">
               <MappingFragment StoreEntitySet="PLAN_ITEM">
+                <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
                 <ScalarProperty Name="SUPPLIER_ID" ColumnName="SUPPLIER_ID" />
                 <ScalarProperty Name="FORM_NAME" ColumnName="FORM_NAME" />
                 <ScalarProperty Name="EXCEL_ROW_ID" ColumnName="EXCEL_ROW_ID" />

@@ -35,5 +35,6 @@ namespace topmeperp.Models
         public Nullable<long> EXCEL_ROW_ID { get; set; }
         public string FORM_NAME { get; set; }
         public string SUPPLIER_ID { get; set; }
+        public string CONTRACT_ID { get; set; }
     }
 }

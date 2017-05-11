@@ -5,13 +5,19 @@
             建立日期
         </th>
         <th>
-            九宮格組合
+            採購項目
         </th>
         <th>
            詢價單編號
         </th>
         <th>
             廠商名稱
+        </th>
+        <th>
+            採購項目個數
+        </th>
+        <th>
+            議價報價回覆個數
         </th>
         <th>
             功能區
@@ -29,7 +35,7 @@
                 @Html.DisplayFor(modelItem => item.CREATE_DATE)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.TYPECODE)
+                @Html.DisplayFor(modelItem => item.FORM_NAME)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.INQUIRY_FORM_ID)
@@ -38,7 +44,13 @@
                 <a onclick="getsearch('@Html.DisplayFor(modelItem => item.SUPPLIER_ID)')">@Html.DisplayFor(modelItem => item.SUPPLIER_ID)</a>
             </td>
             <td>
-                有議價比價資料
+                @Html.DisplayFor(modelItem => item.TOTALROWS)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PRICEROWS)
+            </td>
+            <td>
+                <span style="color: crimson" >有議價比價資料</span>
             </td>
         </tr>
         }
@@ -49,13 +61,19 @@
                     @Html.DisplayFor(modelItem => item.CREATE_DATE)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.TYPECODE)
+                    @Html.DisplayFor(modelItem => item.FORM_NAME)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.INQUIRY_FORM_ID)
                 </td>
                 <td>
                     <a href="/SupplierManage/Search" target="_blank">@Html.DisplayFor(modelItem => item.SUPPLIER_ID)</a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TOTALROWS)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PRICEROWS)
                 </td>
                 <td>
                     無議價比價資料

@@ -608,25 +608,25 @@ namespace topmeperp.Service
             return lst;
         }
 
-        //取得需議價詢價單資料
+        //取得需議價詢價單資料(利用日期查詢的功能尚未設計好)
         public List<purchasesummary> getPurchaseForm4Offer(string projectid, string date1, string date2)
         {
 
             logger.Info("search purchase form by 日期 =" + date1 + "search purchase form by 日期區間 =" + date2);
             List<purchasesummary> lstForm = new List<purchasesummary>();
             //處理SQL 預先填入專案代號,設定集合處理參數
-            string sql = "SELECT C.MODIFY_DATE as CREATE_DATE, C.code1 AS TYPECODE, C.INQUIRY_FORM_ID as INQUIRY_FORM_ID, C.SUPPLIER_ID AS SUPPLIER_ID, D.TOTAL_ROWS AS TOTALROWS, D.PRICE_ROWS AS PRICEROWS " +
-                         "FROM (select p.MODIFY_DATE, p.SUPPLIER_ID,  p.INQUIRY_FORM_ID, pi.TYPE_CODE + ',' + pi.SUB_TYPE_CODE AS code1 FROM PLAN_SUP_INQUIRY p LEFT OUTER JOIN PLAN_SUP_INQUIRY_ITEM pi " +
-                         "ON p.INQUIRY_FORM_ID = pi.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.COUNTER_OFFER = 'Y' GROUP BY pi.TYPE_CODE + ',' + pi.SUB_TYPE_CODE, p.INQUIRY_FORM_ID, p.MODIFY_DATE, " +
-                         "p.SUPPLIER_ID HAVING pi.TYPE_CODE + ',' + pi.SUB_TYPE_CODE NOT IN (SELECT p.TYPE_CODE_1 + ',' + p.TYPE_CODE_2 AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid " +
-                         "AND p.ITEM_UNIT_PRICE IS NOT NULL AND p.ITEM_UNIT_PRICE <> 0 GROUP BY p.TYPE_CODE_1 + ',' + p.TYPE_CODE_2))C LEFT OUTER JOIN " +
-                         "(select  B.type, B.INQUIRY_FORM_ID, B.TOTAL_ROW AS TOTAL_ROWS, A.TOTAL_ROW AS PRICE_ROWS FROM (select pi.TYPE_CODE + ',' + pi.SUB_TYPE_CODE as type, p.INQUIRY_FORM_ID, " +
+            string sql = "SELECT C.MODIFY_DATE as CREATE_DATE, C.code1 AS FORM_NAME, C.INQUIRY_FORM_ID as INQUIRY_FORM_ID, C.SUPPLIER_ID AS SUPPLIER_ID, D.TOTAL_ROWS AS TOTALROWS, D.PRICE_ROWS AS PRICEROWS " +
+                         "FROM (select p.MODIFY_DATE, p.SUPPLIER_ID,  p.INQUIRY_FORM_ID, p.FORM_NAME AS code1 FROM PLAN_SUP_INQUIRY p LEFT OUTER JOIN PLAN_SUP_INQUIRY_ITEM pi " +
+                         "ON p.INQUIRY_FORM_ID = pi.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.COUNTER_OFFER = 'Y' GROUP BY p.FORM_NAME, p.INQUIRY_FORM_ID, p.MODIFY_DATE, " +
+                         "p.SUPPLIER_ID HAVING p.FORM_NAME NOT IN (SELECT p.FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid " +
+                         "AND p.ITEM_UNIT_PRICE IS NOT NULL AND p.ITEM_UNIT_PRICE <> 0 GROUP BY p.FORM_NAME))C LEFT OUTER JOIN " +
+                         "(select  B.type, B.INQUIRY_FORM_ID, B.TOTAL_ROW AS TOTAL_ROWS, A.TOTAL_ROW AS PRICE_ROWS FROM (select p.FORM_NAME as type, p.INQUIRY_FORM_ID, " +
                          "count(*) TOTAL_ROW from PLAN_SUP_INQUIRY_ITEM pi LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL " +
-                         "and pi.ITEM_COUNTER_OFFER is not null GROUP BY p.INQUIRY_FORM_ID, pi.TYPE_CODE + ',' + pi.SUB_TYPE_CODE HAVING pi.TYPE_CODE + ',' + pi.SUB_TYPE_CODE NOT IN " +
-                         "(SELECT p.TYPE_CODE_1 + ',' + p.TYPE_CODE_2 AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid AND p.ITEM_UNIT_PRICE IS NOT NULL AND p.ITEM_UNIT_PRICE <> 0 GROUP BY p.TYPE_CODE_1 + ',' + p.TYPE_CODE_2)) A " +
-                         "RIGHT OUTER JOIN (select pi.TYPE_CODE + ',' + pi.SUB_TYPE_CODE as type, p.INQUIRY_FORM_ID, " +
+                         "and pi.ITEM_COUNTER_OFFER is not null GROUP BY p.INQUIRY_FORM_ID, p.FORM_NAME HAVING p.FORM_NAME NOT IN " +
+                         "(SELECT p.FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid AND p.ITEM_UNIT_PRICE IS NOT NULL AND p.ITEM_UNIT_PRICE <> 0 GROUP BY p.FORM_NAME)) A " +
+                         "RIGHT OUTER JOIN (select p.FORM_NAME as type, p.INQUIRY_FORM_ID, " +
                          "count(*) TOTAL_ROW from PLAN_SUP_INQUIRY_ITEM pi LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL GROUP BY p.INQUIRY_FORM_ID, " +
-                         "pi.TYPE_CODE + ',' + pi.SUB_TYPE_CODE) B ON A.INQUIRY_FORM_ID + A.type = B.INQUIRY_FORM_ID + B.type) D ON C.INQUIRY_FORM_ID + C.code1 = D.INQUIRY_FORM_ID + D.type "; 
+                         "p.FORM_NAME) B ON A.INQUIRY_FORM_ID + A.type = B.INQUIRY_FORM_ID + B.type) D ON C.INQUIRY_FORM_ID + C.code1 = D.INQUIRY_FORM_ID + D.type "; 
 ;
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("projectid", projectid));
@@ -660,7 +660,7 @@ namespace topmeperp.Service
                 "FROM PLAN_ITEM pItem LEFT OUTER JOIN " +
                 "PLAN_SUP_INQUIRY_ITEM pfItem ON pItem.PLAN_ITEM_ID = pfItem.PLAN_ITEM_ID " +
                 "inner join PLAN_SUP_INQUIRY f on pfItem.INQUIRY_FORM_ID = f.INQUIRY_FORM_ID " +
-                "WHERE pItem.PROJECT_ID = @projectid AND f.SUPPLIER_ID is not null AND f.COUNTER_OFFER <> 'Y' ";
+                "WHERE pItem.PROJECT_ID = @projectid AND f.SUPPLIER_ID is not null AND f.COUNTER_OFFER <> 'Y' and f.COUNTER_OFFER <> 'M' ";
             var parameters = new List<SqlParameter>();
             //設定專案名編號資料
             parameters.Add(new SqlParameter("projectid", projectid));
@@ -711,7 +711,7 @@ namespace topmeperp.Service
                 "FROM PLAN_ITEM pItem LEFT OUTER JOIN " +
                 "PLAN_SUP_INQUIRY_ITEM pfItem ON pItem.PLAN_ITEM_ID = pfItem.PLAN_ITEM_ID " +
                 "inner join PLAN_SUP_INQUIRY f on pfItem.INQUIRY_FORM_ID = f.INQUIRY_FORM_ID " +
-                "WHERE pItem.PROJECT_ID = @projectid AND f.SUPPLIER_ID is not null AND f.COUNTER_OFFER = 'Y' ";
+                "WHERE pItem.PROJECT_ID = @projectid AND f.SUPPLIER_ID is not null AND f.COUNTER_OFFER = 'M' ";
             var parameters = new List<SqlParameter>();
             //設定專案名編號資料
             parameters.Add(new SqlParameter("projectid", projectid));
@@ -1052,6 +1052,22 @@ namespace topmeperp.Service
             int i = 0;
             logger.Info("Remove plan supplier form from Quote by form id" + formid);
             string sql = "UPDATE  PLAN_SUP_INQUIRY SET COUNTER_OFFER = 'N', MODIFY_DATE = getdate() WHERE INQUIRY_FORM_ID=@formid ";
+            logger.Debug("remove form from Quote sql:" + sql);
+            db = new topmepEntities();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("formid", formid));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            logger.Info("Update Record:" + i);
+            db = null;
+            return i;
+        }
+
+        public int filterSuplplierFormFromQuote(string formid)
+        {
+            int i = 0;
+            logger.Info("Filter plan supplier form from Quote by form id" + formid);
+            string sql = "UPDATE  PLAN_SUP_INQUIRY SET COUNTER_OFFER = 'M', MODIFY_DATE = getdate() WHERE INQUIRY_FORM_ID=@formid ";
             logger.Debug("remove form from Quote sql:" + sql);
             db = new topmepEntities();
             var parameters = new List<SqlParameter>();

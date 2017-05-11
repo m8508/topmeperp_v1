@@ -445,6 +445,7 @@ namespace topmeperp.Controllers
 
                     htmlString = htmlString + "<th><table><tr><td>" + tmpString[0] + "(" + tmpString[2] + ")" +
                         "<button type ='button' class='btn-xs' onclick=\"tagSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-tag' aria-hidden='true'></span></button>" +
+                        "<button type ='button' class='btn-xs' onclick=\"filterSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-filter' aria-hidden='true'></span></button>" +
                         "<button type='button' class='btn-xs'><a href='/PurchaseForm/SinglePrjForm/" + tmpString[1] + "'" + " target='_blank'><span class='glyphicon glyphicon-list-alt' aria-hidden='true'></span></a>" +
                         "</td><tr><td style='text-align:center;background-color:yellow;' >" + strAmout + "</td>" +
                         "</tr></table></th>";
@@ -680,6 +681,7 @@ namespace topmeperp.Controllers
                     string strAmout = string.Format("{0:C0}", tAmount);
 
                     htmlString = htmlString + "<th><table><tr><td>" + tmpString[0] + "(" + tmpString[2] + ")" +
+                        "</button>" + "<button type = 'button' class='btn-xs' onclick=\"tagSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-tag' aria-hidden='true'></span></button>" +
                         "</button>" + "<button type = 'button' class='btn-xs' onclick=\"removeSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-remove' aria-hidden='true'></span></button>" +
                         "<button type='button' class='btn-xs'><a href='/PurchaseForm/SinglePrjForm/" + tmpString[1] + "'" + " target='_blank'><span class='glyphicon glyphicon-list-alt' aria-hidden='true'></span></a>" +
                         "</td><tr><td style='text-align:center;background-color:yellow;' >" + strAmout + "</td>" +
@@ -789,17 +791,26 @@ namespace topmeperp.Controllers
             //設定查詢條件
             return View();
         }
-        //取得比價資料
+
+        //標註要議價之詢價單資料
         public string TagSupplierForm(string formid)
         {
             log.Info("formid=" + Request["formid"]);
             int i = service.addSuplplierFormFromQuote(Request["formid"]);
             return "更新成功!!";
         }
+        //移除議價資料
         public string RemoveSupplierForm(string formid)
         {
             log.Info("formid=" + Request["formid"]);
             int i = service.removeSuplplierFormFromQuote(Request["formid"]);
+            return "更新成功!!";
+        }
+        //篩選要複合比價之詢價單資料
+        public string FilterSupplierForm(string formid)
+        {
+            log.Info("formid=" + Request["formid"]);
+            int i = service.filterSuplplierFormFromQuote(Request["formid"]);
             return "更新成功!!";
         }
         //更新單項成本資料
