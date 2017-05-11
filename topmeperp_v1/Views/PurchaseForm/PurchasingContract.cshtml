@@ -1,0 +1,44 @@
+﻿
+@{
+    ViewBag.Title = "查詢採購合約資料";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+<!--標單項目搜尋區條件集合區域-->
+<div class="jumbotron">
+    <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
+    <div class="row">
+        <div class="col-md-6 form-group" style="padding-top:10px">
+            <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.id" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+        </div>
+        <div class="col-md-6" style="padding-top:10px">
+            <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+        </div>
+    </div>
+    <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+</div>
+<div class="contailer">
+    <table class="table">
+        <tr>
+            <th>
+                採購項目與廠商名稱
+            </th>
+        </tr>
+        <tr>
+            @{
+                int rowNo = 0;
+            }
+            @foreach (var item in Model)
+            {
+                rowNo++;
+
+                <td>
+                    <a href="/PurchaseForm/ContractItems/@item.CONTRACT_NAME" target="_blank">@item.CODE</a>
+                </td>
+                if (rowNo % 4 == 0)
+                {
+                    @:</tr><tr>
+                }
+            }
+            </tr>
+        </table>
+    </div>

@@ -33,6 +33,7 @@ namespace topmeperp.Models
         public string CREATE_USER_ID { get; set; }
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public Nullable<long> EXCEL_ROW_ID { get; set; }
-        public Nullable<decimal> QUO_PRICE { get; set; }
+        public string FORM_NAME { get; set; }
+        public string SUPPLIER_ID { get; set; }
     }
 }

@@ -132,6 +132,10 @@ namespace topmeperp.Models
         /// 採購供應商報價單
         /// </summary>
         public IEnumerable<PLAN_SUP_INQUIRY> planFormFromSupplier { get; set; }
+        /// <summary>
+        /// 採購供應商議價報價單
+        /// </summary>
+        public IEnumerable<PLAN_SUP_INQUIRY> planForm4CounterOffer { get; set; }
     }
     public class PlanSupplierFormFunction : PLAN_SUP_INQUIRY
     {
@@ -151,6 +155,9 @@ namespace topmeperp.Models
         //供應商名稱
         public string SUPPLIER_NAME { get; set; }
         public Nullable<decimal> TAmount { get; set; }
+        //採購詢價單議價總價
+        public Nullable<decimal> OAmount { get; set; }
+        public string FORM_NAME { get; set; }
     }
     public class budgetsummary
     {
@@ -158,4 +165,20 @@ namespace topmeperp.Models
         public string TYPE_CODE_2 { get; set; }
         public Nullable<decimal> BAmount { get; set; }
     }
+    public class purchasesummary
+    {
+        public DateTime CREATE_DATE { get; set; }
+        public string TYPECODE { get; set; }
+        public string INQUIRY_FORM_ID { get; set; }
+        public string SUPPLIER_ID { get; set; }
+        public Nullable<int> TOTALROWS { get; set; }
+        public Nullable<int> PRICEROWS { get; set; }
     }
+    public class plansummary
+    {
+        public string CODE { get; set; }
+        public Nullable<int> OFFER_ROWS { get; set; }
+        public string SUPPLIER_ID { get; set; }
+        public string CONTRACT_NAME { get; set; }
+    }
+}

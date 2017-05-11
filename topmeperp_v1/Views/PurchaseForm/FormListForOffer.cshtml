@@ -1,0 +1,83 @@
+﻿@model IEnumerable<topmeperp.Models.purchasesummary>
+<table class="table">
+    <tr>
+        <th>
+            建立日期
+        </th>
+        <th>
+            九宮格組合
+        </th>
+        <th>
+           詢價單編號
+        </th>
+        <th>
+            廠商名稱
+        </th>
+        <th>
+            功能區
+        </th>
+
+
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        if (item.PRICEROWS != null && item.PRICEROWS != 0)
+        {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.CREATE_DATE)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TYPECODE)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.INQUIRY_FORM_ID)
+            </td>
+            <td>
+                <a onclick="getsearch('@Html.DisplayFor(modelItem => item.SUPPLIER_ID)')">@Html.DisplayFor(modelItem => item.SUPPLIER_ID)</a>
+            </td>
+            <td>
+                有議價比價資料
+            </td>
+        </tr>
+        }
+        else
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CREATE_DATE)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TYPECODE)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.INQUIRY_FORM_ID)
+                </td>
+                <td>
+                    <a href="/SupplierManage/Search" target="_blank">@Html.DisplayFor(modelItem => item.SUPPLIER_ID)</a>
+                </td>
+                <td>
+                    無議價比價資料
+                </td>
+            </tr>
+        }
+    }
+</table>
+<script type="text/javascript">
+    function getsearch(textSupplierName) {
+        jQuery.ajax({
+            url: "/SupplierManage/Search",
+            async: true,
+            data: { "textSupplierName": textSupplierName },
+            type: "POST",
+            dataType: 'text',
+            success: function (result) {
+                alert(result);
+                Search();
+            },
+        });
+    }
+</script>
+
+
