@@ -86,7 +86,7 @@ namespace topmeperp.Controllers
                 poiservice.ConvertDataForTenderProject(prj.PROJECT_ID, (int)prj.START_ROW_NO);
                 //2.3 記錄錯誤訊息
                 message = message + "標單品項:共" + poiservice.lstProjectItem.Count + "筆資料，";
-                message = message + "<a target=\"_blank\" href=\"/Tender/ManageProjectItem?id=" + prj.PROJECT_ID +"\"> 標單明細檢視畫面單</a><br/>" + poiservice.errorMessage;
+                message = message + "<a target=\"_blank\" href=\"/Tender/ManageProjectItem?id=" + prj.PROJECT_ID + "\"> 標單明細檢視畫面單</a><br/>" + poiservice.errorMessage;
                 //        < button type = "button" class="btn btn-primary" onclick="location.href='@Url.Action("ManageProjectItem","Tender", new { id = @Model.tndProject.PROJECT_ID})'; ">標單明細</button>
                 //2.4
                 logger.Info("Delete TND_PROJECT_ITEM By Project ID");
@@ -179,7 +179,7 @@ namespace topmeperp.Controllers
             //輪巡功能清單，若全線存在則將開關打開 @ViewBag.F00003 = "";
             foreach (SYS_FUNCTION f in lstFunctions)
             {
-                if (f.FUNCTION_ID== "F00003")
+                if (f.FUNCTION_ID == "F00003")
                 {
                     @ViewBag.F00003 = "";
                 }
@@ -617,8 +617,74 @@ namespace topmeperp.Controllers
             InquiryFormService service = new InquiryFormService();
             logger.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"]);
             List<TND_PROJECT_ITEM> lstItems = service.getProjectItem(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
-            ViewBag.Result = "共幾" + lstItems .Count + "筆資料";
+            ViewBag.Result = "共幾" + lstItems.Count + "筆資料";
             return PartialView(lstItems);
+        }
+        /// <summary>
+        /// 取得標單品項詳細資料
+        /// </summary>
+        /// <param name="itemid"></param>
+        /// <returns></returns>
+        public string getProjectItem(string itemid)
+        {
+            InquiryFormService service = new InquiryFormService();
+            logger.Info("get project item by id=" + itemid);
+            //TND_PROJECT_ITEM  item = service.getProjectItem.getUser(userid);
+            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            string itemJson = objSerializer.Serialize(service.getProjectItem(itemid));
+            logger.Info("project item  info=" + itemJson);
+            return itemJson;
+        }
+
+        public String addProjectItem(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            string msg = "更新成功!!";
+
+            TND_PROJECT_ITEM item = new TND_PROJECT_ITEM();
+            item.PROJECT_ID = form["project_id"];
+            item.PROJECT_ITEM_ID = form["project_item_id"];
+            item.ITEM_ID = form["item_id"];
+            item.ITEM_DESC = form["item_desc"];
+            item.ITEM_UNIT = form["item_unit"];
+            try
+            {
+                item.ITEM_QUANTITY = decimal.Parse(form["item_quantity"]);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(item.PROJECT_ITEM_ID + " not quattity:" + ex.Message);
+            }
+            try
+            {
+                item.ITEM_UNIT_PRICE = decimal.Parse(form["item_unit_price"]);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(item.PROJECT_ITEM_ID + " not unit price:" + ex.Message);
+            }
+
+            item.TYPE_CODE_1 = form["type_code_1"];
+            item.TYPE_CODE_2 = form["type_code_2"];
+
+            item.SYSTEM_MAIN = form["system_main"];
+            item.SYSTEM_SUB = form["system_sub"];
+            try
+            {
+                item.EXCEL_ROW_ID = long.Parse(form["excel_row_id"]);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(item.PROJECT_ITEM_ID + " not exce row id:" + ex.Message);
+            }
+
+            SYS_USER loginUser = (SYS_USER)Session["user"];
+            item.MODIFY_USER_ID = loginUser.USER_ID;
+            item.MODIFY_DATE = DateTime.Now;
+            InquiryFormService service = new InquiryFormService();
+            int i = service.updateProjectItem(item);
+            if (i == 0) { msg = service.message; }
+            return msg;
         }
 
     }
