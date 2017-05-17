@@ -615,8 +615,9 @@ namespace topmeperp.Controllers
         public ActionResult ShowProejctItems(FormCollection form)
         {
             InquiryFormService service = new InquiryFormService();
-            logger.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"]);
-            List<TND_PROJECT_ITEM> lstItems = service.getProjectItem(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
+            logger.Info("start project id=" + Request["id"] +",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"]);
+            logger.Debug("Exception check=" + Request["chkEx"]);
+            List<TND_PROJECT_ITEM> lstItems = service.getProjectItem(Request["chkEx"],Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
             ViewBag.Result = "共幾" + lstItems.Count + "筆資料";
             return PartialView(lstItems);
         }
