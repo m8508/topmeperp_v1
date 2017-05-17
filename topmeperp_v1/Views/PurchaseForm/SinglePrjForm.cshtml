@@ -5,6 +5,7 @@
 }
 <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 <link rel="stylesheet" href="/resources/demos/style.css">
+
 <div class="page-header">
     <form id="formSupplier" name="formSupplier" action="UpdatePrjForm" method="post">
 
@@ -128,10 +129,11 @@
                 <input type="hidden" name="projectid" id="projectid" value="@Model.planForm.PROJECT_ID" />
                 <input type="hidden" name="createid" id="createid" value="@Model.planForm.CREATE_ID" />
                 <input type="hidden" name="createdate" id="createdate" value="@Model.planForm.CREATE_DATE" />
+                <input type="hidden" name="counteroffer" id="counteroffer" value="@Model.planForm.COUNTER_OFFER" />
             </div>
         </div>
         <br /><br />
-        <div class="contailer">
+        <div class="contailer" style="page-break-before: always">
             <table class="table">
                 <tr>
                     <th>
@@ -155,13 +157,21 @@
                     <th>
                         複價
                     </th>
+                    @if (Model.planForm.COUNTER_OFFER == ViewBag.CounterOffer.ToString())
+                    {
                     <th>
                         議價單價
                     </th>
+                    }
+                    else
+                    {
+                    <th>
+                       
+                    </th>
+                    }
                     <th>
                         備註
                     </th>
-
                 </tr>
                 @foreach (var item in Model.planFormItem)
                 {
@@ -183,7 +193,7 @@
                             @item.ITEM_QTY
                         </td>
                         <td>
-                            @if (@item.ITEM_UNIT_PRICE != null )
+                            @if (@item.ITEM_UNIT_PRICE != null)
                             {
                                 <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="@item.ITEM_UNIT_PRICE" style="width:180px">
                             }
@@ -196,12 +206,14 @@
                         <td>
                             @if (@item.ITEM_COUNTER_OFFER != null)
                             {
-                                <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="@item.ITEM_COUNTER_OFFER" style="width:180px">
+                                <input type="text" class="form-control" name="formunitcounteroffer" id="formunitcounteroffer" value="@item.ITEM_COUNTER_OFFER" style="width:180px">
                             }
-                            else 
+                            else if (Model.planForm.COUNTER_OFFER == ViewBag.CounterOffer.ToString())
                             {
                                 <input type="text" class="form-control" name="formunitcounteroffer" id="formunitcounteroffer" value="" style="width:180px">
                             }
+                            else
+                            { }
                         </td>
                         <td>@item.ITEM_REMARK</td>
                     </tr>

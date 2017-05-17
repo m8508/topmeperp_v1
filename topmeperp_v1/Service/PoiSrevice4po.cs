@@ -216,7 +216,7 @@ namespace topmeperp.Service
                         item.ITEM_UNIT_PRICE = dUnitPrice;
 
                         item.ITEM_REMARK = row.Cells[6].ToString();
-                        logger.Info("Project ITEM ID=" + row.Cells[row.Cells.Count - 1].ToString());
+                        logger.Info("Plan ITEM ID=" + row.Cells[row.Cells.Count - 1].ToString());
                         item.PLAN_ITEM_ID = row.Cells[row.Cells.Count - 1].ToString();
                         formItems.Add(item);
                     }

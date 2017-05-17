@@ -10,7 +10,7 @@
     <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PurchasingContract", "PurchaseForm", new { id = ViewBag.id })'; ">查詢採購合約資料</button>
     <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PendingItems", "PurchaseForm", new { id = ViewBag.id })'; ">未決標標單品項</button>
     <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
-    <form name="formSearch" id="formSearch" method="post" class="form-inline">
+    <form name="formSearch" id="formSearch" action="Search" method="Post" class="form-inline">
         <div class="row">
             <div class="col-md-6 form-group" style="padding-top:10px">
                 <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.id" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
@@ -21,38 +21,54 @@
         </div>
         <hr style="border-top: 1px solid #8c8b8b;" />
         <div class="row">
-            <div class="col-md-4">
-                <label for="typeCode1">查詢日期:</label><input id="typeCode1" name="typeCode1" type="text" value="" class="form-control" />
+            <div class="col-md-6">
+                <label for="formname">採購項目名稱:</label><input id="formname" name="formname" type="text" value="" class="form-control" />
             </div>
-            <div class="col-md-4">
-                <label for="typeCode2">查詢期間:</label><input id="typeCode2" name="typeCode2" type="text" value="" class="form-control" />
-            </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div id="divProcessing">
                     <img src="~/Content/ajax-loader.gif">
                 </div>
-                <input id="btnQuery" class="btn btn-info" type="button" onclick="" value="查詢" />
+                <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
                 <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
             </div>
         </div>
     </form>
 </div>
-    <!--專案列表區域-->
-    <div class="container">
-        <h4 style="height:30px; color:blue">需議約之廠商資料列表 : </h4>
-        @ViewBag.SearchResult
-        @if (null != Model)
-        {
-            Html.RenderPartial("FormListForOffer");
-        }
-    </div>
+<!--專案列表區域-->
+<div class="container">
+    <input id="btnPrint" type="button" class="btn btn-info" value="列印議價廠商" onclick="javascript: printpage('printarea')" />
+    <div class="row" id="printarea" style="padding-top:10px;" >
+            <h4 style="height:15px; color:blue">專案名稱 : @ViewBag.projectName</h4>
+            <h4 style="padding-bottom:15px; color:blue">需議約之廠商資料列表 : </h4>
+            @ViewBag.SearchResult
+            @if (null != Model)
+            {
+                Html.RenderPartial("FormListForOffer");
+            }
+</div>
+</div>
+
 <script type="text/javascript">
     $(document).ready(function () {
         // Hide the "busy" Gif at load:
         $("#divProcessing").hide();
         // Attach click handler to the submit button:
-        $('#btnQuery').click(function () {
+        $('#Submit1').click(function () {
             $("#divProcessing").show();
         });
     });
 </script>
+<script language="javascript" type="text/javascript">
+
+    function printpage(printarea) {
+
+        //var newstr = document.all.item(printarea).innerHTML;
+        var newstr = document.getElementById(printarea).innerHTML;
+        var oldstr = document.body.innerHTML;
+        document.body.innerHTML = newstr;
+        window.print();
+        document.body.innerHTML = oldstr;
+        return false;
+    }
+</script>
+

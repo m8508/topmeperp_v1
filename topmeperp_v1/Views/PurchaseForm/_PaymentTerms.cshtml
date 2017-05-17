@@ -1,0 +1,52 @@
+﻿
+@model topmeperp.Models.ContractModels
+<!-- Modal content-->
+<div class="modal-content">
+    <form id="formPayment" name="formPayment" action="PaymentTerm" method="post">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">付款條件與票期</h4>
+        </div>
+        <div class="modal-body form-group">
+            <div class="row form-group">
+                <div class="col-md-2" style="padding-bottom: 15px;">
+                    付款日期 :
+                </div>
+                <div class="radio">
+                    <div class="col-md-12">
+                        <label>
+                            <input type="radio" id="payfrequency" name="payfrequency" value="O" />每月分上下兩期付款，付款日為每月<input type="text" id="date1" name="date1" style="width:60px;" />日與
+                            <input type="text" id="date2" name="date2" style="width:60px;" />日，遇假日順延
+                        </label>
+                    </div>
+                    <div class="col-md-12">
+                        <label>
+                            <input type="radio" id="payfrequency" name="payfrequency" value="T" />每月付款一次，為每月<input type="text" id="date3" name="date3" style="width:60px;" />日，遇假日順延
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-md-6" style="padding-bottom: 15px;">
+                    付款比例與票期 :
+                </div>
+                <div class="radio">
+                    <div class="col-md-12">
+                        <label>
+                            <input type="radio" id="payterms" name="payterms" value="P" />按期估驗
+                        </label>
+                    </div>
+                    <div class="col-md-12">
+                        <label>
+                            <input type="radio" id="payterms" name="payterms" value="S" />階段付款
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">關閉</button>
+            <button type="submit" class="btn btn-default" data-dismiss="modal" id="savePayment">儲存</button>
+        </div>
+    </form>
+</div>

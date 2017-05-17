@@ -145,6 +145,7 @@ namespace topmeperp.Controllers
             }
             // selectSupplier.Add(empty);
             ViewBag.Supplier = selectSupplier;
+            ViewBag.CounterOffer = 'Y';
             return View(singleForm);
         }
 
@@ -198,6 +199,7 @@ namespace topmeperp.Controllers
             fm.OWNER_FAX = form.Get("inputownerfax").Trim();
             fm.OWNER_EMAIL = form.Get("inputowneremail").Trim();
             fm.FORM_NAME = form.Get("formname").Trim();
+            fm.COUNTER_OFFER = form.Get("counteroffer").Trim();
             fm.CREATE_ID = loginUser.USER_ID;
             fm.CREATE_DATE = DateTime.Now;
             TND_SUPPLIER s = service.getSupplierInfo(form.Get("Supplier").Substring(0, 7).Trim());
@@ -247,6 +249,7 @@ namespace topmeperp.Controllers
             fm.CONTACT_EMAIL = form.Get("inputemail").Trim();
             fm.INQUIRY_FORM_ID = form.Get("inputformnumber").Trim();
             fm.FORM_NAME = form.Get("formname").Trim();
+            fm.COUNTER_OFFER = form.Get("counteroffer").Trim(); 
             fm.CREATE_ID = form.Get("createid").Trim();
             fm.CREATE_DATE = Convert.ToDateTime(form.Get("createdate"));
             fm.MODIFY_ID = loginUser.USER_ID;
@@ -255,6 +258,7 @@ namespace topmeperp.Controllers
 
             string[] lstItemId = form.Get("formitemid").Split(',');
             string[] lstPrice = form.Get("formunitprice").Split(',');
+            string[] lstCounterOffer = form.Get("formunitcounteroffer").Split(',');
             List<PLAN_SUP_INQUIRY_ITEM> lstItem = new List<PLAN_SUP_INQUIRY_ITEM>();
             for (int j = 0; j < lstItemId.Count(); j++)
             {
@@ -268,7 +272,15 @@ namespace topmeperp.Controllers
                 {
                     item.ITEM_UNIT_PRICE = decimal.Parse(lstPrice[j]);
                 }
-                log.Debug("Item No=" + item.INQUIRY_ITEM_ID + "=" + item.ITEM_UNIT_PRICE);
+                if (lstCounterOffer[j].ToString() == "")
+                {
+                    item.ITEM_COUNTER_OFFER = null;
+                }
+                else
+                {
+                    item.ITEM_COUNTER_OFFER = decimal.Parse(lstCounterOffer[j]);
+                }
+                log.Debug("Item No=" + item.INQUIRY_ITEM_ID + ", Price =" + item.ITEM_UNIT_PRICE + " , Counter Offer =" + item.ITEM_COUNTER_OFFER);
                 lstItem.Add(item);
             }
             int i = service.refreshPlanSupplierForm(formid, fm, lstItem);
@@ -348,7 +360,6 @@ namespace topmeperp.Controllers
                 Response.End();
             }
         }
-
         //議約採購功能主頁
         public ActionResult PurchaseMain(string id)
         {
@@ -360,7 +371,13 @@ namespace topmeperp.Controllers
             TND_PROJECT p = service.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
             //取得未決標需議價之詢價單資料
-            List<purchasesummary> lstforms = service.getPurchaseForm4Offer(id, Request["date1"], Request["date2"]);
+            List<purchasesummary> lstforms = service.getPurchaseForm4Offer(id, Request["formname"]);
+            ViewBag.SearchResult = "共取得" + lstforms.Count + "筆資料";
+            return View(lstforms);
+        }
+        public ActionResult Search()
+        {
+            List<purchasesummary> lstforms = service.getPurchaseForm4Offer(Request["id"], Request["formname"]);
             ViewBag.SearchResult = "共取得" + lstforms.Count + "筆資料";
             return View("PurchaseMain", lstforms);
         }
@@ -420,10 +437,17 @@ namespace topmeperp.Controllers
             //傳入查詢條件
             log.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"]);
             //取得備標品項與詢價資料
+            string[] lstcode = Request["typeCode1"].Split(',');
+            log.Info("input count:" + lstcode.Count());
+            var j = 0;
+            for (j = 0; j < lstcode.Count(); j++)
+            {
+                log.Info("input_codes No.:" + lstcode[j]);
+            }
             budgetsummary budget = null;
             try
             {
-                DataTable dt = service.getFirstComparisonDataToPivot(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
+                DataTable dt = service.getFirstComparisonDataToPivot(Request["id"], lstcode, Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
                 @ViewBag.ResultMsg = "共" + dt.Rows.Count + "筆";
                 string htmlString = "<table class='table table-bordered'><tr>";
                 //處理表頭
@@ -490,13 +514,13 @@ namespace topmeperp.Controllers
                 htmlString = htmlString + "</table>";
                 //產生畫面
                 IHtmlString str = new HtmlString(htmlString);
-                PlanService s = new PlanService();
-                budget = s.getBudgetForComparison(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
-                if (budget != null)
-                {
-                    ViewBag.result = string.Format("{0:N0}", budget.BAmount);
-                    log.Debug("預算金額 = " + budget.BAmount);
-                }
+                //PlanService s = new PlanService();
+                //budget = s.getBudgetForComparison(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
+                //if (budget != null)
+                //{
+                 //   ViewBag.result = string.Format("{0:N0}", budget.BAmount);
+                  //  log.Debug("預算金額 = " + budget.BAmount);
+               // }
                 ViewBag.htmlString = str;
             }
             catch (Exception e)
@@ -852,13 +876,57 @@ namespace topmeperp.Controllers
             return View(lstplanItem);
         }
         //取得採購項目與廠商組合之合約項目
-        List<PLAN_ITEM> planitems = null;
+       
         public ActionResult ContractItems(string id)
         {
             log.Info("http get mehtod:" + id);
+            ViewBag.contractId = id;
+            PurchaseFormService service = new PurchaseFormService();
+            ContractModels planitems = new ContractModels();
+            planitems.contractItems = service.getContractItemsByContractName(id);
+            return View(planitems);
+        }
+        //產生合約
+        public String AddContract(FormCollection f)
+        {
+            log.Info("contract id=" + Request["contractid"]);
+            string msg = "";
+            int i = service.addContractIdByContractName(Request["contractid"]);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "新增合約項目成功，CONTRACT_ID =" + Request["contractid"];
+            }
+
+            log.Info("Request: CONTRACT_ID = " + Request["contractid"]);
+            return msg;
+        }
+        //進入合約付款條件
+        public ActionResult PaymentTerms(FormCollection form)
+        {
+            log.Info("access the terms of payment by:" + Request["contractid"]);
+            return View();
+        }
+        //寫入合約付款條件
+        [HttpPost]
+        public ActionResult PaymentTerms(PLAN_PAYMENT_TERMS pay)
+        {
+            log.Info(" payment terms :" + pay.ToString());
+            PurchaseFormService service = new PurchaseFormService();
+            SYS_USER u = (SYS_USER)Session["user"];
+            return View(pay);
+        }
+        List<PLAN_ITEM> planitems = null;
+        //取得採購遺漏項目
+        public ActionResult PendingItems(string id)
+        {
+            log.Info("start project id=" + id);
             PurchaseFormService service = new PurchaseFormService();
             List<PLAN_ITEM> lstItem = new List<PLAN_ITEM>();
-            planitems = service.getContractItemsByContractName(id);
+            planitems = service.getPendingItems(id);
             return View(planitems);
         }
     }

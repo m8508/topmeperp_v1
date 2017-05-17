@@ -190,4 +190,11 @@ namespace topmeperp.Models
         public string SUPPLIER_ID { get; set; }
         public string CONTRACT_NAME { get; set; }
     }
+    public class ContractModels
+    {
+        //帳號資料
+        public IEnumerable<PLAN_ITEM> contractItems { get; set; }
+        //角色資料
+        public IEnumerable<PLAN_PAYMENT_TERMS> paymentTerms { get; set; }
+    }
 }

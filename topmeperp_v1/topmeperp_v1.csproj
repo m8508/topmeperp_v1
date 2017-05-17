@@ -266,6 +266,9 @@
     <Compile Include="Models\PLAN_ITEM.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\PLAN_PAYMENT_TERMS.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\PLAN_SUP_INQUIRY.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
@@ -627,6 +630,8 @@
     <Content Include="Views\PurchaseForm\ComparisonDataForMultiple.cshtml" />
     <Content Include="Views\Tender\ManageProjectItem.cshtml" />
     <Content Include="Views\Tender\ShowProejctItems.cshtml" />
+    <Content Include="Views\PurchaseForm\PendingItems.cshtml" />
+    <Content Include="Views\PurchaseForm\_PaymentTerms.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
