@@ -455,9 +455,9 @@ namespace topmeperp.Service
                     }
                 }
 
-                string sql = "INSERT INTO TND_PROJECT_FORM_ITEM (FORM_ID, PROJECT_ITEM_ID, TYPE_CODE, "
+                string sql = "INSERT INTO TND_PROJECT_FORM_ITEM (FORM_ID, ITEM_ID ,PROJECT_ITEM_ID, TYPE_CODE, "
                     + "SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_QTY, ITEM_UNIT_PRICE, ITEM_REMARK) "
-                    + "SELECT '" + form.FORM_ID + "' as FORM_ID, PROJECT_ITEM_ID, TYPE_CODE_1 AS TYPE_CODE, "
+                    + "SELECT '" + form.FORM_ID + "' as FORM_ID,ITEM_ID,PROJECT_ITEM_ID, TYPE_CODE_1 AS TYPE_CODE, "
                     + "TYPE_CODE_2 AS SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_QUANTITY, ITEM_UNIT_PRICE, ITEM_REMARK "
                     + "FROM TND_PROJECT_ITEM where PROJECT_ITEM_ID IN (" + ItemId + ")";
                 logger.Info("sql =" + sql);
@@ -1272,7 +1272,8 @@ namespace topmeperp.Service
                 //取得詢價單檔頭資訊
                 formInquiry = context.TND_PROJECT_FORM.SqlQuery("SELECT * FROM TND_PROJECT_FORM WHERE FORM_ID=@formid", new SqlParameter("formid", formid)).First();
                 //取得詢價單明細
-                formInquiryItem = context.TND_PROJECT_FORM_ITEM.SqlQuery("SELECT * FROM TND_PROJECT_FORM_ITEM WHERE FORM_ID=@formid", new SqlParameter("formid", formid)).ToList();
+                formInquiryItem = context.TND_PROJECT_FORM_ITEM.SqlQuery("SELECT * FROM TND_PROJECT_FORM_ITEM WHERE FORM_ID=@formid  ORDER BY CAST(SUBSTRING(PROJECT_ITEM_ID,CHARINDEX('-',PROJECT_ITEM_ID)+1,5) as int)"
+                    , new SqlParameter("formid", formid)).ToList();
                 logger.Debug("get form item count:" + formInquiryItem.Count);
             }
         }

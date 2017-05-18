@@ -449,13 +449,16 @@ namespace topmeperp.Controllers
             if (null != service.formInquiry)
             {
                 InquiryFormToExcel poi = new InquiryFormToExcel();
-                poi.exportExcel(service.formInquiry, service.formInquiryItem);
+                //檔案位置
+                string fileLocation = poi.exportExcel(service.formInquiry, service.formInquiryItem);
+                //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
+                string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
                 Response.Clear();
                 Response.Charset = "utf-8";
                 Response.ContentType = "text/xls";
-                Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", service.formInquiry.FORM_ID + ".xlsx"));
-                //"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx"
-                Response.WriteFile(poi.outputPath+ "\\" + service.formInquiry.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + service.formInquiry.FORM_ID + ".xlsx");
+                Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", filename + ".xlsx"));
+                ///"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx"
+                Response.WriteFile(fileLocation);
                 Response.End();
             }
         }
