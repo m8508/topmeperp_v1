@@ -18,52 +18,40 @@ namespace topmeperp.Service
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public string message = "";
+        TND_PROJECT project = null;
 
-
-        //取得標單品項資料
-        public List<PLAN_ITEM> getPlanItem(string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub)
+        #region 得標標單項目處理
+        public int delAllItemByPlan()
         {
-
-            logger.Info("search plan item by 九宮格 =" + typeCode1 + "search plan item by 次九宮格 =" + typeCode2 + "search plan item by 主系統 =" + systemMain + "search plan item by 次系統 =" + systemSub);
-            List<topmeperp.Models.PLAN_ITEM> lstItem = new List<PLAN_ITEM>();
-            //處理SQL 預先填入專案代號,設定集合處理參數
-            string sql = "SELECT * FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid ";
-            var parameters = new List<SqlParameter>();
-            parameters.Add(new SqlParameter("projectid", projectid));
-            //九宮格
-            if (null != typeCode1 && typeCode1 != "")
-            {
-                sql = sql + "AND p.TYPE_CODE_1 = @typeCode1 ";
-                parameters.Add(new SqlParameter("typeCode1", typeCode1));
-            }
-            //次九宮格
-            if (null != typeCode2 && typeCode2 != "")
-            {
-                sql = sql + "AND p.TYPE_CODE_2 = @typeCode2 ";
-                parameters.Add(new SqlParameter("typeCode2", typeCode2));
-            }
-            //主系統
-            if (null != systemMain && systemMain != "")
-            {
-                sql = sql + "AND p.SYSTEM_MAIN LIKE @systemMain ";
-                parameters.Add(new SqlParameter("systemMain", "%" + systemMain + "%"));
-            }
-            //次系統
-            if (null != systemSub && systemSub != "")
-            {
-                sql = sql + "AND p.SYSTEM_SUB LIKE @systemSub ";
-                parameters.Add(new SqlParameter("systemSub", "%" + systemSub + "%"));
-            }
-
+            int i = 0;
             using (var context = new topmepEntities())
             {
-                logger.Debug("get plan item sql=" + sql);
-                lstItem = context.PLAN_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
+                logger.Info("delete all item by proejct id=" + project.PROJECT_ID);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM PLAN_ITEM WHERE PROJECT_ID=@projectid", new SqlParameter("@projectid", project.PROJECT_ID));
             }
-            logger.Info("get plan item count=" + lstItem.Count);
-            return lstItem;
+            logger.Debug("delete item count=" + i);
+            return i;
         }
-
+        public int refreshPlanItem(List<PLAN_ITEM> planItem)
+        {
+            //1.檢查專案是否存在
+            if (null == project) { throw new Exception("Project is not exist !!"); }
+            int i = 0;
+            logger.Info("refreshPlanItem = " + planItem.Count);
+            //2.將Excel 資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (PLAN_ITEM item in planItem)
+                {
+                    item.PROJECT_ID = project.PROJECT_ID;
+                    context.PLAN_ITEM.Add(item);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("add plan item count =" + i);
+            return i;
+        }
+        #endregion
         public string getBudgetById(string prjid)
         {
             string projectid = null;
@@ -200,8 +188,65 @@ namespace topmeperp.Service
         public PLAN_SUP_INQUIRY formInquiry = null;
         public List<PLAN_SUP_INQUIRY_ITEM> formInquiryItem = null;
         public Dictionary<string, COMPARASION_DATA_4PLAN> dirSupplierQuo = null;
+    
+        #region 取得得標標單項目內容
+        //取得標單品項資料
+        public List<PLAN_ITEM> getPlanItem(string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub)
+        {
 
+            logger.Info("search plan item by 九宮格 =" + typeCode1 + "search plan item by 次九宮格 =" + typeCode2 + "search plan item by 主系統 =" + systemMain + "search plan item by 次系統 =" + systemSub);
+            List<topmeperp.Models.PLAN_ITEM> lstItem = new List<PLAN_ITEM>();
+            //處理SQL 預先填入專案代號,設定集合處理參數
+            string sql = "SELECT * FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid ";
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("projectid", projectid));
+            //九宮格
+            if (null != typeCode1 && typeCode1 != "")
+            {
+                sql = sql + "AND p.TYPE_CODE_1 = @typeCode1 ";
+                parameters.Add(new SqlParameter("typeCode1", typeCode1));
+            }
+            //次九宮格
+            if (null != typeCode2 && typeCode2 != "")
+            {
+                sql = sql + "AND p.TYPE_CODE_2 = @typeCode2 ";
+                parameters.Add(new SqlParameter("typeCode2", typeCode2));
+            }
+            //主系統
+            if (null != systemMain && systemMain != "")
+            {
+                sql = sql + "AND p.SYSTEM_MAIN LIKE @systemMain ";
+                parameters.Add(new SqlParameter("systemMain", "%" + systemMain + "%"));
+            }
+            //次系統
+            if (null != systemSub && systemSub != "")
+            {
+                sql = sql + "AND p.SYSTEM_SUB LIKE @systemSub ";
+                parameters.Add(new SqlParameter("systemSub", "%" + systemSub + "%"));
+            }
 
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("get plan item sql=" + sql);
+                lstItem = context.PLAN_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
+            }
+            logger.Info("get plan item count=" + lstItem.Count);
+            return lstItem;
+        }
+        #endregion
+
+        public PLAN_ITEM getPlanItem(string itemid)
+        {
+            logger.Debug("get plan item by id=" + itemid);
+            PLAN_ITEM pitem = null;
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                pitem = context.PLAN_ITEM.SqlQuery("SELECT * FROM PLAN_ITEM WHERE PLAN_ITEM_ID=@itemid",
+                new SqlParameter("itemid", itemid)).First();
+            }
+            return pitem;
+        }
         //批次產生空白表單
         public int createPlanEmptyForm(string projectid, SYS_USER loginUser)
         {

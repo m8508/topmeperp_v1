@@ -632,6 +632,8 @@
     <Content Include="Views\Tender\ShowProejctItems.cshtml" />
     <Content Include="Views\PurchaseForm\PendingItems.cshtml" />
     <Content Include="Views\PurchaseForm\_PaymentTerms.cshtml" />
+    <Content Include="Views\Plan\ManagePlanItem.cshtml" />
+    <Content Include="Views\Plan\_PlanItem.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

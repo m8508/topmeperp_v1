@@ -58,9 +58,9 @@ namespace topmeperp.Controllers
         [HttpPost]
         public ActionResult FormIndex(FormCollection f)
         {
-            PlanService s = new PlanService();
+            
             log.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"]);
-            List<topmeperp.Models.PLAN_ITEM> lstProject = s.getPlanItem(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"]);
+            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"]);
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             ViewBag.projectId = Request["projectid"];
             return View("FormIndex", lstProject);

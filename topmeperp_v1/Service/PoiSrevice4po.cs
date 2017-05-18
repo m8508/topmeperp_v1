@@ -12,6 +12,213 @@ using topmeperp.Models;
 
 namespace topmeperp.Service
 {
+    public class PlanItemFromExcel
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        public IWorkbook hssfworkbook;
+        public ISheet sheet = null;
+        string fileformat = "xlsx";
+        string projId = null;
+        public List<PLAN_ITEM> lstPlanItem = null;
+        public string errorMessage = null;
+        //test conflicts
+        public PlanItemFromExcel()
+        {
+        }
+        /*讀取備標Excel 檔案!!!*/
+        public void InitializeWorkbook(string path)
+        {
+            //read the template via FileStream, it is suggested to use FileAccess.Read to prevent file lock.
+            //book1.xls is an Excel-2007-generated file, so some new unknown BIFF records are added. 
+            using (FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                logger.Info("Read Excel File:" + path); if (file.Name.EndsWith(".xls"))
+                {
+                    logger.Debug("process excel file for office 2003");
+                    fileformat = "xls";
+                    hssfworkbook = new HSSFWorkbook(file);
+                }
+                else
+                {
+                    logger.Debug("process excel file for office 2007");
+                    hssfworkbook = new XSSFWorkbook(file);
+                }
+                file.Close();
+            }
+        }
+        //處理得標後標單..
+        public void ConvertDataForPlan(string projectId, int startrow)
+        {
+            projId = projectId;
+            //1.依據檔案附檔名使用不同物件讀取Excel 檔案，並開啟得標後標單Sheet
+            if (fileformat == "xls")
+            {
+                logger.Debug("office 2003:" + fileformat + " for projectID=" + projId);
+                sheet = (HSSFSheet)hssfworkbook.GetSheet("得標後標單");
+            }
+            else
+            {
+                logger.Debug("office 2007:" + fileformat + " for projectID=" + projId);
+                sheet = (XSSFSheet)hssfworkbook.GetSheet("得標後標單");
+            }
+            if (null == sheet)
+            {
+                logger.Error("檔案內沒有得標後標單資料(Sheet)! filename=" + fileformat);
+                throw new Exception("檔案內沒有得標後標單資料");
+            }
+            ConvertExcelToPlanItem(startrow);
+        }
+        //轉換標單內容物件
+        public void ConvertExcelToPlanItem(int startrow)
+        {
+            IRow row = null;
+            lstPlanItem = new List<PLAN_ITEM>();
+            System.Collections.IEnumerator rows = sheet.GetRowEnumerator();
+            //2.逐行讀取資料
+            int iRowIndex = 0; //0 表 Row 1
+
+            //2.1  忽略不要的行數..
+            while (iRowIndex < (startrow - 1))
+            {
+                rows.MoveNext();
+                iRowIndex++;
+                row = (IRow)rows.Current;
+                logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
+            }
+            //循序處理每一筆資料之欄位!!
+            iRowIndex++;
+            int itemId = 1;
+            while (rows.MoveNext())
+            {
+                row = (IRow)rows.Current;
+                logger.Debug("Cells Count=" + row.Cells.Count + ",Excel Value:" + row.Cells[0].ToString() + row.Cells[1]);
+                //將各Row 資料寫入物件內
+                //項次,名稱,單位,數量,單價,複價,備註,九宮格,次九宮格,主系統,次系統
+                if (row.Cells[0].ToString().ToUpper() != "END")
+                {
+                    lstPlanItem.Add(convertRow2PlanItem(itemId, row, iRowIndex));
+                }
+                else
+                {
+                    logger.Info("Finish convert Job : count=" + lstPlanItem.Count);
+                    return;
+                }
+                iRowIndex++;
+                itemId++;
+            }
+        }
+        private PLAN_ITEM convertRow2PlanItem(int id, IRow row, int excelrow)
+        {
+            PLAN_ITEM planItem = new PLAN_ITEM();
+            planItem.PROJECT_ID = projId;
+            if (row.Cells[0].ToString().Trim() != "")//項次
+            {
+                planItem.ITEM_ID = row.Cells[0].ToString();
+            }
+            if (row.Cells[1].ToString().Trim() != "")//名稱
+            {
+                planItem.ITEM_DESC = row.Cells[1].ToString();
+            }
+            if (row.Cells.Count < 3)
+            {
+                logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
+                logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
+                planItem.PLAN_ITEM_ID = projId + "-" + id;
+                planItem.EXCEL_ROW_ID = excelrow;
+                planItem.CREATE_DATE = System.DateTime.Now;
+                return planItem;
+            }
+            if (row.Cells[2].ToString().Trim() != "")//單位
+            {
+                planItem.ITEM_UNIT = row.Cells[2].ToString();
+            }
+
+            if (row.Cells.Count < 5)
+            {
+                logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
+                logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
+                planItem.PLAN_ITEM_ID = projId + "-" + id;
+                planItem.EXCEL_ROW_ID = excelrow;
+                planItem.CREATE_DATE = System.DateTime.Now;
+                return planItem;
+            }
+
+            if (row.Cells[3].ToString().Trim() != "")//數量
+            {
+                try
+                {
+                    decimal dQty = decimal.Parse(row.Cells[3].ToString());
+                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[3].ToString());
+                    planItem.ITEM_QUANTITY = dQty;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.Cells[3].ToString());
+                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.Cells[3].ToString());
+                    logger.Error(e.Message);
+                }
+
+            }
+            if (row.Cells[6].ToString().Trim() != "")//備註
+            {
+                planItem.ITEM_REMARK = row.Cells[6].ToString();
+            }
+            if (row.Cells.Count < 11)
+            {
+                logErrorMessage("data format warring on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
+                logger.Error("data format warring on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
+                planItem.PLAN_ITEM_ID = projId + "-" + id;
+                planItem.EXCEL_ROW_ID = excelrow;
+                planItem.CREATE_DATE = System.DateTime.Now;
+                return planItem;
+            }
+            if (row.Cells[7].ToString().Trim() != "")//九宮格
+            {
+                planItem.TYPE_CODE_1 = row.Cells[7].ToString();
+            }
+            if (row.Cells[8].ToString().Trim() != "")//次九宮格
+            {
+                planItem.TYPE_CODE_2 = row.Cells[8].ToString();
+            }
+            if (row.Cells[9].ToString().Trim() != "")//主系統
+            {
+                planItem.SYSTEM_MAIN = row.Cells[9].ToString();
+            }
+            if (row.Cells[10].ToString().Trim() != "")//次系統
+            {
+                planItem.SYSTEM_SUB = row.Cells[10].ToString();
+            }
+            planItem.PLAN_ITEM_ID = projId + "-" + id;
+            planItem.EXCEL_ROW_ID = excelrow;
+            planItem.CREATE_DATE = System.DateTime.Now;
+
+            logger.Info("PlanItem=" + planItem.ToString());
+            return planItem;
+        }
+
+        private void logErrorMessage(string message)
+        {
+            if (errorMessage == null)
+            {
+                errorMessage = message;
+            }
+            else
+            {
+                errorMessage = errorMessage + "<br/>" + message;
+            }
+        }
+        public XSSFCellStyle getContentStyle()
+        {
+            XSSFCellStyle oStyle = (XSSFCellStyle)hssfworkbook.CreateCellStyle();
+
+            //設定上下左右的框線
+            oStyle.BorderBottom = NPOI.SS.UserModel.BorderStyle.Thin;//粗
+            oStyle.BorderLeft = NPOI.SS.UserModel.BorderStyle.Thin;//細實線
+            oStyle.BorderRight = NPOI.SS.UserModel.BorderStyle.Thin;//虛線
+            oStyle.BorderTop = NPOI.SS.UserModel.BorderStyle.Thin;//...  
+            return oStyle;
+        }
+    }
     public class PurchaseFormtoExcel
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
