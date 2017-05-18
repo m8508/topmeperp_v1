@@ -432,6 +432,7 @@ namespace topmeperp.Controllers
             CostAnalysisOutput excel = new CostAnalysisOutput();
             excel.exportExcel(id);
             ViewBag.url = "/UploadFile/" + id + "/" + id + "_CostAnalysis.xlsx";
+            ViewBag.ErrorMsg = excel.errorMessage;
             return View();
         }
         //批次產生空白詢價單

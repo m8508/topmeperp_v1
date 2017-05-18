@@ -1909,6 +1909,7 @@ namespace topmeperp.Service
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         string outputPath = ContextService.strUploadPath;
         string templateFile = ContextService.strUploadPath + "\\Cost_Analysis_Template_v1.xlsx";
+        public string errorMsg = "";
         CostAnalysisDataService service = new CostAnalysisDataService();
 
         public TND_PROJECT project = null;
@@ -1952,7 +1953,7 @@ namespace topmeperp.Service
         {
             //2.寫入初期成本標單 僅提供office 格式2007 
             sheet = (XSSFSheet)hssfworkbook.GetSheet("期初成本");
-            logger.Debug("InitialQuotation  Head_1=" + sheet.GetRow(1).Cells[0].ToString()+ "," + sheet.GetRow(1).Cells[1].ToString());
+            logger.Debug("InitialQuotation  Head_1=" + sheet.GetRow(1).Cells[0].ToString() + "," + sheet.GetRow(1).Cells[1].ToString());
             sheet.GetRow(1).Cells[1].SetCellValue(project.PROJECT_ID);//專案編號
             sheet.GetRow(1).Cells[2].SetCellValue(project.PROJECT_NAME);//專案名稱
             sheet.GetRow(2).Cells[1].SetCellValue(project.LOCATION);//專案名稱
@@ -1972,7 +1973,7 @@ namespace topmeperp.Service
                 //標單數量
                 if (null != item.ITEM_QUANTITY && item.ITEM_QUANTITY.ToString().Trim() != "")
                 {
-                    row.CreateCell(4).SetCellValue(double.Parse(item.ITEM_QUANTITY.ToString())); 
+                    row.CreateCell(4).SetCellValue(double.Parse(item.ITEM_QUANTITY.ToString()));
                 }
                 //圖算數量
                 if (null != item.MAP_QTY && item.MAP_QTY.ToString().Trim() != "")
@@ -1983,7 +1984,7 @@ namespace topmeperp.Service
                 if (null != item.ITEM_UNIT_PRICE && item.ITEM_UNIT_PRICE.ToString().Trim() != "")
                 {
                     logger.Debug("UNIT PRICE=" + item.ITEM_UNIT_PRICE);
-                    row.CreateCell(6).SetCellValue(double.Parse(item.ITEM_UNIT_PRICE.ToString())); 
+                    row.CreateCell(6).SetCellValue(double.Parse(item.ITEM_UNIT_PRICE.ToString()));
                 }
                 ICell cel7 = row.CreateCell(7);
                 if (null != item.ITEM_QUANTITY && null != item.ITEM_UNIT_PRICE)
@@ -2000,19 +2001,21 @@ namespace topmeperp.Service
                 {
                     row.CreateCell(13).SetCellValue(double.Parse(item.RATIO.ToString()));// 工率
                     ICell cel14 = row.CreateCell(14);
-                    cel14.CellFormula = "M" + (idxRow+1) + "*M3";
-                }else
+                    cel14.CellFormula = "M" + (idxRow + 1) + "*M3";
+                }
+                else
                 {
                     row.CreateCell(13).SetCellValue("");// 工率
                     row.CreateCell(14).SetCellValue("");// 工資試算
                 }
                 logger.Debug("set cell style rowid=" + idxRow);
-                foreach(ICell c in row.Cells)
+                foreach (ICell c in row.Cells)
                 {
                     c.CellStyle = style;
                 }
                 idxRow++;
             }
+            if (projectItems.Count == 0) { errorMsg = "標單資料不完整!!</br>"; }
         }
         private void getFinalQuotation()
         {
@@ -2111,6 +2114,12 @@ namespace topmeperp.Service
                 }
                 idxRow++;
             }
+            //錯誤控制
+            if (direcCostItems.Count == 0)
+            {
+                errorMsg = errorMsg + "成本資料不完整,無法產生成本分析資料!!</br>";
+                return;
+            }
             //加入小計欄位
             logger.Debug("add row for summary:" + idxRow);
             IRow summaryRow = sheet.CreateRow(idxRow);//.GetRow(idxRow);
@@ -2181,6 +2190,13 @@ namespace topmeperp.Service
                 }
                 idxRow++;
             }
+            //錯誤控制
+            //錯誤控制
+            if (direcCostItems.Count == 0)
+            {
+                errorMsg = errorMsg + "成本資料不完整,無法產生圖算成本資料!!</br>";
+                return;
+            }
             //加入小計欄位
             logger.Debug("add row for summary:" + idxRow);
             IRow summaryRow = sheet.CreateRow(idxRow);//.GetRow(idxRow);
@@ -2249,6 +2265,11 @@ namespace topmeperp.Service
                     c.CellStyle = style;
                 }
                 idxRow++;
+            }
+            //錯誤控制
+            if (systemCostItems.Count == 0) {
+                errorMsg = errorMsg + "成本資料不完整,無法產生系統成本資料!!</br>";
+                return;
             }
             //加入小計欄位
             logger.Debug("add row for summary:" + idxRow);
