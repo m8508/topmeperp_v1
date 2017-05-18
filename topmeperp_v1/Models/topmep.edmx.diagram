@@ -38,6 +38,7 @@
         <EntityTypeShape EntityType="topmepModel.PLAN_SUP_INQUIRY_ITEM" Width="1.5" PointX="10.375" PointY="17.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_ITEM" Width="1.5" PointX="12.375" PointY="12.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_PAYMENT_TERMS" Width="1.5" PointX="0.75" PointY="18.75" />
+        <EntityTypeShape EntityType="topmepModel.vw_MAP_MATERLIALIST" Width="1.5" PointX="12.375" PointY="2.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

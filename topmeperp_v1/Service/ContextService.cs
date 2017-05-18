@@ -1156,9 +1156,10 @@ namespace topmeperp.Service
                 //取得工率表單檔頭資訊
                 wageTable = context.TND_PROJECT.SqlQuery("SELECT * FROM TND_PROJECT WHERE PROJECT_ID=@projectid", new SqlParameter("projectid", projectid)).First();
                 //取得工率表單明細
-                wageTableItem = context.Database.SqlQuery<PROJECT_ITEM_WITH_WAGE>(" SELECT i.*,w.ratio,w.price FROM TND_PROJECT_ITEM i LEFT OUTER JOIN " +
-                    " TND_WAGE w ON i.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID " +
-                    " WHERE i.project_id = @projectid  ORDER BY i.EXCEL_ROW_ID; ; ", new SqlParameter("projectid", projectid)).ToList();
+                wageTableItem = context.Database.SqlQuery<PROJECT_ITEM_WITH_WAGE>("SELECT i.*,w.ratio,w.price,map.QTY as MAP_QTY FROM TND_PROJECT_ITEM i LEFT OUTER JOIN "
+                    +"TND_WAGE w ON i.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID "
+                    +"LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON i.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID "
+                    +"WHERE i.project_id = @projectid  ORDER BY i.EXCEL_ROW_ID; ", new SqlParameter("projectid", projectid)).ToList();
                 logger.Debug("get project item count:" + wageTableItem.Count);
             }
         }
@@ -1215,26 +1216,32 @@ namespace topmeperp.Service
     public class CostAnalysisDataService : WageTableService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        public List<DirectCost> DirectCost4Project = null;
         public List<DirectCost> getDirectCost(string projectid)
         {
             List<DirectCost> lstDirecCost = null;
             using (var context = new topmepEntities())
             {
-                lstDirecCost = context.Database.SqlQuery<DirectCost>("SELECT " +
-                    "(select TYPE_CODE_1 + TYPE_CODE_2 from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE, " +
-                    "(select TYPE_DESC from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE_DESC ," +
-                    "(select SUB_TYPE_ID from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) T_SUB_CODE, " +
-                    "TYPE_CODE_2 SUB_CODE," +
-                    "(select TYPE_DESC from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) SUB_DESC," +
-                    "SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) MATERIAL_COST,SUM(ITEM_QUANTITY * RATIO) MAN_DAY,count(*) ITEM_COUNT " +
-                    "FROM (SELECT it.*, w.RATIO, w.PRICE FROM TND_PROJECT_ITEM it LEFT OUTER JOIN TND_WAGE w " +
-                    "ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID WHERE it.project_id = @projectid) A " +
-                    "GROUP BY TYPE_CODE_1, TYPE_CODE_2 ORDER BY TYPE_CODE_1,TYPE_CODE_2;",
-                    new SqlParameter("projectid", projectid)).ToList();
+                string sql = "SELECT (select TYPE_CODE_1 + TYPE_CODE_2 from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE, "
+                    + "(SELECT TYPE_DESC from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE_DESC ,"
+                    + "(SELECT SUB_TYPE_ID from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) T_SUB_CODE, "
+                    + "TYPE_CODE_2 SUB_CODE, (select TYPE_DESC from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) SUB_DESC, "
+                    + "SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) MATERIAL_COST, SUM(MapQty * ITEM_UNIT_PRICE) MATERIAL_COST_INMAP,"
+                    + "SUM(ITEM_QUANTITY * RATIO) MAN_DAY,"
+                    + "SUM(MapQty * RATIO) MAN_DAY_INMAP,"
+                    + "COUNT(*) ITEM_COUNT "
+                    + "FROM(SELECT it.*, w.RATIO, w.PRICE, map.QTY MapQty FROM TND_PROJECT_ITEM it LEFT OUTER JOIN TND_WAGE w "
+                    + "ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map "
+                    + "ON it.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID "
+                    + "WHERE it.project_id =@projectid ) A "
+                    + "GROUP BY TYPE_CODE_1, TYPE_CODE_2 ORDER BY TYPE_CODE_1,TYPE_CODE_2;";
+                logger.Info("Get DirectCost SQL=" +sql + ",projectid=" + projectid);
+                lstDirecCost = context.Database.SqlQuery<DirectCost>(sql, new SqlParameter("projectid", projectid)).ToList();
 
                 logger.Info("Get DirectCost Record Count=" + lstDirecCost.Count);
             }
-            return lstDirecCost;
+            DirectCost4Project = lstDirecCost;
+            return DirectCost4Project;
         }
         public List<SystemCost> getSystemCost(string projectid)
         {
