@@ -542,7 +542,7 @@ namespace topmeperp.Service
         }
 
         //取得標單品項資料
-        public List<TND_PROJECT_ITEM> getProjectItem(string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub)
+        public List<TND_PROJECT_ITEM> getProjectItem(string checkEx, string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub)
         {
             logger.Info("search projectitem by 九宮格 =" + typeCode1 + "search projectitem by 次九宮格 =" + typeCode2 + "search projectitem by 主系統 =" + systemMain + "search projectitem by 次系統 =" + systemSub);
             List<topmeperp.Models.TND_PROJECT_ITEM> lstItem = new List<TND_PROJECT_ITEM>();
@@ -550,29 +550,37 @@ namespace topmeperp.Service
             string sql = "SELECT * FROM TND_PROJECT_ITEM p WHERE p.PROJECT_ID =@projectid ";
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("projectid", projectid));
-            //九宮格
-            if (null != typeCode1 && typeCode1 != "")
+            //顯示未分類資料
+            if (null != checkEx && checkEx != "")
             {
-                sql = sql + "AND p.TYPE_CODE_1 = @typeCode1 ";
-                parameters.Add(new SqlParameter("typeCode1", typeCode1));
+                sql = sql + "AND p.TYPE_CODE_1 is null or p.TYPE_CODE_1=''; ";
             }
-            //次九宮格
-            if (null != typeCode2 && typeCode2 != "")
+            else
             {
-                sql = sql + "AND p.TYPE_CODE_2 = @typeCode2 ";
-                parameters.Add(new SqlParameter("typeCode2", typeCode2));
-            }
-            //主系統
-            if (null != systemMain && systemMain != "")
-            {
-                sql = sql + "AND p.SYSTEM_MAIN LIKE @systemMain ";
-                parameters.Add(new SqlParameter("systemMain", "%" + systemMain + "%"));
-            }
-            //次系統
-            if (null != systemSub && systemSub != "")
-            {
-                sql = sql + "AND p.SYSTEM_SUB LIKE @systemSub ";
-                parameters.Add(new SqlParameter("systemSub", "%" + systemSub + "%"));
+                //九宮格
+                if (null != typeCode1 && typeCode1 != "")
+                {
+                    sql = sql + "AND p.TYPE_CODE_1 = @typeCode1 ";
+                    parameters.Add(new SqlParameter("typeCode1", typeCode1));
+                }
+                //次九宮格
+                if (null != typeCode2 && typeCode2 != "")
+                {
+                    sql = sql + "AND p.TYPE_CODE_2 = @typeCode2 ";
+                    parameters.Add(new SqlParameter("typeCode2", typeCode2));
+                }
+                //主系統
+                if (null != systemMain && systemMain != "")
+                {
+                    sql = sql + "AND p.SYSTEM_MAIN LIKE @systemMain ";
+                    parameters.Add(new SqlParameter("systemMain", "%" + systemMain + "%"));
+                }
+                //次系統
+                if (null != systemSub && systemSub != "")
+                {
+                    sql = sql + "AND p.SYSTEM_SUB LIKE @systemSub ";
+                    parameters.Add(new SqlParameter("systemSub", "%" + systemSub + "%"));
+                }
             }
 
             using (var context = new topmepEntities())
@@ -1097,7 +1105,7 @@ namespace topmeperp.Service
         public TND_PROJECT_ITEM getProjectItem(string itemid)
         {
             logger.Debug("get project item by id=" + itemid);
-            TND_PROJECT_ITEM pitem = null; 
+            TND_PROJECT_ITEM pitem = null;
             using (var context = new topmepEntities())
             {
                 //條件篩選
@@ -1108,7 +1116,7 @@ namespace topmeperp.Service
         }
         public int updateProjectItem(TND_PROJECT_ITEM item)
         {
-            int i=0;
+            int i = 0;
             using (var context = new topmepEntities())
             {
                 try
