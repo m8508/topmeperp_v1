@@ -28,7 +28,7 @@ namespace topmeperp.Controllers
         {
             TnderProject s = new TnderProject();
             log.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"]);
-            List<topmeperp.Models.TND_PROJECT_ITEM> lstProject = s.getProjectItem(null,Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"]);
+            List<topmeperp.Models.TND_PROJECT_ITEM> lstProject = s.getProjectItem(null, Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"]);
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             ViewBag.projectId = Request["projectid"];
             return View("Index", lstProject);
@@ -219,17 +219,16 @@ namespace topmeperp.Controllers
             poi.exportExcel(service.formInquiry, service.formInquiryItem);
             return View();
         }
-
+        ///詢價單管理頁面
         public ActionResult InquiryMainPage(string id)
         {
-            log.Info("queryInquiry by projectID=" + id);
+            log.Info("queryInquiry by projectID=" + id + ",status=" + Request["status"]);
             InquiryFormModel formData = new InquiryFormModel();
             if (null != id && id != "")
             {
                 ViewBag.projectid = id;
                 formData.tndTemplateProjectForm = service.getFormTemplateByProject(id);
-                formData.tndProjectFormFromSupplier = service.getFormByProject(id);
-
+                formData.tndProjectFormFromSupplier = service.getFormByProject(id, Request["status"]);
             }
             return View(formData);
         }
@@ -348,9 +347,10 @@ namespace topmeperp.Controllers
                     string strAmout = string.Format("{0:C0}", tAmount);
 
                     htmlString = htmlString + "<th><table><tr><td>" + tmpString[0] +
-                        "<button type='button' class='btn-xs' onclick=\"clickSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>" +
-                        "<button type='button' class='btn-xs'><a href='/Inquiry/SinglePrjForm/" + tmpString[1] + "'" + " target='_blank'><span class='glyphicon glyphicon-list-alt' aria-hidden='true'></span></a>" +
-                        "</button></td><tr><td style='text-align:center;background-color:yellow;' >" + strAmout + "</td></tr></table></th>";
+                        "<br/><button type='button' class='btn-xs' onclick=\"clickSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>" +
+                        "<button type='button' class='btn-xs'><a href='/Inquiry/SinglePrjForm/" + tmpString[1] + "'" + " target='_blank'><span class='glyphicon glyphicon-list-alt' aria-hidden='true'></span></a></button>" +
+                        "<button type='button' class='btn-xs' onclick=\"chaneFormStatus('" + tmpString[1]+ "','註銷')\"><span class='glyphicon glyphicon-remove' aria-hidden='true'></span></a></button>" +
+                        "</td><tr><td style='text-align:center;background-color:yellow;' >" + strAmout + "</td></tr></table></th>";
                 }
                 htmlString = htmlString + "</tr>";
                 //處理資料表
@@ -376,7 +376,6 @@ namespace topmeperp.Controllers
                     //處理報價資料
                     for (int i = 6; i < dt.Columns.Count; i++)
                     {
-                        //<td><button class="btn-link" onclick="clickPrice('@item.PROJECT_ITEM_ID', '@item.QUOTATION_PRICE')">@item.QUOTATION_PRICE</button> </td>
                         if (dr[i].ToString() != "")
                         {
                             htmlString = htmlString + "<td><button class='btn-link' onclick=\"clickPrice('" + dr[1] + "', '" + dr[i] + "')\">" + String.Format("{0:N0}", (decimal)dr[i]) + "</button> </td>";
@@ -440,8 +439,8 @@ namespace topmeperp.Controllers
         {
             log.Info("project id=" + Request["projectid"]);
             SYS_USER u = (SYS_USER)Session["user"];
-            int i =service.createEmptyForm(Request["projectid"], u);     
-            return "共產生 "+ i + "空白詢價單樣本!!";
+            int i = service.createEmptyForm(Request["projectid"], u);
+            return "共產生 " + i + "空白詢價單樣本!!";
         }
         public void downLoadInquiryForm()
         {
@@ -462,6 +461,13 @@ namespace topmeperp.Controllers
                 Response.WriteFile(fileLocation);
                 Response.End();
             }
+        }
+        public void changeStatus()
+        {
+            string formid = Request["formId"];
+            string status = Request["status"];
+            log.Debug("change form status:" + formid + ",status=" + status);
+            service.changeProjectFormStatus(formid, status);
         }
     }
 }

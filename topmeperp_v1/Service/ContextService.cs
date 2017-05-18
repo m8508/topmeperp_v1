@@ -1279,7 +1279,11 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 //取得詢價單檔頭資訊
-                formInquiry = context.TND_PROJECT_FORM.SqlQuery("SELECT * FROM TND_PROJECT_FORM WHERE FORM_ID=@formid", new SqlParameter("formid", formid)).First();
+                string sql = "SELECT FORM_ID,PROJECT_ID,FORM_NAME,OWNER_NAME,OWNER_TEL "
+                    + ",OWNER_EMAIL, OWNER_FAX, SUPPLIER_ID, CONTACT_NAME, CONTACT_EMAIL "
+                    + ",DUEDATE, REF_ID, CREATE_ID, CREATE_DATE, MODIFY_ID, MODIFY_DATE, ISNULL(STATUS,'有效') STATUS "
+                    + "FROM TND_PROJECT_FORM WHERE FORM_ID = @formid";
+                formInquiry = context.TND_PROJECT_FORM.SqlQuery(sql, new SqlParameter("formid", formid)).First();
                 //取得詢價單明細
                 formInquiryItem = context.TND_PROJECT_FORM_ITEM.SqlQuery("SELECT * FROM TND_PROJECT_FORM_ITEM WHERE FORM_ID=@formid  ORDER BY CAST(SUBSTRING(PROJECT_ITEM_ID,CHARINDEX('-',PROJECT_ITEM_ID)+1,5) as int)"
                     , new SqlParameter("formid", formid)).ToList();
@@ -1332,7 +1336,7 @@ namespace topmeperp.Service
                 "FROM TND_PROJECT_ITEM pItem LEFT OUTER JOIN " +
                 "TND_PROJECT_FORM_ITEM pfItem ON pItem.PROJECT_ITEM_ID = pfItem.PROJECT_ITEM_ID " +
                 "inner join TND_PROJECT_FORM f on pfItem.FORM_ID = f.FORM_ID " +
-                "WHERE pItem.PROJECT_ID = @projectid AND SUPPLIER_ID is not null ";
+                "WHERE pItem.PROJECT_ID = @projectid AND SUPPLIER_ID is not null AND ISNULL(f.STATUS,'有效')='有效' ";
             var parameters = new List<SqlParameter>();
             //設定專案名編號資料
             parameters.Add(new SqlParameter("projectid", projectid));
@@ -1457,17 +1461,32 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 //取得詢價單樣本資訊
-                lst = context.TND_PROJECT_FORM.SqlQuery("SELECT * FROM TND_PROJECT_FORM WHERE SUPPLIER_ID IS NULL AND　PROJECT_ID=@projectid ORDER BY FORM_ID DESC",
-                    new SqlParameter("projectid", projectid)).ToList();
+                string sql = "SELECT[FORM_ID],[PROJECT_ID],[FORM_NAME],[OWNER_NAME],[OWNER_TEL],[OWNER_EMAIL] "
+                    +",[OWNER_FAX],[SUPPLIER_ID],[CONTACT_NAME],[CONTACT_EMAIL],[DUEDATE],[REF_ID],[CREATE_ID],[CREATE_DATE] "
+                    +",[MODIFY_ID],[MODIFY_DATE],ISNULL([STATUS],'有效') [STATUS] "
+                    + "FROM[topmep].[dbo].[TND_PROJECT_FORM] WHERE SUPPLIER_ID IS NULL AND PROJECT_ID =@projectid ORDER BY FORM_ID DESC";
+                lst = context.TND_PROJECT_FORM.SqlQuery(sql,new SqlParameter("projectid", projectid)).ToList();
             }
             return lst;
         }
-        public List<SupplierFormFunction> getFormByProject(string projectid)
+        public List<SupplierFormFunction> getFormByProject(string projectid,string _status)
         {
             List<SupplierFormFunction> lst = new List<SupplierFormFunction>();
+            string status = "有效";
+            if (null!= _status && _status!="*")
+            {
+                status = _status;
+            }
             using (var context = new topmepEntities())
             {
-                lst = context.Database.SqlQuery<SupplierFormFunction>("SELECT a.FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, SUM(b.ITEM_QTY*b.ITEM_UNIT_PRICE) AS TOTAL_PRICE, ROW_NUMBER() OVER(ORDER BY a.FORM_ID DESC) AS NO FROM TND_PROJECT_FORM a left JOIN TND_PROJECT_FORM_ITEM b ON a.FORM_ID = b.FORM_ID GROUP BY a.FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, a.PROJECT_ID HAVING  a.SUPPLIER_ID IS NOT NULL AND a.PROJECT_ID =@projectid ORDER BY a.FORM_ID DESC, a.FORM_NAME ;", new SqlParameter("projectid", projectid)).ToList();
+                string sql = "SELECT a.FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, SUM(b.ITEM_QTY*b.ITEM_UNIT_PRICE) AS TOTAL_PRICE, "
+                    +"ROW_NUMBER() OVER(ORDER BY a.FORM_ID DESC) AS NO, ISNULL(A.STATUS, '有效') AS STATUS "
+                    +"FROM TND_PROJECT_FORM a left JOIN TND_PROJECT_FORM_ITEM b ON a.FORM_ID = b.FORM_ID "
+                    + "WHERE ISNULL(A.STATUS,'有效')=@status "
+                    + "GROUP BY a.FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, a.PROJECT_ID,a.STATUS "
+                    +"HAVING  a.SUPPLIER_ID IS NOT NULL "
+                    + "AND a.PROJECT_ID =@projectid ORDER BY a.FORM_ID DESC, a.FORM_NAME ";
+                lst = context.Database.SqlQuery<SupplierFormFunction>(sql, new SqlParameter("status", status), new SqlParameter("projectid", projectid)).ToList();
             }
             logger.Info("get function count:" + lst.Count);
             return lst;
@@ -1528,6 +1547,27 @@ namespace topmeperp.Service
             i = db.SaveChanges();
             logger.Info("Update Record:" + i);
             db = null;
+            return i;
+        }
+        /// <summary>
+        /// 註銷或回復備標階段詢價單
+        /// </summary>
+        /// <param name="formid"></param>
+        /// <param name="status"></param>
+        /// <returns></returns>
+        public int changeProjectFormStatus(string formid,string status)
+        {
+            int i = 0;
+            logger.Info("Update project form status formid=" + formid + ",status=" + status);
+            db = new topmepEntities();
+            string sql = "UPDATE TND_PROJECT_FORM SET STATUS=@status WHERE FORM_ID=@formid ";
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("status", status));
+            parameters.Add(new SqlParameter("formid", formid));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            db = null;
+            logger.Debug("Update project form status  :" + i);
             return i;
         }
     }

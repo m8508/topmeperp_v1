@@ -9,10 +9,10 @@
     <form name="formSearch" id="formSearch" method="post" class="form-inline">
         <div class="row">
             <div class="col-md-6 form-group" style="padding-top:50px">
-                <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.id" class="form-control" style="background-color:#cccccc;" readonly="readonly"/>
+                <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.id" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
             </div>
             <div class="col-md-6" style="padding-top:10px">
-                <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly"/>
+                <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
             </div>
         </div>
         <hr style="border-top: 1px solid #8c8b8b;" />
@@ -91,7 +91,7 @@
         $('#progressInfo').modal('show');
         $("#" + itemLoc).val(price);
         //假的純粹要看效果
-        $('#progressBar').css('width','50%');
+        $('#progressBar').css('width', '50%');
         $('#progressBar').html('50%');
         jQuery.ajax({
             url: "/Inquiry/UpdateCost4Item",
@@ -110,7 +110,7 @@
         jQuery.ajax({
             url: "/Inquiry/BatchUpdateCost",
             async: true,
-            data: { "formid": formid},
+            data: { "formid": formid },
             type: "POST",
             dataType: 'text',
             success: function (result) {
@@ -124,6 +124,22 @@
         if (percentage > 100) percentage = 100;
         $('#progressBar').css('width', percentage + '%');
         $('#progressBar').html(percentage + '%');
+    }
+
+    function chaneFormStatus(formid, status) {
+        $.ajax({
+            url: '@Url.Action("changeStatus", "Inquiry")',
+            data: { formId: formid, status: status },
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                //window.location.href=@Url.Action("Inquiry/SinglePrjForm/")'";
+                getComparisonData();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
     }
     //$.ajax({
     //    type: 'GET',

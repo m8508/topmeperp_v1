@@ -55,6 +55,5 @@ namespace topmeperp.Models
         public virtual DbSet<PLAN_SUP_INQUIRY_ITEM> PLAN_SUP_INQUIRY_ITEM { get; set; }
         public virtual DbSet<PLAN_ITEM> PLAN_ITEM { get; set; }
         public virtual DbSet<PLAN_PAYMENT_TERMS> PLAN_PAYMENT_TERMS { get; set; }
-        public virtual DbSet<vw_MAP_MATERLIALIST> vw_MAP_MATERLIALIST { get; set; }
     }
 }

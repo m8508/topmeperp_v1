@@ -365,9 +365,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>topmep.edmx</DependentUpon>
     </Compile>
-    <Compile Include="Models\vw_MAP_MATERLIALIST.cs">
-      <DependentUpon>topmep.tt</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service\ContextService.cs" />
     <Compile Include="Service\ContextService4po.cs" />
