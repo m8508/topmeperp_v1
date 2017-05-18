@@ -246,6 +246,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InquiryController.cs" />
     <Compile Include="Controllers\PlanController.cs" />
+    <Compile Include="Controllers\ProjectCompareController.cs" />
     <Compile Include="Controllers\PurchaseFormController.cs" />
     <Compile Include="Controllers\RoleManageController.cs" />
     <Compile Include="Controllers\SupplierManageController.cs" />
@@ -258,6 +259,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\BOExtentionModels.cs" />
     <Compile Include="Models\BusinessObjectModels.cs" />
     <Compile Include="Models\PivotDataModel.cs" />
     <Compile Include="Models\PLAN_BUDGET.cs">
@@ -634,6 +636,8 @@
     <Content Include="Views\PurchaseForm\_PaymentTerms.cshtml" />
     <Content Include="Views\Plan\ManagePlanItem.cshtml" />
     <Content Include="Views\Plan\_PlanItem.cshtml" />
+    <Content Include="Views\ProjectCompare\Index.cshtml" />
+    <Content Include="Views\ProjectCompare\_CompareData.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
