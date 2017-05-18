@@ -1248,15 +1248,17 @@ namespace topmeperp.Service
             List<SystemCost> lstSystemCost = null;
             using (var context = new topmepEntities())
             {
-                lstSystemCost = context.Database.SqlQuery<SystemCost>("SELECT SYSTEM_MAIN,SYSTEM_SUB," +
-                    "SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) MATERIAL_COST, SUM(ITEM_QUANTITY * RATIO) MAN_DAY, count(*) ITEM_COUNT " +
-                    "FROM (SELECT it.*, w.RATIO, w.PRICE FROM TND_PROJECT_ITEM it LEFT OUTER JOIN TND_WAGE w " +
-                    "ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID " +
-                    "WHERE it.project_id = @projectid) A " +
-                    "GROUP BY SYSTEM_MAIN, SYSTEM_SUB " +
-                    "ORDER BY SYSTEM_MAIN, SYSTEM_SUB;",
-                    new SqlParameter("projectid", projectid)).ToList();
-
+                string sql = "SELECT SYSTEM_MAIN,SYSTEM_SUB,"
+                    + "SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) MATERIAL_COST, SUM(ITEM_QUANTITY * RATIO) MAN_DAY, "
+                    + "SUM(MAP_QTY * ITEM_UNIT_PRICE) MATERIAL_COST_INMAP,SUM(MAP_QTY * RATIO) MAN_DAY, "
+                    + "COUNT(*) ITEM_COUNT "
+                    + "FROM(SELECT it.*, w.RATIO, w.PRICE, map.QTY MAP_QTY FROM TND_PROJECT_ITEM it LEFT OUTER JOIN TND_WAGE w "
+                    + "ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map "
+                    + "ON it.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID "
+                    + "WHERE it.project_id = 'P0120') A "
+                    + "GROUP BY SYSTEM_MAIN, SYSTEM_SUB ORDER BY SYSTEM_MAIN, SYSTEM_SUB;";
+                logger.Debug("sql=" + sql);
+                lstSystemCost = context.Database.SqlQuery<SystemCost>(sql,new SqlParameter("projectid", projectid)).ToList();
                 logger.Info("Get SystemCost Record Count=" + lstSystemCost.Count);
             }
             return lstSystemCost;

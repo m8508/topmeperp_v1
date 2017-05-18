@@ -1940,7 +1940,7 @@ namespace topmeperp.Service
             getFinalQuotation();
             logger.Info("generate syten cost by projectid=" + project.PROJECT_ID);
             //6建立報價標單Sheet
-            ///getSystemCost(service.getSystemCost(project.PROJECT_ID));
+            getSystemCost(service.getSystemCost(project.PROJECT_ID));
             //7.令存新檔至專案所屬目錄
             var file = new FileStream(outputPath + "\\" + project.PROJECT_ID + "\\" + project.PROJECT_ID + "_CostAnalysis.xlsx", FileMode.Create);
             logger.Info("output file=" + file.Name);
@@ -2056,7 +2056,7 @@ namespace topmeperp.Service
                 idxRow++;
             }
         }
-        //取得標單成本資料
+        //取得標單成本
         private void getDirectCostFromSouce(List<DirectCost> direcCostItems)
         {
             //2.寫入直接成本 僅提供office 格式2007 
@@ -2211,23 +2211,35 @@ namespace topmeperp.Service
             {
                 IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
                 logger.Info("Row Id=" + idxRow);
-                //分項名稱(成本價)	材料成本總計	折數	工資	打折預算	未打折預算	係數	比例
-                row.CreateCell(0).SetCellValue(item.SYSTEM_MAIN + "-" + item.SYSTEM_SUB);//主九宮格編碼)
-
+                //分項名稱(成本價)-主系統	分項名稱(成本價)-次系統	標單材料成本	圖算材料成本	標單工資	圖算工資	標單成本	圖算成本	項數
+                row.CreateCell(0).SetCellValue(item.SYSTEM_MAIN);
+                //分項名稱(成本價) - 次系統
+                row.CreateCell(1).SetCellValue(item.SYSTEM_SUB);
+                //標單材料成本//
                 if (null != item.MATERIAL_COST && item.MATERIAL_COST.ToString().Trim() != "")
                 {
-                    row.CreateCell(1).SetCellValue(double.Parse(item.MATERIAL_COST.ToString()));
+                    row.CreateCell(2).SetCellValue(double.Parse(item.MATERIAL_COST.ToString()));
                 }
-                row.CreateCell(2).SetCellValue("100%");// 折數
-                //工資
+                //圖算材料成本//
+                if (null != item.MATERIAL_COST_INMAP && item.MATERIAL_COST_INMAP.ToString().Trim() != "")
+                {
+                    row.CreateCell(3).SetCellValue(double.Parse(item.MATERIAL_COST.ToString()));
+                }
+                //標單工資//
                 if (null != item.MAN_DAY && item.MAN_DAY.ToString().Trim() != "")
                 {
-                    row.CreateCell(3).SetCellValue(double.Parse(item.MAN_DAY.ToString()));
+                    row.CreateCell(4).SetCellValue(double.Parse(item.MAN_DAY.ToString()));
                 }
-                row.CreateCell(4);//打折預算
-                row.CreateCell(5);//未打折預算	
-                row.CreateCell(6).SetCellValue("100%");// 係數
-                row.CreateCell(7);//比例
+                //圖算工資
+                if (null != item.MAN_DAY_INMAP && item.MAN_DAY_INMAP.ToString().Trim() != "")
+                {
+                    row.CreateCell(5).SetCellValue(double.Parse(item.MAN_DAY_INMAP.ToString()));
+                }
+                //標單成本               row.CreateCell(5).CellFormula = "D" + (idxRow + 1) + "*E" + (idxRow + 1);
+                row.CreateCell(6).CellFormula = "C" + (idxRow + 1) + "+E" + (idxRow + 1);
+                //圖算成本
+                row.CreateCell(7).CellFormula = "D" + (idxRow + 1) + "+F" + (idxRow + 1);
+                //項數
                 if (null != item.ITEM_COUNT && item.ITEM_COUNT.ToString().Trim() != "")
                 {
                     row.CreateCell(8).SetCellValue(int.Parse(item.ITEM_COUNT.ToString())); //項數
@@ -2245,10 +2257,13 @@ namespace topmeperp.Service
             {
                 summaryRow.CreateCell(i);
             }
-            summaryRow.Cells[0].SetCellValue("直接工程費(小計)");
-            summaryRow.Cells[1].SetCellFormula("SUM(B2:B" + (idxRow - 1) + ")");
+            summaryRow.Cells[1].SetCellValue("直接工程費(小計)");
+            summaryRow.Cells[2].SetCellFormula("SUM(C2:C" + (idxRow - 1) + ")");
             summaryRow.Cells[3].SetCellFormula("SUM(D2:D" + (idxRow - 1) + ")");
             summaryRow.Cells[4].SetCellFormula("SUM(E2:E" + (idxRow - 1) + ")");
+            summaryRow.Cells[5].SetCellFormula("SUM(F2:F" + (idxRow - 1) + ")");
+            summaryRow.Cells[6].SetCellFormula("SUM(G2:G" + (idxRow - 1) + ")");
+            summaryRow.Cells[7].SetCellFormula("SUM(H2:H" + (idxRow - 1) + ")");
             summaryRow.Cells[8].SetCellFormula("SUM(I2:I" + (idxRow - 1) + ")");
             foreach (ICell c in summaryRow.Cells)
             {

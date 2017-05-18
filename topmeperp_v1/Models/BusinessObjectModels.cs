@@ -104,6 +104,8 @@ namespace topmeperp.Models
         public string SYSTEM_SUB { get; set; }
         public Nullable<decimal> MATERIAL_COST { get; set; }
         public Nullable<decimal> MAN_DAY { get; set; }
+        public Nullable<decimal> MATERIAL_COST_INMAP { get; set; }
+        public Nullable<decimal> MAN_DAY_INMAP { get; set; }
         public Nullable<int> ITEM_COUNT { get; set; }
     }
     public class SupplierFormFunction : TND_PROJECT_FORM
