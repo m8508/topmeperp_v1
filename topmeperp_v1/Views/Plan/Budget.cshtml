@@ -1,4 +1,4 @@
-﻿@model IEnumerable<topmeperp.Models.DirectCost>
+﻿@model IEnumerable<topmeperp.Models.CostForBudget>
 @{
     ViewBag.Title = "執行預算作業";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
@@ -23,9 +23,8 @@
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>九宮格</th>
-                        <th>次九宮格</th>
-                        <th>名稱</th>
+                        <th>NO.</th>
+                        <th>採購項目名稱</th>
                         <th>成本</th>
                         <th>預算金額</th>
 
@@ -34,31 +33,16 @@
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        if (item.MAINCODE != null && item.SUB_CODE != "0")
-                        {
+
                             <tr>
-                                <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
-                                <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
+                                <td>@item.NO</td>
                                 <td>
-                                    @item.MAINCODE_DESC _ @item.SUB_DESC
+                                    @Html.TextBox("formname", @item.FORM_NAME, new { style = "width:200px", @readonly = "readonly" })
                                 </td>
-                                <td>@item.MATERIAL_COST</td>
+                                <td>@item.COST</td>
                                 <td><input type="text" class="form-control" name="inputbudget" id="inputbudget" value="@item.BUDGET"></td>
                             </tr>
                         }
-                        else if (item.SUB_CODE == "0")
-                        {
-                            <tr>
-                                <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
-                                <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
-                                <td>
-                                    @item.MAINCODE_DESC
-                                </td>
-                                <td>@item.MATERIAL_COST</td>
-                                <td><input type="text" class="form-control" name="inputbudget" id="inputbudget" value="@item.BUDGET"></td>
-                            </tr>
-                        }
-                    }
                 </tbody>
             </table>
         </form>

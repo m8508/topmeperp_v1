@@ -634,6 +634,7 @@
     <Content Include="Views\PurchaseForm\_PaymentTerms.cshtml" />
     <Content Include="Views\Plan\ManagePlanItem.cshtml" />
     <Content Include="Views\Plan\_PlanItem.cshtml" />
+    <Content Include="Views\Plan\ShowPlanItems.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
