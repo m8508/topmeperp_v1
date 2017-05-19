@@ -9,6 +9,7 @@
                 <tr>
                     <th>編號</th>
                     <th>詢價單名稱</th>
+                    <th>狀態</th>
                     <th>下載連結</th>
                 </tr>
             </thead>
@@ -18,6 +19,7 @@
                     <tr>
                         <td><a href="/Inquiry/SinglePrjForm/@item.FORM_ID" target="_blank">@item.FORM_ID</a></td>
                         <td>@item.FORM_NAME</td>
+                        <th>@item.STATUS</th>
                         <td><a href="/Inquiry/downLoadInquiryForm?formid=@item.FORM_ID" target="_blank">下載</a></td>
                     </tr>
                 }

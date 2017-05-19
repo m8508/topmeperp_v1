@@ -91,6 +91,8 @@ namespace topmeperp.Models
         public string SUB_DESC { get; set; }
         public Nullable<decimal> MATERIAL_COST { get; set; }
         public Nullable<decimal> MAN_DAY { get; set; }
+        public Nullable<decimal> MATERIAL_COST_INMAP { get; set; }
+        public Nullable<decimal> MAN_DAY_INMAP { get; set; }
         public Nullable<int> ITEM_COUNT { get; set; }
         public Nullable<decimal> BUDGET { get; set; }
     }
@@ -102,6 +104,8 @@ namespace topmeperp.Models
         public string SYSTEM_SUB { get; set; }
         public Nullable<decimal> MATERIAL_COST { get; set; }
         public Nullable<decimal> MAN_DAY { get; set; }
+        public Nullable<decimal> MATERIAL_COST_INMAP { get; set; }
+        public Nullable<decimal> MAN_DAY_INMAP { get; set; }
         public Nullable<int> ITEM_COUNT { get; set; }
     }
     public class SupplierFormFunction : TND_PROJECT_FORM
@@ -119,6 +123,7 @@ namespace topmeperp.Models
     }
     public class PROJECT_ITEM_WITH_WAGE : TND_PROJECT_ITEM
     {
+        public Nullable<decimal> MAP_QTY { get; set; }
         public Nullable<decimal> RATIO { get; set; }
         public Nullable<decimal> PRICE { get; set; }
     }
