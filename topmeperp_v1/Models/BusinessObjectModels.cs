@@ -163,6 +163,7 @@ namespace topmeperp.Models
         //採購詢價單議價總價
         public Nullable<decimal> OAmount { get; set; }
         public string FORM_NAME { get; set; }
+        public Nullable<decimal> BAmount { get; set; }
     }
     public class budgetsummary
     {
@@ -201,5 +202,12 @@ namespace topmeperp.Models
         public IEnumerable<PLAN_ITEM> contractItems { get; set; }
         //角色資料
         public IEnumerable<PLAN_PAYMENT_TERMS> paymentTerms { get; set; }
+    }
+    public class CostForBudget
+    {
+        public Int64 NO { get; set; }
+        public string FORM_NAME { get; set; }
+        public Nullable<Int64> COST { get; set; }
+        public Nullable<decimal> BUDGET { get; set; }
     }
 }

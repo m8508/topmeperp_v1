@@ -157,7 +157,7 @@ namespace topmeperp.Controllers
         /// </summary>
         /// <param name="form"></param>
         /// <returns></returns>
-        public ActionResult ShowProejctItems(FormCollection form)
+        public ActionResult ShowPlanItems(FormCollection form)
         {
             PurchaseFormService service = new PurchaseFormService();
             logger.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"]);
@@ -190,14 +190,14 @@ namespace topmeperp.Controllers
             if (null == priId)
             //取得九宮格組合之直接成本資料
             {
-                CostAnalysisDataService s = new CostAnalysisDataService();
-                List<DirectCost> budget1 = s.getDirectCost(id);
-                ViewBag.result = "共有" + (budget1.Count - 1) + "筆資料";
+                BudgetDataService s = new BudgetDataService();
+                List<CostForBudget> budget1 = s.getCostForBudget(id);
+                ViewBag.result = "共有" + budget1.Count + "筆資料";
                 return View(budget1);
             }
             //取得已寫入之九宮格組合預算資料
             BudgetDataService bs = new BudgetDataService();
-            List<DirectCost> budget2 = bs.getBudget(id);
+            List<CostForBudget> budget2 = bs.getBudget(id);
             ViewBag.result = "共有" + budget2.Count + "筆資料";
             return View(budget2);
         }
@@ -207,8 +207,7 @@ namespace topmeperp.Controllers
             logger.Info("form:" + form.Count);
             SYS_USER u = (SYS_USER)Session["user"];
             string msg = "";
-            string[] lsttypecode = form.Get("code1").Split(',');
-            string[] lsttypesub = form.Get("code2").Split(',');
+            string[] lstformname = form.Get("formname").Split(',');
             string[] lstPrice = form.Get("inputbudget").Split(',');
             List<PLAN_BUDGET> lstItem = new List<PLAN_BUDGET>();
             for (int j = 0; j < lstPrice.Count(); j++)
@@ -223,10 +222,9 @@ namespace topmeperp.Controllers
                 {
                     item.BUDGET_AMOUNT = decimal.Parse(lstPrice[j]);
                 }
-                item.TYPE_CODE_1 = lsttypecode[j];
-                item.TYPE_CODE_2 = lsttypesub[j];
+                item.FORM_NAME = lstformname[j];
                 item.CREATE_ID = u.USER_ID;
-                logger.Debug("Item Project id =" + item.PROJECT_ID + "且九宮格組合為" + item.TYPE_CODE_1 + item.TYPE_CODE_2);
+                logger.Debug("Item Project id =" + item.PROJECT_ID + "且採購項目名稱為" + item.FORM_NAME);
                 lstItem.Add(item);
             }
             int i = service.addBudget(lstItem);
@@ -249,8 +247,7 @@ namespace topmeperp.Controllers
             id = Request["id"];
             SYS_USER u = (SYS_USER)Session["user"];
             string msg = "";
-            string[] lsttypecode = form.Get("code1").Split(',');
-            string[] lsttypesub = form.Get("code2").Split(',');
+            string[] lstformname = form.Get("formname").Split(',');
             string[] lstPrice = form.Get("inputbudget").Split(',');
             List<PLAN_BUDGET> lstItem = new List<PLAN_BUDGET>();
             for (int j = 0; j < lstPrice.Count(); j++)
@@ -265,10 +262,9 @@ namespace topmeperp.Controllers
                 {
                     item.BUDGET_AMOUNT = decimal.Parse(lstPrice[j]);
                 }
-                item.TYPE_CODE_1 = lsttypecode[j];
-                item.TYPE_CODE_2 = lsttypesub[j];
+                item.FORM_NAME = lstformname[j];
                 item.MODIFY_ID = u.USER_ID;
-                logger.Debug("Item Project id =" + item.PROJECT_ID + "且九宮格組合為" + item.TYPE_CODE_1 + item.TYPE_CODE_2);
+                logger.Debug("Item Project id =" + item.PROJECT_ID + "且採購項目名稱為" + item.FORM_NAME);
                 lstItem.Add(item);
             }
             int i = service.updateBudget(id, lstItem);

@@ -5,7 +5,7 @@
 }
 <!--標單項目搜尋區條件區域-->
 <div class="jumbotron">
-    <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
+    <h3 style="height:20px;line-height:20px">@ViewBag.Title</h3>
     <form id="UploadFile" name="UploadFile" action="/Plan/uploadPlanItem" method="post" enctype="multipart/form-data">
         <label for="file">得標標單匯入:</label>
         <input type="hidden" name="projectid" id="projectid" value="@ViewBag.projectid" />
@@ -14,10 +14,10 @@
     </form>
     <form name="formSearch" id="formSearch" method="post" class="form-inline">
         <div class="row">
-            <div class="col-md-6 form-group" style="padding-top:10px">
+            <div class="col-md-6 form-group" style="padding-top:50px">
                 <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.id" class="form-control" style="background-color:#cccccc;" readonly="readonly"/>
             </div>
-            <div class="col-md-6" style="padding-top:10px">
+            <div class="col-md-6" style="padding-top:50px">
                 <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly"/>
             </div>
         </div>
@@ -100,7 +100,7 @@
             data: { itemid: itemid },
             dataType: "JSON",
             success: function (data) {
-                $('#plan_id').val(data.PROJECT_ID);
+                $('#project_id').val(data.PROJECT_ID);
                 $('#plan_item_id').val(data.PLAN_ITEM_ID);
                 $('#item_id').val(data.ITEM_ID);
                 $('#item_desc').val(data.ITEM_DESC);

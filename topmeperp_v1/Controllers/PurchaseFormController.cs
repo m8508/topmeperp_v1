@@ -58,7 +58,7 @@ namespace topmeperp.Controllers
         [HttpPost]
         public ActionResult FormIndex(FormCollection f)
         {
-            
+
             log.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"]);
             List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"]);
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
@@ -249,7 +249,7 @@ namespace topmeperp.Controllers
             fm.CONTACT_EMAIL = form.Get("inputemail").Trim();
             fm.INQUIRY_FORM_ID = form.Get("inputformnumber").Trim();
             fm.FORM_NAME = form.Get("formname").Trim();
-            fm.COUNTER_OFFER = form.Get("counteroffer").Trim(); 
+            fm.COUNTER_OFFER = form.Get("counteroffer").Trim();
             fm.CREATE_ID = form.Get("createid").Trim();
             fm.CREATE_DATE = Convert.ToDateTime(form.Get("createdate"));
             fm.MODIFY_ID = loginUser.USER_ID;
@@ -444,7 +444,7 @@ namespace topmeperp.Controllers
             {
                 log.Info("input_codes No.:" + lstcode[j]);
             }
-            budgetsummary budget = null;
+            List<COMPARASION_DATA_4PLAN> budget = null;
             try
             {
                 DataTable dt = service.getFirstComparisonDataToPivot(Request["id"], lstcode, Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
@@ -459,6 +459,7 @@ namespace topmeperp.Controllers
                 //處理供應商表頭
                 Dictionary<string, COMPARASION_DATA_4PLAN> dirSupplierQuo = service.dirSupplierQuo;
                 log.Debug("Column Count=" + dt.Columns.Count);
+                List<string> list = new List<string>();
                 for (int i = 6; i < dt.Columns.Count; i++)
                 {
                     log.Debug("column name=" + dt.Columns[i].ColumnName);
@@ -466,7 +467,6 @@ namespace topmeperp.Controllers
                     //<a href="/PurchaseForm/SinglePrjForm/@item.INQUIRY_FORM_ID" target="_blank">@item.INQUIRY_FORM_ID</a>
                     decimal tAmount = (decimal)dirSupplierQuo[tmpString[1]].TAmount;
                     string strAmout = string.Format("{0:C0}", tAmount);
-
                     htmlString = htmlString + "<th><table><tr><td>" + tmpString[0] + "(" + tmpString[2] + ")" +
                         "<button type ='button' class='btn-xs' onclick=\"tagSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-tag' aria-hidden='true'></span></button>" +
                         "<button type ='button' class='btn-xs' onclick=\"filterSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-filter' aria-hidden='true'></span></button>" +
@@ -474,7 +474,12 @@ namespace topmeperp.Controllers
                         "</td><tr><td style='text-align:center;background-color:yellow;' >" + strAmout + "</td>" +
                         "</tr></table></th>";
 
+                    log.Info("access to budget by project id=" + Request["id"] + ",form name=" + tmpString[2]);
+                    list.Add(tmpString[2]);
                 }
+                var name = string.Join(",", list.ToArray());
+                log.Info("name =" + name );
+                budget = service.getBudgetForComparison(Request["id"], name);
                 htmlString = htmlString + "</tr>";
                 //處理資料表
                 foreach (DataRow dr in dt.Rows)
@@ -514,13 +519,6 @@ namespace topmeperp.Controllers
                 htmlString = htmlString + "</table>";
                 //產生畫面
                 IHtmlString str = new HtmlString(htmlString);
-                //PlanService s = new PlanService();
-                //budget = s.getBudgetForComparison(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
-                //if (budget != null)
-                //{
-                 //   ViewBag.result = string.Format("{0:N0}", budget.BAmount);
-                  //  log.Debug("預算金額 = " + budget.BAmount);
-               // }
                 ViewBag.htmlString = str;
             }
             catch (Exception e)
@@ -609,13 +607,6 @@ namespace topmeperp.Controllers
                 htmlString = htmlString + "</table>";
                 //產生畫面
                 IHtmlString str = new HtmlString(htmlString);
-                PlanService s = new PlanService();
-                budget = s.getBudgetForComparison(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
-                if (budget != null)
-                {
-                    ViewBag.result = string.Format("{0:N0}", budget.BAmount);
-                    log.Debug("預算金額 = " + budget.BAmount);
-                }
                 ViewBag.htmlString = str;
             }
             catch (Exception e)
@@ -751,13 +742,6 @@ namespace topmeperp.Controllers
                 htmlString = htmlString + "</table>";
                 //產生畫面
                 IHtmlString str = new HtmlString(htmlString);
-                PlanService s = new PlanService();
-                budget = s.getBudgetForComparison(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
-                if (budget != null)
-                {
-                    ViewBag.result = string.Format("{0:N0}", budget.BAmount);
-                    log.Debug("預算金額 = " + budget.BAmount);
-                }
                 ViewBag.htmlString = str;
             }
             catch (Exception e)
@@ -876,7 +860,7 @@ namespace topmeperp.Controllers
             return View(lstplanItem);
         }
         //取得採購項目與廠商組合之合約項目
-       
+
         public ActionResult ContractItems(string id)
         {
             log.Info("http get mehtod:" + id);
