@@ -33,7 +33,8 @@
             {
                 <tr>
                     <td>
-                        @{ string keyValue = item.SOURCE_PROJECT_ID + '|' + item.SOURCE_SYSTEM_MAIN + '|' + item.SOURCE_SYSTEM_SUB + '|' + item.SOURCE_ITEM_DESC + '|' + item.SRC_UNIT_PRICE + '|' + item.TARGET_PROJECT_ID;}
+                        @{ 
+                            string keyValue = item.SOURCE_PROJECT_ID + '|' + item.SOURCE_SYSTEM_MAIN + '|' + item.SOURCE_SYSTEM_SUB + '|' + item.SRC_UNIT_PRICE + '|' + item.TARGET_PROJECT_ID + '|' + item.SOURCE_ITEM_DESC.Replace(",","xyz"); }
                         <input type="checkbox" id="chkItem" name="chkItem" value="@keyValue" />
                     </td>
                     <td>
