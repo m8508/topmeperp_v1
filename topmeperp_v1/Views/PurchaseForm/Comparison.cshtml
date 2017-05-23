@@ -1,6 +1,6 @@
 ﻿
 @{
-    ViewBag.Title = "採購議價比價";
+    ViewBag.Title = "採購比價";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <!--標單項目搜尋區條件區域-->
@@ -38,8 +38,7 @@
                     <img src="~/Content/ajax-loader.gif">
                 </div>
                 <input id="btnQuery" class="btn btn-info" type="button" onclick="getComparisonData()" value="查詢" />
-                <input type="button" class="btn btn-warning" onclick="javascript:window.location='@Url.Action("PurchaseMain/" + @ViewBag.id, "PurchaseForm")'" value="回採購首頁">
-                <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+                <input type="button" class="btn btn-success" onclick="closewin();" value="關閉">
             </div>
         </div>
     </form>
@@ -84,6 +83,20 @@
             }
         });
     }
+
+    function removeSupplier(formid) {
+        jQuery.ajax({
+            url: "/PurchaseForm/RemoveSupplierForm",
+            async: true,
+            data: { "formid": formid },
+            type: "POST",
+            dataType: 'text',
+            success: function (result) {
+                alert(result);
+                getComparisonData();
+            },
+        });
+    }
     //更新合約單價以利成本分析
     function clickPrice(itemid, price) {
         var itemLoc = "cost_" + itemid;
@@ -120,25 +133,12 @@
         });
     }
 
-    function removeSupplier(formid) {
-        jQuery.ajax({
-            url: "/PurchaseForm/RemoveSupplierForm",
-            async: true,
-            data: { "formid": formid},
-            type: "POST",
-            dataType: 'text',
-            success: function (result) {
-                alert(result);
-                getComparisonData();
-            },
-        });
-    }
-
     function updateProgress(percentage) {
         if (percentage > 100) percentage = 100;
         $('#progressBar').css('width', percentage + '%');
         $('#progressBar').html(percentage + '%');
     }
+
     //$.ajax({
     //    type: 'GET',
     //    url: 'js/scanhelper.php',
@@ -155,4 +155,11 @@
     //});
     //http://stackoverflow.com/questions/13973781/asynchronously-updating-a-bootstrap-progress-bar-with-jquerys-ajax
 </script>
+<script type="text/javascript">
+function closewin()
+{
+window.open('', '_self', ''); window.close();
+}
+</script>
+
 

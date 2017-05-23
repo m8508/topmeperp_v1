@@ -95,6 +95,10 @@ namespace topmeperp.Models
         public Nullable<decimal> MAN_DAY_INMAP { get; set; }
         public Nullable<int> ITEM_COUNT { get; set; }
         public Nullable<decimal> BUDGET { get; set; }
+        public Nullable<decimal> TOTAL_COST { get; set; }
+        public Nullable<decimal> TOTAL_BUDGET { get; set; }
+        public Nullable<decimal> ITEM_COST { get; set; }
+        public Nullable<decimal> ITEM_BUDGET { get; set; }
     }
     public class SystemCost
     {
@@ -137,10 +141,6 @@ namespace topmeperp.Models
         /// 採購供應商報價單
         /// </summary>
         public IEnumerable<PLAN_SUP_INQUIRY> planFormFromSupplier { get; set; }
-        /// <summary>
-        /// 採購供應商議價報價單
-        /// </summary>
-        public IEnumerable<PLAN_SUP_INQUIRY> planForm4CounterOffer { get; set; }
     }
     public class PlanSupplierFormFunction : PLAN_SUP_INQUIRY
     {
@@ -160,9 +160,9 @@ namespace topmeperp.Models
         //供應商名稱
         public string SUPPLIER_NAME { get; set; }
         public Nullable<decimal> TAmount { get; set; }
-        //採購詢價單議價總價
-        public Nullable<decimal> OAmount { get; set; }
+        public string STATUS { get; set; }
         public string FORM_NAME { get; set; }
+        //預算金額
         public Nullable<decimal> BAmount { get; set; }
     }
     public class budgetsummary
@@ -182,12 +182,12 @@ namespace topmeperp.Models
     }
     public class purchasesummary
     {
-        public DateTime CREATE_DATE { get; set; }
         public string FORM_NAME { get; set; }
         public string INQUIRY_FORM_ID { get; set; }
         public string SUPPLIER_ID { get; set; }
         public Nullable<int> TOTALROWS { get; set; }
-        public Nullable<int> PRICEROWS { get; set; }
+        public Nullable<decimal> TAmount { get; set; }
+        public string STATUS { get; set; }
     }
     public class plansummary
     {
@@ -207,7 +207,7 @@ namespace topmeperp.Models
     {
         public Int64 NO { get; set; }
         public string FORM_NAME { get; set; }
-        public Nullable<Int64> COST { get; set; }
+        public Nullable<decimal> COST { get; set; }
         public Nullable<decimal> BUDGET { get; set; }
     }
 }

@@ -13,12 +13,19 @@
                     <input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control" />
                 </div>
                 <label for="name" class="col-md-2" style="text-align:right">專案名稱 :</label>
-                <div id="name" class="col-md-4 text-left">
+                <div id="name" class="col-md-2 text-left">
                     <input id="name" name="name" type="text" value="@ViewBag.projectName" class="form-control" readonly="readonly" />
                 </div>
-                <input id="Submit1" class="btn btn-info" type="submit" value="確認選商" />
+                <label for="status" class="col-md-1" style="text-align:right">狀態 :</label>
+                <div id="status" class="col-md-2 text-left">
+                    <select id="status" name="status">
+                        <option value="有效">有效</option>
+                        <option value="註銷">註銷</option>
+                    </select>
+                </div>
+                <input id="Submit1" class="btn btn-info" type="submit" value="查詢" />
                 <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
-                <div id="divProcessing" class="col-md-2">
+                <div id="divProcessing" class="col-md-1">
                     <img src="~/Content/ajax-loader.gif">
                 </div>
             </form>
@@ -30,7 +37,6 @@
     <ul class="nav nav-tabs">
         <li class="active"><a data-toggle="tab" href="#inquiryTemplate">空白詢價單</a></li>
         <li><a data-toggle="tab" href="#inquiry">廠商報價單</a></li>
-        <li><a data-toggle="tab" href="#counteroffer">廠商議價報價單</a></li>
     </ul>
 
     <div class="tab-content">
@@ -42,11 +48,6 @@
         <div id="inquiry" class="tab-pane fade">
             @{
                 Html.RenderPartial("_PurchaseSupplierPage");
-            }
-        </div>
-        <div id="counteroffer" class="tab-pane fade">
-            @{
-                Html.RenderPartial("_CounterOfferFormPage");
             }
         </div>
     </div>

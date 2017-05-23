@@ -1,4 +1,4 @@
-﻿@model IEnumerable<topmeperp.Models.CostForBudget>
+﻿@model IEnumerable<topmeperp.Models.DirectCost>
 @{
     ViewBag.Title = "執行預算作業";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
@@ -16,41 +16,82 @@
             <div id="name" class="col-md-4 text-left">
                 <input id="name" name="name" type="text" value="@ViewBag.projectName" class="form-control" readonly="readonly" />
             </div>
-            <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
-
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("BudgetForForm","Plan", new { id = @ViewBag.projectid })'; ">詢價單預算</button>
+            <div class="col-md-2 pull-right" style="padding-top:15px"><input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁"></div>
             <div style="padding-top:30px"></div>
+           
             <h5>@ViewBag.Result</h5>
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>NO.</th>
-                        <th>採購項目名稱</th>
-                        <th>成本</th>
-                        <th>預算金額</th>
+                        <th>材料成本總計</th>
+                        <th>預算金額總計</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <span style="color: red; font-size: 20px;">
+                                @String.Format("{0:N0}", ViewBag.cost)
+                            </span>
+                        </td>
+                        <td>
+                            <span style="color: red; font-size: 20px;">
+                                @String.Format("{0:N0}", ViewBag.budget)
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>九宮格</th>
+                        <th>次九宮格</th>
+                        <th>名稱</th>
+                        <th>材料成本</th>
+                        <th>預算佔成本比例 %</th>
 
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
-
+                        if (item.MAINCODE != null && item.SUB_CODE != "0")
+                        {
                             <tr>
-                                <td>@item.NO</td>
+                                <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
+                                <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
                                 <td>
-                                    @Html.TextBox("formname", @item.FORM_NAME, new { style = "width:200px", @readonly = "readonly" })
+                                    @item.MAINCODE_DESC _ @item.SUB_DESC
                                 </td>
-                                <td>@item.COST</td>
-                                <td><input type="text" class="form-control" name="inputbudget" id="inputbudget" value="@item.BUDGET"></td>
+                                <td>
+                                    @String.Format("{0:N0}", item.MATERIAL_COST)
+                                </td>
+                                <td><input type="text" class="form-control" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}",item.BUDGET)"></td>
                             </tr>
                         }
+                        else if (item.SUB_CODE == "0")
+                        {
+                            <tr>
+                                <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
+                                <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
+                                <td>
+                                    @item.MAINCODE_DESC
+                                </td>
+                                <td>@String.Format("{0:N0}", item.MATERIAL_COST)</td>
+                                <td><input type="text" class="form-control" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}",item.BUDGET)"></td>
+                            </tr>
+                        }
+                    }
                 </tbody>
             </table>
         </form>
     </div>
 </div>
+
 <div class="row">
     <div class="col-md-12">
-
             @if (ViewBag.budgetdata != null)
             {
                 <input type="button" value="儲存" class="btn btn-default" id="saveForm" />
@@ -59,9 +100,8 @@
             {
                 <input type="button" value="儲存" class="btn btn-default" id="updateForm" />
             }
-        
+        </div>
     </div>
-</div>
 <script type="text/javascript">
     $("#updateForm").click(function () {
         $.ajax({
@@ -71,6 +111,7 @@
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
+                window.location.reload()  
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);
@@ -87,6 +128,7 @@
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
+                window.location.reload()
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);
@@ -94,5 +136,4 @@
         });
     });
 </script>
-
 

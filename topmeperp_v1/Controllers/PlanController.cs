@@ -175,7 +175,6 @@ namespace topmeperp.Controllers
             logger.Info("plan item  info=" + itemJson);
             return itemJson;
         }
-
         public ActionResult Budget(string id)
         {
             logger.Info("budget info for projectid=" + id);
@@ -190,14 +189,17 @@ namespace topmeperp.Controllers
             if (null == priId)
             //取得九宮格組合之直接成本資料
             {
-                BudgetDataService s = new BudgetDataService();
-                List<CostForBudget> budget1 = s.getCostForBudget(id);
-                ViewBag.result = "共有" + budget1.Count + "筆資料";
+                CostAnalysisDataService s = new CostAnalysisDataService();
+                List<DirectCost> budget1 = s.getDirectCost(id);
+                ViewBag.result = "共有" + (budget1.Count - 1) + "筆資料";
                 return View(budget1);
             }
             //取得已寫入之九宮格組合預算資料
             BudgetDataService bs = new BudgetDataService();
-            List<CostForBudget> budget2 = bs.getBudget(id);
+            List<DirectCost> budget2 = bs.getBudget(id);
+            DirectCost totalinfo = bs.getTotalCost(id);
+            ViewBag.budget = totalinfo.TOTAL_BUDGET;
+            ViewBag.cost = totalinfo.TOTAL_COST;
             ViewBag.result = "共有" + budget2.Count + "筆資料";
             return View(budget2);
         }
@@ -207,7 +209,8 @@ namespace topmeperp.Controllers
             logger.Info("form:" + form.Count);
             SYS_USER u = (SYS_USER)Session["user"];
             string msg = "";
-            string[] lstformname = form.Get("formname").Split(',');
+            string[] lsttypecode = form.Get("code1").Split(',');
+            string[] lsttypesub = form.Get("code2").Split(',');
             string[] lstPrice = form.Get("inputbudget").Split(',');
             List<PLAN_BUDGET> lstItem = new List<PLAN_BUDGET>();
             for (int j = 0; j < lstPrice.Count(); j++)
@@ -216,18 +219,22 @@ namespace topmeperp.Controllers
                 item.PROJECT_ID = form["id"];
                 if (lstPrice[j].ToString() == "")
                 {
-                    item.BUDGET_AMOUNT = null;
+                    item.BUDGET_RATIO = null;
                 }
                 else
                 {
-                    item.BUDGET_AMOUNT = decimal.Parse(lstPrice[j]);
+                    item.BUDGET_RATIO = decimal.Parse(lstPrice[j]);
                 }
-                item.FORM_NAME = lstformname[j];
+                logger.Info("Budget ratio =" + item.BUDGET_RATIO);
+                item.TYPE_CODE_1 = lsttypecode[j];
+                item.TYPE_CODE_2 = lsttypesub[j];
                 item.CREATE_ID = u.USER_ID;
-                logger.Debug("Item Project id =" + item.PROJECT_ID + "且採購項目名稱為" + item.FORM_NAME);
+                logger.Debug("Item Project id =" + item.PROJECT_ID + "且九宮格組合為" + item.TYPE_CODE_1 + item.TYPE_CODE_2);
                 lstItem.Add(item);
             }
             int i = service.addBudget(lstItem);
+            // 將預算寫入得標標單
+            int k = service.updateBudgetToPlanItem(form["id"]);
             if (i == 0)
             {
                 msg = service.message;
@@ -247,7 +254,8 @@ namespace topmeperp.Controllers
             id = Request["id"];
             SYS_USER u = (SYS_USER)Session["user"];
             string msg = "";
-            string[] lstformname = form.Get("formname").Split(',');
+            string[] lsttypecode = form.Get("code1").Split(',');
+            string[] lsttypesub = form.Get("code2").Split(',');
             string[] lstPrice = form.Get("inputbudget").Split(',');
             List<PLAN_BUDGET> lstItem = new List<PLAN_BUDGET>();
             for (int j = 0; j < lstPrice.Count(); j++)
@@ -256,18 +264,21 @@ namespace topmeperp.Controllers
                 item.PROJECT_ID = form["id"];
                 if (lstPrice[j].ToString() == "")
                 {
-                    item.BUDGET_AMOUNT = null;
+                    item.BUDGET_RATIO = null;
                 }
                 else
                 {
-                    item.BUDGET_AMOUNT = decimal.Parse(lstPrice[j]);
+                    item.BUDGET_RATIO = decimal.Parse(lstPrice[j]);
                 }
-                item.FORM_NAME = lstformname[j];
+                logger.Info("Budget ratio =" + item.BUDGET_RATIO);
+                item.TYPE_CODE_1 = lsttypecode[j];
+                item.TYPE_CODE_2 = lsttypesub[j];
                 item.MODIFY_ID = u.USER_ID;
-                logger.Debug("Item Project id =" + item.PROJECT_ID + "且採購項目名稱為" + item.FORM_NAME);
+                logger.Debug("Item Project id =" + item.PROJECT_ID + "且九宮格組合為" + item.TYPE_CODE_1 + item.TYPE_CODE_2);
                 lstItem.Add(item);
             }
             int i = service.updateBudget(id, lstItem);
+            int k = service.updateBudgetToPlanItem(form["id"]);
             if (i == 0)
             {
                 msg = service.message;
@@ -278,6 +289,76 @@ namespace topmeperp.Controllers
             }
 
             logger.Info("Request:PROJECT_ID =" + form["id"]);
+            return msg;
+        }
+        //複合詢價單預算
+        public ActionResult BudgetForForm(string id)
+        {
+            logger.Info("budget for form : projectid=" + id);
+            ViewBag.projectId = id;
+            return View();
+        }
+        [HttpPost]
+        public ActionResult BudgetForForm(FormCollection f)
+        {
+
+            logger.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"]);
+            PurchaseFormService service = new PurchaseFormService();
+            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"]);
+            ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
+            ViewBag.projectId = Request["projectid"];
+            ViewBag.textCode1 = Request["textCode1"];
+            ViewBag.textCode2 = Request["textCode2"];
+            ViewBag.textSystemMain = Request["textSystemMain"];
+            ViewBag.textSystemSub = Request["textSystemSub"];
+            BudgetDataService bs = new BudgetDataService();
+            DirectCost totalinfo = bs.getTotalCost(Request["projectid"]);
+            DirectCost iteminfo = bs.getItemBudget(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"]);
+            ViewBag.budget = totalinfo.TOTAL_BUDGET;
+            ViewBag.cost = totalinfo.TOTAL_COST;
+            ViewBag.itembudget = iteminfo.ITEM_BUDGET;
+            ViewBag.itemcost = iteminfo.ITEM_COST;
+            return View("BudgetForForm", lstProject);
+        }
+        //修改Plan_Item 個別預算
+        public String UpdatePlanBudget(string id, FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            id = Request["projectId"];
+            SYS_USER u = (SYS_USER)Session["user"];
+            string msg = "";
+            string[] lstplanitemid = form.Get("planitemid").Split(',');
+            string[] lstBudget = form.Get("budgetratio").Split(','); 
+            List<PLAN_ITEM> lstItem = new List<PLAN_ITEM>();
+            for (int j = 0; j < lstBudget.Count(); j++)
+            {
+                PLAN_ITEM item = new PLAN_ITEM();
+                item.PROJECT_ID = form["id"];
+                if (lstBudget[j].ToString() == "")
+                {
+                    item.BUDGET_RATIO = null;
+                }
+                else
+                {
+                    item.BUDGET_RATIO = decimal.Parse(lstBudget[j]);
+                }
+                logger.Info("Budget ratio =" + item.BUDGET_RATIO);
+                item.PLAN_ITEM_ID = lstplanitemid[j]; ;
+                item.MODIFY_USER_ID = u.USER_ID;
+                logger.Debug("Item Project id =" + item.PROJECT_ID + "且plan item id 為" + item.PLAN_ITEM_ID + "其項目預算為" + item.BUDGET_RATIO);
+                lstItem.Add(item);
+            }
+            int i = service.updateItemBudget(id, lstItem);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "更新預算資料成功，PROJECT_ID =" + Request["projectId"];
+            }
+
+            logger.Info("Request:PROJECT_ID =" + Request["projectId"]);
             return msg;
         }
     }

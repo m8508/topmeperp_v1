@@ -36,5 +36,8 @@ namespace topmeperp.Models
         public string FORM_NAME { get; set; }
         public string SUPPLIER_ID { get; set; }
         public string CONTRACT_ID { get; set; }
+        public Nullable<decimal> BUDGET_RATIO { get; set; }
+        public Nullable<decimal> ITEM_FORM_QUANTITY { get; set; }
+        public Nullable<decimal> ITEM_UNIT_COST { get; set; }
     }
 }

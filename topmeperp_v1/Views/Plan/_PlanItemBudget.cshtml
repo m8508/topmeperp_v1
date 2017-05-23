@@ -1,11 +1,48 @@
 ﻿@model IEnumerable<topmeperp.Models.PLAN_ITEM>
-@using (Html.BeginForm("Create", "PurchaseForm", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
-{
+
+<form id="formBudget" name="formBudget" action="" method="post">
     <!--不好的方式但檔著先屆時設為Hidden-->
-    <input type="hidden" id="prjId" name="prjId" value="@ViewBag.projectid" />
+    <input type="hidden" id="projectId" name="projectId" value="@ViewBag.projectid" />
+    <input type="hidden" id="textCode1" name="textCode1" value="@ViewBag.textCode1" />
+    <input type="hidden" id="textCode2" name="textCode2" value="@ViewBag.textCode2" />
+    <input type="hidden" id="textSystemMain" name="textSystemMain" value="@ViewBag.textSystemMain" />
+    <input type="hidden" id="textSystemSub" name="textSystemSub" value="@ViewBag.textSystemSub" />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>材料成本總計</th>
+                <th>預算金額總計</th>
+                <th>選定項目成本</th>
+                <th>選定項目預算</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <span style="color: red; font-size: 20px;">
+                        @String.Format("{0:N0}", ViewBag.cost)
+                    </span>
+                </td>
+                <td>
+                    <span style="color: red; font-size: 20px;">
+                        @String.Format("{0:N0}", ViewBag.budget)
+                    </span>
+                </td>
+                <td>
+                    <span style="color: red; font-size: 20px;">
+                        @String.Format("{0:N0}", ViewBag.itemcost)
+                    </span>
+                </td>
+                <td>
+                    <span style="color: red; font-size: 20px;">
+                        @String.Format("{0:N0}", ViewBag.itembudget)
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
     <table class="table">
         <tr>
-            <th><input type="checkbox" name="CheckAll" id="CheckAll">全選</th>
             <th>
                 No.
             </th>
@@ -25,7 +62,7 @@
                 單價
             </th>
             <th>
-                複價
+                預算比 %
             </th>
             <th>
                 備註
@@ -48,10 +85,7 @@
         {
             <tr>
                 <td>
-                    <input type="checkbox" id="chkItem" name="chkItem" value="@item.PLAN_ITEM_ID" />
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PLAN_ITEM_ID)
+                    @Html.TextBox("planitemid", @String.Format("{0:N0}", item.PLAN_ITEM_ID), new { style = "width:50px" })
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.ITEM_ID)
@@ -69,7 +103,7 @@
                     @Html.DisplayFor(modelItem => item.ITEM_UNIT_PRICE)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.MAN_PRICE)
+                    @Html.TextBox("budgetratio", @String.Format("{0:N0}", item.BUDGET_RATIO), new { style = "width:70px" })
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.ITEM_REMARK)
@@ -88,29 +122,11 @@
                 </td>
             </tr>
         }
-    </table><br />
+    </table>
 
-    <input id="Submit1" type="submit" value="新增詢價單樣本" />
-}
+    <br />
 
+    <input id="Submit2" type="submit" value="儲存" />
+</form>
 
-<script language="javascript" type="text/javascript">
-    $(document).ready (function () {
-        $("#CheckAll").click(function () {
-            if ($("#CheckAll").prop("checked")) {
-                $("input[name='chkItem']").prop("checked", true);
-            } else
-                $("input[name='chkItem']").prop("checked", false);
-        });
-    });
-</script>
-<script language="javascript" type="text/javascript">
-    function GetCheckedValue(checkBoxName) {
-        return $('input:checkbox[name=' + checkBoxName + '][checked=true]').map(function () {
-            return $(this).val();
-        })
-          .get().join(',');
-    }
-</script>
-
-
+   

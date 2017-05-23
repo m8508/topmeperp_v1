@@ -19,6 +19,7 @@
                         <th>詢價單名稱</th>
                         <th>供應商名稱</th>
                         <th>總價</th>
+                        <th>狀態</th>
                         <th>選項連結</th>
                     </tr>
                 </thead>
@@ -43,6 +44,24 @@
                                     <span style="font-weight:bold;color:dodgerblue">
                                         @item.TOTAL_PRICE.ToString("N0")
                                     </span>
+                                }
+                            </td>
+                            <td>
+                                
+                                @if (item.STATUS == ViewBag.Status.ToString())
+                                {
+                                    <label>
+                                        <input type="radio" id="@item.INQUIRY_FORM_ID" name="@item.INQUIRY_FORM_ID" value="有效" checked />@item.STATUS
+                                        <input type="radio" id="@item.INQUIRY_FORM_ID" name="@item.INQUIRY_FORM_ID" value="註銷" />註銷
+                                    </label>
+                                }
+                                else
+                                {
+                                    <label>
+                                        <input type="radio" id="@item.INQUIRY_FORM_ID" name="@item.INQUIRY_FORM_ID" value="註銷" checked />@item.STATUS
+
+                                        <input type="radio" id="@item.INQUIRY_FORM_ID" name="@item.INQUIRY_FORM_ID" value="有效" />有效
+                                    </label>
                                 }
                             </td>
                             <td><a href='@("../../UploadFile/" + ViewBag.projectid + "/Quotes/" + item.INQUIRY_FORM_ID + ".xlsx")'>下載</a></td>
@@ -74,6 +93,26 @@
                 $('#UploadForm').resetForm();
                 alert('檔案上傳錯誤.');
             }
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#btn-gn").click(function () {
+            var status = $("input[name]:checked").val()
+            $.ajax({
+                url: '@Url.Action("GiveReview", "ProvideReview")',
+                type: 'GET',
+                data: {"RatingStar": RatingStar },
+                success: function (result) {
+                    //alert("success");
+                    console.log("click");
+                },
+                error: function (result) {
+                    alert("error!");
+                }
+            });   //end ajax
         });
     });
 </script>

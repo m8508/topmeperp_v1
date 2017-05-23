@@ -2,13 +2,10 @@
 <table class="table">
     <tr>
         <th>
-            建立日期
-        </th>
-        <th>
             採購項目
         </th>
         <th>
-           詢價單編號
+            詢價單編號
         </th>
         <th>
             廠商名稱
@@ -17,23 +14,14 @@
             採購項目個數
         </th>
         <th>
-            議價報價回覆個數
+            採購金額總計
         </th>
-        <th>
-            功能區
-        </th>
-
 
     </tr>
 
     @foreach (var item in Model)
     {
-        if (item.PRICEROWS != null && item.PRICEROWS != 0)
-        {
         <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.CREATE_DATE, "LongDateTime")
-            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.FORM_NAME)
             </td>
@@ -47,40 +35,47 @@
                 @Html.DisplayFor(modelItem => item.TOTALROWS)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.PRICEROWS)
-            </td>
-            <td>
-                <span style="color: crimson" >有議價比價資料</span>
+                <span style="color: red; font-size: 15px;">
+                    @String.Format("{0:C0}", item.TAmount)
+                </span>
             </td>
         </tr>
-        }
-        else
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CREATE_DATE, "LongDateTime")
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FORM_NAME)
-                </td>
-                <td>
-                    <a href="/PurchaseForm/SinglePrjForm/@item.INQUIRY_FORM_ID" target="_blank">@item.INQUIRY_FORM_ID</a>
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.SUPPLIER_ID)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TOTALROWS)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PRICEROWS)
-                </td>
-                <td>
-                    無議價比價資料
-                </td>
-            </tr>
-        }
     }
 </table>
+
+    <div id="JustPrint" style="padding-top:100px">
+        <h4 style="color:blue">主管簽核 :</h4>
+        <table class="table">
+            <tr>
+                <th>
+                    總經理 :
+                </th>
+                <th>
+                    協理 :
+                </th>
+                <th>
+                    業務部主管 :
+                </th>
+                <th>
+                    承辦人 :
+                </th>
+            </tr>
+            <tr>
+                <td>
+                    <textarea class="form-control" rows="10">意見</textarea>
+                </td>
+                <td>
+                    <textarea class="form-control" rows="10">意見</textarea>
+                </td>
+                <td>
+                    <textarea class="form-control" rows="10">意見</textarea>
+                </td>
+                <td>
+                    <textarea class="form-control" rows="10">意見</textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+    
 
 

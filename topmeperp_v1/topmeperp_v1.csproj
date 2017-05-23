@@ -621,15 +621,10 @@
     <Content Include="Views\PurchaseForm\SinglePrjForm.cshtml" />
     <Content Include="Views\PurchaseForm\ComparisonData.cshtml" />
     <Content Include="Views\PurchaseForm\PurchaseMain.cshtml" />
-    <Content Include="Views\PurchaseForm\_CounterOfferFormPage.cshtml" />
-    <Content Include="Views\PurchaseForm\FirstComparison.cshtml" />
+    <Content Include="Views\PurchaseForm\Comparison.cshtml" />
     <Content Include="Views\PurchaseForm\FormListForOffer.cshtml" />
-    <Content Include="Views\PurchaseForm\ComparisonForCounterOffer.cshtml" />
-    <Content Include="Views\PurchaseForm\FirstComparisonData.cshtml" />
     <Content Include="Views\PurchaseForm\PurchasingContract.cshtml" />
     <Content Include="Views\PurchaseForm\ContractItems.cshtml" />
-    <Content Include="Views\PurchaseForm\ComparisonForMultiple.cshtml" />
-    <Content Include="Views\PurchaseForm\ComparisonDataForMultiple.cshtml" />
     <Content Include="Views\Tender\ManageProjectItem.cshtml" />
     <Content Include="Views\Tender\ShowProejctItems.cshtml" />
     <Content Include="Views\PurchaseForm\PendingItems.cshtml" />
@@ -638,10 +633,11 @@
     <Content Include="Views\Plan\_PlanItem.cshtml" />
     <Content Include="Views\ProjectCompare\Index.cshtml" />
     <Content Include="Views\ProjectCompare\_CompareData.cshtml" />
+    <Content Include="Views\Plan\BudgetForForm.cshtml" />
+    <Content Include="Views\Plan\_PlanItemBudget.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\SupplierInquiryForm\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

@@ -129,7 +129,7 @@
                 <input type="hidden" name="projectid" id="projectid" value="@Model.planForm.PROJECT_ID" />
                 <input type="hidden" name="createid" id="createid" value="@Model.planForm.CREATE_ID" />
                 <input type="hidden" name="createdate" id="createdate" value="@Model.planForm.CREATE_DATE" />
-                <input type="hidden" name="counteroffer" id="counteroffer" value="@Model.planForm.COUNTER_OFFER" />
+                <input type="hidden" name="status" id="status" value="@Model.planForm.STATUS" />
             </div>
         </div>
         <br /><br />
@@ -157,18 +157,6 @@
                     <th>
                         複價
                     </th>
-                    @if (Model.planForm.COUNTER_OFFER == ViewBag.CounterOffer.ToString())
-                    {
-                    <th>
-                        議價單價
-                    </th>
-                    }
-                    else
-                    {
-                    <th>
-                       
-                    </th>
-                    }
                     <th>
                         備註
                     </th>
@@ -203,18 +191,6 @@
                             }
                         </td>
                         <td></td>
-                        <td>
-                            @if (@item.ITEM_COUNTER_OFFER != null)
-                            {
-                                <input type="text" class="form-control" name="formunitcounteroffer" id="formunitcounteroffer" value="@item.ITEM_COUNTER_OFFER" style="width:180px">
-                            }
-                            else if (Model.planForm.COUNTER_OFFER == ViewBag.CounterOffer.ToString())
-                            {
-                                <input type="text" class="form-control" name="formunitcounteroffer" id="formunitcounteroffer" value="" style="width:180px">
-                            }
-                            else
-                            { }
-                        </td>
                         <td>@item.ITEM_REMARK</td>
                     </tr>
                 }
