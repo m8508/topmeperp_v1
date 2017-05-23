@@ -198,7 +198,6 @@ namespace topmeperp.Controllers
             fm.OWNER_FAX = form.Get("inputownerfax").Trim();
             fm.OWNER_EMAIL = form.Get("inputowneremail").Trim();
             fm.FORM_NAME = form.Get("formname").Trim();
-            fm.STATUS = form.Get("counteroffer").Trim();
             fm.CREATE_ID = loginUser.USER_ID;
             fm.CREATE_DATE = DateTime.Now;
             TND_SUPPLIER s = service.getSupplierInfo(form.Get("Supplier").Substring(0, 7).Trim());
@@ -248,7 +247,14 @@ namespace topmeperp.Controllers
             fm.CONTACT_EMAIL = form.Get("inputemail").Trim();
             fm.INQUIRY_FORM_ID = form.Get("inputformnumber").Trim();
             fm.FORM_NAME = form.Get("formname").Trim();
-            fm.STATUS = form.Get("counteroffer").Trim();
+            if (form.Get("status").Trim() == "")
+            {
+                fm.STATUS = null;
+            }
+            else
+            {
+                fm.STATUS = form.Get("status").Trim();
+            }
             fm.CREATE_ID = form.Get("createid").Trim();
             fm.CREATE_DATE = Convert.ToDateTime(form.Get("createdate"));
             fm.MODIFY_ID = loginUser.USER_ID;
@@ -257,7 +263,6 @@ namespace topmeperp.Controllers
 
             string[] lstItemId = form.Get("formitemid").Split(',');
             string[] lstPrice = form.Get("formunitprice").Split(',');
-            string[] lstCounterOffer = form.Get("formunitcounteroffer").Split(',');
             List<PLAN_SUP_INQUIRY_ITEM> lstItem = new List<PLAN_SUP_INQUIRY_ITEM>();
             for (int j = 0; j < lstItemId.Count(); j++)
             {
@@ -271,15 +276,7 @@ namespace topmeperp.Controllers
                 {
                     item.ITEM_UNIT_PRICE = decimal.Parse(lstPrice[j]);
                 }
-                if (lstCounterOffer[j].ToString() == "")
-                {
-                    item.ITEM_COUNTER_OFFER = null;
-                }
-                else
-                {
-                    item.ITEM_COUNTER_OFFER = decimal.Parse(lstCounterOffer[j]);
-                }
-                log.Debug("Item No=" + item.INQUIRY_ITEM_ID + ", Price =" + item.ITEM_UNIT_PRICE + " , Counter Offer =" + item.ITEM_COUNTER_OFFER);
+                log.Debug("Item No=" + item.INQUIRY_ITEM_ID + ", Price =" + item.ITEM_UNIT_PRICE );
                 lstItem.Add(item);
             }
             int i = service.refreshPlanSupplierForm(formid, fm, lstItem);
