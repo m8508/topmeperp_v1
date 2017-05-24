@@ -1,0 +1,44 @@
+﻿@{
+    ViewBag.Title = "專案任務管理";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+<!--標單項目搜尋區條件區域-->
+<div class="page-header">
+    <form name="FormCompareProject" id="FormCompareProject" action="" method="Post">
+
+    </form>
+</div>
+
+<div class="container">
+    <div class="row" id="comparisonData"></div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Hide the "busy" Gif at load:
+        $("#divProcessing").hide();
+        // Attach click handler to the submit button:
+        $('#btnQuery').click(function () {
+            $("#divProcessing").show();
+        });
+    });
+    function getComparisonData() {
+        //Ajax 功能範例:置換部分網頁內容
+        var URLs = "/ProjectCompare/getCompareData";
+        $("#divProcessing").show();
+        $.ajax({
+            url: URLs,
+            data: $('#FormCompareProject').serialize(),
+            type: "POST",
+            dataType: 'html',
+            success: function (result) {
+                $("#comparisonData").html(result);
+                $("#divProcessing").hide();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+                $("#divProcessing").hide();
+            }
+        });
+    }
+</script>
