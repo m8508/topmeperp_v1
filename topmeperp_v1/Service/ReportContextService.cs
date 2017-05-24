@@ -14,6 +14,7 @@ using topmeperp.Models;
 
 namespace topmeperp.Service
 {
+    #region 比價資料處理
     public class RptCompareProjectPrice : ContextService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -103,4 +104,27 @@ namespace topmeperp.Service
             return i;
         }
     }
+    #endregion
+    #region 專案進度管理
+    public class ProjectPlanService : ContextService
+    {
+        public DataTable getProjectTask(string projectid)
+        {
+            string sql = "WITH PrjTree(TASK_NAME, PRJ_UID, LV_NO) AS "
+                + " (SELECT TASK_NAME, PRJ_UID, 0 LV_NO "
+                + " FROM PLAN_TASK  WHERE PARENT_UID IS  NULL  AND PROJECT_ID = @projectid AND PRJ_UID = 0 "
+                + " UNION ALL "
+                + " SELECT P.TASK_NAME, P.PRJ_UID, B.LV_NO + 1 "
+                + " FROM PLAN_TASK P, PrjTree B "
+                + " WHERE P.PARENT_UID = B.PRJ_UID and P.TASK_NAME is not null )"
+                + " SELECT(REPLICATE('-', LV_NO) + TASK_NAME) as 'TASK_NAME', PRJ_UID "
+                + " FROM PrjTree ORDER BY LV_NO";
+            var parameters = new Dictionary<string, Object>();
+            //設定專案名編號資料
+            parameters.Add("projectid", projectid);
+            DataSet ds = ExecuteStoreQuery(sql, CommandType.Text, parameters);
+            return ds.Tables[0];
+        }
+    }
+    #endregion
 }
