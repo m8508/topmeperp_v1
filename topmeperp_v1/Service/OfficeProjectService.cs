@@ -17,7 +17,6 @@ namespace topmeperp.Service
             net.sf.mpxj.mpp.MPPReader reader = new net.sf.mpxj.mpp.MPPReader();
             ProjectFile projectObj = reader.read(prjfile);
 
-
             int i = 1;
             foreach (net.sf.mpxj.Task task in ToEnumerable(projectObj.AllTasks))
             {
@@ -30,7 +29,6 @@ namespace topmeperp.Service
                     logger.Debug("start date Year =" + (task.Start.getYear() + 1900) + ",Month=" + (task.Start.getMonth() + 1) + ",Date=" + task.Start.getDate());
                     dtFinish = new DateTime((task.Finish.getYear() + 1900), task.Finish.getMonth() + 1, task.Finish.getDate());
                     logger.Debug("start date Year =" + (task.Finish.getYear() + 1900) + ",Month=" + (task.Finish.getMonth() + 1) + ",Date=" + task.Finish.getDate());
-
                 }
                 logger.Debug("DURATION=" + task.Duration + ",Task: " + i + "=" + task.Name + ",StartDate=" + dtStart.ToString("yyyy/MM/dd") + ",EndDate=" + dtFinish.ToString("yyyy/MM/dd") + " ID=" + task.ID + " Unique ID=" + task.UniqueID);
 

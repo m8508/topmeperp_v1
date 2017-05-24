@@ -1700,8 +1700,10 @@ namespace topmeperp.Service
             InitializeWorkbook(templateFile);
             sheet = (XSSFSheet)hssfworkbook.GetSheet("詢價單");
             //2.填入表頭資料
+            Service.TnderProject ts = new TnderProject();
+            TND_PROJECT p=  ts.getProjectById(form.PROJECT_ID);
             logger.Debug("Template Head_1=" + sheet.GetRow(2).Cells[0].ToString());
-            sheet.GetRow(2).Cells[1].SetCellValue(form.PROJECT_ID);//專案名稱
+            sheet.GetRow(2).Cells[1].SetCellValue(p.PROJECT_NAME);//專案名稱
             logger.Debug("Template Head_2=" + sheet.GetRow(3).Cells[0].ToString());
             sheet.GetRow(3).Cells[1].SetCellValue(form.FORM_NAME);//採購項目:
             logger.Debug("Template Head_3=" + sheet.GetRow(4).Cells[0].ToString());

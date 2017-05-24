@@ -418,7 +418,9 @@
     <Compile Include="Models\PLAN_SUP_INQUIRY_ITEM.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\PLAN_TASK.cs" />
+    <Compile Include="Models\PLAN_TASK.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\REF_TYPE_MAIN.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
@@ -781,6 +783,7 @@
     <Content Include="Views\ProjectPaln\Index.cshtml" />
     <Content Include="Views\ProjectPaln\_CompareData.cshtml" />
     <Content Include="Views\Plan\ShowPlanItems.cshtml" />
+    <Content Include="Views\Tender\_ProjectItem.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
