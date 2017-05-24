@@ -906,7 +906,6 @@ namespace topmeperp.Service
                 " on pitem.PLAN_ITEM_ID = fitem.PLAN_ITEM_ID " +
                 "where pitem.PROJECT_ID = @projectid ";
 
-            int i = 0;
             var parameters = new Dictionary<string, Object>();
             //設定專案名編號資料
             parameters.Add("projectid", projectid);
@@ -1094,7 +1093,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 // ITEM_UNIT IS NOT NULL(確認單位欄位是空值就是不需採購的欄位嗎) AND ITEM_UNIT_PRICE IS NULL
-                lst = context.Database.SqlQuery<PLAN_ITEM>("SELECT * FROM PLAN_ITEM WHERE PROJECT_ID =@projectid AND ITEM_UNIT IS NOT NULL AND ITEM_UNIT_PRICE = 0  ;"
+                lst = context.Database.SqlQuery<PLAN_ITEM>("SELECT * FROM PLAN_ITEM WHERE PROJECT_ID =@projectid AND ITEM_UNIT IS NOT NULL AND ITEM_UNIT_PRICE IS NULL  ;"
                     , new SqlParameter("projectid", projectid)).ToList();
             }
             logger.Info("get plan pending items count:" + lst.Count);
