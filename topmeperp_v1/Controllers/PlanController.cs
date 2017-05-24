@@ -98,7 +98,7 @@ namespace topmeperp.Controllers
                 service.refreshPlanItem(poiservice.lstPlanItem);
             }
             ViewBag.result = message;
-            return View();
+            return Redirect("ManagePlanItem?id=" + projectid);
         }
         /// <summary>
         /// 設定標單品項查詢條件

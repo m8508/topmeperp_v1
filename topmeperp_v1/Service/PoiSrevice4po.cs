@@ -93,7 +93,7 @@ namespace topmeperp.Service
                 row = (IRow)rows.Current;
                 logger.Debug("Cells Count=" + row.Cells.Count + ",Excel Value:" + row.Cells[0].ToString() + row.Cells[1]);
                 //將各Row 資料寫入物件內
-                //項次,名稱,單位,數量,單價,複價,備註,九宮格,次九宮格,主系統,次系統
+                //項次,名稱,單位,標單數量,單價,複價,備註,九宮格,次九宮格,主系統,次系統,採購數量
                 if (row.Cells[0].ToString().ToUpper() != "END")
                 {
                     lstPlanItem.Add(convertRow2PlanItem(itemId, row, iRowIndex));
@@ -163,7 +163,7 @@ namespace topmeperp.Service
             {
                 planItem.ITEM_REMARK = row.Cells[6].ToString();
             }
-            if (row.Cells.Count < 11)
+            if (row.Cells.Count < 12) //調整了標單的總欄位(原本為11)
             {
                 logErrorMessage("data format warring on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
                 logger.Error("data format warring on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
@@ -188,10 +188,25 @@ namespace topmeperp.Service
             {
                 planItem.SYSTEM_SUB = row.Cells[10].ToString();
             }
+            if (row.Cells[11].ToString().Trim() != "")//採購數量
+            {
+                try
+                {
+                    decimal dQty = decimal.Parse(row.Cells[11].ToString());
+                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[11].ToString());
+                    planItem.ITEM_FORM_QUANTITY = dQty;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.Cells[11].ToString());
+                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.Cells[11].ToString());
+                    logger.Error(e.Message);
+                }
+
+            }
             planItem.PLAN_ITEM_ID = projId + "-" + id;
             planItem.EXCEL_ROW_ID = excelrow;
             planItem.CREATE_DATE = System.DateTime.Now;
-
             logger.Info("PlanItem=" + planItem.ToString());
             return planItem;
         }
