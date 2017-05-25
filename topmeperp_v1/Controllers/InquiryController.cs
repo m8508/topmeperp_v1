@@ -68,7 +68,7 @@ namespace topmeperp.Controllers
             //產生詢價單實體檔案-old
             service.getInqueryForm(fid);
             InquiryFormToExcel poi = new InquiryFormToExcel();
-            poi.exportExcel(service.formInquiry, service.formInquiryItem,false);
+            poi.exportExcel(service.formInquiry, service.formInquiryItem, false);
             return Redirect("InquiryMainPage?id=" + qf.PROJECT_ID);
             //return RedirectToAction("InquiryMainPage","Inquiry", qf.PROJECT_ID);
         }
@@ -134,7 +134,7 @@ namespace topmeperp.Controllers
             //產生廠商詢價單實體檔案
             service.getInqueryForm(i);
             InquiryFormToExcel poi = new InquiryFormToExcel();
-            poi.exportExcel(service.formInquiry, service.formInquiryItem,false);
+            poi.exportExcel(service.formInquiry, service.formInquiryItem, false);
             if (i == "")
             {
                 msg = service.message;
@@ -334,7 +334,7 @@ namespace topmeperp.Controllers
                     htmlString = htmlString + "<th><table><tr><td>" + tmpString[0] +
                         "<br/><button type='button' class='btn-xs' onclick=\"clickSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>" +
                         "<button type='button' class='btn-xs'><a href='/Inquiry/SinglePrjForm/" + tmpString[1] + "'" + " target='_blank'><span class='glyphicon glyphicon-list-alt' aria-hidden='true'></span></a></button>" +
-                        "<button type='button' class='btn-xs' onclick=\"chaneFormStatus('" + tmpString[1]+ "','註銷')\"><span class='glyphicon glyphicon-remove' aria-hidden='true'></span></a></button>" +
+                        "<button type='button' class='btn-xs' onclick=\"chaneFormStatus('" + tmpString[1] + "','註銷')\"><span class='glyphicon glyphicon-remove' aria-hidden='true'></span></a></button>" +
                         "</td><tr><td style='text-align:center;background-color:yellow;' >" + strAmout + "</td></tr></table></th>";
                 }
                 htmlString = htmlString + "</tr>";
@@ -438,7 +438,7 @@ namespace topmeperp.Controllers
             {
                 InquiryFormToExcel poi = new InquiryFormToExcel();
                 //檔案位置
-                string fileLocation = poi.exportExcel(service.formInquiry, service.formInquiryItem,false);
+                string fileLocation = poi.exportExcel(service.formInquiry, service.formInquiryItem, false);
                 //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
                 string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
                 Response.Clear();
@@ -456,23 +456,17 @@ namespace topmeperp.Controllers
         {
             string projectid = Request["projectid"];
             log.Debug("create all template file by projectid=" + projectid);
-            service.zipAllTemplate4Download(projectid);
-
-            //service.getInqueryForm(formid);
-            if (null != service.formInquiry)
+            string zipFile = service.zipAllTemplate4Download(projectid);
+            if (zipFile != "")
             {
-                //InquiryFormToExcel poi = new InquiryFormToExcel();
-                //檔案位置
-                //string fileLocation = poi.exportExcel(service.formInquiry, service.formInquiryItem,true);
-                //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
-                //string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
-                //Response.Clear();
-                //Response.Charset = "utf-8";
-                //Response.ContentType = "text/xls";
-                //Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", filename + ".xlsx"));
-                /////"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx"
-                //Response.WriteFile(fileLocation);
-                //Response.End();
+                // 檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted - Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
+                string filename = HttpUtility.UrlEncode(Path.GetFileName(zipFile));
+                Response.Clear();
+                Response.Charset = "utf-8";
+                Response.ContentType = "text/zip";
+                Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", filename));
+                Response.WriteFile(zipFile);
+                Response.End();
             }
         }
         public void changeStatus()

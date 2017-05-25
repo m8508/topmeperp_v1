@@ -1578,17 +1578,19 @@ namespace topmeperp.Service
             ZipFileCreator zipTool = new ZipFileCreator();
             //2.設定暫存目錄
             string tempFolder = ContextService.strUploadPath + "\\" + projectid + "\\" + ContextService.quotesFolder + "\\Temp\\";
-            ZipFileCreator.CreateDirectory(tempFolder);
             ZipFileCreator.ClearDirectory(tempFolder);
+            ZipFileCreator.CreateDirectory(tempFolder);
             //3.批次產生空白詢價單
             InquiryFormToExcel poi = new InquiryFormToExcel();
+            TND_PROJECT p = getProjectById(projectid);
             foreach (TND_PROJECT_FORM f in lstTemplate)
             {
                 getInqueryForm(f.FORM_ID);
                 string fileLocation = poi.exportExcel(formInquiry, formInquiryItem, true);
+                logger.Debug("temp file=" + fileLocation);
             }
-
-            return null;
+            //4.Zip all file
+            return zipTool.ZipFiles(tempFolder, null, p.PROJECT_NAME);
         }
     }
     #endregion

@@ -17,6 +17,7 @@ namespace topmeperp.Service
         //讀取目錄下所有檔案
         private static ArrayList GetFiles(string path)
         {
+            logger.Debug("get all file in " + path);
             ArrayList files = new ArrayList();
 
             if (Directory.Exists(path))
@@ -32,19 +33,30 @@ namespace topmeperp.Service
         {
             if (!Directory.Exists(path))
             {
+                logger.Debug("CreateDirectory " + path);
                 Directory.CreateDirectory(path);
             }
         }
         public static void ClearDirectory(string path)
         {
-            Directory.Delete(path, true);
+            try
+            {
+                logger.Debug("clear directory: " + path);
+                Directory.Delete(path, true);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex.Message);
+            }
         }
-        public void ZipFiles(string path, string password, string comment)
+        public string ZipFiles(string path, string password, string comment)
         {
+            logger.Debug("zip file in : " + path);
+            string zipPath = "";
             ZipOutputStream zos = null;
             try
             {
-                string zipPath = path + @"\" + Path.GetFileName(path) + ".zip";
+                zipPath = path + @"\" + Path.GetFileName(path) + comment + ".zip";
                 ArrayList files = GetFiles(path);
                 zos = new ZipOutputStream(File.Create(zipPath));
                 if (password != null && password != string.Empty) zos.Password = password;
@@ -82,6 +94,7 @@ namespace topmeperp.Service
                 zos.Close();
                 zos.Dispose();
             }
+            return zipPath;
         }
     }
 }
