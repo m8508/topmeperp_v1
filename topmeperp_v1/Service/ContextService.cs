@@ -1255,7 +1255,7 @@ namespace topmeperp.Service
                     + "FROM(SELECT it.*, w.RATIO, w.PRICE, map.QTY MAP_QTY FROM TND_PROJECT_ITEM it LEFT OUTER JOIN TND_WAGE w "
                     + "ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map "
                     + "ON it.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID "
-                    + "WHERE it.project_id = 'P0120') A "
+                    + "WHERE it.project_id =@projectid') A "
                     + "GROUP BY SYSTEM_MAIN, SYSTEM_SUB ORDER BY SYSTEM_MAIN, SYSTEM_SUB;";
                 logger.Debug("sql=" + sql);
                 lstSystemCost = context.Database.SqlQuery<SystemCost>(sql,new SqlParameter("projectid", projectid)).ToList();

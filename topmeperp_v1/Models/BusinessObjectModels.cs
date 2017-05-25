@@ -99,6 +99,9 @@ namespace topmeperp.Models
         public Nullable<decimal> TOTAL_BUDGET { get; set; }
         public Nullable<decimal> ITEM_COST { get; set; }
         public Nullable<decimal> ITEM_BUDGET { get; set; }
+        public Nullable<decimal> TOTAL_P_COST { get; set; }
+        public Nullable<decimal> COST_RATIO { get; set; }
+        public Nullable<decimal> AMOUNT_BY_CODE { get; set; }
     }
     public class SystemCost
     {

@@ -155,7 +155,8 @@ namespace topmeperp.Service
         {
             int i = 0;
             logger.Info("update budget ratio to plan items by id :" + id);
-            string sql = "UPDATE PLAN_ITEM SET PLAN_ITEM.BUDGET_RATIO = plan_budget.BUDGET_RATIO from PLAN_ITEM inner join " +
+            string sql = "UPDATE PLAN_ITEM SET PLAN_ITEM.BUDGET_RATIO = plan_budget.BUDGET_RATIO, " +
+                   "PLAN_ITEM.TND_RATIO = plan_budget.TND_RATIO from PLAN_ITEM inner join " +
                    "plan_budget on @id + PLAN_ITEM.TYPE_CODE_1 + PLAN_ITEM.TYPE_CODE_2 " +
                    "= @id + plan_budget.TYPE_CODE_1 + plan_budget.TYPE_CODE_2 ";
             logger.Debug("sql:" + sql);
@@ -216,8 +217,9 @@ namespace topmeperp.Service
             List<DirectCost> lstBudget = new List<DirectCost>();
             using (var context = new topmepEntities())
             {
-                string sql = "SELECT MAINCODE, MAINCODE_DESC, SUB_CODE, SUB_DESC, MATERIAL_COST, MAN_DAY,"
-                    + "p.BUDGET_RATIO as BUDGET FROM (SELECT" +
+                string sql = "SELECT C.*, SUM(MATERIAL_COST * COST_RATIO / 100 * BUDGET / 100) AS AMOUNT_BY_CODE FROM " +
+                    "(SELECT MAINCODE, MAINCODE_DESC, SUB_CODE, SUB_DESC, MATERIAL_COST, MAN_DAY, "
+                    + "BUDGET_RATIO as BUDGET, COST_RATIO FROM (SELECT" +
                     "(select TYPE_CODE_1 + TYPE_CODE_2 from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE, " +
                     "(select TYPE_DESC from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE_DESC ," +
                     "(select SUB_TYPE_ID from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) T_SUB_CODE, " +
@@ -226,8 +228,9 @@ namespace topmeperp.Service
                     "SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) MATERIAL_COST,SUM(ITEM_QUANTITY * RATIO) MAN_DAY,count(*) ITEM_COUNT " +
                     "FROM (SELECT it.*, w.RATIO, w.PRICE FROM TND_PROJECT_ITEM it LEFT OUTER JOIN TND_WAGE w " +
                     "ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID WHERE it.project_id = @projectid) A " +
-                    "GROUP BY TYPE_CODE_1, TYPE_CODE_2) B LEFT OUTER JOIN PLAN_BUDGET p ON MAINCODE + SUB_CODE = p.TYPE_CODE_1 + p.TYPE_CODE_2 WHERE " +
-                    "p.PROJECT_ID = @projectid ORDER BY MAINCODE, SUB_CODE";
+                    "GROUP BY TYPE_CODE_1, TYPE_CODE_2) B LEFT OUTER JOIN (SELECT p.TYPE_CODE_1, p.TYPE_CODE_2, SUM(p.BUDGET_RATIO*p.ITEM_QUANTITY)/SUM(p.ITEM_QUANTITY) BUDGET_RATIO, " +
+                    "SUM(p.TND_RATIO*p.ITEM_QUANTITY)/SUM(p.ITEM_QUANTITY) COST_RATIO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid GROUP BY p.TYPE_CODE_1, p.TYPE_CODE_2 ) D ON MAINCODE + SUB_CODE = D.TYPE_CODE_1 + D.TYPE_CODE_2 " +
+                    ") C GROUP BY MAINCODE, MAINCODE_DESC, SUB_CODE, SUB_DESC, MATERIAL_COST, MAN_DAY, BUDGET, COST_RATIO ORDER BY MAINCODE, SUB_CODE";
                 logger.Info("sql = " + sql);
                 var parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("projectid", projectid));
@@ -242,16 +245,14 @@ namespace topmeperp.Service
             DirectCost lstTotalCost = null;
             using (var context = new topmepEntities())
             {
-                string sql = "SELECT SUM(MATERIAL_COST) AS TOTAL_COST, SUM(MATERIAL_COST * BUDGET / 100) AS TOTAL_BUDGET " +
-                    "FROM(SELECT MAINCODE, MAINCODE_DESC, SUB_CODE, SUB_DESC, MATERIAL_COST, MAN_DAY, p.BUDGET_RATIO as BUDGET " +
-                    "FROM(SELECT(select TYPE_CODE_1 + TYPE_CODE_2 from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE, " +
-                    "(select TYPE_DESC from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE_DESC, " +
+                string sql = "SELECT SUM(TND_COST) AS TOTAL_COST, SUM(BUDGET) AS TOTAL_BUDGET, SUM(P_COST) AS TOTAL_P_COST FROM (SELECT(select TYPE_CODE_1 + TYPE_CODE_2 from REF_TYPE_MAIN WHERE  " +
+                    "TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE, (select TYPE_DESC from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE_DESC, " +
                     "(select SUB_TYPE_ID from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) T_SUB_CODE, TYPE_CODE_2 SUB_CODE, " +
-                    "(select TYPE_DESC from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) SUB_DESC, " +
-                    "SUM(ITEM_QUANTITY * ITEM_UNIT_COST) MATERIAL_COST,SUM(ITEM_QUANTITY * RATIO) MAN_DAY,count(*) ITEM_COUNT FROM " +
-                    "(SELECT it.*, w.RATIO, w.PRICE FROM PLAN_ITEM it LEFT OUTER JOIN TND_WAGE w ON it.PLAN_ITEM_ID = w.PROJECT_ITEM_ID " +
-                    "WHERE it.project_id = @projectid) A GROUP BY TYPE_CODE_1, TYPE_CODE_2) B LEFT OUTER JOIN PLAN_BUDGET p " +
-                    "ON MAINCODE +SUB_CODE = p.TYPE_CODE_1 + p.TYPE_CODE_2 WHERE p.PROJECT_ID = @projectid) C ";
+                    "(select TYPE_DESC from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) SUB_DESC, SUM(ITEM_QUANTITY * ITEM_UNIT_COST * TND_RATIO/100) MATERIAL_COST, " +
+                    "SUM(ITEM_QUANTITY * RATIO) MAN_DAY,count(*) ITEM_COUNT, SUM(ITEM_QUANTITY * ITEM_UNIT_COST * TND_RATIO/100 * BUDGET_RATIO/100) BUDGET, " +
+                    "SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) P_COST, SUM(ITEM_QUANTITY * ITEM_UNIT_COST * TND_RATIO/100) TND_COST FROM " +
+                    "(SELECT it.*, w.RATIO, w.PRICE FROM PLAN_ITEM it LEFT OUTER JOIN TND_WAGE w ON it.PLAN_ITEM_ID = w.PROJECT_ITEM_ID WHERE it.project_id = @projectid) A  " +
+                    "GROUP BY TYPE_CODE_1, TYPE_CODE_2)B ";
                 logger.Info("sql = " + sql);
                 lstTotalCost = context.Database.SqlQuery<DirectCost>(sql, new SqlParameter("projectid", projectid)).First();
             }
@@ -260,40 +261,47 @@ namespace topmeperp.Service
 
         #region 取得特定標單項目材料成本與預算
         //取得特定標單項目材料成本與預算
-        public DirectCost getItemBudget(string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub)
+        public DirectCost getItemBudget(string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub, string formName)
         {
-
-            logger.Info("search plan item by 九宮格 =" + typeCode1 + "search plan item by 次九宮格 =" + typeCode2 + "search plan item by 主系統 =" + systemMain + "search plan item by 次系統 =" + systemSub);
+            logger.Info("search plan item by 九宮格 =" + typeCode1 + "search plan item by 次九宮格 =" + typeCode2 + "search plan item by 主系統 =" + systemMain + "search plan item by 次系統 =" + systemSub + "search plan item by 採購名稱 =" + formName);
             DirectCost lstItemBudget = null;
             //處理SQL 預先填入專案代號,設定集合處理參數
-            string sql = "SELECT SUM(p.ITEM_QUANTITY*p.ITEM_UNIT_COST) AS ITEM_COST, SUM(p.ITEM_QUANTITY*p.ITEM_UNIT_COST*p.BUDGET_RATIO/100) AS ITEM_BUDGET FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid ";
+            string sql = "SELECT SUM(pi.ITEM_QUANTITY*pi.ITEM_UNIT_COST*pi.TND_RATIO/100) AS ITEM_COST, SUM(pi.ITEM_QUANTITY*pi.ITEM_UNIT_COST*pi.TND_RATIO/100*pi.BUDGET_RATIO/100) AS ITEM_BUDGET FROM PLAN_ITEM pi ";
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("projectid", projectid));
+            //採購項目
+            if (null != formName && formName != "")
+            {
+                sql = sql + "right join (select distinct p.FORM_NAME + pii.PLAN_ITEM_ID as FORM_KEY, p.FORM_NAME, pii.PLAN_ITEM_ID FROM PLAN_SUP_INQUIRY p " +
+                    "LEFT JOIN PLAN_SUP_INQUIRY_ITEM pii on p.INQUIRY_FORM_ID = pii.INQUIRY_FORM_ID WHERE p.FORM_NAME LIKE @formName)A ON pi.PLAN_ITEM_ID = A.PLAN_ITEM_ID ";
+                parameters.Add(new SqlParameter("formName", "%" + formName + "%"));
+            }
+            sql = sql + " WHERE pi.PROJECT_ID =@projectid ";
             //九宮格
             if (null != typeCode1 && typeCode1 != "")
             {
-                sql = sql + "AND p.TYPE_CODE_1 = @typeCode1 ";
+                sql = sql + "AND pi.TYPE_CODE_1 = @typeCode1 ";
                 parameters.Add(new SqlParameter("typeCode1", typeCode1));
             }
             //次九宮格
             if (null != typeCode2 && typeCode2 != "")
             {
-                sql = sql + "AND p.TYPE_CODE_2 = @typeCode2 ";
+                sql = sql + "AND pi.TYPE_CODE_2 = @typeCode2 ";
                 parameters.Add(new SqlParameter("typeCode2", typeCode2));
             }
             //主系統
             if (null != systemMain && systemMain != "")
             {
-                sql = sql + "AND p.SYSTEM_MAIN LIKE @systemMain ";
+                sql = sql + "AND pi.SYSTEM_MAIN LIKE @systemMain ";
                 parameters.Add(new SqlParameter("systemMain", "%" + systemMain + "%"));
             }
             //次系統
             if (null != systemSub && systemSub != "")
             {
-                sql = sql + "AND p.SYSTEM_SUB LIKE @systemSub ";
+                sql = sql + "AND pi.SYSTEM_SUB LIKE @systemSub ";
                 parameters.Add(new SqlParameter("systemSub", "%" + systemSub + "%"));
             }
-
+            
             using (var context = new topmepEntities())
             {
                 logger.Debug("get plan item sql=" + sql);
@@ -313,37 +321,45 @@ namespace topmeperp.Service
 
         #region 取得得標標單項目內容
         //取得標單品項資料
-        public List<PLAN_ITEM> getPlanItem(string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub)
+        public List<PLAN_ITEM> getPlanItem(string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub, string formName)
         {
 
-            logger.Info("search plan item by 九宮格 =" + typeCode1 + "search plan item by 次九宮格 =" + typeCode2 + "search plan item by 主系統 =" + systemMain + "search plan item by 次系統 =" + systemSub);
+            logger.Info("search plan item by 九宮格 =" + typeCode1 + "search plan item by 次九宮格 =" + typeCode2 + "search plan item by 主系統 =" + systemMain + "search plan item by 次系統 =" + systemSub + "search plan item by 採購項目 =" + formName);
             List<topmeperp.Models.PLAN_ITEM> lstItem = new List<PLAN_ITEM>();
             //處理SQL 預先填入專案代號,設定集合處理參數
-            string sql = "SELECT * FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid ";
+            string sql = "SELECT * FROM PLAN_ITEM pi ";
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("projectid", projectid));
+            //採購項目
+            if (null != formName && formName != "")
+            {
+                sql = sql + "right join (select distinct p.FORM_NAME + pii.PLAN_ITEM_ID as FORM_KEY, p.FORM_NAME, pii.PLAN_ITEM_ID FROM PLAN_SUP_INQUIRY p " +
+                    "LEFT JOIN PLAN_SUP_INQUIRY_ITEM pii on p.INQUIRY_FORM_ID = pii.INQUIRY_FORM_ID WHERE p.FORM_NAME LIKE @formName)A ON pi.PLAN_ITEM_ID = A.PLAN_ITEM_ID ";
+                parameters.Add(new SqlParameter("formName", "%" + formName + "%"));
+            }
+            sql = sql + " WHERE pi.PROJECT_ID =@projectid ";
             //九宮格
             if (null != typeCode1 && typeCode1 != "")
             {
-                sql = sql + "AND p.TYPE_CODE_1 = @typeCode1 ";
+                sql = sql + "AND pi.TYPE_CODE_1 = @typeCode1 ";
                 parameters.Add(new SqlParameter("typeCode1", typeCode1));
             }
             //次九宮格
             if (null != typeCode2 && typeCode2 != "")
             {
-                sql = sql + "AND p.TYPE_CODE_2 = @typeCode2 ";
+                sql = sql + "AND pi.TYPE_CODE_2 = @typeCode2 ";
                 parameters.Add(new SqlParameter("typeCode2", typeCode2));
             }
             //主系統
             if (null != systemMain && systemMain != "")
             {
-                sql = sql + "AND p.SYSTEM_MAIN LIKE @systemMain ";
+                sql = sql + "AND pi.SYSTEM_MAIN LIKE @systemMain ";
                 parameters.Add(new SqlParameter("systemMain", "%" + systemMain + "%"));
             }
             //次系統
             if (null != systemSub && systemSub != "")
             {
-                sql = sql + "AND p.SYSTEM_SUB LIKE @systemSub ";
+                sql = sql + "AND pi.SYSTEM_SUB LIKE @systemSub ";
                 parameters.Add(new SqlParameter("systemSub", "%" + systemSub + "%"));
             }
 
@@ -843,7 +859,7 @@ namespace topmeperp.Service
         }
 
         //取得特定專案報價之供應商資料
-        public List<COMPARASION_DATA_4PLAN> getComparisonData(string projectid, string typecode1, string typecode2, string systemMain, string systemSub)
+        public List<COMPARASION_DATA_4PLAN> getComparisonData(string projectid, string typecode1, string typecode2, string systemMain, string systemSub, string formName)
         {
             List<COMPARASION_DATA_4PLAN> lst = new List<COMPARASION_DATA_4PLAN>();
             string sql = "SELECT  pfItem.INQUIRY_FORM_ID AS INQUIRY_FORM_ID, " +
@@ -883,6 +899,13 @@ namespace topmeperp.Service
                 sql = sql + " AND pItem.SYSTEM_SUB=@systemSub";
                 parameters.Add(new SqlParameter("systemSub", systemSub));
             }
+            //採購名稱條件
+            if (null != formName && "" != formName)
+            {
+                //sql = sql + " AND f.FORM_NAME='" + formName + "'";
+                sql = sql + " AND f.FORM_NAME Like '%' + @formName + '%' ";
+                parameters.Add(new SqlParameter("formName", formName));
+            }
             sql = sql + " GROUP BY pfItem.INQUIRY_FORM_ID ,f.SUPPLIER_ID, f.FORM_NAME, f.STATUS ;";
             logger.Info("comparison data sql=" + sql);
             using (var context = new topmepEntities())
@@ -895,7 +918,7 @@ namespace topmeperp.Service
         }
      
         //比價資料
-        public DataTable getComparisonDataToPivot(string projectid, string typecode1, string typecode2, string systemMain, string systemSub)
+        public DataTable getComparisonDataToPivot(string projectid, string typecode1, string typecode2, string systemMain, string systemSub, string formName)
         {
 
             string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PLAN_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
@@ -937,8 +960,15 @@ namespace topmeperp.Service
                 sql = sql + " AND pItem.SYSTEM_SUB=@systemSub";
                 parameters.Add("systemSub", systemSub);
             }
+            //採購名稱條件
+            if (null != formName && "" != formName)
+            {
+                //sql = sql + " AND FORM_NAME ='" + formName + "'";
+                sql = sql + " AND FORM_NAME Like '%' + @formName + '%' ";
+                parameters.Add("formName", formName);
+            }
             //取的欄位維度條件
-            List<COMPARASION_DATA_4PLAN> lstSuppluerQuo = getComparisonData(projectid, typecode1, typecode2, systemMain, systemSub);
+            List<COMPARASION_DATA_4PLAN> lstSuppluerQuo = getComparisonData(projectid, typecode1, typecode2, systemMain, systemSub, formName);
             if (lstSuppluerQuo.Count == 0)
             {
                 throw new Exception("相關條件沒有任何報價資料!!");

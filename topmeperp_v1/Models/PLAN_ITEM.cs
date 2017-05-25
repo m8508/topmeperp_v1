@@ -39,5 +39,6 @@ namespace topmeperp.Models
         public Nullable<decimal> BUDGET_RATIO { get; set; }
         public Nullable<decimal> ITEM_FORM_QUANTITY { get; set; }
         public Nullable<decimal> ITEM_UNIT_COST { get; set; }
+        public Nullable<decimal> TND_RATIO { get; set; }
     }
 }

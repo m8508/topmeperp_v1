@@ -23,8 +23,11 @@
             <div class="col-md-4">
                 <label for="typeCode2">次九宮格:</label><input id="typeCode2" name="typeCode2" type="text" value="" class="form-control" />
             </div>
+            <div class="col-md-4">
+                <label for="formName">採購項目:</label><input id="formName" name="formName" type="text" value="" class="form-control" />
+            </div>
         </div>
-        <div class="row" style="padding-top:5px">
+        <div class="row" style="padding-top:10px">
             <div class="col-md-4">
                 <label for="systemMain">主系統:</label>
                 @Html.DropDownList("SystemMain", (IEnumerable<SelectListItem>)ViewBag.SystemMain, String.Empty, new { @class = "form-control selectpicker" })
@@ -33,6 +36,7 @@
                 <label for="systemSub">次系統:</label>
                 @Html.DropDownList("systemSub", (IEnumerable<SelectListItem>)ViewBag.SystemSub, String.Empty, new { @class = "form-control selectpicker" })
             </div>
+            
             <div class="col-md-4">
                 <div id="divProcessing">
                     <img src="~/Content/ajax-loader.gif">

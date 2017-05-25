@@ -47,7 +47,7 @@ namespace topmeperp.Service
             }
         }
         //處理得標後標單..
-        public void ConvertDataForPlan(string projectId, int startrow)
+        public void ConvertDataForPlan(string projectId)
         {
             projId = projectId;
             //1.依據檔案附檔名使用不同物件讀取Excel 檔案，並開啟得標後標單Sheet
@@ -66,10 +66,10 @@ namespace topmeperp.Service
                 logger.Error("檔案內沒有得標後標單資料(Sheet)! filename=" + fileformat);
                 throw new Exception("檔案內沒有得標後標單資料");
             }
-            ConvertExcelToPlanItem(startrow);
+            ConvertExcelToPlanItem();
         }
         //轉換標單內容物件
-        public void ConvertExcelToPlanItem(int startrow)
+        public void ConvertExcelToPlanItem()
         {
             IRow row = null;
             lstPlanItem = new List<PLAN_ITEM>();
@@ -78,7 +78,7 @@ namespace topmeperp.Service
             int iRowIndex = 0; //0 表 Row 1
 
             //2.1  忽略不要的行數..
-            while (iRowIndex < (startrow - 1))
+            while (iRowIndex < 4)
             {
                 rows.MoveNext();
                 iRowIndex++;
@@ -93,8 +93,8 @@ namespace topmeperp.Service
                 row = (IRow)rows.Current;
                 logger.Debug("Cells Count=" + row.Cells.Count + ",Excel Value:" + row.Cells[0].ToString() + row.Cells[1]);
                 //將各Row 資料寫入物件內
-                //項次,名稱,單位,標單數量,單價,複價,備註,九宮格,次九宮格,主系統,次系統,採購數量
-                if (row.Cells[0].ToString().ToUpper() != "END")
+                //代碼,項次,名稱,單位,標單數量,採購數量,單價,複價,備註,九宮格,次九宮格,主系統,次系統
+                if (row.Cells[0].ToString().ToUpper() != "")//代碼欄位有值才匯入
                 {
                     lstPlanItem.Add(convertRow2PlanItem(itemId, row, iRowIndex));
                 }
@@ -111,100 +111,105 @@ namespace topmeperp.Service
         {
             PLAN_ITEM planItem = new PLAN_ITEM();
             planItem.PROJECT_ID = projId;
-            if (row.Cells[0].ToString().Trim() != "")//項次
+            if (row.Cells[0].ToString().Trim() != "")//代碼
             {
                 planItem.ITEM_ID = row.Cells[0].ToString();
             }
-            if (row.Cells[1].ToString().Trim() != "")//名稱
+            if (row.Cells[1].ToString().Trim() != "")//項次
             {
                 planItem.ITEM_DESC = row.Cells[1].ToString();
             }
-            if (row.Cells.Count < 3)
+            if (row.Cells[2].ToString().Trim() != "")//名稱
+            {
+                planItem.ITEM_ID = row.Cells[2].ToString();
+            }
+            if (row.Cells.Count < 4)
             {
                 logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
                 logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
-                planItem.PLAN_ITEM_ID = projId + "-" + id;
+                planItem.PROJECT_ID = projId;
                 planItem.EXCEL_ROW_ID = excelrow;
                 planItem.CREATE_DATE = System.DateTime.Now;
                 return planItem;
             }
-            if (row.Cells[2].ToString().Trim() != "")//單位
+            if (row.Cells[3].ToString().Trim() != "")//單位
             {
-                planItem.ITEM_UNIT = row.Cells[2].ToString();
+                planItem.ITEM_UNIT = row.Cells[3].ToString();
             }
 
-            if (row.Cells.Count < 5)
+            if (row.Cells.Count < 6)
             {
                 logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
                 logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
-                planItem.PLAN_ITEM_ID = projId + "-" + id;
+                planItem.PROJECT_ID = projId;
                 planItem.EXCEL_ROW_ID = excelrow;
                 planItem.CREATE_DATE = System.DateTime.Now;
                 return planItem;
             }
 
-            if (row.Cells[3].ToString().Trim() != "")//數量
+            if (row.Cells[4].ToString().Trim() != "")//標單數量
             {
                 try
                 {
-                    decimal dQty = decimal.Parse(row.Cells[3].ToString());
-                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[3].ToString());
+                    decimal dQty = decimal.Parse(row.Cells[4].ToString());
+                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[4].ToString());
                     planItem.ITEM_QUANTITY = dQty;
                 }
                 catch (Exception e)
                 {
-                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.Cells[3].ToString());
-                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.Cells[3].ToString());
+                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.Cells[4].ToString());
+                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.Cells[4].ToString());
                     logger.Error(e.Message);
                 }
 
             }
-            if (row.Cells[6].ToString().Trim() != "")//備註
+
+            if (row.Cells[5].ToString().Trim() != "")//採購數量
             {
-                planItem.ITEM_REMARK = row.Cells[6].ToString();
+                try
+                {
+                    decimal dQty = decimal.Parse(row.Cells[5].ToString());
+                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[5].ToString());
+                    planItem.ITEM_QUANTITY = dQty;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.Cells[5].ToString());
+                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.Cells[5].ToString());
+                    logger.Error(e.Message);
+                }
+
             }
-            if (row.Cells.Count < 12) //調整了標單的總欄位(原本為11)
+            if (row.Cells[8].ToString().Trim() != "")//備註
+            {
+                planItem.ITEM_REMARK = row.Cells[8].ToString();
+            }
+            if (row.Cells.Count < 13) //調整了標單的總欄位(原本為11)
             {
                 logErrorMessage("data format warring on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
                 logger.Error("data format warring on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
-                planItem.PLAN_ITEM_ID = projId + "-" + id;
+                planItem.PROJECT_ID = projId;
                 planItem.EXCEL_ROW_ID = excelrow;
                 planItem.CREATE_DATE = System.DateTime.Now;
                 return planItem;
             }
-            if (row.Cells[7].ToString().Trim() != "")//九宮格
+            if (row.Cells[9].ToString().Trim() != "")//九宮格
             {
-                planItem.TYPE_CODE_1 = row.Cells[7].ToString();
+                planItem.TYPE_CODE_1 = row.Cells[9].ToString();
             }
-            if (row.Cells[8].ToString().Trim() != "")//次九宮格
+            if (row.Cells[10].ToString().Trim() != "")//次九宮格
             {
-                planItem.TYPE_CODE_2 = row.Cells[8].ToString();
+                planItem.TYPE_CODE_2 = row.Cells[10].ToString();
             }
-            if (row.Cells[9].ToString().Trim() != "")//主系統
+            if (row.Cells[11].ToString().Trim() != "")//主系統
             {
-                planItem.SYSTEM_MAIN = row.Cells[9].ToString();
+                planItem.SYSTEM_MAIN = row.Cells[11].ToString();
             }
-            if (row.Cells[10].ToString().Trim() != "")//次系統
+            if (row.Cells[12].ToString().Trim() != "")//次系統
             {
-                planItem.SYSTEM_SUB = row.Cells[10].ToString();
+                planItem.SYSTEM_SUB = row.Cells[12].ToString();
             }
-            if (row.Cells[11].ToString().Trim() != "")//採購數量
-            {
-                try
-                {
-                    decimal dQty = decimal.Parse(row.Cells[11].ToString());
-                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[11].ToString());
-                    planItem.ITEM_FORM_QUANTITY = dQty;
-                }
-                catch (Exception e)
-                {
-                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.Cells[11].ToString());
-                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.Cells[11].ToString());
-                    logger.Error(e.Message);
-                }
-
-            }
-            planItem.PLAN_ITEM_ID = projId + "-" + id;
+            planItem.PROJECT_ID = projId;
             planItem.EXCEL_ROW_ID = excelrow;
             planItem.CREATE_DATE = System.DateTime.Now;
             logger.Info("PlanItem=" + planItem.ToString());

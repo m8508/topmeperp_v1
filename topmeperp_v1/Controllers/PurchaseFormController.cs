@@ -60,7 +60,7 @@ namespace topmeperp.Controllers
         {
 
             log.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"]);
-            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"]);
+            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"]);
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             ViewBag.projectId = Request["projectid"];
             return View("FormIndex", lstProject);
@@ -431,11 +431,11 @@ namespace topmeperp.Controllers
         public ActionResult ComparisonData(FormCollection form)
         {
             //傳入查詢條件
-            log.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"]);
+            log.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"] + ",Form Name=" + Request["formName"]);
             //取得備標品項與詢價資料
             try
             {
-                DataTable dt = service.getComparisonDataToPivot(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
+                DataTable dt = service.getComparisonDataToPivot(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"]);
                 @ViewBag.ResultMsg = "共" + dt.Rows.Count + "筆";
                 string htmlString = "<table class='table table-bordered'><tr>";
                 //處理表頭
@@ -502,7 +502,7 @@ namespace topmeperp.Controllers
                 htmlString = htmlString + "</table>";
                 //加入預算資料
                 BudgetDataService bs = new BudgetDataService();
-                DirectCost iteminfo = bs.getItemBudget(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
+                DirectCost iteminfo = bs.getItemBudget(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"]); 
                 ViewBag.itembudget = iteminfo.ITEM_BUDGET;
                 //產生畫面
                 IHtmlString str = new HtmlString(htmlString);

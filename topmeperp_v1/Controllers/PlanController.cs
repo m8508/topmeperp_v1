@@ -85,7 +85,7 @@ namespace topmeperp.Controllers
                 //2.2 解析Excel 檔案
                 PlanItemFromExcel poiservice = new PlanItemFromExcel();
                 poiservice.InitializeWorkbook(path);
-                poiservice.ConvertDataForPlan(projectid, (int)prj.START_ROW_NO);
+                poiservice.ConvertDataForPlan(projectid);
                 //2.3 記錄錯誤訊息
                 message = message + "得標標單品項:共" + poiservice.lstPlanItem.Count + "筆資料，";
                 message = message + "<a target=\"_blank\" href=\"/Plan/ManagePlanItem?id=" + projectid + "\"> 標單明細檢視畫面單</a><br/>" + poiservice.errorMessage;
@@ -161,7 +161,7 @@ namespace topmeperp.Controllers
         {
             PurchaseFormService service = new PurchaseFormService();
             logger.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"]);
-            List<PLAN_ITEM> lstItems = service.getPlanItem(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
+            List<PLAN_ITEM> lstItems = service.getPlanItem(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"]);
             ViewBag.Result = "共幾" + lstItems.Count + "筆資料";
             return PartialView(lstItems);
         }
@@ -200,6 +200,7 @@ namespace topmeperp.Controllers
             DirectCost totalinfo = bs.getTotalCost(id);
             ViewBag.budget = totalinfo.TOTAL_BUDGET;
             ViewBag.cost = totalinfo.TOTAL_COST;
+            ViewBag.p_cost = totalinfo.TOTAL_P_COST;
             ViewBag.result = "共有" + budget2.Count + "筆資料";
             return View(budget2);
         }
@@ -211,6 +212,7 @@ namespace topmeperp.Controllers
             string msg = "";
             string[] lsttypecode = form.Get("code1").Split(',');
             string[] lsttypesub = form.Get("code2").Split(',');
+            string[] lstCost = form.Get("inputtndratio").Split(',');
             string[] lstPrice = form.Get("inputbudget").Split(',');
             List<PLAN_BUDGET> lstItem = new List<PLAN_BUDGET>();
             for (int j = 0; j < lstPrice.Count(); j++)
@@ -225,7 +227,15 @@ namespace topmeperp.Controllers
                 {
                     item.BUDGET_RATIO = decimal.Parse(lstPrice[j]);
                 }
-                logger.Info("Budget ratio =" + item.BUDGET_RATIO);
+                if (lstCost[j].ToString() == "")
+                {
+                    item.TND_RATIO = null;
+                }
+                else
+                {
+                    item.TND_RATIO = decimal.Parse(lstCost[j]);
+                }
+                logger.Info("Budget ratio =" + item.BUDGET_RATIO + ",Cost ratio =" + item.TND_RATIO);
                 item.TYPE_CODE_1 = lsttypecode[j];
                 item.TYPE_CODE_2 = lsttypesub[j];
                 item.CREATE_ID = u.USER_ID;
@@ -302,9 +312,9 @@ namespace topmeperp.Controllers
         public ActionResult BudgetForForm(FormCollection f)
         {
 
-            logger.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"]);
+            logger.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"] + ",formName=" + Request["formName"]);
             PurchaseFormService service = new PurchaseFormService();
-            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"]);
+            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"]);
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             ViewBag.projectId = Request["projectid"];
             ViewBag.textCode1 = Request["textCode1"];
@@ -313,7 +323,7 @@ namespace topmeperp.Controllers
             ViewBag.textSystemSub = Request["textSystemSub"];
             BudgetDataService bs = new BudgetDataService();
             DirectCost totalinfo = bs.getTotalCost(Request["projectid"]);
-            DirectCost iteminfo = bs.getItemBudget(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"]);
+            DirectCost iteminfo = bs.getItemBudget(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"]);
             ViewBag.budget = totalinfo.TOTAL_BUDGET;
             ViewBag.cost = totalinfo.TOTAL_COST;
             ViewBag.itembudget = iteminfo.ITEM_BUDGET;
