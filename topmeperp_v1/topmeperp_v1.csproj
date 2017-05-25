@@ -387,7 +387,7 @@
     <Compile Include="Controllers\InquiryController.cs" />
     <Compile Include="Controllers\PlanController.cs" />
     <Compile Include="Controllers\ProjectCompareController.cs" />
-    <Compile Include="Controllers\ProjectPalnController.cs" />
+    <Compile Include="Controllers\ProjectPlanController.cs" />
     <Compile Include="Controllers\PurchaseFormController.cs" />
     <Compile Include="Controllers\RoleManageController.cs" />
     <Compile Include="Controllers\SupplierManageController.cs" />
@@ -418,7 +418,9 @@
     <Compile Include="Models\PLAN_SUP_INQUIRY_ITEM.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\PLAN_TASK.cs" />
+    <Compile Include="Models\PLAN_TASK.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\REF_TYPE_MAIN.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
@@ -513,6 +515,7 @@
     <Compile Include="Service\ContextService.cs" />
     <Compile Include="Service\ContextService4po.cs" />
     <Compile Include="Service\ContextService4System.cs" />
+    <Compile Include="Service\FileSystmeService.cs" />
     <Compile Include="Service\OfficeProjectService.cs" />
     <Compile Include="Service\PoiService.cs" />
     <Compile Include="Service\PoiSrevice4po.cs" />
@@ -780,9 +783,10 @@
     <Content Include="Views\ProjectCompare\_CompareData.cshtml" />
     <Content Include="Views\Plan\BudgetForForm.cshtml" />
     <Content Include="Views\Plan\_PlanItemBudget.cshtml" />
-    <Content Include="Views\ProjectPaln\Index.cshtml" />
-    <Content Include="Views\ProjectPaln\_CompareData.cshtml" />
+    <Content Include="Views\ProjectPlan\Index.cshtml" />
+    <Content Include="Views\ProjectPlan\_CompareData.cshtml" />
     <Content Include="Views\Plan\ShowPlanItems.cshtml" />
+    <Content Include="Views\Tender\_ProjectItem.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

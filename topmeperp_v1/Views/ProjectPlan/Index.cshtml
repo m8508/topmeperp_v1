@@ -1,0 +1,117 @@
+﻿@{
+    ViewBag.Title = "專案任務管理";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+<link href="../../Content/bootstrap-treeview.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../../Scripts/bootstrap-treeview.js"></script>
+<!--條件區域-->
+<div class="page-header">
+    <form name="FormCompareProject" id="FormCompareProject" action="uploadFile" method="Post" enctype="multipart/form-data">
+        <div class="row">
+            <label class="col-md-3 control-label">專案編號: </label>
+            <div class='col-md-9'>
+                <input type="text" name="projectid" id="projectid" value="@ViewBag.projectId" />
+            </div>
+        </div>
+        <div class="row">
+            <label class="col-md-3 control-label">專案規劃(Project File): </label>
+            <div class='col-md-9'>
+                <input type="file" name="file" id="file" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="" col-md-12">
+                <input type="submit" value="上傳" class="btn btn-default" />
+            </div>
+        </div>
+    </form>
+</div>
+<!--樹狀圖區塊 範例
+<div class="container" id="projecttask" style="margin-top:30px;">
+    <div class="row">
+        <div class="col-sm-4">
+            <h2>Custom Icons</h2>
+            <div id="treeview5" class=""></div>
+        </div>
+    </div>
+</div>
+    -->
+<div class="container">
+    <div class="row" id="projectTask">
+        @Html.Raw(ViewBag.htmlResult)
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Hide the "busy" Gif at load:
+        $("#divProcessing").hide();
+        // Attach click handler to the submit button:
+        $('#btnQuery').click(function () {
+            $("#divProcessing").show();
+        });
+    });
+    /*<!--樹狀圖區塊 範例
+    $(function() {
+        var defaultData = [
+          {
+              text: 'Parent 1',
+              href: '#parent1',
+              tags: ['4'],
+              nodes: [
+                {
+                    text: 'Child 1',
+                    href: '#child1',
+                    tags: ['2'],
+                    nodes: [
+                      {
+                          text: 'Grandchild 1',
+                          href: '#grandchild1',
+                          tags: ['0']
+                      },
+                      {
+                          text: 'Grandchild 2',
+                          href: '#grandchild2',
+                          tags: ['0']
+                      }
+                    ]
+                },
+                {
+                    text: 'Child 2',
+                    href: '#child2',
+                    tags: ['0']
+                }
+              ]
+          },
+          {
+              text: 'Parent 2',
+              href: '#parent2',
+              tags: ['0']
+          },
+          {
+              text: 'Parent 3',
+              href: '#parent3',
+              tags: ['0']
+          },
+          {
+              text: 'Parent 4',
+              href: '#parent4',
+              tags: ['0']
+          },
+          {
+              text: 'Parent 5',
+              href: '#parent5'  ,
+              tags: ['0']
+          }
+        ];
+
+       
+        $('#treeview5').treeview({
+            color: "#428bca",
+            expandIcon: 'glyphicon glyphicon-chevron-right',
+            collapseIcon: 'glyphicon glyphicon-chevron-down',
+            nodeIcon: 'glyphicon glyphicon-bookmark',
+            data: defaultData
+        });
+    })*/
+</script>

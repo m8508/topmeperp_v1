@@ -20,6 +20,7 @@ namespace topmeperp.Service
         //定義上傳檔案存放路徑
         public static string strUploadPath = ConfigurationManager.AppSettings["UploadFolder"];
         public static string quotesFolder = "Quotes"; //廠商報價單路徑
+        public static string projectMgrFolder = "Project"; //施工進度管理資料夾
         //Sample Code : It can get ADO.NET Dataset
         public DataSet ExecuteStoreQuery(string sql, CommandType commandType, Dictionary<string, Object> parameters)
         {
@@ -1157,9 +1158,9 @@ namespace topmeperp.Service
                 wageTable = context.TND_PROJECT.SqlQuery("SELECT * FROM TND_PROJECT WHERE PROJECT_ID=@projectid", new SqlParameter("projectid", projectid)).First();
                 //取得工率表單明細
                 wageTableItem = context.Database.SqlQuery<PROJECT_ITEM_WITH_WAGE>("SELECT i.*,w.ratio,w.price,map.QTY as MAP_QTY FROM TND_PROJECT_ITEM i LEFT OUTER JOIN "
-                    +"TND_WAGE w ON i.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID "
-                    +"LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON i.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID "
-                    +"WHERE i.project_id = @projectid  ORDER BY i.EXCEL_ROW_ID; ", new SqlParameter("projectid", projectid)).ToList();
+                    + "TND_WAGE w ON i.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID "
+                    + "LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON i.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID "
+                    + "WHERE i.project_id = @projectid  ORDER BY i.EXCEL_ROW_ID; ", new SqlParameter("projectid", projectid)).ToList();
                 logger.Debug("get project item count:" + wageTableItem.Count);
             }
         }
@@ -1235,7 +1236,7 @@ namespace topmeperp.Service
                     + "ON it.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID "
                     + "WHERE it.project_id =@projectid ) A "
                     + "GROUP BY TYPE_CODE_1, TYPE_CODE_2 ORDER BY TYPE_CODE_1,TYPE_CODE_2;";
-                logger.Info("Get DirectCost SQL=" +sql + ",projectid=" + projectid);
+                logger.Info("Get DirectCost SQL=" + sql + ",projectid=" + projectid);
                 lstDirecCost = context.Database.SqlQuery<DirectCost>(sql, new SqlParameter("projectid", projectid)).ToList();
 
                 logger.Info("Get DirectCost Record Count=" + lstDirecCost.Count);
@@ -1258,7 +1259,7 @@ namespace topmeperp.Service
                     + "WHERE it.project_id =@projectid') A "
                     + "GROUP BY SYSTEM_MAIN, SYSTEM_SUB ORDER BY SYSTEM_MAIN, SYSTEM_SUB;";
                 logger.Debug("sql=" + sql);
-                lstSystemCost = context.Database.SqlQuery<SystemCost>(sql,new SqlParameter("projectid", projectid)).ToList();
+                lstSystemCost = context.Database.SqlQuery<SystemCost>(sql, new SqlParameter("projectid", projectid)).ToList();
                 logger.Info("Get SystemCost Record Count=" + lstSystemCost.Count);
             }
             return lstSystemCost;
@@ -1462,29 +1463,29 @@ namespace topmeperp.Service
             {
                 //取得詢價單樣本資訊
                 string sql = "SELECT[FORM_ID],[PROJECT_ID],[FORM_NAME],[OWNER_NAME],[OWNER_TEL],[OWNER_EMAIL] "
-                    +",[OWNER_FAX],[SUPPLIER_ID],[CONTACT_NAME],[CONTACT_EMAIL],[DUEDATE],[REF_ID],[CREATE_ID],[CREATE_DATE] "
-                    +",[MODIFY_ID],[MODIFY_DATE],ISNULL([STATUS],'有效') [STATUS] "
+                    + ",[OWNER_FAX],[SUPPLIER_ID],[CONTACT_NAME],[CONTACT_EMAIL],[DUEDATE],[REF_ID],[CREATE_ID],[CREATE_DATE] "
+                    + ",[MODIFY_ID],[MODIFY_DATE],ISNULL([STATUS],'有效') [STATUS] "
                     + "FROM[topmep].[dbo].[TND_PROJECT_FORM] WHERE SUPPLIER_ID IS NULL AND PROJECT_ID =@projectid ORDER BY FORM_ID DESC";
-                lst = context.TND_PROJECT_FORM.SqlQuery(sql,new SqlParameter("projectid", projectid)).ToList();
+                lst = context.TND_PROJECT_FORM.SqlQuery(sql, new SqlParameter("projectid", projectid)).ToList();
             }
             return lst;
         }
-        public List<SupplierFormFunction> getFormByProject(string projectid,string _status)
+        public List<SupplierFormFunction> getFormByProject(string projectid, string _status)
         {
             List<SupplierFormFunction> lst = new List<SupplierFormFunction>();
             string status = "有效";
-            if (null!= _status && _status!="*")
+            if (null != _status && _status != "*")
             {
                 status = _status;
             }
             using (var context = new topmepEntities())
             {
                 string sql = "SELECT a.FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, SUM(b.ITEM_QTY*b.ITEM_UNIT_PRICE) AS TOTAL_PRICE, "
-                    +"ROW_NUMBER() OVER(ORDER BY a.FORM_ID DESC) AS NO, ISNULL(A.STATUS, '有效') AS STATUS "
-                    +"FROM TND_PROJECT_FORM a left JOIN TND_PROJECT_FORM_ITEM b ON a.FORM_ID = b.FORM_ID "
+                    + "ROW_NUMBER() OVER(ORDER BY a.FORM_ID DESC) AS NO, ISNULL(A.STATUS, '有效') AS STATUS "
+                    + "FROM TND_PROJECT_FORM a left JOIN TND_PROJECT_FORM_ITEM b ON a.FORM_ID = b.FORM_ID "
                     + "WHERE ISNULL(A.STATUS,'有效')=@status "
                     + "GROUP BY a.FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, a.PROJECT_ID,a.STATUS "
-                    +"HAVING  a.SUPPLIER_ID IS NOT NULL "
+                    + "HAVING  a.SUPPLIER_ID IS NOT NULL "
                     + "AND a.PROJECT_ID =@projectid ORDER BY a.FORM_ID DESC, a.FORM_NAME ";
                 lst = context.Database.SqlQuery<SupplierFormFunction>(sql, new SqlParameter("status", status), new SqlParameter("projectid", projectid)).ToList();
             }
@@ -1555,7 +1556,7 @@ namespace topmeperp.Service
         /// <param name="formid"></param>
         /// <param name="status"></param>
         /// <returns></returns>
-        public int changeProjectFormStatus(string formid,string status)
+        public int changeProjectFormStatus(string formid, string status)
         {
             int i = 0;
             logger.Info("Update project form status formid=" + formid + ",status=" + status);
@@ -1569,6 +1570,27 @@ namespace topmeperp.Service
             db = null;
             logger.Debug("Update project form status  :" + i);
             return i;
+        }
+        public string zipAllTemplate4Download(string projectid)
+        {
+            //1.取得專案所有空白詢價單
+            List<TND_PROJECT_FORM> lstTemplate = getFormTemplateByProject(projectid);
+            ZipFileCreator zipTool = new ZipFileCreator();
+            //2.設定暫存目錄
+            string tempFolder = ContextService.strUploadPath + "\\" + projectid + "\\" + ContextService.quotesFolder + "\\Temp\\";
+            ZipFileCreator.ClearDirectory(tempFolder);
+            ZipFileCreator.CreateDirectory(tempFolder);
+            //3.批次產生空白詢價單
+            InquiryFormToExcel poi = new InquiryFormToExcel();
+            TND_PROJECT p = getProjectById(projectid);
+            foreach (TND_PROJECT_FORM f in lstTemplate)
+            {
+                getInqueryForm(f.FORM_ID);
+                string fileLocation = poi.exportExcel(formInquiry, formInquiryItem, true);
+                logger.Debug("temp file=" + fileLocation);
+            }
+            //4.Zip all file
+            return zipTool.ZipFiles(tempFolder, null, p.PROJECT_NAME);
         }
     }
     #endregion
