@@ -1578,7 +1578,7 @@ namespace topmeperp.Service
             ZipFileCreator zipTool = new ZipFileCreator();
             //2.設定暫存目錄
             string tempFolder = ContextService.strUploadPath + "\\" + projectid + "\\" + ContextService.quotesFolder + "\\Temp\\";
-            ZipFileCreator.ClearDirectory(tempFolder);
+            ZipFileCreator.DelDirectory(tempFolder);
             ZipFileCreator.CreateDirectory(tempFolder);
             //3.批次產生空白詢價單
             InquiryFormToExcel poi = new InquiryFormToExcel();
