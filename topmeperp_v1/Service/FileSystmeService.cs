@@ -11,6 +11,9 @@ using System.Collections;
 
 namespace topmeperp.Service
 {
+    /// <summary>
+    /// Zip & Unzip 工具
+    /// </summary>
     public class ZipFileCreator
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -28,7 +31,6 @@ namespace topmeperp.Service
             return files;
         }
         //建立目錄
-
         public static void CreateDirectory(string path)
         {
             if (!Directory.Exists(path))
@@ -37,7 +39,7 @@ namespace topmeperp.Service
                 Directory.CreateDirectory(path);
             }
         }
-        public static void ClearDirectory(string path)
+        public static void DelDirectory(string path)
         {
             try
             {
@@ -95,6 +97,57 @@ namespace topmeperp.Service
                 zos.Dispose();
             }
             return zipPath;
+        }
+
+        ///
+        /// 解壓縮檔案
+        ///
+        ///解壓縮檔案目錄路徑
+        ///密碼
+        public void UnZipFiles(string path, string password)
+        {
+            ZipInputStream zis = null;
+
+            try
+            {
+                string unZipPath = path.Replace(".zip", "");
+                CreateDirectory(unZipPath);
+                zis = new ZipInputStream(File.OpenRead(path));
+                if (password != null && password != string.Empty) zis.Password = password;
+                ZipEntry entry;
+
+                while ((entry = zis.GetNextEntry()) != null)
+                {
+                    string filePath = unZipPath + @"\" + entry.Name;
+
+                    if (entry.Name != "")
+                    {
+                        FileStream fs = File.Create(filePath);
+                        int size = 2048;
+                        byte[] buffer = new byte[2048];
+                        while (true)
+                        {
+                            size = zis.Read(buffer, 0, buffer.Length);
+                            if (size > 0) { fs.Write(buffer, 0, size); }
+                            else { break; }
+                        }
+
+                        fs.Close();
+                        fs.Dispose();
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            finally
+            {
+                zis.Close();
+                zis.Dispose();
+            }
         }
     }
 }
