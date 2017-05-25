@@ -19,23 +19,35 @@ namespace topmeperp.Controllers
         {
             if (null != Request["projectid"])
             {
-                log.Debug("get project task by project" + Request["projectid"]);
-                DataTable dt = planService.getProjectTask(Request["projectid"]);
-                string htmlString = "<table class='table table-bordered'><tr>";
-                for (int i = 0; i < dt.Columns.Count; i++)
+                string projectid = Request["projectid"];
+                string prjuid = null;
+                log.Debug("get project task by project:" + projectid);
+                if (null != Request["projectid"] && "" != Request["projectid"])
                 {
-                    log.Debug("column name=" + dt.Columns[i].ColumnName);
-                    htmlString = htmlString + "<th>" + dt.Columns[i].ColumnName + "</th>";
+                    prjuid = Request["prjuid"];
+                    log.Debug("get project task by child task by prj_uid:" + prjuid);
                 }
-                htmlString = htmlString + "</tr>";
+
+                DataTable dt = null;
+                if (null == prjuid || prjuid=="")
+                {
+                    //取得所有任務
+                    dt= planService.getProjectTask(projectid);
+                }
+                else
+                {
+                    //取得所有子項任務
+                    dt = planService.getChildTask(projectid, int.Parse(prjuid));
+                }
+                string htmlString = "<table class='table table-bordered'>";
+
+                htmlString = htmlString + "<tr><th>層級</th><th>任務名稱</th><th>--</th><th>--</th></tr>";
                 foreach (DataRow dr in dt.Rows)
                 {
-                    htmlString = htmlString + "<tr>";
-                    for (int i = 0; i < dt.Columns.Count; i++)
-                    {
-                        htmlString = htmlString + "<td>" + dr[i] + "</td>";
-                    }
-                    htmlString = htmlString + "</tr>";
+
+                    htmlString = htmlString + "<tr><td>" + dr[1] + "</td><td>" + dr[0] + "</td>"
+                        + "<td ><a href =\"Index?projectid=" + projectid + "&prjuid=" + dr[3] + "\">上一層 </a></td>"
+                        + "<td><a href=\"Index?projectid=" + projectid + "&prjuid=" + dr[2] + "\">下一層 </a></td></tr>";
                 }
                 htmlString = htmlString + "</table>";
                 ViewBag.htmlResult = htmlString;
@@ -74,7 +86,7 @@ namespace topmeperp.Controllers
                 }
             }
             return Redirect("Index?projectid=" + Request["projectid"]);
-           // return View("Index/projectid=" + Request["projectid"]);
+            // return View("Index/projectid=" + Request["projectid"]);
         }
     }
 }
