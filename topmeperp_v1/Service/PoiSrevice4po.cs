@@ -451,36 +451,5 @@ namespace topmeperp.Service
             }
         }
     }
-    //將多個檔案壓縮的方法
-    public static class ZipFileCreator
-    {
-        /// <summary>
-        /// Create a ZIP file of the files provided.
-        /// </summary>
-        /// <param name="fileName">The full path and name to store the ZIP file at.</param>
-        /// <param name="files">The list of files to be added.</param>
-        public static void CreateZipFile(string fileName, IEnumerable<string> files)
-        {
-            var inputFile = "1.iso";
-            var outputFile = "1.zip";
-            byte[] buffer = new byte[4096];
-            using (var output = new FileStream(outputFile, FileMode.Create, FileAccess.Write))
-            using (var input = new FileStream(inputFile, FileMode.Open, FileAccess.Read))
-            using (var zip = new ZipOutputStream(output))
-            {
-                ZipEntry entry = new ZipEntry(inputFile);
-                entry.DateTime = DateTime.Now;
-                zip.PutNextEntry(entry);
-                int readLength;
-                do
-                {
-                    readLength = input.Read(buffer, 0, buffer.Length);
-                    if (readLength > 0)
-                    {
-                        zip.Write(buffer, 0, readLength);
-                    }
-                } while (readLength > 0);
-            }
-        }
-    }
+   
 }

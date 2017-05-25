@@ -68,7 +68,7 @@ namespace topmeperp.Controllers
             //產生詢價單實體檔案-old
             service.getInqueryForm(fid);
             InquiryFormToExcel poi = new InquiryFormToExcel();
-            poi.exportExcel(service.formInquiry, service.formInquiryItem);
+            poi.exportExcel(service.formInquiry, service.formInquiryItem,false);
             return Redirect("InquiryMainPage?id=" + qf.PROJECT_ID);
             //return RedirectToAction("InquiryMainPage","Inquiry", qf.PROJECT_ID);
         }
@@ -134,7 +134,7 @@ namespace topmeperp.Controllers
             //產生廠商詢價單實體檔案
             service.getInqueryForm(i);
             InquiryFormToExcel poi = new InquiryFormToExcel();
-            poi.exportExcel(service.formInquiry, service.formInquiryItem);
+            poi.exportExcel(service.formInquiry, service.formInquiryItem,false);
             if (i == "")
             {
                 msg = service.message;
@@ -203,22 +203,7 @@ namespace topmeperp.Controllers
             log.Info("Request: FORM_ID = " + formid + "FORM_NAME =" + form["formname"] + "SUPPLIER_NAME =" + form["supplier"]);
             return msg;
         }
-        //測試詢價單下載
-        public ActionResult ExportInquiry()
-        {
-            return View();
-        }
-        [HttpPost]
-        public ActionResult ExportInquiry(FormCollection form)
-        {
-            log.Info("get inquiry form:formid=" + form["formid"]);
-            log.Info("get form's project id :projectid=" + form["prjId"]);
-            service.getInqueryForm(form["formid"]);
 
-            InquiryFormToExcel poi = new InquiryFormToExcel();
-            poi.exportExcel(service.formInquiry, service.formInquiryItem);
-            return View();
-        }
         ///詢價單管理頁面
         public ActionResult InquiryMainPage(string id)
         {
@@ -442,6 +427,9 @@ namespace topmeperp.Controllers
             int i = service.createEmptyForm(Request["projectid"], u);
             return "共產生 " + i + "空白詢價單樣本!!";
         }
+        /// <summary>
+        /// 下載空白詢價單
+        /// </summary>
         public void downLoadInquiryForm()
         {
             string formid = Request["formid"];
@@ -450,7 +438,7 @@ namespace topmeperp.Controllers
             {
                 InquiryFormToExcel poi = new InquiryFormToExcel();
                 //檔案位置
-                string fileLocation = poi.exportExcel(service.formInquiry, service.formInquiryItem);
+                string fileLocation = poi.exportExcel(service.formInquiry, service.formInquiryItem,false);
                 //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
                 string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
                 Response.Clear();
@@ -460,6 +448,31 @@ namespace topmeperp.Controllers
                 ///"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx"
                 Response.WriteFile(fileLocation);
                 Response.End();
+            }
+        }
+
+        //下載所有空白詢價單(採用zip 壓縮)
+        public void downloadAllTemplate()
+        {
+            string projectid = Request["projectid"];
+            log.Debug("create all template file by projectid=" + projectid);
+            service.zipAllTemplate4Download(projectid);
+
+            //service.getInqueryForm(formid);
+            if (null != service.formInquiry)
+            {
+                //InquiryFormToExcel poi = new InquiryFormToExcel();
+                //檔案位置
+                //string fileLocation = poi.exportExcel(service.formInquiry, service.formInquiryItem,true);
+                //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
+                //string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
+                //Response.Clear();
+                //Response.Charset = "utf-8";
+                //Response.ContentType = "text/xls";
+                //Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", filename + ".xlsx"));
+                /////"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx"
+                //Response.WriteFile(fileLocation);
+                //Response.End();
             }
         }
         public void changeStatus()

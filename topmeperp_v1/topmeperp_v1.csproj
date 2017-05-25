@@ -515,6 +515,7 @@
     <Compile Include="Service\ContextService.cs" />
     <Compile Include="Service\ContextService4po.cs" />
     <Compile Include="Service\ContextService4System.cs" />
+    <Compile Include="Service\FileSystmeService.cs" />
     <Compile Include="Service\OfficeProjectService.cs" />
     <Compile Include="Service\PoiService.cs" />
     <Compile Include="Service\PoiSrevice4po.cs" />

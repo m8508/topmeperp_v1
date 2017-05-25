@@ -1694,7 +1694,7 @@ namespace topmeperp.Service
 
         // string fileformat = "xlsx";
         //建立詢價單樣板
-        public string exportExcel(TND_PROJECT_FORM form, List<TND_PROJECT_FORM_ITEM> formItems)
+        public string exportExcel(TND_PROJECT_FORM form, List<TND_PROJECT_FORM_ITEM> formItems,bool isTemp)
         {
             //1.讀取樣板檔案
             InitializeWorkbook(templateFile);
@@ -1752,8 +1752,16 @@ namespace topmeperp.Service
                 row.Cells[26].SetCellValue(item.PROJECT_ITEM_ID);
                 idxRow++;
             }
-            //4.令存新檔至專案所屬目錄
-            string fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_NAME + "_空白.xlsx";
+            //4.另存新檔至專案所屬目錄 (增加Temp for zip 打包使用
+            string fileLocation = null;
+            if (isTemp)
+            {
+                fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\Temp\\" + form.FORM_NAME + "_空白.xlsx";
+            }
+            else
+            {
+                fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_NAME + "_空白.xlsx";
+            }
             var file = new FileStream(fileLocation, FileMode.Create);
             logger.Info("new file name =" + file.Name + ",path=" + file.Position);
             hssfworkbook.Write(file);
