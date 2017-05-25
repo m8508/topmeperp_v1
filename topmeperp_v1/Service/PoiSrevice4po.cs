@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using ICSharpCode.SharpZipLib.Zip;
+using log4net;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
@@ -450,6 +451,7 @@ namespace topmeperp.Service
             }
         }
     }
+    //將多個檔案壓縮的方法
     public static class ZipFileCreator
     {
         /// <summary>
@@ -459,15 +461,26 @@ namespace topmeperp.Service
         /// <param name="files">The list of files to be added.</param>
         public static void CreateZipFile(string fileName, IEnumerable<string> files)
         {
-            // Create and open a new ZIP file
-            var zip = ZipFile.Open(fileName, ZipArchiveMode.Create);
-            foreach (var file in files)
+            var inputFile = "1.iso";
+            var outputFile = "1.zip";
+            byte[] buffer = new byte[4096];
+            using (var output = new FileStream(outputFile, FileMode.Create, FileAccess.Write))
+            using (var input = new FileStream(inputFile, FileMode.Open, FileAccess.Read))
+            using (var zip = new ZipOutputStream(output))
             {
-                // Add the entry for each file
-                zip.CreateEntryFromFile(file, Path.GetFileName(file), CompressionLevel.Optimal);
+                ZipEntry entry = new ZipEntry(inputFile);
+                entry.DateTime = DateTime.Now;
+                zip.PutNextEntry(entry);
+                int readLength;
+                do
+                {
+                    readLength = input.Read(buffer, 0, buffer.Length);
+                    if (readLength > 0)
+                    {
+                        zip.Write(buffer, 0, readLength);
+                    }
+                } while (readLength > 0);
             }
-            // Dispose of the object when we are done
-            zip.Dispose();
         }
     }
 }

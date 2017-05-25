@@ -110,18 +110,36 @@ namespace topmeperp.Service
     {
         public DataTable getProjectTask(string projectid)
         {
-            string sql = "WITH PrjTree(TASK_NAME, PRJ_UID, LV_NO) AS "
-                + " (SELECT TASK_NAME, PRJ_UID, 0 LV_NO "
+            string sql = "WITH PrjTree(TASK_NAME, PRJ_UID, LV_NO,PRJ_ID) AS "
+                + " (SELECT TASK_NAME, PRJ_UID, 0 LV_NO,PRJ_ID "
                 + " FROM PLAN_TASK  WHERE PARENT_UID IS  NULL  AND PROJECT_ID = @projectid AND PRJ_UID = 0 "
                 + " UNION ALL "
-                + " SELECT P.TASK_NAME, P.PRJ_UID, B.LV_NO + 1 "
+                + " SELECT P.TASK_NAME, P.PRJ_UID, B.LV_NO + 1,P.PRJ_ID "
                 + " FROM PLAN_TASK P, PrjTree B "
                 + " WHERE P.PARENT_UID = B.PRJ_UID and P.TASK_NAME is not null )"
-                + " SELECT(REPLICATE('-', LV_NO) + TASK_NAME) as 'TASK_NAME', PRJ_UID "
-                + " FROM PrjTree ORDER BY LV_NO";
+                + " SELECT(REPLICATE('**', LV_NO) + TASK_NAME) as 'TASK_NAME',LV_NO,PRJ_UID "
+                + " FROM PrjTree ORDER BY PRJ_ID";
             var parameters = new Dictionary<string, Object>();
             //設定專案名編號資料
             parameters.Add("projectid", projectid);
+            DataSet ds = ExecuteStoreQuery(sql, CommandType.Text, parameters);
+            return ds.Tables[0];
+        }
+        public DataTable getChildTask(string projectid,int prjuid)
+        {
+            string sql = "WITH PrjTree(TASK_NAME, PRJ_UID, LV_NO,PRJ_ID) AS "
+                + " (SELECT TASK_NAME, PRJ_UID, 0 LV_NO,PRJ_ID "
+                + " FROM PLAN_TASK  WHERE PARENT_UID IS  NULL  AND PROJECT_ID = @projectid AND PRJ_UID = @prjuid "
+                + " UNION ALL "
+                + " SELECT P.TASK_NAME, P.PRJ_UID, B.LV_NO + 1,P.PRJ_ID "
+                + " FROM PLAN_TASK P, PrjTree B "
+                + " WHERE P.PARENT_UID = B.PRJ_UID and P.TASK_NAME is not null )"
+                + " SELECT(REPLICATE('**', LV_NO) + TASK_NAME) as 'TASK_NAME',LV_NO,PRJ_UID "
+                + " FROM PrjTree ORDER BY PRJ_ID";
+            var parameters = new Dictionary<string, Object>();
+            //設定專案名編號資料
+            parameters.Add("projectid", projectid);
+            parameters.Add("prjuid", prjuid);
             DataSet ds = ExecuteStoreQuery(sql, CommandType.Text, parameters);
             return ds.Tables[0];
         }
