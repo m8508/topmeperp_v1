@@ -24,7 +24,7 @@
         <AssociationConnector Association="topmepModel.FK_SYS_PRIVILEGE_SYS_FUNCTION" ManuallyRouted="false" />
         <AssociationConnector Association="topmepModel.FK_SYS_PRIVILEGE_SYS_ROLE" ManuallyRouted="false" />
         <AssociationConnector Association="topmepModel.FK_SYS_USER_SYS_ROLE" ManuallyRouted="false" />
-        <EntityTypeShape EntityType="topmepModel.TND_PROJECT" Width="3.875" PointX="14.5" PointY="1" IsExpanded="true" />
+        <EntityTypeShape EntityType="topmepModel.TND_PROJECT" Width="3.875" PointX="14.75" PointY="1.125" IsExpanded="true" />
         <EntityTypeShape EntityType="topmepModel.TND_PROJECT_FORM_ITEM" Width="4.375" PointX="16" PointY="5" IsExpanded="true" />
         <EntityTypeShape EntityType="topmepModel.TND_MAP_LCP" Width="1.5" PointX="8.375" PointY="8.75" />
         <EntityTypeShape EntityType="topmepModel.TND_MAP_PLU" Width="1.5" PointX="16.375" PointY="8.75" />
