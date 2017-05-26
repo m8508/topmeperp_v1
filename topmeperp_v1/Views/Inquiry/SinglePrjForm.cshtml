@@ -8,8 +8,21 @@
 <div class="page-header">
     <form id="formSupplier" name="formSupplier" action="UpdatePrjForm" method="post">
         <div class="row">
-            <div class="col-md-11"><h3 class="text-center">協成水電工程事業有限公司-採購詢價單</h3></div>
+            <div class="col-md-8"><h3 class="text-center">協成水電工程事業有限公司-採購詢價單</h3></div>
+            <div class="col-md-3">
+                <h5 class="text-right">
+                    工資:
+                    @if (@Model.prjForm.ISWAGE == "Y")
+                    {
+                        <input type="checkbox" name="isWage" id="isWage" value="Y" checked />}
+                    else
+                    {
+                        <input type="checkbox" name="isWage" id="isWage" value="Y"/>
+                    }
+                </h5>
+            </div>
             <div class="col-md-1 alert-warning"><h5 class="text-right">狀態:@Model.prjForm.STATUS</h5></div>
+
         </div>
         <!-- Reg-Form new { enctype = "multipart/form-data" } -->
 
@@ -210,13 +223,13 @@
         }
         @if (Model.prjForm.STATUS != "有效")
         {
-            <input type="button" value="回復" class="btn btn-info" id="disableBtn" onclick="chaneFormStatus('有效')"/>
+            <input type="button" value="回復" class="btn btn-info" id="disableBtn" onclick="chaneFormStatus('有效')" />
         }
         else
         {
             <input type="button" value="註銷" class="btn btn-warning" id="disableBtn" onclick="chaneFormStatus('註銷')" />
         }
-       
+
     </div>
 </div>
 <script>

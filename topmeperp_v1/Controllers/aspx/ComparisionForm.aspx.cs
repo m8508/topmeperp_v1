@@ -22,7 +22,7 @@ namespace topmeperp.Views.Inquiry
                 //傳入查詢條件
                 log.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"]);
                 //取得備標品項與詢價資料
-                DataTable dt = service.getComparisonDataToPivot(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
+                DataTable dt = service.getComparisonDataToPivot(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"],"N");
                 labelMsg.Text = "共" + dt.Rows.Count + "筆";
                 //grdRawData.DataSource = dt;
                 //grdRawData.DataBind();
