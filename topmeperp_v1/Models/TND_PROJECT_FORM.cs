@@ -31,5 +31,6 @@ namespace topmeperp.Models
         public string MODIFY_ID { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
         public string STATUS { get; set; }
+        public string ISWAGE { get; set; }
     }
 }

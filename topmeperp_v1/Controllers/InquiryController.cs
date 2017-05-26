@@ -102,6 +102,7 @@ namespace topmeperp.Controllers
             ViewBag.Supplier = selectSupplier;
             return View(singleForm);
         }
+
         public String UpdatePrjForm(FormCollection form)
         {
             log.Info("form:" + form.Count);
@@ -117,6 +118,11 @@ namespace topmeperp.Controllers
             fm.OWNER_FAX = form.Get("inputownerfax").Trim();
             fm.OWNER_EMAIL = form.Get("inputowneremail").Trim();
             fm.FORM_NAME = form.Get("formname").Trim();
+            fm.ISWAGE = "N";
+            if (null != form.Get("isWage"))
+            {
+                fm.ISWAGE = form.Get("isWage").Trim();
+            }
             TND_SUPPLIER s = service.getSupplierInfo(form.Get("Supplier").Substring(0, 7).Trim());
             fm.CONTACT_NAME = s.CONTACT_NAME;
             fm.CONTACT_EMAIL = s.CONTACT_EMAIL;
@@ -155,6 +161,12 @@ namespace topmeperp.Controllers
             // 取得供應商詢價單資料
             TND_PROJECT_FORM fm = new TND_PROJECT_FORM();
             SYS_USER loginUser = (SYS_USER)Session["user"];
+            fm.PROJECT_ID = form.Get("projectid").Trim();
+            fm.ISWAGE = "N";
+            if (null != form.Get("isWage"))
+            {
+                fm.ISWAGE = form.Get("isWage");
+            }
             fm.PROJECT_ID = form.Get("projectid").Trim();
             fm.SUPPLIER_ID = form.Get("supplier").Trim();
             fm.DUEDATE = Convert.ToDateTime(form.Get("inputdateline"));
@@ -222,6 +234,12 @@ namespace topmeperp.Controllers
         {
             log.Info("Upload form from supplier:" + Request["projectid"]);
             string projectid = Request["projectid"];
+            string iswage = "N";
+            if (null != Request["isWage"])
+            {
+                log.Debug("isWage:" + Request["isWage"]);
+                iswage = "Y";
+            }
             //上傳至廠商報價單目錄
             if (null != file && file.ContentLength != 0)
             {
@@ -232,7 +250,7 @@ namespace topmeperp.Controllers
                 InquiryFormToExcel quoteFormService = new InquiryFormToExcel();
                 try
                 {
-                    quoteFormService.convertInquiry2Project(path, projectid);
+                    quoteFormService.convertInquiry2Project(path, projectid, iswage);
                 }
                 catch (Exception ex)
                 {
@@ -308,10 +326,15 @@ namespace topmeperp.Controllers
         {
             //傳入查詢條件
             log.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"]);
+            string iswage = "N";
             //取得備標品項與詢價資料
             try
             {
-                DataTable dt = service.getComparisonDataToPivot(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
+                if (null != Request["isWage"])
+                {
+                    iswage = Request["isWage"];
+                }
+                DataTable dt = service.getComparisonDataToPivot(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], iswage);
                 @ViewBag.ResultMsg = "共" + dt.Rows.Count + "筆";
                 string htmlString = "<table class='table table-bordered'><tr>";
                 //處理表頭
@@ -332,7 +355,7 @@ namespace topmeperp.Controllers
                     string strAmout = string.Format("{0:C0}", tAmount);
 
                     htmlString = htmlString + "<th><table><tr><td>" + tmpString[0] +
-                        "<br/><button type='button' class='btn-xs' onclick=\"clickSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>" +
+                        "<br/><button type='button' class='btn-xs' onclick=\"clickSupplier('" + tmpString[1] + "','"+ iswage+ "')\"><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>" +
                         "<button type='button' class='btn-xs'><a href='/Inquiry/SinglePrjForm/" + tmpString[1] + "'" + " target='_blank'><span class='glyphicon glyphicon-list-alt' aria-hidden='true'></span></a></button>" +
                         "<button type='button' class='btn-xs' onclick=\"chaneFormStatus('" + tmpString[1] + "','註銷')\"><span class='glyphicon glyphicon-remove' aria-hidden='true'></span></a></button>" +
                         "</td><tr><td style='text-align:center;background-color:yellow;' >" + strAmout + "</td></tr></table></th>";
@@ -363,7 +386,7 @@ namespace topmeperp.Controllers
                     {
                         if (dr[i].ToString() != "")
                         {
-                            htmlString = htmlString + "<td><button class='btn-link' onclick=\"clickPrice('" + dr[1] + "', '" + dr[i] + "')\">" + String.Format("{0:N0}", (decimal)dr[i]) + "</button> </td>";
+                            htmlString = htmlString + "<td><button class='btn-link' onclick=\"clickPrice('" + dr[1] + "', '" + dr[i] + "','"+ iswage + "')\">" + String.Format("{0:N0}", (decimal)dr[i]) + "</button> </td>";
                         }
                         else
                         {
@@ -387,11 +410,12 @@ namespace topmeperp.Controllers
         //更新單項成本資料
         public string UpdateCost4Item()
         {
-            log.Info("ProjectItemID=" + Request["pitmid"] + ",Cost=" + Request["price"]);
+            log.Info("ProjectItemID=" + Request["pitmid"] + ",Cost=" + Request["price"]+",iswage=" + Request["iswage"]);
+
             try
             {
                 decimal cost = decimal.Parse(Request["price"]);
-                service.updateCostFromQuote(Request["pitmid"], cost);
+                service.updateCostFromQuote(Request["pitmid"], cost, Request["iswage"]);
             }
             catch (Exception ex)
             {
@@ -403,8 +427,8 @@ namespace topmeperp.Controllers
         //依據詢價單內容，更新標單所有單價
         public string BatchUpdateCost(string formid)
         {
-            log.Info("formid=" + Request["formid"]);
-            int i = service.batchUpdateCostFromQuote(Request["formid"]);
+            log.Info("formid=" + Request["formid"]+",iswage=" + Request["iswage"]);
+            int i = service.batchUpdateCostFromQuote(Request["formid"],Request["iswage"]);
             return "更新成功!!";
         }
         //成本分析

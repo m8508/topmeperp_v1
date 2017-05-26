@@ -685,7 +685,7 @@ namespace topmeperp.Service
                     }
                     j = context.SaveChanges();
                     logger.Debug("Update supplier inquiry form item =" + j);
-                    return j;
+                    return 1;
                 }
                 catch (Exception e)
                 {
@@ -1282,7 +1282,8 @@ namespace topmeperp.Service
                 //取得詢價單檔頭資訊
                 string sql = "SELECT FORM_ID,PROJECT_ID,FORM_NAME,OWNER_NAME,OWNER_TEL "
                     + ",OWNER_EMAIL, OWNER_FAX, SUPPLIER_ID, CONTACT_NAME, CONTACT_EMAIL "
-                    + ",DUEDATE, REF_ID, CREATE_ID, CREATE_DATE, MODIFY_ID, MODIFY_DATE, ISNULL(STATUS,'有效') STATUS "
+                    + ",DUEDATE, REF_ID, CREATE_ID, CREATE_DATE, MODIFY_ID"
+                    + ",MODIFY_DATE,ISNULL(STATUS,'有效') as STATUS,ISNULL(ISWAGE,'N') as ISWAGE "
                     + "FROM TND_PROJECT_FORM WHERE FORM_ID = @formid";
                 formInquiry = context.TND_PROJECT_FORM.SqlQuery(sql, new SqlParameter("formid", formid)).First();
                 //取得詢價單明細
@@ -1329,7 +1330,7 @@ namespace topmeperp.Service
             return lst;
         }
         //取得特定專案報價之供應商資料
-        public List<COMPARASION_DATA> getComparisonData(string projectid, string typecode1, string typecode2, string systemMain, string systemSub)
+        public List<COMPARASION_DATA> getComparisonData(string projectid, string typecode1, string typecode2, string systemMain, string systemSub,string iswage)
         {
             List<COMPARASION_DATA> lst = new List<COMPARASION_DATA>();
             string sql = "SELECT  pfItem.FORM_ID AS FORM_ID, " +
@@ -1337,10 +1338,12 @@ namespace topmeperp.Service
                 "FROM TND_PROJECT_ITEM pItem LEFT OUTER JOIN " +
                 "TND_PROJECT_FORM_ITEM pfItem ON pItem.PROJECT_ITEM_ID = pfItem.PROJECT_ITEM_ID " +
                 "inner join TND_PROJECT_FORM f on pfItem.FORM_ID = f.FORM_ID " +
-                "WHERE pItem.PROJECT_ID = @projectid AND SUPPLIER_ID is not null AND ISNULL(f.STATUS,'有效')='有效' ";
+                "WHERE pItem.PROJECT_ID = @projectid AND SUPPLIER_ID is not null AND ISNULL(f.STATUS,'有效')='有效' AND ISNULL(f.ISWAGE,'N')=@iswage ";
             var parameters = new List<SqlParameter>();
             //設定專案名編號資料
             parameters.Add(new SqlParameter("projectid", projectid));
+            //設定報價單條件，材料或工資
+            parameters.Add(new SqlParameter("iswage", iswage));
             //九宮格條件
             if (null != typecode1 && "" != typecode1)
             {
@@ -1380,7 +1383,7 @@ namespace topmeperp.Service
             return lst;
         }
         //比價資料
-        public DataTable getComparisonDataToPivot(string projectid, string typecode1, string typecode2, string systemMain, string systemSub)
+        public DataTable getComparisonDataToPivot(string projectid, string typecode1, string typecode2, string systemMain, string systemSub,string iswage)
         {
 
             string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PROJECT_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
@@ -1390,6 +1393,17 @@ namespace topmeperp.Service
                 "left join TND_PROJECT_FORM_ITEM fitem " +
                 " on pitem.PROJECT_ITEM_ID = fitem.PROJECT_ITEM_ID " +
                 "where pitem.PROJECT_ID = @projectid ";
+
+            if (iswage == "Y")
+            {
+                sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PROJECT_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
+                "(SELECT SUPPLIER_ID+'|'+ fitem.FORM_ID FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID) as SUPPLIER_NAME, " +
+                "pitem.MAN_PRICE 工資單價,fitem.ITEM_UNIT_PRICE " +
+                "from TND_PROJECT_ITEM pitem " +
+                "left join TND_PROJECT_FORM_ITEM fitem " +
+                " on pitem.PROJECT_ITEM_ID = fitem.PROJECT_ITEM_ID " +
+                "where pitem.PROJECT_ID = @projectid ";
+            }
 
             var parameters = new Dictionary<string, Object>();
             //設定專案名編號資料
@@ -1423,7 +1437,7 @@ namespace topmeperp.Service
                 parameters.Add("systemSub", systemSub);
             }
             //取的欄位維度條件
-            List<COMPARASION_DATA> lstSuppluerQuo = getComparisonData(projectid, typecode1, typecode2, systemMain, systemSub);
+            List<COMPARASION_DATA> lstSuppluerQuo = getComparisonData(projectid, typecode1, typecode2, systemMain, systemSub,iswage);
             if (lstSuppluerQuo.Count == 0)
             {
                 throw new Exception("相關條件沒有任何報價資料!!");
@@ -1462,10 +1476,10 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 //取得詢價單樣本資訊
-                string sql = "SELECT[FORM_ID],[PROJECT_ID],[FORM_NAME],[OWNER_NAME],[OWNER_TEL],[OWNER_EMAIL] "
-                    + ",[OWNER_FAX],[SUPPLIER_ID],[CONTACT_NAME],[CONTACT_EMAIL],[DUEDATE],[REF_ID],[CREATE_ID],[CREATE_DATE] "
-                    + ",[MODIFY_ID],[MODIFY_DATE],ISNULL([STATUS],'有效') [STATUS] "
-                    + "FROM[topmep].[dbo].[TND_PROJECT_FORM] WHERE SUPPLIER_ID IS NULL AND PROJECT_ID =@projectid ORDER BY FORM_ID DESC";
+                string sql = "SELECT FORM_ID,PROJECT_ID,FORM_NAME,OWNER_NAME,OWNER_TEL,OWNER_EMAIL "
+                    + ",OWNER_FAX,SUPPLIER_ID,CONTACT_NAME,CONTACT_EMAIL,DUEDATE,REF_ID,CREATE_ID,CREATE_DATE "
+                    + ",MODIFY_ID,MODIFY_DATE,ISNULL(STATUS,'有效') STATUS, ISNULL(ISWAGE,'N') ISWAGE "
+                    + "FROM TND_PROJECT_FORM WHERE SUPPLIER_ID IS NULL AND PROJECT_ID =@projectid ORDER BY FORM_ID DESC";
                 lst = context.TND_PROJECT_FORM.SqlQuery(sql, new SqlParameter("projectid", projectid)).ToList();
             }
             return lst;
@@ -1481,10 +1495,10 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 string sql = "SELECT a.FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, SUM(b.ITEM_QTY*b.ITEM_UNIT_PRICE) AS TOTAL_PRICE, "
-                    + "ROW_NUMBER() OVER(ORDER BY a.FORM_ID DESC) AS NO, ISNULL(A.STATUS, '有效') AS STATUS "
+                    + "ROW_NUMBER() OVER(ORDER BY a.FORM_ID DESC) AS NO, ISNULL(A.STATUS, '有效') AS STATUS,ISNULL(A.ISWAGE,'N') ISWAGE "
                     + "FROM TND_PROJECT_FORM a left JOIN TND_PROJECT_FORM_ITEM b ON a.FORM_ID = b.FORM_ID "
                     + "WHERE ISNULL(A.STATUS,'有效')=@status "
-                    + "GROUP BY a.FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, a.PROJECT_ID,a.STATUS "
+                    + "GROUP BY a.FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, a.PROJECT_ID,a.STATUS,a.ISWAGE "
                     + "HAVING  a.SUPPLIER_ID IS NOT NULL "
                     + "AND a.PROJECT_ID =@projectid ORDER BY a.FORM_ID DESC, a.FORM_NAME ";
                 lst = context.Database.SqlQuery<SupplierFormFunction>(sql, new SqlParameter("status", status), new SqlParameter("projectid", projectid)).ToList();
@@ -1516,12 +1530,17 @@ namespace topmeperp.Service
             return i;
         }
         //由報價單資料更新標單資料
-        public int updateCostFromQuote(string projectItemid, decimal price)
+        public int updateCostFromQuote(string projectItemid, decimal price,string iswage)
         {
             int i = 0;
             logger.Info("Update Cost:project item id=" + projectItemid + ",price=" + price);
             db = new topmepEntities();
             string sql = "UPDATE TND_PROJECT_ITEM SET ITEM_UNIT_PRICE=@price WHERE PROJECT_ITEM_ID=@pitemid ";
+            //將工資報價單更新工資報價欄位
+            if (iswage == "Y")
+            {
+                sql = "UPDATE TND_PROJECT_ITEM SET MAN_PRICE=@price WHERE PROJECT_ITEM_ID=@pitemid ";
+            }
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("price", price));
             parameters.Add(new SqlParameter("pitemid", projectItemid));
@@ -1531,7 +1550,7 @@ namespace topmeperp.Service
             logger.Info("Update Cost:" + i);
             return i;
         }
-        public int batchUpdateCostFromQuote(string formid)
+        public int batchUpdateCostFromQuote(string formid,string iswage)
         {
             int i = 0;
             logger.Info("Copy cost from Quote to Tnd by form id" + formid);
@@ -1540,6 +1559,15 @@ namespace topmeperp.Service
                 + ", TND_PROJECT_FORM_ITEM fi "
                 + "where i.PROJECT_ITEM_ID = fi.PROJECT_ITEM_ID and FORM_ID = @formid) i "
                 + "WHERE  i.project_item_id = TND_PROJECT_ITEM.PROJECT_ITEM_ID";
+            //將工資報價單更新工資報價欄位
+            if (iswage == "Y")
+            {
+                sql = "UPDATE  TND_PROJECT_ITEM SET MAN_PRICE = i.ITEM_UNIT_PRICE "
+                + "FROM (select i.project_item_id, fi.ITEM_UNIT_PRICE, fi.FORM_ID from TND_PROJECT_ITEM i "
+                + ", TND_PROJECT_FORM_ITEM fi "
+                + "where i.PROJECT_ITEM_ID = fi.PROJECT_ITEM_ID and FORM_ID = @formid) i "
+                + "WHERE  i.project_item_id = TND_PROJECT_ITEM.PROJECT_ITEM_ID";
+            }
             logger.Debug("batch sql:" + sql);
             db = new topmepEntities();
             var parameters = new List<SqlParameter>();

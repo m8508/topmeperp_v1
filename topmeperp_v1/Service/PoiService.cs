@@ -1789,7 +1789,7 @@ namespace topmeperp.Service
                 file.Close();
             }
         }
-        public void convertInquiry2Project(string fileExcel, string projectid)
+        public void convertInquiry2Project(string fileExcel, string projectid,string iswage)
         {
             //1.讀取供應商報價單\
             InitializeWorkbook(fileExcel);
@@ -1815,6 +1815,8 @@ namespace topmeperp.Service
             //專案名稱:	P0120
             logger.Debug(sheet.GetRow(2).Cells[0].ToString() + "," + sheet.GetRow(2).Cells[1]);
             form.PROJECT_ID = projectid;
+            //工資報價單標記
+            form.ISWAGE = iswage;
             //廠商名稱:	Supplier
             logger.Debug(sheet.GetRow(2).Cells[2].ToString() + "," + sheet.GetRow(2).Cells[3]);
             form.SUPPLIER_ID = sheet.GetRow(2).Cells[3].ToString(); //用供應商名稱暫代供應商編號
