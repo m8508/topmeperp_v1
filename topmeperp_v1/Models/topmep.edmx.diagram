@@ -32,13 +32,13 @@
         <EntityTypeShape EntityType="topmepModel.sysdiagrams" Width="1.5" PointX="7.5" PointY="6.375" />
         <EntityTypeShape EntityType="topmepModel.TND_TASKASSIGN" Width="1.5" PointX="12.125" PointY="4.75" />
         <EntityTypeShape EntityType="topmepModel.TND_PROJECT_ITEM" Width="4.375" PointX="16.375" PointY="13.75" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_PAYMENT_TERMS" Width="1.5" PointX="0.75" PointY="18.75" />
         <EntityTypeShape EntityType="topmepModel.TND_PROJECT_FORM" Width="1.5" PointX="5.375" PointY="15.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_BUDGET" Width="1.5" PointX="10.375" PointY="8.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_ITEM" Width="1.5" PointX="12.375" PointY="14.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_TASK" Width="1.5" PointX="19.375" PointY="0.75" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_SUP_INQUIRY_ITEM" Width="1.5" PointX="7.375" PointY="19.75" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_SUP_INQUIRY" Width="1.5" PointX="9.375" PointY="19.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_SUP_INQUIRY" Width="1.5" PointX="7.375" PointY="19.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_SUP_INQUIRY_ITEM" Width="1.5" PointX="9.375" PointY="19.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_PAYMENT_TERMS" Width="1.5" PointX="14.375" PointY="19.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

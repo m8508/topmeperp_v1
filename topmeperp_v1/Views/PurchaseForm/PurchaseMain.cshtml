@@ -6,7 +6,7 @@
 <!--標單項目搜尋區條件區域-->
 <div class="jumbotron">
     <button type="button" class="btn btn-primary" onclick="window.open('@Url.Action("Comparison", "PurchaseForm", new { id = ViewBag.id })'); ">採購比價</button>
-    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PurchasingContract", "PurchaseForm", new { id = ViewBag.id })'; ">查詢採購合約資料</button>
+    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PurchasingContract", "PurchaseForm", new { id = ViewBag.id })'; ">發包收支摘要</button>
     <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PendingItems", "PurchaseForm", new { id = ViewBag.id })'; ">未決標標單品項</button>
     <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
     <form name="formSearch" id="formSearch" action="Search" method="Post" class="form-inline">
@@ -41,7 +41,10 @@
             <span id="JustPrint" style="color: blue; font-size: 20px;">專案名稱 : @ViewBag.projectName </span>
         </div>
         <div style="padding-bottom:30px;">
-            <span id="JustPrint" style="color: blue; font-size: 20px;">需議約之廠商資料列表 : </span>
+            <span id="JustPrint" style="color: blue; font-size: 20px;">需議約之廠商資料表如下 : </span>
+        </div>
+        <div style="padding-bottom:10px;">
+            <span style="color: black; font-size:large;">預算金額 :  </span><span style="border:2px red solid; padding:5px; color: red; font-size: 18px;">@String.Format("{0:N0}", ViewBag.itembudget)</span>
         </div>
         @ViewBag.SearchResult
         @if (null != Model)

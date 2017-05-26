@@ -368,12 +368,18 @@ namespace topmeperp.Controllers
             ViewBag.projectName = p.PROJECT_NAME;
             //取得未決標需議價之詢價單資料
             List<purchasesummary> lstforms = service.getPurchaseForm4Offer(id, Request["formname"]);
+            BudgetDataService bs = new BudgetDataService();
+            DirectCost iteminfo = bs.getItemBudget(id, Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formname"]);
+            ViewBag.itembudget = iteminfo.ITEM_BUDGET;
             ViewBag.SearchResult = "共取得" + lstforms.Count + "筆資料";
             return View(lstforms);
         }
         public ActionResult Search()
         {
             List<purchasesummary> lstforms = service.getPurchaseForm4Offer(Request["id"], Request["formname"]);
+            BudgetDataService bs = new BudgetDataService();
+            DirectCost iteminfo = bs.getItemBudget(Request["id"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formname"]);
+            ViewBag.itembudget = iteminfo.ITEM_BUDGET;
             ViewBag.SearchResult = "共取得" + lstforms.Count + "筆資料";
             return View("PurchaseMain", lstforms);
         }
@@ -556,54 +562,26 @@ namespace topmeperp.Controllers
             PurchaseFormService service = new PurchaseFormService();
             TND_PROJECT p = service.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
-            //取得採購合約廠商與採購項目
-            List<plansummary> lstplanItem = service.getPlanItem4Offer(id);
-            ViewBag.SearchResult = "共取得" + lstplanItem.Count + "筆資料";
-            return View(lstplanItem);
+            //取得採購合約財務資料
+            List<plansummary> lstplanContract = service.getPlanContract(id);
+            plansummary contractAmount = service.getPlanContractAmount(id);
+            ViewBag.budget = contractAmount.TOTAL_BUDGET;
+            ViewBag.cost = contractAmount.TOTAL_COST;
+            ViewBag.revenue = contractAmount.TOTAL_REVENUE;
+            ViewBag.profit = contractAmount.TOTAL_PROFIT;
+            ViewBag.SearchResult = "共取得" + lstplanContract.Count + "筆資料";
+            return View(lstplanContract);
         }
-        //取得採購項目與廠商組合之合約項目
 
-        public ActionResult ContractItems(string id)
+        //取得合約付款條件
+        public string getPaymentTerms(string contractid)
         {
-            log.Info("http get mehtod:" + id);
-            ViewBag.contractId = id;
             PurchaseFormService service = new PurchaseFormService();
-            ContractModels planitems = new ContractModels();
-            planitems.contractItems = service.getContractItemsByContractName(id);
-            return View(planitems);
-        }
-        //產生合約
-        public String AddContract(FormCollection f)
-        {
-            log.Info("contract id=" + Request["contractid"]);
-            string msg = "";
-            int i = service.addContractIdByContractName(Request["contractid"]);
-            if (i == 0)
-            {
-                msg = service.message;
-            }
-            else
-            {
-                msg = "新增合約項目成功，CONTRACT_ID =" + Request["contractid"];
-            }
-
-            log.Info("Request: CONTRACT_ID = " + Request["contractid"]);
-            return msg;
-        }
-        //進入合約付款條件
-        public ActionResult PaymentTerms(FormCollection form)
-        {
             log.Info("access the terms of payment by:" + Request["contractid"]);
-            return View();
-        }
-        //寫入合約付款條件
-        [HttpPost]
-        public ActionResult PaymentTerms(PLAN_PAYMENT_TERMS pay)
-        {
-            log.Info(" payment terms :" + pay.ToString());
-            PurchaseFormService service = new PurchaseFormService();
-            SYS_USER u = (SYS_USER)Session["user"];
-            return View(pay);
+            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            string itemJson = objSerializer.Serialize(service.getPaymentTerms(contractid));
+            log.Info("plan payment terms info=" + itemJson);
+            return itemJson;
         }
         List<PLAN_ITEM> planitems = null;
         //取得採購遺漏項目

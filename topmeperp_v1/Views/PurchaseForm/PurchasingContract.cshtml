@@ -1,44 +1,116 @@
-﻿
+﻿@model IEnumerable<topmeperp.Models.plansummary>
 @{
-    ViewBag.Title = "查詢採購合約資料";
+    ViewBag.Title = "發包收支摘要列表";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <!--標單項目搜尋區條件集合區域-->
 <div class="jumbotron">
     <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
     <div class="row">
-        <div class="col-md-6 form-group" style="padding-top:10px">
+        <div class="col-md-4 form-group" style="padding-top:10px">
             <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.id" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
         </div>
-        <div class="col-md-6" style="padding-top:10px">
+        <div class="col-md-4" style="padding-top:10px">
             <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
         </div>
+        <div class="col-md-4" style="padding-top:35px">
+            <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+        </div>
     </div>
-    <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
 </div>
 <div class="contailer">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>投標金額總計</th>
+                <th>預算金額總計</th>
+                <th>發包成本總計</th>
+                <th>利潤總計</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <span style="color: blue; font-size: 20px;">
+                        @String.Format("{0:N0}", ViewBag.revenue)
+                    </span>
+                </td>
+                <td>
+                    <span style="color: blue; font-size: 20px;">
+                        @String.Format("{0:N0}", ViewBag.budget)
+                    </span>
+                </td>
+                <td>
+                    <span style="color: blue; font-size: 20px;">
+                        @String.Format("{0:N0}", ViewBag.cost)
+                    </span>
+                </td>
+                <td>
+                    <span style="color: blue; font-size: 20px;">
+                        @String.Format("{0:N0}", ViewBag.profit)
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
     <table class="table">
         <tr>
             <th>
-                採購項目與廠商名稱
+                NO.
+            </th>
+            <th>
+                採購項目
+            </th>
+            <th>
+                廠商名稱
+            </th>
+            <th>
+                投標金額
+            </th>
+            <th>
+                預算
+            </th>
+            <th>
+                發包金額
+            </th>
+            <th>
+                獲利
             </th>
         </tr>
         <tr>
-            @{
-                int rowNo = 0;
-            }
             @foreach (var item in Model)
             {
-                rowNo++;
-
                 <td>
-                    <a href="/PurchaseForm/ContractItems/@item.CONTRACT_NAME" target="_blank">@item.CODE</a>
+                    @Html.DisplayFor(modelItem => item.NO)
                 </td>
-                if (rowNo % 4 == 0)
-                {
-                    @:</tr><tr>
-                }
+                <td>
+                    @Html.DisplayFor(modelItem => item.FORM_NAME)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SUPPLIER_ID)
+                </td>
+                <td>
+                    <span style="color: blue; font-size: 15px;">
+                        @String.Format("{0:N0}", item.REVENUE)
+                    </span>
+                </td>
+                <td>
+                    <span style="color: blue; font-size: 15px;">
+                        @String.Format("{0:N0}", item.BUDGET)
+                    </span>
+                </td>
+                <td>
+                    <span style="color: blue; font-size: 15px;">
+                        @String.Format("{0:N0}", item.COST)
+                    </span>
+                </td>
+                <td>
+                    <span style="color: blue; font-size: 15px;">
+                        @String.Format("{0:N0}", item.PROFIT)
+                    </span>
+                </td>
             }
-            </tr>
-        </table>
-    </div>
+        </tr>
+    </table>
+</div>
+

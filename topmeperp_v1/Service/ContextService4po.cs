@@ -301,11 +301,11 @@ namespace topmeperp.Service
                 sql = sql + "AND pi.SYSTEM_SUB LIKE @systemSub ";
                 parameters.Add(new SqlParameter("systemSub", "%" + systemSub + "%"));
             }
-            
+
             using (var context = new topmepEntities())
             {
                 logger.Debug("get plan item sql=" + sql);
-                lstItemBudget = context.Database.SqlQuery<DirectCost>(sql, parameters.ToArray()).First(); 
+                lstItemBudget = context.Database.SqlQuery<DirectCost>(sql, parameters.ToArray()).First();
             }
             return lstItemBudget;
         }
@@ -583,13 +583,13 @@ namespace topmeperp.Service
             {
                 string sql = "SELECT a.INQUIRY_FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, SUM(b.ITEM_QTY*b.ITEM_UNIT_PRICE) AS TOTAL_PRICE, ROW_NUMBER() OVER(ORDER BY a.INQUIRY_FORM_ID DESC) AS NO, ISNULL(A.STATUS, '有效') AS STATUS " +
                     "FROM PLAN_SUP_INQUIRY a left JOIN PLAN_SUP_INQUIRY_ITEM b ON a.INQUIRY_FORM_ID = b.INQUIRY_FORM_ID WHERE ISNULL(A.STATUS,'有效')=@status GROUP BY a.INQUIRY_FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, a.PROJECT_ID, a.STATUS HAVING  a.SUPPLIER_ID IS NOT NULL " +
-                    "AND a.PROJECT_ID =@projectid ORDER BY a.INQUIRY_FORM_ID DESC, a.FORM_NAME " ;
+                    "AND a.PROJECT_ID =@projectid ORDER BY a.INQUIRY_FORM_ID DESC, a.FORM_NAME ";
                 lst = context.Database.SqlQuery<PlanSupplierFormFunction>(sql, new SqlParameter("status", status), new SqlParameter("projectid", projectid)).ToList();
             }
             logger.Info("get plan supplier form function count:" + lst.Count);
             return lst;
         }
-        
+
         public int addFormName(List<PLAN_SUP_INQUIRY> lstItem)
         {
             int i = 0;
@@ -804,17 +804,35 @@ namespace topmeperp.Service
             return lst;
         }
 
-        //取得有採購單價之九宮格組合
-        public List<plansummary> getPlanItem4Offer(string projectid)
+        //取得廠商合約金額
+        public List<plansummary> getPlanContract(string projectid)
         {
             List<plansummary> lst = new List<plansummary>();
             using (var context = new topmepEntities())
             {
-                lst = context.Database.SqlQuery<plansummary>("SELECT  p.PROJECT_ID + p.SUPPLIER_ID + p.FORM_NAME AS CONTRACT_NAME, " +
-                    "p.SUPPLIER_ID + '(' + p.FORM_NAME + ')' AS CODE, " +
-                    "p.SUPPLIER_ID, count(*) AS OFFER_ROWS FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid and p.ITEM_UNIT_PRICE IS NOT NULL " +
-                    "AND p.ITEM_UNIT_PRICE <> 0 GROUP BY p.PROJECT_ID, p.SUPPLIER_ID, p.FORM_NAME ;"
+                lst = context.Database.SqlQuery<plansummary>("SELECT  p.PROJECT_ID + p.SUPPLIER_ID + p.FORM_NAME AS CONTRACT_ID, p.SUPPLIER_ID, p.FORM_NAME, " +
+                    "SUM(p.ITEM_QUANTITY * p.ITEM_UNIT_COST * p.TND_RATIO / 100) REVENUE, SUM(p.ITEM_QUANTITY * p.ITEM_UNIT_COST * p.TND_RATIO / 100 * p.BUDGET_RATIO / 100) BUDGET, " +
+                    "SUM(p.ITEM_QUANTITY * p.ITEM_UNIT_PRICE) COST, (SUM(p.ITEM_QUANTITY * p.ITEM_UNIT_COST * p.TND_RATIO / 100) - SUM(p.ITEM_QUANTITY * p.ITEM_UNIT_PRICE)) PROFIT, " +
+                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY p.SUPPLIER_ID) AS NO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid and p.ITEM_UNIT_PRICE IS NOT NULL " +
+                    "AND p.ITEM_UNIT_PRICE <> 0 GROUP BY p.PROJECT_ID, p.SUPPLIER_ID, p.FORM_NAME ; "
                    , new SqlParameter("projectid", projectid)).ToList();
+            }
+            return lst;
+        }
+        //取得專案廠商合約之金額總計
+        public plansummary getPlanContractAmount(string projectid)
+        {
+            plansummary lst = new plansummary();
+            using (var context = new topmepEntities())
+            {
+                lst = context.Database.SqlQuery<plansummary>("SELECT SUM(REVENUE) TOTAL_REVENUE, SUM(COST) TOTAL_COST, SUM(BUDGET) TOTAL_BUDGET, SUM(PROFIT) TOTAL_PROFIT " +
+                    "FROM(select p.PROJECT_ID + p.SUPPLIER_ID + p.FORM_NAME AS CONTRACT_ID, " +
+                    "p.SUPPLIER_ID, p.FORM_NAME, sum(p.ITEM_QUANTITY * p.ITEM_UNIT_COST * p.TND_RATIO / 100) REVENUE, " +
+                    "sum(p.ITEM_QUANTITY * p.ITEM_UNIT_COST * p.TND_RATIO / 100 * p.BUDGET_RATIO / 100) BUDGET, " +
+                    "sum(p.ITEM_QUANTITY * p.ITEM_UNIT_PRICE) COST, (sum(p.ITEM_QUANTITY * p.ITEM_UNIT_COST * p.TND_RATIO / 100) - sum(p.ITEM_QUANTITY * p.ITEM_UNIT_PRICE)) PROFIT, " +
+                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY p.SUPPLIER_ID) AS NO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid and p.ITEM_UNIT_PRICE IS NOT NULL " +
+                    "AND p.ITEM_UNIT_PRICE <> 0 GROUP BY p.PROJECT_ID, p.SUPPLIER_ID, p.FORM_NAME)A ; "
+                   , new SqlParameter("projectid", projectid)).First();
             }
             return lst;
         }
@@ -916,7 +934,7 @@ namespace topmeperp.Service
             }
             return lst;
         }
-     
+
         //比價資料
         public DataTable getComparisonDataToPivot(string projectid, string typecode1, string typecode2, string systemMain, string systemSub, string formName)
         {
@@ -1128,6 +1146,19 @@ namespace topmeperp.Service
             }
             logger.Info("get plan pending items count:" + lst.Count);
             return lst;
+        }
+
+        public PLAN_PAYMENT_TERMS getPaymentTerms(string contractid)
+        {
+            logger.Debug("get payment terms by contractid=" + contractid);
+            PLAN_PAYMENT_TERMS payment = null;
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                payment = context.PLAN_PAYMENT_TERMS.SqlQuery("SELECT * FROM PLAN_PAYMENT_TERMS WHERE CONTRACT_ID=@contractid",
+                new SqlParameter("contractid", contractid)).FirstOrDefault();
+            }
+            return payment;
         }
     }
 }

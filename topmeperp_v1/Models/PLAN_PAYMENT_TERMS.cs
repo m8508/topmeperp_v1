@@ -14,8 +14,8 @@ namespace topmeperp.Models
     
     public partial class PLAN_PAYMENT_TERMS
     {
-        public long PAYMENT_TERMS_ID { get; set; }
         public string CONTRACT_ID { get; set; }
+        public string PROJECT_ID { get; set; }
         public string PAYMENT_FREQUENCY { get; set; }
         public Nullable<System.DateTime> DATE_1 { get; set; }
         public Nullable<System.DateTime> DATE_2 { get; set; }
