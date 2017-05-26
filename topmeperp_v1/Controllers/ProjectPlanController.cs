@@ -41,11 +41,14 @@ namespace topmeperp.Controllers
                 }
                 string htmlString = "<table class='table table-bordered'>";
 
-                htmlString = htmlString + "<tr><th>層級</th><th>任務名稱</th><th>--</th><th>--</th></tr>";
+                htmlString = htmlString + "<tr><th>層級</th><th>任務名稱</th><th>開始時間</th><th>完成時間</th><th>工期</th><th>--</th><th>--</th></tr>";
                 foreach (DataRow dr in dt.Rows)
                 {
+                    DateTime stardate = DateTime.Parse(dr[4].ToString());
+                    DateTime finishdate = DateTime.Parse(dr[5].ToString());
 
                     htmlString = htmlString + "<tr><td>" + dr[1] + "</td><td>" + dr[0] + "</td>"
+                        + "<td>" + stardate.ToString("yyyy-MM-dd") + "</td><td>"+ finishdate.ToString("yyyy-MM-dd") + "</td><td>"+ dr[6] + "</td>"
                         + "<td ><a href =\"Index?projectid=" + projectid + "&prjuid=" + dr[3] + "\">上一層 </a></td>"
                         + "<td><a href=\"Index?projectid=" + projectid + "&prjuid=" + dr[2] + "\">下一層 </a></td></tr>";
                 }

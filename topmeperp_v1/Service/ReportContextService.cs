@@ -116,14 +116,14 @@ namespace topmeperp.Service
         /// <returns></returns>
         public DataTable getProjectTask(string projectid)
         {
-            string sql = "WITH PrjTree(TASK_NAME, PRJ_UID, LV_NO,PRJ_ID,PARENT_UID) AS "
-                + " (SELECT TASK_NAME, PRJ_UID, 0 LV_NO,PRJ_ID ,Null "
+            string sql = "WITH PrjTree(TASK_NAME, PRJ_UID, LV_NO,PRJ_ID,PARENT_UID,START_DATE,FINISH_DATE,DURATION) AS "
+                + " (SELECT TASK_NAME, PRJ_UID, 0 LV_NO,PRJ_ID ,Null,START_DATE,FINISH_DATE,DURATION "
                 + " FROM PLAN_TASK  WHERE PARENT_UID IS  NULL  AND PROJECT_ID = @projectid AND PRJ_UID = 0 "
                 + " UNION ALL "
-                + " SELECT P.TASK_NAME, P.PRJ_UID, B.LV_NO + 1,P.PRJ_ID,P.PARENT_UID "
+                + " SELECT P.TASK_NAME, P.PRJ_UID, B.LV_NO + 1,P.PRJ_ID,P.PARENT_UID,P.START_DATE,P.FINISH_DATE,P.DURATION "
                 + " FROM PLAN_TASK P, PrjTree B "
                 + " WHERE P.PARENT_UID = B.PRJ_UID and P.TASK_NAME is not null )"
-                + " SELECT(REPLICATE('**', LV_NO) + TASK_NAME) as 'TASK_NAME',LV_NO,PRJ_UID,PARENT_UID "
+                + " SELECT(REPLICATE('**', LV_NO) + TASK_NAME) as 'TASK_NAME',LV_NO,PRJ_UID,PARENT_UID,START_DATE,FINISH_DATE,DURATION "
                 + " FROM PrjTree ORDER BY PRJ_ID";
             var parameters = new Dictionary<string, Object>();
             //設定專案名編號資料
@@ -141,14 +141,14 @@ namespace topmeperp.Service
         /// <returns></returns>
         public DataTable getChildTask(string projectid,int prjuid)
         {
-            string sql = "WITH PrjTree(TASK_NAME, PRJ_UID, LV_NO,PRJ_ID,PARENT_UID) AS "
-                + " (SELECT TASK_NAME, PRJ_UID, 0 LV_NO,PRJ_ID,PARENT_UID "
+            string sql = "WITH PrjTree(TASK_NAME, PRJ_UID, LV_NO,PRJ_ID,PARENT_UID,START_DATE,FINISH_DATE,DURATION) AS "
+                + " (SELECT TASK_NAME, PRJ_UID, 0 LV_NO,PRJ_ID,PARENT_UID,START_DATE,FINISH_DATE,DURATION "
                 + " FROM PLAN_TASK  WHERE PROJECT_ID = @projectid AND PRJ_UID = @prjuid "
                 + " UNION ALL "
-                + " SELECT P.TASK_NAME, P.PRJ_UID, B.LV_NO + 1,P.PRJ_ID,P.PARENT_UID "
+                + " SELECT P.TASK_NAME, P.PRJ_UID, B.LV_NO + 1,P.PRJ_ID,P.PARENT_UID,P.START_DATE,P.FINISH_DATE,P.DURATION "
                 + " FROM PLAN_TASK P, PrjTree B "
                 + " WHERE P.PARENT_UID = B.PRJ_UID and P.TASK_NAME is not null )"
-                + " SELECT(REPLICATE('**', LV_NO) + TASK_NAME) as 'TASK_NAME',LV_NO,PRJ_UID,PARENT_UID "
+                + " SELECT(REPLICATE('**', LV_NO) + TASK_NAME) as 'TASK_NAME',LV_NO,PRJ_UID,PARENT_UID,START_DATE,FINISH_DATE,DURATION "
                 + " FROM PrjTree ORDER BY PRJ_ID";
             logger.Debug("sql=" + sql);
             logger.Debug("prj_id=" + projectid + ",prjUID=" + prjuid);
