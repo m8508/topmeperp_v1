@@ -563,14 +563,17 @@ namespace topmeperp.Controllers
             TND_PROJECT p = service.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
             //取得採購合約財務資料
-            List<plansummary> lstplanContract = service.getPlanContract(id);
+            List<plansummary> lstContract = null;
+            ContractModels contract = new ContractModels();
+            lstContract = service.getPlanContract(id);
+            contract.contractItems = lstContract;
             plansummary contractAmount = service.getPlanContractAmount(id);
             ViewBag.budget = contractAmount.TOTAL_BUDGET;
             ViewBag.cost = contractAmount.TOTAL_COST;
             ViewBag.revenue = contractAmount.TOTAL_REVENUE;
             ViewBag.profit = contractAmount.TOTAL_PROFIT;
-            ViewBag.SearchResult = "共取得" + lstplanContract.Count + "筆資料";
-            return View(lstplanContract);
+            ViewBag.SearchResult = "共取得" + lstContract.Count + "筆資料";
+            return View(contract);
         }
 
         //取得合約付款條件
@@ -579,7 +582,7 @@ namespace topmeperp.Controllers
             PurchaseFormService service = new PurchaseFormService();
             log.Info("access the terms of payment by:" + Request["contractid"]);
             System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            string itemJson = objSerializer.Serialize(service.getPaymentTerms(contractid));
+            string itemJson = objSerializer.Serialize(service.getPaymentTerm(contractid));
             log.Info("plan payment terms info=" + itemJson);
             return itemJson;
         }

@@ -211,7 +211,7 @@ namespace topmeperp.Models
     public class ContractModels
     {
         //帳號資料
-        public IEnumerable<PLAN_ITEM> contractItems { get; set; }
+        public IEnumerable<plansummary> contractItems { get; set; }
         //角色資料
         public IEnumerable<PLAN_PAYMENT_TERMS> paymentTerms { get; set; }
     }
