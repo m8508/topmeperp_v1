@@ -194,10 +194,19 @@ namespace topmeperp.Models
     }
     public class plansummary
     {
-        public string CODE { get; set; }
-        public Nullable<int> OFFER_ROWS { get; set; }
+        public string FORM_NAME { get; set; }
+        public Nullable<int> ITEM_ROWS { get; set; }
         public string SUPPLIER_ID { get; set; }
-        public string CONTRACT_NAME { get; set; }
+        public string CONTRACT_ID { get; set; }
+        public Nullable<decimal> REVENUE { get; set; }
+        public Nullable<decimal> COST { get; set; }
+        public Nullable<decimal> BUDGET { get; set; }
+        public Nullable<decimal> PROFIT { get; set; }
+        public Int64 NO { get; set; }
+        public Nullable<decimal> TOTAL_REVENUE { get; set; }
+        public Nullable<decimal> TOTAL_BUDGET { get; set; }
+        public Nullable<decimal> TOTAL_COST{ get; set; }
+        public Nullable<decimal> TOTAL_PROFIT { get; set; }
     }
     public class ContractModels
     {
