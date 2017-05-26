@@ -1148,7 +1148,7 @@ namespace topmeperp.Service
             return lst;
         }
 
-        public PLAN_PAYMENT_TERMS getPaymentTerms(string contractid)
+        public PLAN_PAYMENT_TERMS getPaymentTerm(string contractid)
         {
             logger.Debug("get payment terms by contractid=" + contractid);
             PLAN_PAYMENT_TERMS payment = null;

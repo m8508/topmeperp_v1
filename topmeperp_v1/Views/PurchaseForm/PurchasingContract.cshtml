@@ -1,4 +1,4 @@
-﻿@model IEnumerable<topmeperp.Models.plansummary>
+﻿@model topmeperp.Models.ContractModels
 @{
     ViewBag.Title = "發包收支摘要列表";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
@@ -56,6 +56,9 @@
     <table class="table">
         <tr>
             <th>
+                付款條件設定
+            </th>
+            <th>
                 NO.
             </th>
             <th>
@@ -78,8 +81,11 @@
             </th>
         </tr>
         <tr>
-            @foreach (var item in Model)
+            @foreach (var item in Model.contractItems)
             {
+                <td>
+                    <button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@item.CONTRACT_ID')">新增 / 修改</button>
+                </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.NO)
                 </td>
@@ -113,4 +119,56 @@
         </tr>
     </table>
 </div>
+
+<!-- Modal :對話框-->
+<div class="row" style="padding-top:10px;">
+    <div class="modal fade" id="paymentInfo" role="dialog">
+        <div class="modal-dialog" id="paymentInfoDialog">
+            <!-- Modal content-->
+            @Html.Partial("_PaymentTerms");
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Hide the "busy" Gif at load:
+        $("#divProcessing").hide();
+        // Attach click handler to the submit button:
+        $('#btnQuery').click(function () {
+            $("#divProcessing").show();
+        });
+    });
+    //由ID 取得資料填入表單
+    function getPaymentTerm(contractid) {
+        //alert(contractid);
+        $.ajax({
+            url: "/PurchaseForm/getPaymentTerms",
+            type: "GET",
+            data: { contractid: contractid },
+            dataType: "JSON",
+            success: function (data) {
+                $('#project_id').val(data.PROJECT_ID);
+                $('#contract_id').val(data.CONTRACT_ID);
+                $('#payfrequency').val(data.PAYMENT_FREQUENCY);
+                $('#"date1').val(data.DATE_1);
+                $('#"date2').val(data.DATE_2);
+                $('#payterms').val(data.PAYMENT_TERMS);
+                $('#paymentInfo').modal('show'); // show bootstrap modal when complete loaded
+                //$('.modal-title').text('編輯設定資料'); // Set title to Bootstrap modal title
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('Error get data from ajax');
+            }
+        });
+    }
+    // Hide the "busy" Gif at load:
+    $("#divProcessing").hide();
+    // Attach click handler to the submit button:
+    $('#login').click(function () {
+        $("#divProcessing").show();
+    });
+</script>
+
 
