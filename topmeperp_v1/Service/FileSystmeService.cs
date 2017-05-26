@@ -92,9 +92,12 @@ namespace topmeperp.Service
 
             finally
             {
-                zos.Finish();
-                zos.Close();
-                zos.Dispose();
+                if (zos != null)
+                {
+                    zos.Finish();
+                    zos.Close();
+                    zos.Dispose();
+                }
             }
             return zipPath;
         }
