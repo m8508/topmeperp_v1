@@ -30,26 +30,54 @@
         </thead>
         <tbody>
             <tr>
-                <td>
-                    <span style="color: blue; font-size: 20px;">
-                        @String.Format("{0:N0}", ViewBag.revenue)
-                    </span>
-                </td>
-                <td>
-                    <span style="color: blue; font-size: 20px;">
-                        @String.Format("{0:N0}", ViewBag.budget)
-                    </span>
-                </td>
-                <td>
-                    <span style="color: blue; font-size: 20px;">
-                        @String.Format("{0:N0}", ViewBag.cost)
-                    </span>
-                </td>
-                <td>
-                    <span style="color: blue; font-size: 20px;">
-                        @String.Format("{0:N0}", ViewBag.profit)
-                    </span>
-                </td>
+                @if (ViewBag.revenue != null)
+                {
+                    <td>
+                        <span style="color: blue; font-size: 20px;">
+                            @String.Format("{0:N0}", ViewBag.revenue)
+                        </span>
+                    </td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (ViewBag.budget != null)
+                {
+                    <td>
+                        <span style="color: blue; font-size: 20px;">
+                            @String.Format("{0:N0}", ViewBag.budget)
+                        </span>
+                    </td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (ViewBag.cost != null)
+                {
+                    <td>
+                        <span style="color: blue; font-size: 20px;">
+                            @String.Format("{0:N0}", ViewBag.cost)
+                        </span>
+                    </td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (ViewBag.profit != null)
+                {
+                    <td>
+                        <span style="color: blue; font-size: 20px;">
+                            @String.Format("{0:N0}", ViewBag.profit)
+                        </span>
+                    </td>
+                }
+                else
+                {
+                    <td></td>
+                }
             </tr>
         </tbody>
     </table>
@@ -81,40 +109,46 @@
             </th>
         </tr>
         <tr>
-            @foreach (var item in Model.contractItems)
+            @if (ViewBag.result > 0)
             {
-                <td>
-                    <button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@item.CONTRACT_ID')">新增 / 修改</button>
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.NO)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FORM_NAME)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.SUPPLIER_ID)
-                </td>
-                <td>
-                    <span style="color: blue; font-size: 15px;">
-                        @String.Format("{0:N0}", item.REVENUE)
-                    </span>
-                </td>
-                <td>
-                    <span style="color: blue; font-size: 15px;">
-                        @String.Format("{0:N0}", item.BUDGET)
-                    </span>
-                </td>
-                <td>
-                    <span style="color: blue; font-size: 15px;">
-                        @String.Format("{0:N0}", item.COST)
-                    </span>
-                </td>
-                <td>
-                    <span style="color: blue; font-size: 15px;">
-                        @String.Format("{0:N0}", item.PROFIT)
-                    </span>
-                </td>
+                foreach (var item in Model.contractItems)
+                {
+                    <td>
+                        <button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@item.CONTRACT_ID')">新增 / 修改</button>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.NO)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FORM_NAME)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SUPPLIER_ID)
+                    </td>
+                    <td>
+                        <span style="color: blue; font-size: 15px;">
+                            @String.Format("{0:N0}", item.REVENUE)
+                        </span>
+                    </td>
+                    <td>
+                        <span style="color: blue; font-size: 15px;">
+                            @String.Format("{0:N0}", item.BUDGET)
+                        </span>
+                    </td>
+                    <td>
+                        <span style="color: blue; font-size: 15px;">
+                            @String.Format("{0:N0}", item.COST)
+                        </span>
+                    </td>
+                    <td>
+                        <span style="color: blue; font-size: 15px;">
+                            @String.Format("{0:N0}", item.PROFIT)
+                        </span>
+                    </td>
+                }
+            }
+            else
+            {
             }
         </tr>
     </table>

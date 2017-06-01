@@ -1,6 +1,7 @@
 ﻿<div class="page-header">
     <h6>請下載需要的詢價單，調整後發給廠商，再行匯入系統!!!</h6>
     <input id="btnCreateTemplate" name="btnCreateTemplate" type="button" class="btn btn-info" value="批次建立詢價單" onclick="createTemplate()" />
+    <a href="../downloadAllTemplate?projectid=@ViewBag.projectId" class="btn btn-info" target="_blank">下載所有空白詢價單</a>
     <form id="4formName" name="4formName" action="UpdateFormName" method="post">
 
         @if (null != Model.planTemplateForm)
@@ -59,6 +60,7 @@
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
+                window.location.reload()
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);

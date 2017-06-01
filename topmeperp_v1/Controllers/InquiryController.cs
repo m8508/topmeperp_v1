@@ -167,7 +167,6 @@ namespace topmeperp.Controllers
             {
                 fm.ISWAGE = form.Get("isWage");
             }
-            fm.PROJECT_ID = form.Get("projectid").Trim();
             fm.SUPPLIER_ID = form.Get("supplier").Trim();
             fm.DUEDATE = Convert.ToDateTime(form.Get("inputdateline"));
             fm.OWNER_NAME = form.Get("inputowner").Trim();

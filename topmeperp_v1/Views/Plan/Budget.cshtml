@@ -5,8 +5,14 @@
 }
 
 <div class="page-header">
-    <h2 style="padding-bottom:30px;">執行預算作業 : </h2>
-    <div class="col-md-12 form-group">
+    <h2 style="padding-bottom:15px;">執行預算作業 : </h2>
+    <form id="UploadFile" name="UploadFile" action="/Plan/uploadPlanBudget" method="post" enctype="multipart/form-data">
+        <label for="file">預算匯入:</label>
+        <input type="hidden" name="projectid" id="projectid" value="@ViewBag.projectid" />
+        <input type="file" name="file" id="file" />
+        <input id="btnUploadfile" name="btnUploadfile" type="submit" class="btn-primary" value="匯入檔案" />
+    </form>
+    <div class="col-md-12 form-group" style="padding-top:40px">
         <form id="formBudget" name="formBudget" action="UpdateBudget" method="post">
             <label for="id" class="col-md-2" style="text-align:right">專案編號 :</label>
             <div id="id" class="col-md-2 text-left">

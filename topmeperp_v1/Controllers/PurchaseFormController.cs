@@ -96,11 +96,11 @@ namespace topmeperp.Controllers
             qf.OWNER_FAX = uInfo.FAX;
             PLAN_SUP_INQUIRY_ITEM item = new PLAN_SUP_INQUIRY_ITEM();
             string fid = service.newPlanForm(qf, lstItemId);
-            //產生採購詢價單實體檔案(先註解掉，因為空白詢價單不用產生實體檔，
+            //產生採購詢價單實體檔案(是否需先註解掉，因為空白詢價單不用產生實體檔，
             //樣本轉廠商採購單時再產生即可)
-            //service.getInqueryForm(fid);
-            //PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
-            //poi.exportExcel4po(service.formInquiry, service.formInquiryItem);
+            service.getInqueryForm(fid);
+            PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
+            poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false);
             return Redirect("FormMainPage?id=" + qf.PROJECT_ID);
             //return RedirectToAction("InquiryMainPage","Inquiry", qf.PROJECT_ID);
         }
@@ -200,6 +200,11 @@ namespace topmeperp.Controllers
             fm.FORM_NAME = form.Get("formname").Trim();
             fm.CREATE_ID = loginUser.USER_ID;
             fm.CREATE_DATE = DateTime.Now;
+            fm.ISWAGE = "N";
+            if (null != form.Get("isWage"))
+            {
+                fm.ISWAGE = form.Get("isWage").Trim();
+            }
             TND_SUPPLIER s = service.getSupplierInfo(form.Get("Supplier").Substring(0, 7).Trim());
             fm.CONTACT_NAME = s.CONTACT_NAME;
             fm.CONTACT_EMAIL = s.CONTACT_EMAIL;
@@ -215,7 +220,7 @@ namespace topmeperp.Controllers
             //產生廠商詢價單實體檔案
             service.getInqueryForm(i);
             PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
-            poi.exportExcel4po(service.formInquiry, service.formInquiryItem);
+            poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false);
             if (i == "")
             {
                 msg = service.message;
@@ -237,6 +242,11 @@ namespace topmeperp.Controllers
             PLAN_SUP_INQUIRY fm = new PLAN_SUP_INQUIRY();
             SYS_USER loginUser = (SYS_USER)Session["user"];
             fm.PROJECT_ID = form.Get("projectid").Trim();
+            fm.ISWAGE = "N";
+            if (null != form.Get("isWage"))
+            {
+                fm.ISWAGE = form.Get("isWage");
+            }
             fm.SUPPLIER_ID = form.Get("supplier").Trim();
             fm.DUEDATE = Convert.ToDateTime(form.Get("inputdateline"));
             fm.OWNER_NAME = form.Get("inputowner").Trim();
@@ -247,14 +257,6 @@ namespace topmeperp.Controllers
             fm.CONTACT_EMAIL = form.Get("inputemail").Trim();
             fm.INQUIRY_FORM_ID = form.Get("inputformnumber").Trim();
             fm.FORM_NAME = form.Get("formname").Trim();
-            if (form.Get("status").Trim() == "")
-            {
-                fm.STATUS = null;
-            }
-            else
-            {
-                fm.STATUS = form.Get("status").Trim();
-            }
             fm.CREATE_ID = form.Get("createid").Trim();
             fm.CREATE_DATE = Convert.ToDateTime(form.Get("createdate"));
             fm.MODIFY_ID = loginUser.USER_ID;
@@ -298,6 +300,12 @@ namespace topmeperp.Controllers
         {
             log.Info("Upload purchase form from supplier:" + Request["projectid"]);
             string projectid = Request["projectid"];
+            string iswage = "N";
+            if (null != Request["isWage"])
+            {
+                log.Debug("isWage:" + Request["isWage"]);
+                iswage = "Y";
+            }
             //上傳至廠商報價單目錄
             if (null != file && file.ContentLength != 0)
             {
@@ -308,7 +316,7 @@ namespace topmeperp.Controllers
                 PurchaseFormtoExcel quoteFormService = new PurchaseFormtoExcel();
                 try
                 {
-                    quoteFormService.convertInquiry2Plan(path, projectid);
+                    quoteFormService.convertInquiry2Plan(path, projectid, iswage);
                 }
                 catch (Exception ex)
                 {
@@ -339,6 +347,9 @@ namespace topmeperp.Controllers
             int i = service.createPlanEmptyForm(Request["projectid"], u);
             return "共產生 " + i + "空白詢價單樣本!!";
         }
+        /// <summary>
+        /// 下載空白詢價單
+        /// </summary>
         public void downLoadInquiryForm()
         {
             string formid = Request["formid"];
@@ -346,13 +357,35 @@ namespace topmeperp.Controllers
             if (null != service.formInquiry)
             {
                 PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
-                poi.exportExcel4po(service.formInquiry, service.formInquiryItem);
+                //檔案位置
+                string fileLocation = poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false);
+                //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
+                string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
                 Response.Clear();
                 Response.Charset = "utf-8";
                 Response.ContentType = "text/xls";
-                Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", service.formInquiry.INQUIRY_FORM_ID + ".xlsx"));
-                //"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.INQUIRY_FORM_ID + ".xlsx"
-                Response.WriteFile(poi.outputPath + "\\" + service.formInquiry.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + service.formInquiry.INQUIRY_FORM_ID + ".xlsx");
+                Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", filename + ".xlsx"));
+                ///"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx"
+                Response.WriteFile(fileLocation);
+                Response.End();
+            }
+        }
+
+        //下載所有空白詢價單(採用zip 壓縮)
+        public void downloadAllTemplate()
+        {
+            string projectid = Request["projectid"];
+            log.Debug("create all template file by projectid=" + projectid);
+            string zipFile = service.zipAllTemplate4Download(projectid);
+            if (zipFile != "")
+            {
+                // 檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted - Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
+                string filename = HttpUtility.UrlEncode(Path.GetFileName(zipFile));
+                Response.Clear();
+                Response.Charset = "utf-8";
+                Response.ContentType = "text/zip";
+                Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", filename));
+                Response.WriteFile(zipFile);
                 Response.End();
             }
         }
@@ -438,10 +471,15 @@ namespace topmeperp.Controllers
         {
             //傳入查詢條件
             log.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"] + ",Form Name=" + Request["formName"]);
+            string iswage = "N";
             //取得備標品項與詢價資料
             try
             {
-                DataTable dt = service.getComparisonDataToPivot(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"]);
+                if (null != Request["isWage"])
+                {
+                    iswage = Request["isWage"];
+                }
+                DataTable dt = service.getComparisonDataToPivot(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"], iswage);
                 @ViewBag.ResultMsg = "共" + dt.Rows.Count + "筆";
                 string htmlString = "<table class='table table-bordered'><tr>";
                 //處理表頭
@@ -463,7 +501,7 @@ namespace topmeperp.Controllers
                     string strAmout = string.Format("{0:C0}", tAmount);
 
                     htmlString = htmlString + "<th><table><tr><td>" + tmpString[0] + '(' + tmpString[2] + ')' +
-                        "</td><button type='button' class='btn-xs' onclick=\"clickSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>" +
+                        "</td><button type='button' class='btn-xs' onclick=\"clickSupplier('" + tmpString[1] + "','" + iswage + "')\"><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>" +
                         "</button>" + "<button type = 'button' class='btn-xs' onclick=\"removeSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-remove' aria-hidden='true'></span></button>" +
                         "<button type='button' class='btn-xs'><a href='/PurchaseForm/SinglePrjForm/" + tmpString[1] + "'" + " target='_blank'><span class='glyphicon glyphicon-list-alt' aria-hidden='true'></span></a>" +
                         "<br/><tr><td style = 'text-align:center;background-color:yellow;' > " + strAmout + "</td>" +
@@ -496,7 +534,7 @@ namespace topmeperp.Controllers
                         //<td><button class="btn-link" onclick="clickPrice('@item.INQUIRY_ITEM_ID', '@item.QUOTATION_PRICE')">@item.QUOTATION_PRICE</button> </td>
                         if (dr[i].ToString() != "")
                         {
-                            htmlString = htmlString + "<td><button class='btn-link' onclick=\"clickPrice('" + dr[1] + "', '" + dr[i] + "')\">" + String.Format("{0:N0}", (decimal)dr[i]) + "</button> </td>";
+                            htmlString = htmlString + "<td><button class='btn-link' onclick=\"clickPrice('" + dr[1] + "', '" + dr[i] + "','" + iswage + "')\">" + String.Format("{0:N0}", (decimal)dr[i]) + "</button> </td>";
                         }
                         else
                         {
@@ -532,11 +570,11 @@ namespace topmeperp.Controllers
         //更新單項成本資料
         public string UpdateCost4Item()
         {
-            log.Info("PLanItemID=" + Request["pitmid"] + ",Cost=" + Request["price"]);
+            log.Info("PLanItemID=" + Request["pitmid"] + ",Cost=" + Request["price"] + ",iswage=" + Request["iswage"]);
             try
             {
                 decimal cost = decimal.Parse(Request["price"]);
-                service.updateCostFromQuote(Request["pitmid"], cost);
+                service.updateCostFromQuote(Request["pitmid"], cost, Request["iswage"]);
             }
             catch (Exception ex)
             {
@@ -548,9 +586,17 @@ namespace topmeperp.Controllers
         //依據詢價單內容，更新得標標單品項所有單價
         public string BatchUpdateCost(string formid)
         {
-            log.Info("formid=" + Request["formid"]);
-            int i = service.batchUpdateCostFromQuote(Request["formid"]);
+            log.Info("formid=" + Request["formid"] + ",iswage=" + Request["iswage"]);
+            int i = service.batchUpdateCostFromQuote(Request["formid"], Request["iswage"]);
             return "更新成功!!";
+        }
+
+        public void changeStatus()
+        {
+            string formid = Request["formId"];
+            string status = Request["status"];
+            log.Debug("change form status:" + formid + ",status=" + status);
+            service.changePlanFormStatus(formid, status);
         }
         //取得採購合約資料
         public ActionResult PurchasingContract(string id)
@@ -573,6 +619,7 @@ namespace topmeperp.Controllers
             ViewBag.revenue = contractAmount.TOTAL_REVENUE;
             ViewBag.profit = contractAmount.TOTAL_PROFIT;
             ViewBag.SearchResult = "共取得" + lstContract.Count + "筆資料";
+            ViewBag.Result = lstContract.Count;
             return View(contract);
         }
 

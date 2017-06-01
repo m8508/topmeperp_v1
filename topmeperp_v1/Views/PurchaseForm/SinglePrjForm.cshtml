@@ -8,10 +8,21 @@
 
 <div class="page-header">
     <form id="formSupplier" name="formSupplier" action="UpdatePrjForm" method="post">
-
-
         <div class="row">
-            <div class="col-md-12"><h3 class="text-center">協成水電工程事業有限公司-採購詢價單</h3></div>
+            <div class="col-md-8"><h3 class="text-center">協成水電工程事業有限公司-採購詢價單</h3></div>
+            <div class="col-md-3">
+                <h5 class="text-right">
+                    工資:
+                    @if (@Model.planForm.ISWAGE == "Y")
+                    {
+                        <input type="checkbox" name="isWage" id="isWage" value="Y" checked />}
+                    else
+                    {
+                        <input type="checkbox" name="isWage" id="isWage" value="Y" />
+                    }
+                </h5>
+            </div>
+            <div class="col-md-1 alert-warning"><h5 class="text-right">狀態:@Model.planForm.STATUS</h5></div>
         </div>
         <!-- Reg-Form new { enctype = "multipart/form-data" } -->
 
@@ -126,18 +137,6 @@
                 <div class="col-md-4">
                     <input type="text" class="form-control" name="inputownerfax" id="inputownerfax" value="@Model.planForm.OWNER_FAX">
                 </div>
-                <div class="form-group">
-                    @if (Model.planForm.STATUS != null)
-                    {
-                        <label for="inputformnumber" class="col-md-2 control-label">狀態</label>
-                    }
-                    <div class="col-md-4">
-                        @if (Model.planForm.STATUS != null)
-                        {
-                            <input type="text" class="form-control" name="status" id="status" value="@Model.planForm.STATUS">
-                        }
-                    </div>
-                </div>
                 <input type="hidden" name="projectid" id="projectid" value="@Model.planForm.PROJECT_ID" />
                 <input type="hidden" name="createid" id="createid" value="@Model.planForm.CREATE_ID" />
                 <input type="hidden" name="createdate" id="createdate" value="@Model.planForm.CREATE_DATE" />
@@ -226,6 +225,14 @@
         else
         {
             <input type="button" value="儲存" class="btn btn-default" id="saveForm" />
+        }
+        @if (Model.planForm.STATUS != "有效")
+        {
+            <input type="button" value="回復" class="btn btn-info" id="disableBtn" onclick="chaneFormStatus('有效')" />
+        }
+        else
+        {
+            <input type="button" value="註銷" class="btn btn-warning" id="disableBtn" onclick="chaneFormStatus('註銷')" />
         }
     </div>
 </div>
@@ -410,6 +417,7 @@
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
+                window.location.reload()
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);
@@ -426,10 +434,26 @@
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
+                window.location.reload()
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);
             }
         });
     });
+    function chaneFormStatus(status) {
+        $.ajax({
+            url: '@Url.Action("changeStatus", "PurchaseForm")',
+            data: { formId: $("#inputformnumber").val(), status: status },
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                //window.location.href=@Url.Action("PurchaseForm/SinglePrjForm/")'";
+                location.reload();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    }
 </script>

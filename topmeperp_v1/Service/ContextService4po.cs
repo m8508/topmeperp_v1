@@ -556,7 +556,12 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 //取得詢價單檔頭資訊
-                formInquiry = context.PLAN_SUP_INQUIRY.SqlQuery("SELECT * FROM PLAN_SUP_INQUIRY WHERE INQUIRY_FORM_ID=@formid", new SqlParameter("formid", formid)).First();
+                string sql = "SELECT INQUIRY_FORM_ID,PROJECT_ID,FORM_NAME,OWNER_NAME,OWNER_TEL "
+                    + ",OWNER_EMAIL, OWNER_FAX, SUPPLIER_ID, CONTACT_NAME, CONTACT_EMAIL "
+                    + ",DUEDATE, REF_ID, CREATE_ID, CREATE_DATE, MODIFY_ID"
+                    + ",MODIFY_DATE,ISNULL(STATUS,'有效') as STATUS,ISNULL(ISWAGE,'N') as ISWAGE "
+                    + "FROM PLAN_SUP_INQUIRY WHERE INQUIRY_FORM_ID = @formid";
+                formInquiry = context.PLAN_SUP_INQUIRY.SqlQuery(sql, new SqlParameter("formid", formid)).First();
                 //取得詢價單明細
                 formInquiryItem = context.PLAN_SUP_INQUIRY_ITEM.SqlQuery("SELECT * FROM PLAN_SUP_INQUIRY_ITEM WHERE INQUIRY_FORM_ID=@formid", new SqlParameter("formid", formid)).ToList();
                 logger.Debug("get form item count:" + formInquiryItem.Count);
@@ -591,6 +596,27 @@ namespace topmeperp.Service
             }
             return budget;
         }
+        public string zipAllTemplate4Download(string projectid)
+        {
+            //1.取得專案所有空白詢價單
+            List<PLAN_SUP_INQUIRY> lstTemplate = getFormTemplateByProject(projectid);
+            ZipFileCreator zipTool = new ZipFileCreator();
+            //2.設定暫存目錄
+            string tempFolder = ContextService.strUploadPath + "\\" + projectid + "\\" + ContextService.quotesFolder + "\\Temp\\";
+            ZipFileCreator.DelDirectory(tempFolder);
+            ZipFileCreator.CreateDirectory(tempFolder);
+            //3.批次產生空白詢價單
+            PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
+            TND_PROJECT p = getProjectById(projectid);
+            foreach (PLAN_SUP_INQUIRY f in lstTemplate)
+            {
+                getInqueryForm(f.INQUIRY_FORM_ID);
+                string fileLocation = poi.exportExcel4po(formInquiry, formInquiryItem, true);
+                logger.Debug("temp file=" + fileLocation);
+            }
+            //4.Zip all file
+            return zipTool.ZipFiles(tempFolder, null, p.PROJECT_NAME);
+        }
         //取得採購詢價單樣板(供應商欄位為0)
         public List<PLAN_SUP_INQUIRY> getFormTemplateByProject(string projectid)
         {
@@ -599,12 +625,18 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 //取得詢價單樣本資訊
-                lst = context.PLAN_SUP_INQUIRY.SqlQuery("SELECT * FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NULL AND　PROJECT_ID=@projectid ORDER BY INQUIRY_FORM_ID DESC",
-                    new SqlParameter("projectid", projectid)).ToList();
+                string sql = "SELECT INQUIRY_FORM_ID, PROJECT_ID,FORM_NAME,OWNER_NAME,OWNER_TEL,OWNER_EMAIL "
+                    + ",OWNER_FAX,SUPPLIER_ID,CONTACT_NAME,CONTACT_EMAIL,DUEDATE,REF_ID,CREATE_ID,CREATE_DATE "
+                    + ",MODIFY_ID,MODIFY_DATE,ISNULL(STATUS,'有效') STATUS, ISNULL(ISWAGE,'N') ISWAGE "
+                    + "FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NULL AND PROJECT_ID =@projectid ORDER BY INQUIRY_FORM_ID DESC";
+                lst = context.PLAN_SUP_INQUIRY.SqlQuery(sql, new SqlParameter("projectid", projectid)).ToList();
             }
             return lst;
         }
-        public List<PlanSupplierFormFunction> getFormByProject(string projectid, string _status)
+
+
+      
+    public List<PlanSupplierFormFunction> getFormByProject(string projectid, string _status)
         {
             string status = "有效";
             if (null != _status && _status != "*")
@@ -614,15 +646,15 @@ namespace topmeperp.Service
             List<PlanSupplierFormFunction> lst = new List<PlanSupplierFormFunction>();
             using (var context = new topmepEntities())
             {
-                string sql = "SELECT a.INQUIRY_FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, SUM(b.ITEM_QTY*b.ITEM_UNIT_PRICE) AS TOTAL_PRICE, ROW_NUMBER() OVER(ORDER BY a.INQUIRY_FORM_ID DESC) AS NO, ISNULL(A.STATUS, '有效') AS STATUS " +
-                    "FROM PLAN_SUP_INQUIRY a left JOIN PLAN_SUP_INQUIRY_ITEM b ON a.INQUIRY_FORM_ID = b.INQUIRY_FORM_ID WHERE ISNULL(A.STATUS,'有效')=@status GROUP BY a.INQUIRY_FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, a.PROJECT_ID, a.STATUS HAVING  a.SUPPLIER_ID IS NOT NULL " +
+                string sql = "SELECT a.INQUIRY_FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, SUM(b.ITEM_QTY*b.ITEM_UNIT_PRICE) AS TOTAL_PRICE, ROW_NUMBER() OVER(ORDER BY a.INQUIRY_FORM_ID DESC) AS NO, ISNULL(A.STATUS, '有效') AS STATUS, ISNULL(A.ISWAGE,'N') ISWAGE " +
+                    "FROM PLAN_SUP_INQUIRY a left JOIN PLAN_SUP_INQUIRY_ITEM b ON a.INQUIRY_FORM_ID = b.INQUIRY_FORM_ID WHERE ISNULL(A.STATUS,'有效')=@status GROUP BY a.INQUIRY_FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, a.PROJECT_ID, a.STATUS, a.ISWAGE HAVING  a.SUPPLIER_ID IS NOT NULL " +
                     "AND a.PROJECT_ID =@projectid ORDER BY a.INQUIRY_FORM_ID DESC, a.FORM_NAME ";
                 lst = context.Database.SqlQuery<PlanSupplierFormFunction>(sql, new SqlParameter("status", status), new SqlParameter("projectid", projectid)).ToList();
             }
             logger.Info("get plan supplier form function count:" + lst.Count);
             return lst;
         }
-
+       
         public int addFormName(List<PLAN_SUP_INQUIRY> lstItem)
         {
             int i = 0;
@@ -668,7 +700,7 @@ namespace topmeperp.Service
             }
             return i;
         }
-
+       
         //新增供應商採購詢價單
         public string addSupplierForm(PLAN_SUP_INQUIRY sf, string[] lstItemId)
         {
@@ -910,7 +942,7 @@ namespace topmeperp.Service
         }
 
         //取得特定專案報價之供應商資料
-        public List<COMPARASION_DATA_4PLAN> getComparisonData(string projectid, string typecode1, string typecode2, string systemMain, string systemSub, string formName)
+        public List<COMPARASION_DATA_4PLAN> getComparisonData(string projectid, string typecode1, string typecode2, string systemMain, string systemSub, string formName, string iswage)
         {
             List<COMPARASION_DATA_4PLAN> lst = new List<COMPARASION_DATA_4PLAN>();
             string sql = "SELECT  pfItem.INQUIRY_FORM_ID AS INQUIRY_FORM_ID, " +
@@ -918,10 +950,12 @@ namespace topmeperp.Service
                 "FROM PLAN_ITEM pItem LEFT OUTER JOIN " +
                 "PLAN_SUP_INQUIRY_ITEM pfItem ON pItem.PLAN_ITEM_ID = pfItem.PLAN_ITEM_ID " +
                 "inner join PLAN_SUP_INQUIRY f on pfItem.INQUIRY_FORM_ID = f.INQUIRY_FORM_ID " +
-                "WHERE pItem.PROJECT_ID = @projectid AND f.SUPPLIER_ID is not null AND ISNULL(STATUS,'有效') <> '註銷' ";
+                "WHERE pItem.PROJECT_ID = @projectid AND f.SUPPLIER_ID is not null AND ISNULL(STATUS,'有效') <> '註銷' AND ISNULL(f.ISWAGE,'N')=@iswage  ";
             var parameters = new List<SqlParameter>();
             //設定專案名編號資料
             parameters.Add(new SqlParameter("projectid", projectid));
+            //設定報價單條件，材料或工資
+            parameters.Add(new SqlParameter("iswage", iswage));
             //九宮格條件
             if (null != typecode1 && "" != typecode1)
             {
@@ -969,7 +1003,7 @@ namespace topmeperp.Service
         }
 
         //比價資料
-        public DataTable getComparisonDataToPivot(string projectid, string typecode1, string typecode2, string systemMain, string systemSub, string formName)
+        public DataTable getComparisonDataToPivot(string projectid, string typecode1, string typecode2, string systemMain, string systemSub, string formName, string iswage)
         {
 
             string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PLAN_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
@@ -979,6 +1013,17 @@ namespace topmeperp.Service
                 "left join PLAN_SUP_INQUIRY_ITEM fitem " +
                 " on pitem.PLAN_ITEM_ID = fitem.PLAN_ITEM_ID " +
                 "where pitem.PROJECT_ID = @projectid ";
+
+            if (iswage == "Y")
+            {
+                sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PROJECT_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
+                "(SELECT SUPPLIER_ID+'|'+ fitem.INQUIRY_FORM_ID +'|' + FORM_NAME FROM PLAN_SUP_INQUIRY f WHERE f.INQUIRY_FORM_ID = fitem.INQUIRY_FORM_ID) as SUPPLIER_NAME, " +
+                "pitem.MAN_PRICE 工資單價,fitem.ITEM_UNIT_PRICE " +
+                "from PLAN_ITEM pitem " +
+                "left join PLAN_SUP_INQUIRY_ITEM fitem " +
+                " on pitem.PLAN_ITEM_ID = fitem.PLAN_ITEM_ID " +
+                "where pitem.PROJECT_ID = @projectid ";
+            }
 
             var parameters = new Dictionary<string, Object>();
             //設定專案名編號資料
@@ -1019,7 +1064,7 @@ namespace topmeperp.Service
                 parameters.Add("formName", formName);
             }
             //取的欄位維度條件
-            List<COMPARASION_DATA_4PLAN> lstSuppluerQuo = getComparisonData(projectid, typecode1, typecode2, systemMain, systemSub, formName);
+            List<COMPARASION_DATA_4PLAN> lstSuppluerQuo = getComparisonData(projectid, typecode1, typecode2, systemMain, systemSub, formName, iswage);
             if (lstSuppluerQuo.Count == 0)
             {
                 throw new Exception("相關條件沒有任何報價資料!!");
@@ -1098,12 +1143,17 @@ namespace topmeperp.Service
             return i;
         }
         //由報價單資料更新標單資料
-        public int updateCostFromQuote(string planItemid, decimal price)
+        public int updateCostFromQuote(string planItemid, decimal price, string iswage)
         {
             int i = 0;
             logger.Info("Update Cost:plan item id=" + planItemid + ",price=" + price);
             db = new topmepEntities();
             string sql = "UPDATE PLAN_ITEM SET ITEM_UNIT_PRICE =@price WHERE PLAN_ITEM_ID=@pitemid ";
+            //將工資報價單更新工資報價欄位
+            if (iswage == "Y")
+            {
+                sql = "UPDATE PLAN_ITEM SET MAN_PRICE=@price WHERE PLAN_ITEM_ID=@pitemid ";
+            }
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("price", price));
             parameters.Add(new SqlParameter("pitemid", planItemid));
@@ -1113,7 +1163,7 @@ namespace topmeperp.Service
             logger.Info("Update Cost:" + i);
             return i;
         }
-        public int batchUpdateCostFromQuote(string formid)
+        public int batchUpdateCostFromQuote(string formid, string iswage)
         {
             int i = 0;
             logger.Info("Copy cost from Quote to Tnd by form id" + formid);
@@ -1122,6 +1172,16 @@ namespace topmeperp.Service
                 ", PLAN_SUP_INQUIRY_ITEM fi, PLAN_SUP_INQUIRY pf " +
                "where i.PLAN_ITEM_ID = fi.PLAN_ITEM_ID and fi.INQUIRY_FORM_ID = pf.INQUIRY_FORM_ID and fi.INQUIRY_FORM_ID = @formid) i " +
                 "WHERE  i.plan_item_id = PLAN_ITEM.PLAN_ITEM_ID ";
+
+            //將工資報價單更新工資報價欄位
+            if (iswage == "Y")
+            {
+                sql = "UPDATE  PLAN_ITEM SET MAN_PRICE = i.ITEM_UNIT_PRICE "
+                + "FROM (select i.plan_item_id, fi.ITEM_UNIT_PRICE, fi.INQUIRY_FORM_ID from PLAN_ITEM i "
+                + ", PLAN_SUP_INQUIRY_ITEM fi "
+                + "where i.PLAN_ITEM_ID = fi.PLAN_ITEM_ID and INQUIRY_FORM_ID = @formid) i "
+                + "WHERE  i.plan_item_id = PLAN_ITEM.PLAN_ITEM_ID";
+            }
             logger.Debug("batch sql:" + sql);
             db = new topmepEntities();
             var parameters = new List<SqlParameter>();
@@ -1212,6 +1272,21 @@ namespace topmeperp.Service
                 }
 
             }
+            return i;
+        }
+        public int changePlanFormStatus(string formid, string status)
+        {
+            int i = 0;
+            logger.Info("Update plan sup inquiry form status formid=" + formid + ",status=" + status);
+            db = new topmepEntities();
+            string sql = "UPDATE PLAN_SUP_INQUIRY SET STATUS=@status WHERE INQUIRY_FORM_ID=@formid ";
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("status", status));
+            parameters.Add(new SqlParameter("formid", formid));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            db = null;
+            logger.Debug("Update plan sup inquiry form status  :" + i);
             return i;
         }
     }
