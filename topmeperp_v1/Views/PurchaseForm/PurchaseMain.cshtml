@@ -43,39 +43,45 @@
         <div style="padding-bottom:30px;">
             <span id="JustPrint" style="color: blue; font-size: 20px;">需議約之廠商資料表如下 : </span>
         </div>
-        <div style="padding-bottom:10px;">
-            <span style="color: black; font-size:large;">預算金額 :  </span><span style="border:2px red solid; padding:5px; color: red; font-size: 18px;">@String.Format("{0:N0}", ViewBag.itembudget)</span>
-        </div>
-        @ViewBag.SearchResult
-        @if (null != Model)
+        @if (ViewBag.itembudget != null)
+        {
+            <div style="padding-bottom:10px;">
+                <span style="color: black; font-size:large;">預算金額 :  </span><span style="border:2px red solid; padding:5px; color: red; font-size: 18px;">@String.Format("{0:N0}", ViewBag.itembudget)</span>
+            </div>
+        }
+        else
+        {
+        }
+            @ViewBag.SearchResult
+            @if (null != Model)
             {
                 Html.RenderPartial("FormListForOffer");
             }
+        </div>
     </div>
-</div>
 
-<script type="text/javascript">
-    $(document).ready(function () {
-        // Hide the "busy" Gif at load:
-        $("#divProcessing").hide();
-        // Attach click handler to the submit button:
-        $('#Submit1').click(function () {
-            $("#divProcessing").show();
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Hide the "busy" Gif at load:
+            $("#divProcessing").hide();
+            // Attach click handler to the submit button:
+            $('#Submit1').click(function () {
+                $("#divProcessing").show();
+            });
         });
-    });
-</script>
-<script language="javascript" type="text/javascript">
+    </script>
+    <script language="javascript" type="text/javascript">
 
-    function printpage(printarea) {
+        function printpage(printarea) {
 
-        //var newstr = document.all.item(printarea).innerHTML;
-        var newstr = document.getElementById(printarea).innerHTML;
-        var oldstr = document.body.innerHTML;
-        document.body.innerHTML = newstr;
-        window.print();
-        document.body.innerHTML = oldstr;
-        return false;
-    }
+            //var newstr = document.all.item(printarea).innerHTML;
+            var newstr = document.getElementById(printarea).innerHTML;
+            var oldstr = document.body.innerHTML;
+            document.body.innerHTML = newstr;
+            window.print();
+            document.body.innerHTML = oldstr;
+            return false;
+        }
 
-</script>
+    </script>
 

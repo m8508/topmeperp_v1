@@ -711,7 +711,7 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Tender\Details.cshtml" />
     <Content Include="Views\Tender\Task.cshtml" />
-    <Content Include="Views\Tender\uploadMapInfo.cshtml" />
+    <Content Include="Views\Tender\_uploadMapInfo.cshtml" />
     <Content Include="Views\Inquiry\Index.cshtml" />
     <Content Include="Views\Tender\InquiryList.cshtml" />
     <Content Include="Views\Inquiry\RFQ.cshtml" />
@@ -787,6 +787,7 @@
     <Content Include="Views\ProjectPlan\_CompareData.cshtml" />
     <Content Include="Views\Plan\ShowPlanItems.cshtml" />
     <Content Include="Views\Tender\_ProjectItem.cshtml" />
+    <Content Include="Views\Tender\_uploadPlanItem.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

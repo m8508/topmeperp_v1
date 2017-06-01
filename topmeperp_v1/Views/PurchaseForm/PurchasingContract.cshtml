@@ -170,5 +170,11 @@
         $("#divProcessing").show();
     });
 </script>
+<script language="javascript" type="text/javascript">
+    $('#btnRdoSingle').click(function () {
+        alert("選取時才會顯示值：" + $('input[name=payfrequency]:radio:checked').val() + "\n" + "有沒有選到都會顯示值：" + $('input[name=payfrequency]:radio').val());
+    });
+</script>
+
 
 

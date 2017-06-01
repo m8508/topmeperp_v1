@@ -21,7 +21,17 @@ namespace topmeperp.Service
         TND_PROJECT project = null;
 
         #region 得標標單項目處理
-        public int delAllItemByPlan()
+        public TND_PROJECT getProject(string prjid)
+        {
+            using (var context = new topmepEntities())
+            {
+                project = context.TND_PROJECT.SqlQuery("select p.* from TND_PROJECT p "
+                    + "where p.PROJECT_ID = @pid "
+                   , new SqlParameter("pid", prjid)).First();
+            }
+            return project;
+        }
+        public int delAllItem()
         {
             int i = 0;
             using (var context = new topmepEntities())
@@ -32,7 +42,7 @@ namespace topmeperp.Service
             logger.Debug("delete item count=" + i);
             return i;
         }
-        public int refreshPlanItem(List<PLAN_ITEM> planItem)
+        public int refreshItem(List<PLAN_ITEM> planItem)
         {
             //1.檢查專案是否存在
             if (null == project) { throw new Exception("Project is not exist !!"); }
@@ -52,6 +62,7 @@ namespace topmeperp.Service
             return i;
         }
         #endregion
+
         public string getBudgetById(string prjid)
         {
             string projectid = null;
@@ -385,6 +396,28 @@ namespace topmeperp.Service
             }
             return pitem;
         }
+
+        public int updatePlanItem(PLAN_ITEM item)
+        {
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.PLAN_ITEM.AddOrUpdate(item);
+                    i = context.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    logger.Error("updatePlanItem  fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return i;
+        }
+
         //批次產生空白表單
         public int createPlanEmptyForm(string projectid, SYS_USER loginUser)
         {
@@ -1159,6 +1192,27 @@ namespace topmeperp.Service
                 new SqlParameter("contractid", contractid)).FirstOrDefault();
             }
             return payment;
+        }
+
+        public int updatePaymentTerms(PLAN_PAYMENT_TERMS item)
+        {
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.PLAN_PAYMENT_TERMS.AddOrUpdate(item);
+                    i = context.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    logger.Error("updatePaymentTerms fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return i;
         }
     }
 }

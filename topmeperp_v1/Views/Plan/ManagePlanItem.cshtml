@@ -8,7 +8,7 @@
     <h3 style="height:20px;line-height:20px">@ViewBag.Title</h3>
     <form id="UploadFile" name="UploadFile" action="/Plan/uploadPlanItem" method="post" enctype="multipart/form-data">
         <label for="file">得標標單匯入:</label>
-        <input type="hidden" name="projectid" id="projectid" value="@ViewBag.projectid" />
+        <input type="hidden" name="projectid" id="projectid" value="@ViewBag.id" />
         <input type="file" name="file" id="file" />
         <input id="btnUploadfile" name="btnUploadfile" type="submit" class="btn-primary" value="匯入檔案" />
     </form>
@@ -59,6 +59,12 @@
     <div class="modal-dialog" id="planItemDialog">
         <!-- Modal content-->
         @Html.Partial("_PlanItem");
+    </div>
+</div>
+<div class="col-md-12">
+    <div class="col-md-8"></div>
+    <div class="col-md-4 alert-info">
+        @Html.Raw(TempData["result"])
     </div>
 </div>
 

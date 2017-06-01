@@ -19,7 +19,6 @@ namespace topmeperp.Models
         public string PLAN_ITEM_ID { get; set; }
         public string TYPE_CODE { get; set; }
         public string SUB_TYPE_CODE { get; set; }
-        public string ITEM_ID { get; set; }
         public string ITEM_DESC { get; set; }
         public string ITEM_UNIT { get; set; }
         public Nullable<decimal> ITEM_QTY { get; set; }
@@ -29,6 +28,6 @@ namespace topmeperp.Models
         public string ITEM_REMARK { get; set; }
         public string MODIFY_ID { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
-        public Nullable<decimal> ITEM_COUNTER_OFFER { get; set; }
+        public string ITEM_ID { get; set; }
     }
 }

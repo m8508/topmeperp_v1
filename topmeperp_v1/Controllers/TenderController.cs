@@ -163,6 +163,7 @@ namespace topmeperp.Controllers
         public ActionResult Details(string id)
         {
             logger.Info("project detail page projectid = " + id);
+            ViewBag.projectid = id;
             List<TND_TASKASSIGN> lstTask = null;
             TnderProject service = new TnderProject();
             lstTask = service.getTaskByPrjId(id);
@@ -615,9 +616,9 @@ namespace topmeperp.Controllers
         public ActionResult ShowProejctItems(FormCollection form)
         {
             InquiryFormService service = new InquiryFormService();
-            logger.Info("start project id=" + Request["id"] +",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"]);
+            logger.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"]);
             logger.Debug("Exception check=" + Request["chkEx"]);
-            List<TND_PROJECT_ITEM> lstItems = service.getProjectItem(Request["chkEx"],Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
+            List<TND_PROJECT_ITEM> lstItems = service.getProjectItem(Request["chkEx"], Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
             ViewBag.Result = "共幾" + lstItems.Count + "筆資料";
             return PartialView(lstItems);
         }
@@ -686,6 +687,68 @@ namespace topmeperp.Controllers
             int i = service.updateProjectItem(item);
             if (i == 0) { msg = service.message; }
             return msg;
+        }
+
+        //上傳得標後標單內容(用於轉換專案狀態)
+        [HttpPost]
+        public ActionResult uploadPlanItem(TND_PROJECT prj, HttpPostedFileBase file)
+        {
+            //1.取得專案編號
+            string projectid = Request["projectid"];
+            logger.Info("Upload plan items for projectid=" + projectid);
+            TnderProject service = new TnderProject();
+            SYS_USER u = (SYS_USER)Session["user"];
+            string message = "";
+            //修改專案狀態
+            prj.PROJECT_ID = projectid;
+            prj.STATUS = "專案執行";
+            prj.PROJECT_NAME = Request["projectname"];
+            prj.ENG_NAME = Request["engname"];
+            prj.CONTRUCTION_NAME = Request["contructionname"];
+            prj.LOCATION = Request["location"]; 
+            prj.OWNER_NAME = Request["ownername"];
+            prj.CONTACT_NAME = Request["contactname"];
+            prj.CONTACT_TEL = Request["contecttel"];
+            prj.CONTACT_FAX = Request["contactfax"];
+            prj.CONTACT_EMAIL = Request["contactemail"];
+            prj.DUE_DATE = Convert.ToDateTime(Request["duedate"]);
+            prj.SCHDL_OFFER_DATE = Convert.ToDateTime(Request["schdlofferdate"]);
+            prj.START_ROW_NO = int.Parse(Request["starrowno"]);
+            prj.EXCEL_FILE_NAME = Request["excelfilename"];
+            prj.OWNER_USER_ID = Request["owneruserid"];
+            prj.CREATE_USER_ID = Request["createdid"];
+            prj.CREATE_DATE = Convert.ToDateTime(Request["createddate"]);
+            prj.MODIFY_USER_ID = u.USER_ID;
+            prj.MODIFY_DATE = DateTime.Now;
+            service.updateProject(prj);
+            message = "專案進入執行階段:" + prj.PROJECT_ID + "<br/>";
+
+            if (null != file && file.ContentLength != 0)
+            {
+                //2.解析Excel
+                logger.Info("Parser Excel data:" + file.FileName);
+                //2.1 將上傳檔案存檔
+                var fileName = Path.GetFileName(file.FileName);
+                var path = Path.Combine(ContextService.strUploadPath + "/" + projectid, fileName);
+                logger.Info("save excel file:" + path);
+                file.SaveAs(path);
+                //2.2 解析Excel 檔案
+                ProjectItemFromExcel poiservice = new ProjectItemFromExcel();
+                poiservice.InitializeWorkbook(path);
+                poiservice.ConvertDataForPlan(projectid);
+                //2.3 記錄錯誤訊息
+                message = message + "得標標單品項:共" + poiservice.lstPlanItem.Count + "筆資料，";
+                message = message + "<a target=\"_blank\" href=\"/Plan/ManagePlanItem?id=" + projectid + "\"> 標單明細檢視畫面單</a><br/>" + poiservice.errorMessage;
+                //        < button type = "button" class="btn btn-primary" onclick="location.href='@Url.Action("ManagePlanItem","Plan", new { id = @Model.tndProject.PROJECT_ID})'; ">標單明細</button>
+                //2.4
+                logger.Info("Delete PLAN_ITEM By Project ID");
+                service.delAllItemByPlan();
+                //2.5
+                logger.Info("Add All PLAN_ITEM to DB");
+                service.refreshPlanItem(poiservice.lstPlanItem);
+            }
+            TempData["result"] = message;
+            return RedirectToAction("Index", "Plan");
         }
 
     }

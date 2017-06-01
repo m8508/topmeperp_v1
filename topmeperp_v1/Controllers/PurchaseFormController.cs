@@ -586,6 +586,42 @@ namespace topmeperp.Controllers
             log.Info("plan payment terms info=" + itemJson);
             return itemJson;
         }
+        //寫入合約付款條件
+        public String addPaymentTerms(FormCollection form)
+        {
+            log.Info("form:" + form.Count);
+            string msg = "更新成功!!";
+
+            PLAN_PAYMENT_TERMS item = new PLAN_PAYMENT_TERMS();
+            item.PROJECT_ID = form["project_id"];
+            item.CONTRACT_ID = form["contract_id"];
+            item.PAYMENT_FREQUENCY = form["item_id"];
+            item.PAYMENT_TERMS = form["item_desc"];
+            try
+            {
+                item.DATE_1 = decimal.Parse(form["date1"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not date_1:" + ex.Message);
+            }
+            try
+            {
+                item.DATE_2 = decimal.Parse(form["date2"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not date_2:" + ex.Message);
+            }
+            SYS_USER loginUser = (SYS_USER)Session["user"];
+            item.CREATE_ID = loginUser.USER_ID;
+            item.CREATE_DATE = DateTime.Now;
+            PurchaseFormService service = new PurchaseFormService();
+            int i = service.updatePaymentTerms(item);
+            if (i == 0) { msg = service.message; }
+            return msg;
+        }
+
         List<PLAN_ITEM> planitems = null;
         //取得採購遺漏項目
         public ActionResult PendingItems(string id)

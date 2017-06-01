@@ -59,13 +59,8 @@ namespace topmeperp.Controllers
                 return null;
             }
         }
+
         //上傳得標後標單內容(用於標單內容有異動時)
-        public ActionResult uploadPlanItem(string id)
-        {
-            logger.Info("upload plan items for projectid=" + id);
-            ViewBag.projectid = id;
-            return View();
-        }
         [HttpPost]
         public ActionResult uploadPlanItem(TND_PROJECT prj, HttpPostedFileBase file)
         {
@@ -73,10 +68,11 @@ namespace topmeperp.Controllers
             string projectid = Request["projectid"];
             logger.Info("Upload plan items for projectid=" + projectid);
             string message = "";
+            TND_PROJECT p = service.getProject(projectid);
             if (null != file && file.ContentLength != 0)
             {
-            //2.解析Excel
-            logger.Info("Parser Excel data:" + file.FileName);
+                //2.解析Excel
+                logger.Info("Parser Excel data:" + file.FileName);
                 //2.1 將上傳檔案存檔
                 var fileName = Path.GetFileName(file.FileName);
                 var path = Path.Combine(ContextService.strUploadPath + "/" + projectid, fileName);
@@ -92,12 +88,12 @@ namespace topmeperp.Controllers
                 //        < button type = "button" class="btn btn-primary" onclick="location.href='@Url.Action("ManagePlanItem","Plan", new { id = @Model.tndProject.PROJECT_ID})'; ">標單明細</button>
                 //2.4
                 logger.Info("Delete PLAN_ITEM By Project ID");
-                service.delAllItemByPlan();
+                service.delAllItem();
                 //2.5
                 logger.Info("Add All PLAN_ITEM to DB");
-                service.refreshPlanItem(poiservice.lstPlanItem);
+                service.refreshItem(poiservice.lstPlanItem);
             }
-            ViewBag.result = message;
+            TempData["result"] = message;
             return Redirect("ManagePlanItem?id=" + projectid);
         }
         /// <summary>
@@ -174,6 +170,65 @@ namespace topmeperp.Controllers
             string itemJson = objSerializer.Serialize(service.getPlanItem(itemid));
             logger.Info("plan item  info=" + itemJson);
             return itemJson;
+        }
+
+        public String addPlanItem(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            string msg = "更新成功!!";
+
+            PLAN_ITEM item = new PLAN_ITEM();
+            item.PROJECT_ID = form["project_id"];
+            item.PLAN_ITEM_ID = form["plan_item_id"];
+            item.ITEM_ID = form["item_id"];
+            item.ITEM_DESC = form["item_desc"];
+            item.ITEM_UNIT = form["item_unit"];
+            try
+            {
+                item.ITEM_QUANTITY = decimal.Parse(form["item_quantity"]);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(item.PLAN_ITEM_ID + " not quattity:" + ex.Message);
+            }
+            try
+            {
+                item.ITEM_FORM_QUANTITY = decimal.Parse(form["item_form_quantity"]);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(item.PLAN_ITEM_ID + " not form quattity:" + ex.Message);
+            }
+            try
+            {
+                item.ITEM_UNIT_PRICE = decimal.Parse(form["item_unit_price"]);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(item.PLAN_ITEM_ID + " not unit price:" + ex.Message);
+            }
+
+            item.TYPE_CODE_1 = form["type_code_1"];
+            item.TYPE_CODE_2 = form["type_code_2"];
+
+            item.SYSTEM_MAIN = form["system_main"];
+            item.SYSTEM_SUB = form["system_sub"];
+            try
+            {
+                item.EXCEL_ROW_ID = long.Parse(form["excel_row_id"]);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(item.PLAN_ITEM_ID + " not exce row id:" + ex.Message);
+            }
+
+            SYS_USER loginUser = (SYS_USER)Session["user"];
+            item.MODIFY_USER_ID = loginUser.USER_ID;
+            item.MODIFY_DATE = DateTime.Now;
+            PurchaseFormService service = new PurchaseFormService();
+            int i = service.updatePlanItem(item);
+            if (i == 0) { msg = service.message; }
+            return msg;
         }
         public ActionResult Budget(string id)
         {
@@ -338,7 +393,7 @@ namespace topmeperp.Controllers
             SYS_USER u = (SYS_USER)Session["user"];
             string msg = "";
             string[] lstplanitemid = form.Get("planitemid").Split(',');
-            string[] lstBudget = form.Get("budgetratio").Split(','); 
+            string[] lstBudget = form.Get("budgetratio").Split(',');
             List<PLAN_ITEM> lstItem = new List<PLAN_ITEM>();
             for (int j = 0; j < lstBudget.Count(); j++)
             {

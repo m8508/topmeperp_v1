@@ -17,8 +17,8 @@ namespace topmeperp.Models
         public string CONTRACT_ID { get; set; }
         public string PROJECT_ID { get; set; }
         public string PAYMENT_FREQUENCY { get; set; }
-        public Nullable<System.DateTime> DATE_1 { get; set; }
-        public Nullable<System.DateTime> DATE_2 { get; set; }
+        public Nullable<decimal> DATE_1 { get; set; }
+        public Nullable<decimal> DATE_2 { get; set; }
         public string PAYMENT_TERMS { get; set; }
         public Nullable<decimal> ADVANCE_RATIO { get; set; }
         public Nullable<decimal> ESTIMATED_RATIO { get; set; }

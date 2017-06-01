@@ -25,6 +25,14 @@
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Index","Wage", new { id = @Model.tndProject.PROJECT_ID})'; ">工率表上傳</button>
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("costAnalysis","Inquiry", new { id = @Model.tndProject.PROJECT_ID})'; ">成本分析</button>
         </p>
+    </div><br />
+    <div style="padding-bottom:5px;">
+        <h3 class="bg-info">得標標單上傳區</h3>
+        <div class="row" style="padding-top:10px;"> </div>
+        <input type="hidden" name="projectid" id="projectid" value="@ViewBag.projectid" />
+            @{
+                Html.RenderPartial("_uploadPlanItem");
+            }
     </div>
     <div>
         <h3 class="bg-info" >備標會辦單</h3>

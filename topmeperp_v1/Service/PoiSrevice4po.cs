@@ -45,6 +45,8 @@ namespace topmeperp.Service
                 file.Close();
             }
         }
+
+        #region 處理得標標單項目內容
         //處理得標後標單..
         public void ConvertDataForPlan(string projectId)
         {
@@ -112,17 +114,17 @@ namespace topmeperp.Service
             planItem.PROJECT_ID = projId;
             if (row.Cells[0].ToString().Trim() != "")//代碼
             {
-                planItem.ITEM_ID = row.Cells[0].ToString();
+                planItem.PLAN_ITEM_ID = row.Cells[0].ToString();
             }
             if (row.Cells[1].ToString().Trim() != "")//項次
             {
-                planItem.ITEM_DESC = row.Cells[1].ToString();
+                planItem.ITEM_ID = row.Cells[1].ToString();
             }
             if (row.Cells[2].ToString().Trim() != "")//名稱
             {
-                planItem.ITEM_ID = row.Cells[2].ToString();
+                planItem.ITEM_DESC = row.Cells[2].ToString();
             }
-            if (row.Cells.Count < 4)
+            if (row.Cells.Count < 5)
             {
                 logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
                 logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
@@ -136,7 +138,7 @@ namespace topmeperp.Service
                 planItem.ITEM_UNIT = row.Cells[3].ToString();
             }
 
-            if (row.Cells.Count < 6)
+            if (row.Cells.Count < 7)
             {
                 logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
                 logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
@@ -169,12 +171,28 @@ namespace topmeperp.Service
                 {
                     decimal dQty = decimal.Parse(row.Cells[5].ToString());
                     logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[5].ToString());
-                    planItem.ITEM_QUANTITY = dQty;
+                    planItem.ITEM_FORM_QUANTITY = dQty;
                 }
                 catch (Exception e)
                 {
                     logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.Cells[5].ToString());
                     logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.Cells[5].ToString());
+                    logger.Error(e.Message);
+                }
+
+            }
+            if (row.Cells[6].ToString().Trim() != "")//項目標單單價
+            {
+                try
+                {
+                    decimal dQty = decimal.Parse(row.Cells[6].ToString());
+                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[6].ToString());
+                    planItem.ITEM_UNIT_COST = dQty;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.Cells[6].ToString());
+                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.Cells[6].ToString());
                     logger.Error(e.Message);
                 }
 
@@ -214,6 +232,7 @@ namespace topmeperp.Service
             logger.Info("PlanItem=" + planItem.ToString());
             return planItem;
         }
+        #endregion
 
         private void logErrorMessage(string message)
         {

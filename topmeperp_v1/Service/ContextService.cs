@@ -194,6 +194,39 @@ namespace topmeperp.Service
             }
             return i;
         }
+
+        #region 得標標單項目處理
+        public int delAllItemByPlan()
+        {
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("delete all item by proejct id=" + project.PROJECT_ID);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM PLAN_ITEM WHERE PROJECT_ID=@projectid", new SqlParameter("@projectid", project.PROJECT_ID));
+            }
+            logger.Debug("delete item count=" + i);
+            return i;
+        }
+        public int refreshPlanItem(List<PLAN_ITEM> planItem)
+        {
+            //1.檢查專案是否存在
+            if (null == project) { throw new Exception("Project is not exist !!"); }
+            int i = 0;
+            logger.Info("refreshPlanItem = " + planItem.Count);
+            //2.將Excel 資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (PLAN_ITEM item in planItem)
+                {
+                    item.PROJECT_ID = project.PROJECT_ID;
+                    context.PLAN_ITEM.Add(item);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("add plan item count =" + i);
+            return i;
+        }
+        #endregion
         #region 更新消防電圖算數量  
         public int updateMapFP(TND_MAP_FP mapfp)
         {
@@ -1135,7 +1168,6 @@ namespace topmeperp.Service
             }
             return i;
         }
-
     }
 
     //工率相關資料提供作業
