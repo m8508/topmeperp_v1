@@ -257,6 +257,213 @@ namespace topmeperp.Service
             return oStyle;
         }
     }
+
+    #region 預算下載表格格式處理區段
+    public class BudgetFormToExcel
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        string budgetFile = ContextService.strUploadPath + "\\budget_form.xlsx";
+        string outputPath = ContextService.strUploadPath;
+
+        IWorkbook hssfworkbook;
+        ISheet sheet = null;
+        string fileformat = "xlsx";
+        //存放預算資料
+        public TND_PROJECT project = null;
+        public List<PLAN_BUDGET> typecodeItems = null;
+        public string errorMessage = null;
+        string projId = null;
+        //建立預算下載表格
+        public string exportExcel(TND_PROJECT project, List<PLAN_BUDGET> typecodeItems)
+        {
+            //1.讀取預算表格檔案
+            InitializeWorkbook(budgetFile);
+            sheet = (XSSFSheet)hssfworkbook.GetSheet("預算");
+
+            //2.填入表頭資料
+            logger.Debug("Table Head_1=" + sheet.GetRow(1).Cells[0].ToString());
+            sheet.GetRow(1).Cells[1].SetCellValue(project.PROJECT_ID);//專案編號
+            logger.Debug("Table Head_2=" + sheet.GetRow(2).Cells[0].ToString());
+            sheet.GetRow(2).Cells[1].SetCellValue(project.PROJECT_NAME);//專案名稱
+
+            //2.建立空白欄位
+            int idxRow = 4;
+            IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+            for (int iTmp = 0; iTmp < 10; iTmp++)
+            {
+                row.CreateCell(iTmp);
+            }
+            idxRow++;
+            //4.另存新檔至專案所屬目錄 (增加Temp for zip 打包使用
+            string fileLocation = null;
+            fileLocation = outputPath + "\\" + project.PROJECT_ID + "\\" + project.PROJECT_ID + "_預算.xlsx";
+            var file = new FileStream(fileLocation, FileMode.Create);
+            logger.Info("new file name =" + file.Name + ",path=" + file.Position);
+            hssfworkbook.Write(file);
+            file.Close();
+            return fileLocation;
+        }
+        public BudgetFormToExcel()
+        {
+        }
+        public void InitializeWorkbook(string path)
+        {
+            //read the wage file via FileStream, it is suggested to use FileAccess.Read to prevent file lock.
+            //book1.xls is an Excel-2007-generated file, so some new unknown BIFF records are added. 
+            using (FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                logger.Info("Read Excel File:" + path); if (file.Name.EndsWith(".xls"))
+                {
+                    logger.Debug("process excel file for office 2003");
+                    //fileformat = "xls";
+                    hssfworkbook = new HSSFWorkbook(file);
+                }
+                else
+                {
+                    logger.Debug("process excel file for office 2007");
+                    hssfworkbook = new XSSFWorkbook(file);
+                }
+                file.Close();
+            }
+        }
+        #region 預算資料轉換 
+        /**
+         * 取得預算Sheet 資料
+         * */
+        public List<PLAN_BUDGET> ConvertDataForBudget(string projectId)
+        {
+            projId = projectId;
+            //1.依據檔案附檔名使用不同物件讀取Excel 檔案，並開啟預算Sheet
+            if (fileformat == "xls")
+            {
+                logger.Debug("office 2003:" + fileformat + " for projectID=" + projId + ":預算");
+                sheet = (HSSFSheet)hssfworkbook.GetSheet("預算");
+            }
+            else
+            {
+                logger.Debug("office 2007:" + fileformat + " for projectID=" + projId + ":預算");
+                sheet = (XSSFSheet)hssfworkbook.GetSheet("預算");
+            }
+            if (null == sheet)
+            {
+                logger.Error("檔案內沒有預算資料(Sheet)! filename=" + fileformat);
+                throw new Exception("檔案內沒有[預算]資料");
+            }
+            return ConverData2Budget();
+        }
+        /**
+         * 轉換預算資料檔:預算
+         * */
+        protected List<PLAN_BUDGET> ConverData2Budget()
+        {
+            IRow row = null;
+            List<PLAN_BUDGET> lstBudget = new List<PLAN_BUDGET>();
+            System.Collections.IEnumerator rows = sheet.GetRowEnumerator();
+            //2.逐行讀取資料
+            int iRowIndex = 0; //0 表 Row 1
+
+            //2.1  忽略不要的行數..(表頭)
+            while (iRowIndex < (4))
+            {
+                rows.MoveNext();
+                iRowIndex++;
+                //row = (IRow)rows.Current;
+                //logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
+            }
+            //循序處理每一筆資料之欄位!!
+            iRowIndex++;
+            while (rows.MoveNext())
+            {
+                row = (IRow)rows.Current;
+                int i = 0;
+                string slog = "";
+                for (i = 0; i < row.Cells.Count; i++)
+                {
+                    slog = slog + "," + row.Cells[i];
+
+                }
+                logger.Debug("Excel Value:" + slog);
+                //將各Row 資料寫入物件內
+                //0.九宮格	1.次九宮格 2.折扣率 3.預算折扣率
+                if (row.Cells[0].ToString().ToUpper() != "END")
+                {
+                    lstBudget.Add(convertRow2PlanBudget(row, iRowIndex));
+                }
+                else
+                {
+                    logErrorMessage("Step1 ;取得預算資料:" + typecodeItems.Count + "筆");
+                    logger.Info("Finish convert Job : count=" + typecodeItems.Count);
+                    return lstBudget;
+                }
+                iRowIndex++;
+            }
+            logger.Info("Plan_Budget Count:" + iRowIndex);
+            return lstBudget;
+        }
+        /**
+         * 將Excel Row 轉換成為對應的資料物件
+         * */
+        private PLAN_BUDGET convertRow2PlanBudget(IRow row, int excelrow)
+        {
+            PLAN_BUDGET item = new PLAN_BUDGET();
+            item.PROJECT_ID = projId;
+            if (row.Cells[0].ToString().Trim() != "")//0.九宮格
+            {
+                item.TYPE_CODE_1 = row.Cells[0].ToString();
+            }
+            if (row.Cells[1].ToString().Trim() != "")//1.次九宮格
+            {
+                item.TYPE_CODE_2 = row.Cells[1].ToString();
+            }
+            if (null != row.Cells[row.Cells.Count - 2].ToString().Trim() || row.Cells[row.Cells.Count - 2].ToString().Trim() != "")//2.投標折數
+            {
+                try
+                {
+                    decimal dQty = decimal.Parse(row.Cells[row.Cells.Count - 2].ToString());
+                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[row.Cells.Count - 2].ToString());
+                    item.TND_RATIO = dQty;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[4].value=" + row.Cells[row.Cells.Count - 2].ToString());
+                    logger.Error(e);
+                }
+
+            }
+            if (null != row.Cells[row.Cells.Count - 1].ToString().Trim() || row.Cells[row.Cells.Count - 1].ToString().Trim() != "")//3.預算折數
+            {
+                try
+                {
+                    decimal dQty = decimal.Parse(row.Cells[row.Cells.Count - 1].ToString());
+                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[row.Cells.Count - 1].ToString());
+                    item.BUDGET_RATIO = dQty;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[5].value=" + row.Cells[row.Cells.Count - 2].ToString());
+                    logger.Error(e);
+                }
+
+            }
+            item.CREATE_DATE = System.DateTime.Now;
+            logger.Info("PLAN_BUDGET=" + item.ToString());
+            return item;
+        }
+        #endregion
+        private void logErrorMessage(string message)
+        {
+            if (errorMessage == null)
+            {
+                errorMessage = message;
+            }
+            else
+            {
+                errorMessage = errorMessage + "<br/>" + message;
+            }
+        }
+    }
+    #endregion
+
     public class PurchaseFormtoExcel
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -489,5 +696,5 @@ namespace topmeperp.Service
             }
         }
     }
-   
+
 }

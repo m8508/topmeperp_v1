@@ -25,6 +25,7 @@
                     <th>詢價單名稱</th>
                     <th>供應商名稱</th>
                     <th>總價</th>
+                    <th>種類</th>
                     <th>狀態</th>
                     <th>選項連結</th>
                 </tr>
@@ -52,6 +53,17 @@
                                 </span>
                             }
                         </td>
+                        <td>
+                            @{
+                                var type = "材料";
+                                if (item.ISWAGE == "Y")
+                                {
+                                    type = "工資";
+                                }
+                            }
+                            @type
+                        </td>
+
                         <td>@item.STATUS</td>
                         <td><a href='@("../../UploadFile/" + ViewBag.projectid + "/Quotes/" + item.INQUIRY_FORM_ID + ".xlsx")'>下載</a></td>
 

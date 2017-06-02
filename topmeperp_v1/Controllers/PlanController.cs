@@ -15,6 +15,7 @@ namespace topmeperp.Controllers
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         PlanService service = new PlanService();
+       
 
         // GET: Plan
         [topmeperp.Filter.AuthFilter]
@@ -230,6 +231,7 @@ namespace topmeperp.Controllers
             if (i == 0) { msg = service.message; }
             return msg;
         }
+ 
         public ActionResult Budget(string id)
         {
             logger.Info("budget info for projectid=" + id);
@@ -259,6 +261,70 @@ namespace topmeperp.Controllers
             ViewBag.result = "共有" + budget2.Count + "筆資料";
             return View(budget2);
         }
+        /// <summary>
+        /// 下載預算寫表
+        /// </summary>
+        public void downLoadBudgetForm()
+        {
+            string projectid = Request["projectid"];
+            service.getProjectId(projectid);
+            if (null != service.budgetTable)
+            {
+                BudgetFormToExcel poi = new BudgetFormToExcel();
+                //檔案位置
+                string fileLocation = poi.exportExcel(service.budgetTable, service.budgetTableItem);
+                //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
+                string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
+                Response.Clear();
+                Response.Charset = "utf-8";
+                Response.ContentType = "text/xls";
+                Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", filename));
+                ///"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx"
+                Response.WriteFile(fileLocation);
+                Response.End();
+            }
+        }
+        //上傳預算
+        [HttpPost]
+        public ActionResult uploadBudgetTable(HttpPostedFileBase fileBudget)
+        {
+            string projectid = Request["projectid"];
+            logger.Info("Upload Budget Table for projectid=" + projectid);
+            string message = "";
+            //檔案變數名稱(fileBudget)需要與前端畫面對應(view 的 file name and file id)
+            if (null != fileBudget && fileBudget.ContentLength != 0)
+            {
+                //2.解析Excel
+                logger.Info("Parser Excel data:" + fileBudget.FileName);
+                //2.1 設定Excel 檔案名稱
+                var fileName = Path.GetFileName(fileBudget.FileName);
+                var path = Path.Combine(ContextService.strUploadPath + "/" + projectid, fileName);
+                logger.Info("save excel file:" + path);
+                fileBudget.SaveAs(path);
+                //2.2 開啟Excel 檔案
+                logger.Info("Parser Excel File Begin:" + fileBudget.FileName);
+                BudgetFormToExcel budgetservice = new BudgetFormToExcel();
+                budgetservice.InitializeWorkbook(path);
+                //解析預算數量
+                List<PLAN_BUDGET> lstBudget = budgetservice.ConvertDataForBudget(projectid);
+                //2.3 記錄錯誤訊息
+                message = budgetservice.errorMessage;
+                //2.4
+                logger.Info("Delete PLAN_BUDGET By Project ID");
+                service.delBudgetByProject(projectid);
+                message = message + "<br/>舊有資料刪除成功 !!";
+                //2.5 
+                logger.Info("Add All PLAN_BUDGET to DB");
+                service.refreshBudget(lstBudget);
+                message = message + "<br/>資料匯入完成 !!";
+            }
+            TempData["result"] = message;
+            // 將預算寫入得標標單
+            int k = service.updateBudgetToPlanItem(projectid);
+            return RedirectToAction("Budget/" + projectid);
+        }
+
+
         //寫入預算
         public String UpdateBudget(FormCollection form)
         {

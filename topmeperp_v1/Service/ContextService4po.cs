@@ -19,6 +19,9 @@ namespace topmeperp.Service
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public string message = "";
         TND_PROJECT project = null;
+        public TND_PROJECT budgetTable = null;
+        public List<PLAN_BUDGET> budgetTableItem = null;
+
 
         #region 得標標單項目處理
         public TND_PROJECT getProject(string prjid)
@@ -219,6 +222,56 @@ namespace topmeperp.Service
             logger.Info("update budget count =" + i);
             return i;
         }
+
+        #region 取得預算表單檔頭資訊
+        //取得預算表單檔頭
+        public void getProjectId(string projectid)
+        {
+            logger.Info("get project : projectid=" + projectid);
+            using (var context = new topmepEntities())
+            {
+                //取得預算表單檔頭資訊
+                budgetTable = context.TND_PROJECT.SqlQuery("SELECT * FROM TND_PROJECT WHERE PROJECT_ID=@projectid", new SqlParameter("projectid", projectid)).First();
+            }
+        }
+        #endregion
+
+        #region 預算數量  
+        //預算上傳數量  
+        public int refreshBudget(List<PLAN_BUDGET> items)
+        {
+            //1.檢查專案是否存在
+            //if (null == project) { throw new Exception("Project is not exist !!"); } 先註解掉,因為讀取不到project,會造成null == project is true,
+            //而導致錯誤, 因為已設定是直接由專案頁面導入上傳圖算畫面，故不會有專案不存在的bug
+            int i = 0;
+            logger.Info("refreshBudgetItem = " + items.Count);
+            //2.將Excel 資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (PLAN_BUDGET item in items)
+                {
+                    //item.PROJECT_ID = project.PROJECT_ID;先註解掉,因為專案編號一開始已經設定了，會直接代入
+                    context.PLAN_BUDGET.Add(item);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("add PLAN_BUDGET count =" + i);
+            return i;
+        }
+        public int delBudgetByProject(string projectid)
+        {
+            logger.Info("remove all budget by project ID=" + projectid);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("delete all PLAN_BUDGET by proejct id=" + projectid);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM PLAN_BUDGET WHERE PROJECT_ID=@projectid", new SqlParameter("@projectid", projectid));
+            }
+            logger.Debug("delete PLAN_BUDGET count=" + i);
+            return i;
+        }
+        #endregion
+
     }
     public class BudgetDataService : CostAnalysisDataService
     {

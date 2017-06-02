@@ -6,12 +6,22 @@
 
 <div class="page-header">
     <h2 style="padding-bottom:15px;">執行預算作業 : </h2>
-    <form id="UploadFile" name="UploadFile" action="/Plan/uploadPlanBudget" method="post" enctype="multipart/form-data">
-        <label for="file">預算匯入:</label>
+    <div class="row col-md-12" style="padding-bottom:15px">
+        <label>🎪預算填寫表連結 : </label>
+        <a href="/Plan/downLoadBudgetForm?projectid=@ViewBag.projectid" target="_blank">下載</a>
+    </div>
+    <form id="UploadFile" name="UploadFile" action="/Plan/uploadBudgetTable" method="post" enctype="multipart/form-data">
+        <label for="file">🎪預算匯入:</label>
         <input type="hidden" name="projectid" id="projectid" value="@ViewBag.projectid" />
-        <input type="file" name="file" id="file" />
+        <input type="file" name="fileBudget" id="fileBudget" />
         <input id="btnUploadfile" name="btnUploadfile" type="submit" class="btn-primary" value="匯入檔案" />
     </form>
+    <div class="col-md-12">
+        <div class="col-md-8"></div>
+        <div class="col-md-4 alert-info">
+            @Html.Raw(TempData["result"])
+        </div>
+    </div>
     <div class="col-md-12 form-group" style="padding-top:40px">
         <form id="formBudget" name="formBudget" action="UpdateBudget" method="post">
             <label for="id" class="col-md-2" style="text-align:right">專案編號 :</label>
