@@ -7,6 +7,7 @@
 <div class="jumbotron">
     <button type="button" class="btn btn-primary" onclick="window.open('@Url.Action("Comparison", "PurchaseForm", new { id = ViewBag.id })'); ">採購比價</button>
     <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PurchasingContract", "PurchaseForm", new { id = ViewBag.id })'; ">發包收支摘要</button>
+    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("LeadTimeMainPage", "PurchaseForm", new { id = ViewBag.id })'; ">設備前置時間</button>
     <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PendingItems", "PurchaseForm", new { id = ViewBag.id })'; ">未決標標單品項</button>
     <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
     <form name="formSearch" id="formSearch" action="Search" method="Post" class="form-inline">
@@ -27,6 +28,7 @@
                 <div id="divProcessing">
                     <img src="~/Content/ajax-loader.gif">
                 </div>
+                <input type="checkbox" value="Y" id="isWage" name="isWage" />工資比較
                 <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
                 <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
             </div>

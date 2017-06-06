@@ -385,10 +385,10 @@ namespace topmeperp.Service
 
         #region 取得得標標單項目內容
         //取得標單品項資料
-        public List<PLAN_ITEM> getPlanItem(string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub, string formName)
+        public List<PLAN_ITEM> getPlanItem(string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub, string formName, string supplier)
         {
 
-            logger.Info("search plan item by 九宮格 =" + typeCode1 + "search plan item by 次九宮格 =" + typeCode2 + "search plan item by 主系統 =" + systemMain + "search plan item by 次系統 =" + systemSub + "search plan item by 採購項目 =" + formName);
+            logger.Info("search plan item by 九宮格 =" + typeCode1 + "search plan item by 次九宮格 =" + typeCode2 + "search plan item by 主系統 =" + systemMain + "search plan item by 次系統 =" + systemSub + "search plan item by 採購項目 =" + formName + "search plan item by 材料供應商 =" + supplier);
             List<topmeperp.Models.PLAN_ITEM> lstItem = new List<PLAN_ITEM>();
             //處理SQL 預先填入專案代號,設定集合處理參數
             string sql = "SELECT * FROM PLAN_ITEM pi ";
@@ -425,6 +425,12 @@ namespace topmeperp.Service
             {
                 sql = sql + "AND pi.SYSTEM_SUB LIKE @systemSub ";
                 parameters.Add(new SqlParameter("systemSub", "%" + systemSub + "%"));
+            }
+            //材料供應商
+            if (null != supplier && supplier != "")
+            {
+                sql = sql + "AND pi.SUPPLIER_ID =@supplier ";
+                parameters.Add(new SqlParameter("supplier", supplier));
             }
 
             using (var context = new topmepEntities())
@@ -688,8 +694,8 @@ namespace topmeperp.Service
         }
 
 
-      
-    public List<PlanSupplierFormFunction> getFormByProject(string projectid, string _status)
+
+        public List<PlanSupplierFormFunction> getFormByProject(string projectid, string _status)
         {
             string status = "有效";
             if (null != _status && _status != "*")
@@ -707,7 +713,7 @@ namespace topmeperp.Service
             logger.Info("get plan supplier form function count:" + lst.Count);
             return lst;
         }
-       
+
         public int addFormName(List<PLAN_SUP_INQUIRY> lstItem)
         {
             int i = 0;
@@ -753,7 +759,7 @@ namespace topmeperp.Service
             }
             return i;
         }
-       
+
         //新增供應商採購詢價單
         public string addSupplierForm(PLAN_SUP_INQUIRY sf, string[] lstItemId)
         {
@@ -908,6 +914,18 @@ namespace topmeperp.Service
             }
             return lst;
         }
+        //取得材料合約供應商選單
+        public List<string> getSupplierForContract(string projectid)
+        {
+            List<string> lst = new List<string>();
+            using (var context = new topmepEntities())
+            {
+                //取得供應商選單
+                lst = context.Database.SqlQuery<string>("SELECT DISTINCT SUPPLIER_ID FROM PLAN_ITEM WHERE PROJECT_ID=@projectid AND SUPPLIER_ID IS NOT NULL ;", new SqlParameter("projectid", projectid)).ToList();
+                logger.Info("Get Supplier For Contract Count=" + lst.Count);
+            }
+            return lst;
+        }
         //取得次系統選單
         public List<string> getSystemSub(string projectid)
         {
@@ -956,7 +974,7 @@ namespace topmeperp.Service
         }
 
         //取得需議價詢價單資料
-        public List<purchasesummary> getPurchaseForm4Offer(string projectid, string formname)
+        public List<purchasesummary> getPurchaseForm4Offer(string projectid, string formname, string iswage)
         {
 
             logger.Info("search purchase form by 採購項目 =" + formname);
@@ -975,6 +993,23 @@ namespace topmeperp.Service
                          "count(*) TOTAL_ROW, sum(ITEM_QTY * ITEM_UNIT_PRICE) TOTALPRICE from PLAN_SUP_INQUIRY_ITEM pi LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL GROUP BY p.INQUIRY_FORM_ID, " +
                          "p.FORM_NAME) B ON A.INQUIRY_FORM_ID + A.type = B.INQUIRY_FORM_ID + B.type) D ON C.INQUIRY_FORM_ID + C.code1 = D.INQUIRY_FORM_ID + D.type ";
             ;
+
+            if (iswage == "Y")
+            {
+                sql = "SELECT C.code1 AS FORM_NAME, C.INQUIRY_FORM_ID as INQUIRY_FORM_ID, C.SUPPLIER_ID AS SUPPLIER_ID, D.TOTAL_ROWS AS TOTALROWS, D.TOTAL_PRICE AS TAmount " +
+                         "FROM (select p.SUPPLIER_ID,  p.INQUIRY_FORM_ID, p.FORM_NAME AS code1, ISNULL(STATUS,'有效') STATUS FROM PLAN_SUP_INQUIRY p LEFT OUTER JOIN PLAN_SUP_INQUIRY_ITEM pi " +
+                         "ON p.INQUIRY_FORM_ID = pi.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL AND ISNULL(STATUS,'有效') <> '註銷' GROUP BY p.FORM_NAME, p.INQUIRY_FORM_ID, p.STATUS, " +
+                         "p.SUPPLIER_ID HAVING p.FORM_NAME NOT IN (SELECT p.FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid " +
+                         "AND p.MAN_PRICE IS NOT NULL AND p.MAN_PRICE <> 0 GROUP BY p.FORM_NAME))C LEFT OUTER JOIN " +
+                         "(select  B.type, B.INQUIRY_FORM_ID, B.TOTAL_ROW AS TOTAL_ROWS, B.TOTALPRICE AS TOTAL_PRICE FROM (select p.FORM_NAME as type, p.INQUIRY_FORM_ID " +
+                         "from PLAN_SUP_INQUIRY_ITEM pi LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL " +
+                         "and pi.ITEM_UNIT_PRICE is not null GROUP BY p.INQUIRY_FORM_ID, p.FORM_NAME HAVING p.FORM_NAME NOT IN " +
+                         "(SELECT p.FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid AND p.MAN_PRICE IS NOT NULL AND p.MAN_PRICE <> 0 GROUP BY p.FORM_NAME)) A " +
+                         "RIGHT OUTER JOIN (select p.FORM_NAME as type, p.INQUIRY_FORM_ID, " +
+                         "count(*) TOTAL_ROW, sum(ITEM_QTY * ITEM_UNIT_PRICE) TOTALPRICE from PLAN_SUP_INQUIRY_ITEM pi LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL GROUP BY p.INQUIRY_FORM_ID, " +
+                         "p.FORM_NAME) B ON A.INQUIRY_FORM_ID + A.type = B.INQUIRY_FORM_ID + B.type) D ON C.INQUIRY_FORM_ID + C.code1 = D.INQUIRY_FORM_ID + D.type ";
+                ;
+            }
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("projectid", projectid));
 
@@ -1069,7 +1104,7 @@ namespace topmeperp.Service
 
             if (iswage == "Y")
             {
-                sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PROJECT_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
+                sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PLAN_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
                 "(SELECT SUPPLIER_ID+'|'+ fitem.INQUIRY_FORM_ID +'|' + FORM_NAME FROM PLAN_SUP_INQUIRY f WHERE f.INQUIRY_FORM_ID = fitem.INQUIRY_FORM_ID) as SUPPLIER_NAME, " +
                 "pitem.MAN_PRICE 工資單價,fitem.ITEM_UNIT_PRICE " +
                 "from PLAN_ITEM pitem " +
@@ -1246,6 +1281,25 @@ namespace topmeperp.Service
             return i;
         }
 
+        public int addContractId(string projectid)
+        {
+            int i = 0;
+            //將合約編號寫入PLAN PAYMENT TERMS
+            logger.Info("copy contract id into plan payment terms, project id =" + projectid);
+            using (var context = new topmepEntities())
+            {
+                List<topmeperp.Models.PLAN_PAYMENT_TERMS> lstItem = new List<PLAN_PAYMENT_TERMS>();
+                string sql = "INSERT INTO PLAN_PAYMENT_TERMS (CONTRACT_ID, PROJECT_ID) " +
+                       "SELECT distinct ('" + projectid + "' + p.SUPPLIER_ID + p.FORM_NAME) AS contractid, '" + projectid + "' FROM  PLAN_ITEM p WHERE p.SUPPLIER_ID IS NOT NULL " +
+                       "AND '" + projectid + "' + p.SUPPLIER_ID + p.FORM_NAME NOT IN(SELECT ppt.CONTRACT_ID FROM PLAN_PAYMENT_TERMS ppt) ";
+
+                logger.Info("sql =" + sql);
+                var parameters = new List<SqlParameter>();
+                i = context.Database.ExecuteSqlCommand(sql);
+                return i;
+            }
+        }
+
         public List<PLAN_ITEM> getContractItemsByContractName(string contractid)
         {
             List<PLAN_ITEM> lst = new List<PLAN_ITEM>();
@@ -1255,42 +1309,6 @@ namespace topmeperp.Service
                     , new SqlParameter("contractid", contractid)).ToList();
             }
             logger.Info("get plan supplier contract items count:" + lst.Count);
-            return lst;
-        }
-        public int addContractIdByContractName(string contractid)
-        {
-            int i = 0;
-            logger.Info("add plan contract id ，id =" + contractid);
-            try
-            {
-                db = new topmepEntities();
-                string sql = "UPDATE PLAN_ITEM SET CONTRACT_ID = @contractid WHERE PROJECT_ID + SUPPLIER_ID + FORM_NAME = @contractid  ";
-                var parameters = new List<SqlParameter>();
-                parameters.Add(new SqlParameter("contractid", contractid));
-                db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
-                i = db.SaveChanges();
-                logger.Info("add plan contract id count:" + i);
-                db = null;
-            }
-            catch (Exception e)
-            {
-                logger.Error("update  plan  form  fail:" + e.ToString());
-                logger.Error(e.StackTrace);
-                message = e.Message;
-            }
-            return i;
-        }
-
-        public List<PLAN_ITEM> getPendingItems(string projectid)
-        {
-            List<PLAN_ITEM> lst = new List<PLAN_ITEM>();
-            using (var context = new topmepEntities())
-            {
-                // ITEM_UNIT IS NOT NULL(確認單位欄位是空值就是不需採購的欄位嗎) AND ITEM_UNIT_PRICE IS NULL
-                lst = context.Database.SqlQuery<PLAN_ITEM>("SELECT * FROM PLAN_ITEM WHERE PROJECT_ID =@projectid AND ITEM_UNIT IS NOT NULL AND ITEM_UNIT_PRICE IS NULL  ;"
-                    , new SqlParameter("projectid", projectid)).ToList();
-            }
-            logger.Info("get plan pending items count:" + lst.Count);
             return lst;
         }
 
@@ -1305,6 +1323,19 @@ namespace topmeperp.Service
                 new SqlParameter("contractid", contractid)).FirstOrDefault();
             }
             return payment;
+        }
+
+        public List<PLAN_ITEM> getPendingItems(string projectid)
+        {
+            List<PLAN_ITEM> lst = new List<PLAN_ITEM>();
+            using (var context = new topmepEntities())
+            {
+                // ITEM_UNIT IS NOT NULL(確認單位欄位是空值就是不需採購的欄位嗎) AND ITEM_UNIT_PRICE IS NULL
+                lst = context.Database.SqlQuery<PLAN_ITEM>("SELECT * FROM PLAN_ITEM WHERE PROJECT_ID =@projectid AND ITEM_UNIT IS NOT NULL AND ITEM_UNIT_PRICE IS NULL  ;"
+                    , new SqlParameter("projectid", projectid)).ToList();
+            }
+            logger.Info("get plan pending items count:" + lst.Count);
+            return lst;
         }
 
         public int updatePaymentTerms(PLAN_PAYMENT_TERMS item)
@@ -1340,6 +1371,45 @@ namespace topmeperp.Service
             i = db.SaveChanges();
             db = null;
             logger.Debug("Update plan sup inquiry form status  :" + i);
+            return i;
+        }
+        //更新得標標單品項之採購前置天數
+        public int updateLeadTime(string projectid, List<PLAN_ITEM> lstItem)
+        {
+            //1.新增前置天數資料
+            int i = 0;
+            logger.Info("update lead time = " + lstItem.Count);
+            //2.將預算資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (PLAN_ITEM item in lstItem)
+                {
+                    PLAN_ITEM existItem = null;
+                    logger.Debug("plan item id=" + item.PLAN_ITEM_ID);
+                    if (item.PLAN_ITEM_ID != null && item.PLAN_ITEM_ID != "")
+                    {
+                        existItem = context.PLAN_ITEM.Find(item.PLAN_ITEM_ID);
+                    }
+                    else
+                    {
+                        var parameters = new List<SqlParameter>();
+                        parameters.Add(new SqlParameter("projectid", projectid));
+                        parameters.Add(new SqlParameter("planitemid", item.PLAN_ITEM_ID));
+                        string sql = "SELECT * FROM PLAN_ITEM WHERE PROJECT_ID = @projectid and PLAN_ITEM_ID = @planitemid ";
+                        logger.Info(sql + " ;" + item.PROJECT_ID + item.PLAN_ITEM_ID);
+                        PLAN_ITEM excelItem = context.PLAN_ITEM.SqlQuery(sql, parameters.ToArray()).First();
+                        existItem = context.PLAN_ITEM.Find(excelItem.PLAN_ITEM_ID);
+
+                    }
+                    logger.Debug("find exist item=" + existItem.PLAN_ITEM_ID);
+                    existItem.LEAD_TIME = item.LEAD_TIME;
+                    existItem.MODIFY_USER_ID = item.MODIFY_USER_ID;
+                    existItem.MODIFY_DATE = DateTime.Now;
+                    context.PLAN_ITEM.AddOrUpdate(existItem);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("update lead time count =" + i);
             return i;
         }
     }

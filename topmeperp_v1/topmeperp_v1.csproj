@@ -788,6 +788,8 @@
     <Content Include="Views\Plan\ShowPlanItems.cshtml" />
     <Content Include="Views\Tender\_ProjectItem.cshtml" />
     <Content Include="Views\Tender\_uploadPlanItem.cshtml" />
+    <Content Include="Views\PurchaseForm\LeadTimeMainPage.cshtml" />
+    <Content Include="Views\PurchaseForm\_PlanItemsForLeadTime.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

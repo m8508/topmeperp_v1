@@ -289,11 +289,14 @@ namespace topmeperp.Service
             //2.建立空白欄位
             int idxRow = 4;
             IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
-            for (int iTmp = 0; iTmp < 10; iTmp++)
+            //預算//預算單列小計(填入公式)
+            for (int iTmp = 0; iTmp < 30; iTmp++)
             {
+                row.CreateCell(6).CellFormula = "D" + (idxRow + 1) + "*E" + (idxRow + 1) + "*F" + (idxRow + 1);
                 row.CreateCell(iTmp);
             }
             idxRow++;
+
             //4.另存新檔至專案所屬目錄 (增加Temp for zip 打包使用
             string fileLocation = null;
             fileLocation = outputPath + "\\" + project.PROJECT_ID + "\\" + project.PROJECT_ID + "_預算.xlsx";
@@ -631,7 +634,7 @@ namespace topmeperp.Service
             }
             //電子信箱:	admin@topmep
             logger.Debug(sheet.GetRow(6).Cells[0].ToString() + "," + sheet.GetRow(6).Cells[1]);
-            form.CONTACT_EMAIL = sheet.GetRow(6).Cells[1].ToString();
+            form.OWNER_EMAIL = sheet.GetRow(6).Cells[1].ToString();
             //編號: REF - 001
             try
             {

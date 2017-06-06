@@ -45,11 +45,13 @@
           <Property Name="EXCEL_ROW_ID" Type="bigint" />
           <Property Name="FORM_NAME" Type="varchar" MaxLength="150" />
           <Property Name="SUPPLIER_ID" Type="varchar" MaxLength="200" />
-          <Property Name="CONTRACT_ID" Type="varchar" MaxLength="50" />
           <Property Name="BUDGET_RATIO" Type="decimal" Precision="18" Scale="3" />
           <Property Name="ITEM_FORM_QUANTITY" Type="decimal" Precision="18" Scale="3" />
           <Property Name="ITEM_UNIT_COST" Type="decimal" Precision="18" Scale="3" />
           <Property Name="TND_RATIO" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="MAN_FORM_NAME" Type="varchar" MaxLength="150" />
+          <Property Name="MAN_SUPPLIER_ID" Type="varchar" MaxLength="200" />
+          <Property Name="LEAD_TIME" Type="decimal" Precision="5" Scale="1" />
         </EntityType>
         <EntityType Name="PLAN_PAYMENT_TERMS">
           <Key>
@@ -60,22 +62,52 @@
           <Property Name="PAYMENT_FREQUENCY" Type="varchar" MaxLength="2" />
           <Property Name="DATE_1" Type="numeric" Precision="5" Scale="0" />
           <Property Name="DATE_2" Type="numeric" Precision="5" Scale="0" />
+          <Property Name="DATE_3" Type="numeric" Precision="5" Scale="0" />
           <Property Name="PAYMENT_TERMS" Type="varchar" MaxLength="2" />
-          <Property Name="ADVANCE_RATIO" Type="decimal" Precision="5" Scale="3" />
-          <Property Name="ESTIMATED_RATIO" Type="decimal" Precision="5" Scale="3" />
-          <Property Name="RETENTION_RATIO" Type="decimal" Precision="5" Scale="3" />
-          <Property Name="USANCE" Type="decimal" Precision="4" Scale="0" />
-          <Property Name="PAYMENT" Type="varchar" MaxLength="10" />
-          <Property Name="USANCE_ADVANCE_RATIO" Type="decimal" Precision="5" Scale="3" />
-          <Property Name="USANCE_ESTIMATED_RATIO" Type="decimal" Precision="5" Scale="3" />
-          <Property Name="USANCE_RETENTION_RATIO" Type="decimal" Precision="5" Scale="3" />
-          <Property Name="PAYMENT_ADVANCE_RATIO" Type="decimal" Precision="5" Scale="3" />
-          <Property Name="PAYMENT_ESTIMATED_RATIO" Type="decimal" Precision="5" Scale="3" />
-          <Property Name="PAYMENT_RETENTION_RATIO" Type="decimal" Precision="5" Scale="3" />
+          <Property Name="USANCE_CASH" Type="varchar" MaxLength="10" />
+          <Property Name="USANCE_UP_TO_U_1" Type="varchar" MaxLength="10" />
+          <Property Name="USANCE_UP_TO_U_2" Type="varchar" MaxLength="10" />
+          <Property Name="USANCE_UP_TO_U_DATE1" Type="numeric" Precision="5" Scale="0" />
+          <Property Name="USANCE_UP_TO_U_DATE2" Type="numeric" Precision="5" Scale="0" />
+          <Property Name="PAYMENT_TYPE" Type="varchar" MaxLength="20" />
+          <Property Name="PAYMENT_CASH" Type="varchar" MaxLength="10" />
+          <Property Name="PAYMENT_UP_TO_U_1" Type="varchar" MaxLength="10" />
+          <Property Name="PAYMENT_UP_TO_U_2" Type="varchar" MaxLength="10" />
+          <Property Name="PAYMENT_UP_TO_U_DATE1" Type="numeric" Precision="5" Scale="0" />
+          <Property Name="PAYMENT_UP_TO_U_DATE2" Type="numeric" Precision="5" Scale="0" />
+          <Property Name="USANCE_ADVANCE_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_ADVANCE_CASH_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_ADVANCE_1_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_ADVANCE_2_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_GOODS_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_GOODS_CASH_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_GOODS_1_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_GOODS_2_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_FINISHED_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_FINISHED_CASH_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_FINISHED_1_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_FINISHED_2_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_RETENTION_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_RETENTION_CASH_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_RETENTION_1_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_RETENTION_2_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_ADVANCE_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_ADVANCE_CASH_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_ADVANCE_1_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_ADVANCE_2_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_ESTIMATED_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_ESTIMATED_CASH_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_ESTIMATED_1_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_ESTIMATED_2_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_RETENTION_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_RETENTION_CASH_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_RETENTION_1_RATIO" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_RETENTION_2_RATIO" Type="decimal" Precision="5" Scale="2" />
           <Property Name="CREATE_ID" Type="varchar" MaxLength="30" />
           <Property Name="CREATE_DATE" Type="datetime" />
           <Property Name="MODIFY_ID" Type="varchar" MaxLength="30" />
           <Property Name="MODIFY_DATE" Type="datetime" />
+          <Property Name="REMARK" Type="varchar" MaxLength="1000" />
         </EntityType>
         <EntityType Name="PLAN_SUP_INQUIRY">
           <Key>
@@ -987,9 +1019,9 @@
           <EntitySet Name="PLAN_BUDGET" EntityType="topmepModel.PLAN_BUDGET" />
           <EntitySet Name="PLAN_TASK" EntityType="topmepModel.PLAN_TASK" />
           <EntitySet Name="PLAN_SUP_INQUIRY_ITEM" EntityType="topmepModel.PLAN_SUP_INQUIRY_ITEM" />
+          <EntitySet Name="PLAN_SUP_INQUIRY" EntityType="topmepModel.PLAN_SUP_INQUIRY" />
           <EntitySet Name="PLAN_PAYMENT_TERMS" EntityType="topmepModel.PLAN_PAYMENT_TERMS" />
           <EntitySet Name="PLAN_ITEM" EntityType="topmepModel.PLAN_ITEM" />
-          <EntitySet Name="PLAN_SUP_INQUIRY" EntityType="topmepModel.PLAN_SUP_INQUIRY" />
         </EntityContainer>
         <EntityType Name="TND_PROJECT">
           <Key>
@@ -1233,6 +1265,29 @@
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
           <Property Name="ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
+        <EntityType Name="PLAN_SUP_INQUIRY">
+          <Key>
+            <PropertyRef Name="INQUIRY_FORM_ID" />
+          </Key>
+          <Property Name="INQUIRY_FORM_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="FORM_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="OWNER_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="OWNER_TEL" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="OWNER_EMAIL" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="OWNER_FAX" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="SUPPLIER_ID" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="CONTACT_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CONTACT_EMAIL" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="DUEDATE" Type="DateTime" Precision="3" />
+          <Property Name="REF_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="STATUS" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="ISWAGE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+        </EntityType>
         <EntityType Name="PLAN_PAYMENT_TERMS">
           <Key>
             <PropertyRef Name="CONTRACT_ID" />
@@ -1242,22 +1297,52 @@
           <Property Name="PAYMENT_FREQUENCY" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
           <Property Name="DATE_1" Type="Decimal" Precision="5" Scale="0" />
           <Property Name="DATE_2" Type="Decimal" Precision="5" Scale="0" />
+          <Property Name="DATE_3" Type="Decimal" Precision="5" Scale="0" />
           <Property Name="PAYMENT_TERMS" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
-          <Property Name="ADVANCE_RATIO" Type="Decimal" Precision="5" Scale="3" />
-          <Property Name="ESTIMATED_RATIO" Type="Decimal" Precision="5" Scale="3" />
-          <Property Name="RETENTION_RATIO" Type="Decimal" Precision="5" Scale="3" />
-          <Property Name="USANCE" Type="Decimal" Precision="4" Scale="0" />
-          <Property Name="PAYMENT" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="USANCE_ADVANCE_RATIO" Type="Decimal" Precision="5" Scale="3" />
-          <Property Name="USANCE_ESTIMATED_RATIO" Type="Decimal" Precision="5" Scale="3" />
-          <Property Name="USANCE_RETENTION_RATIO" Type="Decimal" Precision="5" Scale="3" />
-          <Property Name="PAYMENT_ADVANCE_RATIO" Type="Decimal" Precision="5" Scale="3" />
-          <Property Name="PAYMENT_ESTIMATED_RATIO" Type="Decimal" Precision="5" Scale="3" />
-          <Property Name="PAYMENT_RETENTION_RATIO" Type="Decimal" Precision="5" Scale="3" />
+          <Property Name="USANCE_CASH" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="USANCE_UP_TO_U_1" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="USANCE_UP_TO_U_2" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="USANCE_UP_TO_U_DATE1" Type="Decimal" Precision="5" Scale="0" />
+          <Property Name="USANCE_UP_TO_U_DATE2" Type="Decimal" Precision="5" Scale="0" />
+          <Property Name="PAYMENT_TYPE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="PAYMENT_CASH" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="PAYMENT_UP_TO_U_1" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="PAYMENT_UP_TO_U_2" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="PAYMENT_UP_TO_U_DATE1" Type="Decimal" Precision="5" Scale="0" />
+          <Property Name="PAYMENT_UP_TO_U_DATE2" Type="Decimal" Precision="5" Scale="0" />
+          <Property Name="USANCE_ADVANCE_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_ADVANCE_CASH_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_ADVANCE_1_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_ADVANCE_2_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_GOODS_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_GOODS_CASH_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_GOODS_1_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_GOODS_2_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_FINISHED_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_FINISHED_CASH_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_FINISHED_1_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_FINISHED_2_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_RETENTION_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_RETENTION_CASH_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_RETENTION_1_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="USANCE_RETENTION_2_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_ADVANCE_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_ADVANCE_CASH_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_ADVANCE_1_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_ADVANCE_2_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_ESTIMATED_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_ESTIMATED_CASH_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_ESTIMATED_1_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_ESTIMATED_2_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_RETENTION_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_RETENTION_CASH_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_RETENTION_1_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="PAYMENT_RETENTION_2_RATIO" Type="Decimal" Precision="5" Scale="2" />
           <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
           <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="PLAN_ITEM">
           <Key>
@@ -1284,34 +1369,13 @@
           <Property Name="EXCEL_ROW_ID" Type="Int64" />
           <Property Name="FORM_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
           <Property Name="SUPPLIER_ID" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="CONTRACT_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="BUDGET_RATIO" Type="Decimal" Precision="18" Scale="3" />
           <Property Name="ITEM_FORM_QUANTITY" Type="Decimal" Precision="18" Scale="3" />
           <Property Name="ITEM_UNIT_COST" Type="Decimal" Precision="18" Scale="3" />
           <Property Name="TND_RATIO" Type="Decimal" Precision="18" Scale="3" />
-        </EntityType>
-        <EntityType Name="PLAN_SUP_INQUIRY">
-          <Key>
-            <PropertyRef Name="INQUIRY_FORM_ID" />
-          </Key>
-          <Property Name="INQUIRY_FORM_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PROJECT_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="FORM_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="OWNER_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="OWNER_TEL" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="OWNER_EMAIL" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="OWNER_FAX" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="SUPPLIER_ID" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="CONTACT_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="CONTACT_EMAIL" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="DUEDATE" Type="DateTime" Precision="3" />
-          <Property Name="REF_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
-          <Property Name="STATUS" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="ISWAGE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="MAN_FORM_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="MAN_SUPPLIER_ID" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="LEAD_TIME" Type="Decimal" Precision="5" Scale="1" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1835,65 +1899,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_PAYMENT_TERMS">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_PAYMENT_TERMS">
-              <MappingFragment StoreEntitySet="PLAN_PAYMENT_TERMS">
-                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
-                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
-                <ScalarProperty Name="PAYMENT_RETENTION_RATIO" ColumnName="PAYMENT_RETENTION_RATIO" />
-                <ScalarProperty Name="PAYMENT_ESTIMATED_RATIO" ColumnName="PAYMENT_ESTIMATED_RATIO" />
-                <ScalarProperty Name="PAYMENT_ADVANCE_RATIO" ColumnName="PAYMENT_ADVANCE_RATIO" />
-                <ScalarProperty Name="USANCE_RETENTION_RATIO" ColumnName="USANCE_RETENTION_RATIO" />
-                <ScalarProperty Name="USANCE_ESTIMATED_RATIO" ColumnName="USANCE_ESTIMATED_RATIO" />
-                <ScalarProperty Name="USANCE_ADVANCE_RATIO" ColumnName="USANCE_ADVANCE_RATIO" />
-                <ScalarProperty Name="PAYMENT" ColumnName="PAYMENT" />
-                <ScalarProperty Name="USANCE" ColumnName="USANCE" />
-                <ScalarProperty Name="RETENTION_RATIO" ColumnName="RETENTION_RATIO" />
-                <ScalarProperty Name="ESTIMATED_RATIO" ColumnName="ESTIMATED_RATIO" />
-                <ScalarProperty Name="ADVANCE_RATIO" ColumnName="ADVANCE_RATIO" />
-                <ScalarProperty Name="PAYMENT_TERMS" ColumnName="PAYMENT_TERMS" />
-                <ScalarProperty Name="DATE_2" ColumnName="DATE_2" />
-                <ScalarProperty Name="DATE_1" ColumnName="DATE_1" />
-                <ScalarProperty Name="PAYMENT_FREQUENCY" ColumnName="PAYMENT_FREQUENCY" />
-                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
-                <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_ITEM">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_ITEM">
-              <MappingFragment StoreEntitySet="PLAN_ITEM">
-                <ScalarProperty Name="TND_RATIO" ColumnName="TND_RATIO" />
-                <ScalarProperty Name="ITEM_UNIT_COST" ColumnName="ITEM_UNIT_COST" />
-                <ScalarProperty Name="ITEM_FORM_QUANTITY" ColumnName="ITEM_FORM_QUANTITY" />
-                <ScalarProperty Name="BUDGET_RATIO" ColumnName="BUDGET_RATIO" />
-                <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
-                <ScalarProperty Name="SUPPLIER_ID" ColumnName="SUPPLIER_ID" />
-                <ScalarProperty Name="FORM_NAME" ColumnName="FORM_NAME" />
-                <ScalarProperty Name="EXCEL_ROW_ID" ColumnName="EXCEL_ROW_ID" />
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="CREATE_USER_ID" ColumnName="CREATE_USER_ID" />
-                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
-                <ScalarProperty Name="MODIFY_USER_ID" ColumnName="MODIFY_USER_ID" />
-                <ScalarProperty Name="SYSTEM_SUB" ColumnName="SYSTEM_SUB" />
-                <ScalarProperty Name="SYSTEM_MAIN" ColumnName="SYSTEM_MAIN" />
-                <ScalarProperty Name="SUB_TYPE_CODE" ColumnName="SUB_TYPE_CODE" />
-                <ScalarProperty Name="TYPE_CODE_2" ColumnName="TYPE_CODE_2" />
-                <ScalarProperty Name="TYPE_CODE_1" ColumnName="TYPE_CODE_1" />
-                <ScalarProperty Name="ITEM_REMARK" ColumnName="ITEM_REMARK" />
-                <ScalarProperty Name="MAN_PRICE" ColumnName="MAN_PRICE" />
-                <ScalarProperty Name="ITEM_UNIT_PRICE" ColumnName="ITEM_UNIT_PRICE" />
-                <ScalarProperty Name="ITEM_QUANTITY" ColumnName="ITEM_QUANTITY" />
-                <ScalarProperty Name="ITEM_UNIT" ColumnName="ITEM_UNIT" />
-                <ScalarProperty Name="ITEM_DESC" ColumnName="ITEM_DESC" />
-                <ScalarProperty Name="ITEM_ID" ColumnName="ITEM_ID" />
-                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
-                <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="PLAN_SUP_INQUIRY">
             <EntityTypeMapping TypeName="topmepModel.PLAN_SUP_INQUIRY">
               <MappingFragment StoreEntitySet="PLAN_SUP_INQUIRY">
@@ -1915,6 +1920,97 @@
                 <ScalarProperty Name="FORM_NAME" ColumnName="FORM_NAME" />
                 <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
                 <ScalarProperty Name="INQUIRY_FORM_ID" ColumnName="INQUIRY_FORM_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_PAYMENT_TERMS">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_PAYMENT_TERMS">
+              <MappingFragment StoreEntitySet="PLAN_PAYMENT_TERMS">
+                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+                <ScalarProperty Name="PAYMENT_RETENTION_2_RATIO" ColumnName="PAYMENT_RETENTION_2_RATIO" />
+                <ScalarProperty Name="PAYMENT_RETENTION_1_RATIO" ColumnName="PAYMENT_RETENTION_1_RATIO" />
+                <ScalarProperty Name="PAYMENT_RETENTION_CASH_RATIO" ColumnName="PAYMENT_RETENTION_CASH_RATIO" />
+                <ScalarProperty Name="PAYMENT_RETENTION_RATIO" ColumnName="PAYMENT_RETENTION_RATIO" />
+                <ScalarProperty Name="PAYMENT_ESTIMATED_2_RATIO" ColumnName="PAYMENT_ESTIMATED_2_RATIO" />
+                <ScalarProperty Name="PAYMENT_ESTIMATED_1_RATIO" ColumnName="PAYMENT_ESTIMATED_1_RATIO" />
+                <ScalarProperty Name="PAYMENT_ESTIMATED_CASH_RATIO" ColumnName="PAYMENT_ESTIMATED_CASH_RATIO" />
+                <ScalarProperty Name="PAYMENT_ESTIMATED_RATIO" ColumnName="PAYMENT_ESTIMATED_RATIO" />
+                <ScalarProperty Name="PAYMENT_ADVANCE_2_RATIO" ColumnName="PAYMENT_ADVANCE_2_RATIO" />
+                <ScalarProperty Name="PAYMENT_ADVANCE_1_RATIO" ColumnName="PAYMENT_ADVANCE_1_RATIO" />
+                <ScalarProperty Name="PAYMENT_ADVANCE_CASH_RATIO" ColumnName="PAYMENT_ADVANCE_CASH_RATIO" />
+                <ScalarProperty Name="PAYMENT_ADVANCE_RATIO" ColumnName="PAYMENT_ADVANCE_RATIO" />
+                <ScalarProperty Name="USANCE_RETENTION_2_RATIO" ColumnName="USANCE_RETENTION_2_RATIO" />
+                <ScalarProperty Name="USANCE_RETENTION_1_RATIO" ColumnName="USANCE_RETENTION_1_RATIO" />
+                <ScalarProperty Name="USANCE_RETENTION_CASH_RATIO" ColumnName="USANCE_RETENTION_CASH_RATIO" />
+                <ScalarProperty Name="USANCE_RETENTION_RATIO" ColumnName="USANCE_RETENTION_RATIO" />
+                <ScalarProperty Name="USANCE_FINISHED_2_RATIO" ColumnName="USANCE_FINISHED_2_RATIO" />
+                <ScalarProperty Name="USANCE_FINISHED_1_RATIO" ColumnName="USANCE_FINISHED_1_RATIO" />
+                <ScalarProperty Name="USANCE_FINISHED_CASH_RATIO" ColumnName="USANCE_FINISHED_CASH_RATIO" />
+                <ScalarProperty Name="USANCE_FINISHED_RATIO" ColumnName="USANCE_FINISHED_RATIO" />
+                <ScalarProperty Name="USANCE_GOODS_2_RATIO" ColumnName="USANCE_GOODS_2_RATIO" />
+                <ScalarProperty Name="USANCE_GOODS_1_RATIO" ColumnName="USANCE_GOODS_1_RATIO" />
+                <ScalarProperty Name="USANCE_GOODS_CASH_RATIO" ColumnName="USANCE_GOODS_CASH_RATIO" />
+                <ScalarProperty Name="USANCE_GOODS_RATIO" ColumnName="USANCE_GOODS_RATIO" />
+                <ScalarProperty Name="USANCE_ADVANCE_2_RATIO" ColumnName="USANCE_ADVANCE_2_RATIO" />
+                <ScalarProperty Name="USANCE_ADVANCE_1_RATIO" ColumnName="USANCE_ADVANCE_1_RATIO" />
+                <ScalarProperty Name="USANCE_ADVANCE_CASH_RATIO" ColumnName="USANCE_ADVANCE_CASH_RATIO" />
+                <ScalarProperty Name="USANCE_ADVANCE_RATIO" ColumnName="USANCE_ADVANCE_RATIO" />
+                <ScalarProperty Name="PAYMENT_UP_TO_U_DATE2" ColumnName="PAYMENT_UP_TO_U_DATE2" />
+                <ScalarProperty Name="PAYMENT_UP_TO_U_DATE1" ColumnName="PAYMENT_UP_TO_U_DATE1" />
+                <ScalarProperty Name="PAYMENT_UP_TO_U_2" ColumnName="PAYMENT_UP_TO_U_2" />
+                <ScalarProperty Name="PAYMENT_UP_TO_U_1" ColumnName="PAYMENT_UP_TO_U_1" />
+                <ScalarProperty Name="PAYMENT_CASH" ColumnName="PAYMENT_CASH" />
+                <ScalarProperty Name="PAYMENT_TYPE" ColumnName="PAYMENT_TYPE" />
+                <ScalarProperty Name="USANCE_UP_TO_U_DATE2" ColumnName="USANCE_UP_TO_U_DATE2" />
+                <ScalarProperty Name="USANCE_UP_TO_U_DATE1" ColumnName="USANCE_UP_TO_U_DATE1" />
+                <ScalarProperty Name="USANCE_UP_TO_U_2" ColumnName="USANCE_UP_TO_U_2" />
+                <ScalarProperty Name="USANCE_UP_TO_U_1" ColumnName="USANCE_UP_TO_U_1" />
+                <ScalarProperty Name="USANCE_CASH" ColumnName="USANCE_CASH" />
+                <ScalarProperty Name="PAYMENT_TERMS" ColumnName="PAYMENT_TERMS" />
+                <ScalarProperty Name="DATE_3" ColumnName="DATE_3" />
+                <ScalarProperty Name="DATE_2" ColumnName="DATE_2" />
+                <ScalarProperty Name="DATE_1" ColumnName="DATE_1" />
+                <ScalarProperty Name="PAYMENT_FREQUENCY" ColumnName="PAYMENT_FREQUENCY" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
+                <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_ITEM">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_ITEM">
+              <MappingFragment StoreEntitySet="PLAN_ITEM">
+                <ScalarProperty Name="LEAD_TIME" ColumnName="LEAD_TIME" />
+                <ScalarProperty Name="MAN_SUPPLIER_ID" ColumnName="MAN_SUPPLIER_ID" />
+                <ScalarProperty Name="MAN_FORM_NAME" ColumnName="MAN_FORM_NAME" />
+                <ScalarProperty Name="TND_RATIO" ColumnName="TND_RATIO" />
+                <ScalarProperty Name="ITEM_UNIT_COST" ColumnName="ITEM_UNIT_COST" />
+                <ScalarProperty Name="ITEM_FORM_QUANTITY" ColumnName="ITEM_FORM_QUANTITY" />
+                <ScalarProperty Name="BUDGET_RATIO" ColumnName="BUDGET_RATIO" />
+                <ScalarProperty Name="SUPPLIER_ID" ColumnName="SUPPLIER_ID" />
+                <ScalarProperty Name="FORM_NAME" ColumnName="FORM_NAME" />
+                <ScalarProperty Name="EXCEL_ROW_ID" ColumnName="EXCEL_ROW_ID" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_USER_ID" ColumnName="CREATE_USER_ID" />
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="MODIFY_USER_ID" ColumnName="MODIFY_USER_ID" />
+                <ScalarProperty Name="SYSTEM_SUB" ColumnName="SYSTEM_SUB" />
+                <ScalarProperty Name="SYSTEM_MAIN" ColumnName="SYSTEM_MAIN" />
+                <ScalarProperty Name="SUB_TYPE_CODE" ColumnName="SUB_TYPE_CODE" />
+                <ScalarProperty Name="TYPE_CODE_2" ColumnName="TYPE_CODE_2" />
+                <ScalarProperty Name="TYPE_CODE_1" ColumnName="TYPE_CODE_1" />
+                <ScalarProperty Name="ITEM_REMARK" ColumnName="ITEM_REMARK" />
+                <ScalarProperty Name="MAN_PRICE" ColumnName="MAN_PRICE" />
+                <ScalarProperty Name="ITEM_UNIT_PRICE" ColumnName="ITEM_UNIT_PRICE" />
+                <ScalarProperty Name="ITEM_QUANTITY" ColumnName="ITEM_QUANTITY" />
+                <ScalarProperty Name="ITEM_UNIT" ColumnName="ITEM_UNIT" />
+                <ScalarProperty Name="ITEM_DESC" ColumnName="ITEM_DESC" />
+                <ScalarProperty Name="ITEM_ID" ColumnName="ITEM_ID" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
+                <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -102,28 +102,7 @@
             },
         });
     }
-    //更新合約單價以利成本分析
-    function clickPrice(itemid, price, iswage) {
-        var itemLoc = "cost_" + itemid;
-        //alert(itemLoc + " choice price:" + price);
-        $('#progressInfo').modal('show');
-        $("#" + itemLoc).val(price);
-        //假的純粹要看效果
-        $('#progressBar').css('width','50%');
-        $('#progressBar').html('50%');
-        jQuery.ajax({
-            url: "/PurchaseForm/UpdateCost4Item",
-            async: true,
-            data: { "pitmid": itemid, "price": price, "iswage": iswage },
-            type: "POST",
-            dataType: 'text',
-            success: function (result) {
-                alert(result);
-            },
-        });
-        $('#progressInfo').modal('hide');
-    }
-
+    
     function clickSupplier(formid, iswage) {
         jQuery.ajax({
             url: "/PurchaseForm/BatchUpdateCost",

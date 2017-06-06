@@ -85,7 +85,7 @@
         {
             <tr>
                 <td>
-                    @Html.TextBox("planitemid", @String.Format("{0:N0}", item.PLAN_ITEM_ID), new { style = "width:50px" })
+                    @Html.TextBox("planitemid", @String.Format("{0:N0}", item.PLAN_ITEM_ID), new { style = "width:50px", @readonly = "readonly" })
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.ITEM_ID)

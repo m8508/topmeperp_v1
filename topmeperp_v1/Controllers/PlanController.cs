@@ -29,7 +29,7 @@ namespace topmeperp.Controllers
             List<SYS_FUNCTION> lstFunctions = (List<SYS_FUNCTION>)Session["functions"];
             //開關預設關閉
             @ViewBag.F10005 = "disabled";
-            //輪巡功能清單，若全線存在則將開關打開 @ViewBag.F00003 = "";
+            //輪巡功能清單，若全線存在則將開關打開 @ViewBag.F10005 = "";
             foreach (SYS_FUNCTION f in lstFunctions)
             {
                 if (f.FUNCTION_ID == "F10005")
@@ -158,7 +158,7 @@ namespace topmeperp.Controllers
         {
             PurchaseFormService service = new PurchaseFormService();
             logger.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"]);
-            List<PLAN_ITEM> lstItems = service.getPlanItem(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"]);
+            List<PLAN_ITEM> lstItems = service.getPlanItem(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"], Request["supplier"]);
             ViewBag.Result = "共幾" + lstItems.Count + "筆資料";
             return PartialView(lstItems);
         }
@@ -435,7 +435,7 @@ namespace topmeperp.Controllers
 
             logger.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"] + ",formName=" + Request["formName"]);
             PurchaseFormService service = new PurchaseFormService();
-            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"]);
+            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"]);
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             ViewBag.projectId = Request["projectid"];
             ViewBag.textCode1 = Request["textCode1"];
@@ -474,7 +474,7 @@ namespace topmeperp.Controllers
                     item.BUDGET_RATIO = decimal.Parse(lstBudget[j]);
                 }
                 logger.Info("Budget ratio =" + item.BUDGET_RATIO);
-                item.PLAN_ITEM_ID = lstplanitemid[j]; ;
+                item.PLAN_ITEM_ID = lstplanitemid[j]; 
                 item.MODIFY_USER_ID = u.USER_ID;
                 logger.Debug("Item Project id =" + item.PROJECT_ID + "且plan item id 為" + item.PLAN_ITEM_ID + "其項目預算為" + item.BUDGET_RATIO);
                 lstItem.Add(item);

@@ -60,7 +60,7 @@ namespace topmeperp.Controllers
         {
 
             log.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"]);
-            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"]);
+            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"]);
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             ViewBag.projectId = Request["projectid"];
             return View("FormIndex", lstProject);
@@ -112,7 +112,7 @@ namespace topmeperp.Controllers
             {
                 ViewBag.projectid = id;
                 formData.planTemplateForm = service.getFormTemplateByProject(id);
-                formData.planFormFromSupplier = service.getFormByProject(id, Request["status"]); 
+                formData.planFormFromSupplier = service.getFormByProject(id, Request["status"]);
             }
             ViewBag.Status = "有效";
             return View(formData);
@@ -278,7 +278,7 @@ namespace topmeperp.Controllers
                 {
                     item.ITEM_UNIT_PRICE = decimal.Parse(lstPrice[j]);
                 }
-                log.Debug("Item No=" + item.INQUIRY_ITEM_ID + ", Price =" + item.ITEM_UNIT_PRICE );
+                log.Debug("Item No=" + item.INQUIRY_ITEM_ID + ", Price =" + item.ITEM_UNIT_PRICE);
                 lstItem.Add(item);
             }
             int i = service.refreshPlanSupplierForm(formid, fm, lstItem);
@@ -400,7 +400,12 @@ namespace topmeperp.Controllers
             TND_PROJECT p = service.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
             //取得未決標需議價之詢價單資料
-            List<purchasesummary> lstforms = service.getPurchaseForm4Offer(id, Request["formname"]);
+            string iswage = "N";
+            if (null != Request["isWage"])
+            {
+                iswage = Request["isWage"];
+            }
+            List<purchasesummary> lstforms = service.getPurchaseForm4Offer(id, Request["formname"], iswage);
             BudgetDataService bs = new BudgetDataService();
             DirectCost iteminfo = bs.getItemBudget(id, Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formname"]);
             ViewBag.itembudget = iteminfo.ITEM_BUDGET;
@@ -409,7 +414,7 @@ namespace topmeperp.Controllers
         }
         public ActionResult Search()
         {
-            List<purchasesummary> lstforms = service.getPurchaseForm4Offer(Request["id"], Request["formname"]);
+            List<purchasesummary> lstforms = service.getPurchaseForm4Offer(Request["id"], Request["formname"], Request["isWage"]);
             BudgetDataService bs = new BudgetDataService();
             DirectCost iteminfo = bs.getItemBudget(Request["id"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formname"]);
             ViewBag.itembudget = iteminfo.ITEM_BUDGET;
@@ -481,6 +486,21 @@ namespace topmeperp.Controllers
                 }
                 DataTable dt = service.getComparisonDataToPivot(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"], iswage);
                 @ViewBag.ResultMsg = "共" + dt.Rows.Count + "筆";
+
+                //畫面上權限管理控制
+                //頁面上使用ViewBag 定義開關\@ViewBag.F10006
+                //由Session 取得權限清單
+                List<SYS_FUNCTION> lstFunctions = (List<SYS_FUNCTION>)Session["functions"];
+                //開關預設關閉
+                @ViewBag.F10006 = "disabled";
+                //輪巡功能清單，若全線存在則將開關打開 @ViewBag.F10006 = "";
+                foreach (SYS_FUNCTION f in lstFunctions)
+                {
+                    if (f.FUNCTION_ID == "F10006")
+                    {
+                        @ViewBag.F10006 = "";
+                    }
+                }
                 string htmlString = "<table class='table table-bordered'><tr>";
                 //處理表頭
                 for (int i = 1; i < 6; i++)
@@ -501,7 +521,7 @@ namespace topmeperp.Controllers
                     string strAmout = string.Format("{0:C0}", tAmount);
 
                     htmlString = htmlString + "<th><table><tr><td>" + tmpString[0] + '(' + tmpString[2] + ')' +
-                        "</td><button type='button' class='btn-xs' onclick=\"clickSupplier('" + tmpString[1] + "','" + iswage + "')\"><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>" +
+                        "</td><button type='button' class='btn-xs' " + @ViewBag.F10006 + " onclick=\"clickSupplier('" + tmpString[1] + "','" + iswage + "')\"><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>" +
                         "</button>" + "<button type = 'button' class='btn-xs' onclick=\"removeSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-remove' aria-hidden='true'></span></button>" +
                         "<button type='button' class='btn-xs'><a href='/PurchaseForm/SinglePrjForm/" + tmpString[1] + "'" + " target='_blank'><span class='glyphicon glyphicon-list-alt' aria-hidden='true'></span></a>" +
                         "<br/><tr><td style = 'text-align:center;background-color:yellow;' > " + strAmout + "</td>" +
@@ -546,7 +566,7 @@ namespace topmeperp.Controllers
                 htmlString = htmlString + "</table>";
                 //加入預算資料
                 BudgetDataService bs = new BudgetDataService();
-                DirectCost iteminfo = bs.getItemBudget(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"]); 
+                DirectCost iteminfo = bs.getItemBudget(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"]);
                 ViewBag.itembudget = iteminfo.ITEM_BUDGET;
                 //產生畫面
                 IHtmlString str = new HtmlString(htmlString);
@@ -608,7 +628,7 @@ namespace topmeperp.Controllers
             PurchaseFormService service = new PurchaseFormService();
             TND_PROJECT p = service.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
-            //取得採購合約財務資料
+            //取得採購合約金額與預算等資料
             List<plansummary> lstContract = null;
             ContractModels contract = new ContractModels();
             lstContract = service.getPlanContract(id);
@@ -620,6 +640,7 @@ namespace topmeperp.Controllers
             ViewBag.profit = contractAmount.TOTAL_PROFIT;
             ViewBag.SearchResult = "共取得" + lstContract.Count + "筆資料";
             ViewBag.Result = lstContract.Count;
+            int i = service.addContractId(id);
             return View(contract);
         }
 
@@ -633,6 +654,7 @@ namespace topmeperp.Controllers
             log.Info("plan payment terms info=" + itemJson);
             return itemJson;
         }
+        #region 合約付款條件
         //寫入合約付款條件
         public String addPaymentTerms(FormCollection form)
         {
@@ -642,8 +664,15 @@ namespace topmeperp.Controllers
             PLAN_PAYMENT_TERMS item = new PLAN_PAYMENT_TERMS();
             item.PROJECT_ID = form["project_id"];
             item.CONTRACT_ID = form["contract_id"];
-            item.PAYMENT_FREQUENCY = form["item_id"];
-            item.PAYMENT_TERMS = form["item_desc"];
+            item.PAYMENT_FREQUENCY = form["payfrequency"];
+            item.PAYMENT_TERMS = form["payterms"];
+            item.PAYMENT_TYPE = form["paymenttype"];
+            item.PAYMENT_CASH = form["paymentcash"];
+            item.PAYMENT_UP_TO_U_1 = form["payment_1"];
+            item.PAYMENT_UP_TO_U_2 = form["payment_2"];
+            item.USANCE_CASH = form["usancecash"];
+            item.USANCE_UP_TO_U_1 = form["usance_1"];
+            item.USANCE_UP_TO_U_2 = form["usance_2"];
             try
             {
                 item.DATE_1 = decimal.Parse(form["date1"]);
@@ -660,6 +689,270 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not date_2:" + ex.Message);
             }
+            try
+            {
+                item.DATE_3 = decimal.Parse(form["date3"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not date_3:" + ex.Message);
+            }
+            try
+            {
+                item.USANCE_UP_TO_U_DATE1 = decimal.Parse(form["usance_date1"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usance_date1:" + ex.Message);
+            }
+            try
+            {
+                item.USANCE_UP_TO_U_DATE2 = decimal.Parse(form["usance_date2"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usance_date2:" + ex.Message);
+            }
+            try
+            {
+                item.PAYMENT_UP_TO_U_DATE1 = decimal.Parse(form["payment_date1"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not payment_date1:" + ex.Message);
+            }
+            try
+            {
+                item.PAYMENT_UP_TO_U_DATE2 = decimal.Parse(form["payment_date2"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not payment_date2:" + ex.Message);
+            }
+            try
+            {
+                item.USANCE_ADVANCE_RATIO = decimal.Parse(form["usanceadvance"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usanceadvance:" + ex.Message);
+            }
+            try
+            {
+                item.USANCE_ADVANCE_CASH_RATIO = decimal.Parse(form["usanceadvance_cash"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usanceadvance_cash:" + ex.Message);
+            }
+            try
+            {
+                item.USANCE_ADVANCE_1_RATIO = decimal.Parse(form["usanceadvance_1"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usanceadvance_1:" + ex.Message);
+            }
+            try
+            {
+                item.USANCE_ADVANCE_2_RATIO = decimal.Parse(form["usanceadvance_2"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usanceadvance_2:" + ex.Message);
+            }
+            try
+            {
+                item.PAYMENT_ADVANCE_RATIO = decimal.Parse(form["paymentadvance"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not paymentadvance:" + ex.Message);
+            }
+            try
+            {
+                item.PAYMENT_ADVANCE_CASH_RATIO = decimal.Parse(form["paymentadvance_cash"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not paymentadvance_cash:" + ex.Message);
+            }
+            try
+            {
+                item.PAYMENT_ADVANCE_1_RATIO = decimal.Parse(form["paymentadvance_1"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not paymentadvance_1:" + ex.Message);
+            }
+            try
+            {
+                item.PAYMENT_ADVANCE_2_RATIO = decimal.Parse(form["paymentadvance_2"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not paymentadvance_2:" + ex.Message);
+            }
+            try
+            {
+                item.PAYMENT_ESTIMATED_RATIO = decimal.Parse(form["paymentestimated"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not paymentestimated:" + ex.Message);
+            }
+            try
+            {
+                item.PAYMENT_ESTIMATED_CASH_RATIO = decimal.Parse(form["paymentestimated_cash"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not paymentestimated_cash:" + ex.Message);
+            }
+            try
+            {
+                item.PAYMENT_ESTIMATED_1_RATIO = decimal.Parse(form["paymentestimated_1"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not paymentestimated_1:" + ex.Message);
+            }
+            try
+            {
+                item.PAYMENT_ESTIMATED_2_RATIO = decimal.Parse(form["paymentestimated_2"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not paymentestimated_2:" + ex.Message);
+            }
+            try
+            {
+                item.PAYMENT_RETENTION_RATIO = decimal.Parse(form["paymentretention"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not paymentretention:" + ex.Message);
+            }
+            try
+            {
+                item.PAYMENT_RETENTION_CASH_RATIO = decimal.Parse(form["paymentretention_cash"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not paymentretention_cash:" + ex.Message);
+            }
+            try
+            {
+                item.PAYMENT_RETENTION_1_RATIO = decimal.Parse(form["paymentretention_1"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not paymentretention_1:" + ex.Message);
+            }
+            try
+            {
+                item.PAYMENT_RETENTION_2_RATIO = decimal.Parse(form["paymentretention_2"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not paymentretention_2:" + ex.Message);
+            }
+            try
+            {
+                item.USANCE_GOODS_RATIO = decimal.Parse(form["usancegoods"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usancegoods:" + ex.Message);
+            }
+            try
+            {
+                item.USANCE_GOODS_CASH_RATIO = decimal.Parse(form["usancegoods_cash"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usancegoods_cash:" + ex.Message);
+            }
+            try
+            {
+                item.USANCE_GOODS_1_RATIO = decimal.Parse(form["usancegoods_1"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usancegoods_1:" + ex.Message);
+            }
+            try
+            {
+                item.USANCE_GOODS_2_RATIO = decimal.Parse(form["usancegoods_2"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usancegoods_2:" + ex.Message);
+            }
+            try
+            {
+                item.USANCE_FINISHED_RATIO = decimal.Parse(form["usancefinished"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usancefinished:" + ex.Message);
+            }
+            try
+            {
+                item.USANCE_FINISHED_CASH_RATIO = decimal.Parse(form["usancefinished_cash"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usancefinished_cash:" + ex.Message);
+            }
+            try
+            {
+                item.USANCE_FINISHED_1_RATIO = decimal.Parse(form["usancefinished_1"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usancefinished_1:" + ex.Message);
+            }
+            try
+            {
+                item.USANCE_FINISHED_2_RATIO = decimal.Parse(form["usancefinished_2"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usancefinished_2:" + ex.Message);
+            }
+            try
+            {
+                item.USANCE_RETENTION_RATIO = decimal.Parse(form["usanceretention"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usanceretention:" + ex.Message);
+            }
+            try
+            {
+                item.USANCE_RETENTION_CASH_RATIO = decimal.Parse(form["usanceretention_cash"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usanceretention_cash:" + ex.Message);
+            }
+            try
+            {
+                item.USANCE_RETENTION_1_RATIO = decimal.Parse(form["usanceretention_1"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usanceretention_1:" + ex.Message);
+            }
+            try
+            {
+                item.USANCE_RETENTION_2_RATIO = decimal.Parse(form["usanceretention_2"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usanceretention_2:" + ex.Message);
+            }
             SYS_USER loginUser = (SYS_USER)Session["user"];
             item.CREATE_ID = loginUser.USER_ID;
             item.CREATE_DATE = DateTime.Now;
@@ -668,6 +961,7 @@ namespace topmeperp.Controllers
             if (i == 0) { msg = service.message; }
             return msg;
         }
+        #endregion
 
         List<PLAN_ITEM> planitems = null;
         //取得採購遺漏項目
@@ -677,7 +971,101 @@ namespace topmeperp.Controllers
             PurchaseFormService service = new PurchaseFormService();
             List<PLAN_ITEM> lstItem = new List<PLAN_ITEM>();
             planitems = service.getPendingItems(id);
+            ViewBag.SearchResult = "共取得" + planitems.Count + "筆資料";
             return View(planitems);
+        }
+        public ActionResult LeadTimeMainPage(string id)
+        {
+            log.Info("purchase form index : projectid=" + id);
+            ViewBag.projectId = id;
+            SelectListItem empty = new SelectListItem();
+            empty.Value = "";
+            empty.Text = "";
+            //取得材料合約供應商資料
+            List<SelectListItem> selectMain = new List<SelectListItem>();
+            foreach (string itm in service.getSupplierForContract(id))
+            {
+                log.Debug("supplier=" + itm);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = itm;
+                selectI.Text = itm;
+                if (null != itm && "" != itm)
+                {
+                    selectMain.Add(selectI);
+                }
+            }
+            // selectMain.Add(empty);
+            ViewBag.supplier = selectMain;
+            return View();
+        }
+        // POST : Search
+        [HttpPost]
+        public ActionResult LeadTimeMainPage(FormCollection f)
+        {
+
+            log.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"]);
+            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"]);
+            ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
+            ViewBag.projectId = Request["projectid"];
+            SelectListItem empty = new SelectListItem();
+            empty.Value = "";
+            empty.Text = "";
+            //取得材料合約供應商資料
+            List<SelectListItem> selectMain = new List<SelectListItem>();
+            foreach (string itm in service.getSupplierForContract(Request["projectid"]))
+            {
+                log.Debug("supplier=" + itm);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = itm;
+                selectI.Text = itm;
+                if (null != itm && "" != itm)
+                {
+                    selectMain.Add(selectI);
+                }
+            }
+            // selectMain.Add(empty);
+            ViewBag.supplier = selectMain;
+            return View("LeadTimeMainPage", lstProject);
+        }
+        //更新採購項目之採購前置時間
+        public String AddLeadTime(FormCollection form)
+        {
+            log.Info("form:" + form.Count);
+            SYS_USER u = (SYS_USER)Session["user"];
+            string msg = "";
+            string[] lstplanitemid = form.Get("planitemid").Split(',');
+            string[] lstLeadTime = form.Get("leadtime").Split(',');
+            List<PLAN_ITEM> lstItem = new List<PLAN_ITEM>();
+            for (int j = 0; j < lstLeadTime.Count(); j++)
+            {
+                PLAN_ITEM item = new PLAN_ITEM();
+                item.PROJECT_ID = form["projectId"];
+                if (lstLeadTime[j].ToString() == "")
+                {
+                    item.LEAD_TIME = null;
+                }
+                else
+                {
+                    item.LEAD_TIME = decimal.Parse(lstLeadTime[j]);
+                }
+                log.Info("Lead Time =" + item.LEAD_TIME);
+                item.PLAN_ITEM_ID = lstplanitemid[j]; 
+                item.MODIFY_USER_ID = u.USER_ID;
+                log.Debug("Item Project id =" + item.PROJECT_ID + "且plan item id 為" + item.PLAN_ITEM_ID + "其項目採購前置時間為" + item.LEAD_TIME);
+                lstItem.Add(item);
+            }
+            int i = service.updateLeadTime(form["projectId"], lstItem);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "更新採購前置時間成功，PROJECT_ID =" + Request["projectId"];
+            }
+
+            log.Info("Request:PROJECT_ID =" + Request["projectId"]);
+            return msg;
         }
     }
 }

@@ -210,10 +210,10 @@ namespace topmeperp.Models
     }
     public class ContractModels
     {
-        //帳號資料
         public IEnumerable<plansummary> contractItems { get; set; }
-        //角色資料
         public IEnumerable<PLAN_PAYMENT_TERMS> paymentTerms { get; set; }
+        public PLAN_PAYMENT_TERMS planpayment { get; set; }
+
     }
     public class CostForBudget
     {
