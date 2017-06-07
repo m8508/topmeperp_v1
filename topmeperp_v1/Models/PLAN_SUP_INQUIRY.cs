@@ -26,11 +26,12 @@ namespace topmeperp.Models
         public string CONTACT_EMAIL { get; set; }
         public Nullable<System.DateTime> DUEDATE { get; set; }
         public string REF_ID { get; set; }
+        public string ISWAGE { get; set; }
         public string CREATE_ID { get; set; }
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public string MODIFY_ID { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
+        public string COUNTER_OFFER { get; set; }
         public string STATUS { get; set; }
-        public string ISWAGE { get; set; }
     }
 }

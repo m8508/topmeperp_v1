@@ -1,17 +1,10 @@
 ﻿using log4net;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
-using System.Data.Entity;
-using System.Data.Entity.Core.Objects;
-using System.Data.Entity.Migrations;
 using System.Data.SqlClient;
-using System.IO;
 using System.Linq;
-using System.Web;
 using topmeperp.Models;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace topmeperp.Service
@@ -124,7 +117,7 @@ namespace topmeperp.Service
                 + " UNION ALL "
                 + " SELECT P.TASK_NAME, P.PRJ_UID, B.LV_NO + 1,P.PRJ_ID,P.PARENT_UID,P.START_DATE,P.FINISH_DATE,P.DURATION "
                 + " FROM PLAN_TASK P, PrjTree B "
-                + " WHERE P.PARENT_UID = B.PRJ_UID and P.TASK_NAME is not null )"
+                + " WHERE  P.PROJECT_ID=@projectid AND P.PARENT_UID = B.PRJ_UID and P.TASK_NAME is not null )"
                 + " SELECT(REPLICATE('**', LV_NO) + TASK_NAME) as 'TASK_NAME',LV_NO,PRJ_UID,PARENT_UID,START_DATE,FINISH_DATE,DURATION "
                 + " FROM PrjTree ORDER BY PRJ_ID";
             var parameters = new Dictionary<string, Object>();
@@ -149,7 +142,7 @@ namespace topmeperp.Service
                 + " UNION ALL "
                 + " SELECT P.TASK_NAME, P.PRJ_UID, B.LV_NO + 1,P.PRJ_ID,P.PARENT_UID,P.START_DATE,P.FINISH_DATE,P.DURATION "
                 + " FROM PLAN_TASK P, PrjTree B "
-                + " WHERE P.PARENT_UID = B.PRJ_UID and P.TASK_NAME is not null )"
+                + " WHERE P.PROJECT_ID=@projectid AND  P.PARENT_UID = B.PRJ_UID and P.TASK_NAME is not null )"
                 + " SELECT(REPLICATE('**', LV_NO) + TASK_NAME) as 'TASK_NAME',LV_NO,PRJ_UID,PARENT_UID,START_DATE,FINISH_DATE,DURATION "
                 + " FROM PrjTree ORDER BY PRJ_ID";
             logger.Debug("sql=" + sql);
@@ -162,6 +155,39 @@ namespace topmeperp.Service
             DataSet ds = ExecuteStoreQuery(sql, CommandType.Text, parameters);
             return ds.Tables[0];
         }
+        public PLAN_TASK getRootTask(string projectid)
+        {
+            PLAN_TASK task = null;
+            using (var context = new topmepEntities())
+            {
+                string sql = "SELECT * FROM PLAN_TASK WHERE PROJECT_ID=@projectid AND ROOT_TAG='Y';";
+                task = context.PLAN_TASK.SqlQuery(sql, new SqlParameter("projectid", projectid)).First();
+            }
+
+            return task;
+        }
+        /// <summary>
+        /// 設定專案任務起始任務
+        /// </summary>
+        /// <param name="projectid"></param>
+        /// <param name="prjuid"></param>
+        /// <returns></returns>
+        public int setRootTask(string projectid, string prjuid)
+        {
+            int i = -1;
+            using (var context = new topmepEntities())
+            {
+                string sql = "UPDATE PLAN_TASK SET ROOT_TAG=null WHERE PROJECT_ID=@projectid;";
+                sql = sql + "UPDATE PLAN_TASK SET ROOT_TAG='Y' WHERE PROJECT_ID=@projectid AND PRJ_UID=@prjuid;";
+                logger.Debug("sql=" + sql + ",projectid=" + projectid + ",prjuid=" + prjuid);
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("projectid", projectid));
+                parameters.Add(new SqlParameter("prjuid", prjuid));
+                i = context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+                logger.Debug("update row count=" + i);
+            }
+            return i;
+        }
         public string convertToJson(DataTable dt)
         {
             JObject jo = new JObject();
@@ -171,7 +197,6 @@ namespace topmeperp.Service
             }
             return null;
         }
-
     }
     #endregion
     #region Tree Stucture

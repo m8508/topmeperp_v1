@@ -8,22 +8,19 @@
 <div class="page-header">
     <form name="FormCompareProject" id="FormCompareProject" action="uploadFile" method="Post" enctype="multipart/form-data">
         <div class="row">
-            <label class="col-md-3 control-label">專案編號: </label>
+            <label class="col-md-2 control-label">專案編號: </label>
             <div class='col-md-9'>
                 <input type="text" name="projectid" id="projectid" value="@ViewBag.projectId" />
+                <input type="checkbox" name="roottag" id="roottag" value="Y" checked />僅含合約任務
             </div>
         </div>
         <div class="row">
-            <label class="col-md-3 control-label">專案規劃(Project File): </label>
-            <div class='col-md-9'>
+            <label class="col-md-2 control-label">專案規劃(Project File): </label>
+            <div class='col-md-4'>
                 <input type="file" name="file" id="file" />
             </div>
-        </div>
-        <div class="row">
-            <div class="" col-md-12">
-                <input type="submit" value="上傳" class="btn btn-default" />
+            <div class='col-md-3'><input type="submit" value="上傳" class="btn btn-default" /></div>
             </div>
-        </div>
     </form>
 </div>
 <!--樹狀圖區塊 範例
@@ -51,6 +48,27 @@
             $("#divProcessing").show();
         });
     });
+    function setRootTask(prjuid) {  
+        alert("click=" + prjuid);
+        var URLs = "setRootFlag";
+        $.ajax({
+            url: URLs,
+            data: {"projectid": $("#projectid").val(), "prjuid": prjuid },
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+                if (location.endsWith('prjuid=')) {
+                    location = location + prjuid;
+                } else {
+                    location = location;
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    }
     /*<!--樹狀圖區塊 範例
     $(function() {
         var defaultData = [
