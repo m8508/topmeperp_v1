@@ -63,6 +63,8 @@ namespace topmeperp.Controllers
                 message = message + "<br/>資料匯入完成 !!";
             }
             TempData["result"] = message;
+            // 將工率乘數寫入工率Table的Price欄位
+            int k = service.updateWagePrice(projectid);
             return RedirectToAction("WageTable/" + projectid);
         }
 
@@ -79,6 +81,7 @@ namespace topmeperp.Controllers
             }
             return View(lstWage);
         }
+        
         // GET: Wage/Edit/5
         public ActionResult Edit(int id)
         {

@@ -231,7 +231,24 @@ namespace topmeperp.Controllers
             if (i == 0) { msg = service.message; }
             return msg;
         }
- 
+
+        //取得業主合約金額
+        public ActionResult ContractForOwner(string id)
+        {
+            //傳入專案編號，
+            logger.Info("start project id=" + id);
+            //取得專案基本資料
+            ViewBag.id = id;
+            TnderProject tndservice = new TnderProject();
+            TND_PROJECT p = tndservice.getProjectById(id);
+            ViewBag.projectName = p.PROJECT_NAME;
+            //取得業主合約金額
+            PlanRevenue contractAmount = service.getPlanRevenueById(id);
+            ViewBag.Amount = contractAmount.PLAN_REVENUE;
+            //int i = service.addContractId4Owner(id);
+            return View();
+        }
+
         public ActionResult Budget(string id)
         {
             logger.Info("budget info for projectid=" + id);

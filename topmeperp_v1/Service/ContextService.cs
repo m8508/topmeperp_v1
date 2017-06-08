@@ -1244,6 +1244,24 @@ namespace topmeperp.Service
             }
             return lstWage;
         }
+
+        public int updateWagePrice(string id)
+        {
+            int i = 0;
+            logger.Info("update wage price from wage multiplier by id :" + id);
+            string sql = "UPDATE TND_WAGE SET TND_WAGE.PRICE = TND_WAGE.RATIO*tnd_project.WAGE_MULTIPLIER " +
+                "from TND_WAGE left join tnd_project on TND_WAGE.PROJECT_ID = tnd_project.project_id " +
+                "where TND_WAGE.PROJECT_ID = @projectid ";
+            logger.Debug("sql:" + sql);
+            db = new topmepEntities();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("projectid", id));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            logger.Info("Update Record:" + i);
+            db = null;
+            return i;
+        }
     }
 
     public class CostAnalysisDataService : WageTableService

@@ -449,6 +449,7 @@
           <Property Name="MODIFY_DATE" Type="datetime" />
           <Property Name="CREATE_USER_ID" Type="varchar" MaxLength="30" />
           <Property Name="CREATE_DATE" Type="datetime" />
+          <Property Name="WAGE_MULTIPLIER" Type="decimal" Precision="5" Scale="0" />
         </EntityType>
         <EntityType Name="TND_PROJECT_FORM">
           <Key>
@@ -1120,7 +1121,6 @@
             <End Role="SYS_ROLE" EntitySet="SYS_ROLE" />
             <End Role="SYS_USER" EntitySet="SYS_USER" />
           </AssociationSet>
-          <EntitySet Name="TND_PROJECT" EntityType="topmepModel.TND_PROJECT" />
           <EntitySet Name="TND_PROJECT_FORM_ITEM" EntityType="topmepModel.TND_PROJECT_FORM_ITEM" />
           <EntitySet Name="TND_MAP_LCP" EntityType="topmepModel.TND_MAP_LCP" />
           <EntitySet Name="TND_MAP_PLU" EntityType="topmepModel.TND_MAP_PLU" />
@@ -1138,32 +1138,8 @@
           <EntitySet Name="vw_MAP_MATERLIALIST_DETAIL" EntityType="topmepModel.vw_MAP_MATERLIALIST_DETAIL" />
           <EntitySet Name="vw_MAP_PLU" EntityType="topmepModel.vw_MAP_PLU" />
           <EntitySet Name="PLAN_ITEM" EntityType="topmepModel.PLAN_ITEM" />
+          <EntitySet Name="TND_PROJECT" EntityType="topmepModel.TND_PROJECT" />
         </EntityContainer>
-        <EntityType Name="TND_PROJECT">
-          <Key>
-            <PropertyRef Name="PROJECT_ID" />
-          </Key>
-          <Property Name="PROJECT_ID" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="PROJECT_NAME" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="ENG_NAME" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="CONTRUCTION_NAME" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="LOCATION" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="OWNER_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="CONTACT_NAME" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
-          <Property Name="CONTACT_TEL" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="CONTACT_FAX" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="CONTACT_EMAIL" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="DUE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="SCHDL_OFFER_DATE" Type="DateTime" Precision="3" />
-          <Property Name="OWNER_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="EXCEL_FILE_NAME" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="START_ROW_NO" Type="Int32" />
-          <Property Name="STATUS" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
-          <Property Name="CREATE_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-        </EntityType>
         <EntityType Name="TND_PROJECT_FORM_ITEM">
           <Key>
             <PropertyRef Name="FORM_ITEM_ID" />
@@ -1548,6 +1524,32 @@
           <Property Name="MAN_SUPPLIER_ID" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Name="LEAD_TIME" Type="Decimal" Precision="5" Scale="1" />
         </EntityType>
+        <EntityType Name="TND_PROJECT">
+          <Key>
+            <PropertyRef Name="PROJECT_ID" />
+          </Key>
+          <Property Name="PROJECT_ID" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="PROJECT_NAME" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="ENG_NAME" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="CONTRUCTION_NAME" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="LOCATION" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="OWNER_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CONTACT_NAME" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="CONTACT_TEL" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="CONTACT_FAX" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="CONTACT_EMAIL" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DUE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="SCHDL_OFFER_DATE" Type="DateTime" Precision="3" />
+          <Property Name="OWNER_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="EXCEL_FILE_NAME" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="START_ROW_NO" Type="Int32" />
+          <Property Name="STATUS" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="CREATE_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="WAGE_MULTIPLIER" Type="Decimal" Precision="5" Scale="0" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -1813,32 +1815,6 @@
                 <ScalarProperty Name="PRICE" ColumnName="PRICE" />
                 <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
                 <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="TND_PROJECT">
-            <EntityTypeMapping TypeName="topmepModel.TND_PROJECT">
-              <MappingFragment StoreEntitySet="TND_PROJECT">
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="CREATE_USER_ID" ColumnName="CREATE_USER_ID" />
-                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
-                <ScalarProperty Name="MODIFY_USER_ID" ColumnName="MODIFY_USER_ID" />
-                <ScalarProperty Name="STATUS" ColumnName="STATUS" />
-                <ScalarProperty Name="START_ROW_NO" ColumnName="START_ROW_NO" />
-                <ScalarProperty Name="EXCEL_FILE_NAME" ColumnName="EXCEL_FILE_NAME" />
-                <ScalarProperty Name="OWNER_USER_ID" ColumnName="OWNER_USER_ID" />
-                <ScalarProperty Name="SCHDL_OFFER_DATE" ColumnName="SCHDL_OFFER_DATE" />
-                <ScalarProperty Name="DUE_DATE" ColumnName="DUE_DATE" />
-                <ScalarProperty Name="CONTACT_EMAIL" ColumnName="CONTACT_EMAIL" />
-                <ScalarProperty Name="CONTACT_FAX" ColumnName="CONTACT_FAX" />
-                <ScalarProperty Name="CONTACT_TEL" ColumnName="CONTACT_TEL" />
-                <ScalarProperty Name="CONTACT_NAME" ColumnName="CONTACT_NAME" />
-                <ScalarProperty Name="OWNER_NAME" ColumnName="OWNER_NAME" />
-                <ScalarProperty Name="LOCATION" ColumnName="LOCATION" />
-                <ScalarProperty Name="CONTRUCTION_NAME" ColumnName="CONTRUCTION_NAME" />
-                <ScalarProperty Name="ENG_NAME" ColumnName="ENG_NAME" />
-                <ScalarProperty Name="PROJECT_NAME" ColumnName="PROJECT_NAME" />
-                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -2240,6 +2216,33 @@
                 <ScalarProperty Name="ITEM_ID" ColumnName="ITEM_ID" />
                 <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
                 <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TND_PROJECT">
+            <EntityTypeMapping TypeName="topmepModel.TND_PROJECT">
+              <MappingFragment StoreEntitySet="TND_PROJECT">
+                <ScalarProperty Name="WAGE_MULTIPLIER" ColumnName="WAGE_MULTIPLIER" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_USER_ID" ColumnName="CREATE_USER_ID" />
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="MODIFY_USER_ID" ColumnName="MODIFY_USER_ID" />
+                <ScalarProperty Name="STATUS" ColumnName="STATUS" />
+                <ScalarProperty Name="START_ROW_NO" ColumnName="START_ROW_NO" />
+                <ScalarProperty Name="EXCEL_FILE_NAME" ColumnName="EXCEL_FILE_NAME" />
+                <ScalarProperty Name="OWNER_USER_ID" ColumnName="OWNER_USER_ID" />
+                <ScalarProperty Name="SCHDL_OFFER_DATE" ColumnName="SCHDL_OFFER_DATE" />
+                <ScalarProperty Name="DUE_DATE" ColumnName="DUE_DATE" />
+                <ScalarProperty Name="CONTACT_EMAIL" ColumnName="CONTACT_EMAIL" />
+                <ScalarProperty Name="CONTACT_FAX" ColumnName="CONTACT_FAX" />
+                <ScalarProperty Name="CONTACT_TEL" ColumnName="CONTACT_TEL" />
+                <ScalarProperty Name="CONTACT_NAME" ColumnName="CONTACT_NAME" />
+                <ScalarProperty Name="OWNER_NAME" ColumnName="OWNER_NAME" />
+                <ScalarProperty Name="LOCATION" ColumnName="LOCATION" />
+                <ScalarProperty Name="CONTRUCTION_NAME" ColumnName="CONTRUCTION_NAME" />
+                <ScalarProperty Name="ENG_NAME" ColumnName="ENG_NAME" />
+                <ScalarProperty Name="PROJECT_NAME" ColumnName="PROJECT_NAME" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

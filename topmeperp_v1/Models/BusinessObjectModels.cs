@@ -222,4 +222,10 @@ namespace topmeperp.Models
         public Nullable<decimal> COST { get; set; }
         public Nullable<decimal> BUDGET { get; set; }
     }
+    public class PlanRevenue : PLAN_ITEM
+    {
+        public Int64 NO { get; set; }
+        public Nullable<decimal> PLAN_REVENUE { get; set; }
+        public PLAN_PAYMENT_TERMS planpayment { get; set; }
+    }
 }

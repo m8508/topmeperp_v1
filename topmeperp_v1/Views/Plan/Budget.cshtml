@@ -83,6 +83,7 @@
                         <th>名稱</th>
                         <th>材料成本</th>
                         <th>投標折數 %</th>
+                        <th>工資成本</th>
                         <th>預算折數 %</th>
                         <th>預算金額</th>
                     </tr>
@@ -107,6 +108,9 @@
                                     <td>
                                         @String.Format("{0:N0}", item.COST_RATIO)
                                     </td>
+                                    <td>
+                                        @String.Format("{0:N0}", item.MAN_DAY)
+                                    </td>
                                     <td><input type="text" class="form-control" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
                                     <td>
                                         @String.Format("{0:N0}", item.AMOUNT_BY_CODE)
@@ -124,6 +128,9 @@
                                     <td>@String.Format("{0:N0}", item.MATERIAL_COST)</td>
                                     <td>
                                         @String.Format("{0:N0}", item.COST_RATIO)
+                                    </td>
+                                    <td>
+                                        @String.Format("{0:N0}", item.MAN_DAY)
                                     </td>
                                     <td><input type="text" class="form-control" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
                                     <td>
@@ -148,6 +155,9 @@
                         <td>
                             <input type="text" class="form-control" name="inputtndratio" id="inputtndratio" value="@String.Format("{0:N0}", item.COST_RATIO)">
                         </td>
+                        <td>
+                            @String.Format("{0:N0}", item.MAN_DAY)
+                        </td>
                         <td><input type="text" class="form-control" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
                         <td>
                             @String.Format("{0:N0}", item.AMOUNT_BY_CODE)
@@ -165,6 +175,9 @@
                         <td>@String.Format("{0:N0}", item.MATERIAL_COST)</td>
                         <td>
                             <input type="text" class="form-control" name="inputtndratio" id="inputtndratio" value="@String.Format("{0:N0}", item.COST_RATIO)">
+                        </td>
+                        <td>
+                            @String.Format("{0:N0}", item.MAN_DAY)
                         </td>
                         <td><input type="text" class="form-control" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
                         <td>

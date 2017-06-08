@@ -34,5 +34,6 @@ namespace topmeperp.Models
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
         public string CREATE_USER_ID { get; set; }
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
+        public Nullable<decimal> WAGE_MULTIPLIER { get; set; }
     }
 }
