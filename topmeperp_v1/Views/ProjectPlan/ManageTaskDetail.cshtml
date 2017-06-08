@@ -9,7 +9,7 @@
     <div class="row">
         <label class="col-md-2 control-label">專案編號: </label>
         <div class="col-md-10">
-            <input type="text" name="projectid" id="projectid" value="@ViewBag.projectId" />
+            <input type="text" name="projectid" id="projectid" value="@ViewBag.projectId" readonly />
         </div>
     </div>
 </div>
@@ -17,117 +17,102 @@
     <div class="row">
         <div class="col-md-6">
             <h2>專案任務</h2>
-            <div id="treeview-checkable" class=""></div>
+            <div id="treeview"></div>
         </div>
         <div class="col-md-6">
-            圖算資料
+            <h2>施作內容</h2>
             <div class="container">
-                <div class="row">設備(MAP_DEVICE)</div>
-                <div class="row">電器管線(MAP_PEP)</div>
-                <div class="row">弱電管線(MAP_LCP)</div>
-                <div class="row">給排水(TND_MAP_PLU)</div>
-                <div class="row">消防電(MAP_FP)</div>
-                <div class="row">消防水(MAP_FW)</div>
+                <div class="row panel-heading">
+                    <div class="col-md-12">
+                        <label class="control-label" for="mapno">圖號: </label><input type="text" name="mapno" id="mapno" value="" size="5" />
+                        <label class="control-label" for="buildno">區域或棟別: </label><input type="text" name="buildno" id="buildno" value="" size="5" />
+                        <label class="control-label" for="primeside">位置(一次側): </label><input type="text" name="primeside" id="primeside" value="" size="5" />
+                        <label class="control-label" for="secondside">位置(二次側): </label><input type="text" name="secondside" id="secondside" value="" size="5" />
+                        <label class="control-label" for="secondside">設備名稱: </label><input type="text" name="devicename" id="devicename" value="" size="5" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <label class="control-label" for="mapType">施作項目:</label>
+                        <input type="checkbox" name="mapType" id="mapType" value="MAP_DEVICE" title="設備" />設備
+                        <input type="checkbox" name="mapType" id="mapType" value="MAP_PEP" title="電器管線" />電器管線
+                        <input type="checkbox" name="mapType" id="mapType" value="MAP_LCP" title="弱電管線" />弱電管線
+                        <input type="checkbox" name="mapType" id="mapType" value="TND_MAP_PLU" title="給排水" />給排水
+                        <input type="checkbox" name="mapType" id="mapType" value="MAP_FP" title="消防電" />消防電
+                        <input type="checkbox" name="mapType" id="mapType" value="MAP_FW" title="消防水" />消防水
+                        <button class="btn btn-info">查詢</button>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="container">
+                    <div class="row panel-heading">設備(MAP_DEVICE)</div>
+                    <div class="row">
+                        <table class="table"><tr><th>圖號</th><th>區域或棟別</th><th>位置(一次側)</th><th>位置(二次側)</th><th>設備名稱</th><th>數量</th></tr></table>
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="row panel-heading"> 電器管線(MAP_PEP)</div>
+                    <div class="row">
+                        <table class="table"><tr><th>圖號</th><th>區域或棟別</th><th>位置(一次側)</th><th>位置(二次側)</th><th>設備名稱</th><th>數量</th></tr></table>
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="row panel-heading">弱電管線(MAP_LCP)</div>
+                    <div class="row">
+                        <table class="table"><tr><th>圖號</th><th>區域或棟別</th><th>位置(一次側)</th><th>位置(二次側)</th><th>設備名稱</th><th>數量</th></tr></table>
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="row panel-heading">給排水(TND_MAP_PLU)</div>
+                    <div class="row">
+                        <table><tr><th>圖號</th><th>區域或棟別</th><th>位置(一次側)</th><th>位置(二次側)</th><th>設備名稱</th><th>數量</th></tr></table>
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="row panel-heading">消防電(MAP_FP)</div>
+                    <div class="row">
+                        <table class="table"><tr><th>圖號</th><th>區域或棟別</th><th>位置(一次側)</th><th>位置(二次側)</th><th>設備名稱</th><th>數量</th></tr></table>
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="rowpanel-heading ">消防水(MAP_FW)</div>
+                    <div class="row">
+                        <table class="table"><tr><th>圖號</th><th>區域或棟別</th><th>位置(一次側)</th><th>位置(二次側)</th><th>設備名稱</th><th>數量</th></tr></table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script type="text/javascript">
-    $(document).ready(function () {
-        // Hide the "busy" Gif at load:
-        $("#divProcessing").hide();
-        // Attach click handler to the submit button:
-        $('#btnQuery').click(function () {
-            $("#divProcessing").show();
-        });
+    //將樹狀資料由Server端產生
+    var defaultData = [@Html.Raw(ViewBag.TreeString)];
+    $('#treeview').treeview({
+        data: defaultData,
+        showIcon: false,
+        showCheckbox: true,
+        showTags: true,
+        onNodeChecked: function (event, node) {
+            $('#checkable-output').prepend('<p>' + node.text + ' was checked</p>');
+        },
+        onNodeUnchecked: function (event, node) {
+            $('#checkable-output').prepend('<p>' + node.text + ' was unchecked</p>');
+        }
     });
-    function setRootTask(prjuid) {
-        alert("click=" + prjuid);
-        var URLs = "setRootFlag";
+
+    function fillTree() {
+        alert("get tree");
         $.ajax({
-            url: URLs,
-            data: { "projectid": $("#projectid").val(), "prjuid": prjuid },
-            type: "POST",
-            dataType: 'text',
-            success: function (msg) {
-                alert(msg);
-                if (location.endsWith('prjuid=')) {
-                    location = location + prjuid;
-                } else {
-                    location = location;
-                }
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert(thrownError);
+            url: "getTaskTree?projectid=@ViewBag.projectId",
+            method: "POST",
+            dataType: "json",
+            success: function (data) {
+                console.log(data);
+                $('#treeview').treeview({ data: data.tree });
             }
-        });
+        })
     }
-    /*<!--樹狀圖區塊 範例*/
-    $(function() {
-        var defaultData = [
-          {
-              text: 'Parent 1',
-              href: '#parent1',
-              tags: ['4'],
-              nodes: [
-                {
-                    text: 'Child 1',
-                    href: '#child1',
-                    tags: ['2'],
-                    nodes: [
-                      {
-                          text: 'Grandchild 1',
-                          href: '#grandchild1',
-                          tags: ['0']
-                      },
-                      {
-                          text: 'Grandchild 2',
-                          href: '#grandchild2',
-                          tags: ['0']
-                      }
-                    ]
-                },
-                {
-                    text: 'Child 2',
-                    href: '#child2',
-                    tags: ['0']
-                }
-              ]
-          },
-          {
-              text: 'Parent 2',
-              href: '#parent2',
-              tags: ['0']
-          },
-          {
-              text: 'Parent 3',
-              href: '#parent3',
-              tags: ['0']
-          },
-          {
-              text: 'Parent 4',
-              href: '#parent4',
-              tags: ['0']
-          },
-          {
-              text: 'Parent 5',
-              href: '#parent5'  ,
-              tags: ['0']
-          }
-        ];
 
-        var $checkableTree = $('#treeview-checkable').treeview({
-            data: defaultData,
-            showIcon: false,
-            showCheckbox: true,
-            onNodeChecked: function (event, node) {
-                $('#checkable-output').prepend('<p>' + node.text + ' was checked</p>');
-            },
-            onNodeUnchecked: function (event, node) {
-                $('#checkable-output').prepend('<p>' + node.text + ' was unchecked</p>');
-            }
-        });
-
-    })
 </script>
