@@ -161,8 +161,14 @@ namespace topmeperp.Service
             PLAN_TASK task = null;
             using (var context = new topmepEntities())
             {
+                try { 
                 string sql = "SELECT * FROM PLAN_TASK WHERE PROJECT_ID=@projectid AND ROOT_TAG='Y';";
                 task = context.PLAN_TASK.SqlQuery(sql, new SqlParameter("projectid", projectid)).First();
+                }catch (Exception ex)
+                {
+                    logger.Error("Task Not found!!");
+                    logger.Error(ex.StackTrace);
+                }
             }
 
             return task;
