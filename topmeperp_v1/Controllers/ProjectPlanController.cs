@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using topmeperp.Models;
 using topmeperp.Service;
 
 namespace topmeperp.Controllers
@@ -21,18 +22,28 @@ namespace topmeperp.Controllers
             {
                 string projectid = Request["projectid"];
                 string prjuid = null;
-                log.Debug("get project task by project:" + projectid);
-                if (null != Request["projectid"] && "" != Request["projectid"])
+                PLAN_TASK task = null;
+                log.Debug("get project task by project:" + projectid + ",roottag=" + Request["roottag"]);
+                if (null != projectid && "" != projectid)
                 {
                     prjuid = Request["prjuid"];
                     log.Debug("get project task by child task by prj_uid:" + prjuid);
                 }
+                if (null != Request["roottag"] && "Y" == Request["roottag"])
+                {
+                    task = planService.getRootTask(projectid);
+                    if (null != task)
+                    {
+                        log.Debug("task=" + task.PRJ_UID);
+                        prjuid = task.PRJ_UID.ToString();
+                    }
+                }
 
                 DataTable dt = null;
-                if (null == prjuid || prjuid=="")
+                if (null == prjuid || prjuid == "")
                 {
                     //取得所有任務
-                    dt= planService.getProjectTask(projectid);
+                    dt = planService.getProjectTask(projectid);
                 }
                 else
                 {
@@ -47,8 +58,8 @@ namespace topmeperp.Controllers
                     DateTime stardate = DateTime.Parse(dr[4].ToString());
                     DateTime finishdate = DateTime.Parse(dr[5].ToString());
 
-                    htmlString = htmlString + "<tr><td>" + dr[1] + "</td><td>" + dr[0] + "</td>"
-                        + "<td>" + stardate.ToString("yyyy-MM-dd") + "</td><td>"+ finishdate.ToString("yyyy-MM-dd") + "</td><td>"+ dr[6] + "</td>"
+                    htmlString = htmlString + "<tr><td>" + dr[1] + "<input type='checkbox' name='roottag' id='roottag' onclick='setRootTask(" + dr[2] + ")' /></td><td>" + dr[0] + "</td>"
+                        + "<td>" + stardate.ToString("yyyy-MM-dd") + "</td><td>" + finishdate.ToString("yyyy-MM-dd") + "</td><td>" + dr[6] + "</td>"
                         + "<td ><a href =\"Index?projectid=" + projectid + "&prjuid=" + dr[3] + "\">上一層 </a></td>"
                         + "<td><a href=\"Index?projectid=" + projectid + "&prjuid=" + dr[2] + "\">下一層 </a></td></tr>";
                 }
@@ -58,6 +69,7 @@ namespace topmeperp.Controllers
             }
             return View();
         }
+        //上傳project 檔案，建立專案任務
         public ActionResult uploadFile(HttpPostedFileBase file)
         {
             //設置施工管理資料夾
@@ -88,9 +100,20 @@ namespace topmeperp.Controllers
                     s.import2Table();
                 }
             }
-            return Redirect("Index?projectid=" + Request["projectid"]);
+            return Redirect("Index?projectid=" + Request["projectid"] + "&roottag=" + Request["roottag"]);
             // return View("Index/projectid=" + Request["projectid"]);
         }
-        
+        //設定合約範圍起始任務
+        public string setRootFlag()
+        {
+            log.Debug("projectid=" + Request["projectid"] + ",prjuid=" + Request["prjuid"]);
+            int i = planService.setRootTask(Request["projectid"], Request["prjuid"]);
+            return "設定完成!!(" + i + ")";
+        }
+        public ActionResult ManageTaskDetail()
+        {
+            string projectid = Request["projectid"];
+            return View();
+        }
     }
 }
