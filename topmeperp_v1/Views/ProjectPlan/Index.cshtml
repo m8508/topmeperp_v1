@@ -19,20 +19,14 @@
             <div class='col-md-4'>
                 <input type="file" name="file" id="file" />
             </div>
-            <div class='col-md-3'><input type="submit" value="上傳" class="btn btn-default" /></div>
+            <div class='col-md-3'>
+                <input type="submit" value="上傳" class="btn btn-default" />
+                <a href="ManageTaskDetail?projectid=@ViewBag.projectId" class="btn-link">編輯</a>
             </div>
+        </div>
     </form>
 </div>
-<!--樹狀圖區塊 範例
-<div class="container" id="projecttask" style="margin-top:30px;">
-    <div class="row">
-        <div class="col-sm-4">
-            <h2>Custom Icons</h2>
-            <div id="treeview5" class=""></div>
-        </div>
-    </div>
-</div>
-    -->
+
 <div class="container">
     <div class="row" id="projectTask">
         @Html.Raw(ViewBag.htmlResult)
@@ -48,11 +42,11 @@
             $("#divProcessing").show();
         });
     });
-    function setRootTask(prjuid) {  
+    function setRootTask(prjuid) {
         var URLs = "setRootFlag";
         $.ajax({
             url: URLs,
-            data: {"projectid": $("#projectid").val(), "prjuid": prjuid },
+            data: { "projectid": $("#projectid").val(), "prjuid": prjuid },
             type: "POST",
             dataType: 'text',
             success: function (msg) {
@@ -68,67 +62,4 @@
             }
         });
     }
-    /*<!--樹狀圖區塊 範例
-    $(function() {
-        var defaultData = [
-          {
-              text: 'Parent 1',
-              href: '#parent1',
-              tags: ['4'],
-              nodes: [
-                {
-                    text: 'Child 1',
-                    href: '#child1',
-                    tags: ['2'],
-                    nodes: [
-                      {
-                          text: 'Grandchild 1',
-                          href: '#grandchild1',
-                          tags: ['0']
-                      },
-                      {
-                          text: 'Grandchild 2',
-                          href: '#grandchild2',
-                          tags: ['0']
-                      }
-                    ]
-                },
-                {
-                    text: 'Child 2',
-                    href: '#child2',
-                    tags: ['0']
-                }
-              ]
-          },
-          {
-              text: 'Parent 2',
-              href: '#parent2',
-              tags: ['0']
-          },
-          {
-              text: 'Parent 3',
-              href: '#parent3',
-              tags: ['0']
-          },
-          {
-              text: 'Parent 4',
-              href: '#parent4',
-              tags: ['0']
-          },
-          {
-              text: 'Parent 5',
-              href: '#parent5'  ,
-              tags: ['0']
-          }
-        ];
-
-       
-        $('#treeview5').treeview({
-            color: "#428bca",
-            expandIcon: 'glyphicon glyphicon-chevron-right',
-            collapseIcon: 'glyphicon glyphicon-chevron-down',
-            nodeIcon: 'glyphicon glyphicon-bookmark',
-            data: defaultData
-        });
-    })*/
 </script>

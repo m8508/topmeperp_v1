@@ -281,6 +281,22 @@ namespace topmeperp.Models
             ChildTask.AddLast(childTask);
         }
     }
+    public class TASK_TREE4SHOW
+    {
+        public string text { get; set; }
+        public string href { get; set; }
+        public List<string> tags = new List<string>();
+        //public TASK_TREE4SHOW ParentTask { get; set; }
+        public LinkedList<TASK_TREE4SHOW> nodes { get; set; }
+        public void addChild(TASK_TREE4SHOW childTask)
+        {
+            if (null == nodes)
+            {
+                nodes = new LinkedList<TASK_TREE4SHOW>();
+            }
+            nodes.AddLast(childTask);
+        }
+    }
 
     #region Tree Stucture
     public abstract class TreeNode<T>

@@ -6,6 +6,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using topmeperp.Models;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace topmeperp.Service
 {
@@ -193,7 +194,7 @@ namespace topmeperp.Service
         /// </summary>
         /// <param name="projectid"></param>
         /// <returns></returns>
-        public void getProjectTask4Tree(string projectid)
+        public string getProjectTask4Tree(string projectid)
         {
             string sql = "SELECT * FROM PLAN_TASK WHERE PROJECT_ID = @projectid and PRJ_ID>= "
                 + "(SELECT PRJ_ID FROM PLAN_TASK where PROJECT_ID = @projectid and ROOT_TAG = 'Y') ORDER BY PRJ_ID;";
@@ -203,21 +204,46 @@ namespace topmeperp.Service
                 lstTask = context.PLAN_TASK.SqlQuery(sql, new SqlParameter("projectid", projectid)).ToList();
                 logger.Debug("row count=" + lstTask.Count);
             }
-            LinkedList<LinkedTree<PLAN_TASK>> lstTree = new LinkedList<LinkedTree<PLAN_TASK>>();
+            // Dictionary<int, PROJECT_TASK_TREE_NODE> dicTree = new Dictionary<int, PROJECT_TASK_TREE_NODE>();
+            //PROJECT_TASK_TREE_NODE rootnode = new PROJECT_TASK_TREE_NODE();
+            Dictionary<int, TASK_TREE4SHOW> dicTree = new Dictionary<int, TASK_TREE4SHOW>();
+            TASK_TREE4SHOW rootnode = new TASK_TREE4SHOW();
             foreach (PLAN_TASK t in lstTask)
             {
-                LinkedTree<PLAN_TASK> node = new LinkedTree<PLAN_TASK>(t);
-
+                //將跟節點置入Directory 內
+                if (t.PARENT_UID == 0) {                   
+                    //rootnode.tags.Add("工期:" + t.DURATION);
+                    rootnode.tags.Add("完成:" + t.FINISH_DATE.Value.ToString("yyyy/MM/dd"));
+                    rootnode.tags.Add("開始:" + t.START_DATE.Value.ToString("yyyy/MM/dd"));
+                    rootnode.href="#" + t.PRJ_UID;
+                    rootnode.text = t.TASK_NAME;
+                    dicTree.Add(t.PRJ_UID.Value, rootnode);
+                    logger.Info("add root node :" + t.PRJ_UID );
+                }
+                else
+                {
+                    //將Dic 內的節點翻出，加入子節點
+                    TASK_TREE4SHOW parentnode = (TASK_TREE4SHOW)dicTree[t.PARENT_UID.Value];
+                    TASK_TREE4SHOW node = new TASK_TREE4SHOW();
+                    //node.tags.Add("工期:" + t.DURATION);
+                    node.tags.Add("完成:" + t.FINISH_DATE.Value.ToString("yyyy/MM/dd"));
+                    node.tags.Add("開始:" + t.START_DATE.Value.ToString("yyyy/MM/dd"));
+                    node.href = "#" + t.PRJ_UID;
+                    node.text = t.TASK_NAME;
+                    parentnode.addChild(node);
+                    //將結點資料記錄至dic 內
+                    dicTree.Add(t.PRJ_UID.Value, node);
+                    logger.Info("add  node :" + t.PRJ_UID + ",parent=" +t.PRJ_UID);
+                }
             }
+            return convertToJson(rootnode);
         }
-        public string convertToJson(DataTable dt)
+        public string convertToJson(TASK_TREE4SHOW rootnode)
         {
-            JObject jo = new JObject();
-            foreach (DataRow dr in dt.Rows)
-            {
-
-            }
-            return null;
+            //將資料集合轉成JSON
+            string output = JsonConvert.SerializeObject(rootnode);
+            logger.Info("Jason:"+output);
+            return output;
         }
     }
     #endregion

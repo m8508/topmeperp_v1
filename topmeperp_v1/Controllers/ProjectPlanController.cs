@@ -112,8 +112,17 @@ namespace topmeperp.Controllers
         }
         public ActionResult ManageTaskDetail()
         {
+            log.Debug("show sreen for task manage");
             string projectid = Request["projectid"];
+            ViewBag.projectId = projectid;
+            ViewBag.TreeString = getTaskTree(projectid);
             return View();
+        }
+        public string getTaskTree(string projectid)
+        {
+            //string projectid = Request["projectid"];
+            log.Debug("get task tree:" + projectid);
+            return planService.getProjectTask4Tree(projectid);
         }
     }
 }
