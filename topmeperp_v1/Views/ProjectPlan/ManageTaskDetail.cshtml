@@ -1,41 +1,35 @@
 ﻿@{
-    ViewBag.Title = "專案任務管理";
+    ViewBag.Title = "專案任務-作業項目";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <link href="../../Content/bootstrap-treeview.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="../../Scripts/bootstrap-treeview.js"></script>
 <!--條件區域-->
 <div class="page-header">
-    <form name="FormCompareProject" id="FormCompareProject" action="uploadFile" method="Post" enctype="multipart/form-data">
-        <div class="row">
-            <label class="col-md-2 control-label">專案編號: </label>
-            <div class='col-md-9'>
-                <input type="text" name="projectid" id="projectid" value="@ViewBag.projectId" />
-                <input type="checkbox" name="roottag" id="roottag" value="Y" checked />僅含合約任務
-            </div>
-        </div>
-        <div class="row">
-            <label class="col-md-2 control-label">專案規劃(Project File): </label>
-            <div class='col-md-4'>
-                <input type="file" name="file" id="file" />
-            </div>
-            <div class='col-md-3'><input type="submit" value="上傳" class="btn btn-default" /></div>
-            </div>
-    </form>
-</div>
-<!--樹狀圖區塊 範例
-<div class="container" id="projecttask" style="margin-top:30px;">
     <div class="row">
-        <div class="col-sm-4">
-            <h2>Custom Icons</h2>
-            <div id="treeview5" class=""></div>
+        <label class="col-md-2 control-label">專案編號: </label>
+        <div class="col-md-10">
+            <input type="text" name="projectid" id="projectid" value="@ViewBag.projectId" />
         </div>
     </div>
 </div>
-    -->
 <div class="container">
-    <div class="row" id="projectTask">
-        @Html.Raw(ViewBag.htmlResult)
+    <div class="row">
+        <div class="col-md-6">
+            <h2>專案任務</h2>
+            <div id="treeview5" class=""></div>
+        </div>
+        <div class="col-md-6">
+            圖算資料
+            <div class="container">
+                <div class="row">設備(MAP_DEVICE)</div>
+                <div class="row">電器管線(MAP_PEP)</div>
+                <div class="row">弱電管線(MAP_LCP)</div>
+                <div class="row">給排水(TND_MAP_PLU)</div>
+                <div class="row">消防電(MAP_FP)</div>
+                <div class="row">消防水(MAP_FW)</div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -48,11 +42,12 @@
             $("#divProcessing").show();
         });
     });
-    function setRootTask(prjuid) {  
+    function setRootTask(prjuid) {
+        alert("click=" + prjuid);
         var URLs = "setRootFlag";
         $.ajax({
             url: URLs,
-            data: {"projectid": $("#projectid").val(), "prjuid": prjuid },
+            data: { "projectid": $("#projectid").val(), "prjuid": prjuid },
             type: "POST",
             dataType: 'text',
             success: function (msg) {
@@ -68,7 +63,7 @@
             }
         });
     }
-    /*<!--樹狀圖區塊 範例
+    /*<!--樹狀圖區塊 範例*/
     $(function() {
         var defaultData = [
           {
@@ -122,7 +117,6 @@
           }
         ];
 
-       
         $('#treeview5').treeview({
             color: "#428bca",
             expandIcon: 'glyphicon glyphicon-chevron-right',
@@ -130,5 +124,5 @@
             nodeIcon: 'glyphicon glyphicon-bookmark',
             data: defaultData
         });
-    })*/
+    })
 </script>

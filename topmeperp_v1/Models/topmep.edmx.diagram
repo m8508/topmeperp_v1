@@ -13,11 +13,9 @@
         <EntityTypeShape EntityType="topmepModel.SYS_ROLE" Width="1.5" PointX="0.75" PointY="4.875" IsExpanded="true" />
         <EntityTypeShape EntityType="topmepModel.SYS_USER" Width="1.5" PointX="3" PointY="7.375" IsExpanded="true" />
         <EntityTypeShape EntityType="topmepModel.TND_FILE" Width="2.25" PointX="7.125" PointY="0.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="topmepModel.TND_MAP_FP" Width="1.5" PointX="3.625" PointY="10" IsExpanded="true" />
+        <EntityTypeShape EntityType="topmepModel.TND_MAP_FP" Width="1.5" PointX="3" PointY="12" IsExpanded="true" />
         <EntityTypeShape EntityType="topmepModel.TND_MAP_FW" Width="1.5" PointX="9.75" PointY="2.375" IsExpanded="true" />
         <EntityTypeShape EntityType="topmepModel.TND_MAP_PEP" Width="1.5" PointX="0.75" PointY="12.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="topmepModel.TND_SUP_INQUIRY" Width="1.5" PointX="11.875" PointY="1.25" IsExpanded="true" />
-        <EntityTypeShape EntityType="topmepModel.TND_SUP_INQUIRY_ITEM" Width="1.5" PointX="13.75" PointY="6.375" IsExpanded="true" />
         <EntityTypeShape EntityType="topmepModel.TND_SUPPLIER" Width="1.5" PointX="13.75" PointY="11.375" IsExpanded="true" />
         <EntityTypeShape EntityType="topmepModel.TND_TOTALCOST_ITEM" Width="1.5" PointX="2.875" PointY="17.375" IsExpanded="true" />
         <EntityTypeShape EntityType="topmepModel.TND_WAGE" Width="1.5" PointX="9.5" PointY="16.25" IsExpanded="true" />

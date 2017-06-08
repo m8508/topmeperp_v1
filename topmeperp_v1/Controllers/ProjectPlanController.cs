@@ -110,5 +110,10 @@ namespace topmeperp.Controllers
             int i = planService.setRootTask(Request["projectid"], Request["prjuid"]);
             return "設定完成!!(" + i + ")";
         }
+        public ActionResult ManageTaskDetail()
+        {
+            string projectid = Request["projectid"];
+            return View();
+        }
     }
 }

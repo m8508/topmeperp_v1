@@ -481,12 +481,6 @@
     <Compile Include="Models\TND_SUPPLIER.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\TND_SUP_INQUIRY.cs">
-      <DependentUpon>topmep.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\TND_SUP_INQUIRY_ITEM.cs">
-      <DependentUpon>topmep.tt</DependentUpon>
-    </Compile>
     <Compile Include="Models\TND_TASKASSIGN.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
@@ -790,6 +784,7 @@
     <Content Include="Views\Tender\_uploadPlanItem.cshtml" />
     <Content Include="Views\PurchaseForm\LeadTimeMainPage.cshtml" />
     <Content Include="Views\PurchaseForm\_PlanItemsForLeadTime.cshtml" />
+    <Content Include="Views\ProjectPlan\ManageTaskDetail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
