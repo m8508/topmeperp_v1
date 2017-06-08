@@ -17,7 +17,7 @@
     <div class="row">
         <div class="col-md-6">
             <h2>專案任務</h2>
-            <div id="treeview5" class=""></div>
+            <div id="treeview-checkable" class=""></div>
         </div>
         <div class="col-md-6">
             圖算資料
@@ -117,12 +117,17 @@
           }
         ];
 
-        $('#treeview5').treeview({
-            color: "#428bca",
-            expandIcon: 'glyphicon glyphicon-chevron-right',
-            collapseIcon: 'glyphicon glyphicon-chevron-down',
-            nodeIcon: 'glyphicon glyphicon-bookmark',
-            data: defaultData
+        var $checkableTree = $('#treeview-checkable').treeview({
+            data: defaultData,
+            showIcon: false,
+            showCheckbox: true,
+            onNodeChecked: function (event, node) {
+                $('#checkable-output').prepend('<p>' + node.text + ' was checked</p>');
+            },
+            onNodeUnchecked: function (event, node) {
+                $('#checkable-output').prepend('<p>' + node.text + ' was unchecked</p>');
+            }
         });
+
     })
 </script>

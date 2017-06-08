@@ -37,14 +37,12 @@ namespace topmeperp.Models
         public virtual DbSet<TND_MAP_FW> TND_MAP_FW { get; set; }
         public virtual DbSet<TND_MAP_PEP> TND_MAP_PEP { get; set; }
         public virtual DbSet<TND_SUPPLIER> TND_SUPPLIER { get; set; }
-        public virtual DbSet<TND_TOTALCOST_ITEM> TND_TOTALCOST_ITEM { get; set; }
         public virtual DbSet<TND_WAGE> TND_WAGE { get; set; }
         public virtual DbSet<TND_PROJECT> TND_PROJECT { get; set; }
         public virtual DbSet<TND_PROJECT_FORM_ITEM> TND_PROJECT_FORM_ITEM { get; set; }
         public virtual DbSet<TND_MAP_LCP> TND_MAP_LCP { get; set; }
         public virtual DbSet<TND_MAP_PLU> TND_MAP_PLU { get; set; }
         public virtual DbSet<TND_MAP_DEVICE> TND_MAP_DEVICE { get; set; }
-        public virtual DbSet<sysdiagrams> sysdiagrams { get; set; }
         public virtual DbSet<TND_TASKASSIGN> TND_TASKASSIGN { get; set; }
         public virtual DbSet<TND_PROJECT_ITEM> TND_PROJECT_ITEM { get; set; }
         public virtual DbSet<TND_PROJECT_FORM> TND_PROJECT_FORM { get; set; }

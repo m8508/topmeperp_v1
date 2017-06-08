@@ -258,16 +258,6 @@
           <Property Name="MODIFY_DATE" Type="datetime" />
           <Property Name="MODIFY_ID" Type="varchar" MaxLength="30" />
         </EntityType>
-        <EntityType Name="sysdiagrams">
-          <Key>
-            <PropertyRef Name="diagram_id" />
-          </Key>
-          <Property Name="name" Type="nvarchar" MaxLength="128" Nullable="false" />
-          <Property Name="principal_id" Type="int" Nullable="false" />
-          <Property Name="diagram_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="version" Type="int" />
-          <Property Name="definition" Type="varbinary(max)" />
-        </EntityType>
         <EntityType Name="TND_FILE">
           <Key>
             <PropertyRef Name="FILE_ID" />
@@ -612,7 +602,6 @@
           <EntitySet Name="SYS_PRIVILEGE" EntityType="Self.SYS_PRIVILEGE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SYS_ROLE" EntityType="Self.SYS_ROLE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SYS_USER" EntityType="Self.SYS_USER" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TND_FILE" EntityType="Self.TND_FILE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TND_MAP_DEVICE" EntityType="Self.TND_MAP_DEVICE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TND_MAP_FP" EntityType="Self.TND_MAP_FP" Schema="dbo" store:Type="Tables" />
@@ -838,20 +827,6 @@
           <Property Name="COMPANY_FAX" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="CONTACT_MOBILE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="TND_TOTALCOST_ITEM">
-          <Key>
-            <PropertyRef Name="TOTALCOST_ID" />
-          </Key>
-          <Property Name="TOTALCOST_ID" Type="Decimal" Precision="18" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="COST_DESC" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="COST" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="DISCOUNT_RATIO" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="MOIDFY_DATE" Type="DateTime" Precision="3" />
-          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-        </EntityType>
         <EntityType Name="TND_WAGE">
           <Key>
             <PropertyRef Name="WAGE_ID" />
@@ -913,7 +888,6 @@
           <EntitySet Name="TND_MAP_FW" EntityType="Self.TND_MAP_FW" />
           <EntitySet Name="TND_MAP_PEP" EntityType="Self.TND_MAP_PEP" />
           <EntitySet Name="TND_SUPPLIER" EntityType="Self.TND_SUPPLIER" />
-          <EntitySet Name="TND_TOTALCOST_ITEM" EntityType="Self.TND_TOTALCOST_ITEM" />
           <EntitySet Name="TND_WAGE" EntityType="Self.TND_WAGE" />
           <AssociationSet Name="FK_SYS_PRIVILEGE_SYS_FUNCTION" Association="Self.FK_SYS_PRIVILEGE_SYS_FUNCTION">
             <End Role="SYS_FUNCTION" EntitySet="SYS_FUNCTION" />
@@ -932,7 +906,6 @@
           <EntitySet Name="TND_MAP_LCP" EntityType="topmepModel.TND_MAP_LCP" />
           <EntitySet Name="TND_MAP_PLU" EntityType="topmepModel.TND_MAP_PLU" />
           <EntitySet Name="TND_MAP_DEVICE" EntityType="topmepModel.TND_MAP_DEVICE" />
-          <EntitySet Name="sysdiagrams" EntityType="topmepModel.sysdiagrams" />
           <EntitySet Name="TND_TASKASSIGN" EntityType="topmepModel.TND_TASKASSIGN" />
           <EntitySet Name="TND_PROJECT_ITEM" EntityType="topmepModel.TND_PROJECT_ITEM" />
           <EntitySet Name="TND_PROJECT_FORM" EntityType="topmepModel.TND_PROJECT_FORM" />
@@ -1056,16 +1029,6 @@
           <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
           <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="QTY" Type="Decimal" Precision="18" Scale="2" />
-        </EntityType>
-        <EntityType Name="sysdiagrams">
-          <Key>
-            <PropertyRef Name="diagram_id" />
-          </Key>
-          <Property Name="name" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
-          <Property Name="principal_id" Type="Int32" Nullable="false" />
-          <Property Name="diagram_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="version" Type="Int32" />
-          <Property Name="definition" Type="Binary" MaxLength="Max" FixedLength="false" />
         </EntityType>
         <EntityType Name="TND_TASKASSIGN">
           <Key>
@@ -1635,17 +1598,6 @@
                 <ScalarProperty Name="PROJECT_ITEM_ID" ColumnName="PROJECT_ITEM_ID" />
                 <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
                 <ScalarProperty Name="DEVIVE_ID" ColumnName="DEVIVE_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="sysdiagrams">
-            <EntityTypeMapping TypeName="topmepModel.sysdiagrams">
-              <MappingFragment StoreEntitySet="sysdiagrams">
-                <ScalarProperty Name="definition" ColumnName="definition" />
-                <ScalarProperty Name="version" ColumnName="version" />
-                <ScalarProperty Name="diagram_id" ColumnName="diagram_id" />
-                <ScalarProperty Name="principal_id" ColumnName="principal_id" />
-                <ScalarProperty Name="name" ColumnName="name" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
