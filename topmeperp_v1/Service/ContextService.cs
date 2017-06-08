@@ -995,27 +995,27 @@ namespace topmeperp.Service
             return lstFP;
         }
         //取得消防水圖算資料
-        public List<TND_MAP_FW> getMapFWById(string projectid)
+        public List<vw_MAP_FW> getMapFWById(string projectid)
         {
             logger.Info("get map FW info by projectid=" + projectid);
-            List<TND_MAP_FW> lstFW = new List<TND_MAP_FW>();
+            List<vw_MAP_FW> lstFW = new List<vw_MAP_FW>();
             using (var context = new topmepEntities())
             {
                 //條件篩選
-                lstFW = context.TND_MAP_FW.SqlQuery("SELECT * FROM TND_MAP_FW WHERE PROJECT_ID=@projectid",
+                lstFW = context.vw_MAP_FW.SqlQuery("SELECT * FROM vw_MAP_FW WHERE PROJECT_ID=@projectid",
                 new SqlParameter("projectid", projectid)).ToList();
             }
             return lstFW;
         }
         //取得給排水圖算資料
-        public List<TND_MAP_PLU> getMapPLUById(string projectid)
+        public List<vw_MAP_PLU> getMapPLUById(string projectid)
         {
             logger.Info("get map PLU info by projectid=" + projectid);
-            List<TND_MAP_PLU> lstPLU = new List<TND_MAP_PLU>();
+            List<vw_MAP_PLU> lstPLU = new List<vw_MAP_PLU>();
             using (var context = new topmepEntities())
             {
                 //條件篩選
-                lstPLU = context.TND_MAP_PLU.SqlQuery("SELECT * FROM TND_MAP_PLU WHERE PROJECT_ID=@projectid",
+                lstPLU = context.vw_MAP_PLU.SqlQuery("SELECT * FROM vw_MAP_PLU WHERE PROJECT_ID=@projectid",
                 new SqlParameter("projectid", projectid)).ToList();
             }
             return lstPLU;

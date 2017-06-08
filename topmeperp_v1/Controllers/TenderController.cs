@@ -380,9 +380,9 @@ namespace topmeperp.Controllers
             ViewBag.projectid = id;
             string projectid = Request["projectid"];
             List<TND_MAP_FP> lstFP = null;
-            List<TND_MAP_FW> lstFW = null;
+            List<vw_MAP_FW> lstFW = null;
             List<TND_MAP_PEP> lstPEP = null;
-            List<TND_MAP_PLU> lstPLU = null;
+            List<vw_MAP_PLU> lstPLU = null;
             List<TND_MAP_LCP> lstLCP = null;
             List<TND_MAP_DEVICE> lstDEVICE = null;
             if (null != id && id != "")

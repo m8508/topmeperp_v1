@@ -246,6 +246,7 @@
                 alert('Error get data from ajax');
             }
         });
+       
     }
 
     // Hide the "busy" Gif at load:
@@ -289,6 +290,7 @@
                 dataType: 'text',
                 success: function (msg) {
                     alert(msg);
+                    getPaymentTerm(contractid)
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     alert(thrownError);

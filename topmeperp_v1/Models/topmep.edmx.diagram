@@ -37,8 +37,11 @@
         <EntityTypeShape EntityType="topmepModel.PLAN_TASK" Width="1.5" PointX="19.375" PointY="0.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_SUP_INQUIRY_ITEM" Width="1.5" PointX="9.375" PointY="19.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_SUP_INQUIRY" Width="1.5" PointX="16.375" PointY="19.75" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_ITEM" Width="1.5" PointX="12.375" PointY="14.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_PAYMENT_TERMS" Width="1.5" PointX="18.375" PointY="19.75" />
+        <EntityTypeShape EntityType="topmepModel.vw_MAP_FW" Width="1.5" PointX="20.375" PointY="19.75" />
+        <EntityTypeShape EntityType="topmepModel.vw_MAP_MATERLIALIST_DETAIL" Width="1.5" PointX="18.375" PointY="9.75" />
+        <EntityTypeShape EntityType="topmepModel.vw_MAP_PLU" Width="1.5" PointX="21.375" PointY="0.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_ITEM" Width="1.5" PointX="12.375" PointY="14.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

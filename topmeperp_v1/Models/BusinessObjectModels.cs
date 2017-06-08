@@ -39,9 +39,9 @@ namespace topmeperp.Models
         //圖算消防電資料
         public IEnumerable<TND_MAP_FP> mapFP { get; set; }
         //圖算消防電資料
-        public IEnumerable<TND_MAP_FW> mapFW { get; set; }
+        public IEnumerable<vw_MAP_FW> mapFW { get; set; }
         //圖算給排水資料
-        public IEnumerable<TND_MAP_PLU> mapPLU { get; set; }
+        public IEnumerable<vw_MAP_PLU> mapPLU { get; set; }
         //圖算弱電管線資料
         public IEnumerable<TND_MAP_LCP> mapLCP { get; set; }
         //圖算電氣管線資料
