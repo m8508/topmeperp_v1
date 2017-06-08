@@ -499,6 +499,15 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>topmep.edmx</DependentUpon>
     </Compile>
+    <Compile Include="Models\vw_MAP_FW.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\vw_MAP_MATERLIALIST_DETAIL.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\vw_MAP_PLU.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service\ContextService.cs" />
     <Compile Include="Service\ContextService4po.cs" />
@@ -779,6 +788,7 @@
     <Content Include="Views\PurchaseForm\LeadTimeMainPage.cshtml" />
     <Content Include="Views\PurchaseForm\_PlanItemsForLeadTime.cshtml" />
     <Content Include="Views\ProjectPlan\ManageTaskDetail.cshtml" />
+    <Content Include="Views\Plan\ContractForOwner.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
