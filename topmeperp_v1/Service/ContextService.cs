@@ -1290,6 +1290,7 @@ namespace topmeperp.Service
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public List<DirectCost> DirectCost4Project = null;
+        //直接成本
         public List<DirectCost> getDirectCost(string projectid)
         {
             List<DirectCost> lstDirecCost = null;

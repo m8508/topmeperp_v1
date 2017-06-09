@@ -2179,7 +2179,7 @@ namespace topmeperp.Service
                 //圖算數量
                 if (null != item.MAP_QTY && item.MAP_QTY.ToString().Trim() != "")
                 {
-                    row.CreateCell(5).SetCellValue(double.Parse(item.ITEM_QUANTITY.ToString()));
+                    row.CreateCell(5).SetCellValue(double.Parse(item.MAP_QTY.ToString()));
                 }
                 //單價
                 if (null != item.ITEM_UNIT_PRICE && item.ITEM_UNIT_PRICE.ToString().Trim() != "")
@@ -2202,7 +2202,7 @@ namespace topmeperp.Service
                 {
                     row.CreateCell(13).SetCellValue(double.Parse(item.RATIO.ToString()));// 工率
                     ICell cel14 = row.CreateCell(14);
-                    cel14.CellFormula = "M" + (idxRow + 1) + "*M3";
+                    cel14.CellFormula = "N" + (idxRow + 1) + "*N3";
                 }
                 else
                 {
