@@ -161,12 +161,15 @@ namespace topmeperp.Service
             PLAN_TASK task = null;
             using (var context = new topmepEntities())
             {
-                try { 
-                string sql = "SELECT * FROM PLAN_TASK WHERE PROJECT_ID=@projectid AND ROOT_TAG='Y';";
-                task = context.PLAN_TASK.SqlQuery(sql, new SqlParameter("projectid", projectid)).First();
-                }catch (Exception ex)
+                try
                 {
-                    logger.Error("Task Not found!!");
+                    string sql = "SELECT * FROM PLAN_TASK WHERE PROJECT_ID=@projectid AND ROOT_TAG='Y';";
+                    logger.Debug("sql=" + sql + ",projectid=" + projectid);
+                    task = context.PLAN_TASK.SqlQuery(sql, new SqlParameter("projectid", projectid)).First();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("Task Not found!!"+ ex.Message);
                     logger.Error(ex.StackTrace);
                 }
             }
@@ -217,14 +220,15 @@ namespace topmeperp.Service
             foreach (PLAN_TASK t in lstTask)
             {
                 //將跟節點置入Directory 內
-                if (t.PARENT_UID == 0) {                   
+                if (t.PARENT_UID == 0)
+                {
                     //rootnode.tags.Add("工期:" + t.DURATION);
                     rootnode.tags.Add("完成:" + t.FINISH_DATE.Value.ToString("yyyy/MM/dd"));
                     rootnode.tags.Add("開始:" + t.START_DATE.Value.ToString("yyyy/MM/dd"));
-                    rootnode.href="#" + t.PRJ_UID;
+                    rootnode.href = "#" + t.PRJ_UID;
                     rootnode.text = t.TASK_NAME;
                     dicTree.Add(t.PRJ_UID.Value, rootnode);
-                    logger.Info("add root node :" + t.PRJ_UID );
+                    logger.Info("add root node :" + t.PRJ_UID);
                 }
                 else
                 {
@@ -239,7 +243,7 @@ namespace topmeperp.Service
                     parentnode.addChild(node);
                     //將結點資料記錄至dic 內
                     dicTree.Add(t.PRJ_UID.Value, node);
-                    logger.Info("add  node :" + t.PRJ_UID + ",parent=" +t.PRJ_UID);
+                    logger.Info("add  node :" + t.PRJ_UID + ",parent=" + t.PRJ_UID);
                 }
             }
             return convertToJson(rootnode);
@@ -248,8 +252,12 @@ namespace topmeperp.Service
         {
             //將資料集合轉成JSON
             string output = JsonConvert.SerializeObject(rootnode);
-            logger.Info("Jason:"+output);
+            logger.Info("Jason:" + output);
             return output;
+        }
+        public List<TND_MAP_DEVICE> getMapIem()
+        {
+            return null;
         }
     }
     #endregion

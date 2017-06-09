@@ -29,6 +29,7 @@ namespace topmeperp.Controllers
                     prjuid = Request["prjuid"];
                     log.Debug("get project task by child task by prj_uid:" + prjuid);
                 }
+
                 if (null != Request["roottag"] && "Y" == Request["roottag"])
                 {
                     task = planService.getRootTask(projectid);
@@ -110,19 +111,32 @@ namespace topmeperp.Controllers
             int i = planService.setRootTask(Request["projectid"], Request["prjuid"]);
             return "設定完成!!(" + i + ")";
         }
+        //專案任務與圖算數量設定畫面
         public ActionResult ManageTaskDetail()
         {
             log.Debug("show sreen for task manage");
             string projectid = Request["projectid"];
             ViewBag.projectId = projectid;
-            ViewBag.TreeString = getTaskTree(projectid);
+            ViewBag.TreeString = planService.getProjectTask4Tree(projectid); ;
             return View();
         }
-        public string getTaskTree(string projectid)
+        //查詢圖算資訊
+        public ActionResult getMapItem4Task(FormCollection f)
         {
-            //string projectid = Request["projectid"];
-            log.Debug("get task tree:" + projectid);
-            return planService.getProjectTask4Tree(projectid);
+            log.Debug("form info:"+ f.Count);
+            string mapno = f["mapno"];
+            log.Debug("mapno" + f["mapno"]);
+            string buildno = f["buildno"];
+            log.Debug("buildno" + f["buildno"]);
+            string primeside = f["primeside"];
+            log.Debug("primeside" + f["primeside"]);
+            string secondside = f["secondside"];
+            log.Debug("secondside" + f["secondside"]);
+            string devicename = f["devicename"];
+            log.Debug("devicename" + f["devicename"]);
+            string mapType = f["mapType"];
+            log.Debug("mapType" + f["mapType"]);
+            return PartialView("_getMapItem4Task");
         }
     }
 }

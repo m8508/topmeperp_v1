@@ -22,65 +22,31 @@
         <div class="col-md-6">
             <h2>施作內容</h2>
             <div class="container">
-                <div class="row panel-heading">
-                    <div class="col-md-12">
-                        <label class="control-label" for="mapno">圖號: </label><input type="text" name="mapno" id="mapno" value="" size="5" />
-                        <label class="control-label" for="buildno">區域或棟別: </label><input type="text" name="buildno" id="buildno" value="" size="5" />
-                        <label class="control-label" for="primeside">位置(一次側): </label><input type="text" name="primeside" id="primeside" value="" size="5" />
-                        <label class="control-label" for="secondside">位置(二次側): </label><input type="text" name="secondside" id="secondside" value="" size="5" />
-                        <label class="control-label" for="secondside">設備名稱: </label><input type="text" name="devicename" id="devicename" value="" size="5" />
+                <form name="formQueryForm" id="formQueryForm">
+                    <div class="row panel-heading">
+                        <div class="col-md-12">
+                            <label class="control-label" for="mapno">圖號: </label><input type="text" name="mapno" id="mapno" value="" size="5" />
+                            <label class="control-label" for="buildno">區域或棟別: </label><input type="text" name="buildno" id="buildno" value="" size="5" />
+                            <label class="control-label" for="primeside">位置(一次側): </label><input type="text" name="primeside" id="primeside" value="" size="5" />
+                            <label class="control-label" for="secondside">位置(二次側): </label><input type="text" name="secondside" id="secondside" value="" size="5" />
+                            <label class="control-label" for="secondside">設備名稱: </label><input type="text" name="devicename" id="devicename" value="" size="5" />
+                        </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <label class="control-label" for="mapType">施作項目:</label>
-                        <input type="checkbox" name="mapType" id="mapType" value="MAP_DEVICE" title="設備" />設備
-                        <input type="checkbox" name="mapType" id="mapType" value="MAP_PEP" title="電器管線" />電器管線
-                        <input type="checkbox" name="mapType" id="mapType" value="MAP_LCP" title="弱電管線" />弱電管線
-                        <input type="checkbox" name="mapType" id="mapType" value="TND_MAP_PLU" title="給排水" />給排水
-                        <input type="checkbox" name="mapType" id="mapType" value="MAP_FP" title="消防電" />消防電
-                        <input type="checkbox" name="mapType" id="mapType" value="MAP_FW" title="消防水" />消防水
-                        <button class="btn btn-info">查詢</button>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="control-label" for="mapType">施作項目:</label>
+                            <input type="checkbox" name="mapType" id="mapType" value="MAP_DEVICE" title="設備" />設備
+                            <input type="checkbox" name="mapType" id="mapType" value="MAP_PEP" title="電器管線" />電器管線
+                            <input type="checkbox" name="mapType" id="mapType" value="MAP_LCP" title="弱電管線" />弱電管線
+                            <input type="checkbox" name="mapType" id="mapType" value="TND_MAP_PLU" title="給排水" />給排水
+                            <input type="checkbox" name="mapType" id="mapType" value="MAP_FP" title="消防電" />消防電
+                            <input type="checkbox" name="mapType" id="mapType" value="MAP_FW" title="消防水" />消防水
+                            <button class="btn btn-info" type="button" onclick="getMapItem4Task()">查詢</button>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
-            <div class="container">
-                <div class="container">
-                    <div class="row panel-heading">設備(MAP_DEVICE)</div>
-                    <div class="row">
-                        <table class="table"><tr><th>圖號</th><th>區域或棟別</th><th>位置(一次側)</th><th>位置(二次側)</th><th>設備名稱</th><th>數量</th></tr></table>
-                    </div>
-                </div>
-                <div class="container">
-                    <div class="row panel-heading"> 電器管線(MAP_PEP)</div>
-                    <div class="row">
-                        <table class="table"><tr><th>圖號</th><th>區域或棟別</th><th>位置(一次側)</th><th>位置(二次側)</th><th>設備名稱</th><th>數量</th></tr></table>
-                    </div>
-                </div>
-                <div class="container">
-                    <div class="row panel-heading">弱電管線(MAP_LCP)</div>
-                    <div class="row">
-                        <table class="table"><tr><th>圖號</th><th>區域或棟別</th><th>位置(一次側)</th><th>位置(二次側)</th><th>設備名稱</th><th>數量</th></tr></table>
-                    </div>
-                </div>
-                <div class="container">
-                    <div class="row panel-heading">給排水(TND_MAP_PLU)</div>
-                    <div class="row">
-                        <table><tr><th>圖號</th><th>區域或棟別</th><th>位置(一次側)</th><th>位置(二次側)</th><th>設備名稱</th><th>數量</th></tr></table>
-                    </div>
-                </div>
-                <div class="container">
-                    <div class="row panel-heading">消防電(MAP_FP)</div>
-                    <div class="row">
-                        <table class="table"><tr><th>圖號</th><th>區域或棟別</th><th>位置(一次側)</th><th>位置(二次側)</th><th>設備名稱</th><th>數量</th></tr></table>
-                    </div>
-                </div>
-                <div class="container">
-                    <div class="rowpanel-heading ">消防水(MAP_FW)</div>
-                    <div class="row">
-                        <table class="table"><tr><th>圖號</th><th>區域或棟別</th><th>位置(一次側)</th><th>位置(二次側)</th><th>設備名稱</th><th>數量</th></tr></table>
-                    </div>
-                </div>
+            <div class="container" id="MapItem">
             </div>
         </div>
     </div>
@@ -111,6 +77,19 @@
             success: function (data) {
                 console.log(data);
                 $('#treeview').treeview({ data: data.tree });
+            }
+        })
+    }
+
+    function getMapItem4Task() {
+        alert("getMapTask");
+        $.ajax({
+            url: "getMapItem4Task",
+            data: $('#formQueryForm').serialize(),
+            method: "POST",
+            dataType: "html",
+            success: function (result) {
+                $("#MapItem").html(result);
             }
         })
     }
