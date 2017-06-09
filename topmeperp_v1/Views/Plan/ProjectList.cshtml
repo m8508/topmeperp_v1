@@ -52,8 +52,9 @@
                 <button type="button" class="btn btn-info" onclick="location.href='@Url.Action("ManagePlanItem", "Plan", new { id = item.PROJECT_ID })'; ">標單上傳與標單明細查詢</button>
                 <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("PurchaseMain", "PurchaseForm", new { id = item.PROJECT_ID })'; ">議約採購</button>
                 <button type="button" class="btn btn-info" @ViewBag.F10005 onclick="location.href='@Url.Action("Budget", "Plan", new { id = item.PROJECT_ID })'">預算作業</button>
-                <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("Index", "ProjectPlan", new { projectid = item.PROJECT_ID ,roottag="Y"})'">工務管理</button>
-            </td>
+                <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("Index", "ProjectPlan", new { projectid = item.PROJECT_ID ,roottag="Y"})'">Project匯入與設定</button>
+                <button type="button" class="btn btn-info" onclick="location.href='@Url.Action("ManageTaskDetail", "ProjectPlan", new { projectid = item.PROJECT_ID})'">任務項目管理</button>
+             </td>
         </tr>
     }
 

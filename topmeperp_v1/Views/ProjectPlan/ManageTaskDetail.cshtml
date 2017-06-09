@@ -26,7 +26,7 @@
                     <div class="row panel-heading">
                         <div class="col-md-12">
                             <label class="control-label" for="mapno">圖號: </label><input type="text" name="mapno" id="mapno" value="" size="5" />
-                            <label class="control-label" for="buildno">區域或棟別: </label><input type="text" name="buildno" id="buildno" value="" size="5" />
+                            <label class="control-label" for="buildno">區域或棟別: </label><input type="text" name="buildno" id="buildno" value="" size="5" /><br />
                             <label class="control-label" for="primeside">位置(一次側): </label><input type="text" name="primeside" id="primeside" value="" size="5" />
                             <label class="control-label" for="secondside">位置(二次側): </label><input type="text" name="secondside" id="secondside" value="" size="5" />
                             <label class="control-label" for="secondside">設備名稱: </label><input type="text" name="devicename" id="devicename" value="" size="5" />
@@ -82,7 +82,7 @@
     }
 
     function getMapItem4Task() {
-        alert("getMapTask");
+        //alert("getMapTask");
         $.ajax({
             url: "getMapItem4Task",
             data: $('#formQueryForm').serialize(),
