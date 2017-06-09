@@ -788,6 +788,7 @@
     <Content Include="Views\PurchaseForm\LeadTimeMainPage.cshtml" />
     <Content Include="Views\PurchaseForm\_PlanItemsForLeadTime.cshtml" />
     <Content Include="Views\ProjectPlan\ManageTaskDetail.cshtml" />
+    <Content Include="Views\Plan\ContractForOwner.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
