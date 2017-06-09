@@ -379,11 +379,11 @@ namespace topmeperp.Controllers
             logger.Info("mapinfo by projectID=" + id);
             ViewBag.projectid = id;
             string projectid = Request["projectid"];
-            List<TND_MAP_FP> lstFP = null;
-            List<vw_MAP_FW> lstFW = null;
-            List<TND_MAP_PEP> lstPEP = null;
-            List<vw_MAP_PLU> lstPLU = null;
-            List<TND_MAP_LCP> lstLCP = null;
+            List<MAP_FP_VIEW> lstFP = null;
+            List<TND_MAP_FW> lstFW = null;
+            List<MAP_PEP_VIEW> lstPEP = null;
+            List<TND_MAP_PLU> lstPLU = null;
+            List<MAP_LCP_VIEW> lstLCP = null;
             List<TND_MAP_DEVICE> lstDEVICE = null;
             if (null != id && id != "")
             {
