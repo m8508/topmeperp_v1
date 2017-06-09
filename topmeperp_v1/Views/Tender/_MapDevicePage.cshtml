@@ -7,15 +7,15 @@
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>PK</th>
-                    <th>設備清單數量</th>
+                    <th>設備名稱</th>
+                    <th>設備數量</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in Model.mapDEVICE)
                 {
                     <tr>
-                        <td>@Html.DisplayFor(modelItem => item.PROJECT_ITEM_ID)</td>
+                        <td>@Html.DisplayFor(modelItem => item.LOC_DESC)</td>
                         <td>@Html.DisplayFor(modelItem => item.QTY)</td>
 
                     </tr>

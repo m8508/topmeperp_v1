@@ -982,66 +982,86 @@ namespace topmeperp.Service
         }
         #endregion
         //取得消防電圖算資料
-        public List<TND_MAP_FP> getMapFPById(string projectid)
+        public List<MAP_FP_VIEW> getMapFPById(string projectid)
         {
             logger.Info("get map FP info by projectid=" + projectid);
-            List<TND_MAP_FP> lstFP = new List<TND_MAP_FP>();
+            List<MAP_FP_VIEW> lstFP = new List<MAP_FP_VIEW>();
             using (var context = new topmepEntities())
             {
                 //條件篩選
-                lstFP = context.TND_MAP_FP.SqlQuery("SELECT * FROM TND_MAP_FP WHERE PROJECT_ID=@projectid",
+                lstFP = context.Database.SqlQuery<MAP_FP_VIEW>("SELECT FP_ID, EXCEL_ITEM, MAP_NO, BUILDING_NO, PRIMARY_SIDE, PRIMARY_SIDE_NAME, SECONDARY_SIDE, " +
+                    "SECONDARY_SIDE_NAME, WIRE_QTY_SET, WIRE_SET_CNT, WIRE_LENGTH, WIRE_TOTAL_LENGTH, PIPE_LENGTH, PIPE_SET, PIPE_LENGTH, " +
+                    "PIPE_TOTAL_LENGTH, CREATE_DATE, CREATE_ID, (SELECT ITEM_DESC FROM TND_PROJECT_ITEM tpi WHERE tpi.PROJECT_ITEM_ID=fp.PIPE_NAME) AS project_item_id, " +
+                    "(SELECT ITEM_DESC FROM TND_PROJECT_ITEM tpi WHERE tpi.PROJECT_ITEM_ID = fp.WIRE_NAME) AS WIRE_DESC, FP.PROJECT_ITEM_ID A " +
+                    "FROM TND_MAP_FP fp WHERE PROJECT_ID = @projectid",
                 new SqlParameter("projectid", projectid)).ToList();
             }
             return lstFP;
         }
         //取得消防水圖算資料
-        public List<vw_MAP_FW> getMapFWById(string projectid)
+        public List<TND_MAP_FW> getMapFWById(string projectid)
         {
             logger.Info("get map FW info by projectid=" + projectid);
-            List<vw_MAP_FW> lstFW = new List<vw_MAP_FW>();
+            List<TND_MAP_FW> lstFW = new List<TND_MAP_FW>();
             using (var context = new topmepEntities())
             {
                 //條件篩選
-                lstFW = context.vw_MAP_FW.SqlQuery("SELECT * FROM vw_MAP_FW WHERE PROJECT_ID=@projectid",
+                lstFW = context.TND_MAP_FW.SqlQuery("SELECT FW_ID, EXCEL_ITEM, MAP_NO, BUILDING_NO, PRIMARY_SIDE, PRIMARY_SIDE_NAME, SECONDARY_SIDE, " +
+                    "SECONDARY_SIDE_NAME, PIPE_CNT, PIPE_SET, PIPE_LENGTH, PIPE_TOTAL_LENGTH, PROJECT_ID, PIPE_NAME, CREATE_DATE, CREATE_ID, (SELECT ITEM_DESC FROM TND_PROJECT_ITEM tpi " +
+                    "WHERE tpi.PROJECT_ITEM_ID=fw.PIPE_NAME) AS project_item_id, FW.PROJECT_ITEM_ID A FROM TND_MAP_FW fw WHERE PROJECT_ID = @projectid",
                 new SqlParameter("projectid", projectid)).ToList();
             }
             return lstFW;
         }
         //取得給排水圖算資料
-        public List<vw_MAP_PLU> getMapPLUById(string projectid)
+        public List<TND_MAP_PLU> getMapPLUById(string projectid)
         {
             logger.Info("get map PLU info by projectid=" + projectid);
-            List<vw_MAP_PLU> lstPLU = new List<vw_MAP_PLU>();
+            List<TND_MAP_PLU> lstPLU = new List<TND_MAP_PLU>();
             using (var context = new topmepEntities())
             {
                 //條件篩選
-                lstPLU = context.vw_MAP_PLU.SqlQuery("SELECT * FROM vw_MAP_PLU WHERE PROJECT_ID=@projectid",
+                lstPLU = context.TND_MAP_PLU.SqlQuery("SELECT PLU_ID, EXCEL_ITEM, MAP_NO, BUILDING_NO, PRIMARY_SIDE, PRIMARY_SIDE_NAME, SECONDARY_SIDE, " +
+                    "SECONDARY_SIDE_NAME, PIPE_COUNT_SET, PIPE_SET_QTY, PIPE_LENGTH, PIPE_TOTAL_LENGTH, PROJECT_ID, PIPE_NAME, CREATE_DATE, CREATE_ID, (SELECT ITEM_DESC FROM TND_PROJECT_ITEM tpi " +
+                    "WHERE tpi.PROJECT_ITEM_ID=plu.PIPE_NAME) AS project_item_id, PLU.PROJECT_ITEM_ID A FROM TND_MAP_PLU plu WHERE PROJECT_ID=@projectid",
                 new SqlParameter("projectid", projectid)).ToList();
             }
             return lstPLU;
         }
         //取得電氣管線圖算資料
-        public List<TND_MAP_PEP> getMapPEPById(string projectid)
+        public List<MAP_PEP_VIEW> getMapPEPById(string projectid)
         {
             logger.Info("get map PEP info by projectid=" + projectid);
-            List<TND_MAP_PEP> lstPEP = new List<TND_MAP_PEP>();
+            List<MAP_PEP_VIEW> lstPEP = new List<MAP_PEP_VIEW>();
             using (var context = new topmepEntities())
             {
                 //條件篩選
-                lstPEP = context.TND_MAP_PEP.SqlQuery("SELECT * FROM TND_MAP_PEP WHERE PROJECT_ID=@projectid",
+                lstPEP = context.Database.SqlQuery<MAP_PEP_VIEW>("SELECT PEP_ID, EXCEL_ITEM, MAP_NO, BUILDING_NO, PRIMARY_SIDE, PRIMARY_SIDE_NAME, " +
+                    "SECONDARY_SIDE, SECONDARY_SIDE_NAME, WIRE_QTY_SET, WIRE_SET_CNT, WIRE_LENGTH, WIRE_TOTAL_LENGTH, GROUND_WIRE_QTY, GROUND_WIRE_TOTAL_LENGTH, " +
+                    "PIPE_LENGTH, PIPE_SET, PIPE_TOTAL_LENGTH, CREATE_DATE, CREATE_ID, (SELECT ITEM_DESC FROM TND_PROJECT_ITEM tpi WHERE tpi.PROJECT_ITEM_ID=pep.PIPE_NAME) " +
+                    "AS project_item_id,  (SELECT ITEM_DESC FROM TND_PROJECT_ITEM tpi WHERE tpi.PROJECT_ITEM_ID = pep.WIRE_NAME) AS WIRE_DESC, " +
+                    "(SELECT ITEM_DESC FROM TND_PROJECT_ITEM tpi WHERE tpi.PROJECT_ITEM_ID = pep.GROUND_WIRE_NAME) AS GROUND_WIRE_DESC, PEP.PROJECT_ITEM_ID A " +
+                    "FROM TND_MAP_PEP pep WHERE PROJECT_ID = @projectid",
                 new SqlParameter("projectid", projectid)).ToList();
             }
             return lstPEP;
         }
         //取得弱電管線圖算資料
-        public List<TND_MAP_LCP> getMapLCPById(string projectid)
+        public List<MAP_LCP_VIEW> getMapLCPById(string projectid)
         {
             logger.Info("get map LCP info by projectid=" + projectid);
-            List<TND_MAP_LCP> lstLCP = new List<TND_MAP_LCP>();
+            List<MAP_LCP_VIEW> lstLCP = new List<MAP_LCP_VIEW>();
             using (var context = new topmepEntities())
             {
                 //條件篩選
-                lstLCP = context.TND_MAP_LCP.SqlQuery("SELECT * FROM TND_MAP_LCP WHERE PROJECT_ID=@projectid",
+                lstLCP = context.Database.SqlQuery<MAP_LCP_VIEW>("SELECT LCP_ID, EXCEL_ITEM, MAP_NO, BUILDING_NO, PRIMARY_SIDE, PRIMARY_SIDE_NAME, SECONDARY_SIDE, " +
+                    "SECONDARY_SIDE_NAME, WIRE_QTY_SET, WIRE_SET_CNT, WIRE_LENGTH, WIRE_TOTAL_LENGTH, GROUND_WIRE_QTY, GROUND_WIRE_TOTAL_LENGTH, " +
+                    "PIPE_1_LENGTH, PIPE_1_SET, PIPE_1_TOTAL_LEN, PIPE_2_LENGTH, PIPE_2_SET, PIPE_2_TOTAL_LEN, CREATE_DATE, CREATE_ID, " +
+                    "(SELECT ITEM_DESC FROM TND_PROJECT_ITEM tpi WHERE tpi.PROJECT_ITEM_ID=lcp.PIPE_1_NAME) AS project_item_id, " +
+                    "(SELECT ITEM_DESC FROM TND_PROJECT_ITEM tpi WHERE tpi.PROJECT_ITEM_ID = lcp.WIRE_NAME) AS WIRE_DESC, " +
+                    "(SELECT ITEM_DESC FROM TND_PROJECT_ITEM tpi WHERE tpi.PROJECT_ITEM_ID = lcp.GROUND_WIRE_NAME) AS GROUND_WIRE_DESC, " +
+                    "(SELECT ITEM_DESC FROM TND_PROJECT_ITEM tpi WHERE tpi.PROJECT_ITEM_ID = lcp.PIPE_2_NAME) AS PIPE_2_DESC, LCP.PROJECT_ITEM_ID A　" +
+ 　　　　　　　　　 "FROM TND_MAP_LCP lcp WHERE PROJECT_ID = @projectid",
                 new SqlParameter("projectid", projectid)).ToList();
             }
             return lstLCP;
@@ -1055,7 +1075,9 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 //條件篩選
-                lstDEVICE = context.TND_MAP_DEVICE.SqlQuery("SELECT * FROM TND_MAP_DEVICE WHERE PROJECT_ID=@projectid",
+                lstDEVICE = context.TND_MAP_DEVICE.SqlQuery("SELECT DEVIVE_ID, PROJECT_ID, MAP_NO, BUILDING_NO, PROJECT_ITEM_ID, CREATE_DATE, CREATE_ID, QTY, " +
+                    "(SELECT ITEM_DESC FROM TND_PROJECT_ITEM tpi WHERE tpi.PROJECT_ITEM_ID=device.PROJECT_ITEM_ID) AS loc_desc, DEVICE.LOC_DESC A " +
+                    "FROM TND_MAP_DEVICE device WHERE PROJECT_ID = @projectid AND QTY IS NOT NULL ",
                 new SqlParameter("projectid", projectid)).ToList();
             }
             return lstDEVICE;

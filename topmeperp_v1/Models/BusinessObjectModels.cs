@@ -37,15 +37,15 @@ namespace topmeperp.Models
     public class MapInfoModels
     {
         //圖算消防電資料
-        public IEnumerable<TND_MAP_FP> mapFP { get; set; }
+        public IEnumerable<MAP_FP_VIEW> mapFP { get; set; }
         //圖算消防電資料
-        public IEnumerable<vw_MAP_FW> mapFW { get; set; }
+        public IEnumerable<TND_MAP_FW> mapFW { get; set; }
         //圖算給排水資料
-        public IEnumerable<vw_MAP_PLU> mapPLU { get; set; }
+        public IEnumerable<TND_MAP_PLU> mapPLU { get; set; }
         //圖算弱電管線資料
-        public IEnumerable<TND_MAP_LCP> mapLCP { get; set; }
+        public IEnumerable<MAP_LCP_VIEW> mapLCP { get; set; }
         //圖算電氣管線資料
-        public IEnumerable<TND_MAP_PEP> mapPEP { get; set; }
+        public IEnumerable<MAP_PEP_VIEW> mapPEP { get; set; }
         //圖算設備清單資料
         public IEnumerable<TND_MAP_DEVICE> mapDEVICE { get; set; }
     }
@@ -226,6 +226,21 @@ namespace topmeperp.Models
     {
         public Int64 NO { get; set; }
         public Nullable<decimal> PLAN_REVENUE { get; set; }
-        public PLAN_PAYMENT_TERMS planpayment { get; set; }
+        public string CONTRACT_ID { get; set; }
+    }
+    public class  MAP_FP_VIEW: TND_MAP_FP
+    {
+        public string WIRE_DESC { get; set; }
+    }
+    public class MAP_PEP_VIEW : TND_MAP_PEP
+    {
+        public string WIRE_DESC { get; set; }
+        public string GROUND_WIRE_DESC { get; set; }
+    }
+    public class MAP_LCP_VIEW : TND_MAP_LCP
+    {
+        public string WIRE_DESC { get; set; }
+        public string GROUND_WIRE_DESC { get; set; }
+        public string PIPE_2_DESC { get; set; }
     }
 }

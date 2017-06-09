@@ -277,8 +277,9 @@ namespace topmeperp.Service
         {
             using (var context = new topmepEntities())
             {
-                plan = context.Database.SqlQuery<PlanRevenue>("SELECT SUM(ITEM_UNIT_COST*ITEM_QUANTITY) AS PLAN_REVENUE FROM PLAN_ITEM " +
-                    "WHERE PROJECT_ID = @pid "
+                plan = context.Database.SqlQuery<PlanRevenue>("SELECT p.PROJECT_ID + p.PROJECT_NAME AS CONTRACT_ID, " +
+                    "(SELECT SUM(ITEM_UNIT_COST*ITEM_QUANTITY) FROM PLAN_ITEM pi WHERE pi.PROJECT_ID = @pid) AS PLAN_REVENUE " +
+                     "FROM TND_PROJECT p WHERE p.PROJECT_ID = @pid "
                    , new SqlParameter("pid", prjid)).First();
             }
             return plan;
@@ -970,7 +971,7 @@ namespace topmeperp.Service
             return lst;
         }
 
-        //取得廠商合約金額
+        //取得個別廠商合約資料與金額
         public List<plansummary> getPlanContract(string projectid)
         {
             List<plansummary> lst = new List<plansummary>();
