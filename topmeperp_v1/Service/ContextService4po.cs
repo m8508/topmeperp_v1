@@ -367,8 +367,8 @@ namespace topmeperp.Service
             if (null != formName && formName != "")
             {
                 sql = sql + "right join (select distinct p.FORM_NAME + pii.PLAN_ITEM_ID as FORM_KEY, p.FORM_NAME, pii.PLAN_ITEM_ID FROM PLAN_SUP_INQUIRY p " +
-                    "LEFT JOIN PLAN_SUP_INQUIRY_ITEM pii on p.INQUIRY_FORM_ID = pii.INQUIRY_FORM_ID WHERE p.FORM_NAME LIKE @formName)A ON pi.PLAN_ITEM_ID = A.PLAN_ITEM_ID ";
-                parameters.Add(new SqlParameter("formName", "%" + formName + "%"));
+                    "LEFT JOIN PLAN_SUP_INQUIRY_ITEM pii on p.INQUIRY_FORM_ID = pii.INQUIRY_FORM_ID WHERE p.FORM_NAME =@formName)A ON pi.PLAN_ITEM_ID = A.PLAN_ITEM_ID ";
+                parameters.Add(new SqlParameter("formName", formName));
             }
             sql = sql + " WHERE pi.PROJECT_ID =@projectid ";
             //九宮格
@@ -429,8 +429,8 @@ namespace topmeperp.Service
             if (null != formName && formName != "")
             {
                 sql = sql + "right join (select distinct p.FORM_NAME + pii.PLAN_ITEM_ID as FORM_KEY, p.FORM_NAME, pii.PLAN_ITEM_ID FROM PLAN_SUP_INQUIRY p " +
-                    "LEFT JOIN PLAN_SUP_INQUIRY_ITEM pii on p.INQUIRY_FORM_ID = pii.INQUIRY_FORM_ID WHERE p.FORM_NAME LIKE @formName)A ON pi.PLAN_ITEM_ID = A.PLAN_ITEM_ID ";
-                parameters.Add(new SqlParameter("formName", "%" + formName + "%"));
+                    "LEFT JOIN PLAN_SUP_INQUIRY_ITEM pii on p.INQUIRY_FORM_ID = pii.INQUIRY_FORM_ID WHERE p.FORM_NAME =@formName)A ON pi.PLAN_ITEM_ID = A.PLAN_ITEM_ID ";
+                parameters.Add(new SqlParameter("formName", formName));
             }
             sql = sql + " WHERE pi.PROJECT_ID =@projectid ";
             //九宮格
@@ -1004,7 +1004,7 @@ namespace topmeperp.Service
             return lst;
         }
 
-        //取得需議價詢價單資料
+        //取得採購競標之詢價單資料
         public List<purchasesummary> getPurchaseForm4Offer(string projectid, string formname, string iswage)
         {
 
@@ -1047,7 +1047,7 @@ namespace topmeperp.Service
             //採購項目查詢條件
             if (null != formname && formname != "")
             {
-                sql = sql + "WHERE C.code1 Like '%' + @formname + '%' ";
+                sql = sql + "WHERE C.code1 =@formname ";
                 parameters.Add(new SqlParameter("formname", formname));
             }
             sql = sql + " ORDER BY C.code1;";
@@ -1107,7 +1107,7 @@ namespace topmeperp.Service
             if (null != formName && "" != formName)
             {
                 //sql = sql + " AND f.FORM_NAME='" + formName + "'";
-                sql = sql + " AND f.FORM_NAME Like '%' + @formName + '%' ";
+                sql = sql + " AND f.FORM_NAME = @formName ";
                 parameters.Add(new SqlParameter("formName", formName));
             }
             sql = sql + " GROUP BY pfItem.INQUIRY_FORM_ID ,f.SUPPLIER_ID, f.FORM_NAME, f.STATUS ;";
@@ -1206,7 +1206,7 @@ namespace topmeperp.Service
 
                 logger.Debug("dimString=" + dimString);
                 //sql = sql + " AND FORM_NAME ='" + formName + "'";
-                sql = sql + ") souce pivot(MIN(ITEM_UNIT_PRICE) FOR SUPPLIER_NAME IN(" + dimString + ")) as pvt WHERE FORM_NAME Like '%' + @formName + '%' ORDER BY 行數; ";
+                sql = sql + ") souce pivot(MIN(ITEM_UNIT_PRICE) FOR SUPPLIER_NAME IN(" + dimString + ")) as pvt WHERE FORM_NAME =@formName ORDER BY 行數; ";
                 parameters.Add("formName", formName);
                 logger.Info("comparison data sql=" + sql);
                 DataSet ds = ExecuteStoreQuery(sql, CommandType.Text, parameters);
