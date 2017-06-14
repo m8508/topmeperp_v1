@@ -51,11 +51,7 @@
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
-                if (location.endsWith('prjuid=')) {
-                    location = location + prjuid;
-                } else {
-                    location = location;
-                }
+                location = location;
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);
