@@ -1,47 +1,48 @@
-﻿@ViewBag.Result
-
-<div class="container">
+﻿@model topmeperp.Models.MapInfoModels
+@ViewBag.Result
+<div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;padding-top:5px;">
     <div class="row panel-heading label-info">設備(MAP_DEVICE)</div>
     <div class="row">
         <table class="table">
             <tr>
                 <th>全選</th>
-                <th>圖號</th>
-                <th>區域或棟別</th>
+                <th>編號</th>
                 <th>設備名稱</th>
                 <th>數量</th>
             </tr>
-            <tr>
-                <td><input type="checkbox" id="" /></td>
-                <td>No1</td>
-                <td>BF</td>
-                <td>盤</td>
-                <td>2</td>
-            </tr>
+            @foreach (var item in Model.mapDEVICE)
+            {
+                <tr>
+                    <td><input type="checkbox" id="map_device" value="@item.DEVIVE_ID" /></td>
+                    <td>@Html.DisplayFor(modelItem => item.DEVIVE_ID)</td>
+                    <td style="" >@Html.DisplayFor(modelItem => item.LOC_DESC)</td>
+                    <td>@Html.DisplayFor(modelItem => item.QTY)</td>
+                </tr>
+            }
         </table>
     </div>
 </div>
-<div class="container">
+<div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;">
     <div class="row panel-heading label-info"> 電器管線(MAP_PEP)</div>
     <div class="row">
     </div>
 </div>
-<div class="container">
+<div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;">
     <div class="row panel-heading label-info">弱電管線(MAP_LCP)</div>
     <div class="row">
     </div>
 </div>
-<div class="container">
+<div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;">
     <div class="row panel-heading label-info">給排水(TND_MAP_PLU)</div>
     <div class="row">
     </div>
 </div>
-<div class="container">
+<div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;">
     <div class="row panel-heading label-info">消防電(MAP_FP)</div>
     <div class="row">
     </div>
 </div>
-<div class="container">
+<div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;">
     <div class="rowpanel-heading label-info">消防水(MAP_FW)</div>
     <div class="row">
     </div>
