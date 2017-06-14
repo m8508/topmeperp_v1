@@ -18,26 +18,54 @@
         </thead>
         <tbody>
             <tr>
-                <td>
-                    <span style="color: red; font-size: 20px;">
-                        @String.Format("{0:N0}", ViewBag.cost)
-                    </span>
-                </td>
-                <td>
-                    <span style="color: red; font-size: 20px;">
-                        @String.Format("{0:N0}", ViewBag.budget)
-                    </span>
-                </td>
-                <td>
-                    <span style="color: red; font-size: 20px;">
-                        @String.Format("{0:N0}", ViewBag.itemcost)
-                    </span>
-                </td>
-                <td>
-                    <span style="color: red; font-size: 20px;">
-                        @String.Format("{0:N0}", ViewBag.itembudget)
-                    </span>
-                </td>
+                @if (ViewBag.cost != null)
+            {
+                    <td>
+                        <span style="color: red; font-size: 20px;">
+                            @String.Format("{0:N0}", ViewBag.cost)
+                        </span>
+                    </td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (ViewBag.budget != null)
+            {
+                    <td>
+                        <span style="color: red; font-size: 20px;">
+                            @String.Format("{0:N0}", ViewBag.budget)
+                        </span>
+                    </td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (ViewBag.itemcost != null)
+            {
+                    <td>
+                        <span style="color: red; font-size: 20px;">
+                            @String.Format("{0:N0}", ViewBag.itemcost)
+                        </span>
+                    </td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (ViewBag.itembudget != null)
+            {
+                    <td>
+                        <span style="color: red; font-size: 20px;">
+                            @String.Format("{0:N0}", ViewBag.itembudget)
+                        </span>
+                    </td>
+                }
+                else
+                {
+                    <td></td>
+                }
             </tr>
         </tbody>
     </table>
@@ -128,5 +156,3 @@
 
     <input id="Submit2" type="submit" value="儲存" />
 </form>
-
-   
