@@ -500,6 +500,7 @@
       <DependentUpon>topmep.edmx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service\ProjectPlanService.cs" />
     <Compile Include="Service\ContextService.cs" />
     <Compile Include="Service\ContextService4po.cs" />
     <Compile Include="Service\ContextService4System.cs" />

@@ -1,9 +1,7 @@
 ﻿using log4net;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using topmeperp.Models;
@@ -124,6 +122,8 @@ namespace topmeperp.Controllers
         public ActionResult getMapItem4Task(FormCollection f)
         {
             log.Debug("form info:"+ f.Count);
+            string projectid = f["projectid"];
+            log.Debug("projectid" + f["projectid"]);
             string mapno = f["mapno"];
             log.Debug("mapno" + f["mapno"]);
             string buildno = f["buildno"];
@@ -136,7 +136,8 @@ namespace topmeperp.Controllers
             log.Debug("devicename" + f["devicename"]);
             string mapType = f["mapType"];
             log.Debug("mapType" + f["mapType"]);
-            return PartialView("_getMapItem4Task");
+           
+            return PartialView("_getMapItem4Task", planService.getMapView(projectid, mapno, buildno, primeside, secondside, devicename));
         }
     }
 }

@@ -5,17 +5,10 @@
 <link href="../../Content/bootstrap-treeview.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="../../Scripts/bootstrap-treeview.js"></script>
 <!--條件區域-->
-<div class="page-header">
+
+<div class="container" >
     <div class="row">
-        <label class="col-md-2 control-label">專案編號: </label>
-        <div class="col-md-10">
-            <input type="text" name="projectid" id="projectid" value="@ViewBag.projectId" readonly />
-        </div>
-    </div>
-</div>
-<div class="container">
-    <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-6" style="height:600px;overflow-x:auto;">
             <h2>專案任務</h2>
             <div id="treeview"></div>
         </div>
@@ -25,6 +18,7 @@
                 <form name="formQueryForm" id="formQueryForm">
                     <div class="row panel-heading">
                         <div class="col-md-12">
+                            <input type="text" name="projectid" id="projectid" value="@ViewBag.projectId" readonly />
                             <label class="control-label" for="mapno">圖號: </label><input type="text" name="mapno" id="mapno" value="" size="5" />
                             <label class="control-label" for="buildno">區域或棟別: </label><input type="text" name="buildno" id="buildno" value="" size="5" /><br />
                             <label class="control-label" for="primeside">位置(一次側): </label><input type="text" name="primeside" id="primeside" value="" size="5" />
@@ -46,7 +40,7 @@
                     </div>
                 </form>
             </div>
-            <div class="container" id="MapItem">
+            <div class="container" id="MapItem"  style="width:600px;">
             </div>
         </div>
     </div>
