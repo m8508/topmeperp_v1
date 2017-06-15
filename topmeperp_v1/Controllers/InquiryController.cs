@@ -186,7 +186,6 @@ namespace topmeperp.Controllers
             {
                 log.Error(ex.StackTrace);
             }
-            fm.CREATE_DATE = Convert.ToDateTime(form.Get("createdate"));
             fm.MODIFY_ID = loginUser.USER_ID;
             fm.MODIFY_DATE = DateTime.Now;
             string formid = form.Get("inputformnumber").Trim();
