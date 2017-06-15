@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using topmeperp.Models;
 using log4net;
+using System.Data.SqlClient;
 
 namespace topmeperp.Service
 {
@@ -62,12 +63,15 @@ namespace topmeperp.Service
                 using (var context = new topmepEntities())
                 {
                     //1.清除所有任務
+                    string sql = "DELETE FROM PLAN_TASK WHERE PROJECT_ID=@projectid";
+                    int i = context.Database.ExecuteSqlCommand(sql, new SqlParameter("projectid", project_id));
+                    logger.Debug("Remove Exist Task for projectid="+ project_id);
                     //2.匯入任務
                     foreach (PLAN_TASK pt in lstTask)
                     {
                         context.PLAN_TASK.Add(pt);
                     }
-                    int i = context.SaveChanges();
+                    i = context.SaveChanges();
                     logger.Info("import task count=" + i);
                 }
             }
