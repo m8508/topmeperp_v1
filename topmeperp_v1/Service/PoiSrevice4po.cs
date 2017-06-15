@@ -201,6 +201,11 @@ namespace topmeperp.Service
             {
                 planItem.ITEM_REMARK = row.Cells[8].ToString();
             }
+            
+            if (row.Cells[9].ToString().Trim() != "")//九宮格
+            {
+                planItem.TYPE_CODE_1 = row.Cells[9].ToString();
+            }
             if (row.Cells.Count < 13) //調整了標單的總欄位(原本為11)
             {
                 logErrorMessage("data format warring on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
@@ -210,14 +215,11 @@ namespace topmeperp.Service
                 planItem.CREATE_DATE = System.DateTime.Now;
                 return planItem;
             }
-            if (row.Cells[9].ToString().Trim() != "")//九宮格
-            {
-                planItem.TYPE_CODE_1 = row.Cells[9].ToString();
-            }
             if (row.Cells[10].ToString().Trim() != "")//次九宮格
             {
                 planItem.TYPE_CODE_2 = row.Cells[10].ToString();
             }
+            
             if (row.Cells[11].ToString().Trim() != "")//主系統
             {
                 planItem.SYSTEM_MAIN = row.Cells[11].ToString();

@@ -9,7 +9,7 @@ using topmeperp.Models;
 using topmeperp.Service;
 using System.IO;
 using System.Data;
-
+using System.Globalization;
 
 namespace topmeperp.Controllers
 {
@@ -258,7 +258,14 @@ namespace topmeperp.Controllers
             fm.INQUIRY_FORM_ID = form.Get("inputformnumber").Trim();
             fm.FORM_NAME = form.Get("formname").Trim();
             fm.CREATE_ID = form.Get("createid").Trim();
-            fm.CREATE_DATE = Convert.ToDateTime(form.Get("createdate"));
+            try
+            {
+                fm.CREATE_DATE = DateTime.ParseExact(form.Get("createdate"), "yyyy/MM/dd", CultureInfo.InvariantCulture);
+            }
+            catch(Exception ex)
+            {
+                log.Error(ex.StackTrace);
+            }
             fm.MODIFY_ID = loginUser.USER_ID;
             fm.MODIFY_DATE = DateTime.Now;
             string formid = form.Get("inputformnumber").Trim();

@@ -15,7 +15,7 @@ namespace topmeperp.Controllers
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         PlanService service = new PlanService();
-       
+
 
         // GET: Plan
         [topmeperp.Filter.AuthFilter]
@@ -95,6 +95,10 @@ namespace topmeperp.Controllers
                 service.refreshItem(poiservice.lstPlanItem);
             }
             TempData["result"] = message;
+            //PlanService ps = new PlanService();
+            //var priId = ps.getBudgetById(projectid);
+            //ViewBag.budgetdata = priId;
+            //if (null != priId) { int k = service.updateBudgetToPlanItem(projectid); }
             return Redirect("ManagePlanItem?id=" + projectid);
         }
         /// <summary>
@@ -312,8 +316,8 @@ namespace topmeperp.Controllers
             //檢查工率乘數是否存在
             TnderProject tndservice = new TnderProject();
             TND_PROJECT p = tndservice.getProjectById(Request["projectid"]);
-             ViewBag.projectWage = p.WAGE_MULTIPLIER;
-            //if (null == ViewBag.projectWage) { throw new Exception("Wage Multiplier is not exist !!" + ViewBag.projectWage); }
+            ViewBag.projectWage = p.WAGE_MULTIPLIER;
+            //if (null == ViewBag.projectWage) { throw new Exception(Request["projectid"] + "'s Wage Multiplier is not exist !!");}
             //檔案變數名稱(fileBudget)需要與前端畫面對應(view 的 file name and file id)
             if (null != fileBudget && fileBudget.ContentLength != 0)
             {
@@ -497,7 +501,7 @@ namespace topmeperp.Controllers
                     item.BUDGET_RATIO = decimal.Parse(lstBudget[j]);
                 }
                 logger.Info("Budget ratio =" + item.BUDGET_RATIO);
-                item.PLAN_ITEM_ID = lstplanitemid[j]; 
+                item.PLAN_ITEM_ID = lstplanitemid[j];
                 item.MODIFY_USER_ID = u.USER_ID;
                 logger.Debug("Item Project id =" + item.PROJECT_ID + "且plan item id 為" + item.PLAN_ITEM_ID + "其項目預算為" + item.BUDGET_RATIO);
                 lstItem.Add(item);
