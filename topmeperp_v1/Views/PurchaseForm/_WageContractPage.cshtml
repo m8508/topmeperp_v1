@@ -13,24 +13,17 @@
         <th>
             廠商名稱
         </th>
-        <th>
-            投標金額
-        </th>
-        <th>
-            預算
-        </th>
+       
         <th>
             發包金額
         </th>
-        <th>
-            獲利
-        </th>
+        
     </tr>
 
-    @if (ViewBag.result > 0)
-            {
-                foreach (var item in Model.contractItems)
-                {
+    @if (ViewBag.Result4Wage > 0)
+    {
+        foreach (var item in Model.wagecontractItems)
+        {
             <tr>
                 <td>
                     <button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@item.CONTRACT_ID')">新增 / 修改</button>
@@ -39,29 +32,14 @@
                     @Html.DisplayFor(modelItem => item.NO)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.FORM_NAME)
+                    @Html.DisplayFor(modelItem => item.MAN_FORM_NAME)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.SUPPLIER_ID)
-                </td>
-                <td>
-                    <span style="color: blue; font-size: 15px;">
-                        @String.Format("{0:N0}", item.REVENUE)
-                    </span>
+                    @Html.DisplayFor(modelItem => item.MAN_SUPPLIER_ID)
                 </td>
                 <td>
                     <span style="color: blue; font-size: 15px;">
-                        @String.Format("{0:N0}", item.BUDGET)
-                    </span>
-                </td>
-                <td>
-                    <span style="color: blue; font-size: 15px;">
-                        @String.Format("{0:N0}", item.COST)
-                    </span>
-                </td>
-                <td>
-                    <span style="color: blue; font-size: 15px;">
-                        @String.Format("{0:N0}", item.PROFIT)
+                        @String.Format("{0:N0}", item.WAGE_COST)
                     </span>
                 </td>
             </tr>

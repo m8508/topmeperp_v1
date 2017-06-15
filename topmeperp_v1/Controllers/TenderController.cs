@@ -714,6 +714,7 @@ namespace topmeperp.Controllers
             prj.DUE_DATE = Convert.ToDateTime(Request["duedate"]);
             prj.SCHDL_OFFER_DATE = Convert.ToDateTime(Request["schdlofferdate"]);
             prj.START_ROW_NO = int.Parse(Request["starrowno"]);
+            prj.WAGE_MULTIPLIER = decimal.Parse(Request["wage"]);
             prj.EXCEL_FILE_NAME = Request["excelfilename"];
             prj.OWNER_USER_ID = Request["owneruserid"];
             prj.CREATE_USER_ID = Request["createdid"];

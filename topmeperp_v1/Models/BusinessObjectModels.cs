@@ -207,10 +207,15 @@ namespace topmeperp.Models
         public Nullable<decimal> TOTAL_BUDGET { get; set; }
         public Nullable<decimal> TOTAL_COST{ get; set; }
         public Nullable<decimal> TOTAL_PROFIT { get; set; }
+        public Nullable<decimal> MATERIAL_COST { get; set; }
+        public Nullable<decimal> WAGE_COST { get; set; }
+        public string MAN_FORM_NAME { get; set; }
+        public string MAN_SUPPLIER_ID { get; set; }
     }
     public class ContractModels
     {
         public IEnumerable<plansummary> contractItems { get; set; }
+        public IEnumerable<plansummary> wagecontractItems { get; set; }
         public IEnumerable<PLAN_PAYMENT_TERMS> paymentTerms { get; set; }
         public PLAN_PAYMENT_TERMS planpayment { get; set; }
 

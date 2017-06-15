@@ -265,7 +265,7 @@ namespace topmeperp.Controllers
             //取得九宮格組合之直接成本資料
             {
                 CostAnalysisDataService s = new CostAnalysisDataService();
-                List<DirectCost> budget1 = s.getDirectCost(id);
+                List<DirectCost> budget1 = s.getDirectCost(id); // 目前工資是使用工率還未轉成工資
                 ViewBag.result = "共有" + (budget1.Count - 1) + "筆資料";
                 return View(budget1);
             }
@@ -309,6 +309,11 @@ namespace topmeperp.Controllers
             string projectid = Request["projectid"];
             logger.Info("Upload Budget Table for projectid=" + projectid);
             string message = "";
+            //檢查工率乘數是否存在
+            TnderProject tndservice = new TnderProject();
+            TND_PROJECT p = tndservice.getProjectById(Request["projectid"]);
+             ViewBag.projectWage = p.WAGE_MULTIPLIER;
+            //if (null == ViewBag.projectWage) { throw new Exception("Wage Multiplier is not exist !!" + ViewBag.projectWage); }
             //檔案變數名稱(fileBudget)需要與前端畫面對應(view 的 file name and file id)
             if (null != fileBudget && fileBudget.ContentLength != 0)
             {

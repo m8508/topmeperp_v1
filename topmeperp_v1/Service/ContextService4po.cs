@@ -311,7 +311,7 @@ namespace topmeperp.Service
             List<DirectCost> lstBudget = new List<DirectCost>();
             using (var context = new topmepEntities())
             {
-                string sql = "SELECT C.*, SUM(MATERIAL_COST * COST_RATIO / 100 * BUDGET / 100) AS AMOUNT_BY_CODE FROM " +
+                string sql = "SELECT C.*, SUM((MATERIAL_COST * COST_RATIO / 100 + MAN_DAY) * BUDGET / 100) AS AMOUNT_BY_CODE FROM " +
                     "(SELECT MAINCODE, MAINCODE_DESC, SUB_CODE, SUB_DESC, MATERIAL_COST, MAN_DAY, "
                     + "BUDGET_RATIO as BUDGET, COST_RATIO FROM (SELECT" +
                     "(select TYPE_CODE_1 + TYPE_CODE_2 from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE, " +
@@ -319,7 +319,7 @@ namespace topmeperp.Service
                     "(select SUB_TYPE_ID from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) T_SUB_CODE, " +
                     "TYPE_CODE_2 SUB_CODE," +
                     "(select TYPE_DESC from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) SUB_DESC," +
-                    "SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) MATERIAL_COST,SUM(ITEM_QUANTITY * RATIO) MAN_DAY,count(*) ITEM_COUNT " +
+                    "SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) MATERIAL_COST, SUM(ITEM_QUANTITY * PRICE) MAN_DAY,count(*) ITEM_COUNT " +
                     "FROM (SELECT it.*, w.RATIO, w.PRICE FROM TND_PROJECT_ITEM it LEFT OUTER JOIN TND_WAGE w " +
                     "ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID WHERE it.project_id = @projectid) A " +
                     "GROUP BY TYPE_CODE_1, TYPE_CODE_2) B LEFT OUTER JOIN (SELECT p.TYPE_CODE_1, p.TYPE_CODE_2, SUM(p.BUDGET_RATIO*p.ITEM_QUANTITY)/SUM(p.ITEM_QUANTITY) BUDGET_RATIO, " +
@@ -342,9 +342,9 @@ namespace topmeperp.Service
                 string sql = "SELECT SUM(TND_COST) AS TOTAL_COST, SUM(BUDGET) AS TOTAL_BUDGET, SUM(P_COST) AS TOTAL_P_COST FROM (SELECT(select TYPE_CODE_1 + TYPE_CODE_2 from REF_TYPE_MAIN WHERE  " +
                     "TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE, (select TYPE_DESC from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE_DESC, " +
                     "(select SUB_TYPE_ID from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) T_SUB_CODE, TYPE_CODE_2 SUB_CODE, " +
-                    "(select TYPE_DESC from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) SUB_DESC, SUM(ITEM_QUANTITY * ITEM_UNIT_COST * TND_RATIO/100) MATERIAL_COST, " +
-                    "SUM(ITEM_QUANTITY * PRICE) MAN_DAY,count(*) ITEM_COUNT, SUM(ITEM_QUANTITY * ITEM_UNIT_COST * TND_RATIO/100 * BUDGET_RATIO/100) BUDGET, " +
-                    "SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) + SUM(ITEM_QUANTITY * MAN_PRICE) P_COST, SUM(ITEM_QUANTITY * ITEM_UNIT_COST * TND_RATIO/100) TND_COST FROM " +
+                    "(select TYPE_DESC from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) SUB_DESC, (SUM(ITEM_QUANTITY * ITEM_UNIT_COST)- SUM(ITEM_QUANTITY * PRICE)) MATERIAL_COST, " +
+                    "SUM(ITEM_QUANTITY * PRICE) MAN_DAY,count(*) ITEM_COUNT, SUM(ITEM_QUANTITY * ITEM_UNIT_COST * BUDGET_RATIO/100) BUDGET, " +
+                    "SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) + SUM(ITEM_QUANTITY * MAN_PRICE) P_COST, SUM(ITEM_QUANTITY * ITEM_UNIT_COST) TND_COST FROM " +
                     "(SELECT it.*, w.RATIO, w.PRICE FROM PLAN_ITEM it LEFT OUTER JOIN TND_WAGE w ON it.PLAN_ITEM_ID = w.PROJECT_ITEM_ID WHERE it.project_id = @projectid) A  " +
                     "GROUP BY TYPE_CODE_1, TYPE_CODE_2)B ";
                 logger.Info("sql = " + sql);
@@ -360,7 +360,7 @@ namespace topmeperp.Service
             logger.Info("search plan item by 九宮格 =" + typeCode1 + "search plan item by 次九宮格 =" + typeCode2 + "search plan item by 主系統 =" + systemMain + "search plan item by 次系統 =" + systemSub + "search plan item by 採購名稱 =" + formName);
             DirectCost lstItemBudget = null;
             //處理SQL 預先填入專案代號,設定集合處理參數
-            string sql = "SELECT SUM(pi.ITEM_QUANTITY*pi.ITEM_UNIT_COST*pi.TND_RATIO/100) AS ITEM_COST, SUM(pi.ITEM_QUANTITY*pi.ITEM_UNIT_COST*pi.TND_RATIO/100*pi.BUDGET_RATIO/100) AS ITEM_BUDGET FROM PLAN_ITEM pi ";
+            string sql = "SELECT SUM(pi.ITEM_QUANTITY*pi.ITEM_UNIT_COST) AS ITEM_COST, SUM(pi.ITEM_QUANTITY*pi.ITEM_UNIT_COST*pi.BUDGET_RATIO/100) AS ITEM_BUDGET FROM PLAN_ITEM pi ";
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("projectid", projectid));
             //採購項目
@@ -971,17 +971,33 @@ namespace topmeperp.Service
             return lst;
         }
 
-        //取得個別廠商合約資料與金額
+        //取得個別材料廠商合約資料與金額
         public List<plansummary> getPlanContract(string projectid)
         {
             List<plansummary> lst = new List<plansummary>();
             using (var context = new topmepEntities())
             {
                 lst = context.Database.SqlQuery<plansummary>("SELECT  p.PROJECT_ID + p.SUPPLIER_ID + p.FORM_NAME AS CONTRACT_ID, p.SUPPLIER_ID, p.FORM_NAME, " +
-                    "SUM(p.ITEM_QUANTITY * p.ITEM_UNIT_COST * p.TND_RATIO / 100) REVENUE, SUM(p.ITEM_QUANTITY * p.ITEM_UNIT_COST * p.TND_RATIO / 100 * p.BUDGET_RATIO / 100) BUDGET, " +
-                    "SUM(p.ITEM_QUANTITY * p.ITEM_UNIT_PRICE) COST, (SUM(p.ITEM_QUANTITY * p.ITEM_UNIT_COST * p.TND_RATIO / 100) - SUM(p.ITEM_QUANTITY * p.ITEM_UNIT_PRICE)) PROFIT, " +
+                    "SUM(p.ITEM_QUANTITY * p.ITEM_UNIT_PRICE) MATERIAL_COST, SUM(p.ITEM_QUANTITY * ISNULL(p.MAN_PRICE,0)) WAGE_COST, " +
+                    "SUM(p.ITEM_QUANTITY * p.ITEM_UNIT_COST) REVENUE, SUM(p.ITEM_QUANTITY * p.ITEM_UNIT_COST * p.BUDGET_RATIO / 100) BUDGET, " +
+                    "(SUM(p.ITEM_QUANTITY * p.ITEM_UNIT_PRICE) + SUM(p.ITEM_QUANTITY * ISNULL(p.MAN_PRICE,0))) COST, (SUM(p.ITEM_QUANTITY * p.ITEM_UNIT_COST) - " +
+                    "SUM(p.ITEM_QUANTITY * p.ITEM_UNIT_PRICE) - SUM(p.ITEM_QUANTITY * ISNULL(p.MAN_PRICE,0))) PROFIT, " +
                     "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY p.SUPPLIER_ID) AS NO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid and p.ITEM_UNIT_PRICE IS NOT NULL " +
                     "AND p.ITEM_UNIT_PRICE <> 0 GROUP BY p.PROJECT_ID, p.SUPPLIER_ID, p.FORM_NAME ; "
+                   , new SqlParameter("projectid", projectid)).ToList();
+            }
+            return lst;
+        }
+        //取得個別工資廠商合約資料與金額
+        public List<plansummary> getPlanContract4Wage(string projectid)
+        {
+            List<plansummary> lst = new List<plansummary>();
+            using (var context = new topmepEntities())
+            {
+                lst = context.Database.SqlQuery<plansummary>("SELECT  p.PROJECT_ID + p.MAN_SUPPLIER_ID + p.MAN_FORM_NAME AS CONTRACT_ID, p.MAN_SUPPLIER_ID, p.MAN_FORM_NAME, " +
+                    "SUM(p.ITEM_QUANTITY * ISNULL(p.MAN_PRICE,0)) WAGE_COST, " +
+                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY p.MAN_SUPPLIER_ID) AS NO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid and p.MAN_PRICE IS NOT NULL " +
+                    "AND p.MAN_PRICE <> 0 GROUP BY p.PROJECT_ID, p.MAN_SUPPLIER_ID, p.MAN_FORM_NAME ; "
                    , new SqlParameter("projectid", projectid)).ToList();
             }
             return lst;
@@ -994,9 +1010,9 @@ namespace topmeperp.Service
             {
                 lst = context.Database.SqlQuery<plansummary>("SELECT SUM(REVENUE) TOTAL_REVENUE, SUM(COST) TOTAL_COST, SUM(BUDGET) TOTAL_BUDGET, SUM(PROFIT) TOTAL_PROFIT " +
                     "FROM(select p.PROJECT_ID + p.SUPPLIER_ID + p.FORM_NAME AS CONTRACT_ID, " +
-                    "p.SUPPLIER_ID, p.FORM_NAME, sum(p.ITEM_QUANTITY * p.ITEM_UNIT_COST * p.TND_RATIO / 100) REVENUE, " +
-                    "sum(p.ITEM_QUANTITY * p.ITEM_UNIT_COST * p.TND_RATIO / 100 * p.BUDGET_RATIO / 100) BUDGET, " +
-                    "sum(p.ITEM_QUANTITY * p.ITEM_UNIT_PRICE) COST, (sum(p.ITEM_QUANTITY * p.ITEM_UNIT_COST * p.TND_RATIO / 100) - sum(p.ITEM_QUANTITY * p.ITEM_UNIT_PRICE)) PROFIT, " +
+                    "p.SUPPLIER_ID, p.FORM_NAME, sum(p.ITEM_QUANTITY * p.ITEM_UNIT_COST) REVENUE, " +
+                    "sum(p.ITEM_QUANTITY * p.ITEM_UNIT_COST * p.BUDGET_RATIO / 100) BUDGET, " +
+                    "(sum(p.ITEM_QUANTITY * p.ITEM_UNIT_PRICE) + SUM(p.ITEM_QUANTITY * ISNULL(p.MAN_PRICE,0))) COST, (sum(p.ITEM_QUANTITY * p.ITEM_UNIT_COST) - sum(p.ITEM_QUANTITY * p.ITEM_UNIT_PRICE) - SUM(p.ITEM_QUANTITY * ISNULL(p.MAN_PRICE,0))) PROFIT, " +
                     "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY p.SUPPLIER_ID) AS NO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid and p.ITEM_UNIT_PRICE IS NOT NULL " +
                     "AND p.ITEM_UNIT_PRICE <> 0 GROUP BY p.PROJECT_ID, p.SUPPLIER_ID, p.FORM_NAME)A ; "
                    , new SqlParameter("projectid", projectid)).First();

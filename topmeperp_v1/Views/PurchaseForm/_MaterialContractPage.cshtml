@@ -23,7 +23,13 @@
             發包金額
         </th>
         <th>
-            獲利
+            工資
+        </th>
+        <th>
+           成本
+        </th>
+        <th>
+            毛利
         </th>
     </tr>
 
@@ -52,6 +58,16 @@
                 <td>
                     <span style="color: blue; font-size: 15px;">
                         @String.Format("{0:N0}", item.BUDGET)
+                    </span>
+                </td>
+                <td>
+                    <span style="color: blue; font-size: 15px;">
+                        @String.Format("{0:N0}", item.MATERIAL_COST)
+                    </span>
+                </td>
+                <td>
+                    <span style="color: blue; font-size: 15px;">
+                        @String.Format("{0:N0}", item.WAGE_COST)
                     </span>
                 </td>
                 <td>

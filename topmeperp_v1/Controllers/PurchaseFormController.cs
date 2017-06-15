@@ -727,9 +727,12 @@ namespace topmeperp.Controllers
             ViewBag.projectName = p.PROJECT_NAME;
             //取得採購合約金額與預算等資料
             List<plansummary> lstContract = null;
+            List<plansummary> lstWageContract = null;
             ContractModels contract = new ContractModels();
             lstContract = service.getPlanContract(id);
+            lstWageContract = service.getPlanContract4Wage(id);
             contract.contractItems = lstContract;
+            contract.wagecontractItems = lstWageContract;
             plansummary contractAmount = service.getPlanContractAmount(id);
             ViewBag.budget = contractAmount.TOTAL_BUDGET;
             ViewBag.cost = contractAmount.TOTAL_COST;
@@ -737,6 +740,7 @@ namespace topmeperp.Controllers
             ViewBag.profit = contractAmount.TOTAL_PROFIT;
             ViewBag.SearchResult = "共取得" + lstContract.Count + "筆資料";
             ViewBag.Result = lstContract.Count;
+            ViewBag.Result4Wage = lstWageContract.Count;
             int i = service.addContractId(id);
             return View(contract);
         }
