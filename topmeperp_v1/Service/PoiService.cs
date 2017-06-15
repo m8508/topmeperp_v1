@@ -2329,13 +2329,13 @@ namespace topmeperp.Service
                 summaryRow.CreateCell(i);
             }
             summaryRow.Cells[2].SetCellValue("小計");
-            summaryRow.Cells[3].SetCellFormula("SUM(D2:D" + (idxRow - 1) + ")");
+            summaryRow.Cells[3].SetCellFormula("SUM(D2:D" + (idxRow) + ")");
 
-            summaryRow.Cells[5].SetCellFormula("SUM(F2:F" + (idxRow - 1) + ")");
-            summaryRow.Cells[6].SetCellFormula("SUM(G2:G" + (idxRow - 1) + ")");
-            summaryRow.Cells[7].SetCellFormula("SUM(H2:H" + (idxRow - 1) + ")");
-            summaryRow.Cells[9].SetCellFormula("SUM(J2:J" + (idxRow - 1) + ")");
-            summaryRow.Cells[11].SetCellFormula("SUM(L2:L" + (idxRow - 1) + ")");
+            summaryRow.Cells[5].SetCellFormula("SUM(F2:F" + (idxRow) + ")");
+            summaryRow.Cells[6].SetCellFormula("SUM(G2:G" + (idxRow) + ")");
+            summaryRow.Cells[7].SetCellFormula("SUM(H2:H" + (idxRow) + ")");
+            summaryRow.Cells[9].SetCellFormula("SUM(J2:J" + (idxRow) + ")");
+            summaryRow.Cells[11].SetCellFormula("SUM(L2:L" + (idxRow) + ")");
             logger.Debug("set cell style rowid=" + idxRow);
             foreach (ICell c in summaryRow.Cells)
             {
@@ -2406,18 +2406,19 @@ namespace topmeperp.Service
                 summaryRow.CreateCell(i);
             }
             summaryRow.Cells[2].SetCellValue("小計");
-            summaryRow.Cells[3].SetCellFormula("SUM(D2:D" + (idxRow - 1) + ")");
+            summaryRow.Cells[3].SetCellFormula("SUM(D2:D" + (idxRow) + ")");
 
-            summaryRow.Cells[5].SetCellFormula("SUM(F2:F" + (idxRow - 1) + ")");
-            summaryRow.Cells[6].SetCellFormula("SUM(G2:G" + (idxRow - 1) + ")");
-            summaryRow.Cells[7].SetCellFormula("SUM(H2:H" + (idxRow - 1) + ")");
-            summaryRow.Cells[8].SetCellFormula("SUM(I2:I" + (idxRow - 1) + ")");
+            summaryRow.Cells[5].SetCellFormula("SUM(F2:F" + (idxRow) + ")");
+            summaryRow.Cells[6].SetCellFormula("SUM(G2:G" + (idxRow) + ")");
+            summaryRow.Cells[7].SetCellFormula("SUM(H2:H" + (idxRow) + ")");
+            summaryRow.Cells[8].SetCellFormula("SUM(I2:I" + (idxRow) + ")");
             logger.Debug("set cell style rowid=" + idxRow);
             foreach (ICell c in summaryRow.Cells)
             {
                 c.CellStyle = style;
             }
         }
+        //產生系統成本
         private void getSystemCost(List<SystemCost> systemCostItems)
         {
             //1.寫系統分析成本 僅提供office 格式2007 
@@ -2480,13 +2481,13 @@ namespace topmeperp.Service
                 summaryRow.CreateCell(i);
             }
             summaryRow.Cells[1].SetCellValue("直接工程費(小計)");
-            summaryRow.Cells[2].SetCellFormula("SUM(C2:C" + (idxRow - 1) + ")");
-            summaryRow.Cells[3].SetCellFormula("SUM(D2:D" + (idxRow - 1) + ")");
-            summaryRow.Cells[4].SetCellFormula("SUM(E2:E" + (idxRow - 1) + ")");
-            summaryRow.Cells[5].SetCellFormula("SUM(F2:F" + (idxRow - 1) + ")");
-            summaryRow.Cells[6].SetCellFormula("SUM(G2:G" + (idxRow - 1) + ")");
-            summaryRow.Cells[7].SetCellFormula("SUM(H2:H" + (idxRow - 1) + ")");
-            summaryRow.Cells[8].SetCellFormula("SUM(I2:I" + (idxRow - 1) + ")");
+            summaryRow.Cells[2].SetCellFormula("SUM(C2:C" + (idxRow) + ")");
+            summaryRow.Cells[3].SetCellFormula("SUM(D2:D" + (idxRow) + ")");
+            summaryRow.Cells[4].SetCellFormula("SUM(E2:E" + (idxRow) + ")");
+            summaryRow.Cells[5].SetCellFormula("SUM(F2:F" + (idxRow) + ")");
+            summaryRow.Cells[6].SetCellFormula("SUM(G2:G" + (idxRow) + ")");
+            summaryRow.Cells[7].SetCellFormula("SUM(H2:H" + (idxRow) + ")");
+            summaryRow.Cells[8].SetCellFormula("SUM(I2:I" + (idxRow) + ")");
             foreach (ICell c in summaryRow.Cells)
             {
                 c.CellStyle = style;
