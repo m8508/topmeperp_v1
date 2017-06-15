@@ -6,7 +6,7 @@
 <script type="text/javascript" src="../../Scripts/bootstrap-treeview.js"></script>
 <!--條件區域-->
 
-<div class="container" >
+<div class="container">
     <div class="row">
         <div class="col-md-6" style="height:600px;overflow-x:auto;">
             <h2>專案任務</h2>
@@ -40,14 +40,19 @@
                     </div>
                 </form>
             </div>
-            <div class="container" id="MapItem"  style="width:600px;">
-            </div>
+            <input type="text" id="checkNodeId" name="checkNodeId" value="" />
+            <form  id="formMapItem" name="formMapItem">
+                <div class="container" id="MapItem" style="width:600px;">
+                </div>
+            </form>
+
         </div>
     </div>
 </div>
 
 <script type="text/javascript">
     //將樹狀資料由Server端產生
+    var chkNodeId;
     var defaultData = [@Html.Raw(ViewBag.TreeString)];
     $('#treeview').treeview({
         data: defaultData,
@@ -55,10 +60,16 @@
         showCheckbox: true,
         showTags: true,
         onNodeChecked: function (event, node) {
+            $('#treeview').treeview('uncheckAll', { silent: true });
             $('#checkable-output').prepend('<p>' + node.text + ' was checked</p>');
+            $('#treeview').treeview('checkNode', [node.nodeId, { silent: true }]);
+            // chkNodeId = node.href;
+            $('#checkNodeId').val(node.href);
+            //alert(node.nodeId);
         },
         onNodeUnchecked: function (event, node) {
             $('#checkable-output').prepend('<p>' + node.text + ' was unchecked</p>');
+            $('#checkNodeId').val("");
         }
     });
 
@@ -76,7 +87,6 @@
     }
 
     function getMapItem4Task() {
-        //alert("getMapTask");
         $.ajax({
             url: "getMapItem4Task",
             data: $('#formQueryForm').serialize(),
@@ -87,5 +97,10 @@
             }
         })
     }
-
+    function show() {
+        //alert($('#formMapItem').serialize());
+        var formData = $("#formMapItem").serialize();
+        console.log(formData);
+        //alert($('#formMapItem').serializeObject());
+    }
 </script>
