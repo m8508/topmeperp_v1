@@ -762,7 +762,6 @@
     <Content Include="Views\PurchaseForm\PurchaseMain.cshtml" />
     <Content Include="Views\PurchaseForm\Comparison.cshtml" />
     <Content Include="Views\PurchaseForm\FormListForOffer.cshtml" />
-    <Content Include="Views\PurchaseForm\PurchasingContract.cshtml" />
     <Content Include="Views\PurchaseForm\ContractItems.cshtml" />
     <Content Include="Views\Tender\ManageProjectItem.cshtml" />
     <Content Include="Views\Tender\ShowProejctItems.cshtml" />
@@ -784,6 +783,9 @@
     <Content Include="Views\Plan\ContractForOwner.cshtml" />
     <Content Include="Views\Plan\_PaymentTerms.cshtml" />
     <Content Include="Views\ProjectPlan\_getMapItem4Task.cshtml" />
+    <Content Include="Views\PurchaseForm\PurchasingContract.cshtml" />
+    <Content Include="Views\PurchaseForm\_MaterialContractPage.cshtml" />
+    <Content Include="Views\PurchaseForm\_WageContractPage.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

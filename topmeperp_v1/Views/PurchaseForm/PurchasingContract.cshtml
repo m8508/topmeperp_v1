@@ -81,79 +81,26 @@
             </tr>
         </tbody>
     </table>
-    <table class="table">
-        <tr>
-            <th>
-                付款條件設定
-            </th>
-            <th>
-                NO.
-            </th>
-            <th>
-                採購項目
-            </th>
-            <th>
-                廠商名稱
-            </th>
-            <th>
-                投標金額
-            </th>
-            <th>
-                預算
-            </th>
-            <th>
-                發包金額
-            </th>
-            <th>
-                獲利
-            </th>
-        </tr>
-        <tr>
-            @if (ViewBag.result > 0)
-            {
-                foreach (var item in Model.contractItems)
-                {
-                    <td>
-                        <button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@item.CONTRACT_ID')">新增 / 修改</button>
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.NO)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.FORM_NAME)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.SUPPLIER_ID)
-                    </td>
-                    <td>
-                        <span style="color: blue; font-size: 15px;">
-                            @String.Format("{0:N0}", item.REVENUE)
-                        </span>
-                    </td>
-                    <td>
-                        <span style="color: blue; font-size: 15px;">
-                            @String.Format("{0:N0}", item.BUDGET)
-                        </span>
-                    </td>
-                    <td>
-                        <span style="color: blue; font-size: 15px;">
-                            @String.Format("{0:N0}", item.COST)
-                        </span>
-                    </td>
-                    <td>
-                        <span style="color: blue; font-size: 15px;">
-                            @String.Format("{0:N0}", item.PROFIT)
-                        </span>
-                    </td>
-                }
-            }
-            else
-            {
-            }
-        </tr>
-    </table>
 </div>
+    <div class="container">
+        <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#inquiryMaterial">物料廠商合約</a></li>
+            <li><a data-toggle="tab" href="#inquiryWage">工資廠商合約</a></li>
+        </ul>
 
+        <div class="tab-content">
+            <div id="inquiryMaterial" class="tab-pane fade in active">
+                @{
+                    Html.RenderPartial("_MaterialContractPage");
+                }
+            </div>
+            <div id="inquiryWage" class="tab-pane fade">
+                @{
+                    Html.RenderPartial("_WageContractPage");
+                }
+            </div>
+        </div>
+    </div>
 <!-- Modal :對話框-->
 <div class="row" style="padding-top:10px;">
     <div class="modal fade" id="paymentInfo" role="dialog">
@@ -241,12 +188,13 @@
                 }
                 $('#paymentInfo').modal('show'); // show bootstrap modal when complete loaded
                 //$('.modal-title').text('編輯設定資料'); // Set title to Bootstrap modal title
+
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert('Error get data from ajax');
             }
         });
-       
+
     }
 
     // Hide the "busy" Gif at load:
@@ -298,3 +246,4 @@
             });
         });
 </script>
+   
