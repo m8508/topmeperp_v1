@@ -23,12 +23,12 @@ namespace topmeperp.Controllers
         //關鍵字尋找供應商
         public ActionResult Search()
         {
-            List<topmeperp.Models.TND_SUPPLIER> lstSupplier = SearchSupplierByName(Request["textSupplierName"]);
+            List<topmeperp.Models.TND_SUPPLIER> lstSupplier = SearchSupplierByName(Request["textSupplierName"],Request["textSuppyNote"]);
             ViewBag.SearchResult = "共取得" + lstSupplier.Count + "筆資料";
             return View("Index", lstSupplier);
         }
 
-        private List<topmeperp.Models.TND_SUPPLIER> SearchSupplierByName(string suppliername)
+        private List<topmeperp.Models.TND_SUPPLIER> SearchSupplierByName(string suppliername,string supplyNote)
         {
             if (suppliername != null)
             {
@@ -37,8 +37,8 @@ namespace topmeperp.Controllers
                 using (var context = new topmepEntities())
                 {
                     lstSupplier = context.TND_SUPPLIER.SqlQuery("select * from TND_SUPPLIER s "
-                        + "where s.COMPANY_NAME Like '%' + @suppliername + '%';",
-                         new SqlParameter("suppliername", suppliername)).ToList();
+                        + "where s.COMPANY_NAME Like '%' + @suppliername + '%' and supply_note like '%' + @supply_note + '%';",
+                         new SqlParameter("suppliername", suppliername), new SqlParameter("supply_note", supplyNote)).ToList();
                 }
                 log.Info("get supplier count=" + lstSupplier.Count);
                 return lstSupplier;

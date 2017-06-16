@@ -1,4 +1,5 @@
 ﻿using log4net;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -142,7 +143,7 @@ namespace topmeperp.Service
     public class TnderProject : ContextService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        TND_PROJECT project = null;
+        public TND_PROJECT project = null;
         string sno_key = "PROJ";
         public TnderProject()
         {
@@ -219,9 +220,18 @@ namespace topmeperp.Service
                 foreach (PLAN_ITEM item in planItem)
                 {
                     item.PROJECT_ID = project.PROJECT_ID;
+                    string strJson = JsonConvert.SerializeObject(item, Formatting.Indented);
+                    logger.Debug(strJson);
                     context.PLAN_ITEM.Add(item);
                 }
-                i = context.SaveChanges();
+                try
+                {
+                    i = context.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.StackTrace);
+                }
             }
             logger.Info("add plan item count =" + i);
             return i;
@@ -1061,7 +1071,7 @@ namespace topmeperp.Service
                     "(SELECT ITEM_DESC FROM TND_PROJECT_ITEM tpi WHERE tpi.PROJECT_ITEM_ID = lcp.WIRE_NAME) AS WIRE_DESC, " +
                     "(SELECT ITEM_DESC FROM TND_PROJECT_ITEM tpi WHERE tpi.PROJECT_ITEM_ID = lcp.GROUND_WIRE_NAME) AS GROUND_WIRE_DESC, " +
                     "(SELECT ITEM_DESC FROM TND_PROJECT_ITEM tpi WHERE tpi.PROJECT_ITEM_ID = lcp.PIPE_2_NAME) AS PIPE_2_DESC, LCP.PROJECT_ITEM_ID A　" +
- 　　　　　　　　　 "FROM TND_MAP_LCP lcp WHERE PROJECT_ID = @projectid",
+  "FROM TND_MAP_LCP lcp WHERE PROJECT_ID = @projectid",
                 new SqlParameter("projectid", projectid)).ToList();
             }
             return lstLCP;
@@ -1403,7 +1413,7 @@ namespace topmeperp.Service
             return lst;
         }
         //取得特定專案報價之供應商資料
-        public List<COMPARASION_DATA> getComparisonData(string projectid, string typecode1, string typecode2, string systemMain, string systemSub,string iswage)
+        public List<COMPARASION_DATA> getComparisonData(string projectid, string typecode1, string typecode2, string systemMain, string systemSub, string iswage)
         {
             List<COMPARASION_DATA> lst = new List<COMPARASION_DATA>();
             string sql = "SELECT  pfItem.FORM_ID AS FORM_ID, " +
@@ -1456,7 +1466,7 @@ namespace topmeperp.Service
             return lst;
         }
         //比價資料
-        public DataTable getComparisonDataToPivot(string projectid, string typecode1, string typecode2, string systemMain, string systemSub,string iswage)
+        public DataTable getComparisonDataToPivot(string projectid, string typecode1, string typecode2, string systemMain, string systemSub, string iswage)
         {
 
             string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PROJECT_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
@@ -1510,7 +1520,7 @@ namespace topmeperp.Service
                 parameters.Add("systemSub", systemSub);
             }
             //取的欄位維度條件
-            List<COMPARASION_DATA> lstSuppluerQuo = getComparisonData(projectid, typecode1, typecode2, systemMain, systemSub,iswage);
+            List<COMPARASION_DATA> lstSuppluerQuo = getComparisonData(projectid, typecode1, typecode2, systemMain, systemSub, iswage);
             if (lstSuppluerQuo.Count == 0)
             {
                 throw new Exception("相關條件沒有任何報價資料!!");
@@ -1603,7 +1613,7 @@ namespace topmeperp.Service
             return i;
         }
         //由報價單資料更新標單資料
-        public int updateCostFromQuote(string projectItemid, decimal price,string iswage)
+        public int updateCostFromQuote(string projectItemid, decimal price, string iswage)
         {
             int i = 0;
             logger.Info("Update Cost:project item id=" + projectItemid + ",price=" + price);
@@ -1623,7 +1633,7 @@ namespace topmeperp.Service
             logger.Info("Update Cost:" + i);
             return i;
         }
-        public int batchUpdateCostFromQuote(string formid,string iswage)
+        public int batchUpdateCostFromQuote(string formid, string iswage)
         {
             int i = 0;
             logger.Info("Copy cost from Quote to Tnd by form id" + formid);

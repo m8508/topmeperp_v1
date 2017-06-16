@@ -60,15 +60,41 @@
                             @Html.TextBoxFor(m => m.CONTACT_MOBILE, new { @class = "form-control" })
                         </label>
                     </div>
+                    <label class="col-md-2 control-label">產品類別 : </label>
+                    <div class="col-md-10">
+                        <label class="input">
+                            @Html.TextAreaFor(m => m.SUPPLY_NOTE, new { rows = 3, cols = 600 })
+                        </label>
+                    </div>
+
+                    <label class="col-md-2 control-label">公司地址 : </label>
+                    <div class="col-md-10">
+                        <label class="input">
+                            @Html.TextBoxFor(m => m.CONTACT_ADDRESS, new { @class = "form-control", @style = "width:600px" })
+                        </label>
+                    </div>
+                    <label class="col-md-2 control-label">九宮格 : </label>
+                    <div class="col-md-10">
+                        <label class="input">
+                            @Html.TextBoxFor(m => m.TYPE_MAIN, new { @class = "form-control" })
+                        </label>
+                    </div>
+                    <label class="col-md-2 control-label">次九宮格 : </label>
+                    <div class="col-md-10">
+                        <label class="input">
+                            @Html.TextBoxFor(m => m.TYPE_SUB, new { @class = "form-control" })
+                        </label>
+                    </div>
+
                 </div>
             </div>
             <div class="col-md-4 alert-info">@Html.Raw(ViewBag.result)</div>
         </div>
         <br />
-            <div class="row">
-                <div class="" col-md-12">
-                    <input type="submit" value="儲存" class="btn btn-default" />
-                </div>
+        <div class="row">
+            <div class="" col-md-12">
+                <input type="submit" value="儲存" class="btn btn-default" />
             </div>
+        </div>
     }
 </div>
