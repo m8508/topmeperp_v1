@@ -177,6 +177,7 @@ namespace topmeperp.Service
             viewModel.mapDEVICE = getMapItem(projectid, name);
             return viewModel;
         }
+        //圖算:設備
         public List<TND_MAP_DEVICE> getMapItem(string projectid,string item_name)
         {
             logger.Info("get map DEVICE info by item_name=" + item_name);
@@ -195,6 +196,18 @@ namespace topmeperp.Service
                     new SqlParameter("projectid", projectid),new SqlParameter("item_name","%"+ item_name +"%")).ToList();
             }
             return lstDEVICE;
+        }
+        //圖算:消防電
+        public List<TND_MAP_DEVICE> getMapFP (string projectid,string mapno,string buildno,string primeside, string secondside, string name)
+        {
+            string sql = "SELECT PROJECT_ID, '消防電-線' AS MAP_TYPE,MAP_NO,BUILDING_NO,PRIMARY_SIDE,SECONDARY_SIDE," 
+                + "WIRE_NAME AS PROJECT_ITEM_ID,WIRE_TOTAL_LENGTH AS ITEM_QUANTITY "
+                + "FROM TND_MAP_FP AS FP_W "
+                + "UNION "
+                + "SELECT PROJECT_ID, '消防電-管' AS MAP_TYPE, MAP_NO, BUILDING_NO, PRIMARY_SIDE, SECONDARY_SIDE,"
+                + "PIPE_NAME AS PROJECT_ITEM_ID, PIPE_TOTAL_LENGTH AS ITEM_QUANTITY "
+                + "FROM TND_MAP_FP AS FP_P";
+            return null; 
         }
     }
     #endregion
