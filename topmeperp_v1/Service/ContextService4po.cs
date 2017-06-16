@@ -957,6 +957,18 @@ namespace topmeperp.Service
             }
             return lst;
         }
+        //取得材料合約採購項目名稱
+        public List<string> getFormNameForContract(string projectid)
+        {
+            List<string> lst = new List<string>();
+            using (var context = new topmepEntities())
+            {
+                //取得供應商選單
+                lst = context.Database.SqlQuery<string>("SELECT DISTINCT FORM_NAME FROM PLAN_ITEM WHERE PROJECT_ID=@projectid AND SUPPLIER_ID IS NOT NULL ;", new SqlParameter("projectid", projectid)).ToList();
+                logger.Info("Get Supplier For Contract Count=" + lst.Count);
+            }
+            return lst;
+        }
         //取得次系統選單
         public List<string> getSystemSub(string projectid)
         {

@@ -233,7 +233,7 @@ namespace topmeperp.Controllers
             log.Info("Request:FORM_NAME=" + form["formname"] + "SUPPLIER_NAME =" + form["Supplier"]);
             return msg;
         }
-        //更新採購廠商詢價單資料
+        //更新採購廠商詢價單資料-new
         public String RefreshPrjForm(string id, FormCollection form)
         {
             log.Info("form:" + form.Count);

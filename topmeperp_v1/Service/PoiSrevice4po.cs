@@ -224,6 +224,7 @@ namespace topmeperp.Service
             {
                 planItem.SYSTEM_MAIN = row.Cells[11].ToString();
             }
+            
             if (row.Cells[12].ToString().Trim() != "")//次系統
             {
                 planItem.SYSTEM_SUB = row.Cells[12].ToString();

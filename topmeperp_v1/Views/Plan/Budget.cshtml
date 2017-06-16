@@ -46,8 +46,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (ViewBag.budgetdata != null)
-                    {
                     <tr>
                         <td>
                             <span style="color: red; font-size: 20px;">
@@ -55,9 +53,15 @@
                             </span>
                         </td>
                         <td>
-                            <span style="color: red; font-size: 20px;">
-                                @String.Format("{0:N0}", ViewBag.budget)
-                            </span>
+                            @if (ViewBag.budgetdata != null)
+                            {
+                                <span style="color: red; font-size: 20px;">
+                                    @String.Format("{0:N0}", ViewBag.budget)
+                                </span>
+                            }
+                            else
+                            {
+                            }
                         </td>
                         <td>
                             @if (ViewBag.p_cost != null)
@@ -66,13 +70,11 @@
                                     @String.Format("{0:N0}", ViewBag.p_cost)
                                 </span>
                             }
+                            else
+                            {
+                            }
                         </td>
                     </tr>
-                    }
-                    else
-                    {
-                    }
-
                 </tbody>
             </table>
             <table class="table table-bordered">
@@ -143,47 +145,47 @@
                         {
                             if (item.MAINCODE != null && item.SUB_CODE != "0")
                             {
-                    <tr>
-                        <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
-                        <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
-                        <td>
-                            @item.MAINCODE_DESC _ @item.SUB_DESC
-                        </td>
-                        <td>
-                            @String.Format("{0:N0}", item.MATERIAL_COST)
-                        </td>
-                        <td>
-                            <input type="text" class="form-control" name="inputtndratio" id="inputtndratio" value="@String.Format("{0:N0}", item.COST_RATIO)">
-                        </td>
-                        <td>
-                            @String.Format("{0:N0}", item.MAN_DAY)
-                        </td>
-                        <td><input type="text" class="form-control" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
-                        <td>
-                            @String.Format("{0:N0}", item.AMOUNT_BY_CODE)
-                        </td>
-                    </tr>
+                                <tr>
+                                    <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
+                                    <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
+                                    <td>
+                                        @item.MAINCODE_DESC _ @item.SUB_DESC
+                                    </td>
+                                    <td>
+                                        @String.Format("{0:N0}", item.MATERIAL_COST)
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" name="inputtndratio" id="inputtndratio" value="@String.Format("{0:N0}", item.COST_RATIO)">
+                                    </td>
+                                    <td>
+                                        @String.Format("{0:N0}", item.MAN_DAY)
+                                    </td>
+                                    <td><input type="text" class="form-control" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
+                                    <td>
+                                        @String.Format("{0:N0}", item.AMOUNT_BY_CODE)
+                                    </td>
+                                </tr>
                             }
                             else if (item.SUB_CODE == "0")
                             {
-                    <tr>
-                        <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
-                        <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
-                        <td>
-                            @item.MAINCODE_DESC
-                        </td>
-                        <td>@String.Format("{0:N0}", item.MATERIAL_COST)</td>
-                        <td>
-                            <input type="text" class="form-control" name="inputtndratio" id="inputtndratio" value="@String.Format("{0:N0}", item.COST_RATIO)">
-                        </td>
-                        <td>
-                            @String.Format("{0:N0}", item.MAN_DAY)
-                        </td>
-                        <td><input type="text" class="form-control" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
-                        <td>
-                            @String.Format("{0:N0}", item.AMOUNT_BY_CODE)
-                        </td>
-                    </tr>
+                                <tr>
+                                    <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
+                                    <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
+                                    <td>
+                                        @item.MAINCODE_DESC
+                                    </td>
+                                    <td>@String.Format("{0:N0}", item.MATERIAL_COST)</td>
+                                    <td>
+                                        <input type="text" class="form-control" name="inputtndratio" id="inputtndratio" value="@String.Format("{0:N0}", item.COST_RATIO)">
+                                    </td>
+                                    <td>
+                                        @String.Format("{0:N0}", item.MAN_DAY)
+                                    </td>
+                                    <td><input type="text" class="form-control" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
+                                    <td>
+                                        @String.Format("{0:N0}", item.AMOUNT_BY_CODE)
+                                    </td>
+                                </tr>
                             }
                         }
                     }

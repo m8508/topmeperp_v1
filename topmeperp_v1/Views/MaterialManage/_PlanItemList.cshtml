@@ -1,0 +1,106 @@
+﻿@model IEnumerable<topmeperp.Models.PLAN_ITEM>
+
+
+
+@using (Html.BeginForm("AddPR", "MaterialManage", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <!--不好的方式但檔著先屆時設為Hidden-->
+    <input type="hidden" id="projectId" name="projectId" value="@ViewBag.projectid" />
+    <input type="hidden" id="textSystemMain" name="textSystemMain" value="@ViewBag.textSystemMain" />
+    <input type="hidden" id="textSystemSub" name="textSystemSub" value="@ViewBag.textSystemSub" />
+    <input type="hidden" id="supplier" name="supplier" value="@ViewBag.supplier" />
+    <table class="table">
+        <tr>
+            <th>
+                No.
+            </th>
+            <th>
+                項次
+            </th>
+            <th>
+                項目說明
+            </th>
+            <th>
+                單位
+            </th>
+            <th>
+                合約數量
+            </th>
+            <th>
+                圖算數量
+            </th>
+            <th>
+                可訂購數量
+            </th>
+            <th>
+                需求數量
+            </th>
+            <th>
+                庫存數量
+            </th>
+            <th><input type="checkbox" name="CheckAll" id="CheckAll">全選</th>
+            <th>
+                訂購數量
+            </th>
+            <th>
+                備註
+            </th>
+            <th>
+                交貨時程
+            </th>
+            <th>
+                需求日期
+            </th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.TextBox("planitemid", @String.Format("{0:N0}", item.PLAN_ITEM_ID), new { style = "width:100px", @readonly = "readonly" })
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ITEM_ID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ITEM_DESC)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ITEM_UNIT)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ITEM_FORM_QUANTITY)
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>
+                    <input type="checkbox" id="chkItem" name="chkItem" value="@item.PLAN_ITEM_ID" />
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        }
+    </table>
+
+    <div class="row">
+        <div class="" col-md-12">
+            <input type="button" value="請購" class="btn btn-default" id="saveForm" />
+        </div>
+    </div>
+}
+
+<script language="javascript" type="text/javascript">
+    $(document).ready (function () {
+        $("#CheckAll").click(function () {
+            if ($("#CheckAll").prop("checked")) {
+                $("input[name='chkItem']").prop("checked", true);
+            } else
+                $("input[name='chkItem']").prop("checked", false);
+        });
+    });
+</script>
+

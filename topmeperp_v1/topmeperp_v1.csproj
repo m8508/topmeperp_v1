@@ -385,6 +385,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InquiryController.cs" />
+    <Compile Include="Controllers\MaterialManageController.cs" />
     <Compile Include="Controllers\PlanController.cs" />
     <Compile Include="Controllers\ProjectCompareController.cs" />
     <Compile Include="Controllers\ProjectPlanController.cs" />
@@ -786,6 +787,10 @@
     <Content Include="Views\PurchaseForm\PurchasingContract.cshtml" />
     <Content Include="Views\PurchaseForm\_MaterialContractPage.cshtml" />
     <Content Include="Views\PurchaseForm\_WageContractPage.cshtml" />
+    <Content Include="Views\MaterialManage\Index.cshtml" />
+    <Content Include="Views\MaterialManage\ProjectList.cshtml" />
+    <Content Include="Views\MaterialManage\PurchaseRequisition.cshtml" />
+    <Content Include="Views\MaterialManage\_PlanItemList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
