@@ -80,7 +80,9 @@ namespace topmeperp.Controllers
                 logger.Info("save excel file:" + path);
                 file.SaveAs(path);
                 //2.2 解析Excel 檔案
-                PlanItemFromExcel poiservice = new PlanItemFromExcel();
+                ProjectItemFromExcel poiservice = new ProjectItemFromExcel();
+                TnderProject tndService = new TnderProject();
+                tndService.project = p;
                 poiservice.InitializeWorkbook(path);
                 poiservice.ConvertDataForPlan(projectid);
                 //2.3 記錄錯誤訊息
@@ -89,10 +91,10 @@ namespace topmeperp.Controllers
                 //        < button type = "button" class="btn btn-primary" onclick="location.href='@Url.Action("ManagePlanItem","Plan", new { id = @Model.tndProject.PROJECT_ID})'; ">標單明細</button>
                 //2.4
                 logger.Info("Delete PLAN_ITEM By Project ID");
-                service.delAllItem();
+                tndService.delAllItemByPlan();
                 //2.5
                 logger.Info("Add All PLAN_ITEM to DB");
-                service.refreshItem(poiservice.lstPlanItem);
+                tndService.refreshPlanItem(poiservice.lstPlanItem);
             }
             TempData["result"] = message;
             //PlanService ps = new PlanService();
@@ -350,8 +352,6 @@ namespace topmeperp.Controllers
             int k = service.updateBudgetToPlanItem(projectid);
             return RedirectToAction("Budget/" + projectid);
         }
-
-
         //寫入預算
         public String UpdateBudget(FormCollection form)
         {

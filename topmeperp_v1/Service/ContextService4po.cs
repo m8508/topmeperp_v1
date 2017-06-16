@@ -34,36 +34,6 @@ namespace topmeperp.Service
             }
             return project;
         }
-        public int delAllItem()
-        {
-            int i = 0;
-            using (var context = new topmepEntities())
-            {
-                logger.Info("delete all item by proejct id=" + project.PROJECT_ID);
-                i = context.Database.ExecuteSqlCommand("DELETE FROM PLAN_ITEM WHERE PROJECT_ID=@projectid", new SqlParameter("@projectid", project.PROJECT_ID));
-            }
-            logger.Debug("delete item count=" + i);
-            return i;
-        }
-        public int refreshItem(List<PLAN_ITEM> planItem)
-        {
-            //1.檢查專案是否存在
-            if (null == project) { throw new Exception("Project is not exist !!"); }
-            int i = 0;
-            logger.Info("refreshPlanItem = " + planItem.Count);
-            //2.將Excel 資料寫入 
-            using (var context = new topmepEntities())
-            {
-                foreach (PLAN_ITEM item in planItem)
-                {
-                    item.PROJECT_ID = project.PROJECT_ID;
-                    context.PLAN_ITEM.Add(item);
-                }
-                i = context.SaveChanges();
-            }
-            logger.Info("add plan item count =" + i);
-            return i;
-        }
         #endregion
 
         public string getBudgetById(string prjid)
