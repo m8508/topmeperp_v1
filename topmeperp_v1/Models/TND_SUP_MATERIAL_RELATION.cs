@@ -12,15 +12,13 @@ namespace topmeperp.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class SUP_CONTACT_INFO
+    public partial class TND_SUP_MATERIAL_RELATION
     {
-        public long CONTACT_ID { get; set; }
-        public string SUPPLIER_MATERIAL_ID { get; set; }
-        public string CONTACT_NAME { get; set; }
-        public string CONTACT_TEL { get; set; }
-        public string CONTACT_FAX { get; set; }
-        public string CONTACT_MOBIL { get; set; }
-        public string CONTACT_EMAIL { get; set; }
-        public string REMARK { get; set; }
+        public long RELATION_ID { get; set; }
+        public string SUPPLIER_ID { get; set; }
+        public string TYPE_MAIN { get; set; }
+        public Nullable<int> TYPE_SUB { get; set; }
+        public string SUPPLY_NOTE { get; set; }
+        public string STOP_DELIVERY { get; set; }
     }
 }

@@ -1,5 +1,5 @@
 ﻿@using topmeperp.Models
-@model SUPPLIER
+@model TND_SUPPLIER
 @{
     ViewBag.Title = "新增供應商";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
@@ -24,14 +24,27 @@
                     <label class="col-md-3 control-label">供應商名稱 : </label>
                     <div class="col-md-9">
                         <label class="input">
-                            @Html.TextBoxFor(m => m.COMPANY_NAME, new { @class = "form-control", @style = "width:600px" })
+                            @Html.TextBoxFor(m => m.COMPANY_NAME, new { @class = "form-control" })
                         </label>
                     </div>
 
-                    <label class="col-md-3 control-label">供應商統編 : </label>
+                    <label class="col-md-3 control-label">九宮格 : </label>
                     <div class="col-md-9">
                         <label class="input">
-                            @Html.TextBoxFor(m => m.COMPANY_ID, new { @class = "form-control" })
+                            @Html.TextBoxFor(m => m.TYPE_MAIN, new { @class = "form-control" })
+                        </label>
+                    </div>
+                    <label class="col-md-3 control-label">序號 : </label>
+                    <div class="col-md-9">
+                        <label class="input">
+                            @Html.TextBoxFor(m => m.TYPE_SUB, new { @class = "form-control" })
+                        </label>
+                    </div>
+
+                    <label class="col-md-3 control-label">產品類別 : </label>
+                    <div class="col-md-9">
+                        <label class="input">
+                            @Html.TextAreaFor(m => m.SUPPLY_NOTE, new { rows = 3, cols = 600 })
                         </label>
                     </div>
 
@@ -45,34 +58,9 @@
                     <label class="col-md-3 control-label" style="padding-bottom:25px;">稅籍地址 : </label>
                     <div class="col-md-9" style="padding-bottom:25px;">
                         <label class="input">
-                            @Html.TextBoxFor(m => m.REGISTER_ADDRESS, new { @class = "form-control", @style = "width:600px" })
+                            @Html.TextBoxFor(m => m.REGISTER_ADDRESS, new { @class = "form-control" })
                         </label>
                     </div>
-                 
-                        @if (ViewBag.supplier == null || ViewBag.supplier == "")
-                        {
-                            <label class="col-md-3 control-label">九宮格 : </label>
-                            <div class="col-md-9">
-                                <input type="text" id="type_main" name="type_main" class="form-control" />
-                            </div>
-                        }
-
-                    @if (ViewBag.supplier == null || ViewBag.supplier == "")
-                    {
-                        <label class="col-md-3 control-label">序號 : </label>
-                        <div class="col-md-9">
-                            <input type="text" id="type_sub" name="type_sub" class="form-control" />
-                        </div>
-                    }
-
-                    @if (ViewBag.supplier == null || ViewBag.supplier == "")
-                    {
-                        <label class="col-md-3 control-label" style="padding-bottom:25px;"> 產品類別 : </label>
-                        <div class="col-md-9" style="padding-bottom:25px;">
-                            <input type="text" id="supply_note" name="supply_note" class="form-control" />
-                        </div>
-                    }
-
                     @if (ViewBag.supplier == null || ViewBag.supplier == "")
                     {
                         <label class="col-md-3 control-label"> 聯絡人 : </label>
@@ -82,7 +70,7 @@
                     }
 
                     @if (ViewBag.supplier == null || ViewBag.supplier == "")
-                    {
+                {
                         <label class="col-md-3 control-label"> 聯絡人電話 : </label>
                         <div class="col-md-9">
                             <input type="text" id="contact_tel" name="contact_tel" class="form-control" />
@@ -90,7 +78,7 @@
                     }
 
                     @if (ViewBag.supplier == null || ViewBag.supplier == "")
-                    {
+                {
                         <label class="col-md-3 control-label"> 聯絡人傳真 : </label>
                         <div class="col-md-9">
                             <input type="text" id="contact_fax" name="contact_fax" class="form-control" />
@@ -98,7 +86,7 @@
                     }
 
                     @if (ViewBag.supplier == null || ViewBag.supplier == "")
-                    {
+                {
                         <label class="col-md-3 control-label"> 聯絡人手機 : </label>
                         <div class="col-md-9">
                             <input type="text" id="contact_mobil" name="contact_mobil" class="form-control" />
@@ -106,7 +94,7 @@
                     }
 
                     @if (ViewBag.supplier == null || ViewBag.supplier == "")
-                    {
+                {
                         <label class="col-md-3 control-label"> 聯絡人電子信箱 : </label>
                         <div class="col-md-9">
                             <input type="text" id="contact_email" name="contact_email" class="form-control" />
@@ -114,13 +102,13 @@
                     }
 
                     @if (ViewBag.supplier == null || ViewBag.supplier == "")
-                    {
+                {
                         <label class="col-md-3 control-label"> 備註 : </label>
                         <div class="col-md-9">
                             <input type="text" id="remark" name="remark" class="form-control" />
                         </div>
                     }
-                    
+
                 </div>
             </div>
             <div class="col-md-4 alert-info">@Html.Raw(ViewBag.result)</div>
@@ -128,13 +116,8 @@
         <br />
         <div class="row">
             <div class="" col-md-12">
-                <input type="submit" value="儲存" class="btn btn-default" id="saveSupplier" />
+                <input type="submit" value="儲存" class="btn btn-default" />
             </div>
         </div>
     }
 </div>
-<script type="text/javascript">
-    $("#saveSupplier").click(function () {
-        if ($("#type_main").val() == "") { alert("九宮格欄位不可空白，請輸入九宮格代碼!!"); return false; }
-    });
-</script>

@@ -1,5 +1,5 @@
 ﻿@using topmeperp.Models
-@model SUP_CONTACT_INFO
+@model TND_SUP_CONTACT_INFO
 @{
     ViewBag.Title = "修改供應商聯絡人資料";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
@@ -15,7 +15,7 @@
             </div>
             <div class="col-md-8" style="padding-top:20px;">
                 <div class="row ">
-                    <label class="col-md-3 control-label">供應商物料編號 : </label>
+                    <label class="col-md-3 control-label">供應商編號 : </label>
                     <div class="col-md-9">
                         <label class="input">
                             @Html.TextBoxFor(m => m.SUPPLIER_MATERIAL_ID, new { @class = "form-control", @readonly = "readonly" })

@@ -35,9 +35,10 @@
         <EntityTypeShape EntityType="topmepModel.TND_SUPPLIER" Width="1.5" PointX="12.375" PointY="8.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_SUP_INQUIRY" Width="1.5" PointX="8.375" PointY="15.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_SUP_INQUIRY_ITEM" Width="1.5" PointX="19.375" PointY="19.75" />
-        <EntityTypeShape EntityType="topmepModel.SUP_CONTACT_INFO" Width="1.5" PointX="20.375" PointY="0.75" />
-        <EntityTypeShape EntityType="topmepModel.SUP_MATERIAL_RELATION" Width="1.5" PointX="20.375" PointY="4.75" />
         <EntityTypeShape EntityType="topmepModel.SUPPLIER" Width="1.5" PointX="20.375" PointY="7.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_TASK2MAPITEM" Width="1.5" PointX="20.375" PointY="0.75" />
+        <EntityTypeShape EntityType="topmepModel.TND_SUP_CONTACT_INFO" Width="1.5" PointX="20.375" PointY="3.75" />
+        <EntityTypeShape EntityType="topmepModel.TND_SUP_MATERIAL_RELATION" Width="1.5" PointX="20.375" PointY="10.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

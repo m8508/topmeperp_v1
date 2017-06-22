@@ -171,6 +171,16 @@
           <Property Name="MODIFY_DATE" Type="datetime" />
           <Property Name="ROOT_TAG" Type="varchar" MaxLength="1" />
         </EntityType>
+        <EntityType Name="PLAN_TASK2MAPITEM">
+          <Key>
+            <PropertyRef Name="TASKUID" />
+          </Key>
+          <Property Name="TASKUID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PROJECT_ID" Type="varchar" MaxLength="30" />
+          <Property Name="PRJ_UID" Type="int" />
+          <Property Name="MAP_TYPE" Type="varchar" MaxLength="20" />
+          <Property Name="MAP_PK" Type="int" />
+        </EntityType>
         <EntityType Name="REF_TYPE_MAIN">
           <Key>
             <PropertyRef Name="TYPE_CODE_ID" />
@@ -191,30 +201,6 @@
           <Property Name="SUB_TYPE_CODE" Type="int" />
           <Property Name="TYPE_DESC" Type="varchar" MaxLength="100" />
           <Property Name="CREATE_DATE" Type="datetime" />
-        </EntityType>
-        <EntityType Name="SUP_CONTACT_INFO">
-          <Key>
-            <PropertyRef Name="CONTACT_ID" />
-          </Key>
-          <Property Name="CONTACT_ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="SUPPLIER_MATERIAL_ID" Type="varchar" MaxLength="15" Nullable="false" />
-          <Property Name="CONTACT_NAME" Type="varchar" MaxLength="100" />
-          <Property Name="CONTACT_TEL" Type="varchar" MaxLength="50" />
-          <Property Name="CONTACT_FAX" Type="varchar" MaxLength="50" />
-          <Property Name="CONTACT_MOBIL" Type="varchar" MaxLength="50" />
-          <Property Name="CONTACT_EMAIL" Type="varchar" MaxLength="50" />
-          <Property Name="REMARK" Type="varchar" MaxLength="1000" />
-        </EntityType>
-        <EntityType Name="SUP_MATERIAL_RELATION">
-          <Key>
-            <PropertyRef Name="RELATION_ID" />
-          </Key>
-          <Property Name="RELATION_ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="SUPPLIER_ID" Type="varchar" MaxLength="10" Nullable="false" />
-          <Property Name="TYPE_MAIN" Type="varchar" MaxLength="10" Nullable="false" />
-          <Property Name="TYPE_SUB" Type="int" />
-          <Property Name="SUPPLY_NOTE" Type="varchar" MaxLength="500" />
-          <Property Name="STOP_DELIVERY" Type="varchar" MaxLength="1" />
         </EntityType>
         <EntityType Name="SUPPLIER">
           <Key>
@@ -545,6 +531,30 @@
           <Property Name="EXCEL_ROW_ID" Type="bigint" />
           <Property Name="QUO_PRICE" Type="decimal" Precision="18" Scale="3" />
         </EntityType>
+        <EntityType Name="TND_SUP_CONTACT_INFO">
+          <Key>
+            <PropertyRef Name="CONTACT_ID" />
+          </Key>
+          <Property Name="CONTACT_ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SUPPLIER_MATERIAL_ID" Type="varchar" MaxLength="15" Nullable="false" />
+          <Property Name="CONTACT_NAME" Type="varchar" MaxLength="100" />
+          <Property Name="CONTACT_TEL" Type="varchar" MaxLength="50" />
+          <Property Name="CONTACT_FAX" Type="varchar" MaxLength="50" />
+          <Property Name="CONTACT_MOBIL" Type="varchar" MaxLength="50" />
+          <Property Name="CONTACT_EMAIL" Type="varchar" MaxLength="50" />
+          <Property Name="REMARK" Type="varchar" MaxLength="1000" />
+        </EntityType>
+        <EntityType Name="TND_SUP_MATERIAL_RELATION">
+          <Key>
+            <PropertyRef Name="RELATION_ID" />
+          </Key>
+          <Property Name="RELATION_ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SUPPLIER_ID" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="TYPE_MAIN" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="TYPE_SUB" Type="int" />
+          <Property Name="SUPPLY_NOTE" Type="varchar" MaxLength="500" />
+          <Property Name="STOP_DELIVERY" Type="varchar" MaxLength="1" />
+        </EntityType>
         <EntityType Name="TND_SUPPLIER">
           <Key>
             <PropertyRef Name="SUPPLIER_ID" />
@@ -634,10 +644,9 @@
           <EntitySet Name="PLAN_SUP_INQUIRY" EntityType="Self.PLAN_SUP_INQUIRY" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAN_SUP_INQUIRY_ITEM" EntityType="Self.PLAN_SUP_INQUIRY_ITEM" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAN_TASK" EntityType="Self.PLAN_TASK" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PLAN_TASK2MAPITEM" EntityType="Self.PLAN_TASK2MAPITEM" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="REF_TYPE_MAIN" EntityType="Self.REF_TYPE_MAIN" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="REF_TYPE_SUB" EntityType="Self.REF_TYPE_SUB" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="SUP_CONTACT_INFO" EntityType="Self.SUP_CONTACT_INFO" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="SUP_MATERIAL_RELATION" EntityType="Self.SUP_MATERIAL_RELATION" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SUPPLIER" EntityType="Self.SUPPLIER" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SYS_FUNCTION" EntityType="Self.SYS_FUNCTION" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SYS_KEY_SERIAL" EntityType="Self.SYS_KEY_SERIAL" Schema="dbo" store:Type="Tables" />
@@ -655,6 +664,8 @@
           <EntitySet Name="TND_PROJECT_FORM" EntityType="Self.TND_PROJECT_FORM" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TND_PROJECT_FORM_ITEM" EntityType="Self.TND_PROJECT_FORM_ITEM" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TND_PROJECT_ITEM" EntityType="Self.TND_PROJECT_ITEM" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TND_SUP_CONTACT_INFO" EntityType="Self.TND_SUP_CONTACT_INFO" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TND_SUP_MATERIAL_RELATION" EntityType="Self.TND_SUP_MATERIAL_RELATION" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TND_SUPPLIER" EntityType="Self.TND_SUPPLIER" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TND_TASKASSIGN" EntityType="Self.TND_TASKASSIGN" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TND_WAGE" EntityType="Self.TND_WAGE" Schema="dbo" store:Type="Tables" />
@@ -945,9 +956,10 @@
           <EntitySet Name="TND_SUPPLIER" EntityType="topmepModel.TND_SUPPLIER" />
           <EntitySet Name="PLAN_SUP_INQUIRY" EntityType="topmepModel.PLAN_SUP_INQUIRY" />
           <EntitySet Name="PLAN_SUP_INQUIRY_ITEM" EntityType="topmepModel.PLAN_SUP_INQUIRY_ITEM" />
-          <EntitySet Name="SUP_CONTACT_INFO" EntityType="topmepModel.SUP_CONTACT_INFO" />
-          <EntitySet Name="SUP_MATERIAL_RELATION" EntityType="topmepModel.SUP_MATERIAL_RELATION" />
           <EntitySet Name="SUPPLIER" EntityType="topmepModel.SUPPLIER" />
+          <EntitySet Name="PLAN_TASK2MAPITEM" EntityType="topmepModel.PLAN_TASK2MAPITEM" />
+          <EntitySet Name="TND_SUP_CONTACT_INFO" EntityType="topmepModel.TND_SUP_CONTACT_INFO" />
+          <EntitySet Name="TND_SUP_MATERIAL_RELATION" EntityType="topmepModel.TND_SUP_MATERIAL_RELATION" />
         </EntityContainer>
         <EntityType Name="TND_PROJECT_FORM_ITEM">
           <Key>
@@ -1313,7 +1325,27 @@
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
           <Property Name="ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="SUP_CONTACT_INFO">
+        <EntityType Name="SUPPLIER">
+          <Key>
+            <PropertyRef Name="SUPPLIER_ID" />
+          </Key>
+          <Property Name="SUPPLIER_ID" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="COMPANY_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="COMPANY_ID" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="REGISTER_ADDRESS" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="CONTACT_ADDRESS" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="PLAN_TASK2MAPITEM">
+          <Key>
+            <PropertyRef Name="TASKUID" />
+          </Key>
+          <Property Name="TASKUID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="PRJ_UID" Type="Int32" />
+          <Property Name="MAP_TYPE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="MAP_PK" Type="Int32" />
+        </EntityType>
+        <EntityType Name="TND_SUP_CONTACT_INFO">
           <Key>
             <PropertyRef Name="CONTACT_ID" />
           </Key>
@@ -1326,7 +1358,7 @@
           <Property Name="CONTACT_EMAIL" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="SUP_MATERIAL_RELATION">
+        <EntityType Name="TND_SUP_MATERIAL_RELATION">
           <Key>
             <PropertyRef Name="RELATION_ID" />
           </Key>
@@ -1336,16 +1368,6 @@
           <Property Name="TYPE_SUB" Type="Int32" />
           <Property Name="SUPPLY_NOTE" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
           <Property Name="STOP_DELIVERY" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="SUPPLIER">
-          <Key>
-            <PropertyRef Name="SUPPLIER_ID" />
-          </Key>
-          <Property Name="SUPPLIER_ID" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="COMPANY_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="COMPANY_ID" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="REGISTER_ADDRESS" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="CONTACT_ADDRESS" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1932,9 +1954,31 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="SUP_CONTACT_INFO">
-            <EntityTypeMapping TypeName="topmepModel.SUP_CONTACT_INFO">
-              <MappingFragment StoreEntitySet="SUP_CONTACT_INFO">
+          <EntitySetMapping Name="SUPPLIER">
+            <EntityTypeMapping TypeName="topmepModel.SUPPLIER">
+              <MappingFragment StoreEntitySet="SUPPLIER">
+                <ScalarProperty Name="CONTACT_ADDRESS" ColumnName="CONTACT_ADDRESS" />
+                <ScalarProperty Name="REGISTER_ADDRESS" ColumnName="REGISTER_ADDRESS" />
+                <ScalarProperty Name="COMPANY_ID" ColumnName="COMPANY_ID" />
+                <ScalarProperty Name="COMPANY_NAME" ColumnName="COMPANY_NAME" />
+                <ScalarProperty Name="SUPPLIER_ID" ColumnName="SUPPLIER_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_TASK2MAPITEM">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_TASK2MAPITEM">
+              <MappingFragment StoreEntitySet="PLAN_TASK2MAPITEM">
+                <ScalarProperty Name="MAP_PK" ColumnName="MAP_PK" />
+                <ScalarProperty Name="MAP_TYPE" ColumnName="MAP_TYPE" />
+                <ScalarProperty Name="PRJ_UID" ColumnName="PRJ_UID" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
+                <ScalarProperty Name="TASKUID" ColumnName="TASKUID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TND_SUP_CONTACT_INFO">
+            <EntityTypeMapping TypeName="topmepModel.TND_SUP_CONTACT_INFO">
+              <MappingFragment StoreEntitySet="TND_SUP_CONTACT_INFO">
                 <ScalarProperty Name="REMARK" ColumnName="REMARK" />
                 <ScalarProperty Name="CONTACT_EMAIL" ColumnName="CONTACT_EMAIL" />
                 <ScalarProperty Name="CONTACT_MOBIL" ColumnName="CONTACT_MOBIL" />
@@ -1946,26 +1990,15 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="SUP_MATERIAL_RELATION">
-            <EntityTypeMapping TypeName="topmepModel.SUP_MATERIAL_RELATION">
-              <MappingFragment StoreEntitySet="SUP_MATERIAL_RELATION">
+          <EntitySetMapping Name="TND_SUP_MATERIAL_RELATION">
+            <EntityTypeMapping TypeName="topmepModel.TND_SUP_MATERIAL_RELATION">
+              <MappingFragment StoreEntitySet="TND_SUP_MATERIAL_RELATION">
                 <ScalarProperty Name="STOP_DELIVERY" ColumnName="STOP_DELIVERY" />
                 <ScalarProperty Name="SUPPLY_NOTE" ColumnName="SUPPLY_NOTE" />
                 <ScalarProperty Name="TYPE_SUB" ColumnName="TYPE_SUB" />
                 <ScalarProperty Name="TYPE_MAIN" ColumnName="TYPE_MAIN" />
                 <ScalarProperty Name="SUPPLIER_ID" ColumnName="SUPPLIER_ID" />
                 <ScalarProperty Name="RELATION_ID" ColumnName="RELATION_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="SUPPLIER">
-            <EntityTypeMapping TypeName="topmepModel.SUPPLIER">
-              <MappingFragment StoreEntitySet="SUPPLIER">
-                <ScalarProperty Name="CONTACT_ADDRESS" ColumnName="CONTACT_ADDRESS" />
-                <ScalarProperty Name="REGISTER_ADDRESS" ColumnName="REGISTER_ADDRESS" />
-                <ScalarProperty Name="COMPANY_ID" ColumnName="COMPANY_ID" />
-                <ScalarProperty Name="COMPANY_NAME" ColumnName="COMPANY_NAME" />
-                <ScalarProperty Name="SUPPLIER_ID" ColumnName="SUPPLIER_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

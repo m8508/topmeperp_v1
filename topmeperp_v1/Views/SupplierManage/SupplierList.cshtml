@@ -12,9 +12,6 @@
             產品類別
         </th>
         <th>
-            不供貨
-        </th>
-        <th>
             聯絡人
         </th>
         <th>
@@ -38,15 +35,10 @@
                 <a href="/SupplierManage/Create/@Html.DisplayFor(modelItem => item.SUPPLIER_ID)">@Html.DisplayFor(modelItem => item.COMPANY_NAME)</a>
             </td>
             <td>
-                <a href="/SupplierManage/EditForTypeMain/@Html.DisplayFor(modelItem => item.RELATION_ID)" target="_blank">@Html.DisplayFor(modelItem => item.TYPE_MAIN)</a>
+                @Html.DisplayFor(modelItem => item.TYPE_MAIN)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.SUPPLY_NOTE)
-            </td>
-            <td>
-                <span style="font-weight:bold;color:red">
-                    @Html.DisplayFor(modelItem => item.STOP_DELIVERY)
-                </span>
             </td>
             @if (item.CONTACT_NAME != null && item.CONTACT_NAME != "")
             {
@@ -60,19 +52,18 @@
                     <a href="/SupplierManage/EditForContact/@Html.DisplayFor(modelItem => item.CONTACT_ID)" target="_blank"><span style="color: crimson;">修改聯絡人資料</span></a>
                 </td>
             }
-                <td>
-                    @Html.DisplayFor(modelItem => item.CONTACT_TEL)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CONTACT_FAX)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CONTACT_EMAIL)
-                </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CONTACT_TEL)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CONTACT_FAX)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CONTACT_EMAIL)
+            </td>
 
-                <td>@Html.DisplayFor(modelItem => item.REMARK)</td>
-            </tr>
-            }
+            <td>@Html.DisplayFor(modelItem => item.REMARK)</td>
+        </tr>
+    }
 
-        </table>
-
+</table>
