@@ -626,7 +626,7 @@ namespace topmeperp.Service
                     parameters.Add(new SqlParameter("systemSub", "%" + systemSub + "%"));
                 }
             }
-
+            sql = sql + "  ORDER BY EXCEL_ROW_ID;";
             using (var context = new topmepEntities())
             {
                 logger.Debug("get project item sql=" + sql);
