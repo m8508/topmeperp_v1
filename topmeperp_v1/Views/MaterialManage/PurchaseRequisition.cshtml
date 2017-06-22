@@ -1,6 +1,6 @@
 ﻿
 @{
-    ViewBag.Title = "請購作業-新增請購單";
+    ViewBag.Title = "申購單查詢";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 
@@ -17,18 +17,14 @@
         </div>
         <hr style="border-top: 1px solid #8c8b8b;" />
         <div class="row">
-            <div class="col-md-6 form-group">
-                <label for="textSystemMain">主系統</label> <input id="textSystemMain" name="textSystemMain" type="text" class="form-control" />
-            </div>
-            <div class="col-md-6 form-group">
-                <label for="textSystemSub">次系統</label> <input id="textSystemSub" name="textSystemSub" type="text" class="form-control" />
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6 form-group" style="padding-top:10px">
-                <label for="supplier">採購項目</label>@Html.DropDownList("formname", (IEnumerable<SelectListItem>)ViewBag.formname, String.Empty, new { @class = "form-control selectpicker" })
-            </div>
-            <div class="col-md-6 form-group" style="padding-top:10px">
+            <div class='col-md-8 date form-group' style="padding-top:10px">
+                <label for="create_date">申購日期: </label>
+                    <input id="create_date" name="create_date" class="form-control" />
+                <div class="pull-right">
+                    <label for="supplier">採購項目</label>@Html.DropDownList("formname", (IEnumerable<SelectListItem>)ViewBag.formname, String.Empty, new { @class = "form-control selectpicker" })
+                </div>
+                 </div>
+            <div class="col-md-4 form-group" style="padding-top:10px">
                 <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
                 <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
             </div>
@@ -58,5 +54,11 @@
         $('#Submit1').click(function () {
             $("#divProcessing").show();
         });
-    });
+    
+        $(function () {
+            $('#create_date').datetimepicker({
+                format: 'YYYY/MM/DD'
+            });
+        });
+    })
 </script>

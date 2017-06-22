@@ -1713,36 +1713,48 @@ namespace topmeperp.Service
     public class SupplierManage : ContextService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        TND_SUPPLIER supplier = null;
+        SUPPLIER supplier = null;
+        SUP_MATERIAL_RELATION typemain = null;
+        SUP_CONTACT_INFO contact = null;
         string sno_key = "SUP";
-        public void newSupplier(TND_SUPPLIER sup)
+        public void newSupplier(SUPPLIER sup, SUP_MATERIAL_RELATION sm, SUP_CONTACT_INFO sc)
         {
             //1.建立供應商基本資料
             logger.Info("create new supplier ");
             supplier = sup;
+            typemain = sm;
+            contact = sc;
             using (var context = new topmepEntities())
             {
                 //2.取得供應商編號
                 SerialKeyService snoservice = new SerialKeyService();
                 supplier.SUPPLIER_ID = snoservice.getSerialKey(sno_key);
                 logger.Info("new supplier object=" + supplier.ToString());
-                context.TND_SUPPLIER.Add(supplier);
+                context.SUPPLIER.Add(supplier);
                 int i = context.SaveChanges();
                 logger.Debug("Add supplier=" + i);
+                sm.SUPPLIER_ID = supplier.SUPPLIER_ID;
+                context.SUP_MATERIAL_RELATION.Add(typemain);
+                int j = context.SaveChanges();
+                logger.Debug("Add typemain=" + j);
+                sc.SUPPLIER_MATERIAL_ID = supplier.SUPPLIER_ID + typemain.TYPE_MAIN;
+                context.SUP_CONTACT_INFO.Add(contact);
+                int k = context.SaveChanges();
+                logger.Debug("Add contact=" + k);
                 //if (i > 0) { status = true; };
             }
         }
-        public TND_SUPPLIER getSupplierById(string supid)
+        public SUPPLIER getSupplierById(string supid)
         {
             using (var context = new topmepEntities())
             {
-                supplier = context.TND_SUPPLIER.SqlQuery("select s.* from TND_SUPPLIER s "
+                supplier = context.SUPPLIER.SqlQuery("select s.* from SUPPLIER s "
                     + "where s.SUPPLIER_ID = @sid "
                    , new SqlParameter("sid", supid)).First();
             }
             return supplier;
         }
-        public void updateSupplier(TND_SUPPLIER sup)
+        public void updateSupplier(SUPPLIER sup)
         {
             //1.更新供應商基本資料
             supplier = sup;
@@ -1751,8 +1763,101 @@ namespace topmeperp.Service
             {
                 context.Entry(supplier).State = EntityState.Modified;
                 int i = context.SaveChanges();
-                logger.Debug("Update project=" + i);
+                logger.Debug("Update Supplier=" + i);
             }
+        }
+        //取得供應商九宮格資料
+        SUP_MATERIAL_RELATION sm= null;
+        public SUP_MATERIAL_RELATION getTypeMainById(string id)
+        {
+            using (var context = new topmepEntities())
+            {
+                sm = context.SUP_MATERIAL_RELATION.SqlQuery("select sm.* from SUP_MATERIAL_RELATION sm "
+                    + "where sm.RELATION_ID = @id "
+                   , new SqlParameter("id", id)).First();
+            }
+            return sm;
+        }
+        public int updateTypeMain(SUP_MATERIAL_RELATION sm)
+        {
+            //更新供應商九宮格資料
+            logger.Info("Update typemain " +sm.SUPPLIER_ID + "," + sm.ToString());
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                context.SUP_MATERIAL_RELATION.AddOrUpdate(sm);
+                i = context.SaveChanges();
+                logger.Debug("Update typemain=" + i);
+            }
+            return i;
+        }
+
+        public string message = "";
+        public int refreshTypeMain(SUP_MATERIAL_RELATION item)
+        {
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.SUP_MATERIAL_RELATION.AddOrUpdate(item);
+                    i = context.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    logger.Error("update supplier type main  fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return i;
+        }
+        //取得供應商聯絡人資料
+        SUP_CONTACT_INFO sc = null;
+        public SUP_CONTACT_INFO getContactById(string id)
+        {
+            using (var context = new topmepEntities())
+            {
+                sc = context.SUP_CONTACT_INFO.SqlQuery("select sc.* from SUP_CONTACT_INFO sc "
+                    + "where sc.CONTACT_ID = @id "
+                   , new SqlParameter("id", id)).First();
+            }
+            return sc;
+        }
+        public int updateContact(SUP_CONTACT_INFO sc)
+        {
+            //更新供應商聯絡人資料
+            logger.Info("Update contact " + sc.SUPPLIER_MATERIAL_ID + "," + sc.ToString());
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                context.SUP_CONTACT_INFO.AddOrUpdate(sc);
+                i = context.SaveChanges();
+                logger.Debug("Update contact=" + i);
+            }
+            return i;
+        }
+      
+        public int refreshContact(SUP_CONTACT_INFO item)
+        {
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.SUP_CONTACT_INFO.AddOrUpdate(item);
+                    i = context.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    logger.Error("update supplier contact fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return i;
         }
     }
     #endregion

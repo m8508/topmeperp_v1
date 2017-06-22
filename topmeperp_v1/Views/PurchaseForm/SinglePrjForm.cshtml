@@ -262,7 +262,7 @@
     function Getinputcontact(SUPPLIER_ID) {
         alert('submit');
         $.ajax({
-            url: '@Url.Action("GetSupplierInfo", "Inquiry")',
+            url: '@Url.Action("GetSupplierInfo", "PurchaseForm")',
             data: { SUPPLIER_ID: SUPPLIER_ID },
             type: 'post',
             cache: false,

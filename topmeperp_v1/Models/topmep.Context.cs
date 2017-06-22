@@ -49,8 +49,11 @@ namespace topmeperp.Models
         public virtual DbSet<PLAN_ITEM> PLAN_ITEM { get; set; }
         public virtual DbSet<TND_PROJECT> TND_PROJECT { get; set; }
         public virtual DbSet<PLAN_TASK> PLAN_TASK { get; set; }
+        public virtual DbSet<TND_SUPPLIER> TND_SUPPLIER { get; set; }
         public virtual DbSet<PLAN_SUP_INQUIRY> PLAN_SUP_INQUIRY { get; set; }
         public virtual DbSet<PLAN_SUP_INQUIRY_ITEM> PLAN_SUP_INQUIRY_ITEM { get; set; }
-        public virtual DbSet<TND_SUPPLIER> TND_SUPPLIER { get; set; }
+        public virtual DbSet<SUP_CONTACT_INFO> SUP_CONTACT_INFO { get; set; }
+        public virtual DbSet<SUP_MATERIAL_RELATION> SUP_MATERIAL_RELATION { get; set; }
+        public virtual DbSet<SUPPLIER> SUPPLIER { get; set; }
     }
 }

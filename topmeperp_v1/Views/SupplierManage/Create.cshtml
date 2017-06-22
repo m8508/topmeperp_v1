@@ -1,5 +1,5 @@
 ﻿@using topmeperp.Models
-@model TND_SUPPLIER
+@model SUPPLIER
 @{
     ViewBag.Title = "新增供應商";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
@@ -10,82 +10,117 @@
     {
         <div class="row" style="padding-top:10px;">
             <div class="col-md-12">
-                <h3>供應商基本資料</h3><input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+                <h3>供應商基本資料</h3><input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "SupplierManage")'" value="回首頁">
             </div>
             <div class="col-md-8" style="padding-top:20px;">
                 <div class="row ">
-                    <label class="col-md-2 control-label">供應商編號 : </label>
-                    <div class="col-md-10">
+                    <label class="col-md-3 control-label">供應商編號 : </label>
+                    <div class="col-md-9">
                         <label class="input">
-                            @Html.TextBoxFor(m => m.SUPPLIER_ID, new { @class = "form-control" })
+                            @Html.TextBoxFor(m => m.SUPPLIER_ID, new { @class = "form-control", @readonly = "readonly" })
                         </label>
                     </div>
 
-                    <label class="col-md-2 control-label">供應商名稱 : </label>
-                    <div class="col-md-10">
+                    <label class="col-md-3 control-label">供應商名稱 : </label>
+                    <div class="col-md-9">
                         <label class="input">
-                            @Html.TextBoxFor(m => m.COMPANY_NAME, new { @class = "form-control" })
-                        </label>
-                    </div>
-                    <label class="col-md-2 control-label">聯絡人姓名 : </label>
-                    <div class="col-md-10">
-                        <label class="input">
-                            @Html.TextBoxFor(m => m.CONTACT_NAME, new { @class = "form-control" })
-                        </label>
-                    </div>
-                    <label class="col-md-2 control-label">電話 : </label>
-                    <div class="col-md-10">
-                        <label class="input">
-                            @Html.TextBoxFor(m => m.COMPANY_TEL, new { @class = "form-control" })
+                            @Html.TextBoxFor(m => m.COMPANY_NAME, new { @class = "form-control", @style = "width:600px" })
                         </label>
                     </div>
 
-                    <label class="col-md-2 control-label">E-mail : </label>
-                    <div class="col-md-10">
+                    <label class="col-md-3 control-label">供應商統編 : </label>
+                    <div class="col-md-9">
                         <label class="input">
-                            @Html.TextBoxFor(m => m.CONTACT_EMAIL, new { @class = "form-control" })
+                            @Html.TextBoxFor(m => m.COMPANY_ID, new { @class = "form-control" })
                         </label>
                     </div>
 
-                    <label class="col-md-2 control-label">傳真 : </label>
-                    <div class="col-md-10">
-                        <label class="input">
-                            @Html.TextBoxFor(m => m.COMPANY_FAX, new { @class = "form-control" })
-                        </label>
-                    </div>
-
-                    <label class="col-md-2 control-label">聯絡人手機 : </label>
-                    <div class="col-md-10">
-                        <label class="input">
-                            @Html.TextBoxFor(m => m.CONTACT_MOBILE, new { @class = "form-control" })
-                        </label>
-                    </div>
-                    <label class="col-md-2 control-label">產品類別 : </label>
-                    <div class="col-md-10">
-                        <label class="input">
-                            @Html.TextAreaFor(m => m.SUPPLY_NOTE, new { rows = 3, cols = 600 })
-                        </label>
-                    </div>
-
-                    <label class="col-md-2 control-label">公司地址 : </label>
-                    <div class="col-md-10">
+                    <label class="col-md-3 control-label">公司地址 : </label>
+                    <div class="col-md-9">
                         <label class="input">
                             @Html.TextBoxFor(m => m.CONTACT_ADDRESS, new { @class = "form-control", @style = "width:600px" })
                         </label>
                     </div>
-                    <label class="col-md-2 control-label">九宮格 : </label>
-                    <div class="col-md-10">
-                        <label class="input">
-                            @Html.TextBoxFor(m => m.TYPE_MAIN, new { @class = "form-control" })
-                        </label>
-                    </div>
-                    <label class="col-md-2 control-label">次九宮格 : </label>
-                    <div class="col-md-10">
-                        <label class="input">
-                            @Html.TextBoxFor(m => m.TYPE_SUB, new { @class = "form-control" })
-                        </label>
-                    </div>
 
+                    <label class="col-md-3 control-label" style="padding-bottom:25px;">稅籍地址 : </label>
+                    <div class="col-md-9" style="padding-bottom:25px;">
+                        <label class="input">
+                            @Html.TextBoxFor(m => m.REGISTER_ADDRESS, new { @class = "form-control", @style = "width:600px" })
+                        </label>
+                    </div>
+                 
+                        @if (ViewBag.supplier == null || ViewBag.supplier == "")
+                        {
+                            <label class="col-md-3 control-label">九宮格 : </label>
+                            <div class="col-md-9">
+                                <input type="text" id="type_main" name="type_main" class="form-control" />
+                            </div>
+                        }
+
+                    @if (ViewBag.supplier == null || ViewBag.supplier == "")
+                    {
+                        <label class="col-md-3 control-label">序號 : </label>
+                        <div class="col-md-9">
+                            <input type="text" id="type_sub" name="type_sub" class="form-control" />
+                        </div>
+                    }
+
+                    @if (ViewBag.supplier == null || ViewBag.supplier == "")
+                    {
+                        <label class="col-md-3 control-label" style="padding-bottom:25px;"> 產品類別 : </label>
+                        <div class="col-md-9" style="padding-bottom:25px;">
+                            <input type="text" id="supply_note" name="supply_note" class="form-control" />
+                        </div>
+                    }
+
+                    @if (ViewBag.supplier == null || ViewBag.supplier == "")
+                    {
+                        <label class="col-md-3 control-label"> 聯絡人 : </label>
+                        <div class="col-md-9">
+                            <input type="text" id="contact_name" name="contact_name" class="form-control" />
+                        </div>
+                    }
+
+                    @if (ViewBag.supplier == null || ViewBag.supplier == "")
+                    {
+                        <label class="col-md-3 control-label"> 聯絡人電話 : </label>
+                        <div class="col-md-9">
+                            <input type="text" id="contact_tel" name="contact_tel" class="form-control" />
+                        </div>
+                    }
+
+                    @if (ViewBag.supplier == null || ViewBag.supplier == "")
+                    {
+                        <label class="col-md-3 control-label"> 聯絡人傳真 : </label>
+                        <div class="col-md-9">
+                            <input type="text" id="contact_fax" name="contact_fax" class="form-control" />
+                        </div>
+                    }
+
+                    @if (ViewBag.supplier == null || ViewBag.supplier == "")
+                    {
+                        <label class="col-md-3 control-label"> 聯絡人手機 : </label>
+                        <div class="col-md-9">
+                            <input type="text" id="contact_mobil" name="contact_mobil" class="form-control" />
+                        </div>
+                    }
+
+                    @if (ViewBag.supplier == null || ViewBag.supplier == "")
+                    {
+                        <label class="col-md-3 control-label"> 聯絡人電子信箱 : </label>
+                        <div class="col-md-9">
+                            <input type="text" id="contact_email" name="contact_email" class="form-control" />
+                        </div>
+                    }
+
+                    @if (ViewBag.supplier == null || ViewBag.supplier == "")
+                    {
+                        <label class="col-md-3 control-label"> 備註 : </label>
+                        <div class="col-md-9">
+                            <input type="text" id="remark" name="remark" class="form-control" />
+                        </div>
+                    }
+                    
                 </div>
             </div>
             <div class="col-md-4 alert-info">@Html.Raw(ViewBag.result)</div>
@@ -93,8 +128,13 @@
         <br />
         <div class="row">
             <div class="" col-md-12">
-                <input type="submit" value="儲存" class="btn btn-default" />
+                <input type="submit" value="儲存" class="btn btn-default" id="saveSupplier" />
             </div>
         </div>
     }
 </div>
+<script type="text/javascript">
+    $("#saveSupplier").click(function () {
+        if ($("#type_main").val() == "") { alert("九宮格欄位不可空白，請輸入九宮格代碼!!"); return false; }
+    });
+</script>

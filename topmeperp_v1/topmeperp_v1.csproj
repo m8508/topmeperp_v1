@@ -428,6 +428,15 @@
     <Compile Include="Models\REF_TYPE_SUB.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\SUPPLIER.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SUP_CONTACT_INFO.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SUP_MATERIAL_RELATION.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\SYS_FUNCTION.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
@@ -791,6 +800,10 @@
     <Content Include="Views\MaterialManage\ProjectList.cshtml" />
     <Content Include="Views\MaterialManage\PurchaseRequisition.cshtml" />
     <Content Include="Views\MaterialManage\_PlanItemList.cshtml" />
+    <Content Include="Views\SupplierManage\EditForTypeMain.cshtml" />
+    <Content Include="Views\SupplierManage\_AddTypeMain.cshtml" />
+    <Content Include="Views\SupplierManage\_AddContact.cshtml" />
+    <Content Include="Views\SupplierManage\EditForContact.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

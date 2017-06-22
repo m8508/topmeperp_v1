@@ -205,7 +205,7 @@ namespace topmeperp.Models
         public Int64 NO { get; set; }
         public Nullable<decimal> TOTAL_REVENUE { get; set; }
         public Nullable<decimal> TOTAL_BUDGET { get; set; }
-        public Nullable<decimal> TOTAL_COST{ get; set; }
+        public Nullable<decimal> TOTAL_COST { get; set; }
         public Nullable<decimal> TOTAL_PROFIT { get; set; }
         public Nullable<decimal> MATERIAL_COST { get; set; }
         public Nullable<decimal> WAGE_COST { get; set; }
@@ -233,7 +233,7 @@ namespace topmeperp.Models
         public Nullable<decimal> PLAN_REVENUE { get; set; }
         public string CONTRACT_ID { get; set; }
     }
-    public class  MAP_FP_VIEW: TND_MAP_FP
+    public class MAP_FP_VIEW : TND_MAP_FP
     {
         public string WIRE_DESC { get; set; }
     }
@@ -248,4 +248,24 @@ namespace topmeperp.Models
         public string GROUND_WIRE_DESC { get; set; }
         public string PIPE_2_DESC { get; set; }
     }
+    #region 供應商管理
+    public class SUPPLIER_FUNCTION : SUPPLIER
+    {
+        public string TYPE_MAIN { get; set; }
+        public string SUPPLY_NOTE { get; set; }
+        public string CONTACT_NAME { get; set; }
+        public string CONTACT_TEL { get; set; }
+        public string CONTACT_FAX { get; set; }
+        public string CONTACT_EMAIL { get; set; }
+        public string REMARK { get; set; }
+        public Int64 RELATION_ID { get; set; }
+        public string STOP_DELIVERY { get; set; }
+        public string SUPPLIER_MATERIAL_ID { get; set; }
+        public Int64 CONTACT_ID { get; set; }
+        public string TYPE_SUB { get; set; }
+        public string CONTACT_MOBIL { get; set; }
+
+
+    }
+    #endregion
 }
