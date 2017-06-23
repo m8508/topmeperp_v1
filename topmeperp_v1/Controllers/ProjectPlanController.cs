@@ -135,7 +135,7 @@ namespace topmeperp.Controllers
             log.Debug("devicename" + f["devicename"]);
             string mapType = f["mapType"];
             log.Debug("mapType" + f["mapType"]);
-            if (null == f["mapType"] || ""== f["mapType"])
+            if (null == f["mapType"] || "" == f["mapType"])
             {
                 ViewBag.Message = "至少需選擇一項施作項目!!";
                 return PartialView("_getMapItem4Task", null);
@@ -162,6 +162,7 @@ namespace topmeperp.Controllers
                         log.Debug("MapType: MAP_FP(消防電)");
                         break;
                     case "MAP_FW"://消防水
+                        planService.getMapFW(projectid, mapno, buildno, primeside, secondside, devicename);
                         log.Debug("MapType: MAP_FW(消防水)");
                         break;
                     default:
@@ -169,6 +170,7 @@ namespace topmeperp.Controllers
                         break;
                 }
             }
+            ViewBag.Message = planService.resultMessage;
             return PartialView("_getMapItem4Task", planService.viewModel);
         }
         //設定任務圖算
@@ -179,13 +181,23 @@ namespace topmeperp.Controllers
             {
                 return "請選擇專案任務!!";
             }
-            else
+            if (null != f["map_device"])
             {
+                //設備
                 int i = planService.choiceMapItem(f["projectid"], f["checkNodeId"], f["map_device"]);
                 log.Debug("modify records count=" + i);
-                return "設定成功";
             }
-
+            else if (null != f["map_fw"])
+            {
+                //消防水
+                int i = planService.choiceMapItemFW(f["projectid"], f["checkNodeId"], f["map_fw"]);
+                log.Debug("modify records count=" + i);
+            }
+            else
+            {
+                return "有問題!!";
+            }
+            return "設定成功";
         }
     }
 }
