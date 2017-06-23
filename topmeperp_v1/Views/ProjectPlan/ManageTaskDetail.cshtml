@@ -40,12 +40,12 @@
                     </div>
                 </form>
             </div>
-            <input type="text" id="checkNodeId" name="checkNodeId" value="" />
             <form  id="formMapItem" name="formMapItem">
+                <input type="text" id="checkNodeId" name="checkNodeId" value="" />
+                <input type="hidden" id="projectid" name="projectid" value="@ViewBag.projectId" />
                 <div class="container" id="MapItem" style="width:600px;">
                 </div>
             </form>
-
         </div>
     </div>
 </div>
@@ -73,19 +73,6 @@
         }
     });
 
-    function fillTree() {
-        alert("get tree");
-        $.ajax({
-            url: "getTaskTree?projectid=@ViewBag.projectId",
-            method: "POST",
-            dataType: "json",
-            success: function (data) {
-                console.log(data);
-                $('#treeview').treeview({ data: data.tree });
-            }
-        })
-    }
-
     function getMapItem4Task() {
         $.ajax({
             url: "getMapItem4Task",
@@ -97,10 +84,19 @@
             }
         })
     }
-    function show() {
-        //alert($('#formMapItem').serialize());
+    ///選擇圖算
+    function choiceMapItem() {
         var formData = $("#formMapItem").serialize();
         console.log(formData);
-        //alert($('#formMapItem').serializeObject());
+        $.ajax({
+            url: "choiceMapItem",
+            data: formData,
+            method: "POST",
+            dataType: "text",
+            success: function (result) {
+                alert(result);
+               // $("#MapItem").html(result);
+            }
+        })
     }
 </script>

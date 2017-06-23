@@ -80,20 +80,29 @@ namespace topmeperp.Controllers
                 var path = Path.Combine(ContextService.strUploadPath + "/" + prj.PROJECT_ID, fileName);
                 logger.Info("save excel file:" + path);
                 file.SaveAs(path);
-                //2.2 解析Excel 檔案
-                ProjectItemFromExcel poiservice = new ProjectItemFromExcel();
-                poiservice.InitializeWorkbook(path);
-                poiservice.ConvertDataForTenderProject(prj.PROJECT_ID, (int)prj.START_ROW_NO);
-                //2.3 記錄錯誤訊息
-                message = message + "標單品項:共" + poiservice.lstProjectItem.Count + "筆資料，";
-                message = message + "<a target=\"_blank\" href=\"/Tender/ManageProjectItem?id=" + prj.PROJECT_ID + "\"> 標單明細檢視畫面單</a><br/>" + poiservice.errorMessage;
-                //        < button type = "button" class="btn btn-primary" onclick="location.href='@Url.Action("ManageProjectItem","Tender", new { id = @Model.tndProject.PROJECT_ID})'; ">標單明細</button>
-                //2.4
-                logger.Info("Delete TND_PROJECT_ITEM By Project ID");
-                service.delAllItemByProject();
-                //2.5
-                logger.Info("Add All TND_PROJECT_ITEM to DB");
-                service.refreshProjectItem(poiservice.lstProjectItem);
+                try
+                {
+                    //2.2 解析Excel 檔案
+                    ProjectItemFromExcel poiservice = new ProjectItemFromExcel();
+                    poiservice.InitializeWorkbook(path);
+                    poiservice.ConvertDataForTenderProject(prj.PROJECT_ID, (int)prj.START_ROW_NO);
+
+                    //2.3 記錄錯誤訊息
+                    message = message + "標單品項:共" + poiservice.lstProjectItem.Count + "筆資料，";
+                    message = message + "<a target=\"_blank\" href=\"/Tender/ManageProjectItem?id=" + prj.PROJECT_ID + "\"> 標單明細檢視畫面單</a><br/>" + poiservice.errorMessage;
+                    //        < button type = "button" class="btn btn-primary" onclick="location.href='@Url.Action("ManageProjectItem","Tender", new { id = @Model.tndProject.PROJECT_ID})'; ">標單明細</button>
+                    //2.4
+                    logger.Info("Delete TND_PROJECT_ITEM By Project ID");
+                    service.delAllItemByProject();
+                    //2.5
+                    logger.Info("Add All TND_PROJECT_ITEM to DB");
+                    service.refreshProjectItem(poiservice.lstProjectItem);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("Error Message:" + ex.Message);
+                    message = ex.Message;
+                }
             }
             ViewBag.result = message;
             return View(prj);
@@ -705,7 +714,7 @@ namespace topmeperp.Controllers
             prj.PROJECT_NAME = Request["projectname"];
             prj.ENG_NAME = Request["engname"];
             prj.CONTRUCTION_NAME = Request["contructionname"];
-            prj.LOCATION = Request["location"]; 
+            prj.LOCATION = Request["location"];
             prj.OWNER_NAME = Request["ownername"];
             prj.CONTACT_NAME = Request["contactname"];
             prj.CONTACT_TEL = Request["contecttel"];

@@ -21,7 +21,7 @@ namespace topmeperp.Service
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         //專案任務調用圖算數量物件
-        MapInfoModels viewModel = new MapInfoModels();
+        public MapInfoModels viewModel = new MapInfoModels();
         /// <summary>
         /// 取得專案所有任務
         /// </summary>
@@ -142,7 +142,7 @@ namespace topmeperp.Service
                     //rootnode.tags.Add("工期:" + t.DURATION);
                     rootnode.tags.Add("完成:" + t.FINISH_DATE.Value.ToString("yyyy/MM/dd"));
                     rootnode.tags.Add("開始:" + t.START_DATE.Value.ToString("yyyy/MM/dd"));
-                    rootnode.href = "#" + t.PRJ_UID;
+                    rootnode.href = t.PRJ_UID.ToString();
                     rootnode.text = t.TASK_NAME;
                     dicTree.Add(t.PRJ_UID.Value, rootnode);
                     logger.Info("add root node :" + t.PRJ_UID);
@@ -155,7 +155,7 @@ namespace topmeperp.Service
                     //node.tags.Add("工期:" + t.DURATION);
                     node.tags.Add("完成:" + t.FINISH_DATE.Value.ToString("yyyy/MM/dd"));
                     node.tags.Add("開始:" + t.START_DATE.Value.ToString("yyyy/MM/dd"));
-                    node.href = "#" + t.PRJ_UID;
+                    node.href = t.PRJ_UID.ToString();
                     node.text = t.TASK_NAME;
                     parentnode.addChild(node);
                     //將結點資料記錄至dic 內
@@ -172,13 +172,12 @@ namespace topmeperp.Service
             logger.Info("Jason:" + output);
             return output;
         }
-        public MapInfoModels getMapView(string projectid,string mapno,string buildno, string primeside,string secondside,string name)
+        public MapInfoModels getMapView(string projectid, string mapno, string buildno, string primeside, string secondside, string name)
         {
-            viewModel.mapDEVICE = getMapItem(projectid, name);
             return viewModel;
         }
         //圖算:設備
-        public List<TND_MAP_DEVICE> getMapItem(string projectid,string item_name)
+        public void getMapItem(string projectid, string item_name)
         {
             logger.Info("get map DEVICE info by item_name=" + item_name);
             string sql = "SELECT DEVIVE_ID,M.PROJECT_ID,P.PROJECT_ITEM_ID,MAP_NO,BUILDING_NO "
@@ -186,28 +185,50 @@ namespace topmeperp.Service
                 + "FROM TND_MAP_DEVICE M, TND_PROJECT_ITEM P "
                 + " WHERE M.PROJECT_ITEM_ID = P.PROJECT_ITEM_ID "
                 + " AND P.ITEM_DESC Like @item_name "
-                + " AND M.PROJECT_ID = @projectid";
+                + " AND M.PROJECT_ID = @projectid ORDER BY CAST(SUBSTRING(P.PROJECT_ITEM_ID,8,LEN(P.PROJECT_ITEM_ID)) as INT) ";
             List<TND_MAP_DEVICE> lstDEVICE = new List<TND_MAP_DEVICE>();
             using (var context = new topmepEntities())
             {
                 //條件篩選
                 logger.Info(sql);
                 lstDEVICE = context.TND_MAP_DEVICE.SqlQuery(sql,
-                    new SqlParameter("projectid", projectid),new SqlParameter("item_name","%"+ item_name +"%")).ToList();
+                    new SqlParameter("projectid", projectid), new SqlParameter("item_name", "%" + item_name + "%")).ToList();
             }
-            return lstDEVICE;
+            viewModel.mapDEVICE = lstDEVICE;
         }
         //圖算:消防電
-        public List<TND_MAP_DEVICE> getMapFP (string projectid,string mapno,string buildno,string primeside, string secondside, string name)
+        public List<TND_MAP_DEVICE> getMapFP(string projectid, string mapno, string buildno, string primeside, string secondside, string name)
         {
-            string sql = "SELECT PROJECT_ID, '消防電-線' AS MAP_TYPE,MAP_NO,BUILDING_NO,PRIMARY_SIDE,SECONDARY_SIDE," 
+            string sql = "SELECT PROJECT_ID, '消防電-線' AS MAP_TYPE,MAP_NO,BUILDING_NO,PRIMARY_SIDE,SECONDARY_SIDE,"
                 + "WIRE_NAME AS PROJECT_ITEM_ID,WIRE_TOTAL_LENGTH AS ITEM_QUANTITY "
                 + "FROM TND_MAP_FP AS FP_W "
                 + "UNION "
                 + "SELECT PROJECT_ID, '消防電-管' AS MAP_TYPE, MAP_NO, BUILDING_NO, PRIMARY_SIDE, SECONDARY_SIDE,"
                 + "PIPE_NAME AS PROJECT_ITEM_ID, PIPE_TOTAL_LENGTH AS ITEM_QUANTITY "
                 + "FROM TND_MAP_FP AS FP_P";
-            return null; 
+            return null;
+        }
+        //設定任務與圖算項目
+        public int choiceMapItem(string projectid, string prjuid, string mapdeviceIds)
+        {
+            int i = -1;
+            logger.Info("projectid=" + projectid + ",prjuid=" + prjuid + ",mapdeviceIds=" + mapdeviceIds);
+
+            using (var context = new topmepEntities())
+            {
+                //清除原來任務之工作項目，再將設備資料寫入Task2MapItem
+                string sql = "DELETE PLAN_TASK2MAPITEM WHERE PROJECT_ID=@projectId AND PRJ_UID=@prjuid;"
+                    + "INSERT INTO PLAN_TASK2MAPITEM (PROJECT_ID,PRJ_UID,MAP_TYPE,MAP_PK,PROJECT_ITEM_ID) "
+                    + " SELECT @projectId AS PROJECT_ID,@prjuid AS PRJ_UID,'TND_MAP_DEVICE' AS MAP_TYPE, DEVIVE_ID AS MAP_PK, PROJECT_ITEM_ID  FROM TND_MAP_DEVICE "
+                    + " WHERE DEVIVE_ID in (" + @mapdeviceIds + ");";
+                logger.Debug(sql);
+                var parameters = new List<SqlParameter>();
+                //設定專案名編號資料
+                parameters.Add(new SqlParameter("projectid", projectid));
+                parameters.Add(new SqlParameter("prjuid", prjuid));
+                i = context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            }
+            return i;
         }
     }
     #endregion
