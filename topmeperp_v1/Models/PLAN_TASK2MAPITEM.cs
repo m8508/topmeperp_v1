@@ -19,5 +19,6 @@ namespace topmeperp.Models
         public Nullable<int> PRJ_UID { get; set; }
         public string MAP_TYPE { get; set; }
         public Nullable<int> MAP_PK { get; set; }
+        public string PROJECT_ITEM_ID { get; set; }
     }
 }

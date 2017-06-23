@@ -139,5 +139,13 @@ namespace topmeperp.Controllers
            
             return PartialView("_getMapItem4Task", planService.getMapView(projectid, mapno, buildno, primeside, secondside, devicename));
         }
+        //設定任務圖算
+        public string choiceMapItem(FormCollection f)
+        {
+            log.Debug("projectId=" + f["projectid"] + ",prjuid=" + f["checkNodeId"] + ",mapids=" + f["map_device"]);
+            int i=planService.choiceMapItem(f["projectid"], f["checkNodeId"], f["map_device"]);
+            log.Debug("modify records count=" + i);
+            return "設定成功";
+        }
     }
 }
