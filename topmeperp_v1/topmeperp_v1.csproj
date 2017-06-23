@@ -804,6 +804,7 @@
     <Content Include="Views\SupplierManage\_AddTypeMain.cshtml" />
     <Content Include="Views\SupplierManage\_AddContact.cshtml" />
     <Content Include="Views\SupplierManage\EditForContact.cshtml" />
+    <Content Include="Views\MaterialManage\PlanTask.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

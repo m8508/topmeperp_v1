@@ -17,6 +17,7 @@ namespace topmeperp.Controllers
     {
         ILog log = log4net.LogManager.GetLogger(typeof(InquiryController));
         PurchaseFormService service = new PurchaseFormService();
+        ProjectPlanService planService = new ProjectPlanService();
 
         // GET: MaterialManage
         [topmeperp.Filter.AuthFilter]
@@ -47,7 +48,31 @@ namespace topmeperp.Controllers
                 return null;
             }
         }
+
+        //Plan Task 任務連結物料
+        public ActionResult PlanTask(string id)
+        {
+            log.Debug("show sreen for apply for material");
+            ViewBag.projectid = id;
+            TnderProject tndservice = new TnderProject();
+            TND_PROJECT p = tndservice.getProjectById(id);
+            ViewBag.projectName = p.PROJECT_NAME;
+            ViewBag.TreeString = planService.getProjectTask4Tree(id); ;
+            return View();
+        }
+
         //物料申購
+        public ActionResult Application(string id)
+        {
+            log.Info("Access to Application page!!");
+            ViewBag.projectid = id;
+            TnderProject tndservice = new TnderProject();
+            TND_PROJECT p = tndservice.getProjectById(id);
+            ViewBag.projectName = p.PROJECT_NAME;
+            return View();
+        }
+
+        //申購單查詢
         public ActionResult PurchaseRequisition(string id)
         {
             log.Info("Access to Purchase Requisition page!!");
