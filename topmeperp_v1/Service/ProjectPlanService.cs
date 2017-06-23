@@ -214,10 +214,10 @@ namespace topmeperp.Service
         public void getMapFW(string projectid, string mapno, string buildno, string primeside, string secondside, string name)
         {
             string sql = "SELECT FW_ID,M.PROJECT_ID,M.EXCEL_ITEM,PIPE_NAME AS PROJECT_ITEM_ID,"
-                +"MAP_NO,BUILDING_NO,PRIMARY_SIDE,PRIMARY_SIDE_NAME,SECONDARY_SIDE,"
-                +"SECONDARY_SIDE_NAME,P.ITEM_DESC AS PIPE_NAME,PIPE_CNT,PIPE_SET,PIPE_LENGTH,PIPE_TOTAL_LENGTH, "
-                +"M.CREATE_DATE,M.CREATE_ID "
-                +"FROM TND_MAP_FW M, TND_PROJECT_ITEM P "
+                + "MAP_NO,BUILDING_NO,PRIMARY_SIDE,PRIMARY_SIDE_NAME,SECONDARY_SIDE,"
+                + "SECONDARY_SIDE_NAME,P.ITEM_DESC AS PIPE_NAME,PIPE_CNT,PIPE_SET,PIPE_LENGTH,PIPE_TOTAL_LENGTH, "
+                + "M.CREATE_DATE,M.CREATE_ID "
+                + "FROM TND_MAP_FW M, TND_PROJECT_ITEM P "
                 + "WHERE M.PIPE_NAME = P.PROJECT_ITEM_ID AND M.PROJECT_ID =@projectid ";
 
             List<TND_MAP_FW> lstDEVICE = null;
@@ -227,7 +227,7 @@ namespace topmeperp.Service
                 var parameters = new List<SqlParameter>();
                 //設定專案名編號資料
                 parameters.Add(new SqlParameter("projectid", projectid));
-                if (null!= mapno && mapno != "") //圖號
+                if (null != mapno && mapno != "") //圖號
                 {
                     sql = sql + " AND MAP_NO LIKE @mapno";
                     parameters.Add(new SqlParameter("mapno", "%" + mapno + "%"));
@@ -253,10 +253,59 @@ namespace topmeperp.Service
                     parameters.Add(new SqlParameter("name", "%" + name + "%"));
                 }
                 logger.Info(sql);
-                lstDEVICE = context.TND_MAP_FW.SqlQuery(sql,parameters.ToArray()).ToList();
+                lstDEVICE = context.TND_MAP_FW.SqlQuery(sql, parameters.ToArray()).ToList();
             }
             viewModel.mapFW = lstDEVICE;
             resultMessage = resultMessage + "消防水資料筆數:" + lstDEVICE.Count + ",";
+        }
+
+        //給排水
+        public void getMapPLU(string projectid, string mapno, string buildno, string primeside, string secondside, string name)
+        {
+            string sql = "SELECT PLU_ID,PLU.PROJECT_ID,PLU.EXCEL_ITEM,PIPE_NAME AS PROJECT_ITEM_ID,"
+                + "MAP_NO,BUILDING_NO,PRIMARY_SIDE,PRIMARY_SIDE_NAME,SECONDARY_SIDE,"
+                + "SECONDARY_SIDE_NAME,P.ITEM_DESC AS PIPE_NAME,PIPE_COUNT_SET,PIPE_SET_QTY,PIPE_LENGTH,PIPE_TOTAL_LENGTH, "
+                + "PLU.CREATE_DATE,PLU.CREATE_ID "
+                + "FROM TND_MAP_PLU PLU LEFT OUTER JOIN TND_PROJECT_ITEM P ON PLU.PIPE_NAME = P.PROJECT_ITEM_ID "
+                + "WHERE PLU.PROJECT_ID = @projectid ";
+
+            List<TND_MAP_PLU> lstDEVICE = null;
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                var parameters = new List<SqlParameter>();
+                //設定專案名編號資料
+                parameters.Add(new SqlParameter("projectid", projectid));
+                if (null != mapno && mapno != "") //圖號
+                {
+                    sql = sql + " AND MAP_NO LIKE @mapno";
+                    parameters.Add(new SqlParameter("mapno", "%" + mapno + "%"));
+                }
+                if (null != buildno && buildno != "")//建築名稱
+                {
+                    sql = sql + " AND BUILDING_NO LIKE @buildno";
+                    parameters.Add(new SqlParameter("buildno", "%" + buildno + "%"));
+                }
+                if (null != primeside && primeside != "")//一次側名稱
+                {
+                    sql = sql + " AND PRIMARY_SIDE LIKE @primeside";
+                    parameters.Add(new SqlParameter("primeside", "%" + primeside + "%"));
+                }
+                if (null != secondside && secondside != "")//二次側名稱
+                {
+                    sql = sql + " AND SECONDARY_SIDE LIKE @secondside";
+                    parameters.Add(new SqlParameter("secondside", "%" + secondside + "%"));
+                }
+                if (null != name && name != "")//品項名稱
+                {
+                    sql = sql + " AND P.ITEM_DESC LIKE @name";
+                    parameters.Add(new SqlParameter("name", "%" + name + "%"));
+                }
+                logger.Info(sql);
+                lstDEVICE = context.TND_MAP_PLU.SqlQuery(sql, parameters.ToArray()).ToList();
+            }
+            viewModel.mapPLU = lstDEVICE;
+            resultMessage = resultMessage + "給排水資料筆數:" + lstDEVICE.Count + ",";
         }
         //設定任務與圖算項目
         public int choiceMapItem(string projectid, string prjuid, string mapdeviceIds)

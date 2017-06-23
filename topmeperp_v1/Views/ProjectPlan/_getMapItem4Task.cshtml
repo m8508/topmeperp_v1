@@ -40,40 +40,65 @@
                 <div class="row panel-heading label-info">弱電管線(MAP_LCP)</div>
             </div>
         </div>
-        <div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;">
-            <div class="row">
-                <div class="row panel-heading label-info">給排水(TND_MAP_PLU)</div>
+        if (Model.mapPLU != null)
+        {
+            <div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;">
+                <div class="row">
+                    <div class="rowpanel-heading label-info">給排水(MAP_PLU)</div>
+                    <table class="table">
+                        <tr>
+                            <th>全選</th>
+                            <th>編號</th>
+                            <th>設備名稱</th>
+                            <th>數量</th>
+                        </tr>
+
+                        @foreach (var item in Model.mapPLU)
+                    {
+                            <tr>
+                                <td><input type="checkbox" id="map_fw" name="map_plu" value="@item.PLU_ID" /></td>
+                                <td>@Html.DisplayFor(modelItem => item.PLU_ID)</td>
+                                <td style="">@Html.DisplayFor(modelItem => item.PIPE_NAME)</td>
+                                <td>@Html.DisplayFor(modelItem => item.PIPE_TOTAL_LENGTH)</td>
+                            </tr>
+                        }
+
+                    </table>
+                </div>
             </div>
-        </div>
+        }
         <div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;">
             <div class="row">
                 <div class="row panel-heading label-info">消防電(MAP_FP)</div>
             </div>
         </div>
-        <div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;">
-            <div class="row">
-                <div class="rowpanel-heading label-info">消防水(MAP_FW)</div>
-                <table class="table">
-                    <tr>
-                        <th>全選</th>
-                        <th>編號</th>
-                        <th>設備名稱</th>
-                        <th>數量</th>
-                    </tr>
-
-                    @foreach (var item in Model.mapFW)
-                    {
+        if (Model.mapFW != null)
+        {
+            <div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;">
+                <div class="row">
+                    <div class="rowpanel-heading label-info">消防水(MAP_FW)</div>
+                    <table class="table">
                         <tr>
-                            <td><input type="checkbox" id="map_fw" name="map_fw" value="@item.FW_ID" /></td>
-                            <td>@Html.DisplayFor(modelItem => item.FW_ID)</td>
-                            <td style="">@Html.DisplayFor(modelItem => item.PIPE_NAME)</td>
-                            <td>@Html.DisplayFor(modelItem => item.PIPE_TOTAL_LENGTH)</td>
+                            <th>全選</th>
+                            <th>編號</th>
+                            <th>設備名稱</th>
+                            <th>數量</th>
                         </tr>
-                    }
 
-                </table>
+                        @foreach (var item in Model.mapFW)
+                    {
+                            <tr>
+                                <td><input type="checkbox" id="map_fw" name="map_fw" value="@item.FW_ID" /></td>
+                                <td>@Html.DisplayFor(modelItem => item.FW_ID)</td>
+                                <td style="">@Html.DisplayFor(modelItem => item.PIPE_NAME)</td>
+                                <td>@Html.DisplayFor(modelItem => item.PIPE_TOTAL_LENGTH)</td>
+                            </tr>
+                        }
+
+                    </table>
+                </div>
             </div>
-        </div>
+        }
         <div class="row"><button class="btn btn-warning" style="padding-top:1pt" type="button" onclick="choiceMapItem()">確認工作項目</button></div>
     }
 </div>

@@ -157,6 +157,7 @@ namespace topmeperp.Controllers
                         break;
                     case "TND_MAP_PLU"://給排水
                         log.Debug("MapType: TND_MAP_PLU(給排水)");
+                        planService.getMapPLU(projectid, mapno, buildno, primeside, secondside, devicename);
                         break;
                     case "MAP_FP"://消防電
                         log.Debug("MapType: MAP_FP(消防電)");
