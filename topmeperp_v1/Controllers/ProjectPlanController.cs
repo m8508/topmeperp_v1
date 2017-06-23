@@ -121,7 +121,6 @@ namespace topmeperp.Controllers
         //查詢圖算資訊
         public ActionResult getMapItem4Task(FormCollection f)
         {
-            log.Debug("form info:"+ f.Count);
             string projectid = f["projectid"];
             log.Debug("projectid" + f["projectid"]);
             string mapno = f["mapno"];
@@ -136,16 +135,57 @@ namespace topmeperp.Controllers
             log.Debug("devicename" + f["devicename"]);
             string mapType = f["mapType"];
             log.Debug("mapType" + f["mapType"]);
-           
-            return PartialView("_getMapItem4Task", planService.getMapView(projectid, mapno, buildno, primeside, secondside, devicename));
+            if (null == f["mapType"] || ""== f["mapType"])
+            {
+                ViewBag.Message = "至少需選擇一項施作項目!!";
+                return PartialView("_getMapItem4Task", null);
+            }
+            string[] mapTypes = mapType.Split(',');
+            for (int i = 0; i < mapTypes.Length; i++)
+            {
+                switch (mapTypes[i])
+                {
+                    case "MAP_DEVICE"://設備
+                        log.Debug("MapType: MAP_DEVICE(設備)");
+                        planService.getMapItem(projectid, devicename);
+                        break;
+                    case "MAP_PEP"://電器管線
+                        log.Debug("MapType: MAP_PEP(電器管線)");
+                        break;
+                    case "MAP_LCP"://弱電管線
+                        log.Debug("MapType: MAP_LCP(弱電管線)");
+                        break;
+                    case "TND_MAP_PLU"://給排水
+                        log.Debug("MapType: TND_MAP_PLU(給排水)");
+                        break;
+                    case "MAP_FP"://消防電
+                        log.Debug("MapType: MAP_FP(消防電)");
+                        break;
+                    case "MAP_FW"://消防水
+                        log.Debug("MapType: MAP_FW(消防水)");
+                        break;
+                    default:
+                        log.Debug("MapType nothing!!");
+                        break;
+                }
+            }
+            return PartialView("_getMapItem4Task", planService.viewModel);
         }
         //設定任務圖算
         public string choiceMapItem(FormCollection f)
         {
             log.Debug("projectId=" + f["projectid"] + ",prjuid=" + f["checkNodeId"] + ",mapids=" + f["map_device"]);
-            int i=planService.choiceMapItem(f["projectid"], f["checkNodeId"], f["map_device"]);
-            log.Debug("modify records count=" + i);
-            return "設定成功";
+            if (null == f["checkNodeId"] || "" == f["checkNodeId"])
+            {
+                return "請選擇專案任務!!";
+            }
+            else
+            {
+                int i = planService.choiceMapItem(f["projectid"], f["checkNodeId"], f["map_device"]);
+                log.Debug("modify records count=" + i);
+                return "設定成功";
+            }
+
         }
     }
 }
