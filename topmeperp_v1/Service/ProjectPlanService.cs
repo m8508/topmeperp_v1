@@ -351,7 +351,28 @@ namespace topmeperp.Service
             }
             return i;
         }
+        //設定任務與圖算項目-給排水
+        public int choiceMapItemPLU(string projectid, string prjuid, string mappluIds)
+        {
+            int i = -1;
+            logger.Info("projectid=" + projectid + ",prjuid=" + prjuid + ",MAP_PLU=" + mappluIds);
 
+            using (var context = new topmepEntities())
+            {
+                //清除原來任務之工作項目，再將設備資料寫入Task2MapItem
+                string sql = "DELETE PLAN_TASK2MAPITEM WHERE PROJECT_ID=@projectId AND PRJ_UID=@prjuid AND　MAP_TYPE='TND_MAP_PLU';"
+                    + "INSERT INTO PLAN_TASK2MAPITEM (PROJECT_ID,PRJ_UID,MAP_TYPE,MAP_PK,PROJECT_ITEM_ID) "
+                    + "SELECT @projectId AS PROJECT_ID,@prjuid  AS PRJ_UID,'TND_MAP_PLU' AS MAP_TYPE, PLU_ID AS MAP_PK, PIPE_NAME  FROM TND_MAP_PLU "
+                    + " WHERE PLU_ID in (" + mappluIds + ");";
+                logger.Debug(sql);
+                var parameters = new List<SqlParameter>();
+                //設定專案名編號資料
+                parameters.Add(new SqlParameter("projectid", projectid));
+                parameters.Add(new SqlParameter("prjuid", prjuid));
+                i = context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            }
+            return i;
+        }
     }
     #endregion
 }

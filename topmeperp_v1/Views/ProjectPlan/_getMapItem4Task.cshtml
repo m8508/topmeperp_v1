@@ -56,7 +56,7 @@
                         @foreach (var item in Model.mapPLU)
                     {
                             <tr>
-                                <td><input type="checkbox" id="map_fw" name="map_plu" value="@item.PLU_ID" /></td>
+                                <td><input type="checkbox" id="map_plu" name="map_plu" value="@item.PLU_ID" /></td>
                                 <td>@Html.DisplayFor(modelItem => item.PLU_ID)</td>
                                 <td style="">@Html.DisplayFor(modelItem => item.PIPE_NAME)</td>
                                 <td>@Html.DisplayFor(modelItem => item.PIPE_TOTAL_LENGTH)</td>
