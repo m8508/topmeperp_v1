@@ -1,12 +1,11 @@
-﻿
-@{
-    ViewBag.Title = "申購單查詢";
+﻿@{
+    ViewBag.Title = "採購單查詢";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 
 <div class="jumbotron">
     <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
-    <form name="prSearch" id="prSearch" action="Search" method="Post" class="form-inline">
+    <form name="rpSearch" id="rpSearch" action="Search" method="Post" class="form-inline">
         <div class="row">
             <div class="col-md-6 form-group" style="padding-top:10px">
                 <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
@@ -19,28 +18,28 @@
 
         <div class="row">
             <div class='col-md-6 date form-group' style="padding-top:10px">
-                <label for="create_date">申購日期 : </label>
+                <label for="create_date">驗收日期 : </label>
                 <input id="create_date" name="create_date" class="form-control" />
                 <div class="col-md-6 form-group" style="padding-top:10px">
-                    <label for="taskname">任務名稱 :</label>
-                    <input id="taskname" name="taskname" type="text" value="" class="form-control" />
+                    <label for="supplier">供應商名稱 :</label>
+                    <input id="supplier" name="supplier" type="text" value="" class="form-control" />
                 </div>
             </div>
             <div class='col-md-6 form-group' style="padding-top:10px">
-                <label for="prid">申購單編號 :</label>
+                <label for="prid">驗收單編號 :</label>
                 <input id="prid" name="prid" type="text" value="" class="form-control" />
                 <div class="col-md-6 form-group" style="padding-top:10px">
-                    <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
+                    <input id="Submit3" type="submit" class="btn btn-info" value="查詢" />
                     <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "MaterialManage")'" value="回上一頁">
                 </div>
             </div>
 
         </div>
-<div class="col-md-6">
-    <div id="divProcessing">
-        <img src="~/Content/ajax-loader.gif">
-    </div>
-</div>
+        <div class="col-md-6">
+            <div id="divProcessing">
+                <img src="~/Content/ajax-loader.gif">
+            </div>
+        </div>
     </form>
 </div>
 <!--申購單列表區域-->
@@ -48,7 +47,7 @@
     @ViewBag.SearchResult
     @if (null != Model)
     {
-        Html.RenderPartial("_PurchaseRequisitionList");
+        Html.RenderPartial("_ReceiptList");
     }
 
 </div>
@@ -58,7 +57,7 @@
         // Hide the "busy" Gif at load:
         $("#divProcessing").hide();
         // Attach click handler to the submit button:
-        $('#Submit1').click(function () {
+        $('#Submit3').click(function () {
             $("#divProcessing").show();
         });
 

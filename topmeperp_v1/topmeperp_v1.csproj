@@ -413,6 +413,12 @@
     <Compile Include="Models\PLAN_PAYMENT_TERMS.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\PLAN_PURCHASE_REQUISITION.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PLAN_PURCHASE_REQUISITION_ITEM.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\PLAN_SUP_INQUIRY.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
@@ -799,12 +805,23 @@
     <Content Include="Views\MaterialManage\Index.cshtml" />
     <Content Include="Views\MaterialManage\ProjectList.cshtml" />
     <Content Include="Views\MaterialManage\PurchaseRequisition.cshtml" />
-    <Content Include="Views\MaterialManage\_PlanItemList.cshtml" />
+    <Content Include="Views\MaterialManage\_PurchaseRequisitionList.cshtml" />
     <Content Include="Views\SupplierManage\EditForTypeMain.cshtml" />
     <Content Include="Views\SupplierManage\_AddTypeMain.cshtml" />
     <Content Include="Views\SupplierManage\_AddContact.cshtml" />
     <Content Include="Views\SupplierManage\EditForContact.cshtml" />
     <Content Include="Views\MaterialManage\PlanTask.cshtml" />
+    <Content Include="Views\MaterialManage\Application.cshtml" />
+    <Content Include="Views\MaterialManage\SinglePR.cshtml" />
+    <Content Include="Views\MaterialManage\PurchaseOrder.cshtml" />
+    <Content Include="Views\MaterialManage\PurchaseOperation.cshtml" />
+    <Content Include="Views\MaterialManage\PurchaseOrderIndex.cshtml" />
+    <Content Include="Views\MaterialManage\_PurchaseOrderList.cshtml" />
+    <Content Include="Views\MaterialManage\SinglePO.cshtml" />
+    <Content Include="Views\MaterialManage\Receipt.cshtml" />
+    <Content Include="Views\MaterialManage\SingleRP.cshtml" />
+    <Content Include="Views\MaterialManage\ReceiptIndex.cshtml" />
+    <Content Include="Views\MaterialManage\_ReceiptList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

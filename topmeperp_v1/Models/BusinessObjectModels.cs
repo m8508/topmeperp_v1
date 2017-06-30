@@ -261,4 +261,38 @@ namespace topmeperp.Models
         public string CONTACT_MOBIL { get; set; }
     }
     #endregion
+    public class PurchaseRequisition : PLAN_ITEM
+    {
+        public Nullable<decimal> MAP_QTY { get; set; }
+        public Nullable<decimal> CUMULATIVE_QTY { get; set; }
+        public Nullable<decimal> INVENTORY_QTY { get; set; }
+        public Nullable<decimal> NEED_QTY { get; set; }
+        public string REMARK { get; set; }
+        public DateTime NEED_DATE { get; set; }
+        public Int64 PR_ITEM_ID { get; set; }
+        public Nullable<decimal> ORDER_QTY { get; set; }
+        public Nullable<decimal> RECEIPT_QTY { get; set; }
+    }
+    public class PRFunction 
+    {
+        public Int64 NO { get; set; }
+        public string TASK_NAME { get; set; }
+        public string CREATE_DATE { get; set; }
+        public string PR_ID { get; set; }
+        public string SUPPLIER_ID { get; set; }
+    }
+    public class PurchaseRequisitionDetail
+    {
+        public TND_PROJECT prj { get; set; }
+        public PLAN_PURCHASE_REQUISITION planPR { get; set; }
+        public IEnumerable<PurchaseRequisition> planPRItem { get; set; }
+    }
+
+    public class PurchaseOrderFunction
+    {
+        public string KEYNAME { get; set; }
+        public string PR_ID { get; set; }
+        public string CREATE_DATE { get; set; }
+        public string SUPPLIER_ID { get; set; }
+    }
 }

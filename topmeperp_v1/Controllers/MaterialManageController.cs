@@ -61,74 +61,521 @@ namespace topmeperp.Controllers
             return View();
         }
 
+
+
         //物料申購
-        public ActionResult Application(string id)
+        public ActionResult Application(FormCollection form)
         {
             log.Info("Access to Application page!!");
-            ViewBag.projectid = id;
+            ViewBag.projectid = form["id"];
             TnderProject tndservice = new TnderProject();
-            TND_PROJECT p = tndservice.getProjectById(id);
+            TND_PROJECT p = tndservice.getProjectById(form["id"]);
             ViewBag.projectName = p.PROJECT_NAME;
-            return View();
+            ViewBag.applyDate = DateTime.Now;
+            //取得使用者勾選任務ID
+            log.Info("task_list:" + Request["checkNodeId"]);
+            string[] lstItemId = Request["checkNodeId"].ToString().Split(',');
+            log.Info("select count:" + lstItemId.Count());
+            var i = 0;
+            for (i = 0; i < lstItemId.Count(); i++)
+            {
+                log.Info("task_list return No.:" + lstItemId[i]);
+                ViewBag.uid = lstItemId[i];
+            }
+            List<PurchaseRequisition> lstPR = service.getPurchaseItemByPrjuid(form["id"], lstItemId);
+            return View(lstPR);
+        }
+
+        public ActionResult AddPR(PLAN_PURCHASE_REQUISITION pr)
+        {
+            //取得專案編號
+            log.Info("Project Id:" + Request["id"]);
+            //取得專案名稱
+            log.Info("Project Name:" + Request["projectName"]);
+            //取得使用者勾選品項ID
+            log.Info("item_list:" + Request["chkItem"]);
+            string[] lstItemId = Request["chkItem"].ToString().Split(',');
+            log.Info("select count:" + lstItemId.Count());
+            var i = 0;
+            for (i = 0; i < lstItemId.Count(); i++)
+            {
+                log.Info("item_list return No.:" + lstItemId[i]);
+            }
+            string[] lstQty = Request["need_qty"].Split(',');
+            string[] lstDate = Request["Date_${index}"].Split(',');
+            string[] lstRemark = Request["remark"].Split(',');
+            //建立申購單
+            log.Info("create new Purchase Requisition");
+            UserService us = new UserService();
+            SYS_USER u = (SYS_USER)Session["user"];
+            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            pr.PROJECT_ID = Request["id"];
+            pr.CREATE_USER_ID = u.USER_ID;
+            pr.CREATE_DATE = DateTime.Now;
+            pr.RECIPIENT = Request["recipient"];
+            pr.LOCATION = Request["location"];
+            pr.REMARK = Request["caution"];
+            pr.PRJ_UID = int.Parse(Request["prj_uid"]);
+            PLAN_PURCHASE_REQUISITION_ITEM item = new PLAN_PURCHASE_REQUISITION_ITEM();
+            string prid = service.newPR(Request["id"], pr, lstItemId);
+            List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem = new List<PLAN_PURCHASE_REQUISITION_ITEM>();
+            for (int j = 0; j < lstItemId.Count(); j++)
+            {
+                PLAN_PURCHASE_REQUISITION_ITEM items = new PLAN_PURCHASE_REQUISITION_ITEM();
+                items.PLAN_ITEM_ID = lstItemId[j];
+                if (lstQty[j].ToString() == "")
+                {
+                    items.NEED_QTY = null;
+                }
+                else
+                {
+                    items.NEED_QTY = decimal.Parse(lstQty[j]);
+                }
+                try
+                {
+                    items.NEED_DATE = Convert.ToDateTime(lstDate[j]);
+                }
+                catch (Exception ex)
+                {
+                    log.Error(ex.StackTrace);
+                }
+                items.REMARK = lstRemark[j];
+                log.Debug("Item No=" + items.PLAN_ITEM_ID + ", Qty =" + items.NEED_QTY + ", Date =" + items.NEED_DATE);
+                lstItem.Add(items);
+            }
+            int k = service.refreshPR(prid, pr, lstItem);
+            return Redirect("PurchaseRequisition?id=" + pr.PROJECT_ID);
         }
 
         //申購單查詢
         public ActionResult PurchaseRequisition(string id)
         {
-            log.Info("Access to Purchase Requisition page!!");
+            log.Info("Search For Purchase Requisition !!");
             ViewBag.projectid = id;
             TnderProject tndservice = new TnderProject();
             TND_PROJECT p = tndservice.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
-            SelectListItem empty = new SelectListItem();
-            empty.Value = "";
-            empty.Text = "";
-            //取得材料合約供應商資料
-            List<SelectListItem> selectMain = new List<SelectListItem>();
-            foreach (string itm in service.getFormNameForContract(id))
-            {
-                log.Debug("supplier=" + itm);
-                SelectListItem selectI = new SelectListItem();
-                selectI.Value = itm;
-                selectI.Text = itm;
-                if (null != itm && "" != itm)
-                {
-                    selectMain.Add(selectI);
-                }
-            }
-            // selectMain.Add(empty);
-            ViewBag.formname = selectMain;
             return View();
         }
-        
+
         [HttpPost]
         public ActionResult PurchaseRequisition(FormCollection f)
         {
+                log.Info("projectid=" + Request["id"] + ", taskname =" + Request["taskname"] + ", prid =" + Request["prid"] + ", create_id =" + Request["create_date"]);
+                List<PRFunction> lstPR = service.getPRByPrjId(Request["id"], Request["create_date"], Request["taskname"], Request["prid"]);
+                ViewBag.SearchResult = "共取得" + lstPR.Count + "筆資料";
+                ViewBag.projectId = Request["id"];
+                ViewBag.projectName = Request["projectName"];
+                return View("PurchaseRequisition", lstPR);
+        }
 
-            log.Info("projectid=" + Request["id"]);
-            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["id"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"]);
-            ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
+        //顯示單一申購單功能
+        public ActionResult SinglePR(string id)
+        {
+            log.Info("http get mehtod:" + id);
+            PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
+            service.getPRByPrId(id);
+            singleForm.planPR = service.formPR;
+            singleForm.planPRItem = service.PRItem;
+            singleForm.prj = service.getProjectById(singleForm.planPR.PROJECT_ID);
+            log.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
+            return View(singleForm);
+        }
+
+        //更新申購單資料
+        public String RefreshPR(string id, FormCollection form)
+        {
+            log.Info("form:" + form.Count);
+            string msg = "";
+            // 取得申購單資料
+            PLAN_PURCHASE_REQUISITION pr = new PLAN_PURCHASE_REQUISITION();
+            SYS_USER loginUser = (SYS_USER)Session["user"];
+            pr.PROJECT_ID = form.Get("projectid").Trim();
+            pr.PRJ_UID = int.Parse(form.Get("prjuid").Trim());
+            pr.PR_ID= form.Get("pr_id").Trim();
+            pr.RECIPIENT = form.Get("recipient").Trim();
+            pr.LOCATION = form.Get("location").Trim();
+            pr.REMARK= form.Get("caution").Trim();
+            pr.CREATE_USER_ID = loginUser.USER_ID;
+            pr.MODIFY_DATE = DateTime.Now;
+            try
+            {
+                pr.CREATE_DATE = Convert.ToDateTime(form.Get("apply_date"));
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex.StackTrace);
+            }
+            string formid = form.Get("pr_id").Trim();
+            string[] lstItemId = form.Get("pr_item_id").Split(',');
+            string[] lstQty = form.Get("need_qty").Split(',');
+            string[] lstRemark = form.Get("remark").Split(',');
+            string[] lstDate = form.Get("date").Split(',');
+            List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem = new List<PLAN_PURCHASE_REQUISITION_ITEM>();
+            for (int j = 0; j < lstItemId.Count(); j++)
+            {
+                PLAN_PURCHASE_REQUISITION_ITEM item = new PLAN_PURCHASE_REQUISITION_ITEM();
+                item.PR_ITEM_ID = int.Parse(lstItemId[j]);
+                if (lstQty[j].ToString() == "")
+                {
+                    item.NEED_QTY = null;
+                }
+                else
+                {
+                    item.NEED_QTY = decimal.Parse(lstQty[j]);
+                }
+                log.Debug("Item No=" + item.PR_ITEM_ID + ", Need Qty =" + item.NEED_QTY);
+                item.REMARK = lstRemark[j];
+                item.NEED_DATE = DateTime.ParseExact(lstDate[j], "yyyy/MM/dd", CultureInfo.InvariantCulture);
+                lstItem.Add(item);
+            }
+            int i = service.updatePR(formid, pr, lstItem);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "更新申購單成功，PR_ID =" + formid;
+            }
+
+            log.Info("Request: PR_ID = " + formid + "Task Id =" + form["prjuid"]);
+            return msg;
+        }
+
+        //採購作業
+        public ActionResult PurchaseOrder(string id)
+        {
+            log.Info("Access to Purchase Order Page !!");
+            ViewBag.projectid = id;
+            TnderProject tndservice = new TnderProject();
+            TND_PROJECT p = tndservice.getProjectById(id);
+            ViewBag.projectName = p.PROJECT_NAME;
+            List<PurchaseOrderFunction> lstPO = service.getPRBySupplier(id);
+            return View(lstPO);
+        }
+        //取得申購單之供應商合約項目
+        public ActionResult PurchaseOperation(string id, FormCollection form)
+        {
+            log.Info("Access to Purchase Operation page!!");
+            ViewBag.projectid = id.Substring(0, 5).Trim();
+            TnderProject tndservice = new TnderProject();
+            TND_PROJECT p = tndservice.getProjectById(id.Substring(0, 5).Trim());
+            ViewBag.projectName = p.PROJECT_NAME;
+            ViewBag.supplier = id.Substring(16).Trim();
+            ViewBag.parentPrId = id.Substring(6, 9).Trim();
+            ViewBag.OrderDate = DateTime.Now;
+            PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
+            service.getPRByPrId(id.Substring(6, 9).Trim());
+            singleForm.planPR = service.formPR;
+            ViewBag.recipient = singleForm.planPR.RECIPIENT;
+            ViewBag.location = singleForm.planPR.LOCATION;
+            ViewBag.caution = singleForm.planPR.REMARK;
+            List<PurchaseRequisition> lstPR = service.getPurchaseItemBySupplier(id.Substring(6).Trim());
+            return View(lstPR);
+        }
+        //新增採購單
+        public ActionResult AddPO(PLAN_PURCHASE_REQUISITION pr)
+        {
+            //取得專案編號
+            log.Info("Project Id:" + Request["id"]);
+            //取得專案名稱
+            log.Info("Project Name:" + Request["projectName"]);
+            //取得使用者勾選品項ID
+            log.Info("item_list:" + Request["chkItem"]);
+            string[] lstItemId = Request["chkItem"].ToString().Split(',');
+            log.Info("select count:" + lstItemId.Count());
+            var i = 0;
+            for (i = 0; i < lstItemId.Count(); i++)
+            {
+                log.Info("item_list return No.:" + lstItemId[i]);
+            }
+            string[] lstQty = Request["order_qty"].Split(',');
+            string[] lstPlanItemId = Request["planitemid"].Split(',');
+            //建立採購單
+            log.Info("create new Purchase Order");
+            UserService us = new UserService();
+            SYS_USER u = (SYS_USER)Session["user"];
+            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            pr.PROJECT_ID = Request["id"];
+            pr.CREATE_USER_ID = u.USER_ID;
+            pr.CREATE_DATE = DateTime.Now;
+            pr.RECIPIENT = Request["recipient"];
+            pr.LOCATION = Request["location"];
+            pr.REMARK = Request["caution"];
+            pr.SUPPLIER_ID = Request["supplier"];
+            pr.PARENT_PR_ID = Request["parent_pr_id"];
+            PLAN_PURCHASE_REQUISITION_ITEM item = new PLAN_PURCHASE_REQUISITION_ITEM();
+            string prid = service.newPO(Request["id"], pr, lstItemId);
+            List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem = new List<PLAN_PURCHASE_REQUISITION_ITEM>();
+            for (int j = 0; j < lstItemId.Count(); j++)
+            {
+                PLAN_PURCHASE_REQUISITION_ITEM items = new PLAN_PURCHASE_REQUISITION_ITEM();
+                items.PLAN_ITEM_ID = lstPlanItemId[j];
+                if (lstQty[j].ToString() == "")
+                {
+                    items.ORDER_QTY = null;
+                }
+                else
+                {
+                    items.ORDER_QTY = decimal.Parse(lstQty[j]);
+                }
+                log.Debug("Item No=" + items.PLAN_ITEM_ID + ", Qty =" + items.ORDER_QTY);
+                lstItem.Add(items);
+            }
+            int k = service.refreshPO(prid, pr, lstItem);
+            return Redirect("SinglePO?id=" + prid);
+        }
+
+        //採購單查詢
+        public ActionResult PurchaseOrderIndex(string id)
+        {
+            log.Info("Search For Purchase Order !!");
+            ViewBag.projectid = id;
+            TnderProject tndservice = new TnderProject();
+            TND_PROJECT p = tndservice.getProjectById(id);
+            ViewBag.projectName = p.PROJECT_NAME;
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult PurchaseOrderIndex(FormCollection f)
+        {
+            log.Info("projectid=" + Request["id"] + ", supplier =" + Request["supplier"] + ", prid =" + Request["prid"] + ", create_id =" + Request["create_date"]);
+            List<PRFunction> lstPO = service.getPOByPrjId(Request["id"], Request["create_date"], Request["supplier"], Request["prid"]);
+            ViewBag.SearchResult = "共取得" + lstPO.Count + "筆資料";
             ViewBag.projectId = Request["id"];
             ViewBag.projectName = Request["projectName"];
-            SelectListItem empty = new SelectListItem();
-            empty.Value = "";
-            empty.Text = "";
-            //取得材料合約供應商資料
-            List<SelectListItem> selectMain = new List<SelectListItem>();
-            foreach (string itm in service.getFormNameForContract(Request["id"]))
+            return View("PurchaseOrderIndex", lstPO);
+        }
+
+        //顯示單一採購單功能
+        public ActionResult SinglePO(string id)
+        {
+            log.Info("http get mehtod:" + id);
+            PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
+            service.getPRByPrId(id);
+            singleForm.planPR = service.formPR;
+            singleForm.planPRItem = service.PRItem;
+            ViewBag.orderDate = singleForm.planPR.CREATE_DATE.Value.ToString("yyyy/MM/dd"); 
+            singleForm.prj = service.getProjectById(singleForm.planPR.PROJECT_ID);
+            log.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
+            return View(singleForm);
+        }
+
+        //更新採購單資料
+        public String RefreshPO(string id, FormCollection form)
+        {
+            log.Info("form:" + form.Count);
+            string msg = "";
+            // 取得申購單資料
+            PLAN_PURCHASE_REQUISITION pr = new PLAN_PURCHASE_REQUISITION();
+            SYS_USER loginUser = (SYS_USER)Session["user"];
+            pr.PROJECT_ID = form.Get("projectid").Trim();
+            pr.PR_ID = form.Get("pr_id").Trim();
+            pr.RECIPIENT = form.Get("recipient").Trim();
+            pr.LOCATION = form.Get("location").Trim();
+            pr.REMARK = form.Get("caution").Trim();
+            pr.SUPPLIER_ID = form.Get("supplier").Trim();
+            pr.CREATE_USER_ID = loginUser.USER_ID;
+            pr.MODIFY_DATE = DateTime.Now;
+            try
             {
-                log.Debug("supplier=" + itm);
-                SelectListItem selectI = new SelectListItem();
-                selectI.Value = itm;
-                selectI.Text = itm;
-                if (null != itm && "" != itm)
-                {
-                    selectMain.Add(selectI);
-                }
+                pr.CREATE_DATE = Convert.ToDateTime(form.Get("order_date"));
             }
-            // selectMain.Add(empty);
-            ViewBag.formname = selectMain;
-            return View("PurchaseRequisition", lstProject);
+            catch (Exception ex)
+            {
+                log.Error(ex.StackTrace);
+            }
+            string formid = form.Get("pr_id").Trim();
+            string[] lstItemId = form.Get("pr_item_id").Split(',');
+            string[] lstQty = form.Get("order_qty").Split(',');
+            
+            List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem = new List<PLAN_PURCHASE_REQUISITION_ITEM>();
+            for (int j = 0; j < lstItemId.Count(); j++)
+            {
+                PLAN_PURCHASE_REQUISITION_ITEM item = new PLAN_PURCHASE_REQUISITION_ITEM();
+                item.PR_ITEM_ID = int.Parse(lstItemId[j]);
+                if (lstQty[j].ToString() == "")
+                {
+                    item.ORDER_QTY = null;
+                }
+                else
+                {
+                    item.ORDER_QTY = decimal.Parse(lstQty[j]);
+                }
+                log.Debug("Item No=" + item.PR_ITEM_ID + ", Order Qty =" + item.ORDER_QTY);
+                lstItem.Add(item);
+            }
+            int i = service.updatePO(formid, pr, lstItem);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "更新採購單成功，PR_ID =" + formid;
+            }
+
+            log.Info("Request: PR_ID = " + formid + " 供應商名稱=" + form["supplier"]);
+            return msg;
+        }
+        //驗收作業
+        public ActionResult Receipt(string id)
+        {
+            log.Info("http get mehtod:" + id);
+            PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
+            service.getPRByPrId(id);
+            singleForm.planPR = service.formPR;
+            singleForm.planPRItem = service.PRItem;
+            ViewBag.receiptDate = DateTime.Now.ToString("yyyy/MM/dd");
+            singleForm.prj = service.getProjectById(singleForm.planPR.PROJECT_ID);
+            log.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
+            return View(singleForm);
+        }
+        //新增驗收單資料
+        public ActionResult AddReceipt(PLAN_PURCHASE_REQUISITION pr)
+        {
+            //取得專案編號
+            log.Info("Project Id:" + Request["projectid"]);
+            //取得專案名稱
+            log.Info("Project Name:" + Request["projectName"]);
+            //取得使用者勾選品項ID
+            log.Info("item_list:" + Request["chkItem"]);
+            string[] lstItemId = Request["chkItem"].ToString().Split(',');
+            log.Info("select count:" + lstItemId.Count());
+            var i = 0;
+            for (i = 0; i < lstItemId.Count(); i++)
+            {
+                log.Info("item_list return No.:" + lstItemId[i]);
+            }
+            string[] lstQty = Request["receipt_qty"].Split(',');
+            string[] lstPlanItemId = Request["planitemid"].Split(',');
+            //建立驗收單
+            log.Info("create new Receipt");
+            UserService us = new UserService();
+            SYS_USER u = (SYS_USER)Session["user"];
+            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            pr.PROJECT_ID = Request["projectid"];
+            pr.CREATE_USER_ID = u.USER_ID;
+            pr.CREATE_DATE = DateTime.Now;
+            pr.RECIPIENT = Request["recipient"];
+            pr.LOCATION = Request["location"];
+            pr.REMARK = Request["caution"];
+            pr.SUPPLIER_ID = Request["supplier"];
+            PLAN_PURCHASE_REQUISITION_ITEM item = new PLAN_PURCHASE_REQUISITION_ITEM();
+            string prid = service.newRP(Request["projectid"], pr, lstItemId);
+            List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem = new List<PLAN_PURCHASE_REQUISITION_ITEM>();
+            for (int j = 0; j < lstItemId.Count(); j++)
+            {
+                PLAN_PURCHASE_REQUISITION_ITEM items = new PLAN_PURCHASE_REQUISITION_ITEM();
+                items.PLAN_ITEM_ID = lstPlanItemId[j];
+                if (lstQty[j].ToString() == "")
+                {
+                    items.RECEIPT_QTY = null;
+                }
+                else
+                {
+                    items.RECEIPT_QTY = decimal.Parse(lstQty[j]);
+                }
+                log.Debug("Item No=" + items.PLAN_ITEM_ID + ", Qty =" + items.RECEIPT_QTY);
+                lstItem.Add(items);
+            }
+            int k = service.refreshRP(prid, pr, lstItem);
+            return Redirect("SingleRP?id=" + prid);
+    }
+
+        //顯示單一驗收單功能
+        public ActionResult SingleRP(string id)
+        {
+            log.Info("http get mehtod:" + id);
+            PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
+            service.getPRByPrId(id);
+            singleForm.planPR = service.formPR;
+            singleForm.planPRItem = service.PRItem;
+            ViewBag.receiptDate = singleForm.planPR.CREATE_DATE.Value.ToString("yyyy/MM/dd");
+            singleForm.prj = service.getProjectById(singleForm.planPR.PROJECT_ID);
+            log.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
+            return View(singleForm);
+        }
+        //更新採購單資料
+        public String RefreshRP(string id, FormCollection form)
+        {
+            log.Info("form:" + form.Count);
+            string msg = "";
+            // 取得申購單資料
+            PLAN_PURCHASE_REQUISITION pr = new PLAN_PURCHASE_REQUISITION();
+            SYS_USER loginUser = (SYS_USER)Session["user"];
+            pr.PROJECT_ID = form.Get("projectid").Trim();
+            pr.PR_ID = form.Get("pr_id").Trim();
+            pr.RECIPIENT = form.Get("recipient").Trim();
+            pr.LOCATION = form.Get("location").Trim();
+            pr.REMARK = form.Get("caution").Trim();
+            pr.SUPPLIER_ID = form.Get("supplier").Trim();
+            pr.CREATE_USER_ID = loginUser.USER_ID;
+            pr.MODIFY_DATE = DateTime.Now;
+            try
+            {
+                pr.CREATE_DATE = Convert.ToDateTime(form.Get("receipt_date"));
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex.StackTrace);
+            }
+            string formid = form.Get("pr_id").Trim();
+            string[] lstItemId = form.Get("pr_item_id").Split(',');
+            string[] lstQty = form.Get("receipt_qty").Split(',');
+
+            List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem = new List<PLAN_PURCHASE_REQUISITION_ITEM>();
+            for (int j = 0; j < lstItemId.Count(); j++)
+            {
+                PLAN_PURCHASE_REQUISITION_ITEM item = new PLAN_PURCHASE_REQUISITION_ITEM();
+                item.PR_ITEM_ID = int.Parse(lstItemId[j]);
+                if (lstQty[j].ToString() == "")
+                {
+                    item.RECEIPT_QTY = null;
+                }
+                else
+                {
+                    item.RECEIPT_QTY = decimal.Parse(lstQty[j]);
+                }
+                log.Debug("Item No=" + item.PR_ITEM_ID + ", Order Qty =" + item.RECEIPT_QTY);
+                lstItem.Add(item);
+            }
+            int i = service.updateRP(formid, pr, lstItem);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "更新驗收單成功，PR_ID =" + formid;
+            }
+
+            log.Info("Request: PR_ID = " + formid);
+            return msg;
+        }
+
+        //驗收單查詢
+        public ActionResult ReceiptIndex(string id)
+        {
+            log.Info("Search For Receipt !!");
+            ViewBag.projectid = id;
+            TnderProject tndservice = new TnderProject();
+            TND_PROJECT p = tndservice.getProjectById(id);
+            ViewBag.projectName = p.PROJECT_NAME;
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult ReceiptIndex(FormCollection f)
+        {
+            log.Info("projectid=" + Request["id"] + ", supplier =" + Request["supplier"] + ", prid =" + Request["prid"] + ", create_id =" + Request["create_date"]);
+            List<PRFunction> lstRP = service.getRPByPrjId(Request["id"], Request["create_date"], Request["supplier"], Request["prid"]);
+            ViewBag.SearchResult = "共取得" + lstRP.Count + "筆資料";
+            ViewBag.projectId = Request["id"];
+            ViewBag.projectName = Request["projectName"];
+            return View("ReceiptIndex", lstRP);
         }
     }
 }

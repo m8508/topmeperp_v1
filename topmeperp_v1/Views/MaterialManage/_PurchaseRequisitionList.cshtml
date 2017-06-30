@@ -1,0 +1,31 @@
+﻿
+@model IEnumerable<topmeperp.Models.PRFunction>
+<div class="container">
+    <div class="row" style="padding-top:5px;">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>項次</th>
+                    <th>申購日期</th>
+                    <th>編號</th>
+                    <th>任務名稱</th>
+                    <th>選項連結</th>
+                </tr>
+            </thead>
+            <tbody>
+            <tbody>
+                @foreach (var item in Model)
+            {
+                    <tr>
+                        <td>@item.NO</td>
+                        <td>@item.CREATE_DATE</td>
+                        <td><a href="/MaterialManage/SinglePR/@item.PR_ID" target="_blank">@item.PR_ID</a></td>
+                        <td>@item.TASK_NAME</td>
+                        <td><a href='@("../../UploadFile/" + ViewBag.projectid + "/Materials/" + item.PR_ID + ".xlsx")'>下載</a></td>
+                    </tr>
+                                }
+            </tbody>
+        </table>
+    </div>
+</div>
+

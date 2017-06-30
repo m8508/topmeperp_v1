@@ -8,23 +8,31 @@
 
 <div class="container">
     <div class="row">
-            <h2>點選任務進行申購作業：</h2>
+        <h2>點選任務進行申購作業：</h2>
+        @using (Html.BeginForm("Application", "MaterialManage", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
             <div class="row">
-                <div class="col-md-6 form-group" style="padding-top:10px">
+                <div class="col-md-4 form-group" style="padding-top:10px">
                     <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
                 </div>
-                <div class="col-md-6" style="padding-top:10px">
+                <div class="col-md-4" style="padding-top:10px">
                     <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
                 </div>
+                <div class="col-md-4" style="padding-top:30px">
+                    <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+                </div>
             </div>
-            <div id="treeview"></div>
+                <input type="hidden" id="checkNodeId" name="checkNodeId" value="" />
+                <div id="treeview"></div>
 
-        <input type="text" id="checkNodeId" name="checkNodeId" value="" />
-        <form id="formMapItem" name="formMapItem">
-            <div class="container" id="MapItem" style="width:600px;">
-            </div>
-        </form>
-        </div>
+
+                <div class="row">
+                    <div class="" col-md-12">
+                        <input type="submit" value="申購物料" class="btn btn-default" />
+                    </div>
+                </div>
+        }
+    </div>
 </div>
 
 <script type="text/javascript">

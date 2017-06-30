@@ -1,0 +1,146 @@
+﻿@model topmeperp.Models.PurchaseRequisitionDetail
+@{
+    ViewBag.Title = "專案執行-申購單 ";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+
+<div class="contailer">
+    <form id="formPR" name="formPR" action="RefreshPR" method="post">
+        <div class="row">
+            <div class="col-md-8"><h3 style="height:30px;line-height:20px" class="text-center">協成水電工程事業有限公司-申購單</h3></div>
+        </div>
+        <!-- Reg-Form new { enctype = "multipart/form-data" } -->
+        <div class="row">
+            <div class="col-md-4" style="padding-bottom:10px">
+                <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@Model.prj.PROJECT_NAME" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            </div>
+            <div class="col-md-4" style="padding-bottom:30px">
+                <label for="apply_date">申購日期:</label><input id="apply_date" name="apply_date" type="text" value="@Model.planPR.CREATE_DATE" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            </div>
+            <div class="col-md-4" style="padding-bottom:30px">
+                <label for="pr_id">申購單號:</label><input id="pr_id" name="pr_id" type="text" value="@Model.planPR.PR_ID" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            </div>
+
+            <label class="col-md-2 control-label">收件人 : </label>
+            <div class="col-md-10" style="padding-bottom:10px">
+                <input type="text" class="form-control" name="recipient" id="recipient" value="@Model.planPR.RECIPIENT">
+            </div>
+            <label class="col-md-2 control-label">送貨地址 : </label>
+            <div class="col-md-10" style="padding-bottom:10px">
+                <input type="text" class="form-control" name="location" id="location" value="@Model.planPR.LOCATION">
+            </div>
+            <label class="col-md-2 control-label">注意事項 : </label>
+            <div class="col-md-10" style="padding-bottom:20px">
+                <input type="text" class="form-control" name="caution" id="caution" value="@Model.planPR.REMARK">
+            </div>
+            <input type="hidden" name="projectid" id="projectid" value="@Model.planPR.PROJECT_ID">
+            <input type="hidden" name="prjuid" id="prjuid" value="@Model.planPR.PRJ_UID">
+        </div>
+        
+        <div class="contailer" style="page-break-before: always">
+            <table class="table">
+                <tr>
+                    <th>
+                        No.
+                    </th>
+                    <th>
+                        項次
+                    </th>
+                    <th>
+                        項目說明
+                    </th>
+                    <th>
+                        單位
+                    </th>
+                    <th>
+                        圖算數量
+                    </th>
+                    <th>
+                        已訂購數量
+                    </th>
+                    <th>
+                        庫存數量
+                    </th>
+                    <th>
+                        訂購數量
+                    </th>
+                    <th>
+                        需求日期
+                    </th>
+                    <th>
+                        備註
+                    </th>
+                </tr>
+                @foreach (var item in Model.planPRItem)
+            {
+
+                    <tr>
+                        <td>
+                            @Html.TextBox("pr_item_id", @item.PR_ITEM_ID, new { @class = "form-control", style = "width:90px", @readonly = "readonly" })
+                        </td>
+                        <td>
+                            @item.ITEM_ID
+                        </td>
+                        <td>
+                            @item.ITEM_DESC
+                        </td>
+                        <td>
+                            @item.ITEM_UNIT
+                        </td>
+                        <td>
+                            @item.MAP_QTY
+                        </td>
+                        <td>
+                            @item.CUMULATIVE_QTY
+                        </td>
+                        <td>
+                            @item.INVENTORY_QTY
+                        </td>
+                        <td>
+                            @Html.TextBox("need_qty", item.NEED_QTY, new { @class = "form-control", style = "width:100px" })
+                        </td>
+                        <td>
+                            <div class='col-md-12 date'>
+                                @Html.TextBoxFor(m => item.NEED_DATE, new { @class = "form-control", @id = "need_date", Name = "date" })
+                            </div>
+                        </td>
+                        <td>
+                            @Html.TextBox("remark", item.REMARK, new { @class = "form-control", style = "width:300px" })
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="" col-md-12">
+        <input type="button" value="修改" class="btn btn-default" id="updatePR" />
+    </div>
+</div>
+
+
+<script language="javascript" type="text/javascript">
+
+    $(function () {
+        var date = { index: new Date().getTime() };
+        $("input[id$=need_date]").datetimepicker({
+            format: 'YYYY/MM/DD'
+        });
+    });
+    $("#updatePR").click(function () {
+        $.ajax({
+            url: '@Url.Action("RefreshPR", "MaterialManage")',
+            data: $('#formPR').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+                window.location.reload()
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    });
+</script>

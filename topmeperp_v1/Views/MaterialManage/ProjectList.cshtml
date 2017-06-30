@@ -30,9 +30,10 @@
             <td>
                 <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PlanTask","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">申購作業</button>
                 <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PurchaseRequisition","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">申購單查詢</button>
-                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Purchase","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">採購作業</button>
-                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PurchaseOrder","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">採購單查詢</button>
-                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Receipt","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">驗收作業</button>
+                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PurchaseOrder","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">採購作業</button>
+                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PurchaseOrderIndex","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">採購單查詢</button>
+                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PurchaseOrderIndex","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">驗收作業</button>
+                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("ReceiptIndex","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">驗收單查詢</button>
                 <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Inventory","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">庫存查詢</button>
             </td>
         </tr>

@@ -1,0 +1,134 @@
+﻿
+@model IEnumerable<topmeperp.Models.PurchaseRequisition>
+
+@{
+    ViewBag.Title = "採購作業";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+
+
+@using (Html.BeginForm("AddPO", "MaterialManage", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <div class="jumbotron">
+        <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
+        <div class="row">
+            <div class="col-md-4 form-group" style="padding-top:10px">
+                <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            </div>
+            <div class="col-md-4" style="padding-top:10px">
+                <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            </div>
+            <div class="col-md-4" style="padding-top:10px">
+                <label for="apply_date">採購日期:</label><input id="order_date" name="order_date" type="text" value="@ViewBag.orderDate" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            </div>
+            <input type="hidden" id="supplier" name="supplier" value="@ViewBag.supplier" />
+            <input type="hidden" id="parent_pr_id" name="parent_pr_id" value="@ViewBag.parentPrId" />
+        </div>
+    </div>
+        <label class="col-md-2 control-label">收件人 : </label>
+        <div class="col-md-10" style="padding-bottom:10px">
+            <input style="width: 200px" type="text" class="form-control" name="recipient" id="recipient" value="@ViewBag.recipient">
+        </div>
+        <label class="col-md-2 control-label">送貨地址 : </label>
+        <div class="col-md-10" style="padding-bottom:10px">
+            <input style="width: 2000px" type="text" class="form-control" name="location" id="location" value="@ViewBag.location">
+        </div>
+        <label class="col-md-2 control-label">注意事項 : </label>
+        <div class="col-md-10" style="padding-bottom:10px">
+            <input style="width: 2000px" type="text" class="form-control" name="caution" id="caution" value="@ViewBag.caution">
+        </div>
+        <table class="table">
+            <tr>
+                <th>
+                    No.
+                </th>
+                <th>
+                    項次
+                </th>
+                <th>
+                    項目說明
+                </th>
+                <th>
+                    單位
+                </th>
+                <th>
+                    合約數量
+                </th>
+                <th>
+                    已訂購數量
+                </th>
+                <th>
+                    申購數量
+                </th>
+                <th>
+                    需求日期
+                </th>
+                <th>
+                    備註
+                </th>
+                <th>
+                    <input type="checkbox" name="CheckAll" id="CheckAll">全選
+                </th>
+                <th>
+                    採購數量
+                </th>
+            </tr>
+
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.TextBox("planitemid", @String.Format("{0:N0}", item.PLAN_ITEM_ID), new { style = "width:90px", @readonly = "readonly" })
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ITEM_ID)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ITEM_DESC)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ITEM_UNIT)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ITEM_FORM_QUANTITY)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CUMULATIVE_QTY)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.NEED_QTY)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.NEED_DATE)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.REMARK)
+                    </td>
+                    <td>
+                        <input type="checkbox" id="chkItem" name="chkItem" value="@item.PR_ITEM_ID" />
+                    </td>
+                    <td><input style="width:80px" type="text" class="form-control" name="order_qty" id="order_qty" value=""></td>
+                </tr>
+            }
+        </table>
+
+        <div class="row">
+            <div class="" col-md-12">
+                <input type="submit" value="採購" class="btn btn-default" />
+            </div>
+        </div>
+}
+
+<script language="javascript" type="text/javascript">
+    $(document).ready (function () {
+        $("#CheckAll").click(function () {
+            if ($("#CheckAll").prop("checked")) {
+                $("input[name='chkItem']").prop("checked", true);
+            } else
+                $("input[name='chkItem']").prop("checked", false);
+        });
+    });
+
+</script>
+
+

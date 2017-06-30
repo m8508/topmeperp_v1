@@ -11,6 +11,8 @@ using System.IO;
 using System.Linq;
 using System.Web;
 using topmeperp.Models;
+using System.Globalization;
+
 
 namespace topmeperp.Service
 {
@@ -374,7 +376,7 @@ namespace topmeperp.Service
             return lstItemBudget;
         }
         #endregion
-        
+
     }
     //採購詢價單資料提供作業
     public class PurchaseFormService : TnderProject
@@ -927,18 +929,7 @@ namespace topmeperp.Service
             }
             return lst;
         }
-        //取得材料合約採購項目名稱
-        public List<string> getFormNameForContract(string projectid)
-        {
-            List<string> lst = new List<string>();
-            using (var context = new topmepEntities())
-            {
-                //取得供應商選單
-                lst = context.Database.SqlQuery<string>("SELECT DISTINCT FORM_NAME FROM PLAN_ITEM WHERE PROJECT_ID=@projectid AND SUPPLIER_ID IS NOT NULL ;", new SqlParameter("projectid", projectid)).ToList();
-                logger.Info("Get Supplier For Contract Count=" + lst.Count);
-            }
-            return lst;
-        }
+        
         //取得次系統選單
         public List<string> getSystemSub(string projectid)
         {
@@ -1379,8 +1370,8 @@ namespace topmeperp.Service
             {
                 sql = "UPDATE  PLAN_ITEM SET man_price = i.ITEM_UNIT_PRICE, man_supplier_id = i.SUPPLIER_ID, man_form_name = i.FORM_NAME "
                 + "FROM (select i.plan_item_id, fi.ITEM_UNIT_PRICE, fi.INQUIRY_FORM_ID, pf.SUPPLIER_ID, pf.FORM_NAME from PLAN_ITEM i "
-                + ", PLAN_SUP_INQUIRY_ITEM fi, PLAN_SUP_INQUIRY pf " 
-                + "where i.PLAN_ITEM_ID = fi.PLAN_ITEM_ID and fi.INQUIRY_FORM_ID = pf.INQUIRY_FORM_ID and fi.INQUIRY_FORM_ID = @formid) i " 
+                + ", PLAN_SUP_INQUIRY_ITEM fi, PLAN_SUP_INQUIRY pf "
+                + "where i.PLAN_ITEM_ID = fi.PLAN_ITEM_ID and fi.INQUIRY_FORM_ID = pf.INQUIRY_FORM_ID and fi.INQUIRY_FORM_ID = @formid) i "
                 + "WHERE  i.plan_item_id = PLAN_ITEM.PLAN_ITEM_ID ";
             }
             logger.Debug("batch sql:" + sql);
@@ -1525,5 +1516,646 @@ namespace topmeperp.Service
             logger.Info("update lead time count =" + i);
             return i;
         }
+
+        #region 物料管理之進銷存
+        public PLAN_PURCHASE_REQUISITION formPR = null;
+        public List<PurchaseRequisition> PRItem = null;
+
+        public List<PurchaseRequisition> getPurchaseItemByPrjuid(string projectid, string[] lstItemId)
+        {
+            //取得任務採購內容
+            logger.Info("get plan item by prj_uid ");
+            List<PurchaseRequisition> lstItem = new List<PurchaseRequisition>();
+            using (var context = new topmepEntities())
+            {
+                string ItemId = "";
+                for (i = 0; i < lstItemId.Count(); i++)
+                {
+                    if (i < lstItemId.Count() - 1)
+                    {
+                        ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
+                    }
+                    else
+                    {
+                        ItemId = ItemId + "'" + lstItemId[i] + "'";
+                    }
+                }
+
+                string sql = "SELECT pi.* , md.QTY AS MAP_QTY, B.CUMULATIVE_QTY FROM PLAN_ITEM pi JOIN TND_MAP_DEVICE md ON pi.PLAN_ITEM_ID = md.PROJECT_ITEM_ID  " +
+                    "JOIN PLAN_TASK2MAPITEM pt ON md.DEVIVE_ID = pt.MAP_PK LEFT JOIN (SELECT pri.PLAN_ITEM_ID, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY " +
+                    "FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE PR_ID LIKE 'PPO%' GROUP BY pri.PLAN_ITEM_ID )B ON pi.PLAN_ITEM_ID = B.PLAN_ITEM_ID WHERE " +
+                    "pi.PROJECT_ID = @projectid AND pt.PRJ_UID IN (" + ItemId + ")";
+
+                logger.Info("sql = " + sql);
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("projectid", projectid));
+                lstItem = context.Database.SqlQuery<PurchaseRequisition>(sql, parameters.ToArray()).ToList();
+                logger.Info("Get task material Info Record Count=" + lstItem.Count);
+            }
+            return lstItem;
+        }
+
+        // 寫入任務採購內容
+        public string newPR(string projectid, PLAN_PURCHASE_REQUISITION form, string[] lstItemId)
+        {
+            //1.建立申購單
+            logger.Info("create new purchase requisition ");
+            string sno_key = "PR";
+            SerialKeyService snoservice = new SerialKeyService();
+            form.PR_ID = snoservice.getSerialKey(sno_key);
+            logger.Info("new purchase requisition =" + form.ToString());
+            using (var context = new topmepEntities())
+            {
+                context.PLAN_PURCHASE_REQUISITION.Add(form);
+                int i = context.SaveChanges();
+                logger.Debug("Add Purchase Requisition=" + i);
+                logger.Info("plan purchase requisition id = " + form.PR_ID);
+                //if (i > 0) { status = true; };
+                List<topmeperp.Models.PLAN_PURCHASE_REQUISITION_ITEM> lstItem = new List<PLAN_PURCHASE_REQUISITION_ITEM>();
+                string ItemId = "";
+                for (i = 0; i < lstItemId.Count(); i++)
+                {
+                    if (i < lstItemId.Count() - 1)
+                    {
+                        ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
+                    }
+                    else
+                    {
+                        ItemId = ItemId + "'" + lstItemId[i] + "'";
+                    }
+                }
+
+                string sql = "INSERT INTO PLAN_PURCHASE_REQUISITION_ITEM (PR_ID, PLAN_ITEM_ID) "
+                + "SELECT '" + form.PR_ID + "' as PR_ID, A.PLAN_ITEM_ID as PLAN_ITEM_ID  "
+                + "FROM (SELECT pi.PLAN_ITEM_ID FROM PLAN_ITEM pi WHERE pi.PLAN_ITEM_ID IN (" + ItemId + "))A ";
+                logger.Info("sql =" + sql);
+                var parameters = new List<SqlParameter>();
+                i = context.Database.ExecuteSqlCommand(sql);
+                return form.PR_ID;
+            }
+        }
+        //更新申購數量
+        public int refreshPR(string formid, PLAN_PURCHASE_REQUISITION form, List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem)
+        {
+            logger.Info("Update plan purchase requisition id =" + formid);
+            int i = 0;
+            int j = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.Entry(form).State = EntityState.Modified;
+                    i = context.SaveChanges();
+                    logger.Debug("Update plan purchase requisition =" + i);
+                    logger.Info("purchase requisition item = " + lstItem.Count);
+                    //2.將item資料寫入 
+                    foreach (PLAN_PURCHASE_REQUISITION_ITEM item in lstItem)
+                    {
+                        PLAN_PURCHASE_REQUISITION_ITEM existItem = null;
+                        var parameters = new List<SqlParameter>();
+                        parameters.Add(new SqlParameter("formid", formid));
+                        parameters.Add(new SqlParameter("itemid", item.PLAN_ITEM_ID));
+                        string sql = "SELECT * FROM PLAN_PURCHASE_REQUISITION_ITEM WHERE PR_ID=@formid AND PLAN_ITEM_ID=@itemid";
+                        logger.Info(sql + " ;" + formid + ",plan_item_id=" + item.PLAN_ITEM_ID);
+                        PLAN_PURCHASE_REQUISITION_ITEM excelItem = context.PLAN_PURCHASE_REQUISITION_ITEM.SqlQuery(sql, parameters.ToArray()).First();
+                        existItem = context.PLAN_PURCHASE_REQUISITION_ITEM.Find(excelItem.PR_ITEM_ID);
+                        logger.Debug("find exist item=" + existItem.PLAN_ITEM_ID);
+                        existItem.NEED_QTY = item.NEED_QTY;
+                        existItem.NEED_DATE = item.NEED_DATE;
+                        existItem.REMARK = item.REMARK;
+                        context.PLAN_PURCHASE_REQUISITION_ITEM.AddOrUpdate(existItem);
+                    }
+                    j = context.SaveChanges();
+                    logger.Debug("Update purchase requisition item =" + j);
+                    return j;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("update new purchase requisition id fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return i;
+        }
+
+        //取得申購單資料
+        public List<PRFunction> getPRByPrjId(string projectid, string date, string taskname, string prid)
+        {
+
+            logger.Info("search purchase requisition by 申購日期 =" + date + ", 申購單編號 =" + prid + ", 任務名稱 =" + taskname);
+            List<PRFunction> lstForm = new List<PRFunction>();
+            //處理SQL 預先填入專案代號,設定集合處理參數
+            string sql = "SELECT CONVERT(char(10), A.CREATE_DATE, 111) AS CREATE_DATE, A.PR_ID, A.TASK_NAME, ROW_NUMBER() OVER(ORDER BY A.PR_ID) AS NO " +
+                "FROM (SELECT pr.CREATE_DATE, pr.PR_ID, pr.PRJ_UID, pt.TASK_NAME FROM PLAN_PURCHASE_REQUISITION pr LEFT JOIN PLAN_TASK pt " +
+                "ON pr.PRJ_UID = pt.PRJ_UID WHERE pr.PROJECT_ID=@projectid AND pr.SUPPLIER_ID IS NULL)A ";
+            
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("projectid", projectid));
+            sql = sql + "WHERE A.PR_ID IS NOT NULL ";
+            //申購日期查詢條件
+            if (null != date && date != "")
+            {
+                DateTime dt = Convert.ToDateTime(date);
+                string DateString = dt.AddDays(1).ToString("yyyy/MM/dd");
+                sql = sql + "AND CREATE_DATE >=@date AND  CREATE_DATE < '" + DateString + "' ";
+                parameters.Add(new SqlParameter("date", date));
+            }
+            //申購單編號條件
+            if (null != prid && prid != "")
+            {
+                sql = sql + "AND A.PR_ID =@prid ";
+                parameters.Add(new SqlParameter("prid", prid));
+            }
+            //任務名稱條件
+            if (null != taskname && taskname != "")
+            {
+                sql = sql + "AND A.TASK_NAME LIKE @taskname ";
+                parameters.Add(new SqlParameter("taskname", '%' + taskname + '%'));
+            }
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("get purchase requisition sql=" + sql);
+                lstForm = context.Database.SqlQuery<PRFunction>(sql, parameters.ToArray()).ToList();
+            }
+            logger.Info("get purchase requisition count=" + lstForm.Count);
+            return lstForm;
+        }
+
+        //取得申購單
+        public void getPRByPrId(string prid)
+        {
+            logger.Info("get form : formid=" + prid);
+            using (var context = new topmepEntities())
+            {
+                //取得申購單檔頭資訊
+                string sql = "SELECT PR_ID, PROJECT_ID, RECIPIENT, LOCATION, PRJ_UID, CREATE_USER_ID, CREATE_DATE, REMARK, SUPPLIER_ID, MODIFY_DATE, PARENT_PR_ID FROM " +
+                    "PLAN_PURCHASE_REQUISITION WHERE PR_ID =@prid ";
+                formPR = context.PLAN_PURCHASE_REQUISITION.SqlQuery(sql, new SqlParameter("prid", prid)).First();
+                //取得申購單明細
+                PRItem = context.Database.SqlQuery<PurchaseRequisition>("SELECT pri.*, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.ITEM_FORM_QUANTITY, md.QTY AS MAP_QTY, B.CUMULATIVE_QTY  " +
+                    "FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_ITEM pi ON PRI.PLAN_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN TND_MAP_DEVICE md " +
+                    "ON pi.PLAN_ITEM_ID = md.PROJECT_ITEM_ID LEFT JOIN (SELECT pri.PLAN_ITEM_ID, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY " +
+                    "FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE PR_ID LIKE 'PPO%' GROUP BY pri.PLAN_ITEM_ID)B ON pri.PLAN_ITEM_ID = B.PLAN_ITEM_ID WHERE PR_ID =@prid", new SqlParameter("prid", prid)).ToList();
+                logger.Debug("get purchase requisition item count:" + PRItem.Count);
+            }
+        }
+
+        public PLAN_PURCHASE_REQUISITION table = null;
+        //更新申購單資料
+        public int updatePR(string formid, PLAN_PURCHASE_REQUISITION pr, List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem)
+        {
+            logger.Info("Update purchase requisition id =" + formid);
+            table = pr;
+            int i = 0;
+            int j = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.Entry(table).State = EntityState.Modified;
+                    i = context.SaveChanges();
+                    logger.Debug("Update purchase requisition =" + i);
+                    logger.Info("purchase requisition item = " + lstItem.Count);
+                    //2.將item資料寫入 
+                    foreach (PLAN_PURCHASE_REQUISITION_ITEM item in lstItem)
+                    {
+                        PLAN_PURCHASE_REQUISITION_ITEM existItem = null;
+                        logger.Debug("purchase requisition item id=" + item.PR_ITEM_ID);
+                        if (item.PR_ITEM_ID != 0)
+                        {
+                            existItem = context.PLAN_PURCHASE_REQUISITION_ITEM.Find(item.PR_ITEM_ID);
+                        }
+                        else
+                        {
+                            var parameters = new List<SqlParameter>();
+                            parameters.Add(new SqlParameter("formid", formid));
+                            parameters.Add(new SqlParameter("itemid", item.PLAN_ITEM_ID));
+                            string sql = "SELECT * FROM PLAN_PURCHASE_REQUISITION_ITEM WHERE PR_ID=@formid AND PLAN_ITEM_ID=@itemid";
+                            logger.Info(sql + " ;" + formid + ",plan_item_id=" + item.PLAN_ITEM_ID);
+                            PLAN_PURCHASE_REQUISITION_ITEM excelItem = context.PLAN_PURCHASE_REQUISITION_ITEM.SqlQuery(sql, parameters.ToArray()).First();
+                            existItem = context.PLAN_PURCHASE_REQUISITION_ITEM.Find(excelItem.PR_ITEM_ID);
+
+                        }
+                        logger.Debug("find exist item=" + existItem.PLAN_ITEM_ID);
+                        existItem.NEED_QTY = item.NEED_QTY;
+                        existItem.NEED_DATE = item.NEED_DATE;
+                        existItem.REMARK = item.REMARK;
+                        context.PLAN_PURCHASE_REQUISITION_ITEM.AddOrUpdate(existItem);
+                    }
+                    j = context.SaveChanges();
+                    logger.Debug("Update purchase requisition item =" + j);
+                    return j;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("update new purchase requisition id fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return i;
+        }
+        //取得申購單by供應商
+        public List<PurchaseOrderFunction> getPRBySupplier(string projectid)
+        {
+            List<PurchaseOrderFunction> lstPO = new List<PurchaseOrderFunction>();
+            using (var context = new topmepEntities())
+            {
+                string sql = "SELECT DISTINCT(A.PROJECT_ID + '-' + PR_ID + '-' + SUPPLIER_ID) AS KEYNAME, CONVERT(char(10), A.CREATE_DATE, 111) " +
+                    "AS CREATE_DATE, A.PR_ID, A.SUPPLIER_ID FROM (SELECT pri.*, pi.ITEM_ID, pi.ITEM_DESC,pi.SUPPLIER_ID, pr.CREATE_DATE, pr.PROJECT_ID " +
+                    "FROM PLAN_PURCHASE_REQUISITION_ITEM pri JOIN PLAN_ITEM pi ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN PLAN_PURCHASE_REQUISITION pr " +
+                    "ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID =@projectid AND pr.SUPPLIER_ID IS NULL)A WHERE A.PR_ID + A.SUPPLIER_ID NOT IN " +
+                    "(SELECT DISTINCT(pr.PARENT_PR_ID + pr.SUPPLIER_ID) AS ORDER_RECORD FROM PLAN_PURCHASE_REQUISITION pr WHERE pr.PARENT_PR_ID + pr.SUPPLIER_ID IS NOT NULL) ";
+
+                logger.Info("sql = " + sql);
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("projectid", projectid));
+                lstPO = context.Database.SqlQuery<PurchaseOrderFunction>(sql, parameters.ToArray()).ToList();
+                logger.Info("Get Purchase Requisition By Suplier Record Count =" + lstPO.Count);
+            }
+            return lstPO;
+        }
+        //取得申購單項目by供應商
+        public List<PurchaseRequisition> getPurchaseItemBySupplier(string id)
+        {
+            //取得各供應商採購內容
+            logger.Info("get purchase requisition item by supplier ");
+            List<PurchaseRequisition> lstItem = new List<PurchaseRequisition>();
+            using (var context = new topmepEntities())
+            {
+                string sql = "SELECT pi.PLAN_ITEM_ID, pri.PR_ITEM_ID, pri.NEED_QTY, pri.NEED_DATE, pri.REMARK , pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.ITEM_FORM_QUANTITY, " +
+                    "pi.SUPPLIER_ID FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_ITEM pi on pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID " +
+                    "WHERE pri.PR_ID + '-' + pi.SUPPLIER_ID =@id ";
+
+                logger.Info("sql = " + sql);
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("id", id));
+                lstItem = context.Database.SqlQuery<PurchaseRequisition>(sql, parameters.ToArray()).ToList();
+                logger.Info("Get purchase requisition item by supplier Record Count=" + lstItem.Count);
+            }
+            return lstItem;
+        }
+
+        // 寫入採購內容
+        public string newPO(string projectid, PLAN_PURCHASE_REQUISITION form, string[] lstItemId)
+        {
+            //1.建立採購單
+            logger.Info("create new purchase order ");
+            string sno_key = "PPO";
+            SerialKeyService snoservice = new SerialKeyService();
+            form.PR_ID = snoservice.getSerialKey(sno_key);
+            logger.Info("new purchase order =" + form.ToString());
+            using (var context = new topmepEntities())
+            {
+                context.PLAN_PURCHASE_REQUISITION.Add(form);
+                int i = context.SaveChanges();
+                logger.Debug("Add Purchase Order=" + i);
+                logger.Info("plan purchase Order id = " + form.PR_ID);
+                //if (i > 0) { status = true; };
+                List<topmeperp.Models.PLAN_PURCHASE_REQUISITION_ITEM> lstItem = new List<PLAN_PURCHASE_REQUISITION_ITEM>();
+                string ItemId = "";
+                for (i = 0; i < lstItemId.Count(); i++)
+                {
+                    if (i < lstItemId.Count() - 1)
+                    {
+                        ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
+                    }
+                    else
+                    {
+                        ItemId = ItemId + "'" + lstItemId[i] + "'";
+                    }
+                }
+
+                string sql = "INSERT INTO PLAN_PURCHASE_REQUISITION_ITEM (PR_ID, PLAN_ITEM_ID, NEED_QTY, NEED_DATE, REMARK) "
+                + "SELECT '" + form.PR_ID + "' as PR_ID, A.PLAN_ITEM_ID as PLAN_ITEM_ID, A.NEED_QTY as NEED_QTY, A.NEED_DATE as NEED_DATE, A.REMARK as REMARK  "
+                + "FROM (SELECT pri.* FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE pri.PR_ITEM_ID IN (" + ItemId + "))A ";
+                logger.Info("sql =" + sql);
+                var parameters = new List<SqlParameter>();
+                i = context.Database.ExecuteSqlCommand(sql);
+                return form.PR_ID;
+            }
+        }
+        //更新採購數量
+        public int refreshPO(string formid, PLAN_PURCHASE_REQUISITION form, List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem)
+        {
+            logger.Info("Update plan purchase order id =" + formid);
+            int i = 0;
+            int j = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.Entry(form).State = EntityState.Modified;
+                    i = context.SaveChanges();
+                    logger.Debug("Update plan purchase order =" + i);
+                    logger.Info("purchase order item = " + lstItem.Count);
+                    //2.將item資料寫入 
+                    foreach (PLAN_PURCHASE_REQUISITION_ITEM item in lstItem)
+                    {
+                        PLAN_PURCHASE_REQUISITION_ITEM existItem = null;
+                        var parameters = new List<SqlParameter>();
+                        parameters.Add(new SqlParameter("formid", formid));
+                        parameters.Add(new SqlParameter("itemid", item.PLAN_ITEM_ID));
+                        string sql = "SELECT * FROM PLAN_PURCHASE_REQUISITION_ITEM WHERE PR_ID=@formid AND PLAN_ITEM_ID=@itemid";
+                        logger.Info(sql + " ;" + formid + ",plan_item_id=" + item.PLAN_ITEM_ID);
+                        PLAN_PURCHASE_REQUISITION_ITEM excelItem = context.PLAN_PURCHASE_REQUISITION_ITEM.SqlQuery(sql, parameters.ToArray()).First();
+                        existItem = context.PLAN_PURCHASE_REQUISITION_ITEM.Find(excelItem.PR_ITEM_ID);
+                        logger.Debug("find exist item=" + existItem.PLAN_ITEM_ID);
+                        existItem.ORDER_QTY = item.ORDER_QTY;
+                        context.PLAN_PURCHASE_REQUISITION_ITEM.AddOrUpdate(existItem);
+                    }
+                    j = context.SaveChanges();
+                    logger.Debug("Update purchase order item =" + j);
+                    return j;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("update new purchase order id fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return i;
+        }
+
+        //取得採購單資料
+        public List<PRFunction> getPOByPrjId(string projectid, string date, string supplier, string prid)
+        {
+
+            logger.Info("search purchase order by 採購日期 =" + date + ", 採購單編號 =" + prid + ", 供應商名稱 =" + supplier);
+            List<PRFunction> lstForm = new List<PRFunction>();
+            //處理SQL 預先填入專案代號,設定集合處理參數
+            string sql = "SELECT CONVERT(char(10), CREATE_DATE, 111) AS CREATE_DATE, PR_ID, SUPPLIER_ID, ROW_NUMBER() OVER(ORDER BY PR_ID) AS NO " +
+                "FROM PLAN_PURCHASE_REQUISITION WHERE PROJECT_ID =@projectid AND SUPPLIER_ID IS NOT NULL AND PR_ID NOT LIKE 'RP%' ";
+
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("projectid", projectid));
+            //採購日期查詢條件
+            if (null != date && date != "")
+            {
+                DateTime dt = Convert.ToDateTime(date);
+                string DateString = dt.AddDays(1).ToString("yyyy/MM/dd");
+                sql = sql + "AND CREATE_DATE >=@date AND  CREATE_DATE < '" + DateString + "' ";
+                parameters.Add(new SqlParameter("date", date));
+            }
+            //採購單編號條件
+            if (null != prid && prid != "")
+            {
+                sql = sql + "AND PR_ID =@prid ";
+                parameters.Add(new SqlParameter("prid", prid));
+            }
+            //供應商條件
+            if (null != supplier && supplier != "")
+            {
+                sql = sql + "AND SUPPLIER_ID LIKE @supplier ";
+                parameters.Add(new SqlParameter("supplier", '%' + supplier + '%'));
+            }
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("get purchase order sql=" + sql);
+                lstForm = context.Database.SqlQuery<PRFunction>(sql, parameters.ToArray()).ToList();
+            }
+            logger.Info("get purchase order count=" + lstForm.Count);
+            return lstForm;
+        }
+
+        //更新採購單資料
+        public int updatePO(string formid, PLAN_PURCHASE_REQUISITION pr, List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem)
+        {
+            logger.Info("Update purchase order id =" + formid);
+            table = pr;
+            int i = 0;
+            int j = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.Entry(table).State = EntityState.Modified;
+                    i = context.SaveChanges();
+                    logger.Debug("Update purchase order =" + i);
+                    logger.Info("purchase order item = " + lstItem.Count);
+                    //2.將item資料寫入 
+                    foreach (PLAN_PURCHASE_REQUISITION_ITEM item in lstItem)
+                    {
+                        PLAN_PURCHASE_REQUISITION_ITEM existItem = null;
+                        logger.Debug("purchase order item id=" + item.PR_ITEM_ID);
+                        if (item.PR_ITEM_ID != 0)
+                        {
+                            existItem = context.PLAN_PURCHASE_REQUISITION_ITEM.Find(item.PR_ITEM_ID);
+                        }
+                        else
+                        {
+                            var parameters = new List<SqlParameter>();
+                            parameters.Add(new SqlParameter("formid", formid));
+                            parameters.Add(new SqlParameter("itemid", item.PLAN_ITEM_ID));
+                            string sql = "SELECT * FROM PLAN_PURCHASE_REQUISITION_ITEM WHERE PR_ID=@formid AND PLAN_ITEM_ID=@itemid";
+                            logger.Info(sql + " ;" + formid + ",plan_item_id=" + item.PLAN_ITEM_ID);
+                            PLAN_PURCHASE_REQUISITION_ITEM excelItem = context.PLAN_PURCHASE_REQUISITION_ITEM.SqlQuery(sql, parameters.ToArray()).First();
+                            existItem = context.PLAN_PURCHASE_REQUISITION_ITEM.Find(excelItem.PR_ITEM_ID);
+
+                        }
+                        logger.Debug("find exist item=" + existItem.PLAN_ITEM_ID);
+                        existItem.ORDER_QTY = item.ORDER_QTY;
+                        context.PLAN_PURCHASE_REQUISITION_ITEM.AddOrUpdate(existItem);
+                    }
+                    j = context.SaveChanges();
+                    logger.Debug("Update purchase order item =" + j);
+                    return j;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("update new purchase order id fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return i;
+        }
+
+        // 寫入驗收內容
+        public string newRP(string projectid, PLAN_PURCHASE_REQUISITION form, string[] lstItemId)
+        {
+            //1.建立採購單
+            logger.Info("create new receipt ");
+            string sno_key = "RP";
+            SerialKeyService snoservice = new SerialKeyService();
+            form.PR_ID = snoservice.getSerialKey(sno_key);
+            logger.Info("new purchase receipt =" + form.ToString());
+            using (var context = new topmepEntities())
+            {
+                context.PLAN_PURCHASE_REQUISITION.Add(form);
+                int i = context.SaveChanges();
+                logger.Debug("Add Purchase receipt=" + i);
+                logger.Info("plan purchase receipt id = " + form.PR_ID);
+                //if (i > 0) { status = true; };
+                List<topmeperp.Models.PLAN_PURCHASE_REQUISITION_ITEM> lstItem = new List<PLAN_PURCHASE_REQUISITION_ITEM>();
+                string ItemId = "";
+                for (i = 0; i < lstItemId.Count(); i++)
+                {
+                    if (i < lstItemId.Count() - 1)
+                    {
+                        ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
+                    }
+                    else
+                    {
+                        ItemId = ItemId + "'" + lstItemId[i] + "'";
+                    }
+                }
+
+                string sql = "INSERT INTO PLAN_PURCHASE_REQUISITION_ITEM (PR_ID, PLAN_ITEM_ID, NEED_QTY, NEED_DATE, REMARK, ORDER_QTY) "
+                + "SELECT '" + form.PR_ID + "' as PR_ID, A.PLAN_ITEM_ID as PLAN_ITEM_ID, A.NEED_QTY as NEED_QTY, A.NEED_DATE as NEED_DATE, A.REMARK as REMARK, A.ORDER_QTY as ORDER_QTY  "
+                + "FROM (SELECT pri.* FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE pri.PR_ITEM_ID IN (" + ItemId + "))A ";
+                logger.Info("sql =" + sql);
+                var parameters = new List<SqlParameter>();
+                i = context.Database.ExecuteSqlCommand(sql);
+                return form.PR_ID;
+            }
+        }
+
+        //更新驗收數量
+        public int refreshRP(string formid, PLAN_PURCHASE_REQUISITION form, List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem)
+        {
+            logger.Info("Update plan purchase receipt id =" + formid);
+            int i = 0;
+            int j = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.Entry(form).State = EntityState.Modified;
+                    i = context.SaveChanges();
+                    logger.Debug("Update plan purchase receipt =" + i);
+                    logger.Info("purchase receipt item = " + lstItem.Count);
+                    //2.將item資料寫入 
+                    foreach (PLAN_PURCHASE_REQUISITION_ITEM item in lstItem)
+                    {
+                        PLAN_PURCHASE_REQUISITION_ITEM existItem = null;
+                        var parameters = new List<SqlParameter>();
+                        parameters.Add(new SqlParameter("formid", formid));
+                        parameters.Add(new SqlParameter("itemid", item.PLAN_ITEM_ID));
+                        string sql = "SELECT * FROM PLAN_PURCHASE_REQUISITION_ITEM WHERE PR_ID=@formid AND PLAN_ITEM_ID=@itemid";
+                        logger.Info(sql + " ;" + formid + ",plan_item_id=" + item.PLAN_ITEM_ID);
+                        PLAN_PURCHASE_REQUISITION_ITEM excelItem = context.PLAN_PURCHASE_REQUISITION_ITEM.SqlQuery(sql, parameters.ToArray()).First();
+                        existItem = context.PLAN_PURCHASE_REQUISITION_ITEM.Find(excelItem.PR_ITEM_ID);
+                        logger.Debug("find exist item=" + existItem.PLAN_ITEM_ID);
+                        existItem.RECEIPT_QTY = item.RECEIPT_QTY;
+                        context.PLAN_PURCHASE_REQUISITION_ITEM.AddOrUpdate(existItem);
+                    }
+                    j = context.SaveChanges();
+                    logger.Debug("Update purchase reeipt item =" + j);
+                    return j;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("update new purchase receipt id fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return i;
+        }
+
+        //更新驗收單資料
+        public int updateRP(string formid, PLAN_PURCHASE_REQUISITION pr, List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem)
+        {
+            logger.Info("Update purchase receipt id =" + formid);
+            table = pr;
+            int i = 0;
+            int j = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.Entry(table).State = EntityState.Modified;
+                    i = context.SaveChanges();
+                    logger.Debug("Update purchase receipt =" + i);
+                    logger.Info("purchase receipt item = " + lstItem.Count);
+                    //2.將item資料寫入 
+                    foreach (PLAN_PURCHASE_REQUISITION_ITEM item in lstItem)
+                    {
+                        PLAN_PURCHASE_REQUISITION_ITEM existItem = null;
+                        logger.Debug("purchase receipt item id=" + item.PR_ITEM_ID);
+                        if (item.PR_ITEM_ID != 0)
+                        {
+                            existItem = context.PLAN_PURCHASE_REQUISITION_ITEM.Find(item.PR_ITEM_ID);
+                        }
+                        else
+                        {
+                            var parameters = new List<SqlParameter>();
+                            parameters.Add(new SqlParameter("formid", formid));
+                            parameters.Add(new SqlParameter("itemid", item.PLAN_ITEM_ID));
+                            string sql = "SELECT * FROM PLAN_PURCHASE_REQUISITION_ITEM WHERE PR_ID=@formid AND PLAN_ITEM_ID=@itemid";
+                            logger.Info(sql + " ;" + formid + ",plan_item_id=" + item.PLAN_ITEM_ID);
+                            PLAN_PURCHASE_REQUISITION_ITEM excelItem = context.PLAN_PURCHASE_REQUISITION_ITEM.SqlQuery(sql, parameters.ToArray()).First();
+                            existItem = context.PLAN_PURCHASE_REQUISITION_ITEM.Find(excelItem.PR_ITEM_ID);
+
+                        }
+                        logger.Debug("find exist item=" + existItem.PLAN_ITEM_ID);
+                        existItem.RECEIPT_QTY = item.RECEIPT_QTY;
+                        context.PLAN_PURCHASE_REQUISITION_ITEM.AddOrUpdate(existItem);
+                    }
+                    j = context.SaveChanges();
+                    logger.Debug("Update purchase receipt item =" + j);
+                    return j;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("update new purchase receipt id fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return i;
+        }
+
+        //取得驗收單資料
+        public List<PRFunction> getRPByPrjId(string projectid, string date, string supplier, string prid)
+        {
+
+            logger.Info("search purchase receipt by 驗收日期 =" + date + ", 驗收單編號 =" + prid + ", 供應商名稱 =" + supplier);
+            List<PRFunction> lstForm = new List<PRFunction>();
+            //處理SQL 預先填入專案代號,設定集合處理參數
+            string sql = "SELECT CONVERT(char(10), CREATE_DATE, 111) AS CREATE_DATE, PR_ID, SUPPLIER_ID, ROW_NUMBER() OVER(ORDER BY PR_ID) AS NO " +
+                "FROM PLAN_PURCHASE_REQUISITION WHERE PROJECT_ID =@projectid AND SUPPLIER_ID IS NOT NULL AND PR_ID LIKE 'RP%' ";
+
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("projectid", projectid));
+            //驗收日期查詢條件
+            if (null != date && date != "")
+            {
+                DateTime dt = Convert.ToDateTime(date);
+                string DateString = dt.AddDays(1).ToString("yyyy/MM/dd");
+                sql = sql + "AND CREATE_DATE >=@date AND  CREATE_DATE < '" + DateString + "' ";
+                parameters.Add(new SqlParameter("date", date));
+            }
+            //驗收單編號條件
+            if (null != prid && prid != "")
+            {
+                sql = sql + "AND PR_ID =@prid ";
+                parameters.Add(new SqlParameter("prid", prid));
+            }
+            //供應商條件
+            if (null != supplier && supplier != "")
+            {
+                sql = sql + "AND SUPPLIER_ID LIKE @supplier ";
+                parameters.Add(new SqlParameter("supplier", '%' + supplier + '%'));
+            }
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("get purchase receipt sql=" + sql);
+                lstForm = context.Database.SqlQuery<PRFunction>(sql, parameters.ToArray()).ToList();
+            }
+            logger.Info("get purchase receipt count=" + lstForm.Count);
+            return lstForm;
+        }
+
+        #endregion
     }
 }
