@@ -203,10 +203,7 @@ namespace topmeperp.Controllers
                 int i = planService.choiceMapItemPLU(f["projectid"], f["checkNodeId"], f["map_plu"]);
                 log.Debug("modify records count=" + i);
             }
-            else
-            {
-                return "有問題!!";
-            }
+
             return "設定成功";
         }
     }

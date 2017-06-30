@@ -40,7 +40,7 @@
                 <div class="row panel-heading label-info">弱電管線(MAP_LCP)</div>
             </div>
         </div>
-        if (Model.mapPLU != null)
+        if (Model.ProjectItemInMapPLU != null)
         {
             <div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;">
                 <div class="row">
@@ -53,13 +53,13 @@
                             <th>數量</th>
                         </tr>
 
-                        @foreach (var item in Model.mapPLU)
+                        @foreach (var item in Model.ProjectItemInMapPLU)
                     {
                             <tr>
-                                <td><input type="checkbox" id="map_plu" name="map_plu" value="@item.PLU_ID" /></td>
-                                <td>@Html.DisplayFor(modelItem => item.PLU_ID)</td>
-                                <td style="">@Html.DisplayFor(modelItem => item.PIPE_NAME)</td>
-                                <td>@Html.DisplayFor(modelItem => item.PIPE_TOTAL_LENGTH)</td>
+                                <td><input type="checkbox" id="map_plu" name="map_plu" value="@item.PROJECT_ITEM_ID" /></td>
+                                <td>@Html.DisplayFor(modelItem => item.PROJECT_ITEM_ID )</td>
+                                <td style="">@Html.DisplayFor(modelItem => item.ITEM_DESC )</td>
+                                <td>@Html.DisplayFor(modelItem => item.ITEM_QUANTITY )</td>
                             </tr>
                         }
 
@@ -72,7 +72,7 @@
                 <div class="row panel-heading label-info">消防電(MAP_FP)</div>
             </div>
         </div>
-        if (Model.mapFW != null)
+        if (Model.ProjectItemInMapFW != null)
         {
             <div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;">
                 <div class="row">
@@ -85,13 +85,13 @@
                             <th>數量</th>
                         </tr>
 
-                        @foreach (var item in Model.mapFW)
+                        @foreach (var item in Model.ProjectItemInMapFW)
                     {
                             <tr>
-                                <td><input type="checkbox" id="map_fw" name="map_fw" value="@item.FW_ID" /></td>
-                                <td>@Html.DisplayFor(modelItem => item.FW_ID)</td>
-                                <td style="">@Html.DisplayFor(modelItem => item.PIPE_NAME)</td>
-                                <td>@Html.DisplayFor(modelItem => item.PIPE_TOTAL_LENGTH)</td>
+                                <td><input type="checkbox" id="map_fw" name="map_fw" value="@item.PROJECT_ITEM_ID" /></td>
+                                <td>@Html.DisplayFor(modelItem => item.PROJECT_ITEM_ID)</td>
+                                <td>@Html.DisplayFor(modelItem => item.ITEM_DESC)</td>
+                                <td>@Html.DisplayFor(modelItem => item.ITEM_QUANTITY )</td>
                             </tr>
                         }
 

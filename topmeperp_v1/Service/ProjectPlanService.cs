@@ -191,7 +191,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 //條件篩選
-                logger.Info(sql);
+                logger.Info("MapItem:"+sql);
                 lstDEVICE = context.TND_MAP_DEVICE.SqlQuery(sql,
                     new SqlParameter("projectid", projectid), new SqlParameter("item_name", "%" + item_name + "%")).ToList();
             }
@@ -213,14 +213,15 @@ namespace topmeperp.Service
         //消防水
         public void getMapFW(string projectid, string mapno, string buildno, string primeside, string secondside, string name)
         {
-            string sql = "SELECT FW_ID,M.PROJECT_ID,M.EXCEL_ITEM,PIPE_NAME AS PROJECT_ITEM_ID,"
-                + "MAP_NO,BUILDING_NO,PRIMARY_SIDE,PRIMARY_SIDE_NAME,SECONDARY_SIDE,"
-                + "SECONDARY_SIDE_NAME,P.ITEM_DESC AS PIPE_NAME,PIPE_CNT,PIPE_SET,PIPE_LENGTH,PIPE_TOTAL_LENGTH, "
-                + "M.CREATE_DATE,M.CREATE_ID "
-                + "FROM TND_MAP_FW M, TND_PROJECT_ITEM P "
-                + "WHERE M.PIPE_NAME = P.PROJECT_ITEM_ID AND M.PROJECT_ID =@projectid ";
+            string sql = "SELECT PROJECT_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
+                + ",(SELECT SUM(PIPE_TOTAL_LENGTH)  FROM TND_MAP_FW PLU WHERE PLU.PIPE_NAME = P.PROJECT_ITEM_ID) as ITEM_QUANTITY "
+                + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
+                + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
+                + ",SHEET_NAME ,EXCEL_ROW_ID,QUO_PRICE "
+                + "FROM TND_PROJECT_ITEM P "
+                + "WHERE P.PROJECT_ID=@projectid AND P.PROJECT_ITEM_ID IN (SELECT PIPE_NAME FROM TND_MAP_FW WHERE TND_MAP_FW.PROJECT_ID=@projectid ";
 
-            List<TND_MAP_FW> lstDEVICE = null;
+            List<TND_PROJECT_ITEM> lstMapFW= null;
             using (var context = new topmepEntities())
             {
                 //條件篩選
@@ -252,24 +253,25 @@ namespace topmeperp.Service
                     sql = sql + " AND P.ITEM_DESC LIKE @name";
                     parameters.Add(new SqlParameter("name", "%" + name + "%"));
                 }
-                logger.Info(sql);
-                lstDEVICE = context.TND_MAP_FW.SqlQuery(sql, parameters.ToArray()).ToList();
+                sql = sql + ") ORDER BY EXCEL_ROW_ID";
+                logger.Info("MapFW:"+sql);
+                lstMapFW = context.TND_PROJECT_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
             }
-            viewModel.mapFW = lstDEVICE;
-            resultMessage = resultMessage + "消防水資料筆數:" + lstDEVICE.Count + ",";
+            viewModel.ProjectItemInMapFW = lstMapFW;
+            resultMessage = resultMessage + "消防水資料筆數:" + lstMapFW.Count + ",";
         }
-
         //給排水
         public void getMapPLU(string projectid, string mapno, string buildno, string primeside, string secondside, string name)
         {
-            string sql = "SELECT PLU_ID,PLU.PROJECT_ID,PLU.EXCEL_ITEM,PIPE_NAME AS PROJECT_ITEM_ID,"
-                + "MAP_NO,BUILDING_NO,PRIMARY_SIDE,PRIMARY_SIDE_NAME,SECONDARY_SIDE,"
-                + "SECONDARY_SIDE_NAME,P.ITEM_DESC AS PIPE_NAME,PIPE_COUNT_SET,PIPE_SET_QTY,PIPE_LENGTH,PIPE_TOTAL_LENGTH, "
-                + "PLU.CREATE_DATE,PLU.CREATE_ID "
-                + "FROM TND_MAP_PLU PLU LEFT OUTER JOIN TND_PROJECT_ITEM P ON PLU.PIPE_NAME = P.PROJECT_ITEM_ID "
-                + "WHERE PLU.PROJECT_ID = @projectid ";
+            string sql = "SELECT PROJECT_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
+                          + ",(SELECT SUM(PIPE_TOTAL_LENGTH) FROM TND_MAP_PLU PLU WHERE PLU.PIPE_NAME = P.PROJECT_ITEM_ID) as ITEM_QUANTITY "
+                          + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
+                          + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
+                          + ",SHEET_NAME ,EXCEL_ROW_ID,QUO_PRICE "
+                          + "FROM TND_PROJECT_ITEM P "
+                          + "WHERE P.PROJECT_ID=@projectid AND P.PROJECT_ITEM_ID IN (SELECT PIPE_NAME FROM TND_MAP_PLU WHERE TND_MAP_PLU.PROJECT_ID=@projectid ";
 
-            List<TND_MAP_PLU> lstDEVICE = null;
+            List<TND_PROJECT_ITEM> lstMapPlu = null;
             using (var context = new topmepEntities())
             {
                 //條件篩選
@@ -301,11 +303,12 @@ namespace topmeperp.Service
                     sql = sql + " AND P.ITEM_DESC LIKE @name";
                     parameters.Add(new SqlParameter("name", "%" + name + "%"));
                 }
-                logger.Info(sql);
-                lstDEVICE = context.TND_MAP_PLU.SqlQuery(sql, parameters.ToArray()).ToList();
+                sql = sql + ") ORDER BY EXCEL_ROW_ID";
+                logger.Info("getMapPLU:" + sql);
+                lstMapPlu = context.TND_PROJECT_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
             }
-            viewModel.mapPLU = lstDEVICE;
-            resultMessage = resultMessage + "給排水資料筆數:" + lstDEVICE.Count + ",";
+            viewModel.ProjectItemInMapPLU = lstMapPlu;
+            resultMessage = resultMessage + "給排水資料筆數:" + lstMapPlu.Count + ",";
         }
         //設定任務與圖算項目
         public int choiceMapItem(string projectid, string prjuid, string mapdeviceIds)
@@ -330,18 +333,19 @@ namespace topmeperp.Service
             return i;
         }
         //設定任務與圖算項目-消防水
-        public int choiceMapItemFW(string projectid, string prjuid, string mapfwIds)
+        public int choiceMapItemFW(string projectid, string prjuid, string mapPitemIds)
         {
             int i = -1;
-            logger.Info("projectid=" + projectid + ",prjuid=" + prjuid + ",MAP_FW=" + mapfwIds);
+            logger.Info("projectid=" + projectid + ",prjuid=" + prjuid + ",mapPitemIds=" + mapPitemIds);
 
             using (var context = new topmepEntities())
             {
+                mapPitemIds = mapPitemIds.Replace(",", "','");
                 //清除原來任務之工作項目，再將設備資料寫入Task2MapItem
                 string sql = "DELETE PLAN_TASK2MAPITEM WHERE PROJECT_ID=@projectId AND PRJ_UID=@prjuid AND　MAP_TYPE='TND_MAP_FW';"
                     + "INSERT INTO PLAN_TASK2MAPITEM (PROJECT_ID,PRJ_UID,MAP_TYPE,MAP_PK,PROJECT_ITEM_ID) "
-                    + " SELECT @projectId AS PROJECT_ID,@prjuid AS PRJ_UID,'TND_MAP_FW' AS MAP_TYPE, FW_ID AS MAP_PK, PIPE_NAME  FROM TND_MAP_FW "
-                    + " WHERE FW_ID in (" + mapfwIds + ");";
+                    + " SELECT DISTINCT @projectId AS PROJECT_ID,@prjuid AS PRJ_UID,'TND_MAP_FW' AS MAP_TYPE, 0 AS MAP_PK, PIPE_NAME  FROM TND_MAP_FW "
+                    + " WHERE PIPE_NAME in ('" + mapPitemIds + "');";
                 logger.Debug(sql);
                 var parameters = new List<SqlParameter>();
                 //設定專案名編號資料
@@ -359,11 +363,12 @@ namespace topmeperp.Service
 
             using (var context = new topmepEntities())
             {
+                mappluIds = mappluIds.Replace(",", "','");
                 //清除原來任務之工作項目，再將設備資料寫入Task2MapItem
                 string sql = "DELETE PLAN_TASK2MAPITEM WHERE PROJECT_ID=@projectId AND PRJ_UID=@prjuid AND　MAP_TYPE='TND_MAP_PLU';"
                     + "INSERT INTO PLAN_TASK2MAPITEM (PROJECT_ID,PRJ_UID,MAP_TYPE,MAP_PK,PROJECT_ITEM_ID) "
-                    + "SELECT @projectId AS PROJECT_ID,@prjuid  AS PRJ_UID,'TND_MAP_PLU' AS MAP_TYPE, PLU_ID AS MAP_PK, PIPE_NAME  FROM TND_MAP_PLU "
-                    + " WHERE PLU_ID in (" + mappluIds + ");";
+                    + "SELECT DISTINCT @projectId AS PROJECT_ID,@prjuid  AS PRJ_UID,'TND_MAP_PLU' AS MAP_TYPE, 0 AS MAP_PK, PIPE_NAME  FROM TND_MAP_PLU "
+                    + " WHERE PIPE_NAME in ('" + mappluIds + "');";
                 logger.Debug(sql);
                 var parameters = new List<SqlParameter>();
                 //設定專案名編號資料
