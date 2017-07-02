@@ -151,6 +151,7 @@ namespace topmeperp.Controllers
                         break;
                     case "MAP_PEP"://電器管線
                         log.Debug("MapType: MAP_PEP(電器管線)");
+                        planService.getMapPEP (projectid, mapno, buildno, primeside, secondside, devicename);
                         break;
                     case "MAP_LCP"://弱電管線
                         log.Debug("MapType: MAP_LCP(弱電管線)");
