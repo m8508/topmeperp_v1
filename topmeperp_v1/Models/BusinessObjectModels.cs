@@ -249,16 +249,10 @@ namespace topmeperp.Models
         public string PIPE_2_DESC { get; set; }
     }
     #region 供應商管理
-    public class SUPPLIER_FUNCTION : TND_SUPPLIER
+    public class SupplierDetail
     {
-        public string CONTACT_NAME { get; set; }
-        public string CONTACT_TEL { get; set; }
-        public string CONTACT_FAX { get; set; }
-        public string CONTACT_EMAIL { get; set; }
-        public string REMARK { get; set; }
-        public string SUPPLIER_MATERIAL_ID { get; set; }
-        public Int64 CONTACT_ID { get; set; }
-        public string CONTACT_MOBIL { get; set; }
+        public TND_SUPPLIER sup { get; set; }
+        public IEnumerable<TND_SUP_CONTACT_INFO> contactItem { get; set; }
     }
     #endregion
     public class PurchaseRequisition : PLAN_ITEM

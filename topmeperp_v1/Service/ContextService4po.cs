@@ -917,6 +917,19 @@ namespace topmeperp.Service
             }
             return lst;
         }
+        //取得供應商聯絡人選單
+        public List<string> getContact(string supplierid)
+        {
+            List<string> lst = new List<string>();
+            using (var context = new topmepEntities())
+            {
+                //取得供應商選單
+                lst = context.Database.SqlQuery<string>("SELECT (SELECT SUPPLIER_MATERIAL_ID + '' + CONTACT_NAME FROM TND_SUP_CONTACT_INFO sc2 WHERE " +
+                    "sc2.CONTACT_ID = sc1.CONTACT_ID for XML PATH('')) AS contact FROM TND_SUP_CONTACT_INFO sc1 WHERE SUPPLIER_MATERIAL_ID =@supplierid;", new SqlParameter("supplierid", supplierid)).ToList();
+                logger.Info("Get Contact Count=" + lst.Count);
+            }
+            return lst;
+        }
         //取得材料合約供應商選單
         public List<string> getSupplierForContract(string projectid)
         {

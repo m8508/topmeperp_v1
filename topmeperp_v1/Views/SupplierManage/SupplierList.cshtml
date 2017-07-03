@@ -1,5 +1,5 @@
 ﻿
-@model IEnumerable<topmeperp.Models.SUPPLIER_FUNCTION>
+@model IEnumerable<topmeperp.Models.TND_SUPPLIER>
 <table class="table">
     <tr>
         <th>
@@ -21,11 +21,15 @@
             傳真
         </th>
         <th>
+            手機
+        </th>
+        <th>
             E-Mail
         </th>
         <th>
-            備註
+           聯絡地址
         </th>
+
     </tr>
 
     @foreach (var item in Model)
@@ -40,29 +44,25 @@
             <td>
                 @Html.DisplayFor(modelItem => item.SUPPLY_NOTE)
             </td>
-            @if (item.CONTACT_NAME != null && item.CONTACT_NAME != "")
-            {
-                <td>
-                    <a href="/SupplierManage/EditForContact/@Html.DisplayFor(modelItem => item.CONTACT_ID)" target="_blank">@Html.DisplayFor(modelItem => item.CONTACT_NAME)</a>
-                </td>
-            }
-            else
-            {
-                <td>
-                    <a href="/SupplierManage/EditForContact/@Html.DisplayFor(modelItem => item.CONTACT_ID)" target="_blank"><span style="color: crimson;">修改聯絡人資料</span></a>
-                </td>
-            }
             <td>
-                @Html.DisplayFor(modelItem => item.CONTACT_TEL)
+                @Html.DisplayFor(modelItem => item.CONTACT_NAME)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.CONTACT_FAX)
+                @Html.DisplayFor(modelItem => item.COMPANY_TEL)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.COMPANY_FAX)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CONTACT_MOBILE)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CONTACT_EMAIL)
             </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CONTACT_ADDRESS)
+            </td>
 
-            <td>@Html.DisplayFor(modelItem => item.REMARK)</td>
         </tr>
     }
 

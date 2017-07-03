@@ -147,7 +147,8 @@ namespace topmeperp.Controllers
             ViewBag.Supplier = selectSupplier;
             return View(singleForm);
         }
-
+        //取得連動的聯絡人相關資料
+        
         public String UpdateFormName(FormCollection form)
         {
             log.Info("form:" + form.Count);

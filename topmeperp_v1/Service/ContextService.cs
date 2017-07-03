@@ -1713,17 +1713,18 @@ namespace topmeperp.Service
     public class SupplierManage : ContextService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        TND_SUPPLIER supplier = null;
-        // SUP_MATERIAL_RELATION typemain = null;
-        TND_SUP_CONTACT_INFO contact = null;
+        public TND_SUPPLIER supplier = null;
+        //  public SUP_MATERIAL_RELATION typemain = null;
+        public TND_SUP_CONTACT_INFO contact = null;
+        public List<TND_SUP_CONTACT_INFO> contactList = null;
         string sno_key = "SUP";
-        public void newSupplier(TND_SUPPLIER sup, TND_SUP_CONTACT_INFO sc)
+        public string newSupplier(TND_SUPPLIER sup)
         {
             //1.建立供應商基本資料
             logger.Info("create new supplier ");
             supplier = sup;
             // typemain = sm;
-            contact = sc;
+            //contact = sc;
             using (var context = new topmepEntities())
             {
                 //2.取得供應商編號
@@ -1737,12 +1738,13 @@ namespace topmeperp.Service
                 //context.SUP_MATERIAL_RELATION.Add(typemain);
                 //int j = context.SaveChanges();
                 //logger.Debug("Add typemain=" + j);
-                sc.SUPPLIER_MATERIAL_ID = supplier.SUPPLIER_ID;
-                context.TND_SUP_CONTACT_INFO.Add(contact);
-                int k = context.SaveChanges();
-                logger.Debug("Add contact=" + k);
+                //sc.SUPPLIER_MATERIAL_ID = supplier.SUPPLIER_ID;
+                //context.TND_SUP_CONTACT_INFO.Add(contact);
+                //int k = context.SaveChanges();
+                //logger.Debug("Add contact=" + k);
                 //if (i > 0) { status = true; };
             }
+            return supplier.SUPPLIER_ID;
         }
         public TND_SUPPLIER getSupplierById(string supid)
         {
@@ -1814,18 +1816,17 @@ namespace topmeperp.Service
         //    return i;
         //}
 
-        public string message = "";
+
         //取得供應商聯絡人資料
-        TND_SUP_CONTACT_INFO sc = null;
-        public TND_SUP_CONTACT_INFO getContactById(string id)
+        public TND_SUPPLIER getContactById(string supid)
         {
             using (var context = new topmepEntities())
             {
-                sc = context.TND_SUP_CONTACT_INFO.SqlQuery("select sc.* from TND_SUP_CONTACT_INFO sc "
-                    + "where sc.CONTACT_ID = @id "
-                   , new SqlParameter("id", id)).First();
+                supplier = context.TND_SUPPLIER.SqlQuery("select sup.* from TND_SUPPLIER sup "
+                    + "where sup.SUPPLIER_ID = @supid "
+                   , new SqlParameter("supid", supid)).First();
             }
-            return sc;
+            return supplier;
         }
         public int updateContact(TND_SUP_CONTACT_INFO sc)
         {
@@ -1840,7 +1841,7 @@ namespace topmeperp.Service
             }
             return i;
         }
-      
+        public string message = "";
         public int refreshContact(TND_SUP_CONTACT_INFO item)
         {
             int i = 0;
@@ -1854,6 +1855,87 @@ namespace topmeperp.Service
                 catch (Exception e)
                 {
                     logger.Error("update supplier contact fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return i;
+        }
+        //取得供應商
+        public void getSupplierBySupId(string id)
+        {
+            logger.Info("get form : supplier id=" + id);
+            using (var context = new topmepEntities())
+            {
+                //取得供應商檔頭資訊
+                string sql = "SELECT * FROM TND_SUPPLIER sup WHERE sup.SUPPLIER_ID =@id ";
+                supplier = context.TND_SUPPLIER.SqlQuery(sql, new SqlParameter("id", id)).FirstOrDefault();
+                //取得聯絡人明細
+                contactList = context.TND_SUP_CONTACT_INFO.SqlQuery("SELECT * FROM TND_SUP_CONTACT_INFO cnt WHERE cnt.SUPPLIER_MATERIAL_ID =@id", new SqlParameter("id", id)).ToList();
+                logger.Debug("get supplier contact count:" + contactList.Count);
+            }
+        }
+
+       
+        //更新供應商資料
+        public int updateSupplier(string supplierid, TND_SUPPLIER sup, List<TND_SUP_CONTACT_INFO> lstItem)
+        {
+            logger.Info("Update supplier id =" + supplierid);
+            supplier = sup;
+            int i = 0;
+            int j = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.Entry(supplier).State = EntityState.Modified;
+                    i = context.SaveChanges();
+                    logger.Debug("Update Supplier =" + i);
+                    logger.Info("contact item = " + lstItem.Count);
+                    //2.將item資料寫入 
+                    foreach (TND_SUP_CONTACT_INFO item in lstItem)
+                    {
+                        TND_SUP_CONTACT_INFO existItem = null;
+                        logger.Debug("contact item id=" + item.CONTACT_ID);
+                        if (item.CONTACT_ID != 0)
+                        {
+                            existItem = context.TND_SUP_CONTACT_INFO.Find(item.CONTACT_ID);
+                        }
+                        else
+                        {
+                            var parameters = new List<SqlParameter>();
+                            parameters.Add(new SqlParameter("supplierid", supplierid));
+                            parameters.Add(new SqlParameter("contactname", item.CONTACT_NAME));
+                            string sql = "SELECT * FROM TND_SUP_CONTACT_INFO WHERE SUPPLIER_MATERIAL_ID=@supplierid AND CONTACT_NAME =@contactname";
+                            logger.Info(sql + " ;" + supplierid + ", contactname=" + item.CONTACT_NAME);
+                            TND_SUP_CONTACT_INFO excelItem = context.TND_SUP_CONTACT_INFO.SqlQuery(sql, parameters.ToArray()).First();
+                            existItem = context.TND_SUP_CONTACT_INFO.Find(excelItem.CONTACT_ID);
+
+                        }
+                        logger.Debug("find exist item=" + existItem.CONTACT_ID);
+                        existItem.CONTACT_NAME = item.CONTACT_NAME;
+                        existItem.CONTACT_TEL = item.CONTACT_TEL;
+                        existItem.CONTACT_FAX = item.CONTACT_FAX;
+                        existItem.CONTACT_MOBIL = item.CONTACT_MOBIL;
+                        existItem.CONTACT_EMAIL = item.CONTACT_EMAIL;
+                        existItem.REMARK = item.REMARK;
+                        context.TND_SUP_CONTACT_INFO.AddOrUpdate(existItem);
+                    }
+                    j = context.SaveChanges();
+                    logger.Debug("Update contact item =" + j);
+                    if (i != 0)
+                    {
+                        return i;
+                    }
+                    else
+                    {
+                        return j;
+                    }
+                }
+                catch (Exception e)
+                {
+                    logger.Error("update new supplier id fail:" + e.ToString());
                     logger.Error(e.StackTrace);
                     message = e.Message;
                 }
