@@ -151,6 +151,7 @@ namespace topmeperp.Controllers
                         break;
                     case "MAP_PEP"://電器管線
                         log.Debug("MapType: MAP_PEP(電器管線)");
+                        planService.getMapPEP (projectid, mapno, buildno, primeside, secondside, devicename);
                         break;
                     case "MAP_LCP"://弱電管線
                         log.Debug("MapType: MAP_LCP(弱電管線)");
@@ -203,10 +204,7 @@ namespace topmeperp.Controllers
                 int i = planService.choiceMapItemPLU(f["projectid"], f["checkNodeId"], f["map_plu"]);
                 log.Debug("modify records count=" + i);
             }
-            else
-            {
-                return "有問題!!";
-            }
+
             return "設定成功";
         }
     }
