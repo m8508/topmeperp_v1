@@ -49,7 +49,7 @@
                     <td ><select style="color:cornflowerblue;font-weight:bold; width:120px" id="TaskDatas[${index}].TASK_TYPE" name="TaskDatas[${index}].TASK_TYPE"><option value="成控">成控</option><option value="圖算">圖算</option><option value="主辦">主辦</option></select></td>
                     <td><input type="text" name="TaskDatas[${index}].USER_ID" /></td>
                     <td><input type="text" style="width:250px" name="TaskDatas[${index}].TASK_ITEM" /></td>
-                    <td ><input type="text" style="width:200px" placeholder="輸入西元年月日: yyyy/mm/dd" name="TaskDatas[${index}].FINISH_DATE" id="" /></td>
+                    <td ><input type="date" style="width:150px"  name="TaskDatas[${index}].FINISH_DATE" id="TaskDatas[${index}].FINISH_DATE" /></td>
                     <td><input type="text" style="width:200px" name="TaskDatas[${index}].REMARK" /></td>
                     <td><input type="text" style="width:100px" name="TaskDatas[${index}].CREATE_ID" value="@ViewBag.createid" /></td>
                     <td><input type="button" class="btn btn-info" value="刪除" onclick="Remove('${index}');" /></td>
@@ -81,13 +81,13 @@
     function Remove(id) {
         $("#Task_" + id).remove();
     }
-    $(document).ready(function () {
+   
         $(function () {
-            $("").datetimepicker({
+            $("TaskDatas[${index}].FINISH_DATE").datetimepicker({
                 format: 'YYYY/MM/DD'
             });
         });
-    })
+    
 </script>
 
 <div class="container">

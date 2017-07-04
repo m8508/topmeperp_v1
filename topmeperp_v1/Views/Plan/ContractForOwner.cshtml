@@ -37,7 +37,7 @@
         </tr>
         <tr>
             <td>
-                <button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@ViewBag.CONTRACT_ID')">新增 / 修改</button>
+                <button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@ViewBag.contractid')">新增 / 修改</button>
             </td>
             <td>
                工程款
@@ -125,13 +125,13 @@
                 $('#usanceretention_cash').val(data.USANCE_RETENTION_CASH_RATIO);
                 $('#usanceretention_1').val(data.USANCE_RETENTION_1_RATIO);
                 $('#usanceretention_2').val(data.USANCE_RETENTION_2_RATIO);
-                if ($('#date3').val(data.DATE_3) != null ) {
+                if ((data.DATE_3) == null) {
+                    $("input[name=payfrequency][value='O']").attr('checked', true);
+                }
+                else {
                     $("input[name=payfrequency][value='T']").attr('checked', true)
                 }
-                else  {
-                    $("input[name=payfrequency][value='O']").attr('checked', true)
-                }
-                if ($('#paymenttype').val(data.PAYMENT_TYPE) != null) {
+                if ((data.PAYMENT_TYPE) != null && (data.PAYMENT_TYPE) != "") {
                     $("input[name=payterms][value='P']").attr('checked', true);
                 }
                 else {
