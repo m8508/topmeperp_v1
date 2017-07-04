@@ -917,19 +917,7 @@ namespace topmeperp.Service
             }
             return lst;
         }
-        //取得供應商聯絡人選單
-        public List<string> getContact(string supplierid)
-        {
-            List<string> lst = new List<string>();
-            using (var context = new topmepEntities())
-            {
-                //取得供應商選單
-                lst = context.Database.SqlQuery<string>("SELECT (SELECT SUPPLIER_MATERIAL_ID + '' + CONTACT_NAME FROM TND_SUP_CONTACT_INFO sc2 WHERE " +
-                    "sc2.CONTACT_ID = sc1.CONTACT_ID for XML PATH('')) AS contact FROM TND_SUP_CONTACT_INFO sc1 WHERE SUPPLIER_MATERIAL_ID =@supplierid;", new SqlParameter("supplierid", supplierid)).ToList();
-                logger.Info("Get Contact Count=" + lst.Count);
-            }
-            return lst;
-        }
+
         //取得材料合約供應商選單
         public List<string> getSupplierForContract(string projectid)
         {
@@ -942,7 +930,7 @@ namespace topmeperp.Service
             }
             return lst;
         }
-        
+
         //取得次系統選單
         public List<string> getSystemSub(string projectid)
         {
@@ -1401,7 +1389,7 @@ namespace topmeperp.Service
         public int addContractId(string projectid)
         {
             int i = 0;
-            //將合約編號寫入PLAN PAYMENT TERMS
+            //將材料合約編號寫入PLAN PAYMENT TERMS
             logger.Info("copy contract id into plan payment terms, project id =" + projectid);
             using (var context = new topmepEntities())
             {
@@ -1409,6 +1397,23 @@ namespace topmeperp.Service
                 string sql = "INSERT INTO PLAN_PAYMENT_TERMS (CONTRACT_ID, PROJECT_ID) " +
                        "SELECT distinct ('" + projectid + "' + p.SUPPLIER_ID + p.FORM_NAME) AS contractid, '" + projectid + "' FROM  PLAN_ITEM p WHERE p.SUPPLIER_ID IS NOT NULL " +
                        "AND '" + projectid + "' + p.SUPPLIER_ID + p.FORM_NAME NOT IN(SELECT ppt.CONTRACT_ID FROM PLAN_PAYMENT_TERMS ppt) ";
+
+                var parameters = new List<SqlParameter>();
+                i = context.Database.ExecuteSqlCommand(sql);
+                return i;
+            }
+        }
+        //將工資合約編號寫入PLAN PAYMENT TERMS
+        public int addContractIdForWage(string projectid)
+        {
+            int i = 0;
+            logger.Info("copy contract id from wage into plan payment terms, project id =" + projectid);
+            using (var context = new topmepEntities())
+            {
+                List<topmeperp.Models.PLAN_PAYMENT_TERMS> lstItem = new List<PLAN_PAYMENT_TERMS>();
+                string sql = "INSERT INTO PLAN_PAYMENT_TERMS (CONTRACT_ID, PROJECT_ID) " +
+                   "SELECT distinct ('" + projectid + "' + p.MAN_SUPPLIER_ID + p.MAN_FORM_NAME) AS contractid, '" + projectid + "' FROM  PLAN_ITEM p WHERE p.MAN_SUPPLIER_ID IS NOT NULL " +
+                   "AND '" + projectid + "' + p.MAN_SUPPLIER_ID + p.MAN_FORM_NAME  NOT IN(SELECT ppt.CONTRACT_ID FROM PLAN_PAYMENT_TERMS ppt) ";
 
                 logger.Info("sql =" + sql);
                 var parameters = new List<SqlParameter>();
@@ -1663,7 +1668,7 @@ namespace topmeperp.Service
             string sql = "SELECT CONVERT(char(10), A.CREATE_DATE, 111) AS CREATE_DATE, A.PR_ID, A.TASK_NAME, ROW_NUMBER() OVER(ORDER BY A.PR_ID) AS NO " +
                 "FROM (SELECT pr.CREATE_DATE, pr.PR_ID, pr.PRJ_UID, pt.TASK_NAME FROM PLAN_PURCHASE_REQUISITION pr LEFT JOIN PLAN_TASK pt " +
                 "ON pr.PRJ_UID = pt.PRJ_UID WHERE pr.PROJECT_ID=@projectid AND pr.SUPPLIER_ID IS NULL)A ";
-            
+
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("projectid", projectid));
             sql = sql + "WHERE A.PR_ID IS NOT NULL ";

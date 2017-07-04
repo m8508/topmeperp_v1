@@ -147,8 +147,16 @@ namespace topmeperp.Controllers
             ViewBag.Supplier = selectSupplier;
             return View(singleForm);
         }
+
         //取得連動的聯絡人相關資料
-        
+        public JsonResult QuerySupplier(string term)
+        {
+            var items = service.getSupplier();
+            var filteredItems = items.Where(
+                item => item.StartsWith(term));
+            return Json(filteredItems.DefaultIfEmpty(), JsonRequestBehavior.AllowGet);
+        }
+
         public String UpdateFormName(FormCollection form)
         {
             log.Info("form:" + form.Count);
@@ -750,6 +758,7 @@ namespace topmeperp.Controllers
             ViewBag.Result = lstContract.Count;
             ViewBag.Result4Wage = lstWageContract.Count;
             int i = service.addContractId(id);
+            int j = service.addContractIdForWage(id);
             return View(contract);
         }
 

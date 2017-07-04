@@ -82,25 +82,25 @@
         </tbody>
     </table>
 </div>
-    <div class="container">
-        <ul class="nav nav-tabs">
-            <li class="active"><a data-toggle="tab" href="#inquiryMaterial">物料廠商合約</a></li>
-            <li><a data-toggle="tab" href="#inquiryWage">工資廠商合約</a></li>
-        </ul>
+<div class="container">
+    <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#inquiryMaterial">物料廠商合約</a></li>
+        <li><a data-toggle="tab" href="#inquiryWage">工資廠商合約</a></li>
+    </ul>
 
-        <div class="tab-content">
-            <div id="inquiryMaterial" class="tab-pane fade in active">
-                @{
-                    Html.RenderPartial("_MaterialContractPage");
-                }
-            </div>
-            <div id="inquiryWage" class="tab-pane fade">
-                @{
-                    Html.RenderPartial("_WageContractPage");
-                }
-            </div>
+    <div class="tab-content">
+        <div id="inquiryMaterial" class="tab-pane fade in active">
+            @{
+                Html.RenderPartial("_MaterialContractPage");
+            }
+        </div>
+        <div id="inquiryWage" class="tab-pane fade">
+            @{
+                Html.RenderPartial("_WageContractPage");
+            }
         </div>
     </div>
+</div>
 <!-- Modal :對話框-->
 <div class="row" style="padding-top:10px;">
     <div class="modal fade" id="paymentInfo" role="dialog">
@@ -174,18 +174,19 @@
                 $('#usanceretention_cash').val(data.USANCE_RETENTION_CASH_RATIO);
                 $('#usanceretention_1').val(data.USANCE_RETENTION_1_RATIO);
                 $('#usanceretention_2').val(data.USANCE_RETENTION_2_RATIO);
-                if ($('#date3').val(data.DATE_3) != null ) {
+                if ((data.DATE_3) == null) {
+                    $("input[name=payfrequency][value='O']").attr('checked', true);
+                }
+                else {
                     $("input[name=payfrequency][value='T']").attr('checked', true)
                 }
-                else  {
-                    $("input[name=payfrequency][value='O']").attr('checked', true)
-                }
-                if ($('#paymenttype').val(data.PAYMENT_TYPE) != null) {
+                if ((data.PAYMENT_TYPE) != null && (data.PAYMENT_TYPE) != "" ) {
                     $("input[name=payterms][value='P']").attr('checked', true);
                 }
                 else {
                     $("input[name=payterms][value='S']").attr('checked', true);
                 }
+
                 $('#paymentInfo').modal('show'); // show bootstrap modal when complete loaded
                 //$('.modal-title').text('編輯設定資料'); // Set title to Bootstrap modal title
 
@@ -209,10 +210,9 @@
         var method1 = $('input[name=payfrequency]:radio:checked').val();
         if (typeof (method1) == "undefined") { // 注意檢查完全沒有選取的寫法，這行是精華
             alert("請選取付款方式，並檢查輸入之日期是否正確！");
-        return false;
+            return false;
         }
-        if (method1 == "O")
-        {
+        if (method1 == "O") {
             alert("您選擇的付款方式為每月付款2次");
         }
         if (method1 == "T") {
@@ -229,21 +229,20 @@
         if (method2 == "S") {
             alert("您選擇的付款比例與票期為階段付款");
         }
-            var s = $('#formPayment').serialize();
-            var URLs = "/PurchaseForm/addPaymentTerms";
-            $.ajax({
-                url: URLs,
-                data: $('#formPayment').serialize(),
-                type: "POST",
-                dataType: 'text',
-                success: function (msg) {
-                    alert(msg);
-                    getPaymentTerm(contractid)
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    alert(thrownError);
-                }
-            });
+        var s = $('#formPayment').serialize();
+        var URLs = "/PurchaseForm/addPaymentTerms";
+        $.ajax({
+            url: URLs,
+            data: $('#formPayment').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+                getPaymentTerm(contractid)
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
         });
+    });
 </script>
-   

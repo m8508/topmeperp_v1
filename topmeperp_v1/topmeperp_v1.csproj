@@ -809,7 +809,6 @@
     <Content Include="Views\SupplierManage\EditForTypeMain.cshtml" />
     <Content Include="Views\SupplierManage\_AddTypeMain.cshtml" />
     <Content Include="Views\SupplierManage\_AddContact.cshtml" />
-    <Content Include="Views\SupplierManage\EditForContact.cshtml" />
     <Content Include="Views\MaterialManage\PlanTask.cshtml" />
     <Content Include="Views\MaterialManage\Application.cshtml" />
     <Content Include="Views\MaterialManage\SinglePR.cshtml" />
