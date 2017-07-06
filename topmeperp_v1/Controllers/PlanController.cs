@@ -250,7 +250,7 @@ namespace topmeperp.Controllers
             ViewBag.projectName = p.PROJECT_NAME;
             //取得業主合約金額
             PlanRevenue contractAmount = service.getPlanRevenueById(id);
-            ViewBag.Amount = contractAmount.PLAN_REVENUE;
+            ViewBag.Amount = (null == contractAmount.PLAN_REVENUE ? 0 : contractAmount.PLAN_REVENUE) ;
             ViewBag.contractid = contractAmount.CONTRACT_ID;
             int i = service.addContractId4Owner(id);
             return View();
@@ -279,9 +279,9 @@ namespace topmeperp.Controllers
             BudgetDataService bs = new BudgetDataService();
             List<DirectCost> budget2 = bs.getBudget(id);
             DirectCost totalinfo = bs.getTotalCost(id);
-            ViewBag.budget = totalinfo.TOTAL_BUDGET;
-            ViewBag.cost = totalinfo.TOTAL_COST;
-            ViewBag.p_cost = totalinfo.TOTAL_P_COST;
+            ViewBag.budget = (null==totalinfo.TOTAL_BUDGET?0: totalinfo.TOTAL_BUDGET);
+            ViewBag.cost = (null == totalinfo.TOTAL_COST ? 0 : totalinfo.TOTAL_COST) ;
+            ViewBag.p_cost = (null == totalinfo.TOTAL_P_COST ? 0 : totalinfo.TOTAL_P_COST); 
             ViewBag.result = "共有" + budget2.Count + "筆資料";
             return View(budget2);
         }

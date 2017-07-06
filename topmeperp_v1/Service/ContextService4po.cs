@@ -181,7 +181,6 @@ namespace topmeperp.Service
                         logger.Info(sql + " ;" + item.PROJECT_ID + item.PLAN_ITEM_ID);
                         PLAN_ITEM excelItem = context.PLAN_ITEM.SqlQuery(sql, parameters.ToArray()).First();
                         existItem = context.PLAN_ITEM.Find(excelItem.PLAN_ITEM_ID);
-
                     }
                     logger.Debug("find exist item=" + existItem.PLAN_ITEM_ID);
                     existItem.BUDGET_RATIO = item.BUDGET_RATIO;
