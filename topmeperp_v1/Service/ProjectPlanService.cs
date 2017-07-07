@@ -173,7 +173,7 @@ namespace topmeperp.Service
             return viewModel;
         }
         //圖算:設備
-        public void getMapItem(string projectid, string item_name)
+        public void getMapItem(string projectid, string item_name,string startid,string endid)
         {
             logger.Info("get map DEVICE info by item_name=" + item_name);
             string sql = "SELECT DEVIVE_ID,M.PROJECT_ID,P.PROJECT_ITEM_ID,MAP_NO,BUILDING_NO "
@@ -181,14 +181,26 @@ namespace topmeperp.Service
                 + "FROM TND_MAP_DEVICE M, TND_PROJECT_ITEM P "
                 + " WHERE M.PROJECT_ITEM_ID = P.PROJECT_ITEM_ID "
                 + " AND P.ITEM_DESC Like @item_name "
-                + " AND M.PROJECT_ID = @projectid ORDER BY CAST(SUBSTRING(P.PROJECT_ITEM_ID,8,LEN(P.PROJECT_ITEM_ID)) as INT) ";
+                + " AND M.PROJECT_ID = @projectid ";
+            //條件篩選
+            var parameters = new List<SqlParameter>();
+            //設定專案名編號資料
+            parameters.Add(new SqlParameter("projectid", projectid));
+            parameters.Add(new SqlParameter("item_name", "%" + item_name + "%"));
+
+            if (null != startid && ""!= startid && null != endid && ""!= endid )
+            {
+                sql = sql + " AND CAST(SUBSTRING(P.PROJECT_ITEM_ID,8,LEN(P.PROJECT_ITEM_ID)) as INT) BETWEEN @startid AND @endid ";
+                parameters.Add(new SqlParameter("startid", int.Parse(startid)));
+                parameters.Add(new SqlParameter("endid", int.Parse(endid)));
+            }
+            sql=sql+ "ORDER BY CAST(SUBSTRING(P.PROJECT_ITEM_ID,8,LEN(P.PROJECT_ITEM_ID)) as INT) ";
             List<TND_MAP_DEVICE> lstDEVICE = new List<TND_MAP_DEVICE>();
             using (var context = new topmepEntities())
             {
-                //條件篩選
+
                 logger.Info("MapItem:" + sql);
-                lstDEVICE = context.TND_MAP_DEVICE.SqlQuery(sql,
-                    new SqlParameter("projectid", projectid), new SqlParameter("item_name", "%" + item_name + "%")).ToList();
+                lstDEVICE = context.TND_MAP_DEVICE.SqlQuery(sql, parameters.ToArray()).ToList();
             }
             viewModel.mapDEVICE = lstDEVICE;
             resultMessage = resultMessage + "設備資料筆數:" + lstDEVICE.Count + ",";
@@ -696,6 +708,26 @@ namespace topmeperp.Service
             return i;
         }
         #endregion
+        public List<TND_PROJECT_ITEM> getItemInTask(string projectid,string prjuid)
+        {
+            logger.Info("get ItemTask Project_id=" + projectid + ",prjuid=" + prjuid);
+            List<TND_PROJECT_ITEM> lstProjectItem = new List<TND_PROJECT_ITEM>();
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    string sql = "SELECT * FROM TND_PROJECT_ITEM WHERE PROJECT_ITEM_ID IN (SELECT PROJECT_ITEM_ID FROM PLAN_TASK2MAPITEM "
+                        +"WHERE PROJECT_ID=@projectid AND PRJ_UID=@prjuid);";
+                    logger.Debug("sql=" + sql);
+                    lstProjectItem = context.TND_PROJECT_ITEM.SqlQuery(sql, new SqlParameter("projectid", projectid), new SqlParameter("prjuid", int.Parse(prjuid))).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.StackTrace);
+                }
+            }
+            return lstProjectItem;
+        }
     }
     #endregion
 }

@@ -138,6 +138,8 @@ namespace topmeperp.Controllers
             log.Debug("devicename" + f["devicename"]);
             string mapType = f["mapType"];
             log.Debug("mapType" + f["mapType"]);
+            string strart_id = f["startid"];
+            string end_id = f["endid"];
             if (null == f["mapType"] || "" == f["mapType"])
             {
                 ViewBag.Message = "至少需選擇一項施作項目!!";
@@ -150,7 +152,7 @@ namespace topmeperp.Controllers
                 {
                     case "MAP_DEVICE"://設備
                         log.Debug("MapType: MAP_DEVICE(設備)");
-                        planService.getMapItem(projectid, devicename);
+                        planService.getMapItem(projectid, devicename, strart_id, end_id);
                         break;
                     case "MAP_PEP"://電器管線
                         log.Debug("MapType: MAP_PEP(電器管線)");
@@ -234,9 +236,11 @@ namespace topmeperp.Controllers
 
             return "設定成功";
         }
-        public ActionResult getActionItem4Task(string projectid,string prjuid)
+        public ActionResult getActionItem4Task(FormCollection f)
         {
-            return PartialView("_getProjecttem4Task", null);
+            log.Debug("projectId=" + f["projectid"] + ",prjuid=" + f["checkNodeId"]);
+            //planService
+            return PartialView("_getProjecttem4Task", planService.getItemInTask(f["projectid"], f["checkNodeId"]));
         }
     }
 }

@@ -4,20 +4,20 @@
     @if (Model != null)
     {
         <div class="row">
-            <div class="row panel-heading label-info">設備(MAP_DEVICE)</div>
+            <div class="row panel-heading label-info">項目</div>
             <table class="table">
                 <tr>
-                    <th>編號</th>
-                    <th>設備名稱</th>
-                    <th>數量</th>
+                    <th>主鍵值</th>
+                    <th>標單項次</th>
+                    <th>品項</th>
                 </tr>
 
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td><input type="checkbox" id="map_device" name="map_device" value="@item.PROJECT_ITEM_ID" /></td>
+                        <td>@item.PROJECT_ITEM_ID</td>
+                        <td>@item.ITEM_ID </td>
                         <td>@Html.DisplayFor(modelItem => item.ITEM_DESC)</td>
-                        <td style="">@Html.DisplayFor(modelItem => item.ITEM_DESC)</td>
                     </tr>
                 }
 
