@@ -821,6 +821,7 @@
     <Content Include="Views\MaterialManage\SingleRP.cshtml" />
     <Content Include="Views\MaterialManage\ReceiptIndex.cshtml" />
     <Content Include="Views\MaterialManage\_ReceiptList.cshtml" />
+    <Content Include="Views\ProjectPlan\_getProjecttem4Task.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

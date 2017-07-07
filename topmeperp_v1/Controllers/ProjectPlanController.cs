@@ -9,6 +9,9 @@ using topmeperp.Service;
 
 namespace topmeperp.Controllers
 {
+    /// <summary>
+    /// 專案任務相關功能
+    /// </summary>
     public class ProjectPlanController : Controller
     {
         static ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -230,6 +233,10 @@ namespace topmeperp.Controllers
             }
 
             return "設定成功";
+        }
+        public ActionResult getActionItem4Task(string projectid,string prjuid)
+        {
+            return PartialView("_getProjecttem4Task", null);
         }
     }
 }
