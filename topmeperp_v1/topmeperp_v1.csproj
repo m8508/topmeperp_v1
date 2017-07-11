@@ -383,7 +383,6 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\EstimationController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InquiryController.cs" />
     <Compile Include="Controllers\MaterialManageController.cs" />
@@ -811,6 +810,7 @@
     <Content Include="Views\SupplierManage\_AddTypeMain.cshtml" />
     <Content Include="Views\SupplierManage\_AddContact.cshtml" />
     <Content Include="Views\MaterialManage\PlanTask.cshtml" />
+    <Content Include="Views\MaterialManage\Application.cshtml" />
     <Content Include="Views\MaterialManage\SinglePR.cshtml" />
     <Content Include="Views\MaterialManage\PurchaseOrder.cshtml" />
     <Content Include="Views\MaterialManage\PurchaseOperation.cshtml" />
@@ -820,12 +820,8 @@
     <Content Include="Views\MaterialManage\Receipt.cshtml" />
     <Content Include="Views\MaterialManage\SingleRP.cshtml" />
     <Content Include="Views\MaterialManage\ReceiptIndex.cshtml" />
-    <Content Include="Views\MaterialManage\ReceiptList.cshtml" />
-    <Content Include="Views\Estimation\Index.cshtml" />
-    <Content Include="Views\Estimation\_ProjectList.cshtml" />
-    <Content Include="Views\Estimation\Valuation.cshtml" />
-    <Content Include="Views\Estimation\_ContractItems.cshtml" />
-    <Content Include="Views\MaterialManage\Application.cshtml" />
+    <Content Include="Views\MaterialManage\_ReceiptList.cshtml" />
+    <Content Include="Views\ProjectPlan\_getProjecttem4Task.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

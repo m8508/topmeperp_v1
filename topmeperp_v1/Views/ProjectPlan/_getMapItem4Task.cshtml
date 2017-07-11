@@ -1,11 +1,10 @@
 ﻿@model topmeperp.Models.MapInfoModels
 @ViewBag.Result
-
 <div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;padding-top:5px;">
     <label id="Message" class="alert-danger">@ViewBag.Message</label>
     @if (Model != null)
     {
-        if (Model.mapDEVICE != null)
+        if (Model.mapDEVICE != null)//設備
         {
             <div class="row">
                 <div class="row panel-heading label-info">設備(MAP_DEVICE)</div>
@@ -30,17 +29,62 @@
                 </table>
             </div>
         }
-        <div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;">
-            <div class="row">
-                <div class="row panel-heading label-info"> 電器管線(MAP_PEP)</div>
+        if (Model.ProjectItemInMapPEP != null)//電器管線
+        {
+            <div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;">
+                <div class="row">
+                    <div class="row panel-heading label-info"> 電器管線(MAP_PEP)</div>
+                    <table class="table">
+                        <tr>
+                            <th>全選</th>
+                            <th>編號</th>
+                            <th>設備名稱</th>
+                            <th>數量</th>
+                        </tr>
+
+                        @foreach (var item in Model.ProjectItemInMapPEP)
+                        {
+                        <tr>
+                            <td><input type="checkbox" id="map_pep" name="map_pep" value="@item.PROJECT_ITEM_ID" /></td>
+                            <td>@Html.DisplayFor(modelItem => item.PROJECT_ITEM_ID)</td>
+                            <td style="">@Html.DisplayFor(modelItem => item.ITEM_DESC)</td>
+                            <td>@Html.DisplayFor(modelItem => item.ITEM_QUANTITY)</td>
+                        </tr>
+                        }
+
+                    </table>
+
+                </div>
             </div>
-        </div>
-        <div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;">
-            <div class="row">
-                <div class="row panel-heading label-info">弱電管線(MAP_LCP)</div>
+        }
+        if (Model.ProjectItemInMapLCP != null)//弱電
+        {
+            <div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;">
+                <div class="row">
+                    <div class="row panel-heading label-info">弱電管線(MAP_LCP)</div>
+                    <table class="table">
+                        <tr>
+                            <th>全選</th>
+                            <th>編號</th>
+                            <th>設備名稱</th>
+                            <th>數量</th>
+                        </tr>
+
+                        @foreach (var item in Model.ProjectItemInMapLCP)
+                        {
+                            <tr>
+                                <td><input type="checkbox" id="map_lcp" name="map_lcp" value="@item.PROJECT_ITEM_ID" /></td>
+                                <td>@Html.DisplayFor(modelItem => item.PROJECT_ITEM_ID)</td>
+                                <td style="">@Html.DisplayFor(modelItem => item.ITEM_DESC)</td>
+                                <td>@Html.DisplayFor(modelItem => item.ITEM_QUANTITY)</td>
+                            </tr>
+                        }
+
+                    </table>
+                </div>
             </div>
-        </div>
-        if (Model.ProjectItemInMapPLU != null)
+        }
+        if (Model.ProjectItemInMapPLU != null) //給排水
         {
             <div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;">
                 <div class="row">
@@ -54,12 +98,12 @@
                         </tr>
 
                         @foreach (var item in Model.ProjectItemInMapPLU)
-                    {
+                        {
                             <tr>
                                 <td><input type="checkbox" id="map_plu" name="map_plu" value="@item.PROJECT_ITEM_ID" /></td>
-                                <td>@Html.DisplayFor(modelItem => item.PROJECT_ITEM_ID )</td>
-                                <td style="">@Html.DisplayFor(modelItem => item.ITEM_DESC )</td>
-                                <td>@Html.DisplayFor(modelItem => item.ITEM_QUANTITY )</td>
+                                <td>@Html.DisplayFor(modelItem => item.PROJECT_ITEM_ID)</td>
+                                <td style="">@Html.DisplayFor(modelItem => item.ITEM_DESC)</td>
+                                <td>@Html.DisplayFor(modelItem => item.ITEM_QUANTITY)</td>
                             </tr>
                         }
 
@@ -67,12 +111,33 @@
                 </div>
             </div>
         }
-        <div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;">
-            <div class="row">
-                <div class="row panel-heading label-info">消防電(MAP_FP)</div>
+        if (Model.ProjectItemInMapFP != null)//消防電
+        {
+            <div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;">
+                <div class="row">
+                    <div class="row panel-heading label-info">消防電(MAP_FP)</div>
+                    <table class="table">
+                        <tr>
+                            <th>全選</th>
+                            <th>編號</th>
+                            <th>設備名稱</th>
+                            <th>數量</th>
+                        </tr>
+                        @foreach (var item in Model.ProjectItemInMapFP)
+                        {
+                            <tr>
+                                <td><input type="checkbox" id="map_fp" name="map_fp" value="@item.PROJECT_ITEM_ID" /></td>
+                                <td>@Html.DisplayFor(modelItem => item.PROJECT_ITEM_ID)</td>
+                                <td style="">@Html.DisplayFor(modelItem => item.ITEM_DESC)</td>
+                                <td>@Html.DisplayFor(modelItem => item.ITEM_QUANTITY)</td>
+                            </tr>
+                        }
+
+                    </table>
+                </div>
             </div>
-        </div>
-        if (Model.ProjectItemInMapFW != null)
+        }
+        if (Model.ProjectItemInMapFW != null)//消防水
         {
             <div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;">
                 <div class="row">
@@ -91,7 +156,7 @@
                                 <td><input type="checkbox" id="map_fw" name="map_fw" value="@item.PROJECT_ITEM_ID" /></td>
                                 <td>@Html.DisplayFor(modelItem => item.PROJECT_ITEM_ID)</td>
                                 <td>@Html.DisplayFor(modelItem => item.ITEM_DESC)</td>
-                                <td>@Html.DisplayFor(modelItem => item.ITEM_QUANTITY )</td>
+                                <td>@Html.DisplayFor(modelItem => item.ITEM_QUANTITY)</td>
                             </tr>
                         }
 

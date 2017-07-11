@@ -92,7 +92,7 @@ namespace topmeperp.Service
             while (rows.MoveNext())
             {
                 row = (IRow)rows.Current;
-                logger.Debug("Cells Count=" + row.Cells.Count + ",Excel Value:" + row.Cells[0].ToString() + row.Cells[1]);
+                logger.Debug("Cells Count=" + row.Cells.Count + ",Excel Value:" + row.Cells[0].ToString());
                 //將各Row 資料寫入物件內
                 //項次,名稱,單位,數量,單價,複價,備註,九宮格,次九宮格,主系統,次系統
                 if (row.Cells[0].ToString().ToUpper() != "END")
@@ -1965,9 +1965,12 @@ namespace topmeperp.Service
             {
                 fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\Temp\\" + form.FORM_NAME + "_空白.xlsx";
             }
-            else
+            else if (form.SUPPLIER_ID == null || form.SUPPLIER_ID == "")
             {
                 fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_NAME + "_空白.xlsx";
+            }else
+            {
+                fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID;
             }
             var file = new FileStream(fileLocation, FileMode.Create);
             logger.Info("new file name =" + file.Name + ",path=" + file.Position);

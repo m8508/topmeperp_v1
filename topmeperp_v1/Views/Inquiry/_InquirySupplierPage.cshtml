@@ -63,7 +63,7 @@
                                 @type
                             </td>
                             <td>@item.STATUS</td>
-                            <td><a href='@("../../UploadFile/" + ViewBag.projectid + "/Quotes/" + item.FORM_ID + ".xlsx")'>下載</a></td>
+                            <td><a href="/Inquiry/downLoadInquiryForm?formid=@item.FORM_ID" target="_blank">下載</a></td>          
                         </tr>
                     }
                 </tbody>

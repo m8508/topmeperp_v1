@@ -8,9 +8,13 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-md-6" style="height:600px;overflow-x:auto;">
-            <h2>專案任務</h2>
-            <div id="treeview"></div>
+        <div class="col-md-6">
+            <h2 id="task">專案任務</h2><a href="#ItemInfo">施作項目</a>
+            <div id="treeview" style="height:500px;overflow-x:auto;"></div>
+            <div id="itemDiv" style="height:300px;overflow-x:auto;">
+                <h5 id="ItemInfo">施作項目</h5><a href="#task">任務</a>
+                <div class="container" id="item4task"></div>               
+            </div>
         </div>
         <div class="col-md-6">
             <h2>施作內容</h2>
@@ -18,12 +22,15 @@
                 <form name="formQueryForm" id="formQueryForm">
                     <div class="row panel-heading">
                         <div class="col-md-12">
-                            <input type="text" name="projectid" id="projectid" value="@ViewBag.projectId" readonly />
+                            <input type="hidden" name="projectid" id="projectid" value="@ViewBag.projectId" readonly />
                             <label class="control-label" for="mapno">圖號: </label><input type="text" name="mapno" id="mapno" value="" size="5" />
                             <label class="control-label" for="buildno">區域或棟別: </label><input type="text" name="buildno" id="buildno" value="" size="5" /><br />
                             <label class="control-label" for="primeside">位置(一次側): </label><input type="text" name="primeside" id="primeside" value="" size="5" />
-                            <label class="control-label" for="secondside">位置(二次側): </label><input type="text" name="secondside" id="secondside" value="" size="5" />
+                            <label class="control-label" for="secondside">位置(二次側): </label><input type="text" name="secondside" id="secondside" value="" size="5" /><br/>
                             <label class="control-label" for="secondside">設備名稱: </label><input type="text" name="devicename" id="devicename" value="" size="5" />
+                            <label class="control-label" for="secondside">編號: </label>
+                            <input type="text" name="startid" id="startid" value="" size="5" />~
+                            <input type="text" name="endid" id="endid" value="" size="5" />
                         </div>
                     </div>
                     <div class="row">
@@ -65,6 +72,8 @@
             $('#treeview').treeview('checkNode', [node.nodeId, { silent: true }]);
             // chkNodeId = node.href;
             $('#checkNodeId').val(node.href);
+            getProjectItem4Task();
+            
             //alert(node.nodeId);
         },
         onNodeUnchecked: function (event, node) {
@@ -72,11 +81,23 @@
             $('#checkNodeId').val("");
         }
     });
-
+    //讀去任務施作項目
+    function getProjectItem4Task() {
+        $.ajax({
+            url: "getActionItem4Task",
+            data: $('#formMapItem').serialize(),
+            method: "POST",
+            dataType: "html",
+            success: function (result) {
+                $("#item4task").html(result); 
+            }
+        })
+    }
+    //讀取圖算資料
     function getMapItem4Task() {
         $.ajax({
             url: "getMapItem4Task",
-            data: $('#formQueryForm').serialize(),
+            data: $("#formQueryForm").serialize(),
             method: "POST",
             dataType: "html",
             success: function (result) {

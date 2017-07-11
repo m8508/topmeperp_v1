@@ -9,6 +9,9 @@ using topmeperp.Service;
 
 namespace topmeperp.Controllers
 {
+    /// <summary>
+    /// 專案任務相關功能
+    /// </summary>
     public class ProjectPlanController : Controller
     {
         static ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -135,6 +138,8 @@ namespace topmeperp.Controllers
             log.Debug("devicename" + f["devicename"]);
             string mapType = f["mapType"];
             log.Debug("mapType" + f["mapType"]);
+            string strart_id = f["startid"];
+            string end_id = f["endid"];
             if (null == f["mapType"] || "" == f["mapType"])
             {
                 ViewBag.Message = "至少需選擇一項施作項目!!";
@@ -147,7 +152,7 @@ namespace topmeperp.Controllers
                 {
                     case "MAP_DEVICE"://設備
                         log.Debug("MapType: MAP_DEVICE(設備)");
-                        planService.getMapItem(projectid, devicename);
+                        planService.getMapItem(projectid, devicename, strart_id, end_id);
                         break;
                     case "MAP_PEP"://電器管線
                         log.Debug("MapType: MAP_PEP(電器管線)");
@@ -155,6 +160,7 @@ namespace topmeperp.Controllers
                         break;
                     case "MAP_LCP"://弱電管線
                         log.Debug("MapType: MAP_LCP(弱電管線)");
+                        planService.getMapLCP(projectid, mapno, buildno, primeside, secondside, devicename);
                         break;
                     case "TND_MAP_PLU"://給排水
                         log.Debug("MapType: TND_MAP_PLU(給排水)");
@@ -162,6 +168,7 @@ namespace topmeperp.Controllers
                         break;
                     case "MAP_FP"://消防電
                         log.Debug("MapType: MAP_FP(消防電)");
+                        planService.getMapFP(projectid, mapno, buildno, primeside, secondside, devicename);
                         break;
                     case "MAP_FW"://消防水
                         planService.getMapFW(projectid, mapno, buildno, primeside, secondside, devicename);
@@ -189,6 +196,36 @@ namespace topmeperp.Controllers
                 int i = planService.choiceMapItem(f["projectid"], f["checkNodeId"], f["map_device"]);
                 log.Debug("modify records count=" + i);
             }
+            if (null != f["map_pep"])
+            {
+                log.Debug("projectId=" + f["projectid"] + ",prjuid=" + f["checkNodeId"] + ",map_pep=" + f["map_pep"]);
+                //電器管線
+                int i = planService.choiceMapItemPEP(f["projectid"], f["checkNodeId"], f["map_pep"]);
+                log.Debug("modify records count=" + i);
+            }
+            if (null != f["map_lcp"])
+            {
+                log.Debug("projectId=" + f["projectid"] + ",prjuid=" + f["checkNodeId"] + ",map_lcp=" + f["map_lcp"]);
+                //弱電
+                int i = planService.choiceMapItemLCP(f["projectid"], f["checkNodeId"], f["map_lcp"]);
+                log.Debug("modify records count=" + i);
+            }
+
+            if (null != f["map_plu"])
+            {
+                log.Debug("projectId=" + f["projectid"] + ",prjuid=" + f["checkNodeId"] + ",map_plu=" + f["map_plu"]);
+                //給排水
+                int i = planService.choiceMapItemPLU(f["projectid"], f["checkNodeId"], f["map_plu"]);
+                log.Debug("modify records count=" + i);
+            }
+
+            if (null != f["map_fp"])
+            {
+                log.Debug("projectId=" + f["projectid"] + ",prjuid=" + f["checkNodeId"] + ",map_fp=" + f["map_fp"]);
+                //消防電
+                int i = planService.choiceMapItemFP(f["projectid"], f["checkNodeId"], f["map_fp"]);
+                log.Debug("modify records count=" + i);
+            }
             if (null != f["map_fw"])
             {
                 log.Debug("projectId=" + f["projectid"] + ",prjuid=" + f["checkNodeId"] + ",map_fw=" + f["map_fw"]);
@@ -197,15 +234,13 @@ namespace topmeperp.Controllers
                 log.Debug("modify records count=" + i);
             }
 
-            if (null != f["map_plu"])
-            {
-                log.Debug("projectId=" + f["projectid"] + ",prjuid=" + f["checkNodeId"] + ",map_fw=" + f["map_plu"]);
-                //給排水
-                int i = planService.choiceMapItemPLU(f["projectid"], f["checkNodeId"], f["map_plu"]);
-                log.Debug("modify records count=" + i);
-            }
-
             return "設定成功";
+        }
+        public ActionResult getActionItem4Task(FormCollection f)
+        {
+            log.Debug("projectId=" + f["projectid"] + ",prjuid=" + f["checkNodeId"]);
+            //planService
+            return PartialView("_getProjecttem4Task", planService.getItemInTask(f["projectid"], f["checkNodeId"]));
         }
     }
 }
