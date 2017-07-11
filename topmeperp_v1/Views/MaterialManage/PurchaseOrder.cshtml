@@ -20,6 +20,7 @@
                     <th>申購單編號</th>
                     <th>申購日期</th>
                     <th>供應商名稱</th>
+                    <th>項目最早需求日</th>
                     <th>功能</th>
                 </tr>
             </thead>
@@ -31,6 +32,7 @@
                         <th><a href="/MaterialManage/SinglePR/@item.PR_ID" target="_blank">@item.PR_ID</a></th>
                         <th>@item.CREATE_DATE</th>
                         <td>@item.SUPPLIER_ID</td>
+                        <td>@item.NEED_DATE</td>
                         <td><a href="/MaterialManage/PurchaseOperation/@item.KEYNAME" target="_blank">執行採購作業</a></td>
                     </tr>
                 }

@@ -30,17 +30,18 @@
                 <label for="prid">申購單編號 :</label>
                 <input id="prid" name="prid" type="text" value="" class="form-control" />
                 <div class="col-md-6 form-group" style="padding-top:10px">
+                    <input type="checkbox" value="10" id="status" name="status" />申購單(已送審)
                     <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
                     <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "MaterialManage")'" value="回上一頁">
                 </div>
             </div>
 
         </div>
-<div class="col-md-6">
-    <div id="divProcessing">
-        <img src="~/Content/ajax-loader.gif">
-    </div>
-</div>
+        <div class="col-md-6">
+            <div id="divProcessing">
+                <img src="~/Content/ajax-loader.gif">
+            </div>
+        </div>
     </form>
 </div>
 <!--申購單列表區域-->

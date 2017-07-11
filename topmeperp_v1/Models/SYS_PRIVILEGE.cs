@@ -20,7 +20,7 @@ namespace topmeperp.Models
         public string ACTION_1_RIGHT { get; set; }
         public string ACTION_1_NAME { get; set; }
     
-        public virtual SYS_FUNCTION SYS_FUNCTION { get; set; }
         public virtual SYS_ROLE SYS_ROLE { get; set; }
+        public virtual SYS_FUNCTION SYS_FUNCTION { get; set; }
     }
 }

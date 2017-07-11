@@ -269,10 +269,11 @@ namespace topmeperp.Models
         public Nullable<decimal> INVENTORY_QTY { get; set; }
         public Nullable<decimal> NEED_QTY { get; set; }
         public string REMARK { get; set; }
-        public DateTime NEED_DATE { get; set; }
+        public string NEED_DATE { get; set; }
         public Int64 PR_ITEM_ID { get; set; }
         public Nullable<decimal> ORDER_QTY { get; set; }
         public Nullable<decimal> RECEIPT_QTY { get; set; }
+        public Nullable<decimal> ALL_RECEIPT_QTY { get; set; }
     }
     public class PRFunction 
     {
@@ -281,6 +282,7 @@ namespace topmeperp.Models
         public string CREATE_DATE { get; set; }
         public string PR_ID { get; set; }
         public string SUPPLIER_ID { get; set; }
+        public Int32 STATUS { get; set; }
     }
     public class PurchaseRequisitionDetail
     {
@@ -295,5 +297,6 @@ namespace topmeperp.Models
         public string PR_ID { get; set; }
         public string CREATE_DATE { get; set; }
         public string SUPPLIER_ID { get; set; }
+        public string NEED_DATE { get; set; }
     }
 }

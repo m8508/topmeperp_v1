@@ -67,6 +67,9 @@
                         採購數量
                     </th>
                     <th>
+                        已驗收數量
+                    </th>
+                    <th>
                         需求日期
                     </th>
                     <th>
@@ -103,7 +106,10 @@
                             @item.ORDER_QTY
                         </td>
                         <td>
-                            @Html.DisplayFor(m => item.NEED_DATE, "LongDateTime")
+                            @item.ALL_RECEIPT_QTY
+                        </td>
+                        <td>
+                            @item.NEED_DATE
                         </td>
                         <td>
                             @item.REMARK
@@ -122,8 +128,15 @@
 
         <div class="row">
             <div class="" col-md-12">
-                <input type="submit" value="新增" class="btn btn-default" />
+                <input type="submit" value="新增" class="btn btn-default" onclick="return Confirm_Form()" />
             </div>
         </div>
     }
 </div>
+
+<script language="javascript" type="text/javascript">
+    function Confirm_Form() {
+        if (!confirm("驗收數量大於訂購數量"))
+            return false;
+    }
+</script>

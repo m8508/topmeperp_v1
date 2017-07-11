@@ -25,5 +25,6 @@ namespace topmeperp.Models
         public string SUPPLIER_ID { get; set; }
         public string PARENT_PR_ID { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
+        public Nullable<int> STATUS { get; set; }
     }
 }

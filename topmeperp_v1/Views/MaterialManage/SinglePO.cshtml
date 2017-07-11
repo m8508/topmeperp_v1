@@ -5,7 +5,7 @@
 }
 
 <div class="page-header">
-    <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+    <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "MaterialManage")'" value="回上一頁">
     <form id="formPO" name="formPO" action="RefreshPO" method="post">
         <div class="row">
             <div class="col-md-8"><h3 style="height:30px;line-height:20px" class="text-center">協成水電工程事業有限公司-採購單</h3></div>
@@ -39,6 +39,8 @@
                 <input type="text" class="form-control" name="caution" id="caution" value="@Model.planPR.REMARK">
             </div>
             <input type="hidden" name="projectid" id="projectid" value="@Model.planPR.PROJECT_ID">
+            <input type="hidden" name="parent_pr_id" id="parent_pr_id" value="@Model.planPR.PARENT_PR_ID">
+            <input type="hidden" name="status" id="status" value="@Model.planPR.STATUS">
         </div>
 
         <div class="contailer" style="page-break-before: always">
@@ -101,7 +103,7 @@
                             @item.NEED_QTY
                         </td>
                         <td>
-                            @Html.DisplayFor(m => item.NEED_DATE, "LongDateTime")
+                            @item.NEED_DATE
                         </td>
                         <td>
                             @item.REMARK
@@ -118,7 +120,12 @@
 </div>
 <div class="row">
     <div class="" col-md-12">
-        <input type="button" value="修改" class="btn btn-default" id="updatePO" />
+       
+        @if (@ViewBag.prId == null || @ViewBag.prId == "")
+        {
+            <input type="button" value="修改" class="btn btn-default" id="updatePO" />
+        }
+       
     </div>
 </div>
 

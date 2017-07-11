@@ -7,7 +7,14 @@
 <div class="contailer">
     <form id="formPR" name="formPR" action="RefreshPR" method="post">
         <div class="row">
-            <div class="col-md-8"><h3 style="height:30px;line-height:20px" class="text-center">協成水電工程事業有限公司-申購單</h3></div>
+            @if (Model.planPR.STATUS == 0)
+            {
+                <div class="col-md-8"><h3 style="height:30px;line-height:20px" class="text-center">協成水電工程事業有限公司-申購單草稿</h3></div>
+            }
+            else
+            {
+                <div class="col-md-8"><h3 style="height:30px;line-height:20px" class="text-center">協成水電工程事業有限公司-申購單</h3></div>
+            }
         </div>
         <!-- Reg-Form new { enctype = "multipart/form-data" } -->
         <div class="row">
@@ -35,8 +42,9 @@
             </div>
             <input type="hidden" name="projectid" id="projectid" value="@Model.planPR.PROJECT_ID">
             <input type="hidden" name="prjuid" id="prjuid" value="@Model.planPR.PRJ_UID">
+            <input type="hidden" name="status" id="status" value="@Model.planPR.STATUS">
         </div>
-        
+
         <div class="contailer" style="page-break-before: always">
             <table class="table">
                 <tr>
@@ -96,17 +104,43 @@
                         <td>
                             @item.INVENTORY_QTY
                         </td>
-                        <td>
-                            @Html.TextBox("need_qty", item.NEED_QTY, new { @class = "form-control", style = "width:100px" })
-                        </td>
-                        <td>
-                            <div class='col-md-12 date'>
-                                @Html.TextBoxFor(m => item.NEED_DATE, new { @class = "form-control", @id = "need_date", Name = "date" })
-                            </div>
-                        </td>
-                        <td>
-                            @Html.TextBox("remark", item.REMARK, new { @class = "form-control", style = "width:300px" })
-                        </td>
+                        @if (Model.planPR.STATUS == 0)
+                        {
+                            <td>
+                                @Html.TextBox("need_qty", item.NEED_QTY, new { @class = "form-control", style = "width:100px" })
+                            </td>
+                        }
+                        else
+                        {
+                            <td>@item.NEED_QTY</td>
+                        }
+                        @if (Model.planPR.STATUS == 0)
+                        {
+                            <td>
+                                <div class='col-md-12 date'>
+                                    @Html.TextBoxFor(m => item.NEED_DATE, new { @class = "form-control", @id = "need_date", Name = "date" })
+                                </div>
+
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                @item.NEED_DATE
+                            </td>
+                        }
+                        @if (Model.planPR.STATUS == 0)
+                        {
+                            <td>
+                                @Html.TextBox("remark", item.REMARK, new { @class = "form-control", style = "width:300px" })
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                @item.REMARK
+                            </td>
+                        }
                     </tr>
                 }
             </table>
@@ -115,7 +149,15 @@
 </div>
 <div class="row">
     <div class="" col-md-12">
-        <input type="button" value="修改" class="btn btn-default" id="updatePR" />
+        @if (Model.planPR.STATUS == 0)
+        {
+            <input type="button" value="修改" class="btn btn-default" id="updatePR" />
+        }
+        @if (Model.planPR.STATUS == 0)
+        {
+            <input type="button" value="申購" class="btn btn-warning" id="addPR" />
+        }
+
     </div>
 </div>
 
@@ -142,5 +184,24 @@
                 alert(thrownError);
             }
         });
+    });
+
+    $("#addPR").click(function () {
+        if (!confirm("請再次確認輸入之資料是否正確，送出後申購單就無法再修改！"))
+            return false;
+        $.ajax({
+            url: '@Url.Action("CreatePR", "MaterialManage")',
+            data: $('#formPR').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+                window.location.reload()
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+    });
+   
     });
 </script>

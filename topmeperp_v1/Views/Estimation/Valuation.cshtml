@@ -1,0 +1,70 @@
+﻿
+@{
+    ViewBag.Title = "專案執行-廠商估驗計價";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+<!--標單項目搜尋區條件區域-->
+<div class="jumbotron">
+    <div class="row">
+        <div class="col-md-12 form-group">
+            <form name="FormSearchContract" id="FormSearchContract" action="SearchContract" method="Post">
+                <div class="row col-md-12">
+                    <label for="projectId" class="col-md-2 text-right">專案編號</label><input class="form-control col-md-3" id="projectId" name="projectId" type="text" value="@ViewBag.projectId" style="background-color:#cccccc;" readonly="readonly" />
+                    <label for="projectName" class="col-md-2 text-right">專案編號</label><input class="form-control col-md-3" id="projectName" name="projectName" type="text" value="@ViewBag.projectName" style="background-color:#cccccc;" readonly="readonly" />
+                </div>
+                <div class="row col-md-12" style="padding-top:5px;">
+                   
+                    <label for="formName" class="col-md-2 text-right" style="padding-top:15px;">採購項目</label> <input class="form-control col-md-3" id="formName" name="formName" type="text" />
+                    <label for="supplier" class="col-md-2 text-right">供應商</label>@Html.DropDownList("supplier", (IEnumerable<SelectListItem>)ViewBag.supplier, String.Empty, new { @class = "form-control selectpicker" })
+                </div>
+                    <div class="row col-md-12" style="padding-top:15px;">
+                        <div class="col-md-11 pull-right">
+                            <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
+                            <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+                            </div>
+                            <div id="divProcessing" class="col-md-1">
+                                <img src="~/Content/ajax-loader.gif">
+                            </div>
+                        </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!--標單項目列表區域-->
+<div class="container-fluid">
+    @ViewBag.SearchResult
+    @if (null != Model)
+    {
+        Html.RenderPartial("_ContractItems");
+    }
+
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Hide the "busy" Gif at load:
+        $("#divProcessing").hide();
+        // Attach click handler to the submit button:
+        $('#Submit1').click(function () {
+            $("#divProcessing").show();
+        });
+    });
+</script>
+<script type="text/javascript">
+    $("#saveForm").click(function () {
+        $.ajax({
+            url: '@Url.Action("AddLeadTime", "PurchaseForm")',
+            data: $('#formLeadTime').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+                window.location.reload()
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    });
+</script>

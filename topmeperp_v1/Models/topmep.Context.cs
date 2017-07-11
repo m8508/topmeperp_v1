@@ -27,7 +27,6 @@ namespace topmeperp.Models
     
         public virtual DbSet<REF_TYPE_MAIN> REF_TYPE_MAIN { get; set; }
         public virtual DbSet<REF_TYPE_SUB> REF_TYPE_SUB { get; set; }
-        public virtual DbSet<SYS_FUNCTION> SYS_FUNCTION { get; set; }
         public virtual DbSet<SYS_KEY_SERIAL> SYS_KEY_SERIAL { get; set; }
         public virtual DbSet<SYS_PRIVILEGE> SYS_PRIVILEGE { get; set; }
         public virtual DbSet<SYS_ROLE> SYS_ROLE { get; set; }
@@ -55,7 +54,8 @@ namespace topmeperp.Models
         public virtual DbSet<TND_SUP_MATERIAL_RELATION> TND_SUP_MATERIAL_RELATION { get; set; }
         public virtual DbSet<PLAN_SUP_INQUIRY> PLAN_SUP_INQUIRY { get; set; }
         public virtual DbSet<PLAN_SUP_INQUIRY_ITEM> PLAN_SUP_INQUIRY_ITEM { get; set; }
-        public virtual DbSet<PLAN_PURCHASE_REQUISITION> PLAN_PURCHASE_REQUISITION { get; set; }
         public virtual DbSet<PLAN_PURCHASE_REQUISITION_ITEM> PLAN_PURCHASE_REQUISITION_ITEM { get; set; }
+        public virtual DbSet<SYS_FUNCTION> SYS_FUNCTION { get; set; }
+        public virtual DbSet<PLAN_PURCHASE_REQUISITION> PLAN_PURCHASE_REQUISITION { get; set; }
     }
 }

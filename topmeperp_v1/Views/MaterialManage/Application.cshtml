@@ -7,7 +7,7 @@
 }
 
 
-@using (Html.BeginForm("AddPR", "MaterialManage", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+@using (Html.BeginForm())
 {
     <div class="jumbotron">
         <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
@@ -24,13 +24,13 @@
             </div>
             <input type="hidden" id="prj_uid" name="prj_uid" value="@ViewBag.uid" />
         </div>
-        </div>
+    </div>
         <label class="col-md-2 control-label">收件人 : </label>
         <div class="col-md-10" style="padding-bottom:10px">
             <input style="width: 200px" type="text" class="form-control" name="recipient" id="recipient" value="">
         </div>
         <label class="col-md-2 control-label">送貨地址 : </label>
-        <div class="col-md-10" style="padding-bottom:10px" >
+        <div class="col-md-10" style="padding-bottom:10px">
             <input style="width: 2000px" type="text" class="form-control" name="location" id="location" value="">
         </div>
         <label class="col-md-2 control-label">注意事項 : </label>
@@ -108,7 +108,8 @@
 
         <div class="row">
             <div class="" col-md-12">
-                <input type="submit" value="申購" class="btn btn-default" />
+                <input type="submit" value="儲存"  name="SavePR" class="btn btn-default" />
+                <input type="submit" value="申購"  name="AddPR" class="btn btn-warning" />
             </div>
         </div>
 }
@@ -130,4 +131,3 @@
         });
     });
 </script>
-

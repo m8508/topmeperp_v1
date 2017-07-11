@@ -9,6 +9,7 @@
                     <th>申購日期</th>
                     <th>編號</th>
                     <th>任務名稱</th>
+                    <th>申購單狀態</th>
                     <th>選項連結</th>
                 </tr>
             </thead>
@@ -21,9 +22,17 @@
                         <td>@item.CREATE_DATE</td>
                         <td><a href="/MaterialManage/SinglePR/@item.PR_ID" target="_blank">@item.PR_ID</a></td>
                         <td>@item.TASK_NAME</td>
+                        @if (item.STATUS == 0)
+                        {
+                            <td>草稿</td>
+                        }
+                        else
+                        {
+                            <td>已送審</td>
+                        }
                         <td><a href='@("../../UploadFile/" + ViewBag.projectid + "/Materials/" + item.PR_ID + ".xlsx")'>下載</a></td>
                     </tr>
-                                }
+                }
             </tbody>
         </table>
     </div>
