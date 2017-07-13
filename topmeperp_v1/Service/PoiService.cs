@@ -1939,7 +1939,7 @@ namespace topmeperp.Service
                 IRow row = sheet.GetRow(idxRow);
                 //項次 項目說明    單位 數量  單價 複價  備註
                 //row.Cells[0].SetCellValue(idxRow - 8);///項次
-                row.Cells[0].SetCellValue(item.ITEM_ID);///項次
+                row.Cells[0].SetCellValue(null==item.ITEM_ID ? "" : item.ITEM_ID);///項次
                 logger.Debug("Inquiry :ITEM DESC=" + item.ITEM_DESC);
                 row.Cells[1].SetCellValue(item.ITEM_DESC);//項目說明
                 row.Cells[2].SetCellValue(item.ITEM_UNIT);// 單位
@@ -1963,7 +1963,7 @@ namespace topmeperp.Service
             string fileLocation = null;
             if (isTemp)
             {
-                fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\Temp\\" + form.FORM_NAME + "_空白.xlsx";
+                fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\Temp\\" + form.FORM_NAME + "\\" +form.FORM_NAME + "_空白.xlsx";
             }
             else if (form.SUPPLIER_ID == null || form.SUPPLIER_ID == "")
             {
