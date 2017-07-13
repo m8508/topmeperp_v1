@@ -1,0 +1,58 @@
+﻿@model IEnumerable<topmeperp.Models.PurchaseRequisition>
+<div class="container">
+    <h3 style="padding-top:40px;">已領收明細 : </h3>
+    <form id="formDelivery" name="formDelivery" action="RefreshDelivery" method="post">
+        <div class="row" style="padding-top:15px;">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>領收編號</th>
+                        <th>領收日期</th>
+                        <th>提領數量</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tbody>
+                    @foreach (var item in Model)
+            {
+                        <tr>
+                            <td>@item.NO</td>
+                            <td>@Html.TextBox("delivery_id", item.DELIVERY_ID, new { @class = "form-control", style = "width:90px", @readonly = "readonly" })
+                            <td>@item.CREATE_DATE</td>
+                            <td>@Html.TextBox("delivery_qty", item.DELIVERY_QTY, new { @class = "form-control", style = "width:110px" })</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        </form>
+</div>
+
+<div class="row">
+    <div class="" col-md-12">
+        <input type="button" value="修改" class="btn btn-warning" id="updateDelivery" />
+    </div>
+</div>
+
+
+<script language="javascript" type="text/javascript">
+
+    $("#updateDelivery").click(function () {
+        $.ajax({
+            url: '@Url.Action("RefreshDelivery", "MaterialManage")',
+            data: $('#formDelivery').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+                window.location.reload()
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    });
+
+</script>
+

@@ -57,5 +57,6 @@ namespace topmeperp.Models
         public virtual DbSet<PLAN_PURCHASE_REQUISITION_ITEM> PLAN_PURCHASE_REQUISITION_ITEM { get; set; }
         public virtual DbSet<SYS_FUNCTION> SYS_FUNCTION { get; set; }
         public virtual DbSet<PLAN_PURCHASE_REQUISITION> PLAN_PURCHASE_REQUISITION { get; set; }
+        public virtual DbSet<PLAN_ITEM_DELIVERY> PLAN_ITEM_DELIVERY { get; set; }
     }
 }

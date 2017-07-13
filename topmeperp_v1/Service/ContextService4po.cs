@@ -1557,12 +1557,13 @@ namespace topmeperp.Service
                     }
                 }
 
-                string sql = "SELECT pi.* , md.QTY AS MAP_QTY, B.CUMULATIVE_QTY, C.INVENTORY_QTY FROM PLAN_ITEM pi JOIN TND_MAP_DEVICE md ON pi.PLAN_ITEM_ID = md.PROJECT_ITEM_ID  " +
+                string sql = "SELECT pi.* , md.QTY AS MAP_QTY, B.CUMULATIVE_QTY, C.ALL_RECEIPT_QTY- D.DELIVERY_QTY AS INVENTORY_QTY FROM PLAN_ITEM pi JOIN TND_MAP_DEVICE md ON pi.PLAN_ITEM_ID = md.PROJECT_ITEM_ID  " +
                     "JOIN PLAN_TASK2MAPITEM pt ON md.DEVIVE_ID = pt.MAP_PK LEFT JOIN (SELECT pri.PLAN_ITEM_ID, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY " +
                     "FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE PR_ID LIKE 'PPO%' GROUP BY pri.PLAN_ITEM_ID )B ON pi.PLAN_ITEM_ID = B.PLAN_ITEM_ID " +
-                    "LEFT JOIN(SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS INVENTORY_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE PR_ID LIKE 'RP%' GROUP BY " +
-                    "pri.PLAN_ITEM_ID)C ON pi.PLAN_ITEM_ID = C.PLAN_ITEM_ID WHERE pi.PROJECT_ID = @projectid AND pt.PRJ_UID IN (" + ItemId + ") " ;
-              
+                    "LEFT JOIN(SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS ALL_RECEIPT_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE PR_ID LIKE 'RP%' GROUP BY " +
+                    "pri.PLAN_ITEM_ID)C ON pi.PLAN_ITEM_ID = C.PLAN_ITEM_ID LEFT JOIN (SELECT pid.PLAN_ITEM_ID, SUM(pid.DELIVERY_QTY) AS DELIVERY_QTY FROM PLAN_ITEM_DELIVERY pid " +
+                    "GROUP BY pid.PLAN_ITEM_ID)D ON pi.PLAN_ITEM_ID = D.PLAN_ITEM_ID WHERE pi.PROJECT_ID = @projectid AND pt.PRJ_UID IN (" + ItemId + ") ";
+
                 logger.Info("sql = " + sql);
                 var parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("projectid", projectid));
@@ -1717,8 +1718,8 @@ namespace topmeperp.Service
                 }
                 logger.Info("get purchase requisition count=" + lstForm.Count);
             }
-                return lstForm;
-            }
+            return lstForm;
+        }
 
         //取得申購單
         public void getPRByPrId(string prid)
@@ -1731,12 +1732,13 @@ namespace topmeperp.Service
                     "PLAN_PURCHASE_REQUISITION WHERE PR_ID =@prid ";
                 formPR = context.PLAN_PURCHASE_REQUISITION.SqlQuery(sql, new SqlParameter("prid", prid)).First();
                 //取得申購單明細
-                PRItem = context.Database.SqlQuery<PurchaseRequisition>("SELECT pri.NEED_QTY, CONVERT(char(10), pri.NEED_DATE, 111) AS NEED_DATE, pri.REMARK, pri.PR_ITEM_ID, pri.ORDER_QTY, pri.PLAN_ITEM_ID, pri.RECEIPT_QTY, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.ITEM_FORM_QUANTITY, md.QTY AS MAP_QTY, B.CUMULATIVE_QTY, C.ALL_RECEIPT_QTY  " +
-                    "FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_ITEM pi ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN TND_MAP_DEVICE md " +
+                PRItem = context.Database.SqlQuery<PurchaseRequisition>("SELECT pri.NEED_QTY, CONVERT(char(10), pri.NEED_DATE, 111) AS NEED_DATE, pri.REMARK, pri.PR_ITEM_ID, pri.ORDER_QTY, pri.PLAN_ITEM_ID, pri.RECEIPT_QTY, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.ITEM_FORM_QUANTITY, md.QTY AS MAP_QTY,  " +
+                    "B.CUMULATIVE_QTY, C.ALL_RECEIPT_QTY, C.ALL_RECEIPT_QTY - D.DELIVERY_QTY AS INVENTORY_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_ITEM pi ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN TND_MAP_DEVICE md " +
                     "ON pi.PLAN_ITEM_ID = md.PROJECT_ITEM_ID LEFT JOIN (SELECT pri.PLAN_ITEM_ID, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY " +
                     "FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE PR_ID LIKE 'PPO%' GROUP BY pri.PLAN_ITEM_ID)B ON pri.PLAN_ITEM_ID = B.PLAN_ITEM_ID " +
                     "LEFT JOIN(SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS ALL_RECEIPT_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE PR_ID LIKE 'RP%' GROUP BY " +
-                    "pri.PLAN_ITEM_ID)C ON pri.PLAN_ITEM_ID = C.PLAN_ITEM_ID WHERE PR_ID =@prid", new SqlParameter("prid", prid)).ToList();
+                    "pri.PLAN_ITEM_ID)C ON pri.PLAN_ITEM_ID = C.PLAN_ITEM_ID LEFT JOIN (SELECT pid.PLAN_ITEM_ID, SUM(pid.DELIVERY_QTY) AS DELIVERY_QTY FROM PLAN_ITEM_DELIVERY pid " +
+                    "GROUP BY pid.PLAN_ITEM_ID)D ON pri.PLAN_ITEM_ID = D.PLAN_ITEM_ID WHERE PR_ID =@prid", new SqlParameter("prid", prid)).ToList();
 
                 logger.Debug("get purchase requisition item count:" + PRItem.Count);
             }
@@ -2180,7 +2182,7 @@ namespace topmeperp.Service
 
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("prid", prid));
-            
+
             using (var context = new topmepEntities())
             {
                 logger.Debug("get purchase receipt sql=" + sql);
@@ -2188,6 +2190,169 @@ namespace topmeperp.Service
             }
             logger.Info("get purchase receipt count=" + lstForm.Count);
             return lstForm;
+        }
+        //取得物料庫存數量
+        public List<PurchaseRequisition> getInventoryByPrjId(string prjid, string itemName, string systemMain)
+        {
+
+            logger.Info("search inventory by 專案編號 =" + prjid + ", 物料名稱 =" + itemName + ", 主系統 =" + systemMain);
+            List<PurchaseRequisition> lstItem = new List<PurchaseRequisition>();
+            //處理SQL 預先填入專案代號,設定集合處理參數
+            string sql = "SELECT pri.PLAN_ITEM_ID, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.SYSTEM_MAIN, SUM(pri.RECEIPT_QTY) - A.DELIVERY_QTY AS INVENTORY_QTY " +
+                "FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_ITEM pi ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID " +
+                "LEFT JOIN (SELECT pid.PLAN_ITEM_ID, SUM(pid.DELIVERY_QTY) AS DELIVERY_QTY FROM PLAN_ITEM_DELIVERY pid " +
+                "GROUP BY pid.PLAN_ITEM_ID)A ON pri.PLAN_ITEM_ID = A.PLAN_ITEM_ID GROUP BY pri.PLAN_ITEM_ID, A.DELIVERY_QTY, " +
+                "pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.SYSTEM_MAIN HAVING pri.PLAN_ITEM_ID IN (SELECT pi.PLAN_ITEM_ID FROM PLAN_ITEM pi WHERE pi.PROJECT_ID =@prjid) ";
+
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("prjid", prjid));
+
+            //物料名稱條件
+            if (null != itemName && itemName != "")
+            {
+                sql = sql + "AND pi.ITEM_DESC LIKE @itemName ";
+                parameters.Add(new SqlParameter("itemName", '%' + itemName + '%'));
+            }
+            //主系統條件
+            if (null != systemMain && systemMain != "")
+            {
+                sql = sql + "AND pi.SYSTEM_MAIN LIKE @systemMain ";
+                parameters.Add(new SqlParameter("systemMain", '%' + systemMain + '%'));
+            }
+            sql = sql + "ORDER BY pri.PLAN_ITEM_ID DESC ";
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("get inventory sql=" + sql);
+                lstItem = context.Database.SqlQuery<PurchaseRequisition>(sql, parameters.ToArray()).ToList();
+            }
+            logger.Info("get inventory count=" + lstItem.Count);
+            return lstItem;
+        }
+
+        // 寫入領料內容
+        public string newDelivery(string projectid, string[] lstItemId, string createid)
+        {
+            //1.新增領料品項
+            logger.Info("create new delivery item ");
+            string sno_key = "DO";
+            SerialKeyService snoservice = new SerialKeyService();
+            string DELIVERY_ORDER_ID = snoservice.getSerialKey(sno_key);
+            using (var context = new topmepEntities())
+            {
+                List<topmeperp.Models.PLAN_ITEM_DELIVERY> lstItem = new List<PLAN_ITEM_DELIVERY>();
+                string ItemId = "";
+                for (i = 0; i < lstItemId.Count(); i++)
+                {
+                    if (i < lstItemId.Count() - 1)
+                    {
+                        ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
+                    }
+                    else
+                    {
+                        ItemId = ItemId + "'" + lstItemId[i] + "'";
+                    }
+                }
+
+                string sql = "INSERT INTO PLAN_ITEM_DELIVERY (DELIVERY_ORDER_ID, PLAN_ITEM_ID, PROJECT_ID, CREATE_USER_ID) "
+                + "SELECT '" + DELIVERY_ORDER_ID + "' as DELIVERY_ORDER_ID, A.PLAN_ITEM_ID as PLAN_ITEM_ID, '" + projectid + "' as PROJECT_ID, '" + createid + "' as CREATE_USER_ID  "
+                + "FROM (SELECT pi.PLAN_ITEM_ID FROM PLAN_ITEM pi WHERE pi.PLAN_ITEM_ID IN (" + ItemId + "))A ";
+                logger.Info("sql =" + sql);
+                var parameters = new List<SqlParameter>();
+                i = context.Database.ExecuteSqlCommand(sql);
+                return DELIVERY_ORDER_ID;
+            }
+        }
+        //更新申購數量
+        public int refreshDelivery(string deliveryorderid, List<PLAN_ITEM_DELIVERY> lstItem)
+        {
+            logger.Info("Update delivery items, it's delivery order id =" + deliveryorderid);
+            int j = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    //將item資料寫入 
+                    foreach (PLAN_ITEM_DELIVERY item in lstItem)
+                    {
+                        PLAN_ITEM_DELIVERY existItem = null;
+                        var parameters = new List<SqlParameter>();
+                        parameters.Add(new SqlParameter("formid", deliveryorderid));
+                        parameters.Add(new SqlParameter("itemid", item.PLAN_ITEM_ID));
+                        string sql = "SELECT * FROM PLAN_ITEM_DELIVERY WHERE DELIVERY_ORDER_ID=@formid AND PLAN_ITEM_ID=@itemid";
+                        logger.Info(sql + " ;" + deliveryorderid + ",plan_item_id=" + item.PLAN_ITEM_ID);
+                        PLAN_ITEM_DELIVERY excelItem = context.PLAN_ITEM_DELIVERY.SqlQuery(sql, parameters.ToArray()).First();
+                        existItem = context.PLAN_ITEM_DELIVERY.Find(excelItem.DELIVERY_ID);
+                        logger.Debug("find exist item=" + existItem.PLAN_ITEM_ID);
+                        existItem.DELIVERY_QTY = item.DELIVERY_QTY;
+                        existItem.CREATE_DATE = DateTime.Now;
+                        context.PLAN_ITEM_DELIVERY.AddOrUpdate(existItem);
+                    }
+                    j = context.SaveChanges();
+                    logger.Debug("Update delivery item =" + j);
+                    return j;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("update new delivery id fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return j;
+        }
+
+        //取得領料紀錄
+        public List<PurchaseRequisition> getDeliveryByItemId(string itemid)
+        {
+
+            logger.Info(" get delivery record by 物料編號 =" + itemid);
+            List<PurchaseRequisition> lstItem = new List<PurchaseRequisition>();
+            //處理SQL 預先填入專案代號,設定集合處理參數
+            string sql = "SELECT *, ROW_NUMBER() OVER(ORDER BY CREATE_DATE DESC) AS NO FROM PLAN_ITEM_DELIVERY WHERE PLAN_ITEM_ID =@itemid ";
+
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("itemid", itemid));
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("get delivery sql=" + sql);
+                lstItem = context.Database.SqlQuery<PurchaseRequisition>(sql, parameters.ToArray()).ToList();
+            }
+            logger.Info("get delivery record count=" + lstItem.Count);
+            return lstItem;
+        }
+
+        //更新領料數量
+        public int updateDelivery(List<PLAN_ITEM_DELIVERY> lstItem)
+        {
+            int j = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    //將item資料寫入 
+                    foreach (PLAN_ITEM_DELIVERY item in lstItem)
+                    {
+                        PLAN_ITEM_DELIVERY existItem = null;
+                        logger.Debug("delivery item id=" + item.DELIVERY_ID);
+                        existItem = context.PLAN_ITEM_DELIVERY.Find(item.DELIVERY_ID);
+                        logger.Debug("find exist item=" + existItem.PLAN_ITEM_ID);
+                        existItem.DELIVERY_QTY = item.DELIVERY_QTY;
+                        context.PLAN_ITEM_DELIVERY.AddOrUpdate(existItem);
+                    }
+                    j = context.SaveChanges();
+                    logger.Debug("Update delivery item =" + j);
+                    return j;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("update delivey record id fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return j;
         }
 
         #endregion

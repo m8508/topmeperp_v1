@@ -1,0 +1,77 @@
+﻿@model IEnumerable<topmeperp.Models.PurchaseRequisition>
+@using (Html.BeginForm("AddDelivery", "MaterialManage", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <!--不好的方式但檔著先屆時設為Hidden-->
+    <input type="hidden" id="prjId" name="prjId" value="@ViewBag.projectid" />
+    <input type="hidden" id="prjName" name="prjName" value="@ViewBag.projectName" />
+    <input type="hidden" id="createid" name="createid" value="@ViewBag.createid" />
+  
+    <table class="table">
+        <tr>
+            <th>
+                No.
+            </th>
+            <th>
+                項次
+            </th>
+            <th>
+                項目說明
+            </th>
+            <th>
+                單位
+            </th>
+            <th>
+                庫存數量
+            </th>
+            <th><input type="checkbox" name="CheckAll" id="CheckAll">全選</th>
+            <th>
+                提領數量
+            </th>
+            <th>
+                領料紀錄
+            </th>
+        </tr>
+        @foreach (var item in Model)
+                {
+
+            <tr>
+                <td>
+                    @Html.TextBox("planitemid", @item.PLAN_ITEM_ID, new { @class = "form-control", style = "width:120px" })
+                </td>
+                <td>
+                    @item.ITEM_ID
+                </td>
+                <td>
+                    @item.ITEM_DESC
+                </td>
+                <td>
+                    @item.ITEM_UNIT
+                </td>
+                <td>
+                   @item.INVENTORY_QTY
+                </td>
+                <td>
+                    <input type="checkbox" id="chkItem" name="chkItem" value="@item.PLAN_ITEM_ID" />
+                </td>
+                <td>
+                    @Html.TextBox("delivery_qty", item.DELIVERY_QTY, new { @class = "form-control", style = "width:90px" })
+                </td>
+                <td><a href="/MaterialManage/DeliveryList/@item.PLAN_ITEM_ID" target="_blank">檢視/修改</a></td>
+            </tr>
+        }
+    </table>
+
+    <input id="Submit1" type="submit" value="提領" class="btn btn-warning"/>
+}
+
+
+<script language="javascript" type="text/javascript">
+    $(document).ready (function () {
+        $("#CheckAll").click(function () {
+            if ($("#CheckAll").prop("checked")) {
+                $("input[name='chkItem']").prop("checked", true);
+            } else
+                $("input[name='chkItem']").prop("checked", false);
+        });
+    });
+</script>

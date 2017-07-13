@@ -1,33 +1,33 @@
 ﻿@model IEnumerable<topmeperp.Models.PRFunction>
 <div class="container">
-    <div class="row" style="padding-top:40px;">
-        <h3 style="height:30px;line-height:20px" class="text-center">採購單驗收明細</h3>
-        <div style="padding-bottom:10px;">
-            <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
-            </div>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>項次</th>
-                        <th>驗收日期</th>
-                        <th>編號</th>
-                        <th>供應商</th>
-                        <th>選項連結</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <tbody>
-                    @foreach (var item in Model)
+    <h3 style="padding-top:40px;">已驗收明細 : </h3>
+    <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+    <div class="row" style="padding-top:15px;">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>項次</th>
+                    <th>驗收日期</th>
+                    <th>編號</th>
+                    <th>供應商</th>
+                    <th>選項連結</th>
+                </tr>
+            </thead>
+            <tbody>
+            <tbody>
+                @foreach (var item in Model)
             {
-                        <tr>
-                            <td>@item.NO</td>
-                            <td>@item.CREATE_DATE</td>
-                            <td><a href="/MaterialManage/SingleRP/@item.PR_ID" target="_blank">@item.PR_ID</a></td>
-                            <td>@item.SUPPLIER_ID</td>
-                            <td><a href='@("../../UploadFile/" + ViewBag.projectid + "/Materials/" + item.PR_ID + ".xlsx")'>下載</a></td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                    <tr>
+                        <td>@item.NO</td>
+                        <td>@item.CREATE_DATE</td>
+                        <td><a href="/MaterialManage/SingleRP/@item.PR_ID" target="_blank">@item.PR_ID</a></td>
+                        <td>@item.SUPPLIER_ID</td>
+                        <td><a href='@("../../UploadFile/" + ViewBag.projectid + "/Materials/" + item.PR_ID + ".xlsx")'>下載</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
+
+

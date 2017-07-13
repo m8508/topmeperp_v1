@@ -728,5 +728,114 @@ namespace topmeperp.Controllers
             return View(lstRP);
         }
 
+        //庫存查詢
+        public ActionResult InventoryIndex(string id)
+        {
+            log.Info("Search For Inventory of All Item !!");
+            ViewBag.projectid = id;
+            TnderProject tndservice = new TnderProject();
+            TND_PROJECT p = tndservice.getProjectById(id);
+            ViewBag.projectName = p.PROJECT_NAME;
+            SYS_USER u = (SYS_USER)Session["user"];
+            ViewBag.createid = u.USER_ID;
+            List<PurchaseRequisition> lstItem = service.getInventoryByPrjId(id, Request["item"], Request["systemMain"]); 
+            return View(lstItem);
+        }
+        
+        public ActionResult SearchInventory()
+        {
+            log.Info("projectid=" + Request["id"] + ", planitemname =" + Request["item"] + ", systemMain =" + Request["systemMain"]);
+            List<PurchaseRequisition> lstItem = service.getInventoryByPrjId(Request["id"], Request["item"], Request["systemMain"]); 
+            ViewBag.SearchResult = "共取得" + lstItem.Count + "筆資料";
+            ViewBag.projectId = Request["id"];
+            ViewBag.projectName = Request["projectName"];
+            return View("InventoryIndex", lstItem);
+        }
+
+        //新增物料提領資料
+        public ActionResult AddDelivery()
+        {
+            //取得專案編號
+            log.Info("Project Id:" + Request["prjId"]);
+            //取得專案名稱
+            log.Info("Project Name:" + Request["prjName"]);
+            //取得使用者勾選品項ID
+            log.Info("item_list:" + Request["chkItem"]);
+            string[] lstItemId = Request["chkItem"].ToString().Split(',');
+            log.Info("select count:" + lstItemId.Count());
+            var i = 0;
+            for (i = 0; i < lstItemId.Count(); i++)
+            {
+                log.Info("item_list return No.:" + lstItemId[i]);
+            }
+            string[] lstQty = Request["delivery_qty"].Split(',');
+            string[] lstPlanItemId = Request["planitemid"].Split(',');
+            PLAN_ITEM_DELIVERY item = new PLAN_ITEM_DELIVERY();
+            string deliveryorderid = service.newDelivery(Request["prjId"], lstItemId, Request["createid"]);
+            List<PLAN_ITEM_DELIVERY> lstItem = new List<PLAN_ITEM_DELIVERY>();
+            for (int j = 0; j < lstItemId.Count(); j++)
+            {
+                PLAN_ITEM_DELIVERY items = new PLAN_ITEM_DELIVERY();
+                items.PLAN_ITEM_ID = lstPlanItemId[j];
+                if (lstQty[j].ToString() == "")
+                {
+                    items.DELIVERY_QTY = null;
+                }
+                else
+                {
+                    items.DELIVERY_QTY = decimal.Parse(lstQty[j]);
+                }
+                log.Debug("Item No=" + items.PLAN_ITEM_ID + ", Qty =" + items.DELIVERY_QTY);
+                lstItem.Add(items);
+            }
+            int k = service.refreshDelivery(deliveryorderid, lstItem);
+            return Redirect("InventoryIndex?id=" + Request["prjId"]);
+        }
+
+        //領料明細
+        public ActionResult DeliveryList(string id)
+        {
+            log.Info("Access to Delivery List !!");
+            List<PurchaseRequisition> lstItem = service.getDeliveryByItemId(id);
+            return View(lstItem);
+        }
+
+        //更新領料數量
+        public String RefreshDelivery(FormCollection form)
+        {
+            log.Info("form:" + form.Count);
+            string msg = "";
+            string[] lstItemId = form.Get("delivery_id").Split(',');
+            string[] lstQty = form.Get("delivery_qty").Split(',');
+
+            List<PLAN_ITEM_DELIVERY> lstItem = new List<PLAN_ITEM_DELIVERY>();
+            for (int j = 0; j < lstItemId.Count(); j++)
+            {
+                PLAN_ITEM_DELIVERY item = new PLAN_ITEM_DELIVERY();
+                item.DELIVERY_ID = int.Parse(lstItemId[j]);
+                if (lstQty[j].ToString() == "")
+                {
+                    item.DELIVERY_QTY = null;
+                }
+                else
+                {
+                    item.DELIVERY_QTY = decimal.Parse(lstQty[j]);
+                }
+                log.Debug("Item No=" + item.DELIVERY_ID + ", Delivery Qty =" + item.DELIVERY_QTY);
+                lstItem.Add(item);
+            }
+            int i = service.updateDelivery(lstItem);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "更新領料紀錄成功" ;
+            }
+
+            log.Info("Request: 更新紀錄訊息 = " + msg);
+            return msg;
+        }
     }
 }

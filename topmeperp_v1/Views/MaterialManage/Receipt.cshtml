@@ -103,7 +103,7 @@
                             @item.CUMULATIVE_QTY
                         </td>
                         <td>
-                            @item.ORDER_QTY
+                            @Html.TextBox("order_qty", item.ORDER_QTY, new { @class = "form-control", style = "width:90px", Name = "order_qty" ,@readonly = "readonly"})
                         </td>
                         <td>
                             @item.ALL_RECEIPT_QTY
@@ -118,7 +118,7 @@
                             <input type="checkbox" id="chkItem" name="chkItem" value="@item.PR_ITEM_ID" />
                         </td>
                         <td>
-                            @Html.TextBox("receipt_qty", item.RECEIPT_QTY, new { @class = "form-control", style = "width:120px" })
+                            @Html.TextBox("receipt_qty", item.RECEIPT_QTY, new { @class = "form-control", style = "width:120px", Name= "receipt_qty" })
                         </td>
 
                     </tr>
@@ -136,7 +136,18 @@
 
 <script language="javascript" type="text/javascript">
     function Confirm_Form() {
-        if (!confirm("驗收數量大於訂購數量"))
+        var method1 = $('input[name=chkItem]:checkbox:checked').val();
+        var receipt = $('input[name=receipt_qty]').val();
+        var order = $('input[name=order_qty]').val();
+        if (typeof (method1) == "undefined") { // 注意檢查完全沒有選取的寫法，這行是精華
+            alert("沒有選取要驗收的物料，請勾選並檢查數量是否正確！");
             return false;
+        }
+        if (receipt > order)
+        { 
+            alert("驗收數量大於訂購數量！");
+            return false;
+        }
     }
+    
 </script>

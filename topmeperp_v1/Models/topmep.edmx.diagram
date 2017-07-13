@@ -40,6 +40,7 @@
         <EntityTypeShape EntityType="topmepModel.SYS_FUNCTION" Width="1.5" PointX="0.75" PointY="1" />
         <AssociationConnector Association="topmepModel.FK_SYS_PRIVILEGE_SYS_FUNCTION" />
         <EntityTypeShape EntityType="topmepModel.PLAN_PURCHASE_REQUISITION" Width="1.5" PointX="19.375" PointY="0.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_ITEM_DELIVERY" Width="1.5" PointX="19.375" PointY="19.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
