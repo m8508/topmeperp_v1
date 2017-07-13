@@ -39,6 +39,14 @@ namespace topmeperp.Service
                 Directory.CreateDirectory(path);
             }
         }
+        public string ZipDirectory(string path)
+        {
+            string zipPath = path + @"..\" + "空白詢價單.zip";
+            ICSharpCode.SharpZipLib.Zip.FastZip z = new ICSharpCode.SharpZipLib.Zip.FastZip();
+            z.CreateEmptyDirectories = true;
+            z.CreateZip(zipPath, path , true, "");
+            return zipPath;
+        }
         public static void DelDirectory(string path)
         {
             try

@@ -1697,11 +1697,13 @@ namespace topmeperp.Service
             foreach (TND_PROJECT_FORM f in lstTemplate)
             {
                 getInqueryForm(f.FORM_ID);
+                ZipFileCreator.CreateDirectory(tempFolder+ formInquiry.FORM_NAME);
                 string fileLocation = poi.exportExcel(formInquiry, formInquiryItem, true);
                 logger.Debug("temp file=" + fileLocation);
             }
             //4.Zip all file
-            return zipTool.ZipFiles(tempFolder, null, p.PROJECT_NAME);
+            return zipTool.ZipDirectory(tempFolder);
+            //return zipTool.ZipFiles(tempFolder, null, p.PROJECT_NAME);
         }
     }
     #endregion
