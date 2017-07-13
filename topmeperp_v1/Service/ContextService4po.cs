@@ -266,7 +266,7 @@ namespace topmeperp.Service
                 PLAN_PAYMENT_TERMS lstItem = new PLAN_PAYMENT_TERMS();
                 string sql = "INSERT INTO PLAN_PAYMENT_TERMS (CONTRACT_ID, PROJECT_ID) " +
                        "SELECT '" + projectid + "' AS contractid, '" + projectid + "'  FROM TND_PROJECT p WHERE p.PROJECT_ID = '" + projectid + "'  " +
-                       "AND '" + projectid + "'  + p.PROJECT_NAME NOT IN(SELECT ppt.CONTRACT_ID FROM PLAN_PAYMENT_TERMS ppt) ";
+                       "AND '" + projectid + "' NOT IN(SELECT ppt.CONTRACT_ID FROM PLAN_PAYMENT_TERMS ppt) ";
                 logger.Info("sql =" + sql);
                 i = context.Database.ExecuteSqlCommand(sql);
                 return i;
