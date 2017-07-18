@@ -526,7 +526,7 @@ namespace topmeperp.Controllers
         {
             log.Info("form:" + form.Count);
             string msg = "";
-            // 取得申購單資料
+            // 取得採購單資料
             PLAN_PURCHASE_REQUISITION pr = new PLAN_PURCHASE_REQUISITION();
             SYS_USER loginUser = (SYS_USER)Session["user"];
             pr.PROJECT_ID = form.Get("projectid").Trim();
@@ -660,12 +660,12 @@ namespace topmeperp.Controllers
             log.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
             return View(singleForm);
         }
-        //更新採購單資料
+        //更新驗收單資料
         public String RefreshRP(string id, FormCollection form)
         {
             log.Info("form:" + form.Count);
             string msg = "";
-            // 取得申購單資料
+            // 取得驗收單資料
             PLAN_PURCHASE_REQUISITION pr = new PLAN_PURCHASE_REQUISITION();
             SYS_USER loginUser = (SYS_USER)Session["user"];
             pr.PROJECT_ID = form.Get("projectid").Trim();
@@ -797,6 +797,9 @@ namespace topmeperp.Controllers
         {
             log.Info("Access to Delivery List !!");
             List<PurchaseRequisition> lstItem = service.getDeliveryByItemId(id);
+            PurchaseRequisition lstInventory = service.getInventoryByItemId(id);
+            ViewBag.allReceipt = lstInventory.ALL_RECEIPT_QTY;
+            log.Debug("plan_item_id = " + id + "其總驗收數量為" + ViewBag.allReceipt);
             return View(lstItem);
         }
 

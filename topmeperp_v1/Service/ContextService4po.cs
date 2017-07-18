@@ -1842,8 +1842,9 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 string sql = "SELECT pi.PLAN_ITEM_ID, pri.PR_ITEM_ID, pri.NEED_QTY, CONVERT(char(10), pri.NEED_DATE, 111) AS NEED_DATE, pri.REMARK , pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.ITEM_FORM_QUANTITY, " +
-                    "pi.SUPPLIER_ID FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_ITEM pi on pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID " +
-                    "WHERE pri.PR_ID + '-' + pi.SUPPLIER_ID =@id ";
+                    "pi.SUPPLIER_ID, B.CUMULATIVE_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_ITEM pi on pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID " +
+                    "LEFT JOIN (SELECT pri.PLAN_ITEM_ID, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE PR_ID LIKE 'PPO%' GROUP BY pri.PLAN_ITEM_ID)B " +
+                    "ON pri.PLAN_ITEM_ID = B.PLAN_ITEM_ID WHERE pri.PR_ID + '-' + pi.SUPPLIER_ID =@id ";
 
                 logger.Info("sql = " + sql);
                 var parameters = new List<SqlParameter>();
@@ -2035,7 +2036,7 @@ namespace topmeperp.Service
         // 寫入驗收內容
         public string newRP(string projectid, PLAN_PURCHASE_REQUISITION form, string[] lstItemId)
         {
-            //1.建立採購單
+            //1.建立驗收資料
             logger.Info("create new receipt ");
             string sno_key = "RP";
             SerialKeyService snoservice = new SerialKeyService();
@@ -2198,7 +2199,7 @@ namespace topmeperp.Service
             logger.Info("search inventory by 專案編號 =" + prjid + ", 物料名稱 =" + itemName + ", 主系統 =" + systemMain);
             List<PurchaseRequisition> lstItem = new List<PurchaseRequisition>();
             //處理SQL 預先填入專案代號,設定集合處理參數
-            string sql = "SELECT pri.PLAN_ITEM_ID, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.SYSTEM_MAIN, SUM(pri.RECEIPT_QTY) - A.DELIVERY_QTY AS INVENTORY_QTY " +
+            string sql = "SELECT pri.PLAN_ITEM_ID, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.SYSTEM_MAIN, SUM(pri.RECEIPT_QTY) - ISNULL(A.DELIVERY_QTY, 0) AS INVENTORY_QTY " +
                 "FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_ITEM pi ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID " +
                 "LEFT JOIN (SELECT pid.PLAN_ITEM_ID, SUM(pid.DELIVERY_QTY) AS DELIVERY_QTY FROM PLAN_ITEM_DELIVERY pid " +
                 "GROUP BY pid.PLAN_ITEM_ID)A ON pri.PLAN_ITEM_ID = A.PLAN_ITEM_ID GROUP BY pri.PLAN_ITEM_ID, A.DELIVERY_QTY, " +
@@ -2262,7 +2263,7 @@ namespace topmeperp.Service
                 return DELIVERY_ORDER_ID;
             }
         }
-        //更新申購數量
+        //新增領料數量
         public int refreshDelivery(string deliveryorderid, List<PLAN_ITEM_DELIVERY> lstItem)
         {
             logger.Info("Update delivery items, it's delivery order id =" + deliveryorderid);
@@ -2353,6 +2354,25 @@ namespace topmeperp.Service
 
             }
             return j;
+        }
+        //取得個別物料的庫存數量
+        public PurchaseRequisition getInventoryByItemId(string itemid)
+        {
+
+            logger.Info("search item inventory by planitemid  =" + itemid);
+            PurchaseRequisition lstItem = new PurchaseRequisition();
+            //處理SQL 預先填入專案代號,設定集合處理參數
+            using (var context = new topmepEntities())
+            {
+                lstItem = context.Database.SqlQuery<PurchaseRequisition>("SELECT pri.PLAN_ITEM_ID, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.SYSTEM_MAIN, SUM(pri.RECEIPT_QTY) - ISNULL(A.DELIVERY_QTY, 0) AS INVENTORY_QTY, SUM(pri.RECEIPT_QTY) AS ALL_RECEIPT_QTY " +
+                "FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_ITEM pi ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID " +
+                "LEFT JOIN (SELECT pid.PLAN_ITEM_ID, SUM(pid.DELIVERY_QTY) AS DELIVERY_QTY FROM PLAN_ITEM_DELIVERY pid " +
+                "GROUP BY pid.PLAN_ITEM_ID)A ON pri.PLAN_ITEM_ID = A.PLAN_ITEM_ID GROUP BY pri.PLAN_ITEM_ID, A.DELIVERY_QTY, " +
+                "pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.SYSTEM_MAIN HAVING pri.PLAN_ITEM_ID =@itemid; "
+            , new SqlParameter("itemid", itemid)).First();
+            }
+
+            return lstItem;
         }
 
         #endregion

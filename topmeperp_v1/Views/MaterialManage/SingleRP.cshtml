@@ -74,8 +74,13 @@
                         備註
                     </th>
                     <th>
+                        已驗收數量
+                    </th>
+                    <th>
                         驗收數量
                     </th>
+                    <th> </th>
+                     
                 </tr>
                 @foreach (var item in Model.planPRItem)
                 {
@@ -97,7 +102,7 @@
                             @item.ITEM_FORM_QUANTITY
                         </td>
                         <td>
-                            @item.CUMULATIVE_QTY
+                            @Html.TextBox("cumulative_qty", item.CUMULATIVE_QTY, new { @class = "form-control", style = "width:90px", Name = "cumulative_qty", @readonly = "readonly" })
                         </td>
                         <td>
                             @item.ORDER_QTY
@@ -109,8 +114,12 @@
                             @item.REMARK
                         </td>
                         <td>
+                            @Html.TextBox("all_receipt_qty", item.ALL_RECEIPT_QTY, new { @class = "form-control", style = "width:90px", Name = "all_receipt_qty", @readonly = "readonly" })
+                        </td>
+                        <td>
                             @Html.TextBox("receipt_qty", item.RECEIPT_QTY, new { @class = "form-control", style = "width:120px" })
                         </td>
+                        <td><input type="hidden" name="original_receipt_qty" id="original_receipt_qty" value="@item.RECEIPT_QTY"></td>
                     </tr>
                 }
             </table>
@@ -126,6 +135,16 @@
 <script language="javascript" type="text/javascript">
 
     $("#updateRP").click(function () {
+        var receipt = $('input[name=receipt_qty]').val();
+        var all_receipt = $('input[name=all_receipt_qty]').val();
+        var cumulative_order = -$('input[name=cumulative_qty]').val();
+        var original_receipt = -$('input[name=original_receipt_qty]').val();
+        var result = parseInt(all_receipt) + parseInt(receipt) + parseInt(original_receipt) + parseInt(cumulative_order);
+        alert(result);
+        if (result > parseInt(0)) {
+            alert("總驗收數量大於總訂購數量！");
+            return false;
+        }
         $.ajax({
             url: '@Url.Action("RefreshRP", "MaterialManage")',
             data: $('#formRP').serialize(),
@@ -142,6 +161,8 @@
     });
 
 </script>
+
+
 
 
 

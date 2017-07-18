@@ -1413,11 +1413,11 @@ namespace topmeperp.Service
             return lst;
         }
         //取得特定專案報價之供應商資料
-        public List<COMPARASION_DATA> getComparisonData(string projectid, string typecode1, string typecode2, string systemMain, string systemSub, string iswage)
+        public List<COMPARASION_DATA> getComparisonData(string projectid, string typecode1, string typecode2, string systemMain, string systemSub, string iswage, string formName)
         {
             List<COMPARASION_DATA> lst = new List<COMPARASION_DATA>();
             string sql = "SELECT  pfItem.FORM_ID AS FORM_ID, " +
-                "SUPPLIER_ID as SUPPLIER_NAME,SUM(pfitem.ITEM_UNIT_PRICE*pfitem.ITEM_QTY) as TAmount " +
+                "SUPPLIER_ID as SUPPLIER_NAME, FORM_NAME AS FORM_NAME, SUM(pfitem.ITEM_UNIT_PRICE*pfitem.ITEM_QTY) as TAmount " +
                 "FROM TND_PROJECT_ITEM pItem LEFT OUTER JOIN " +
                 "TND_PROJECT_FORM_ITEM pfItem ON pItem.PROJECT_ITEM_ID = pfItem.PROJECT_ITEM_ID " +
                 "inner join TND_PROJECT_FORM f on pfItem.FORM_ID = f.FORM_ID " +
@@ -1455,7 +1455,14 @@ namespace topmeperp.Service
                 sql = sql + " AND pItem.SYSTEM_SUB=@systemSub";
                 parameters.Add(new SqlParameter("systemSub", systemSub));
             }
-            sql = sql + " GROUP BY pfItem.FORM_ID ,SUPPLIER_ID;";
+            //採購名稱條件
+            if (null != formName && "" != formName)
+            {
+                //sql = sql + " AND f.FORM_NAME='" + formName + "'";
+                sql = sql + " AND FORM_NAME = @formName ";
+                parameters.Add(new SqlParameter("formName", formName));
+            }
+            sql = sql + " GROUP BY pfItem.FORM_ID ,SUPPLIER_ID, FORM_NAME ;";
             logger.Info("comparison data sql=" + sql);
             using (var context = new topmepEntities())
             {
@@ -1466,90 +1473,179 @@ namespace topmeperp.Service
             return lst;
         }
         //比價資料
-        public DataTable getComparisonDataToPivot(string projectid, string typecode1, string typecode2, string systemMain, string systemSub, string iswage)
+        public DataTable getComparisonDataToPivot(string projectid, string typecode1, string typecode2, string systemMain, string systemSub, string iswage, string formName)
         {
-
-            string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PROJECT_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
-                "(SELECT SUPPLIER_ID+'|'+ fitem.FORM_ID FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID) as SUPPLIER_NAME, " +
-                "pitem.ITEM_UNIT_PRICE 單價,fitem.ITEM_UNIT_PRICE " +
+            if (null != formName && "" != formName)
+            {
+                string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PROJECT_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
+                "(SELECT SUPPLIER_ID +'|' + fitem.FORM_ID + '|' + FORM_NAME FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID) as SUPPLIER_NAME, " +
+                "pitem.ITEM_UNIT_PRICE 單價, " +
+                "(SELECT FORM_NAME FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID ) as FORM_NAME, fitem.ITEM_UNIT_PRICE " +
                 "from TND_PROJECT_ITEM pitem " +
                 "left join TND_PROJECT_FORM_ITEM fitem " +
                 " on pitem.PROJECT_ITEM_ID = fitem.PROJECT_ITEM_ID " +
                 "where pitem.PROJECT_ID = @projectid ";
 
-            if (iswage == "Y")
-            {
-                sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PROJECT_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
-                "(SELECT SUPPLIER_ID+'|'+ fitem.FORM_ID FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID) as SUPPLIER_NAME, " +
-                "pitem.MAN_PRICE 工資單價,fitem.ITEM_UNIT_PRICE " +
-                "from TND_PROJECT_ITEM pitem " +
-                "left join TND_PROJECT_FORM_ITEM fitem " +
-                " on pitem.PROJECT_ITEM_ID = fitem.PROJECT_ITEM_ID " +
-                "where pitem.PROJECT_ID = @projectid ";
-            }
-
-            var parameters = new Dictionary<string, Object>();
-            //設定專案名編號資料
-            parameters.Add("projectid", projectid);
-            //九宮格條件
-            if (null != typecode1 && "" != typecode1)
-            {
-                //sql = sql + " AND pItem.TYPE_CODE_1='"+ typecode1 + "'";
-                sql = sql + " AND pItem.TYPE_CODE_1=@typecode1";
-                parameters.Add("typecode1", typecode1);
-            }
-            //次九宮格條件
-            if (null != typecode2 && "" != typecode2)
-            {
-                //sql = sql + " AND pItem.TYPE_CODE_2='" + typecode2 + "'";
-                sql = sql + " AND pItem.TYPE_CODE_2=@typecode2";
-                parameters.Add("typecode2", typecode2);
-            }
-            //主系統條件
-            if (null != systemMain && "" != systemMain)
-            {
-                // sql = sql + " AND pItem.SYSTEM_MAIN='" + systemMain + "'";
-                sql = sql + " AND pItem.SYSTEM_MAIN=@systemMain";
-                parameters.Add("systemMain", systemMain);
-            }
-            //次系統條件
-            if (null != systemSub && "" != systemSub)
-            {
-                //sql = sql + " AND pItem.SYSTEM_SUB='" + systemSub + "'";
-                sql = sql + " AND pItem.SYSTEM_SUB=@systemSub";
-                parameters.Add("systemSub", systemSub);
-            }
-            //取的欄位維度條件
-            List<COMPARASION_DATA> lstSuppluerQuo = getComparisonData(projectid, typecode1, typecode2, systemMain, systemSub, iswage);
-            if (lstSuppluerQuo.Count == 0)
-            {
-                throw new Exception("相關條件沒有任何報價資料!!");
-            }
-            //設定供應商報價資料，供前端畫面調用
-            dirSupplierQuo = new Dictionary<string, COMPARASION_DATA>();
-            string dimString = "";
-            foreach (var it in lstSuppluerQuo)
-            {
-                logger.Debug("Supplier=" + it.SUPPLIER_NAME + "," + it.FORM_ID);
-                if (dimString == "")
+                if (iswage == "Y")
                 {
-                    dimString = "[" + it.SUPPLIER_NAME + "|" + it.FORM_ID + "]";
+                    sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PROJECT_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
+                    "(SELECT SUPPLIER_ID+'|'+ fitem.FORM_ID + '|' + FORM_NAME FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID) as SUPPLIER_NAME, " +
+                    "pitem.MAN_PRICE 工資單價, " +
+                    "(SELECT FORM_NAME FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID ) as FORM_NAME, fitem.ITEM_UNIT_PRICE " +
+                    "from TND_PROJECT_ITEM pitem " +
+                    "left join TND_PROJECT_FORM_ITEM fitem " +
+                    " on pitem.PROJECT_ITEM_ID = fitem.PROJECT_ITEM_ID " +
+                    "where pitem.PROJECT_ID = @projectid ";
                 }
-                else
+
+                var parameters = new Dictionary<string, Object>();
+                //設定專案名編號資料
+                parameters.Add("projectid", projectid);
+                //九宮格條件
+                if (null != typecode1 && "" != typecode1)
                 {
-                    dimString = dimString + ",[" + it.SUPPLIER_NAME + "|" + it.FORM_ID + "]";
+                    //sql = sql + " AND pItem.TYPE_CODE_1='"+ typecode1 + "'";
+                    sql = sql + " AND pItem.TYPE_CODE_1=@typecode1";
+                    parameters.Add("typecode1", typecode1);
+                }
+                //次九宮格條件
+                if (null != typecode2 && "" != typecode2)
+                {
+                    //sql = sql + " AND pItem.TYPE_CODE_2='" + typecode2 + "'";
+                    sql = sql + " AND pItem.TYPE_CODE_2=@typecode2";
+                    parameters.Add("typecode2", typecode2);
+                }
+                //主系統條件
+                if (null != systemMain && "" != systemMain)
+                {
+                    // sql = sql + " AND pItem.SYSTEM_MAIN='" + systemMain + "'";
+                    sql = sql + " AND pItem.SYSTEM_MAIN=@systemMain";
+                    parameters.Add("systemMain", systemMain);
+                }
+                //次系統條件
+                if (null != systemSub && "" != systemSub)
+                {
+                    //sql = sql + " AND pItem.SYSTEM_SUB='" + systemSub + "'";
+                    sql = sql + " AND pItem.SYSTEM_SUB=@systemSub";
+                    parameters.Add("systemSub", systemSub);
+                }
+                //取的欄位維度條件
+                List<COMPARASION_DATA> lstSuppluerQuo = getComparisonData(projectid, typecode1, typecode2, systemMain, systemSub, iswage, formName);
+                if (lstSuppluerQuo.Count == 0)
+                {
+                    throw new Exception("相關條件沒有任何報價資料!!");
                 }
                 //設定供應商報價資料，供前端畫面調用
-                dirSupplierQuo.Add(it.FORM_ID, it);
+                dirSupplierQuo = new Dictionary<string, COMPARASION_DATA>();
+                string dimString = "";
+                foreach (var it in lstSuppluerQuo)
+                {
+                    logger.Debug("Supplier=" + it.SUPPLIER_NAME + "," + it.FORM_ID + "," + it.FORM_NAME);
+                    if (dimString == "")
+                    {
+                        dimString = "[" + it.SUPPLIER_NAME + "|" + it.FORM_ID  + "|" + it.FORM_NAME + "]";
+                    }
+                    else
+                    {
+                        dimString = dimString + ",[" + it.SUPPLIER_NAME + "|" + it.FORM_ID + "|" + it.FORM_NAME + "]";
+                    }
+                    //設定供應商報價資料，供前端畫面調用
+                    dirSupplierQuo.Add(it.FORM_ID, it);
+                }
+
+                logger.Debug("dimString=" + dimString);
+                //sql = sql + " AND FORM_NAME ='" + formName + "'";
+                sql = sql + ") souce pivot(MIN(ITEM_UNIT_PRICE) FOR SUPPLIER_NAME IN(" + dimString + ")) as pvt WHERE FORM_NAME =@formName ORDER BY 行數; ";
+                parameters.Add("formName", formName);
+                logger.Info("comparison data sql=" + sql);
+                DataSet ds = ExecuteStoreQuery(sql, CommandType.Text, parameters);
+                //Pivot pvt = new Pivot(ds.Tables[0]);
+                return ds.Tables[0];
             }
+            else
+            {
 
-            logger.Debug("dimString=" + dimString);
-            sql = sql + ") souce pivot(MIN(ITEM_UNIT_PRICE) FOR SUPPLIER_NAME IN(" + dimString + ")) as pvt ORDER BY 行數; ";
+                string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PROJECT_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
+                                "(SELECT SUPPLIER_ID+'|'+ fitem.FORM_ID + '|' + FORM_NAME FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID) as SUPPLIER_NAME, " +
+                                "pitem.ITEM_UNIT_PRICE 單價,fitem.ITEM_UNIT_PRICE " +
+                                "from TND_PROJECT_ITEM pitem " +
+                                "left join TND_PROJECT_FORM_ITEM fitem " +
+                                " on pitem.PROJECT_ITEM_ID = fitem.PROJECT_ITEM_ID " +
+                                "where pitem.PROJECT_ID = @projectid ";
 
-            logger.Info("comparison data sql=" + sql);
-            DataSet ds = ExecuteStoreQuery(sql, CommandType.Text, parameters);
-            //Pivot pvt = new Pivot(ds.Tables[0]);
-            return ds.Tables[0];
+                if (iswage == "Y")
+                {
+                    sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PROJECT_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
+                    "(SELECT SUPPLIER_ID+'|'+ fitem.FORM_ID + '|' + FORM_NAME FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID) as SUPPLIER_NAME, " +
+                    "pitem.MAN_PRICE 工資單價,fitem.ITEM_UNIT_PRICE " +
+                    "from TND_PROJECT_ITEM pitem " +
+                    "left join TND_PROJECT_FORM_ITEM fitem " +
+                    " on pitem.PROJECT_ITEM_ID = fitem.PROJECT_ITEM_ID " +
+                    "where pitem.PROJECT_ID = @projectid ";
+                }
+
+                var parameters = new Dictionary<string, Object>();
+                //設定專案名編號資料
+                parameters.Add("projectid", projectid);
+                //九宮格條件
+                if (null != typecode1 && "" != typecode1)
+                {
+                    //sql = sql + " AND pItem.TYPE_CODE_1='"+ typecode1 + "'";
+                    sql = sql + " AND pItem.TYPE_CODE_1=@typecode1";
+                    parameters.Add("typecode1", typecode1);
+                }
+                //次九宮格條件
+                if (null != typecode2 && "" != typecode2)
+                {
+                    //sql = sql + " AND pItem.TYPE_CODE_2='" + typecode2 + "'";
+                    sql = sql + " AND pItem.TYPE_CODE_2=@typecode2";
+                    parameters.Add("typecode2", typecode2);
+                }
+                //主系統條件
+                if (null != systemMain && "" != systemMain)
+                {
+                    // sql = sql + " AND pItem.SYSTEM_MAIN='" + systemMain + "'";
+                    sql = sql + " AND pItem.SYSTEM_MAIN=@systemMain";
+                    parameters.Add("systemMain", systemMain);
+                }
+                //次系統條件
+                if (null != systemSub && "" != systemSub)
+                {
+                    //sql = sql + " AND pItem.SYSTEM_SUB='" + systemSub + "'";
+                    sql = sql + " AND pItem.SYSTEM_SUB=@systemSub";
+                    parameters.Add("systemSub", systemSub);
+                }
+                //取的欄位維度條件
+                List<COMPARASION_DATA> lstSuppluerQuo = getComparisonData(projectid, typecode1, typecode2, systemMain, systemSub, iswage, formName);
+                if (lstSuppluerQuo.Count == 0)
+                {
+                    throw new Exception("相關條件沒有任何報價資料!!");
+                }
+                //設定供應商報價資料，供前端畫面調用
+                dirSupplierQuo = new Dictionary<string, COMPARASION_DATA>();
+                string dimString = "";
+                foreach (var it in lstSuppluerQuo)
+                {
+                    logger.Debug("Supplier=" + it.SUPPLIER_NAME + "," + it.FORM_ID + "," + it.FORM_NAME);
+                    if (dimString == "")
+                    {
+                        dimString = "[" + it.SUPPLIER_NAME + "|" + it.FORM_ID + "|" + it.FORM_NAME + "]";
+                    }
+                    else
+                    {
+                        dimString = dimString + ",[" + it.SUPPLIER_NAME + "|" + it.FORM_ID + "|" + it.FORM_NAME + "]";
+                    }
+                    //設定供應商報價資料，供前端畫面調用
+                    dirSupplierQuo.Add(it.FORM_ID, it);
+                }
+
+                logger.Debug("dimString=" + dimString);
+                sql = sql + ") souce pivot(MIN(ITEM_UNIT_PRICE) FOR SUPPLIER_NAME IN(" + dimString + ")) as pvt ORDER BY 行數; ";
+                logger.Info("comparison data sql=" + sql);
+                DataSet ds = ExecuteStoreQuery(sql, CommandType.Text, parameters);
+                //Pivot pvt = new Pivot(ds.Tables[0]);
+                return ds.Tables[0];
+            }
         }
         //取得專案詢價單樣板(供應商欄位為0)
         public List<TND_PROJECT_FORM> getFormTemplateByProject(string projectid)
@@ -1697,7 +1793,7 @@ namespace topmeperp.Service
             foreach (TND_PROJECT_FORM f in lstTemplate)
             {
                 getInqueryForm(f.FORM_ID);
-                ZipFileCreator.CreateDirectory(tempFolder+ formInquiry.FORM_NAME);
+                ZipFileCreator.CreateDirectory(tempFolder + formInquiry.FORM_NAME);
                 string fileLocation = poi.exportExcel(formInquiry, formInquiryItem, true);
                 logger.Debug("temp file=" + fileLocation);
             }
@@ -1879,7 +1975,7 @@ namespace topmeperp.Service
             }
         }
 
-       
+
         //更新供應商資料
         public int updateSupplier(string supplierid, TND_SUPPLIER sup, List<TND_SUP_CONTACT_INFO> lstItem)
         {

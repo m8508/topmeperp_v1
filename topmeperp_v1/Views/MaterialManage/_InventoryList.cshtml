@@ -36,7 +36,7 @@
 
             <tr>
                 <td>
-                    @Html.TextBox("planitemid", @item.PLAN_ITEM_ID, new { @class = "form-control", style = "width:120px" })
+                    @Html.TextBox("planitemid", @item.PLAN_ITEM_ID, new { @class = "form-control", style = "width:120px" , @readonly = "readonly" })
                 </td>
                 <td>
                     @item.ITEM_ID
@@ -48,20 +48,20 @@
                     @item.ITEM_UNIT
                 </td>
                 <td>
-                   @item.INVENTORY_QTY
+                   @Html.TextBox("inventory_qty", item.INVENTORY_QTY, new { @class = "form-control", style = "width:90px", Name = "inventory_qty", @readonly = "readonly" })
                 </td>
                 <td>
                     <input type="checkbox" id="chkItem" name="chkItem" value="@item.PLAN_ITEM_ID" />
                 </td>
                 <td>
-                    @Html.TextBox("delivery_qty", item.DELIVERY_QTY, new { @class = "form-control", style = "width:90px" })
+                    @Html.TextBox("delivery_qty", item.DELIVERY_QTY, new { @class = "form-control", style = "width:90px", Name = "delivery_qty" })
                 </td>
                 <td><a href="/MaterialManage/DeliveryList/@item.PLAN_ITEM_ID" target="_blank">檢視/修改</a></td>
             </tr>
         }
     </table>
 
-    <input id="Submit1" type="submit" value="提領" class="btn btn-warning"/>
+    <input id="Submit1" type="submit" value="提領" class="btn btn-warning" onclick="return Confirm_Form()"/>
 }
 
 
@@ -74,4 +74,18 @@
                 $("input[name='chkItem']").prop("checked", false);
         });
     });
+
+    function Confirm_Form() {
+        var method1 = $('input[name=chkItem]:checkbox:checked').val();
+        var inventory = $('input[name=inventory_qty]').val();
+        var delivery = $('input[name=delivery_qty]').val();
+        if (typeof (method1) == "undefined") { // 注意檢查完全沒有選取的寫法，這行是精華
+            alert("沒有選取要提領的物料，請勾選並檢查數量是否正確！");
+            return false;
+        }
+        if (parseInt(delivery) > parseInt(inventory)) {
+            alert("提領數量大於庫存數量！");
+            return false;
+        }
+    }
 </script>

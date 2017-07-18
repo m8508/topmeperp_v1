@@ -83,6 +83,7 @@ namespace topmeperp.Models
         //供應商名稱
         public string SUPPLIER_NAME { get; set; }
         public Nullable<decimal> TAmount { get; set; }
+        public string FORM_NAME { get; set; }
     }
     public class DirectCost
     {

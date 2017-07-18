@@ -100,13 +100,13 @@
                             @item.ITEM_FORM_QUANTITY
                         </td>
                         <td>
-                            @item.CUMULATIVE_QTY
+                            @Html.TextBox("cumulative_qty", item.CUMULATIVE_QTY, new { @class = "form-control", style = "width:90px", Name = "cumulative_qty", @readonly = "readonly" })
                         </td>
                         <td>
-                            @Html.TextBox("order_qty", item.ORDER_QTY, new { @class = "form-control", style = "width:90px", Name = "order_qty" ,@readonly = "readonly"})
+                            @item.ORDER_QTY
                         </td>
                         <td>
-                            @item.ALL_RECEIPT_QTY
+                            @Html.TextBox("all_receipt_qty", item.ALL_RECEIPT_QTY, new { @class = "form-control", style = "width:90px", Name = "all_receipt_qty", @readonly = "readonly" })
                         </td>
                         <td>
                             @item.NEED_DATE
@@ -138,14 +138,15 @@
     function Confirm_Form() {
         var method1 = $('input[name=chkItem]:checkbox:checked').val();
         var receipt = $('input[name=receipt_qty]').val();
-        var order = $('input[name=order_qty]').val();
+        var all_receipt = $('input[name=all_receipt_qty]').val();
+        var cumulative_order = $('input[name=cumulative_qty]').val();
         if (typeof (method1) == "undefined") { // 注意檢查完全沒有選取的寫法，這行是精華
             alert("沒有選取要驗收的物料，請勾選並檢查數量是否正確！");
             return false;
         }
-        if (receipt > order)
+        if (parseInt(receipt) + parseInt(all_receipt) > parseInt(cumulative_order))
         { 
-            alert("驗收數量大於訂購數量！");
+            alert("總驗收數量大於總訂購數量！");
             return false;
         }
     }

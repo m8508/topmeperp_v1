@@ -20,9 +20,9 @@ namespace topmeperp.Views.Inquiry
             if (!IsPostBack)
             {
                 //傳入查詢條件
-                log.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"]);
+                log.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"] + ",Form Name=" + Request["formName"]);
                 //取得備標品項與詢價資料
-                DataTable dt = service.getComparisonDataToPivot(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"],"N");
+                DataTable dt = service.getComparisonDataToPivot(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], "N", Request["formName"]);
                 labelMsg.Text = "共" + dt.Rows.Count + "筆";
                 //grdRawData.DataSource = dt;
                 //grdRawData.DataBind();
