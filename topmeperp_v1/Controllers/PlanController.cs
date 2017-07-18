@@ -267,6 +267,9 @@ namespace topmeperp.Controllers
             PlanService ps = new PlanService();
             var priId = ps.getBudgetById(id);
             ViewBag.budgetdata = priId;
+            //for exception 
+            ViewBag.budget = 0;
+            ViewBag.cost = 0;
             if (null == priId)
             //取得九宮格組合之直接成本資料
             {
@@ -472,10 +475,12 @@ namespace topmeperp.Controllers
             BudgetDataService bs = new BudgetDataService();
             DirectCost totalinfo = bs.getTotalCost(Request["projectid"]);
             DirectCost iteminfo = bs.getItemBudget(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"]);
-            ViewBag.budget = totalinfo.TOTAL_BUDGET;
-            ViewBag.cost = totalinfo.TOTAL_COST;
-            ViewBag.itembudget = iteminfo.ITEM_BUDGET;
-            ViewBag.itemcost = iteminfo.ITEM_COST;
+
+          
+            ViewBag.budget = (null == totalinfo.TOTAL_BUDGET ? 0 : totalinfo.TOTAL_BUDGET);
+            ViewBag.cost =  (null == totalinfo.TOTAL_COST ? 0 : totalinfo.TOTAL_COST);
+            ViewBag.itembudget = (null == iteminfo.ITEM_BUDGET ? 0 : iteminfo.ITEM_BUDGET);
+            ViewBag.itemcost = (null == iteminfo.ITEM_COST ? 0 : iteminfo.ITEM_COST); 
             return View("BudgetForForm", lstProject);
         }
         //修改Plan_Item 個別預算

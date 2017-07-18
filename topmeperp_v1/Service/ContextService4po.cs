@@ -248,7 +248,7 @@ namespace topmeperp.Service
         {
             using (var context = new topmepEntities())
             {
-                plan = context.Database.SqlQuery<PlanRevenue>("SELECT p.PROJECT_ID + p.PROJECT_NAME AS CONTRACT_ID, " +
+                plan = context.Database.SqlQuery<PlanRevenue>("SELECT p.PROJECT_ID AS CONTRACT_ID, " +
                     "(SELECT SUM(ITEM_UNIT_COST*ITEM_QUANTITY) FROM PLAN_ITEM pi WHERE pi.PROJECT_ID = @pid) AS PLAN_REVENUE " +
                      "FROM TND_PROJECT p WHERE p.PROJECT_ID = @pid "
                    , new SqlParameter("pid", prjid)).First();
@@ -266,7 +266,7 @@ namespace topmeperp.Service
                 PLAN_PAYMENT_TERMS lstItem = new PLAN_PAYMENT_TERMS();
                 string sql = "INSERT INTO PLAN_PAYMENT_TERMS (CONTRACT_ID, PROJECT_ID) " +
                        "SELECT '" + projectid + "' AS contractid, '" + projectid + "'  FROM TND_PROJECT p WHERE p.PROJECT_ID = '" + projectid + "'  " +
-                       "AND '" + projectid + "'  + p.PROJECT_NAME NOT IN(SELECT ppt.CONTRACT_ID FROM PLAN_PAYMENT_TERMS ppt) ";
+                       "AND '" + projectid + "' NOT IN(SELECT ppt.CONTRACT_ID FROM PLAN_PAYMENT_TERMS ppt) ";
                 logger.Info("sql =" + sql);
                 i = context.Database.ExecuteSqlCommand(sql);
                 return i;
