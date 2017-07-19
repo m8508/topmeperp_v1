@@ -264,8 +264,8 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 PLAN_PAYMENT_TERMS lstItem = new PLAN_PAYMENT_TERMS();
-                string sql = "INSERT INTO PLAN_PAYMENT_TERMS (CONTRACT_ID, PROJECT_ID) " +
-                       "SELECT '" + projectid + "' AS contractid, '" + projectid + "'  FROM TND_PROJECT p WHERE p.PROJECT_ID = '" + projectid + "'  " +
+                string sql = "INSERT INTO PLAN_PAYMENT_TERMS (CONTRACT_ID, PROJECT_ID, TYPE) " +
+                       "SELECT '" + projectid + "' AS contractid, '" + projectid + "', 'O' FROM TND_PROJECT p WHERE p.PROJECT_ID = '" + projectid + "'  " +
                        "AND '" + projectid + "' NOT IN(SELECT ppt.CONTRACT_ID FROM PLAN_PAYMENT_TERMS ppt) ";
                 logger.Info("sql =" + sql);
                 i = context.Database.ExecuteSqlCommand(sql);
@@ -949,13 +949,14 @@ namespace topmeperp.Service
             List<plansummary> lst = new List<plansummary>();
             using (var context = new topmepEntities())
             {
-                lst = context.Database.SqlQuery<plansummary>("SELECT  p.PROJECT_ID + p.SUPPLIER_ID + p.FORM_NAME AS CONTRACT_ID, p.SUPPLIER_ID, p.FORM_NAME, " +
-                    "SUM(p.ITEM_QUANTITY * p.ITEM_UNIT_PRICE) MATERIAL_COST, SUM(p.ITEM_QUANTITY * ISNULL(p.MAN_PRICE,0)) WAGE_COST, " +
-                    "SUM(p.ITEM_QUANTITY * p.ITEM_UNIT_COST) REVENUE, SUM(p.ITEM_QUANTITY * p.ITEM_UNIT_COST * p.BUDGET_RATIO / 100) BUDGET, " +
-                    "(SUM(p.ITEM_QUANTITY * p.ITEM_UNIT_PRICE) + SUM(p.ITEM_QUANTITY * ISNULL(p.MAN_PRICE,0))) COST, (SUM(p.ITEM_QUANTITY * p.ITEM_UNIT_COST) - " +
-                    "SUM(p.ITEM_QUANTITY * p.ITEM_UNIT_PRICE) - SUM(p.ITEM_QUANTITY * ISNULL(p.MAN_PRICE,0))) PROFIT, " +
-                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY p.SUPPLIER_ID) AS NO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid and p.ITEM_UNIT_PRICE IS NOT NULL " +
-                    "AND p.ITEM_UNIT_PRICE <> 0 GROUP BY p.PROJECT_ID, p.SUPPLIER_ID, p.FORM_NAME ; "
+                lst = context.Database.SqlQuery<plansummary>("SELECT  A.PROJECT_ID + A.ID + A.FORM_NAME AS CONTRACT_ID, A.SUPPLIER_ID, A.FORM_NAME, " +
+                    "SUM(A.ITEM_QUANTITY * A.ITEM_UNIT_PRICE) MATERIAL_COST, SUM(A.ITEM_QUANTITY * ISNULL(A.MAN_PRICE, 0)) WAGE_COST, " +
+                    "SUM(A.ITEM_QUANTITY * A.ITEM_UNIT_COST) REVENUE, SUM(A.ITEM_QUANTITY * A.ITEM_UNIT_COST * A.BUDGET_RATIO / 100) BUDGET, "+
+                    "(SUM(A.ITEM_QUANTITY * A.ITEM_UNIT_PRICE) + SUM(A.ITEM_QUANTITY * ISNULL(A.MAN_PRICE, 0))) COST, (SUM(A.ITEM_QUANTITY * A.ITEM_UNIT_COST) - " +
+                    "SUM(A.ITEM_QUANTITY * A.ITEM_UNIT_PRICE) - SUM(A.ITEM_QUANTITY * ISNULL(A.MAN_PRICE, 0))) PROFIT, "+
+                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.SUPPLIER_ID) AS NO FROM(SELECT pi.*, s.SUPPLIER_ID AS ID FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON " +
+                    "pi.SUPPLIER_ID = s.COMPANY_NAME)A WHERE A.PROJECT_ID =@projectid and A.ITEM_UNIT_PRICE IS NOT NULL " +
+                    "AND A.ITEM_UNIT_PRICE <> 0 GROUP BY A.PROJECT_ID, A.ID, A.FORM_NAME, A.SUPPLIER_ID ; "
                    , new SqlParameter("projectid", projectid)).ToList();
             }
             return lst;
@@ -966,10 +967,11 @@ namespace topmeperp.Service
             List<plansummary> lst = new List<plansummary>();
             using (var context = new topmepEntities())
             {
-                lst = context.Database.SqlQuery<plansummary>("SELECT  p.PROJECT_ID + p.MAN_SUPPLIER_ID + p.MAN_FORM_NAME AS CONTRACT_ID, p.MAN_SUPPLIER_ID, p.MAN_FORM_NAME, " +
-                    "SUM(p.ITEM_QUANTITY * ISNULL(p.MAN_PRICE,0)) WAGE_COST, " +
-                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY p.MAN_SUPPLIER_ID) AS NO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid and p.MAN_PRICE IS NOT NULL " +
-                    "AND p.MAN_PRICE <> 0 GROUP BY p.PROJECT_ID, p.MAN_SUPPLIER_ID, p.MAN_FORM_NAME ; "
+                lst = context.Database.SqlQuery<plansummary>("SELECT  A.PROJECT_ID + A.ID + A.MAN_FORM_NAME AS CONTRACT_ID, A.MAN_SUPPLIER_ID, A.MAN_FORM_NAME, " +
+                    "SUM(A.ITEM_QUANTITY * ISNULL(A.MAN_PRICE, 0)) WAGE_COST, " +
+                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.MAN_SUPPLIER_ID) AS NO FROM(SELECT pi.*, s.SUPPLIER_ID AS ID FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON " +
+                    "pi.MAN_SUPPLIER_ID = s.COMPANY_NAME)A WHERE A.PROJECT_ID =@projectid and A.MAN_PRICE IS NOT NULL " +
+                    "AND A.MAN_PRICE <> 0 GROUP BY A.PROJECT_ID, A.MAN_SUPPLIER_ID, A.MAN_FORM_NAME, A.ID ; "
                    , new SqlParameter("projectid", projectid)).ToList();
             }
             return lst;
@@ -1392,9 +1394,11 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 List<topmeperp.Models.PLAN_PAYMENT_TERMS> lstItem = new List<PLAN_PAYMENT_TERMS>();
-                string sql = "INSERT INTO PLAN_PAYMENT_TERMS (CONTRACT_ID, PROJECT_ID) " +
-                       "SELECT distinct ('" + projectid + "' + p.SUPPLIER_ID + p.FORM_NAME) AS contractid, '" + projectid + "' FROM  PLAN_ITEM p WHERE p.SUPPLIER_ID IS NOT NULL " +
-                       "AND '" + projectid + "' + p.SUPPLIER_ID + p.FORM_NAME NOT IN(SELECT ppt.CONTRACT_ID FROM PLAN_PAYMENT_TERMS ppt) ";
+                string sql = "INSERT INTO PLAN_PAYMENT_TERMS (CONTRACT_ID, PROJECT_ID, TYPE) " +
+                       "SELECT distinct ('" + projectid + "' + A.SUPPLIER_ID + A.FORM_NAME) AS contractid, '" + projectid + "', 'S' FROM " +
+                       "(SELECT pi.PROJECT_ID, pi.SUPPLIER_ID AS SUPPLIER_NAME, pi.FORM_NAME, s.SUPPLIER_ID FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON " +
+                       "pi.SUPPLIER_ID = s.COMPANY_NAME WHERE pi.SUPPLIER_ID IS NOT NULL)A WHERE A.PROJECT_ID = '" + projectid + "' " +
+                       "AND '" + projectid + "' + A.SUPPLIER_ID + A.FORM_NAME NOT IN(SELECT ppt.CONTRACT_ID FROM PLAN_PAYMENT_TERMS ppt) ";
 
                 var parameters = new List<SqlParameter>();
                 i = context.Database.ExecuteSqlCommand(sql);
@@ -1409,9 +1413,11 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 List<topmeperp.Models.PLAN_PAYMENT_TERMS> lstItem = new List<PLAN_PAYMENT_TERMS>();
-                string sql = "INSERT INTO PLAN_PAYMENT_TERMS (CONTRACT_ID, PROJECT_ID) " +
-                   "SELECT distinct ('" + projectid + "' + p.MAN_SUPPLIER_ID + p.MAN_FORM_NAME) AS contractid, '" + projectid + "' FROM  PLAN_ITEM p WHERE p.MAN_SUPPLIER_ID IS NOT NULL " +
-                   "AND '" + projectid + "' + p.MAN_SUPPLIER_ID + p.MAN_FORM_NAME  NOT IN(SELECT ppt.CONTRACT_ID FROM PLAN_PAYMENT_TERMS ppt) ";
+                string sql = "INSERT INTO PLAN_PAYMENT_TERMS (CONTRACT_ID, PROJECT_ID, TYPE) " +
+                   "SELECT distinct ('" + projectid + "' + A.SUPPLIER_ID + A.MAN_FORM_NAME) AS contractid, '" + projectid + "', 'S' FROM " +
+                   "(SELECT pi.PROJECT_ID, pi.MAN_SUPPLIER_ID AS SUPPLIER_NAME, pi.MAN_FORM_NAME, s.SUPPLIER_ID FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON " +
+                   "pi.MAN_SUPPLIER_ID = s.COMPANY_NAME WHERE pi.MAN_SUPPLIER_ID IS NOT NULL)A WHERE A.PROJECT_ID = '" + projectid + "' " + 
+                   "AND '" + projectid + "' + A.SUPPLIER_ID + A.MAN_FORM_NAME NOT IN (SELECT ppt.CONTRACT_ID FROM PLAN_PAYMENT_TERMS ppt) ";
 
                 logger.Info("sql =" + sql);
                 var parameters = new List<SqlParameter>();
