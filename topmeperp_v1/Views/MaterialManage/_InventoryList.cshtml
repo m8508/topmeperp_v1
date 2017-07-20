@@ -7,59 +7,63 @@
     <input type="hidden" id="createid" name="createid" value="@ViewBag.createid" />
   
     <table class="table">
-        <tr>
-            <th>
-                No.
-            </th>
-            <th>
-                項次
-            </th>
-            <th>
-                項目說明
-            </th>
-            <th>
-                單位
-            </th>
-            <th>
-                庫存數量
-            </th>
-            <th><input type="checkbox" name="CheckAll" id="CheckAll">全選</th>
-            <th>
-                提領數量
-            </th>
-            <th>
-                領料紀錄
-            </th>
-        </tr>
-        @foreach (var item in Model)
+        <thead>
+            <tr>
+                <th>
+                    No.
+                </th>
+                <th>
+                    項次
+                </th>
+                <th>
+                    項目說明
+                </th>
+                <th>
+                    單位
+                </th>
+                <th>
+                    庫存數量
+                </th>
+                <th><input type="checkbox" name="CheckAll" id="CheckAll">全選</th>
+                <th>
+                    提領數量
+                </th>
+                <th>
+                    領料紀錄
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
                 {
 
-            <tr>
-                <td>
-                    @Html.TextBox("planitemid", @item.PLAN_ITEM_ID, new { @class = "form-control", style = "width:120px" , @readonly = "readonly" })
-                </td>
-                <td>
-                    @item.ITEM_ID
-                </td>
-                <td>
-                    @item.ITEM_DESC
-                </td>
-                <td>
-                    @item.ITEM_UNIT
-                </td>
-                <td>
-                   @Html.TextBox("inventory_qty", item.INVENTORY_QTY, new { @class = "form-control", style = "width:90px", Name = "inventory_qty", @readonly = "readonly" })
-                </td>
-                <td>
-                    <input type="checkbox" id="chkItem" name="chkItem" value="@item.PLAN_ITEM_ID" />
-                </td>
-                <td>
-                    @Html.TextBox("delivery_qty", item.DELIVERY_QTY, new { @class = "form-control", style = "width:90px", Name = "delivery_qty" })
-                </td>
-                <td><a href="/MaterialManage/DeliveryList/@item.PLAN_ITEM_ID" target="_blank">檢視/修改</a></td>
-            </tr>
-        }
-    </table>
+                <tr>
+                    <td>
+                        @Html.TextBox("planitemid", @item.PLAN_ITEM_ID, new { @class = "form-control", style = "width:120px", @readonly = "readonly" })
+                    </td>
+                    <td>
+                        @item.ITEM_ID
+                    </td>
+                    <td>
+                        @item.ITEM_DESC
+                    </td>
+                    <td>
+                        @item.ITEM_UNIT
+                    </td>
+                    <td>
+                        @Html.TextBox("inventory_qty", item.INVENTORY_QTY, new { @class = "form-control", style = "width:90px", Name = "inventory_qty", @readonly = "readonly" })
+                    </td>
+                    <td>
+                        <input type="checkbox" id="chkItem" name="chkItem" value="@item.PLAN_ITEM_ID" />
+                    </td>
+                    <td>
+                        @Html.TextBox("delivery_qty", item.DELIVERY_QTY, new { @class = "form-control", style = "width:90px", Name = "delivery_qty" })
+                    </td>
+                    <td><a href="/MaterialManage/DeliveryList/@item.PLAN_ITEM_ID" target="_blank">檢視/修改</a></td>
+                </tr>
+            }
+        </tbody>
+</table>
 
     <input id="Submit1" type="submit" value="提領" class="btn btn-warning" onclick="return Confirm_Form()"/>
 }
@@ -77,13 +81,23 @@
 
     function Confirm_Form() {
         var method1 = $('input[name=chkItem]:checkbox:checked').val();
-        var inventory = $('input[name=inventory_qty]').val();
-        var delivery = $('input[name=delivery_qty]').val();
         if (typeof (method1) == "undefined") { // 注意檢查完全沒有選取的寫法，這行是精華
             alert("沒有選取要提領的物料，請勾選並檢查數量是否正確！");
             return false;
         }
-        if (parseInt(delivery) > parseInt(inventory)) {
+        
+        var boolOver = false;
+        $('table > tbody > tr').each(function () {
+            var inventory = 0;
+            var delivery = 0;
+            inventory = parseInt($.trim($(this).find("#inventory_qty").val())); //抓取每筆記錄庫存數量的值
+            delivery = parseInt($.trim($(this).find("#delivery_qty").val())); //抓取每筆記錄總領收數量的值
+            if (parseInt(delivery) > parseInt(inventory)) {
+                boolOver = true;
+            }
+
+        });
+        if (boolOver == true) {
             alert("提領數量大於庫存數量！");
             return false;
         }
