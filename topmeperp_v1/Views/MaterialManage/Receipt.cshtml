@@ -44,86 +44,90 @@
 
         <div class="contailer" style="page-break-before: always">
             <table class="table">
-                <tr>
-                    <th>
-                        No.
-                    </th>
-                    <th>
-                        項次
-                    </th>
-                    <th>
-                        項目說明
-                    </th>
-                    <th>
-                        單位
-                    </th>
-                    <th>
-                        合約數量
-                    </th>
-                    <th>
-                        已訂購數量
-                    </th>
-                    <th>
-                        採購數量
-                    </th>
-                    <th>
-                        已驗收數量
-                    </th>
-                    <th>
-                        需求日期
-                    </th>
-                    <th>
-                        備註
-                    </th>
-                    <th><input type="checkbox" name="CheckAll" id="CheckAll">全選</th>
-                    <th>
-                        驗收數量
-                    </th>
-                </tr>
-                @foreach (var item in Model.planPRItem)
+                <thead>
+                    <tr>
+                        <th>
+                            No.
+                        </th>
+                        <th>
+                            項次
+                        </th>
+                        <th>
+                            項目說明
+                        </th>
+                        <th>
+                            單位
+                        </th>
+                        <th>
+                            合約數量
+                        </th>
+                        <th>
+                            已訂購數量
+                        </th>
+                        <th>
+                            採購數量
+                        </th>
+                        <th>
+                            已驗收數量
+                        </th>
+                        <th>
+                            需求日期
+                        </th>
+                        <th>
+                            備註
+                        </th>
+                        <th><input type="checkbox" name="CheckAll" id="CheckAll">全選</th>
+                        <th>
+                            驗收數量
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.planPRItem)
                 {
 
-                    <tr>
-                        <td>
-                            @Html.TextBox("planitemid", @String.Format("{0:N0}", item.PLAN_ITEM_ID), new { style = "width:90px", @readonly = "readonly" })
-                        </td>
-                        <td>
-                            @item.ITEM_ID
-                        </td>
-                        <td>
-                            @item.ITEM_DESC
-                        </td>
-                        <td>
-                            @item.ITEM_UNIT
-                        </td>
-                        <td>
-                            @item.ITEM_FORM_QUANTITY
-                        </td>
-                        <td>
-                            @Html.TextBox("cumulative_qty", item.CUMULATIVE_QTY, new { @class = "form-control", style = "width:90px", Name = "cumulative_qty", @readonly = "readonly" })
-                        </td>
-                        <td>
-                            @item.ORDER_QTY
-                        </td>
-                        <td>
-                            @Html.TextBox("all_receipt_qty", item.ALL_RECEIPT_QTY, new { @class = "form-control", style = "width:90px", Name = "all_receipt_qty", @readonly = "readonly" })
-                        </td>
-                        <td>
-                            @item.NEED_DATE
-                        </td>
-                        <td>
-                            @item.REMARK
-                        </td>
-                        <td>
-                            <input type="checkbox" id="chkItem" name="chkItem" value="@item.PR_ITEM_ID" />
-                        </td>
-                        <td>
-                            @Html.TextBox("receipt_qty", item.RECEIPT_QTY, new { @class = "form-control", style = "width:120px", Name= "receipt_qty" })
-                        </td>
+                        <tr>
+                            <td>
+                                @Html.TextBox("planitemid", @String.Format("{0:N0}", item.PLAN_ITEM_ID), new { style = "width:90px", @readonly = "readonly" })
+                            </td>
+                            <td>
+                                @item.ITEM_ID
+                            </td>
+                            <td>
+                                @item.ITEM_DESC
+                            </td>
+                            <td>
+                                @item.ITEM_UNIT
+                            </td>
+                            <td>
+                                @item.ITEM_FORM_QUANTITY
+                            </td>
+                            <td>
+                                @Html.TextBox("cumulative_qty", item.CUMULATIVE_QTY, new { @class = "form-control", style = "width:90px", Name = "cumulative_qty", @readonly = "readonly" })
+                            </td>
+                            <td>
+                                @item.ORDER_QTY
+                            </td>
+                            <td>
+                                @Html.TextBox("all_receipt_qty", item.ALL_RECEIPT_QTY, new { @class = "form-control", style = "width:90px", Name = "all_receipt_qty", @readonly = "readonly" })
+                            </td>
+                            <td>
+                                @item.NEED_DATE
+                            </td>
+                            <td>
+                                @item.REMARK
+                            </td>
+                            <td>
+                                <input type="checkbox" id="chkItem" name="chkItem" value="@item.PR_ITEM_ID" />
+                            </td>
+                            <td>
+                                @Html.TextBox("receipt_qty", item.RECEIPT_QTY, new { @class = "form-control", style = "width:120px", Name = "receipt_qty" })
+                            </td>
 
-                    </tr>
-                }
-            </table>
+                        </tr>
+                    }
+                </tbody>
+</table>
         </div>
 
         <div class="row">
@@ -137,18 +141,28 @@
 <script language="javascript" type="text/javascript">
     function Confirm_Form() {
         var method1 = $('input[name=chkItem]:checkbox:checked').val();
-        var receipt = $('input[name=receipt_qty]').val();
-        var all_receipt = $('input[name=all_receipt_qty]').val();
-        var cumulative_order = $('input[name=cumulative_qty]').val();
         if (typeof (method1) == "undefined") { // 注意檢查完全沒有選取的寫法，這行是精華
             alert("沒有選取要驗收的物料，請勾選並檢查數量是否正確！");
             return false;
         }
-        if (parseInt(receipt) + parseInt(all_receipt) > parseInt(cumulative_order))
-        { 
+
+        var boolOver = false;
+        $('table > tbody > tr').each(function () {
+            var receipt = 0;
+            var all_receipt = 0;
+            var cumulative_order = 0;
+            receipt = parseInt($.trim($(this).find("#receipt_qty").val())); //抓取每筆記錄驗收數量的值
+            all_receipt = parseInt($.trim($(this).find("#all_receipt_qty").val())); //抓取每筆記錄總驗收數量的值
+            cumulative_order= parseInt($.trim($(this).find("#cumulative_qty").val())); //抓取每筆記錄總採購數量的值
+            if (parseInt(receipt) + parseInt(all_receipt) > parseInt(cumulative_order)) {
+                boolOver = true;
+            }
+            
+        });
+        if (boolOver == true) {
             alert("總驗收數量大於總訂購數量！");
             return false;
         }
     }
-    
+        
 </script>

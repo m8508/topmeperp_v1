@@ -80,7 +80,7 @@
                     <h4>聯絡人資料 : </h4><button type="button" class="btn btn-warning" data-toggle="modal" data-target="#contactInfo" onclick="getContact('@Model.sup.SUPPLIER_ID')">新增聯絡人</button>
                 </div>
             </div>
-            <div class="row" style="padding-top:15px;">
+            <div class="row" style="padding-top:15px;" id="contactpage">
                 <table class="table">
                     <tr>
                         <th>
@@ -192,7 +192,7 @@
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
-                location = location;
+                window.location.reload();
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);
@@ -203,6 +203,7 @@
 <script language="javascript" type="text/javascript">
 
     $("#updateSupplier").click(function () {
+        if ($("#company_name").val() == "") { alert("供應商名稱欄位不可空白，請輸入供應商名稱!!"); return false; }
         $.ajax({
             url: '@Url.Action("RefreshSupplier", "SupplierManage")',
             data: $('#formSupplier').serialize(),

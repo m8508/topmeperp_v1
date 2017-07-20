@@ -97,7 +97,7 @@ namespace topmeperp.Controllers
             {
                 //新增供應商編號
                 supplierService.newSupplier(sup);
-                message = "請輸入供應商基本資料" ;
+                message = "輸入供應商基本資料 ! 若有聯絡人請先新增完聯絡人資料，再輸入供應商資料";
             }
             TempData["result"] = message;
             return Redirect("Create?id=" + sup.SUPPLIER_ID);
@@ -161,28 +161,44 @@ namespace topmeperp.Controllers
             sup.SUPPLY_NOTE = form.Get("supply_note").Trim();
             SupplierManage supplierService = new SupplierManage();
             string supplierid = form.Get("supplierid").Trim();
-            string[] lstItemId = form.Get("contactid").Split(',');
-            string[] lstName = form.Get("contactname").Split(',');
-            string[] lstTel = form.Get("contacttel").Split(',');
-            string[] lstFax = form.Get("contactfax").Split(',');
-            string[] lstMobile = form.Get("contactmobil").Split(',');
-            string[] lstEmail = form.Get("contactemail").Split(',');
-            string[] lstRemark = form.Get("contactremark").Split(',');
-            List<TND_SUP_CONTACT_INFO> lstItem = new List<TND_SUP_CONTACT_INFO>();
-            for (int j = 0; j < lstItemId.Count(); j++)
+            if (form.Get("contactid") != null && "" != form.Get("contactid"))
             {
-                TND_SUP_CONTACT_INFO item = new TND_SUP_CONTACT_INFO();
-                item.CONTACT_ID = int.Parse(lstItemId[j]);
-                item.CONTACT_NAME = lstName[j];
-                item.CONTACT_TEL = lstTel[j];
-                item.CONTACT_FAX = lstFax[j];
-                item.CONTACT_MOBIL = lstMobile[j];
-                item.CONTACT_EMAIL = lstEmail[j];
-                item.REMARK = lstRemark[j];
-                lstItem.Add(item);
+                string[] lstItemId = form.Get("contactid").Split(',');
+                string[] lstName = form.Get("contactname").Split(',');
+                string[] lstTel = form.Get("contacttel").Split(',');
+                string[] lstFax = form.Get("contactfax").Split(',');
+                string[] lstMobile = form.Get("contactmobil").Split(',');
+                string[] lstEmail = form.Get("contactemail").Split(',');
+                string[] lstRemark = form.Get("contactremark").Split(',');
+                List<TND_SUP_CONTACT_INFO> lstItem = new List<TND_SUP_CONTACT_INFO>();
+                for (int j = 0; j < lstItemId.Count(); j++)
+                {
+                    TND_SUP_CONTACT_INFO item = new TND_SUP_CONTACT_INFO();
+                    item.CONTACT_ID = int.Parse(lstItemId[j]);
+                    item.CONTACT_NAME = lstName[j];
+                    item.CONTACT_TEL = lstTel[j];
+                    item.CONTACT_FAX = lstFax[j];
+                    item.CONTACT_MOBIL = lstMobile[j];
+                    item.CONTACT_EMAIL = lstEmail[j];
+                    item.REMARK = lstRemark[j];
+                    lstItem.Add(item);
+                }
+
+                int i = supplierService.updateSupplier(supplierid, sup, lstItem);
+                if (i == 0)
+                {
+                    msg = supplierService.message;
+                }
+                else
+                {
+                    msg = "更新/新增供應商資料成功，SUPPLIER_ID =" + supplierid;
+                }
+
+                log.Info("Request: SUPPLIER_ID = " + supplierid + "CONTACT_ID =" + form["contact_id"]);
+                return msg;
             }
-            int i = supplierService.updateSupplier(supplierid, sup, lstItem);
-            if (i == 0)
+            int k = supplierService.updateOnlySupplier(supplierid, sup);
+            if (k == 0)
             {
                 msg = supplierService.message;
             }

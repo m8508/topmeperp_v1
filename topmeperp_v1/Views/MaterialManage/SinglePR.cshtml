@@ -47,102 +47,106 @@
 
         <div class="contailer" style="page-break-before: always">
             <table class="table">
-                <tr>
-                    <th>
-                        No.
-                    </th>
-                    <th>
-                        項次
-                    </th>
-                    <th>
-                        項目說明
-                    </th>
-                    <th>
-                        單位
-                    </th>
-                    <th>
-                        圖算數量
-                    </th>
-                    <th>
-                        已訂購數量
-                    </th>
-                    <th>
-                        庫存數量
-                    </th>
-                    <th>
-                        申購數量
-                    </th>
-                    <th>
-                        需求日期
-                    </th>
-                    <th>
-                        備註
-                    </th>
-                </tr>
-                @foreach (var item in Model.planPRItem)
+                <thead>
+                    <tr>
+                        <th>
+                            No.
+                        </th>
+                        <th>
+                            項次
+                        </th>
+                        <th>
+                            項目說明
+                        </th>
+                        <th>
+                            單位
+                        </th>
+                        <th>
+                            圖算數量
+                        </th>
+                        <th>
+                            已訂購數量
+                        </th>
+                        <th>
+                            庫存數量
+                        </th>
+                        <th>
+                            申購數量
+                        </th>
+                        <th>
+                            需求日期
+                        </th>
+                        <th>
+                            備註
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.planPRItem)
             {
 
-                    <tr>
-                        <td>
-                            @Html.TextBox("pr_item_id", @item.PR_ITEM_ID, new { @class = "form-control", style = "width:90px", @readonly = "readonly" })
-                        </td>
-                        <td>
-                            @item.ITEM_ID
-                        </td>
-                        <td>
-                            @item.ITEM_DESC
-                        </td>
-                        <td>
-                            @item.ITEM_UNIT
-                        </td>
-                        <td>
-                            @Html.TextBox("map_qty", item.MAP_QTY, new { @class = "form-control", style = "width:90px", Name = "map_qty", @readonly = "readonly" })
-                        </td>
-                        <td>
-                            @item.CUMULATIVE_QTY
-                        </td>
-                        <td>
-                            @item.INVENTORY_QTY
-                        </td>
-                        @if (Model.planPR.STATUS == 0)
-                        {
+                        <tr>
                             <td>
-                                @Html.TextBox("need_qty", item.NEED_QTY, new { @class = "form-control", style = "width:100px", Name = "need_qty" })
+                                @Html.TextBox("pr_item_id", @item.PR_ITEM_ID, new { @class = "form-control", style = "width:90px", @readonly = "readonly" })
                             </td>
-                        }
-                        else
-                        {
-                            <td>@item.NEED_QTY</td>
-                        }
-                        @if (Model.planPR.STATUS == 0)
-                        {
                             <td>
-                                <div class='col-md-12 date'>
-                                    @Html.TextBoxFor(m => item.NEED_DATE, new { @class = "form-control", @id = "need_date", Name = "date" })
-                                </div>
+                                @item.ITEM_ID
+                            </td>
+                            <td>
+                                @item.ITEM_DESC
+                            </td>
+                            <td>
+                                @item.ITEM_UNIT
+                            </td>
+                            <td>
+                                @Html.TextBox("map_qty", item.MAP_QTY, new { @class = "form-control", style = "width:90px", Name = "map_qty", @readonly = "readonly" })
+                            </td>
+                            <td>
+                                @Html.TextBox("cumulative_qty", item.CUMULATIVE_QTY, new { @class = "form-control", style = "width:90px", Name = "cumulative_qty", @readonly = "readonly" })
+                            </td>
+                            <td>
+                                @item.INVENTORY_QTY
+                            </td>
+                            @if (Model.planPR.STATUS == 0)
+                            {
+                                <td>
+                                    @Html.TextBox("need_qty", item.NEED_QTY, new { @class = "form-control", style = "width:90px", Name = "need_qty" })
+                                </td>
+                            }
+                            else
+                            {
+                                <td>@item.NEED_QTY</td>
+                            }
+                            @if (Model.planPR.STATUS == 0)
+                            {
+                                <td>
+                                    <div class='col-md-12 date'>
+                                        @Html.TextBoxFor(m => item.NEED_DATE, new { @class = "form-control", @id = "need_date", Name = "date" })
+                                    </div>
 
-                            </td>
-                        }
-                        else
-                        {
-                            <td>
-                                @item.NEED_DATE
-                            </td>
-                        }
-                        @if (Model.planPR.STATUS == 0)
-                        {
-                            <td>
-                                @Html.TextBox("remark", item.REMARK, new { @class = "form-control", style = "width:300px" })
-                            </td>
-                        }
-                        else
-                        {
-                            <td>
-                                @item.REMARK
-                            </td>
-                        }
-                    </tr>
-                }
+                                </td>
+                            }
+                            else
+                            {
+                                <td>
+                                    @item.NEED_DATE
+                                </td>
+                            }
+                            @if (Model.planPR.STATUS == 0)
+                            {
+                                <td>
+                                    @Html.TextBox("remark", item.REMARK, new { @class = "form-control", style = "width:300px" })
+                                </td>
+                            }
+                            else
+                            {
+                                <td>
+                                    @item.REMARK
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
             </table>
         </div>
     </form>
@@ -187,25 +191,37 @@
     });
 
     $("#addPR").click(function () {
-        var map = $('input[name=map_qty]').val();
-        var need = $("#need_qty").val();
-        var cumulative = $('input[name=cumulative_qty]').val();
-        if (parseInt(need) + parseInt(cumulative) > parseInt(map)) {
-            if (!confirm("已申購量大於圖算數量，請確認輸入之資料是否正確，送出後申購單就無法再修改！"))
-                return false;
+        var boolOver = false;
+        $('table > tbody > tr').each(function () {
+            var map = 0;
+            var need = 0;
+            var cumulative = 0;
+            map = parseInt($.trim($(this).find("#map_qty").val())); //抓取每筆記錄圖算數量的值
+            need = parseInt($.trim($(this).find("#need_qty").val()));//抓取每筆記錄申購數量的值
+            cumulative_qty = parseInt($.trim($(this).find("#cumulative_qty").val()));//抓取每筆記錄累計採購數量的值
+
+            if (parseInt(need) + parseInt(cumulative) > parseInt(map)) {
+                boolOver = true;
+            }
+
+        });
+        if (boolOver == true) {
+            var r = confirm("總申購量大於圖算數量，請確認您要申購的數量，送出後申購單就無法再修改！");
+            if (r != true) return false;
         }
+    
             $.ajax({
-                url: '@Url.Action("CreatePR", "MaterialManage")',
-                data: $('#formPR').serialize(),
-                type: "POST",
-                dataType: 'text',
-                success: function (msg) {
-                    alert(msg);
-                    window.location.reload()
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    alert(thrownError);
-                }
-            });
+    url: '@Url.Action("CreatePR", "MaterialManage")',
+    data: $('#formPR').serialize(),
+    type: "POST",
+    dataType: 'text',
+    success: function (msg) {
+        alert(msg);
+        window.location.reload()
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+        alert(thrownError);
+    }
+    });
     });
 </script>

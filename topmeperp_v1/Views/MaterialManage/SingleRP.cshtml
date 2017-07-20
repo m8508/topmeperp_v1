@@ -45,84 +45,88 @@
 
         <div class="contailer" style="page-break-before: always">
             <table class="table">
-                <tr>
-                    <th>
-                        No.
-                    </th>
-                    <th>
-                        項次
-                    </th>
-                    <th>
-                        項目說明
-                    </th>
-                    <th>
-                        單位
-                    </th>
-                    <th>
-                        合約數量
-                    </th>
-                    <th>
-                        已訂購數量
-                    </th>
-                    <th>
-                        採購數量
-                    </th>
-                    <th>
-                        需求日期
-                    </th>
-                    <th>
-                        備註
-                    </th>
-                    <th>
-                        已驗收數量
-                    </th>
-                    <th>
-                        驗收數量
-                    </th>
-                    <th> </th>
-                     
-                </tr>
-                @foreach (var item in Model.planPRItem)
-                {
-
+                <thead>
                     <tr>
-                        <td>
-                            @Html.TextBox("pr_item_id", @item.PR_ITEM_ID, new { @class = "form-control", style = "width:90px", @readonly = "readonly" })
-                        </td>
-                        <td>
-                            @item.ITEM_ID
-                        </td>
-                        <td>
-                            @item.ITEM_DESC
-                        </td>
-                        <td>
-                            @item.ITEM_UNIT
-                        </td>
-                        <td>
-                            @item.ITEM_FORM_QUANTITY
-                        </td>
-                        <td>
-                            @Html.TextBox("cumulative_qty", item.CUMULATIVE_QTY, new { @class = "form-control", style = "width:90px", Name = "cumulative_qty", @readonly = "readonly" })
-                        </td>
-                        <td>
-                            @item.ORDER_QTY
-                        </td>
-                        <td>
-                            @item.NEED_DATE
-                        </td>
-                        <td>
-                            @item.REMARK
-                        </td>
-                        <td>
-                            @Html.TextBox("all_receipt_qty", item.ALL_RECEIPT_QTY, new { @class = "form-control", style = "width:90px", Name = "all_receipt_qty", @readonly = "readonly" })
-                        </td>
-                        <td>
-                            @Html.TextBox("receipt_qty", item.RECEIPT_QTY, new { @class = "form-control", style = "width:120px" })
-                        </td>
-                        <td><input type="hidden" name="original_receipt_qty" id="original_receipt_qty" value="@item.RECEIPT_QTY"></td>
+                        <th>
+                            No.
+                        </th>
+                        <th>
+                            項次
+                        </th>
+                        <th>
+                            項目說明
+                        </th>
+                        <th>
+                            單位
+                        </th>
+                        <th>
+                            合約數量
+                        </th>
+                        <th>
+                            已訂購數量
+                        </th>
+                        <th>
+                            採購數量
+                        </th>
+                        <th>
+                            需求日期
+                        </th>
+                        <th>
+                            備註
+                        </th>
+                        <th>
+                            已驗收數量
+                        </th>
+                        <th>
+                            驗收數量
+                        </th>
+                        <th> </th>
+
                     </tr>
-                }
-            </table>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.planPRItem)
+                    {
+
+                        <tr>
+                            <td>
+                                @Html.TextBox("pr_item_id", @item.PR_ITEM_ID, new { @class = "form-control", style = "width:90px", @readonly = "readonly" })
+                            </td>
+                            <td>
+                                @item.ITEM_ID
+                            </td>
+                            <td>
+                                @item.ITEM_DESC
+                            </td>
+                            <td>
+                                @item.ITEM_UNIT
+                            </td>
+                            <td>
+                                @item.ITEM_FORM_QUANTITY
+                            </td>
+                            <td>
+                                @Html.TextBox("cumulative_qty", item.CUMULATIVE_QTY, new { @class = "form-control", style = "width:90px", Name = "cumulative_qty", @readonly = "readonly" })
+                            </td>
+                            <td>
+                                @item.ORDER_QTY
+                            </td>
+                            <td>
+                                @item.NEED_DATE
+                            </td>
+                            <td>
+                                @item.REMARK
+                            </td>
+                            <td>
+                                @Html.TextBox("all_receipt_qty", item.ALL_RECEIPT_QTY, new { @class = "form-control", style = "width:90px", Name = "all_receipt_qty", @readonly = "readonly" })
+                            </td>
+                            <td>
+                                @Html.TextBox("receipt_qty", item.RECEIPT_QTY, new { @class = "form-control", style = "width:120px" })
+                            </td>
+                            <td><input type="hidden" name="original_receipt_qty" id="original_receipt_qty" value="@item.RECEIPT_QTY"></td>
+                        </tr>
+                    }
+                </tbody>
+</table>
         </div>
     </form>
 </div>
@@ -135,13 +139,24 @@
 <script language="javascript" type="text/javascript">
 
     $("#updateRP").click(function () {
-        var receipt = $('input[name=receipt_qty]').val();
-        var all_receipt = $('input[name=all_receipt_qty]').val();
-        var cumulative_order = -$('input[name=cumulative_qty]').val();
-        var original_receipt = -$('input[name=original_receipt_qty]').val();
-        var result = parseInt(all_receipt) + parseInt(receipt) + parseInt(original_receipt) + parseInt(cumulative_order);
-        alert(result);
-        if (result > parseInt(0)) {
+        
+        var boolOver = false;
+        $('table > tbody > tr').each(function () {
+            var receipt = 0;
+            var all_receipt = 0;
+            var cumulative_order = 0;
+            var original_receipt = 0;
+            receipt = parseInt($.trim($(this).find("#receipt_qty").val())); //抓取每筆記錄驗收數量的值
+            all_receipt = parseInt($.trim($(this).find("#all_receipt_qty").val())); //抓取每筆記錄總驗收數量的值
+            cumulative_order = - parseInt($.trim($(this).find("#cumulative_qty").val())); //抓取每筆記錄總採購數量的值
+            original_receipt = - parseInt($.trim($(this).find("#original_receipt_qty").val())); //抓取每筆記錄未修改前驗收數量的值
+            var result = parseInt(all_receipt) + parseInt(receipt) + parseInt(original_receipt) + parseInt(cumulative_order);
+            if (result > parseInt(0)) {
+                boolOver = true;
+            }
+
+        });
+        if (boolOver == true) {
             alert("總驗收數量大於總訂購數量！");
             return false;
         }

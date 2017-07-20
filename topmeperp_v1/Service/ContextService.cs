@@ -1543,7 +1543,7 @@ namespace topmeperp.Service
                     logger.Debug("Supplier=" + it.SUPPLIER_NAME + "," + it.FORM_ID + "," + it.FORM_NAME);
                     if (dimString == "")
                     {
-                        dimString = "[" + it.SUPPLIER_NAME + "|" + it.FORM_ID  + "|" + it.FORM_NAME + "]";
+                        dimString = "[" + it.SUPPLIER_NAME + "|" + it.FORM_ID + "|" + it.FORM_NAME + "]";
                     }
                     else
                     {
@@ -1976,7 +1976,7 @@ namespace topmeperp.Service
         }
 
 
-        //更新供應商資料
+        //更新供應與聯絡人資料
         public int updateSupplier(string supplierid, TND_SUPPLIER sup, List<TND_SUP_CONTACT_INFO> lstItem)
         {
             logger.Info("Update supplier id =" + supplierid);
@@ -2038,6 +2038,34 @@ namespace topmeperp.Service
                     message = e.Message;
                 }
 
+            }
+            return i;
+        }
+
+        //更新供應資料
+        public int updateOnlySupplier(string supplierid, TND_SUPPLIER sup)
+        {
+            logger.Info("Update supplier id =" + supplierid);
+            supplier = sup;
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.Entry(supplier).State = EntityState.Modified;
+                    i = context.SaveChanges();
+                    logger.Debug("Update Supplier =" + i);
+                    if (i != 0)
+                    {
+                        return i;
+                    }
+                }
+                catch (Exception e)
+                {
+                    logger.Error("update new supplier id fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
             }
             return i;
         }
