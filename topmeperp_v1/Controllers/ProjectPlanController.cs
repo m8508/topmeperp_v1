@@ -242,5 +242,19 @@ namespace topmeperp.Controllers
             //planService
             return PartialView("_getProjecttem4Task", planService.getItemInTask(f["projectid"], f["checkNodeId"]));
         }
+        public ActionResult dailyReport(string id)
+        {
+            if (null==id || "" == id)
+            {
+                id = Request["projectid"];
+
+            }
+            if (id == "")
+            {
+                ViewBag.Message = "沒有專案資料!!";
+            }
+            ViewBag.projectId = id;
+            return View();
+        }
     }
 }

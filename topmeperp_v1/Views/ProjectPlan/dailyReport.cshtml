@@ -1,0 +1,18 @@
+﻿@{
+    ViewBag.Title = "施工日報";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+<h2>@ViewBag.Title</h2>
+<!--條件區域-->
+<div class="page-header">
+    <form name="FormCompareProject" id="FormCompareProject" action="uploadFile" method="Post" enctype="multipart/form-data">
+        <div class="row">
+            <label class="col-md-2 control-label">專案編號: </label>
+            <div class='col-md-9'>
+                <input type="text" name="projectid" id="projectid" value="@ViewBag.projectId" />
+            </div>
+        </div>
+        @ViewBag.Message
+    </form>
+</div>
+
