@@ -604,7 +604,12 @@ namespace topmeperp.Controllers
             string strContent = Request["textContent"];
             log.Debug("test email sender!");
             EMailService es = new EMailService();
-            if (es.SendMailByGmail(strSenderAddress, strReceiveAddress, null,strSubject, strContent))
+            //設定附件檔案
+            string projectid= Request["textProjectId"];
+            string poid = Request["textPOID"];
+            string realFilePath = ContextService.strUploadPath + "\\" + projectid + "\\" + ContextService.quotesFolder + "\\" + poid + ".xlsx";
+            log.Debug("Attachment file path=" + realFilePath);
+            if (es.SendMailByGmail(strSenderAddress, strReceiveAddress, null,strSubject, strContent, realFilePath))
             {
                 return "發送成功!!";
             }

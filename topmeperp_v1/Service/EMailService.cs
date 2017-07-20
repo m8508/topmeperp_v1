@@ -10,7 +10,7 @@ namespace topmeperp.Service
     public class EMailService
     {
         ILog log = log4net.LogManager.GetLogger(typeof(EMailService));
-        public bool SendMailByGmail(string fromAddress, string MailList, string bccMailList, string Subject, string Body)
+        public bool SendMailByGmail(string fromAddress, string MailList, string bccMailList, string Subject, string Body, string filePath)
         {
             MailMessage msg = new MailMessage();
             //收件者，以逗號分隔不同收件者 ex "test@gmail.com,test2@gmail.com"
@@ -32,6 +32,12 @@ namespace topmeperp.Service
             //郵件內容
             msg.Body = Body;
             msg.IsBodyHtml = true;
+            //附件
+            if (null != filePath)
+            {
+                Attachment attachment = new Attachment(filePath);
+                msg.Attachments.Add(attachment);
+            }
             msg.BodyEncoding = System.Text.Encoding.UTF8;//郵件內容編碼 
             msg.Priority = MailPriority.Normal;//郵件優先級 
                                                //建立 SmtpClient 物件 並設定 Gmail的smtp主機及Port 

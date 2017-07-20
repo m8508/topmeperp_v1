@@ -1,0 +1,47 @@
+﻿@model IEnumerable<topmeperp.Models.PLAN_TASK2MAPITEM >
+    @{
+        ViewBag.Title = "施工日報";
+        Layout = "~/Views/Shared/_MenuLayout.cshtml";
+        ViewBag.Today = System.DateTime.Now;
+    }
+    <h2>@ViewBag.Title</h2>
+    <!--條件區域-->
+    <div class="page-header">
+        <form name="formDailyReport" id="formDailyReport" action="" method="Post" enctype="multipart/form-data">
+            <div class="row">
+                <label class="col-md-2 control-label">專案編號:@ViewBag.projectId </label>
+                <label class="col-md-4 control-label">專案名稱:@ViewBag.projectName </label>
+                <label class="col-md-2 control-label">任務編號:@ViewBag.prj_uid </label>
+                <label class="col-md-4 control-label">任務名稱:@ViewBag.prj_uid </label>
+                <label class="col-md-3 control-label">日期: @ViewBag.Today</label>
+            </div>
+            @ViewBag.Message
+        </form>
+        <div class="container">
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#Item">料件</a></li>
+                <li><a data-toggle="tab" href="#ManPower">出工</a></li>
+                <li><a data-toggle="tab" href="#Machine">機具</a></li>
+                <li><a data-toggle="tab" href="#Other">其他</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="Item" class="tab-pane fade in active">
+                    <h3>填寫料件施作數量</h3>
+                    <p>料件施作數量</p>
+                </div>
+                <div id="ManPower" class="tab-pane fade">
+                    <h3>填寫出工數量</h3>
+                    <p>填寫出工數量</p>
+                </div>
+                <div id="Machine" class="tab-pane fade">
+                    <h3>填寫機具數量</h3>
+                    <p></p>
+                </div>
+                <div id="Other" class="tab-pane fade">
+                    <h3>其他</h3>
+                    <p>其他</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
