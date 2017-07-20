@@ -555,7 +555,6 @@ namespace topmeperp.Controllers
                 Response.End();
             }
         }
-
         //下載所有空白詢價單(採用zip 壓縮)
         public void downloadAllTemplate()
         {
@@ -580,6 +579,33 @@ namespace topmeperp.Controllers
             string status = Request["status"];
             log.Debug("change form status:" + formid + ",status=" + status);
             service.changeProjectFormStatus(formid, status);
+        }
+        public ActionResult mailForm()
+        {
+            log.Debug("test email sender!");
+            return View();
+        }
+        public string sendMain()
+        {
+            string strSenderAddress = Request["textSenderAddress"];
+
+            string strReceiveAddress = Request["textReceiveAddress"];
+            List<string> MailList = new List<string>();
+            MailList.Add(strReceiveAddress);
+            string strSubject = Request["textSubject"];
+            string strContent = Request["textContent"];
+            log.Debug("test email sender!");
+            EMailService es = new EMailService();
+            log.Info("send email:strSenderAddress=" + strSenderAddress + ",strReceiveAddress" + strReceiveAddress);
+
+            if (es.SendMailByGmail(strSenderAddress, MailList, strSubject, strContent))
+            {
+                return "發送成功!!";
+            }
+            else
+            {
+                return "發送失敗!!";
+            }
         }
     }
 }
