@@ -10,11 +10,20 @@ namespace topmeperp.Service
     public class EMailService
     {
         ILog log = log4net.LogManager.GetLogger(typeof(EMailService));
-        public bool SendMailByGmail(string fromAddress, List<string> MailList, string Subject, string Body)
+        public bool SendMailByGmail(string fromAddress, string MailList, string bccMailList, string Subject, string Body)
         {
             MailMessage msg = new MailMessage();
             //收件者，以逗號分隔不同收件者 ex "test@gmail.com,test2@gmail.com"
-            msg.To.Add(string.Join(",", MailList.ToArray()));
+            if (null != MailList && "" != MailList)
+            {
+                msg.To.Add(MailList);
+            }
+            //密件副本清單
+            if (null != bccMailList && "" != bccMailList)
+            {
+                msg.Bcc.Add(bccMailList);
+            }
+
             msg.From = new MailAddress(fromAddress, "測試郵件", System.Text.Encoding.UTF8);
             //郵件標題 
             msg.Subject = Subject;

@@ -587,18 +587,24 @@ namespace topmeperp.Controllers
         }
         public string sendMain()
         {
+            ///取得寄件者資料
             string strSenderAddress = Request["textSenderAddress"];
-
+            ///取得收件者資料，有逗號結尾，所以將其移除
             string strReceiveAddress = Request["textReceiveAddress"];
-            List<string> MailList = new List<string>();
-            MailList.Add(strReceiveAddress);
+            if (strReceiveAddress.EndsWith(","))
+            {
+                strReceiveAddress = strReceiveAddress.Substring(0, strReceiveAddress.Length - 1);
+            }
+            log.Info("send email:strSenderAddress=" + strSenderAddress + ",strReceiveAddress=" + strReceiveAddress);
+            // List<string> MailList = new List<string>();
+            //MailList.Add(strReceiveAddress);
+            //取得主旨資料
             string strSubject = Request["textSubject"];
+            //取得內容
             string strContent = Request["textContent"];
             log.Debug("test email sender!");
             EMailService es = new EMailService();
-            log.Info("send email:strSenderAddress=" + strSenderAddress + ",strReceiveAddress" + strReceiveAddress);
-
-            if (es.SendMailByGmail(strSenderAddress, MailList, strSubject, strContent))
+            if (es.SendMailByGmail(strSenderAddress, strReceiveAddress, null,strSubject, strContent))
             {
                 return "發送成功!!";
             }
