@@ -754,6 +754,11 @@ namespace topmeperp.Service
             logger.Info("get task by now:" + lstTask.Count);
             return lstTask;
         }
+        public TND_PROJECT getProject(string projectid)
+        {
+            TnderProject service = new TnderProject();
+            return service.getProjectById(projectid);
+        }
     }
     #endregion
 }

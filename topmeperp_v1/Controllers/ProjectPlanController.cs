@@ -249,20 +249,28 @@ namespace topmeperp.Controllers
             if (null == id || "" == id)
             {
                 id = Request["projectid"];
-
             }
-            if (id == "")
+            string strRptDate = "";
+            if (null != Request["reportDate"])
             {
-                ViewBag.Message = "沒有專案資料!!";
+                strRptDate = Request["reportDate"].Trim();
             }
+            DateTime dtTaskDate = DateTime.Now;
+            if (strRptDate != "")
+            {
+                dtTaskDate = DateTime.Parse(strRptDate);
+            }
+            log.Debug("get Task for plan by day=" + dtTaskDate);
+            List<PLAN_TASK> lstTask = planService.getTaskByDate(id, dtTaskDate);
+            ViewBag.projectName = planService.getProject(id).PROJECT_NAME;
             ViewBag.projectId = id;
-            List<PLAN_TASK> lstTask = planService.getTaskByDate(id, DateTime.Now);
+            ViewBag.reportDate = dtTaskDate.ToString("yyyy/MM/dd");
             return View(lstTask);
         }
 
         public ActionResult dailyReportItem()
         {
-            ViewBag.projectId= Request["projectid"];
+            ViewBag.projectId = Request["projectid"];
             ViewBag.s = Request["prjuid"];
             return View();
         }

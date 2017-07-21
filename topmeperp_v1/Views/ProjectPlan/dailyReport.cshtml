@@ -12,10 +12,9 @@
             <label class="col-md-6 control-label">專案名稱:@ViewBag.projectName </label>
         </div>
         <div class="row">
-            <label for="inputdeteline" class="col-md-2 control-label">日期</label>
-            <div class="col-md-2">
-                <input type="text" class="form-control" name="reportDate" id="reportDate" value="" size="3" />
-                <button name="query" id="query" type="submit">更換日期</button>
+            <div class="col-md-6">
+                <label for="reportDate" class="control-label col-md-2">日期</label><input type="text" class="col-md-3" name="reportDate" id="reportDate" value="@ViewBag.reportDate" size="7" />
+                <button name="query" id="query" type="submit" class="btn-default">更換日期</button>
             </div>
         </div>
         @ViewBag.Message
@@ -45,8 +44,8 @@
     $(document).ready(function () {
         $(function () {
             $('#reportDate').datetimepicker({
-                language: 'zh-TW',
-                format: 'YYYY/MM/DD'
+                format: 'YYYY/MM/DD',
+                locale: 'zh-tw'
             });
         });
     })
