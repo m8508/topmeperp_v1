@@ -23,12 +23,13 @@
                 </div>
             </div>
                 <input type="hidden" id="checkNodeId" name="checkNodeId" value="" />
+                <input type="reset" style="display:none;" />
                 <div id="treeview"></div>
 
 
                 <div class="row">
                     <div class="" col-md-12">
-                        <input type="submit" value="申購物料" class="btn btn-default" />
+                        <input type="submit" value="申購物料" class="btn btn-default" onclick="return Confirm_Form()"/>
                     </div>
                 </div>
         }
@@ -57,4 +58,12 @@
             $('#checkNodeId').val("");
         }
     });
+
+    function Confirm_Form() {
+        var method1 = $('input[name=checkNodeId]').val();
+        if (method1 == "") { // 注意檢查完全沒有選取的寫法，這行是精華
+            alert("沒有選取要申購物料的任務名稱，請重新勾選任務！");
+            return false;
+        }
+    }
 </script>

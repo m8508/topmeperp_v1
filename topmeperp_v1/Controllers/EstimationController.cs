@@ -67,25 +67,11 @@ namespace topmeperp.Controllers
             ViewBag.projectId = id;
             TND_PROJECT p = service.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
-            SelectListItem empty = new SelectListItem();
-            empty.Value = "";
-            empty.Text = "";
-            //取得材料合約供應商資料
-            List<SelectListItem> selectMain = new List<SelectListItem>();
-            foreach (string itm in service.getSupplierForContract(id))
-            {
-                logger.Debug("supplier=" + itm);
-                SelectListItem selectI = new SelectListItem();
-                selectI.Value = itm;
-                selectI.Text = itm;
-                if (null != itm && "" != itm)
-                {
-                    selectMain.Add(selectI);
-                }
-            }
-            // selectMain.Add(empty);
-            ViewBag.supplier = selectMain;
-            return View();
+            List<plansummary> lstContract = null;
+            ContractModels contract = new ContractModels();
+            lstContract = service.getAllPlanContract(id);
+            contract.contractItems = lstContract;
+            return View(contract);
         }
         // POST : Search
         [HttpPost]
@@ -96,24 +82,6 @@ namespace topmeperp.Controllers
             List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"]);
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             ViewBag.projectId = Request["projectId"];
-            SelectListItem empty = new SelectListItem();
-            empty.Value = "";
-            empty.Text = "";
-            //取得材料合約供應商資料
-            List<SelectListItem> selectMain = new List<SelectListItem>();
-            foreach (string itm in service.getSupplierForContract(Request["projectId"]))
-            {
-                logger.Debug("supplier=" + itm);
-                SelectListItem selectI = new SelectListItem();
-                selectI.Value = itm;
-                selectI.Text = itm;
-                if (null != itm && "" != itm)
-                {
-                    selectMain.Add(selectI);
-                }
-            }
-            // selectMain.Add(empty);
-            ViewBag.supplier = selectMain;
             return View("Valuation", lstProject);
         }
     }

@@ -2382,5 +2382,24 @@ namespace topmeperp.Service
         }
 
         #endregion
+
+        #region 估驗
+        //取得個別廠商合約內容(含工資)
+        public List<plansummary> getAllPlanContract(string projectid)
+        {
+            List<plansummary> lst = new List<plansummary>();
+            using (var context = new topmepEntities())
+            {
+                lst = context.Database.SqlQuery<plansummary>("SELECT  p.PROJECT_ID + p.SUPPLIER_ID + p.FORM_NAME AS CONTRACT_ID, p.SUPPLIER_ID, p.FORM_NAME, p.SUPPLIER_ID + '_' + p.FORM_NAME AS CONTRACT_NAME, " +
+                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY p.SUPPLIER_ID) AS NO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid and p.ITEM_UNIT_PRICE IS NOT NULL " +
+                    "AND p.ITEM_UNIT_PRICE <> 0 GROUP BY p.PROJECT_ID, p.SUPPLIER_ID, p.FORM_NAME UNION " +
+                    "SELECT  p.PROJECT_ID + p.MAN_SUPPLIER_ID + p.MAN_FORM_NAME AS CONTRACT_ID, p.MAN_SUPPLIER_ID, p.MAN_FORM_NAME, p.MAN_SUPPLIER_ID + '_' + p.MAN_FORM_NAME AS CONTRACT_NAME, " +
+                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY p.MAN_SUPPLIER_ID) AS NO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid and p.MAN_PRICE IS NOT NULL " +
+                    "AND p.MAN_PRICE <> 0 GROUP BY p.PROJECT_ID, p.MAN_SUPPLIER_ID, p.MAN_FORM_NAME ; "
+                   , new SqlParameter("projectid", projectid)).ToList();
+            }
+            return lst;
+        }
+        #endregion
     }
 }
