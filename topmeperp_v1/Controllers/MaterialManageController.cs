@@ -58,7 +58,7 @@ namespace topmeperp.Controllers
             TnderProject tndservice = new TnderProject();
             TND_PROJECT p = tndservice.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
-            ViewBag.TreeString = planService.getProjectTask4Tree(id); ;
+            ViewBag.TreeString = planService.getProjectTask4Tree(id);
             return View();
         }
 

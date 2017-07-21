@@ -13,9 +13,8 @@
                     <label for="projectName" class="col-md-2 text-right">專案編號</label><input class="form-control col-md-3" id="projectName" name="projectName" type="text" value="@ViewBag.projectName" style="background-color:#cccccc;" readonly="readonly" />
                 </div>
                 <div class="row col-md-12" style="padding-top:5px;">
-                   
+                    <label for="supplier" class="col-md-2 text-right">供應商</label><input class="form-control col-md-3" id="supplier" name="supplier" type="text" />
                     <label for="formName" class="col-md-2 text-right" style="padding-top:15px;">採購項目</label> <input class="form-control col-md-3" id="formName" name="formName" type="text" />
-                    <label for="supplier" class="col-md-2 text-right">供應商</label>@Html.DropDownList("supplier", (IEnumerable<SelectListItem>)ViewBag.supplier, String.Empty, new { @class = "form-control selectpicker" })
                 </div>
                     <div class="row col-md-12" style="padding-top:15px;">
                         <div class="col-md-11 pull-right">
@@ -36,7 +35,7 @@
     @ViewBag.SearchResult
     @if (null != Model)
     {
-        Html.RenderPartial("_ContractItems");
+        Html.RenderPartial("_SupplierContractList");
     }
 
 </div>
@@ -51,20 +50,4 @@
         });
     });
 </script>
-<script type="text/javascript">
-    $("#saveForm").click(function () {
-        $.ajax({
-            url: '@Url.Action("AddLeadTime", "PurchaseForm")',
-            data: $('#formLeadTime').serialize(),
-            type: "POST",
-            dataType: 'text',
-            success: function (msg) {
-                alert(msg);
-                window.location.reload()
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert(thrownError);
-            }
-        });
-    });
-</script>
+

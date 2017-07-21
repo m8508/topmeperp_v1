@@ -1,7 +1,39 @@
-﻿
-@{
-    ViewBag.Title = "_SupplierContractList";
-}
+﻿@model topmeperp.Models.ContractModels
+<table class="table">
+    <tr>
+        <th>
+            NO.
+        </th>
+        <th>
+            合約名稱
+        </th>
+        <th>
+            廠商名稱
+        </th>
+        <th>
+            採購項目
+        </th>
 
-<h2>_SupplierContractList</h2>
+    </tr>
+
+    @foreach (var item in Model.contractItems)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.NO)
+            </td>
+            <td>
+                <a href="/Estimation/ContractItems/@item.CONTRACT_ID" target="_blank">@item.CONTRACT_NAME</a>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FORM_NAME)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SUPPLIER_ID)
+            </td>
+        </tr>
+    }
+
+</table>
+
 

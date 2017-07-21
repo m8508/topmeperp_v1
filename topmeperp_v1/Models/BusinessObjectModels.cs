@@ -219,6 +219,7 @@ namespace topmeperp.Models
         public Nullable<decimal> WAGE_COST { get; set; }
         public string MAN_FORM_NAME { get; set; }
         public string MAN_SUPPLIER_ID { get; set; }
+        public string CONTRACT_NAME { get; set; }
     }
     public class ContractModels
     {
