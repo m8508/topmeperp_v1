@@ -1,5 +1,6 @@
 ﻿using log4net;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Web;
@@ -156,7 +157,7 @@ namespace topmeperp.Controllers
                         break;
                     case "MAP_PEP"://電器管線
                         log.Debug("MapType: MAP_PEP(電器管線)");
-                        planService.getMapPEP (projectid, mapno, buildno, primeside, secondside, devicename);
+                        planService.getMapPEP(projectid, mapno, buildno, primeside, secondside, devicename);
                         break;
                     case "MAP_LCP"://弱電管線
                         log.Debug("MapType: MAP_LCP(弱電管線)");
@@ -241,6 +242,29 @@ namespace topmeperp.Controllers
             log.Debug("projectId=" + f["projectid"] + ",prjuid=" + f["checkNodeId"]);
             //planService
             return PartialView("_getProjecttem4Task", planService.getItemInTask(f["projectid"], f["checkNodeId"]));
+        }
+        //填寫日報step1 :選取任務
+        public ActionResult dailyReport(string id)
+        {
+            if (null == id || "" == id)
+            {
+                id = Request["projectid"];
+
+            }
+            if (id == "")
+            {
+                ViewBag.Message = "沒有專案資料!!";
+            }
+            ViewBag.projectId = id;
+            List<PLAN_TASK> lstTask = planService.getTaskByDate(id, DateTime.Now);
+            return View(lstTask);
+        }
+
+        public ActionResult dailyReportItem()
+        {
+            ViewBag.projectId= Request["projectid"];
+            ViewBag.s = Request["prjuid"];
+            return View();
         }
     }
 }

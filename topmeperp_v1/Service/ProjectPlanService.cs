@@ -728,6 +728,32 @@ namespace topmeperp.Service
             }
             return lstProjectItem;
         }
+        //取得特定日期專案任務清單
+        public List<PLAN_TASK> getTaskByDate(string projectid,DateTime dt)
+        {
+            List<PLAN_TASK> lstTask = new List<PLAN_TASK>();
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    string sql = "SELECT [TASK_ID],[PROJECT_ID],[PRJ_ID],[PRJ_UID],[TASK_NAME],[START_DATE],[FINISH_DATE] "
+                             + ",[PARENT_UID], CONVERT(varchar,DATEDIFF (day, START_DATE, FINISH_DATE)) as DURATION,[ROOT_TAG] "
+                             + ",[CREATE_ID],[CREATE_DATE],[MODIFY_ID],[MODIFY_DATE]"
+                             + " FROM PLAN_TASK WHERE PROJECT_ID=@projectid  AND CONVERT(datetime, @dt, 20)  BETWEEN START_DATE AND FINISH_DATE "
+                             + " AND PRJ_ID >= (SELECT PRJ_ID FROM PLAN_TASK WHERE PROJECT_ID=@projectid  AND ROOT_TAG = 'Y') "
+                             + " ORDER BY DATEDIFF(day, START_DATE, FINISH_DATE);";
+                    logger.Debug("sql=" + sql);
+                    logger.Debug("dt" + dt.ToString("yyyy-MM-dd"));
+                    lstTask = context.PLAN_TASK.SqlQuery(sql, new SqlParameter("projectid", projectid), new SqlParameter("dt", @dt)).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.StackTrace);
+                }
+            }
+            logger.Info("get task by now:" + lstTask.Count);
+            return lstTask;
+        }
     }
     #endregion
 }
