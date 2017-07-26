@@ -408,6 +408,21 @@
     <Compile Include="Models\PLAN_BUDGET.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\PLAN_DALIY_REPORT.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PLAN_DR_ITEM.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PLAN_DR_NOTE.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PLAN_DR_TASK.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PLAN_DR_WORKER.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\PLAN_ITEM.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
@@ -445,6 +460,9 @@
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\SYS_KEY_SERIAL.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SYS_PARA.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\SYS_PRIVILEGE.cs">

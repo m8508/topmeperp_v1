@@ -267,12 +267,115 @@ namespace topmeperp.Controllers
             ViewBag.reportDate = dtTaskDate.ToString("yyyy/MM/dd");
             return View(lstTask);
         }
-
+        //填寫日報step2 :選取填寫內容
         public ActionResult dailyReportItem()
         {
             ViewBag.projectId = Request["projectid"];
-            ViewBag.s = Request["prjuid"];
-            return View();
+            ViewBag.projectName = planService.getProject(Request["projectid"]).PROJECT_NAME;
+            ViewBag.prj_uid = Request["prjuid"];
+            ViewBag.taskName = planService.getProjectTask(Request["projectid"], int.Parse(Request["prjuid"])).TASK_NAME;
+            //1.依據任務取得相關施作項目內容
+            DailyReport dailyRpt = planService.newDailyReport(Request["projectid"], int.Parse(Request["prjuid"]));
+            return View(dailyRpt);
+        }
+
+        //儲存料件施作數量紀錄
+        public string saveItemRow(FormCollection f)
+        {
+            SYS_USER u = (SYS_USER)Session["user"];
+            log.Debug("projectId=" + f["Projectid"] + ",prjUid=" + f["PrjUid"] + ",ReportId=" + f["ReportID"]);
+            log.Debug("form Data ItemId=" + f["planItemId"]);
+            log.Debug("form Data Qty=planItemQty" + f["planItemQty"]);
+
+            string projectid = f["Projectid"];
+            int prjuid = int.Parse(f["PrjUid"]);
+
+            DailyReport newDailyRpt = new DailyReport();
+            PLAN_DALIY_REPORT RptHeader = new PLAN_DALIY_REPORT();
+            RptHeader.PROJECT_ID = projectid;
+            RptHeader.REPORT_DATE = DateTime.Now;
+            newDailyRpt.dailyRpt = RptHeader;
+            //取得日報編號
+            SerialKeyService snService = new SerialKeyService();
+            RptHeader.REPORT_ID = snService.getSerialKey(planService.KEY_ID);
+            RptHeader.CREATE_DATE = DateTime.Now;
+            RptHeader.CREATE_USER_ID = u.USER_ID;
+            //建立專案任務資料 (結構是支援多項任務，僅先使用一筆)
+            newDailyRpt.lstRptTask = new List<PLAN_DR_TASK>();
+            PLAN_DR_TASK RptTask = new PLAN_DR_TASK();
+            RptTask.PROJECT_ID = projectid;
+            RptTask.PRJ_UID = prjuid;
+            RptTask.REPORT_ID = RptHeader.REPORT_ID;
+            newDailyRpt.lstRptTask.Add(RptTask);
+            //處理料件
+            newDailyRpt.lstRptItem = new List<PLAN_DR_ITEM>();
+            string[] aryPlanItem = f["planItemId"].Split(',');
+            string[] aryPlanItemQty = f["planItemQty"].Split(',');
+            log.Debug("count ItemiD=" + aryPlanItem.Length + ",qty=" + aryPlanItemQty.Length);
+            newDailyRpt.lstRptItem = new List<PLAN_DR_ITEM>();
+            for (int i = 0; i < aryPlanItem.Length; i++)
+            {
+                PLAN_DR_ITEM item = new PLAN_DR_ITEM();
+                item.PLAN_ITEM_ID = aryPlanItem[i];
+                item.PROJECT_ID = projectid;
+                item.REPORT_ID = RptHeader.REPORT_ID;
+                if ("" != aryPlanItemQty[i])
+                {
+                    item.FINISH_QTY = decimal.Parse(aryPlanItemQty[i]);
+                }
+                newDailyRpt.lstRptItem.Add(item);
+            }
+            //處理出工資料
+            newDailyRpt.lstRptWorkerAndMachine = new List<PLAN_DR_WORKER>();
+            string[] aryWorkerType = f["workerKeyid"].Split(',');
+            string[] aryWorkerQty = f["planWorkerQty"].Split(',');
+            for (int i = 0; i < aryWorkerType.Length; i++)
+            {
+                PLAN_DR_WORKER item = new PLAN_DR_WORKER();
+                item.REPORT_ID = RptHeader.REPORT_ID;
+                item.WORKER_TYPE = "WORKER";
+                item.PARA_KEY_ID = aryWorkerType[i];
+
+                if ("" != aryWorkerQty[i].Trim())
+                {
+                    item.WORKER_QTY = decimal.Parse(aryWorkerQty[i]);
+                    newDailyRpt.lstRptWorkerAndMachine.Add(item);
+                }
+            }
+            log.Debug("count WorkerD=" + f["workerKeyid"] + ",WorkerQty=" + f["planWorkerQty"]);
+
+            //處理機具資料
+            string[] aryMachineType = f["MachineKeyid"].Split(',');
+            string[] aryMachineQty = f["planMachineQty"].Split(',');
+            for (int i = 0; i < aryMachineType.Length; i++)
+            {
+                PLAN_DR_WORKER item = new PLAN_DR_WORKER();
+                item.REPORT_ID = RptHeader.REPORT_ID;
+                item.WORKER_TYPE = "MACHINE";
+                item.PARA_KEY_ID = aryMachineType[i];
+                if ("" != aryMachineQty[i])
+                {
+                    item.WORKER_QTY = decimal.Parse(aryMachineQty[i]);
+                    newDailyRpt.lstRptWorkerAndMachine.Add(item);
+                }
+            }
+            log.Debug("count MachineD=" + f["MachineKeyid"] + ",WorkerQty=" + f["planMachineQty"]);
+            //處理重要事項資料
+            newDailyRpt.lstRptNote = new List<PLAN_DR_NOTE>();
+            string[] aryNote = f["planNote"].Split(',');
+            for (int i = 0; i < aryNote.Length; i++)
+            {
+                PLAN_DR_NOTE item = new PLAN_DR_NOTE();
+                item.REPORT_ID = RptHeader.REPORT_ID;
+                if ("" != aryNote[i].Trim())
+                {
+                    item.REMARK = aryNote[i].Trim();
+                    newDailyRpt.lstRptNote.Add(item);
+                }
+            }
+            log.Debug("count Note=" + f["planNote"]);
+            string msg = planService.createDailyReport(newDailyRpt);
+            return msg;
         }
     }
 }

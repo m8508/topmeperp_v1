@@ -58,5 +58,11 @@ namespace topmeperp.Models
         public virtual DbSet<SYS_FUNCTION> SYS_FUNCTION { get; set; }
         public virtual DbSet<PLAN_PURCHASE_REQUISITION> PLAN_PURCHASE_REQUISITION { get; set; }
         public virtual DbSet<PLAN_ITEM_DELIVERY> PLAN_ITEM_DELIVERY { get; set; }
+        public virtual DbSet<PLAN_DALIY_REPORT> PLAN_DALIY_REPORT { get; set; }
+        public virtual DbSet<PLAN_DR_ITEM> PLAN_DR_ITEM { get; set; }
+        public virtual DbSet<PLAN_DR_NOTE> PLAN_DR_NOTE { get; set; }
+        public virtual DbSet<PLAN_DR_TASK> PLAN_DR_TASK { get; set; }
+        public virtual DbSet<PLAN_DR_WORKER> PLAN_DR_WORKER { get; set; }
+        public virtual DbSet<SYS_PARA> SYS_PARA { get; set; }
     }
 }

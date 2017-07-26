@@ -41,6 +41,12 @@
         <AssociationConnector Association="topmepModel.FK_SYS_PRIVILEGE_SYS_FUNCTION" />
         <EntityTypeShape EntityType="topmepModel.PLAN_PURCHASE_REQUISITION" Width="1.5" PointX="19.375" PointY="0.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_ITEM_DELIVERY" Width="1.5" PointX="19.375" PointY="19.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_DALIY_REPORT" Width="1.5" PointX="20.375" PointY="4.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_DR_ITEM" Width="1.5" PointX="20.375" PointY="8.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_DR_NOTE" Width="1.5" PointX="21.375" PointY="0.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_DR_TASK" Width="1.5" PointX="21.375" PointY="12.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_DR_WORKER" Width="1.5" PointX="21.375" PointY="15.75" />
+        <EntityTypeShape EntityType="topmepModel.SYS_PARA" Width="1.5" PointX="21.375" PointY="19.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

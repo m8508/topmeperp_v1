@@ -54,8 +54,6 @@ namespace topmeperp.Models
         //圖算設備清單資料
         public IEnumerable<TND_MAP_DEVICE> mapDEVICE { get; set; }
     }
-
-
     public class InquiryFormModel
     {
         /// <summary>
@@ -281,7 +279,7 @@ namespace topmeperp.Models
         public Int64 DELIVERY_ID { get; set; }
 
     }
-    public class PRFunction 
+    public class PRFunction
     {
         public Int64 NO { get; set; }
         public string TASK_NAME { get; set; }
@@ -304,5 +302,18 @@ namespace topmeperp.Models
         public string CREATE_DATE { get; set; }
         public string SUPPLIER_ID { get; set; }
         public string NEED_DATE { get; set; }
+    }
+    /***
+     * 施工日報表料件記錄
+     */
+    public class DailyReportItem
+    {
+        public Nullable<int> TASKUID { get; set; }
+        public int PRJ_UID { get; set; }
+        public string PROJECT_ID { get; set; }
+        public string PROJECT_ITEM_ID { get; set; }
+        public string ITEM_DESC { get; set; }
+        public Nullable<decimal> QTY { get; set; }
+        public Nullable<decimal> ACCUMULATE_QTY { get; set; }
     }
 }

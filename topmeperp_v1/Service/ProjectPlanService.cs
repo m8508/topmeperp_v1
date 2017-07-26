@@ -9,11 +9,11 @@ using topmeperp.Models;
 
 namespace topmeperp.Service
 {
-
     #region 專案進度管理
     public class ProjectPlanService : ContextService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        public string KEY_ID = "RPT";
         //專案任務調用圖算數量物件
         public MapInfoModels viewModel = new MapInfoModels();
         public string resultMessage = "";
@@ -173,7 +173,7 @@ namespace topmeperp.Service
             return viewModel;
         }
         //圖算:設備
-        public void getMapItem(string projectid, string item_name,string startid,string endid)
+        public void getMapItem(string projectid, string item_name, string startid, string endid)
         {
             logger.Info("get map DEVICE info by item_name=" + item_name);
             string sql = "SELECT DEVIVE_ID,M.PROJECT_ID,P.PROJECT_ITEM_ID,MAP_NO,BUILDING_NO "
@@ -188,13 +188,13 @@ namespace topmeperp.Service
             parameters.Add(new SqlParameter("projectid", projectid));
             parameters.Add(new SqlParameter("item_name", "%" + item_name + "%"));
 
-            if (null != startid && ""!= startid && null != endid && ""!= endid )
+            if (null != startid && "" != startid && null != endid && "" != endid)
             {
                 sql = sql + " AND CAST(SUBSTRING(P.PROJECT_ITEM_ID,8,LEN(P.PROJECT_ITEM_ID)) as INT) BETWEEN @startid AND @endid ";
                 parameters.Add(new SqlParameter("startid", int.Parse(startid)));
                 parameters.Add(new SqlParameter("endid", int.Parse(endid)));
             }
-            sql=sql+ "ORDER BY CAST(SUBSTRING(P.PROJECT_ITEM_ID,8,LEN(P.PROJECT_ITEM_ID)) as INT) ";
+            sql = sql + "ORDER BY CAST(SUBSTRING(P.PROJECT_ITEM_ID,8,LEN(P.PROJECT_ITEM_ID)) as INT) ";
             List<TND_MAP_DEVICE> lstDEVICE = new List<TND_MAP_DEVICE>();
             using (var context = new topmepEntities())
             {
@@ -585,7 +585,7 @@ namespace topmeperp.Service
                     + "INSERT INTO PLAN_TASK2MAPITEM (PROJECT_ID,PRJ_UID,MAP_TYPE,MAP_PK,PROJECT_ITEM_ID) "
                     + " SELECT DISTINCT @projectId AS PROJECT_ID,@prjuid AS PRJ_UID,'TND_MAP_PEP' AS MAP_TYPE, 0 AS MAP_PK, PIPE_NAME  FROM TND_MAP_PEP "
                     + " WHERE PIPE_NAME in ('" + mapPepIds + "');"
-                    +"INSERT INTO PLAN_TASK2MAPITEM (PROJECT_ID,PRJ_UID,MAP_TYPE,MAP_PK,PROJECT_ITEM_ID) "
+                    + "INSERT INTO PLAN_TASK2MAPITEM (PROJECT_ID,PRJ_UID,MAP_TYPE,MAP_PK,PROJECT_ITEM_ID) "
                     + " SELECT DISTINCT @projectId AS PROJECT_ID,@prjuid AS PRJ_UID,'TND_MAP_PEP' AS MAP_TYPE, 1 AS MAP_PK, WIRE_NAME  FROM TND_MAP_PEP "
                     + " WHERE WIRE_NAME in ('" + mapPepIds + "');"
                     + "INSERT INTO PLAN_TASK2MAPITEM (PROJECT_ID,PRJ_UID,MAP_TYPE,MAP_PK,PROJECT_ITEM_ID) "
@@ -708,7 +708,7 @@ namespace topmeperp.Service
             return i;
         }
         #endregion
-        public List<TND_PROJECT_ITEM> getItemInTask(string projectid,string prjuid)
+        public List<TND_PROJECT_ITEM> getItemInTask(string projectid, string prjuid)
         {
             logger.Info("get ItemTask Project_id=" + projectid + ",prjuid=" + prjuid);
             List<TND_PROJECT_ITEM> lstProjectItem = new List<TND_PROJECT_ITEM>();
@@ -717,7 +717,7 @@ namespace topmeperp.Service
                 try
                 {
                     string sql = "SELECT * FROM TND_PROJECT_ITEM WHERE PROJECT_ITEM_ID IN (SELECT PROJECT_ITEM_ID FROM PLAN_TASK2MAPITEM "
-                        +"WHERE PROJECT_ID=@projectid AND PRJ_UID=@prjuid);";
+                        + "WHERE PROJECT_ID=@projectid AND PRJ_UID=@prjuid);";
                     logger.Debug("sql=" + sql);
                     lstProjectItem = context.TND_PROJECT_ITEM.SqlQuery(sql, new SqlParameter("projectid", projectid), new SqlParameter("prjuid", int.Parse(prjuid))).ToList();
                 }
@@ -729,7 +729,7 @@ namespace topmeperp.Service
             return lstProjectItem;
         }
         //取得特定日期專案任務清單
-        public List<PLAN_TASK> getTaskByDate(string projectid,DateTime dt)
+        public List<PLAN_TASK> getTaskByDate(string projectid, DateTime dt)
         {
             List<PLAN_TASK> lstTask = new List<PLAN_TASK>();
             using (var context = new topmepEntities())
@@ -754,10 +754,74 @@ namespace topmeperp.Service
             logger.Info("get task by now:" + lstTask.Count);
             return lstTask;
         }
+        //讀取專案基本資料
         public TND_PROJECT getProject(string projectid)
         {
             TnderProject service = new TnderProject();
             return service.getProjectById(projectid);
+        }
+        //讀取任務基本資料
+        public PLAN_TASK getProjectTask(string projectid, int prjuid)
+        {
+            string sql = "SELECT * FROM PLAN_TASK WHERE PROJECT_ID = @projectid and PRJ_UID=@prjuid;";
+            PLAN_TASK planTask = null;
+            using (var context = new topmepEntities())
+            {
+                planTask = context.PLAN_TASK.SqlQuery(sql, new SqlParameter("projectid", projectid), new SqlParameter("prjuid", prjuid)).First();
+                logger.Debug("Task Info=" + planTask.TASK_NAME);
+            }
+            return planTask;
+        }
+        //建立新的施工日報資料使用
+        public DailyReport newDailyReport(string projectid, int prjuid)
+        {
+            DailyReport newDailyRpt = new DailyReport();
+            //建立料件資料
+            newDailyRpt.lstDailyRptItem4Show = getItem(projectid, prjuid);
+            newDailyRpt.lstDailyRptWokerType4Show = SystemParameter.getSystemPara("ProjectPlanService", "Worker");
+            newDailyRpt.lstDailyRptMachine4Show = SystemParameter.getSystemPara("ProjectPlanService", "Machine");
+            return newDailyRpt;
+        }
+        //建立日報相關紀錄
+        public string createDailyReport(DailyReport dr)
+        {
+            try
+            {
+                using (var db = new topmepEntities())
+                {
+                    db.PLAN_DALIY_REPORT.Add(dr.dailyRpt);
+                    db.PLAN_DR_TASK.AddRange(dr.lstRptTask);
+                    db.PLAN_DR_ITEM.AddRange(dr.lstRptItem);
+                    db.PLAN_DR_WORKER.AddRange(dr.lstRptWorkerAndMachine);
+                    db.PLAN_DR_NOTE.AddRange(dr.lstRptNote);
+                    db.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex.StackTrace);
+                return "新增日報失敗(" + ex.Message + ")";
+            }
+
+            return "新增日報成功!!";
+        }
+        //取得專案任務對應之料件項目
+        public List<DailyReportItem> getItem(string projectid, int prjuid)
+        {
+            List<DailyReportItem> lstDailyRptItem = new List<DailyReportItem>();
+            string sql = "SELECT TI.TASKUID,TI.PRJ_UID,TI.PROJECT_ID,TI.PROJECT_ITEM_ID,"
+                + " (SELECT ITEM_DESC FROM TND_PROJECT_ITEM i WHERE i.PROJECT_ITEM_ID=TI.PROJECT_ITEM_ID) ITEM_DESC,0.0 as ACCUMULATE_QTY ,QTY "
+                + " FROM PLAN_TASK2MAPITEM TI LEFT OUTER JOIN vw_MAP_MATERLIALIST_DETAIL MAP "
+                + " ON TI.PROJECT_ITEM_ID = MAP.PROJECT_ITEM_ID "
+                + " WHERE TI.PROJECT_ID = @projectid AND TI.PRJ_UID = @prjuid "
+                + "ORDER BY  CAST(SUBSTRING(TI.PROJECT_ITEM_ID, 8, LEN(TI.PROJECT_ITEM_ID)) as INT);";
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("sql=" + sql + ",projectid=" + projectid + ",prjuid=" + prjuid);
+                lstDailyRptItem = context.Database.SqlQuery<DailyReportItem>(sql, new SqlParameter("projectid", projectid), new SqlParameter("prjuid", prjuid)).ToList();
+                logger.Debug("lstDailyRptItem count=" + lstDailyRptItem.Count);
+            }
+            return lstDailyRptItem;
         }
     }
     #endregion
