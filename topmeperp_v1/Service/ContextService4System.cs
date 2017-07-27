@@ -338,4 +338,21 @@ namespace topmeperp.Service
         }
     }
     #endregion
+    #region 參數參考主檔
+    public class SystemParameter
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        public static List<SYS_PARA> getSystemPara(string functionid,string fieldid)
+        {
+            List<SYS_PARA> lst = new List<SYS_PARA>();
+            using (var context = new topmepEntities())
+            {
+                lst = context.SYS_PARA.SqlQuery("SELECT * FROM SYS_PARA WHERE FUNCTION_ID=@functionid AND FIELD_ID=@fieldid ORDER BY KEY_FIELD;"
+                    ,new SqlParameter("functionid", functionid),new SqlParameter("fieldid", fieldid)).ToList();
+                logger.Debug("get SYS_PARA Count" + lst.Count +",functionid="+functionid+",fieldid="+ fieldid);
+            }
+            return lst;
+        }
+    }
+    #endregion
 }

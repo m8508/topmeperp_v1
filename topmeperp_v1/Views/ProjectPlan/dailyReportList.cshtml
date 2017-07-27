@@ -1,0 +1,46 @@
+﻿@model IEnumerable<topmeperp.Models.PLAN_TASK>
+@{
+    ViewBag.Title = "施工日報";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+<h3>@ViewBag.Title</h3>
+<!--條件區域-->
+<div class="page-header">
+    <form name="formDailyReport" id="formDailyReport" action="" method="Post">
+        <div class="row">
+            <label class="col-md-6 control-label">專案編號:@ViewBag.projectId </label>
+            <label class="col-md-6 control-label">專案名稱:@ViewBag.projectName </label>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <label for="reportDateStart" class="control-label col-md-2">日報時間</label>
+                <input type="text" name="reportDateStart" id="reportDateStart" value="" size="7" />~
+                <input type="text" name="reportDateEnd" id="reportDateEnd" value="" size="7" />
+                <button name="query" id="query" type="submit" class="btn-default">查詢</button>
+            </div>
+        </div>
+        @ViewBag.Message
+    </form>
+    <div class="container" style="padding-top:5px">
+        <div class="panel panel-primary">
+            <div class="panel-heading">施工日報表</div>
+            <div class="panel-body">
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $(function () {
+            $('#reportDateStart').datetimepicker({
+                format: 'YYYY/MM/DD',
+                locale: 'zh-tw'
+            });
+            $('#reportDateEnd').datetimepicker({
+                format: 'YYYY/MM/DD',
+                locale: 'zh-tw'
+            });
+        });
+    })
+</script>
+

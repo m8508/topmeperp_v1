@@ -18,4 +18,21 @@ namespace topmeperp.Models
         public string TARGET_SYSTEM_SUB { get; set; }
         public Nullable<long> EXCEL_ROW_ID { get; set; }
     }
+    /***
+     * 施工日報完整物件
+     */
+    public class DailyReport
+    {
+        public PLAN_DALIY_REPORT dailyRpt { get; set; }
+        //for display
+        public List<DailyReportItem> lstDailyRptItem4Show { get; set; }
+        public List<SYS_PARA> lstDailyRptWokerType4Show { get; set; }
+        public List<SYS_PARA> lstDailyRptMachine4Show { get; set; }
+        //phyical data
+        public List<PLAN_DR_TASK> lstRptTask { get; set; }
+        public List<PLAN_DR_ITEM > lstRptItem { get; set; }
+        public List<PLAN_DR_WORKER> lstRptWorkerAndMachine { get; set; }
+        public List<PLAN_DR_NOTE> lstRptNote{ get; set; }
+
+    }
 }

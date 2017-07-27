@@ -1183,6 +1183,12 @@ namespace topmeperp.Service
         public int updateProjectItem(TND_PROJECT_ITEM item)
         {
             int i = 0;
+            if (null== item.PROJECT_ITEM_ID || item.PROJECT_ITEM_ID == "")
+            {
+                logger.Debug("add new project item in porjectid=" + item.PROJECT_ID);
+                item = getNewProjectItemID(item);
+            }
+            logger.Debug("project item key=" + item.PROJECT_ITEM_ID);
             using (var context = new topmepEntities())
             {
                 try
@@ -1196,9 +1202,23 @@ namespace topmeperp.Service
                     logger.Error(e.StackTrace);
                     message = e.Message;
                 }
-
             }
             return i;
+        }
+        private TND_PROJECT_ITEM getNewProjectItemID(TND_PROJECT_ITEM item)
+        {
+            string sql = "SELECT MAX(CAST(SUBSTRING(PROJECT_ITEM_ID,8,LEN(PROJECT_ITEM_ID)) AS INT) +1) MaxSN, MAX(EXCEL_ROW_ID) + 1 as Row "
+                + " FROM TND_PROJECT_ITEM WHERE PROJECT_ID = @projectid ; ";
+            var parameters = new Dictionary<string, Object>();
+            parameters.Add("projectid", item.PROJECT_ID);
+            DataSet ds = ExecuteStoreQuery(sql, CommandType.Text, parameters);
+            logger.Debug("sql=" + sql + "," + ds.Tables[0].Rows[0][0].ToString() + "," + ds.Tables[0].Rows[0][1].ToString());
+            int longMaxItem =int.Parse(ds.Tables[0].Rows[0][0].ToString());
+            int longMaxExcel =int.Parse(ds.Tables[0].Rows[0][1].ToString());
+            logger.Debug("new project item id=" + longMaxItem +",ExcelRowID=" + longMaxExcel);
+            item.PROJECT_ITEM_ID = item.PROJECT_ID + "-" + longMaxItem;
+            item.EXCEL_ROW_ID = longMaxExcel;
+            return item;
         }
     }
 
@@ -1697,14 +1717,23 @@ namespace topmeperp.Service
             {
                 context.TND_PROJECT_FORM.Add(form);
 
-                logger.Info("project form id = " + form.FORM_ID);
+                logger.Info("project form id = " + form.FORM_ID +",project form item conunt="+ items.Count);
                 //if (i > 0) { status = true; };
                 foreach (TND_PROJECT_FORM_ITEM item in items)
                 {
                     item.FORM_ID = form.FORM_ID;
                     context.TND_PROJECT_FORM_ITEM.Add(item);
+                    logger.Debug("TND_PROJECT_FORM_ITEM:" + item.FORM_ID + ",project_item_id=" + item.PROJECT_ITEM_ID);
                 }
-                i = context.SaveChanges();
+                try
+                {
+                    i = context.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.StackTrace);
+                    return -1;
+                }
             }
             return i;
         }
