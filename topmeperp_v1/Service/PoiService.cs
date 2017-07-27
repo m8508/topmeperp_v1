@@ -1901,14 +1901,14 @@ namespace topmeperp.Service
 
         // string fileformat = "xlsx";
         //建立詢價單樣板
-        public string exportExcel(TND_PROJECT_FORM form, List<TND_PROJECT_FORM_ITEM> formItems,bool isTemp)
+        public string exportExcel(TND_PROJECT_FORM form, List<TND_PROJECT_FORM_ITEM> formItems, bool isTemp)
         {
             //1.讀取樣板檔案
             InitializeWorkbook(templateFile);
             sheet = (XSSFSheet)hssfworkbook.GetSheet("詢價單");
             //2.填入表頭資料
             Service.TnderProject ts = new TnderProject();
-            TND_PROJECT p=  ts.getProjectById(form.PROJECT_ID);
+            TND_PROJECT p = ts.getProjectById(form.PROJECT_ID);
             logger.Debug("Template Head_1=" + sheet.GetRow(2).Cells[0].ToString());
             sheet.GetRow(2).Cells[1].SetCellValue(p.PROJECT_NAME);//專案名稱
             logger.Debug("Template Head_2=" + sheet.GetRow(3).Cells[0].ToString());
@@ -1939,7 +1939,7 @@ namespace topmeperp.Service
                 IRow row = sheet.GetRow(idxRow);
                 //項次 項目說明    單位 數量  單價 複價  備註
                 //row.Cells[0].SetCellValue(idxRow - 8);///項次
-                row.Cells[0].SetCellValue(null==item.ITEM_ID ? "" : item.ITEM_ID);///項次
+                row.Cells[0].SetCellValue(null == item.ITEM_ID ? "" : item.ITEM_ID);///項次
                 logger.Debug("Inquiry :ITEM DESC=" + item.ITEM_DESC);
                 row.Cells[1].SetCellValue(item.ITEM_DESC);//項目說明
                 row.Cells[2].SetCellValue(item.ITEM_UNIT);// 單位
@@ -1963,12 +1963,13 @@ namespace topmeperp.Service
             string fileLocation = null;
             if (isTemp)
             {
-                fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\Temp\\" + form.FORM_NAME + "\\" +form.FORM_NAME + "_空白.xlsx";
+                fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\Temp\\" + form.FORM_NAME + "\\" + form.FORM_NAME + "_空白.xlsx";
             }
             else if (form.SUPPLIER_ID == null || form.SUPPLIER_ID == "")
             {
                 fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_NAME + "_空白.xlsx";
-            }else
+            }
+            else
             {
                 fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID;
             }
@@ -1999,7 +2000,7 @@ namespace topmeperp.Service
                 file.Close();
             }
         }
-        public void convertInquiry2Project(string fileExcel, string projectid,string iswage)
+        public void convertInquiry2Project(string fileExcel, string projectid, string iswage)
         {
             //1.讀取供應商報價單\
             InitializeWorkbook(fileExcel);
@@ -2049,14 +2050,30 @@ namespace topmeperp.Service
             try
             {
                 logger.Debug(sheet.GetRow(5).Cells[2].ToString() + "," + sheet.GetRow(5).Cells[3].ToString() + "," + sheet.GetRow(5).Cells[3].CellType);
-                form.DUEDATE = DateTime.Parse(sheet.GetRow(5).Cells[3].ToString());
-
+                if (null == sheet.GetRow(5).Cells[3] || "" == sheet.GetRow(5).Cells[3].ToString())
+                {
+                    form.DUEDATE = DateTime.Now;
+                }
+                else
+                {
+                    string[] aryDate = sheet.GetRow(5).Cells[3].ToString().Split('/');
+                    int intYear = int.Parse(aryDate[0]); ;
+                    int intMonth = int.Parse(aryDate[1]);
+                    int intDay = int.Parse(aryDate[2]);
+                    if (intYear < 1900)
+                    {
+                        intYear = intYear + 1911;
+                    }
+                    DateTime dtDueDate = new DateTime(intYear, intMonth, intDay);
+                    form.DUEDATE = dtDueDate;
+                }
+                logger.Debug("form.DUEDATE:"+ form.DUEDATE);
             }
             catch (Exception ex)
             {
                 logger.Error("Datetime format error: " + ex.Message);
                 form.DUEDATE = DateTime.Now;
-               // throw new Exception("日期格式有錯(YYYY/MM/DD");
+                // throw new Exception("日期格式有錯(YYYY/MM/DD");
             }
             //電子信箱:	admin@topmep
             logger.Debug(sheet.GetRow(6).Cells[0].ToString() + "," + sheet.GetRow(6).Cells[1]);
@@ -2113,7 +2130,8 @@ namespace topmeperp.Service
                         item.ITEM_REMARK = row.Cells[6].ToString();
                         logger.Info("Project ITEM ID=" + row.Cells[row.Cells.Count - 1].ToString());
                         item.PROJECT_ITEM_ID = row.Cells[row.Cells.Count - 1].ToString();
-                        if (null!=item.PROJECT_ITEM_ID && "" != item.PROJECT_ITEM_ID) {
+                        if (null != item.PROJECT_ITEM_ID && "" != item.PROJECT_ITEM_ID)
+                        {
                             formItems.Add(item);
                         }
                     }
@@ -2493,7 +2511,8 @@ namespace topmeperp.Service
                 idxRow++;
             }
             //錯誤控制
-            if (systemCostItems.Count == 0) {
+            if (systemCostItems.Count == 0)
+            {
                 errorMsg = errorMsg + "成本資料不完整,無法產生系統成本資料!!</br>";
                 return;
             }
