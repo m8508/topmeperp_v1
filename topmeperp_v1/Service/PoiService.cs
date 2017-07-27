@@ -300,7 +300,7 @@ namespace topmeperp.Service
                     case 4:
                         if (i < row.PhysicalNumberOfCells) //數量
                         {
-                            if (null != row.GetCell(i) && row.GetCell(i).CellType.Equals(CellType.Blank))
+                            if (null != row.GetCell(i) )//&& row.GetCell(i).CellType.Equals(CellType.Blank))
                             {
                                 try
                                 {
@@ -320,7 +320,7 @@ namespace topmeperp.Service
                     case 5:
                         if (i < row.PhysicalNumberOfCells)//採購數量
                         {
-                            if (null != row.GetCell(i) && row.GetCell(i).CellType.Equals(CellType.Blank))
+                            if (null != row.GetCell(i) )//&& row.GetCell(i).CellType.Equals(CellType.Blank))
                             {
                                 try
                                 {
@@ -340,7 +340,7 @@ namespace topmeperp.Service
                     case 6:
                         if (i < row.PhysicalNumberOfCells)//項目標單單價
                         {
-                            if (null != row.GetCell(i) && row.GetCell(i).CellType.Equals(CellType.Blank))
+                            if (null != row.GetCell(i) )//&& row.GetCell(i).CellType.Equals(CellType.Blank))
                             {
                                 try
                                 {
@@ -381,19 +381,19 @@ namespace topmeperp.Service
                     case 11:
                         if (i < row.PhysicalNumberOfCells)
                         {
-                            if (row.GetCell(i).CellType.Equals(CellType.Blank))
-                            {
+                            //if (row.GetCell(i).CellType.Equals(CellType.Blank))
+                            //{
                                 planItem.SYSTEM_MAIN = row.GetCell(i).ToString();
-                            }
+                            //}
                         }
                         break;
                     case 12:
                         if (i < row.PhysicalNumberOfCells)
                         {
-                            if (row.GetCell(i).CellType.Equals(CellType.Blank))
-                            {
+                            //if (row.GetCell(i).CellType.Equals(CellType.Blank))
+                            //{
                                 planItem.SYSTEM_SUB = row.GetCell(i).ToString();
-                            }
+                            //}
                         }
                         break;
                 }

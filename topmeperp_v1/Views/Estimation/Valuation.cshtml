@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "專案執行-廠商估驗計價";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
@@ -7,24 +6,24 @@
 <div class="jumbotron">
     <div class="row">
         <div class="col-md-12 form-group">
-            <form name="FormSearchContract" id="FormSearchContract" action="SearchContract" method="Post">
+            <form name="formSearch" id="formSearch" action="/Estimation/Search" method="Post" class="form-inline">
                 <div class="row col-md-12">
                     <label for="projectId" class="col-md-2 text-right">專案編號</label><input class="form-control col-md-3" id="projectId" name="projectId" type="text" value="@ViewBag.projectId" style="background-color:#cccccc;" readonly="readonly" />
                     <label for="projectName" class="col-md-2 text-right">專案編號</label><input class="form-control col-md-3" id="projectName" name="projectName" type="text" value="@ViewBag.projectName" style="background-color:#cccccc;" readonly="readonly" />
                 </div>
                 <div class="row col-md-12" style="padding-top:5px;">
                     <label for="supplier" class="col-md-2 text-right">供應商</label><input class="form-control col-md-3" id="supplier" name="supplier" type="text" />
-                    <label for="formName" class="col-md-2 text-right" style="padding-top:15px;">採購項目</label> <input class="form-control col-md-3" id="formName" name="formName" type="text" />
+                    <label for="formName" class="col-md-2 text-right">採購項目</label> <input class="form-control col-md-3" id="formName" name="formName" type="text" />
                 </div>
-                    <div class="row col-md-12" style="padding-top:15px;">
-                        <div class="col-md-11 pull-right">
-                            <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
-                            <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
-                            </div>
-                            <div id="divProcessing" class="col-md-1">
-                                <img src="~/Content/ajax-loader.gif">
-                            </div>
-                        </div>
+                <div class="row col-md-12" style="padding-top:15px;">
+                    <div class="col-md-11 pull-right">
+                        <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
+                        <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+                    </div>
+                    <div id="divProcessing" class="col-md-1">
+                        <img src="~/Content/ajax-loader.gif">
+                    </div>
+                </div>
             </form>
         </div>
     </div>
@@ -32,7 +31,6 @@
 
 <!--標單項目列表區域-->
 <div class="container-fluid">
-    @ViewBag.SearchResult
     @if (null != Model)
     {
         Html.RenderPartial("_SupplierContractList");

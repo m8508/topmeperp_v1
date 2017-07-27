@@ -1,0 +1,323 @@
+﻿@model topmeperp.Models.ContractModels
+@{
+    ViewBag.Title = "估驗計價 : ";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0rc1/angular.min.js"></script>
+<div class="page-header">
+    <h3 style="height:10px;line-height:5px">@ViewBag.Title</h3>
+    <div class="row">
+        <div class="col-md-3 form-group" style="padding-top:10px">
+            <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.projectId" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+        </div>
+        <div class="col-md-3" style="padding-top:10px">
+            <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+        </div>
+        <div class="col-md-3 form-group" style="padding-top:10px">
+            <label for="id">估驗日期:</label><input id="date" name="date" type="text" value="@ViewBag.date" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+        </div>
+        <div class="col-md-3 form-group" style="padding-top:10px">
+            <label for="id">估驗次數:</label><input type="text" id="" name="" value="" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3 form-group">
+            <label for="id">發包項目:</label>
+            @if (ViewBag.wage == "")
+            {
+                <input type="text" id="formname" name="formname" value="@ViewBag.formname" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            }
+            else
+            {
+                <input type="text" id="formname" name="formname" value="@ViewBag.formname4Wage" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            }
+        </div>
+        <div class="col-md-3">
+
+            <label for="projectName">付款對象:</label>
+            @if (ViewBag.wage == "")
+            {
+                <input type="text" id="supplier" name="supplier" value="@ViewBag.supplier" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            }
+            else
+            {
+                <label for="projectName">付款對象:</label><input type="text" id="supplier" name="supplier" value="@ViewBag.supplier4Wage" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            }
+        </div>
+        <div class="col-md-3 form-group">
+            <label for="id">合約金額:</label>
+            @if (ViewBag.wage == "")
+            {
+                <input id="contractamount" name="contractamount" type="text" value="@ViewBag.amount" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            }
+            else
+            {
+                <input id="contractamount" name="contractamount" type="text" value="@ViewBag.amount4Wage" c class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            }
+        </div>
+        <div class="col-md-3 form-group">
+            <label for="id">稅金類別:</label><br /><input type="radio" id="tax" name="tax" value="E" />外加稅 : <input type="text" id="ratio" name="ratio" value="5" style="width:40px;" />% <input type="radio" id="tax" name="tax" value="O" />其他
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <label for="projectName">現金 • 期票比率:</label><button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@ViewBag.contractid')">查看</button>
+        </div>
+        <div class="col-md-4">
+            <label for="projectName">憑證:</label><br /><input type="text" id="ratio" name="ratio" style="width:60px;" />張<br /><input type="radio" id="invoice" name="invoice" value="N" />不檢查發票<input type="radio" id="invoice" name="invoice" value="E" />發票含保留款<input type="radio" id="invoice" name="invoice" value="I" />發票不含保留款
+        </div>
+        <div class="col-md-2 form-group">
+            <label for="id">結帳:</label><br /><input type="radio" id="turnToFin" name="turnToFin" value="" />Y   <input type="radio" id="turnToFin" name="turnToFin" value="O" />N
+        </div>
+    </div>
+</div>
+<div class="contailer" ng-app="" ng-controller="myController">
+    @ViewBag.SearchResult
+    <table class="table" >
+        <thead>
+            <tr>
+                <th>
+                    No.
+                </th>
+                <th>
+                    項次
+                </th>
+                <th>
+                    項目說明
+                </th>
+                <th>
+                    單位
+                </th>
+                <th>
+                    合約數量
+                </th>
+                <th>
+                    單價
+                </th>
+                <th>
+                    本期數量
+                </th>
+                <th>
+                    計價比率 %
+                </th>
+                <th>
+                    金額
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+              <tr ng-repeat="row in item">
+                    <td>
+                        <input style="width:110px" type="text" class="form-control" name="planitemid" id="planitemid" value="{{row.PLAN_ITEM_ID}}" readonly = "readonly"/>
+                    </td>
+                    <td>
+                        {{row.ITEM_ID}}
+                    </td>
+                    <td>
+                        {{row.ITEM_DESC}}
+                    </td>
+                    <td>
+                        {{row.ITEM_UNIT}}
+                    </td>
+                    <td>
+                        {{row.ITEM_FORM_QUANTITY}}
+                    </td>
+                    @if (ViewBag.wage == "")
+                    {
+                        <td>
+                            {{row.ITEM_UNIT_PRICE}}
+                        </td>
+                    }
+                    else
+                    {
+                        <td>
+                            {{row.MAN_PRICE}}
+                        </td>
+                    }
+
+                    <td>
+                        <input style="width:80px" type="text" class="form-control" ng-model="row.evaluated_qty" id="evaluated_qty" ng-init="row.evaluated_qty =''">
+                    </td>
+                    <td>
+                        <input style="width:80px" type="text" class="form-control" ng-model="row.evaluated_ratio" id="evaluated_ration">
+                    </td>
+                    <td><input style="width:150px" type="number" class="form-control pull-right" name="amount" id="amount" value="{{row.ITEM_UNIT_PRICE * row.evaluated_qty}}" readonly="readonly"></td>
+                </tr>
+        </tbody>
+    </table>
+    <div class="pull-right" style="padding-bottom: 15px">
+        金額總計: <input id="totalAmount" name="totalAmount" type="number" value="{{GetTotalNum()}}" readonly="readonly" style="width:160px" />
+    </div>
+    <hr />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>期別</th>
+                <th>+ 代付支出</th>
+                <th>- 外勞扣款</th>
+                <th>= 小計</th>
+                <th>- 保留款 <input type="text" id="retention" name="retention" value="@ViewBag.retention" readonly="readonly" style="width:60px;" />%</th>
+                <th>- 預付款</th>
+                <th>- 代付扣回</th>
+                <th>- 其他扣款</th>
+                <th>= 應付金額</th>
+                <th>+ 營業稅</th>
+                <th>= 實付金額</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>前期累計</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>本期金額</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>累計金額</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+    <textarea class="form-control" rows="10">說明事項</textarea>
+    <div class="row" style="padding-top:10px">
+        <div class="col-md-12">
+            <input type="button" value="儲存" class="btn btn-default" id="saveForm" />
+            <input type="submit" value="送出" name="AddPR" class="btn btn-warning" onclick="return Confirm_Form()" />
+        </div>
+    </div>
+</div>
+
+<!-- Modal :對話框-->
+<div class="row" style="padding-top:10px;">
+    <div class="modal fade" id="paymentInfo" role="dialog">
+        <div class="modal-dialog" id="paymentInfoDialog">
+            <!-- Modal content-->
+            @Html.Partial("_PaymentTerms");
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    //由ID 取得資料填入表單
+    function getPaymentTerm(contractid) {
+        //alert(contractid);
+        $.ajax({
+            url: "/Estimation/getPaymentTerms",
+            type: "GET",
+            data: { contractid: contractid },
+            dataType: "JSON",
+            success: function (data) {
+                $('#project_id').val(data.PROJECT_ID);
+                $('#contract_id').val(data.CONTRACT_ID);
+                $('#date1').val(data.DATE_1);
+                $('#date2').val(data.DATE_2);
+                $('#date3').val(data.DATE_3);
+                $('#paymenttype').val(data.PAYMENT_TYPE);
+                $('#paymentcash').val(data.PAYMENT_CASH);
+                $('#payment_date1').val(data.PAYMENT_UP_TO_U_DATE1);
+                $('#payment_date2').val(data.PAYMENT_UP_TO_U_DATE2);
+                $('#payment_1').val(data.PAYMENT_UP_TO_U_1);
+                $('#payment_2').val(data.PAYMENT_UP_TO_U_2);
+                $('#paymentadvance').val(data.PAYMENT_ADVANCE_RATIO);
+                $('#paymentadvance_cash').val(data.PAYMENT_ADVANCE_CASH_RATIO);
+                $('#paymentadvance_1').val(data.PAYMENT_ADVANCE_1_RATIO);
+                $('#paymentadvance_2').val(data.PAYMENT_ADVANCE_2_RATIO);
+                $('#paymentestimated').val(data.PAYMENT_ESTIMATED_RATIO);
+                $('#paymentestimated_cash').val(data.PAYMENT_ESTIMATED_CASH_RATIO);
+                $('#paymentestimated_1').val(data.PAYMENT_ESTIMATED_1_RATIO);
+                $('#paymentestimated_2').val(data.PAYMENT_ESTIMATED_2_RATIO);
+                $('#paymentretention').val(data.PAYMENT_RETENTION_RATIO);
+                $('#paymentretention_cash').val(data.PAYMENT_RETENTION_CASH_RATIO);
+                $('#paymentretention_1').val(data.PAYMENT_RETENTION_1_RATIO);
+                $('#paymentretention_2').val(data.PAYMENT_RETENTION_2_RATIO);
+                $('#usancecash').val(data.USANCE_CASH);
+                $('#usance_date1').val(data.USANCE_UP_TO_U_DATE1);
+                $('#usance_date2').val(data.USANCE_UP_TO_U_DATE2);
+                $('#usance_1').val(data.USANCE_UP_TO_U_1);
+                $('#usance_2').val(data.USANCE_UP_TO_U_2);
+                $('#usanceadvance').val(data.USANCE_ADVANCE_RATIO);
+                $('#usanceadvance_cash').val(data.USANCE_ADVANCE_CASH_RATIO);
+                $('#usanceadvance_1').val(data.USANCE_ADVANCE_1_RATIO);
+                $('#usanceadvance_2').val(data.USANCE_ADVANCE_2_RATIO);
+                $('#usancegoods').val(data.USANCE_GOODS_RATIO);
+                $('#usancegoods_cash').val(data.USANCE_GOODS_CASH_RATIO);
+                $('#usancegoods_1').val(data.USANCE_GOODS_1_RATIO);
+                $('#usancegoods_2').val(data.USANCE_GOODS_2_RATIO);
+                $('#usancefinished').val(data.USANCE_FINISHED_RATIO);
+                $('#usancefinished_cash').val(data.USANCE_FINISHED_CASH_RATIO);
+                $('#usancefinished_1').val(data.USANCE_FINISHED_1_RATIO);
+                $('#usancefinished_2').val(data.USANCE_FINISHED_2_RATIO);
+                $('#usanceretention').val(data.USANCE_RETENTION_RATIO);
+                $('#usanceretention_cash').val(data.USANCE_RETENTION_CASH_RATIO);
+                $('#usanceretention_1').val(data.USANCE_RETENTION_1_RATIO);
+                $('#usanceretention_2').val(data.USANCE_RETENTION_2_RATIO);
+                if ((data.DATE_3) == null) {
+                    $("input[name=payfrequency][value='O']").attr('checked', true);
+                }
+                else {
+                    $("input[name=payfrequency][value='T']").attr('checked', true)
+                }
+                if ((data.PAYMENT_TYPE) != null && (data.PAYMENT_TYPE) != "") {
+                    $("input[name=payterms][value='P']").attr('checked', true);
+                }
+                else {
+                    $("input[name=payterms][value='S']").attr('checked', true);
+                }
+
+                $('#paymentInfo').modal('show'); // show bootstrap modal when complete loaded
+                //$('.modal-title').text('編輯設定資料'); // Set title to Bootstrap modal title
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('Error get data from ajax');
+            }
+        });
+
+    }
+
+</script>
+
+<script type="text/javascript">
+        function myController($scope, $http) {
+            //若資料量很多的話，建議改用$http的Ajax方法撈資料指派給$scope的orders成員
+            $scope.item =  @Html.Raw(ViewData["items"])
+            //取得商品總數量
+            $scope.GetTotalNum = function () {
+                var sum = 0;
+                for (var i = 0; i < $scope.item.length; i++) {
+                    sum += parseFloat($scope.item[i].ITEM_UNIT_PRICE * $scope.item[i].evaluated_qty);
+                }
+                return sum;
+            }
+        }
+</script>

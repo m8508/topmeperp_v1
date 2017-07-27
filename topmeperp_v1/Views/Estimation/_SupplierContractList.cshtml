@@ -5,6 +5,9 @@
             NO.
         </th>
         <th>
+            合約類型
+        </th>
+        <th>
             合約名稱
         </th>
         <th>
@@ -12,6 +15,9 @@
         </th>
         <th>
             採購項目
+        </th>
+        <th>
+            項目品項
         </th>
 
     </tr>
@@ -23,13 +29,19 @@
                 @Html.DisplayFor(modelItem => item.NO)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.TYPE)
+            </td>
+            <td>
                 <a href="/Estimation/ContractItems/@item.CONTRACT_ID" target="_blank">@item.CONTRACT_NAME</a>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SUPPLIER_ID)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.FORM_NAME)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.SUPPLIER_ID)
+                @Html.DisplayFor(modelItem => item.ITEM_ROWS)
             </td>
         </tr>
     }

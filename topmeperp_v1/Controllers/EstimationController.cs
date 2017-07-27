@@ -8,6 +8,7 @@ using System.Web.Mvc;
 using topmeperp.Models;
 using topmeperp.Service;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace topmeperp.Controllers
 {
@@ -69,20 +70,83 @@ namespace topmeperp.Controllers
             ViewBag.projectName = p.PROJECT_NAME;
             List<plansummary> lstContract = null;
             ContractModels contract = new ContractModels();
-            lstContract = service.getAllPlanContract(id);
+            lstContract = service.getAllPlanContract(id, Request["supplier"], Request["formname"]);
             contract.contractItems = lstContract;
             return View(contract);
         }
-        // POST : Search
-        [HttpPost]
-        public ActionResult Valuation(FormCollection f)
-        {
 
-            logger.Info("projectid=" + Request["projectId"] + ",供應商名稱=" + Request["supplier"] + ",採購項目=" + Request["formname"]);
-            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"]);
-            ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
+        public ActionResult Search()
+        {
             ViewBag.projectId = Request["projectId"];
-            return View("Valuation", lstProject);
+            TND_PROJECT p = service.getProjectById(Request["projectId"]);
+            ViewBag.projectName = p.PROJECT_NAME;
+            ContractModels contract = new ContractModels();
+            List<plansummary> lstContract = service.getAllPlanContract(Request["projectId"], Request["formname"], Request["supplier"]);
+            contract.contractItems = lstContract;
+            return View("Valuation", contract);
+        }
+        
+        public ActionResult ContractItems(string id)
+        {
+            logger.Info("Access To Contract Item By Contract Id =" + id);
+            ViewBag.projectId = id.Substring(1, 5).Trim();
+            TND_PROJECT p = service.getProjectById(id.Substring(1, 5).Trim());
+            ViewBag.projectName = p.PROJECT_NAME;
+            ViewBag.wage = id.Substring(0, 1).Trim();
+            ContractModels contract = new ContractModels();
+            //取得合約金額與供應商名稱,採購項目等資料
+            if (ViewBag.wage == "")
+            {
+                plansummary lstContract = service.getPlanContract4Est(id.Substring(1).Trim());
+                ViewBag.supplier = lstContract.SUPPLIER_ID;
+                ViewBag.formname = lstContract.FORM_NAME;
+                ViewBag.amount = lstContract.MATERIAL_COST;
+                ViewBag.contractid = lstContract.CONTRACT_ID;
+                PLAN_PAYMENT_TERMS payment = service.getPaymentTerm(lstContract.CONTRACT_ID);
+                if (payment.PAYMENT_RETENTION_RATIO != null)
+                {
+                    ViewBag.retention = payment.PAYMENT_RETENTION_RATIO ;
+                }
+                else
+                {
+                    ViewBag.retention = payment.USANCE_RETENTION_RATIO;
+                }
+            }
+            else
+            {
+                plansummary lstWageContract = service.getPlanContractOfWage4Est(id.Substring(1).Trim());
+                ViewBag.supplier4Wage = lstWageContract.MAN_SUPPLIER_ID;
+                ViewBag.formname4Wage = lstWageContract.MAN_FORM_NAME;
+                ViewBag.amount4Wage = lstWageContract.WAGE_COST;
+                ViewBag.contractid4Wage = lstWageContract.CONTRACT_ID;
+                PLAN_PAYMENT_TERMS payment = service.getPaymentTerm(lstWageContract.CONTRACT_ID);
+                if (payment.PAYMENT_RETENTION_RATIO != null)
+                {
+                    ViewBag.retention = payment.PAYMENT_RETENTION_RATIO;
+                }
+                else
+                {
+                    ViewBag.retention = payment.USANCE_RETENTION_RATIO;
+                }
+            }
+            ViewBag.date = DateTime.Now;
+            List<PLAN_ITEM> lstContractItem = null;
+            lstContractItem = service.getContractItemById(id.Substring(1).Trim());
+            //contract.planItems = lstContractItem;
+            ViewBag.SearchResult = "共取得" + lstContractItem.Count + "筆資料";
+            //轉成Json字串
+            ViewData["items"] = JsonConvert.SerializeObject(lstContractItem);
+            return View("ContractItems", contract);
+        }
+        //取得合約付款條件
+        public string getPaymentTerms(string contractid)
+        {
+            PurchaseFormService service = new PurchaseFormService();
+            logger.Info("access the terms of payment by:" + Request["contractid"]);
+            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            string itemJson = objSerializer.Serialize(service.getPaymentTerm(contractid));
+            logger.Info("plan payment terms info=" + itemJson);
+            return itemJson;
         }
     }
     }

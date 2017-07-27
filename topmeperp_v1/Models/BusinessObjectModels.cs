@@ -220,6 +220,7 @@ namespace topmeperp.Models
         public string MAN_FORM_NAME { get; set; }
         public string MAN_SUPPLIER_ID { get; set; }
         public string CONTRACT_NAME { get; set; }
+        public string TYPE { get; set; }
     }
     public class ContractModels
     {
@@ -227,6 +228,7 @@ namespace topmeperp.Models
         public IEnumerable<plansummary> wagecontractItems { get; set; }
         public IEnumerable<PLAN_PAYMENT_TERMS> paymentTerms { get; set; }
         public PLAN_PAYMENT_TERMS planpayment { get; set; }
+        public IEnumerable<PLAN_ITEM> planItems { get; set; }
 
     }
     public class CostForBudget

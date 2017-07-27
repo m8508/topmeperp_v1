@@ -831,13 +831,14 @@
     <Content Include="Views\MaterialManage\_InventoryList.cshtml" />
     <Content Include="Views\MaterialManage\DeliveryList.cshtml" />
     <Content Include="Views\Estimation\Index.cshtml" />
-    <Content Include="Views\Estimation\Valuation.cshtml" />
-    <Content Include="Views\Estimation\_ContractItems.cshtml" />
+    <Content Include="Views\Estimation\ContractItems.cshtml" />
     <Content Include="Views\Estimation\_ProjectList.cshtml" />
     <Content Include="Views\Estimation\_SupplierContractList.cshtml" />
     <Content Include="Views\ProjectPlan\dailyReport.cshtml" />
     <Content Include="Views\ProjectPlan\dailyReportItem.cshtml" />
     <Content Include="Views\Inquiry\mailForm.cshtml" />
+    <Content Include="Views\Estimation\Valuation.cshtml" />
+    <Content Include="Views\Estimation\_PaymentTerms.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
