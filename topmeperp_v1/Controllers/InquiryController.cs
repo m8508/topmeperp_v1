@@ -192,11 +192,20 @@ namespace topmeperp.Controllers
 
             string[] lstItemId = form.Get("formitemid").Split(',');
             string[] lstPrice = form.Get("formunitprice").Split(',');
+            string[] lstRemark = form.Get("remark").Split(',');
             List<TND_PROJECT_FORM_ITEM> lstItem = new List<TND_PROJECT_FORM_ITEM>();
             for (int j = 0; j < lstItemId.Count(); j++)
             {
                 TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
                 item.FORM_ITEM_ID = int.Parse(lstItemId[j]);
+                if (lstRemark[j].ToString() == "")
+                {
+                    item.ITEM_REMARK = null;
+                }
+                else
+                {
+                    item.ITEM_REMARK = lstRemark[j];
+                }
                 if (lstPrice[j].ToString() == "")
                 {
                     item.ITEM_UNIT_PRICE = null;
@@ -205,7 +214,7 @@ namespace topmeperp.Controllers
                 {
                     item.ITEM_UNIT_PRICE = decimal.Parse(lstPrice[j]);
                 }
-                log.Debug("Item No=" + item.FORM_ITEM_ID + "=" + item.ITEM_UNIT_PRICE);
+                log.Debug("Item No=" + item.FORM_ITEM_ID + "Remark =" + item.ITEM_REMARK + "Price =" + item.ITEM_UNIT_PRICE);
                 lstItem.Add(item);
             }
             int i = service.refreshSupplierForm(formid, fm, lstItem);
@@ -230,6 +239,8 @@ namespace topmeperp.Controllers
             if (null != id && id != "")
             {
                 ViewBag.projectid = id;
+                TND_PROJECT p = service.getProjectById(id);
+                ViewBag.projectName = p.PROJECT_NAME;
                 formData.tndTemplateProjectForm = service.getFormTemplateByProject(id);
                 formData.tndProjectFormFromSupplier = service.getFormByProject(id, Request["status"]);
             }

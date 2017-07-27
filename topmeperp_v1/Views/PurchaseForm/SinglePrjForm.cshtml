@@ -193,15 +193,15 @@
                         <td>
                             @if (@item.ITEM_UNIT_PRICE != null)
                             {
-                                <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="@item.ITEM_UNIT_PRICE" style="width:180px">
+                                <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="@item.ITEM_UNIT_PRICE" style="width:100px">
                             }
                             else
                             {
-                                <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="" style="width:180px">
+                                <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="" style="width:100px">
                             }
                         </td>
                         <td></td>
-                        <td>@item.ITEM_REMARK</td>
+                        <td>@Html.TextBox("remark", @item.ITEM_REMARK, new { style = "width:500px", @class = "form-control" })</td>
                     </tr>
                 }
             </table>
@@ -220,11 +220,11 @@
     <div class="col-md-12">
         @if (Model.planForm.DUEDATE != null)
         {
-            <input type="button" value="儲存" class="btn btn-default" id="updateForm" />
+            <input type="button" value="更新" class="btn btn-default" id="updateForm" />
         }
         else
         {
-            <input type="button" value="儲存" class="btn btn-default" id="saveForm" />
+            <input type="button" value="新增" class="btn btn-default" id="saveForm" />
         }
         @if (Model.planForm.STATUS != "有效")
         {

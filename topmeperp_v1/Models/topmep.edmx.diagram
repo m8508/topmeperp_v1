@@ -34,8 +34,6 @@
         <EntityTypeShape EntityType="topmepModel.TND_SUP_CONTACT_INFO" Width="2.625" PointX="13.5" PointY="12.625" />
         <EntityTypeShape EntityType="topmepModel.PLAN_TASK2MAPITEM" Width="3.5" PointX="14" PointY="0.625" />
         <EntityTypeShape EntityType="topmepModel.TND_SUP_MATERIAL_RELATION" Width="1.5" PointX="13.375" PointY="16.75" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_SUP_INQUIRY" Width="1.5" PointX="13.375" PointY="19.75" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_SUP_INQUIRY_ITEM" Width="1.5" PointX="15.375" PointY="19.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_PURCHASE_REQUISITION_ITEM" Width="1.5" PointX="17.375" PointY="19.75" />
         <EntityTypeShape EntityType="topmepModel.SYS_FUNCTION" Width="1.5" PointX="0.75" PointY="1" />
         <AssociationConnector Association="topmepModel.FK_SYS_PRIVILEGE_SYS_FUNCTION" />
@@ -47,6 +45,10 @@
         <EntityTypeShape EntityType="topmepModel.PLAN_DR_TASK" Width="1.5" PointX="21.375" PointY="12.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_DR_WORKER" Width="1.5" PointX="21.375" PointY="15.75" />
         <EntityTypeShape EntityType="topmepModel.SYS_PARA" Width="1.5" PointX="21.375" PointY="19.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_FORM" Width="1.5" PointX="13.375" PointY="19.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_ITEM" Width="1.5" PointX="22.375" PointY="3.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_SUP_INQUIRY" Width="1.5" PointX="22.375" PointY="6.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_SUP_INQUIRY_ITEM" Width="1.5" PointX="21.375" PointY="22.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

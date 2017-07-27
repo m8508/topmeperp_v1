@@ -724,6 +724,7 @@ namespace topmeperp.Service
                         }
                         logger.Debug("find exist item=" + existItem.ITEM_DESC);
                         existItem.ITEM_UNIT_PRICE = item.ITEM_UNIT_PRICE;
+                        existItem.ITEM_REMARK = item.ITEM_REMARK;
                         context.TND_PROJECT_FORM_ITEM.AddOrUpdate(existItem);
                     }
                     j = context.SaveChanges();

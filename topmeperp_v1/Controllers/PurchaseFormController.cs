@@ -111,6 +111,8 @@ namespace topmeperp.Controllers
             if (null != id && id != "")
             {
                 ViewBag.projectid = id;
+                TND_PROJECT p = service.getProjectById(id);
+                ViewBag.projectName = p.PROJECT_NAME;
                 formData.planTemplateForm = service.getFormTemplateByProject(id);
                 formData.planFormFromSupplier = service.getFormByProject(id, Request["status"]);
             }
@@ -281,11 +283,20 @@ namespace topmeperp.Controllers
 
             string[] lstItemId = form.Get("formitemid").Split(',');
             string[] lstPrice = form.Get("formunitprice").Split(',');
+            string[] lstRemark = form.Get("remark").Split(',');
             List<PLAN_SUP_INQUIRY_ITEM> lstItem = new List<PLAN_SUP_INQUIRY_ITEM>();
             for (int j = 0; j < lstItemId.Count(); j++)
             {
                 PLAN_SUP_INQUIRY_ITEM item = new PLAN_SUP_INQUIRY_ITEM();
                 item.INQUIRY_ITEM_ID = int.Parse(lstItemId[j]);
+                if (lstRemark[j].ToString() == "")
+                {
+                    item.ITEM_REMARK = null;
+                }
+                else
+                {
+                    item.ITEM_REMARK = lstRemark[j];
+                }
                 if (lstPrice[j].ToString() == "")
                 {
                     item.ITEM_UNIT_PRICE = null;

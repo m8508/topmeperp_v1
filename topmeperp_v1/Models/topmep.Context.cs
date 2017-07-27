@@ -52,8 +52,6 @@ namespace topmeperp.Models
         public virtual DbSet<TND_SUP_CONTACT_INFO> TND_SUP_CONTACT_INFO { get; set; }
         public virtual DbSet<PLAN_TASK2MAPITEM> PLAN_TASK2MAPITEM { get; set; }
         public virtual DbSet<TND_SUP_MATERIAL_RELATION> TND_SUP_MATERIAL_RELATION { get; set; }
-        public virtual DbSet<PLAN_SUP_INQUIRY> PLAN_SUP_INQUIRY { get; set; }
-        public virtual DbSet<PLAN_SUP_INQUIRY_ITEM> PLAN_SUP_INQUIRY_ITEM { get; set; }
         public virtual DbSet<PLAN_PURCHASE_REQUISITION_ITEM> PLAN_PURCHASE_REQUISITION_ITEM { get; set; }
         public virtual DbSet<SYS_FUNCTION> SYS_FUNCTION { get; set; }
         public virtual DbSet<PLAN_PURCHASE_REQUISITION> PLAN_PURCHASE_REQUISITION { get; set; }
@@ -64,5 +62,9 @@ namespace topmeperp.Models
         public virtual DbSet<PLAN_DR_TASK> PLAN_DR_TASK { get; set; }
         public virtual DbSet<PLAN_DR_WORKER> PLAN_DR_WORKER { get; set; }
         public virtual DbSet<SYS_PARA> SYS_PARA { get; set; }
+        public virtual DbSet<PLAN_ESTIMATION_FORM> PLAN_ESTIMATION_FORM { get; set; }
+        public virtual DbSet<PLAN_ESTIMATION_ITEM> PLAN_ESTIMATION_ITEM { get; set; }
+        public virtual DbSet<PLAN_SUP_INQUIRY> PLAN_SUP_INQUIRY { get; set; }
+        public virtual DbSet<PLAN_SUP_INQUIRY_ITEM> PLAN_SUP_INQUIRY_ITEM { get; set; }
     }
 }

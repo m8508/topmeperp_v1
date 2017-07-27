@@ -423,6 +423,12 @@
     <Compile Include="Models\PLAN_DR_WORKER.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\PLAN_ESTIMATION_FORM.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PLAN_ESTIMATION_ITEM.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\PLAN_ITEM.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
@@ -842,13 +848,14 @@
     <Content Include="Views\MaterialManage\DeliveryList.cshtml" />
     <Content Include="Views\Estimation\Index.cshtml" />
     <Content Include="Views\Estimation\Valuation.cshtml" />
-    <Content Include="Views\Estimation\_ContractItems.cshtml" />
     <Content Include="Views\Estimation\_ProjectList.cshtml" />
     <Content Include="Views\Estimation\_SupplierContractList.cshtml" />
     <Content Include="Views\ProjectPlan\dailyReport.cshtml" />
     <Content Include="Views\ProjectPlan\dailyReportItem.cshtml" />
     <Content Include="Views\Inquiry\mailForm.cshtml" />
     <Content Include="UploadFile\budget_form.xlsx" />
+    <Content Include="Views\Estimation\_PaymentTerms.cshtml" />
+    <Content Include="Views\Estimation\ContractItems.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

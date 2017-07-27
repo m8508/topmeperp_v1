@@ -194,16 +194,16 @@
                         <td>
                             @if (@item.ITEM_UNIT_PRICE != null)
                             {
-                                <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="@item.ITEM_UNIT_PRICE" style="width:180px">
+                                <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="@item.ITEM_UNIT_PRICE" style="width:100px">
                             }
                             else
                             {
-                                <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="" style="width:180px">
+                                <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="" style="width:100px">
                             }
                         </td>
 
                         <td></td>
-                        <td>@item.ITEM_REMARK</td>
+                        <td>@Html.TextBox("remark", @item.ITEM_REMARK, new { style = "width:500px", @class="form-control"})</td>
                     </tr>
                 }
             </table>
