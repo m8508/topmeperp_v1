@@ -82,15 +82,18 @@
                     alert('請選擇要上傳的檔案.');
                     return false;
                 }
+                $("#divProcessing").show();
                 return true;
             },
             success: function (result) {
                 $('#UploadForm').resetForm();
                 alert(result);
+                $("#divProcessing").hide();
             },
             error: function (xhr, textStatus, errorThrown) {
                 $('#UploadForm').resetForm();
                 alert('檔案上傳錯誤.');
+                $("#divProcessing").hide();
             }
         });
     });

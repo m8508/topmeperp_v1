@@ -54,7 +54,8 @@
                 <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PurchaseRequisition","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">申購單查詢</button><br />
                 <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PurchaseOrderIndex","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">驗收作業</button>
                 <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("InventoryIndex","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">庫存查詢/領料</button> <br />
-                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("dailyReport","ProjectPlan", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">填寫日報</button> 
+                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("dailyReport","ProjectPlan", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">填寫日報</button>
+                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("dailyReportList","ProjectPlan", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">施工日報</button> 
              </td>
         </tr>
     }

@@ -246,6 +246,7 @@ namespace topmeperp.Controllers
                 log.Debug("isWage:" + Request["isWage"]);
                 iswage = "Y";
             }
+            int i = 0;
             //上傳至廠商報價單目錄
             if (null != file && file.ContentLength != 0)
             {
@@ -262,7 +263,6 @@ namespace topmeperp.Controllers
                 {
                     log.Error(ex.StackTrace);
                 }
-                int i = 0;
                 //如果詢價單編號為空白，新增詢價單資料，否則更新相關詢價單資料-new
                 log.Debug("Parser Excel File Finish!");
                 if (null != quoteFormService.form.FORM_ID && quoteFormService.form.FORM_ID != "")
@@ -277,7 +277,14 @@ namespace topmeperp.Controllers
                 }
                 log.Info("add supplier form record count=" + i);
             }
-            return "檔案匯入成功!!";
+            if (i == -1)
+            {
+                return "檔案匯入失敗!!";
+            }
+            else
+            {
+                return "檔案匯入成功!!";
+            }
         }
         //比價功能資料頁
         public ActionResult ComparisonMain(string id)
@@ -605,11 +612,11 @@ namespace topmeperp.Controllers
             log.Debug("test email sender!");
             EMailService es = new EMailService();
             //設定附件檔案
-            string projectid= Request["textProjectId"];
+            string projectid = Request["textProjectId"];
             string poid = Request["textPOID"];
             string realFilePath = ContextService.strUploadPath + "\\" + projectid + "\\" + ContextService.quotesFolder + "\\" + poid + ".xlsx";
             log.Debug("Attachment file path=" + realFilePath);
-            if (es.SendMailByGmail(strSenderAddress, strReceiveAddress, null,strSubject, strContent, realFilePath))
+            if (es.SendMailByGmail(strSenderAddress, strReceiveAddress, null, strSubject, strContent, realFilePath))
             {
                 return "發送成功!!";
             }

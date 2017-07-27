@@ -278,8 +278,7 @@ namespace topmeperp.Controllers
             DailyReport dailyRpt = planService.newDailyReport(Request["projectid"], int.Parse(Request["prjuid"]));
             return View(dailyRpt);
         }
-
-        //儲存料件施作數量紀錄
+        //儲存日報數量紀錄
         public string saveItemRow(FormCollection f)
         {
             SYS_USER u = (SYS_USER)Session["user"];
@@ -376,6 +375,16 @@ namespace topmeperp.Controllers
             log.Debug("count Note=" + f["planNote"]);
             string msg = planService.createDailyReport(newDailyRpt);
             return msg;
+        }
+        public ActionResult dailyReportList(string id)
+        {
+            if (null == id || "" == id)
+            {
+                id = Request["projectid"];
+            }
+            ViewBag.projectName = planService.getProject(id).PROJECT_NAME;
+            ViewBag.projectId = id;
+            return View();
         }
     }
 }

@@ -1697,14 +1697,23 @@ namespace topmeperp.Service
             {
                 context.TND_PROJECT_FORM.Add(form);
 
-                logger.Info("project form id = " + form.FORM_ID);
+                logger.Info("project form id = " + form.FORM_ID +",project form item conunt="+ items.Count);
                 //if (i > 0) { status = true; };
                 foreach (TND_PROJECT_FORM_ITEM item in items)
                 {
                     item.FORM_ID = form.FORM_ID;
                     context.TND_PROJECT_FORM_ITEM.Add(item);
+                    logger.Debug("TND_PROJECT_FORM_ITEM:" + item.FORM_ID + ",project_item_id=" + item.PROJECT_ITEM_ID);
                 }
-                i = context.SaveChanges();
+                try
+                {
+                    i = context.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.StackTrace);
+                    return -1;
+                }
             }
             return i;
         }

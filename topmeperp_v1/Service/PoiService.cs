@@ -2113,7 +2113,9 @@ namespace topmeperp.Service
                         item.ITEM_REMARK = row.Cells[6].ToString();
                         logger.Info("Project ITEM ID=" + row.Cells[row.Cells.Count - 1].ToString());
                         item.PROJECT_ITEM_ID = row.Cells[row.Cells.Count - 1].ToString();
-                        formItems.Add(item);
+                        if (null!=item.PROJECT_ITEM_ID && "" != item.PROJECT_ITEM_ID) {
+                            formItems.Add(item);
+                        }
                     }
                     catch (Exception ex)
                     {
