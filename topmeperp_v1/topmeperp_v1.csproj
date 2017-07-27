@@ -549,13 +549,6 @@
     <Compile Include="Service\PoiSrevice4po.cs" />
     <Compile Include="Service\ReportContextService.cs" />
     <Compile Include="Startup.cs" />
-    <Compile Include="Controllers\aspx\ComparisionForm.aspx.cs">
-      <DependentUpon>ComparisionForm.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Controllers\aspx\ComparisionForm.aspx.designer.cs">
-      <DependentUpon>ComparisionForm.aspx</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\ajax-loader.gif" />
@@ -714,7 +707,6 @@
     <Content Include="Scripts\respond.matchmedia.addListener.min.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\_references.js" />
-    <Content Include="Controllers\aspx\ComparisionForm.aspx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -856,6 +848,7 @@
     <Content Include="Views\ProjectPlan\dailyReport.cshtml" />
     <Content Include="Views\ProjectPlan\dailyReportItem.cshtml" />
     <Content Include="Views\Inquiry\mailForm.cshtml" />
+    <Content Include="UploadFile\budget_form.xlsx" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
