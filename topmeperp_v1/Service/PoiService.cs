@@ -1947,6 +1947,11 @@ namespace topmeperp.Service
                 {
                     row.Cells[3].SetCellValue(double.Parse(item.ITEM_QTY.ToString())); //數量
                 }
+
+                if (null != item.ITEM_UNIT_PRICE && item.ITEM_UNIT_PRICE.ToString().Trim() != "")
+                {
+                    row.Cells[4].SetCellValue(double.Parse(item.ITEM_UNIT_PRICE.ToString())); //單價
+                }
                 // row.Cells[4].SetCellValue(idxRow - 8);//單價
                 // row.Cells[5].SetCellValue(idxRow - 8);複價
                 row.Cells[6].SetCellValue(item.ITEM_REMARK);// 備註
@@ -1971,7 +1976,7 @@ namespace topmeperp.Service
             }
             else
             {
-                fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID;
+                fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID+".xlsx";
             }
             var file = new FileStream(fileLocation, FileMode.Create);
             logger.Info("new file name =" + file.Name + ",path=" + file.Position);

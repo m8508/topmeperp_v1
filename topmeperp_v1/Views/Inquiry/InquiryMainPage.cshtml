@@ -35,19 +35,18 @@
 
 <div class="container">
     <ul class="nav nav-tabs">
-        <li class="active"><a data-toggle="tab" href="#inquiryTemplate">空白詢價單</a></li>
-        <li><a data-toggle="tab" href="#inquiry">廠商報價單</a></li>
+        <li class="active"><a data-toggle="tab" href="#inquiry">廠商報價單</a></li>
+        <li><a data-toggle="tab" href="#inquiryTemplate">空白詢價單</a></li>
     </ul>
-
     <div class="tab-content">
-        <div id="inquiryTemplate" class="tab-pane fade in active">
-            @{
-                Html.RenderPartial("_InquiryMainPage");
-            }
-        </div>
-        <div id="inquiry" class="tab-pane fade">
+        <div id="inquiry" class="tab-pane fade in active">
             @{
                 Html.RenderPartial("_InquirySupplierPage");
+            }
+        </div>
+        <div id="inquiryTemplate" class="tab-pane fade">
+            @{
+                Html.RenderPartial("_InquiryMainPage");
             }
         </div>
     </div>
@@ -68,7 +67,7 @@
         $("#divProcessing").show();
         $.ajax({
             url: URLs,
-            data: {"projectid": projectid },
+            data: { "projectid": projectid },
             type: "POST",
             dataType: 'text',
             success: function (msg) {
@@ -81,5 +80,4 @@
             }
         });
     }
-
 </script>

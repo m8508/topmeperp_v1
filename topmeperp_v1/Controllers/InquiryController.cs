@@ -61,7 +61,7 @@ namespace topmeperp.Controllers
             qf.CREATE_DATE = DateTime.Now;
             qf.OWNER_NAME = uInfo.USER_NAME;
             qf.OWNER_EMAIL = uInfo.EMAIL;
-            qf.OWNER_TEL = uInfo.TEL;
+            qf.OWNER_TEL = uInfo.TEL+ "-" +uInfo.TEL_EXT;
             qf.OWNER_FAX = uInfo.FAX;
             TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
             string fid = s.newForm(qf, lstItemId);
@@ -567,7 +567,7 @@ namespace topmeperp.Controllers
                 Response.Clear();
                 Response.Charset = "utf-8";
                 Response.ContentType = "text/xls";
-                Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", filename + ".xlsx"));
+                Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", filename));
                 ///"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx"
                 Response.WriteFile(fileLocation);
                 Response.End();

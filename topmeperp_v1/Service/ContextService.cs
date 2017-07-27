@@ -451,13 +451,13 @@ namespace topmeperp.Service
                     {
                         f.FORM_NAME = f.FORM_NAME + "-" + idx.TYPE_CODE_2_NAME;
                     }
-                    f.FORM_NAME = f.FORM_NAME + "(" + idx.TYPE_CODE_1 + "," + idx.TYPE_CODE_2 + ")";
+                    f.FORM_NAME = "(" + idx.TYPE_CODE_1 + "," + idx.TYPE_CODE_2 + ")"+f.FORM_NAME;
                     f.PROJECT_ID = projectid;
                     f.CREATE_ID = loginUser.USER_ID;
                     f.CREATE_DATE = DateTime.Now;
                     f.OWNER_NAME = loginUser.USER_NAME;
                     f.OWNER_EMAIL = loginUser.EMAIL;
-                    f.OWNER_TEL = loginUser.TEL;
+                    f.OWNER_TEL = loginUser.TEL+"-"+loginUser.TEL_EXT;
                     f.OWNER_FAX = loginUser.FAX;
                     //4.建立表單
                     string fid = newForm(f, itemId);
