@@ -682,7 +682,7 @@ namespace topmeperp.Controllers
             {
                 logger.Error(item.PROJECT_ITEM_ID + " not unit price:" + ex.Message);
             }
-
+            item.ITEM_REMARK = form["item_remark"];
             item.TYPE_CODE_1 = form["type_code_1"];
             item.TYPE_CODE_2 = form["type_code_2"];
 
