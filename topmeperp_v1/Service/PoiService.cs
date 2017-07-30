@@ -2237,8 +2237,8 @@ namespace topmeperp.Service
                 ICell cel7 = row.CreateCell(7);
                 if (null != item.ITEM_QUANTITY && null != item.ITEM_UNIT_PRICE)
                 {
-                    logger.Debug("Fomulor=" + "E" + idxRow + "*F" + idxRow);
-                    cel7.CellFormula = "E" + idxRow + "*F" + idxRow;
+                    logger.Debug("Fomulor=" + "F" + (idxRow+1) + "*G" + (idxRow+1));
+                    cel7.CellFormula = "F" + (idxRow + 1) + "*G" + (idxRow + 1);
                 }
                 row.CreateCell(8).SetCellValue(item.ITEM_REMARK);// 備註
                 row.CreateCell(9).SetCellValue(item.TYPE_CODE_1);// 九宮格
@@ -2340,7 +2340,8 @@ namespace topmeperp.Service
                 //標單工資from 工率
                 if (null != item.MAN_DAY && item.MAN_DAY.ToString().Trim() != "")
                 {
-                    row.CreateCell(6).SetCellValue(double.Parse(item.MAN_DAY.ToString()));
+                    double manday = double.Parse(item.MAN_DAY.ToString());
+                    row.CreateCell(6).SetCellFormula(manday + "*期初成本!N3");
                 }
                 //複價//報價複價(填入公式)
                 row.CreateCell(7).CellFormula = "F" + (idxRow + 1) + "+G" + (idxRow + 1);
@@ -2379,7 +2380,7 @@ namespace topmeperp.Service
             summaryRow.Cells[3].SetCellFormula("SUM(D2:D" + (idxRow) + ")");
 
             summaryRow.Cells[5].SetCellFormula("SUM(F2:F" + (idxRow) + ")");
-            summaryRow.Cells[6].SetCellFormula("SUM(G2:G" + (idxRow) + ")*期初成本!N3");
+            summaryRow.Cells[6].SetCellFormula("SUM(G2:G" + (idxRow) + ")");
             summaryRow.Cells[7].SetCellFormula("SUM(H2:H" + (idxRow) + ")");
             summaryRow.Cells[9].SetCellFormula("SUM(J2:J" + (idxRow) + ")");
             summaryRow.Cells[11].SetCellFormula("SUM(L2:L" + (idxRow) + ")");
@@ -2422,7 +2423,8 @@ namespace topmeperp.Service
                 //圖算工資
                 if (null != item.MAN_DAY_INMAP && item.MAN_DAY_INMAP.ToString().Trim() != "")
                 {
-                    row.CreateCell(6).SetCellValue(double.Parse(item.MAN_DAY_INMAP.ToString()));
+                    double manday = double.Parse(item.MAN_DAY_INMAP.ToString());
+                    row.CreateCell(6).SetCellFormula(manday + "*期初成本!N3");
                 }
                 //複價//報價複價(填入公式)
                 row.CreateCell(7).CellFormula = "F" + (idxRow + 1) + "+G" + (idxRow + 1);
@@ -2456,7 +2458,7 @@ namespace topmeperp.Service
 
             summaryRow.Cells[5].SetCellFormula("SUM(F2:F" + (idxRow) + ")");
             //加入工資單價
-            summaryRow.Cells[6].SetCellFormula("SUM(G2:G" + (idxRow) + ")*期初成本!N3");
+            summaryRow.Cells[6].SetCellFormula("SUM(G2:G" + (idxRow) + ")");
             summaryRow.Cells[7].SetCellFormula("SUM(H2:H" + (idxRow) + ")");
             summaryRow.Cells[8].SetCellFormula("SUM(I2:I" + (idxRow) + ")");
             logger.Debug("set cell style rowid=" + idxRow);
@@ -2493,12 +2495,14 @@ namespace topmeperp.Service
                 //標單工資//
                 if (null != item.MAN_DAY && item.MAN_DAY.ToString().Trim() != "")
                 {
-                    row.CreateCell(4).SetCellValue(double.Parse(item.MAN_DAY.ToString()));
+                    double manday = double.Parse(item.MAN_DAY.ToString());
+                    row.CreateCell(4).SetCellFormula(manday + "*期初成本!N3");
                 }
                 //圖算工資
                 if (null != item.MAN_DAY_INMAP && item.MAN_DAY_INMAP.ToString().Trim() != "")
                 {
-                    row.CreateCell(5).SetCellValue(double.Parse(item.MAN_DAY_INMAP.ToString()));
+                    double manday = double.Parse(item.MAN_DAY_INMAP.ToString());
+                    row.CreateCell(5).SetCellFormula(manday + "*期初成本!N3");
                 }
                 //標單成本               row.CreateCell(5).CellFormula = "D" + (idxRow + 1) + "*E" + (idxRow + 1);
                 row.CreateCell(6).CellFormula = "C" + (idxRow + 1) + "+E" + (idxRow + 1);
@@ -2531,8 +2535,8 @@ namespace topmeperp.Service
             summaryRow.Cells[1].SetCellValue("直接工程費(小計)");
             summaryRow.Cells[2].SetCellFormula("SUM(C2:C" + (idxRow) + ")");
             summaryRow.Cells[3].SetCellFormula("SUM(D2:D" + (idxRow) + ")");
-            summaryRow.Cells[4].SetCellFormula("SUM(E2:E" + (idxRow) + ")*期初成本!N3");
-            summaryRow.Cells[5].SetCellFormula("SUM(F2:F" + (idxRow) + ")*期初成本!N3");
+            summaryRow.Cells[4].SetCellFormula("SUM(E2:E" + (idxRow) + ")");
+            summaryRow.Cells[5].SetCellFormula("SUM(F2:F" + (idxRow) + ")");
             summaryRow.Cells[6].SetCellFormula("SUM(G2:G" + (idxRow) + ")");
             summaryRow.Cells[7].SetCellFormula("SUM(H2:H" + (idxRow) + ")");
             summaryRow.Cells[8].SetCellFormula("SUM(I2:I" + (idxRow) + ")");
