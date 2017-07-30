@@ -2249,7 +2249,7 @@ namespace topmeperp.Service
                 {
                     row.CreateCell(13).SetCellValue(double.Parse(item.RATIO.ToString()));// 工率
                     ICell cel14 = row.CreateCell(14);
-                    cel14.CellFormula = "F" + (idxRow + 1)+ "*N" + (idxRow + 1) + "*N3";
+                    cel14.CellFormula = "E" + (idxRow + 1)+ "*N" + (idxRow + 1) + "*N3";
                 }
                 else
                 {
@@ -2379,7 +2379,7 @@ namespace topmeperp.Service
             summaryRow.Cells[3].SetCellFormula("SUM(D2:D" + (idxRow) + ")");
 
             summaryRow.Cells[5].SetCellFormula("SUM(F2:F" + (idxRow) + ")");
-            summaryRow.Cells[6].SetCellFormula("SUM(G2:G" + (idxRow) + ")");
+            summaryRow.Cells[6].SetCellFormula("SUM(G2:G" + (idxRow) + ")*期初成本!N3");
             summaryRow.Cells[7].SetCellFormula("SUM(H2:H" + (idxRow) + ")");
             summaryRow.Cells[9].SetCellFormula("SUM(J2:J" + (idxRow) + ")");
             summaryRow.Cells[11].SetCellFormula("SUM(L2:L" + (idxRow) + ")");
@@ -2439,7 +2439,6 @@ namespace topmeperp.Service
                 idxRow++;
             }
             //錯誤控制
-            //錯誤控制
             if (direcCostItems.Count == 0)
             {
                 errorMsg = errorMsg + "成本資料不完整,無法產生圖算成本資料!!</br>";
@@ -2456,7 +2455,8 @@ namespace topmeperp.Service
             summaryRow.Cells[3].SetCellFormula("SUM(D2:D" + (idxRow) + ")");
 
             summaryRow.Cells[5].SetCellFormula("SUM(F2:F" + (idxRow) + ")");
-            summaryRow.Cells[6].SetCellFormula("SUM(G2:G" + (idxRow) + ")");
+            //加入工資單價
+            summaryRow.Cells[6].SetCellFormula("SUM(G2:G" + (idxRow) + ")*期初成本!N3");
             summaryRow.Cells[7].SetCellFormula("SUM(H2:H" + (idxRow) + ")");
             summaryRow.Cells[8].SetCellFormula("SUM(I2:I" + (idxRow) + ")");
             logger.Debug("set cell style rowid=" + idxRow);
@@ -2531,8 +2531,8 @@ namespace topmeperp.Service
             summaryRow.Cells[1].SetCellValue("直接工程費(小計)");
             summaryRow.Cells[2].SetCellFormula("SUM(C2:C" + (idxRow) + ")");
             summaryRow.Cells[3].SetCellFormula("SUM(D2:D" + (idxRow) + ")");
-            summaryRow.Cells[4].SetCellFormula("SUM(E2:E" + (idxRow) + ")");
-            summaryRow.Cells[5].SetCellFormula("SUM(F2:F" + (idxRow) + ")");
+            summaryRow.Cells[4].SetCellFormula("SUM(E2:E" + (idxRow) + ")*期初成本!N3");
+            summaryRow.Cells[5].SetCellFormula("SUM(F2:F" + (idxRow) + ")*期初成本!N3");
             summaryRow.Cells[6].SetCellFormula("SUM(G2:G" + (idxRow) + ")");
             summaryRow.Cells[7].SetCellFormula("SUM(H2:H" + (idxRow) + ")");
             summaryRow.Cells[8].SetCellFormula("SUM(I2:I" + (idxRow) + ")");
