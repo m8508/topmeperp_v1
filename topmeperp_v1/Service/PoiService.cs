@@ -2249,7 +2249,7 @@ namespace topmeperp.Service
                 {
                     row.CreateCell(13).SetCellValue(double.Parse(item.RATIO.ToString()));// 工率
                     ICell cel14 = row.CreateCell(14);
-                    cel14.CellFormula = "N" + (idxRow + 1) + "*N3";
+                    cel14.CellFormula = "F" + (idxRow + 1)+ "*N" + (idxRow + 1) + "*N3";
                 }
                 else
                 {
