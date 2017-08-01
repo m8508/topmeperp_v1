@@ -318,4 +318,29 @@ namespace topmeperp.Models
         public Nullable<decimal> QTY { get; set; }
         public Nullable<decimal> ACCUMULATE_QTY { get; set; }
     }
+
+    public class ESTFunction
+    {
+        public Int64 NO { get; set; }
+        public string SUPPLIER_NAME { get; set; }
+        public string CREATE_DATE { get; set; }
+        public string EST_FORM_ID { get; set; }
+        public string CONTRACT_NAME { get; set; }
+        public Int32 STATUS { get; set; }
+    }
+    public class EstimationForm : PLAN_ITEM
+    {
+        public Nullable<decimal> CUMULATIVE_QTY { get; set; }
+        public Nullable<decimal> EST_QTY { get; set; }
+        public string REMARK { get; set; }
+        public Int64 EST_ITEM_ID { get; set; }
+        public Nullable<decimal> EST_RATIO { get; set; }
+        public Int64 NO { get; set; }
+    }
+    public class EstimationFormDetail
+    {
+        public TND_PROJECT prj { get; set; }
+        public PLAN_ESTIMATION_FORM planEST { get; set; }
+        public IEnumerable<EstimationForm> planESTItem { get; set; }
+    }
 }

@@ -856,6 +856,8 @@
     <Content Include="UploadFile\budget_form.xlsx" />
     <Content Include="Views\Estimation\_PaymentTerms.cshtml" />
     <Content Include="Views\Estimation\ContractItems.cshtml" />
+    <Content Include="Views\Estimation\EstimationForm.cshtml" />
+    <Content Include="Views\Estimation\_EstimationFormList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

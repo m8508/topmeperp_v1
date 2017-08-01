@@ -3,8 +3,46 @@
     ViewBag.Title = "專案執行-採購詢價單/報價單 ";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
-<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-<link rel="stylesheet" href="/resources/demos/style.css">
+
+<script src="https://code.angularjs.org/1.0.0/angular-1.0.0.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/flick/jquery-ui.css"></script>
+
+<script>
+
+    function DefaultCtrl($scope, $http) {
+        $scope.names = [];
+        $http({
+            method: 'GET',
+            url: '/PurchaseForm/QuerySupplier'
+        }).then(function (data) {
+            $scope.names = data.data;
+        }, function () {
+            alert('Error');
+        })
+        $scope.names = [];
+    }
+    angular.module('MyModule', []).directive('autoComplete', function ($timeout) {
+        return function (scope, iElement, iAttrs) {
+            iElement.autocomplete({
+                source: scope[iAttrs.uiItems],
+                select: function () {
+                    $timeout(function () {
+                        iElement.trigger('input');
+                    }, 0);
+                }
+            });
+        };
+    });
+
+</script>
+<div ng-app='MyModule'>
+    <div ng-controller='DefaultCtrl'>
+        <input auto-complete ui-items="names" ng-model="selected">
+        selected = {{selected}}
+    </div>
+</div>
+
+
 
 <div class="page-header">
     <form id="formSupplier" name="formSupplier" action="UpdatePrjForm" method="post">
@@ -401,6 +439,7 @@
             }
         });
     })(jQuery);
+
 </script>
 <script type="text/javascript">
     $("#saveForm").click(function () {
@@ -424,6 +463,7 @@
             }
         });
     });
+
 </script>
 <script type="text/javascript">
     $("#updateForm").click(function () {
@@ -457,5 +497,3 @@
         });
     }
 </script>
-
-

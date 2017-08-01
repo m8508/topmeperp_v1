@@ -597,7 +597,7 @@ namespace topmeperp.Service
             //顯示未分類資料
             if (null != checkEx && checkEx != "")
             {
-                sql = sql + "AND p.TYPE_CODE_1 is null or p.TYPE_CODE_1=''; ";
+                sql = sql + "AND p.TYPE_CODE_1 is null or p.TYPE_CODE_1='' ";
             }
             else
             {

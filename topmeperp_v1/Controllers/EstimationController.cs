@@ -9,6 +9,7 @@ using topmeperp.Models;
 using topmeperp.Service;
 using System.IO;
 using Newtonsoft.Json;
+using System.Reflection;
 
 namespace topmeperp.Controllers
 {
@@ -85,7 +86,7 @@ namespace topmeperp.Controllers
             contract.contractItems = lstContract;
             return View("Valuation", contract);
         }
-        
+
         public ActionResult ContractItems(string id)
         {
             logger.Info("Access To Contract Item By Contract Id =" + id);
@@ -94,6 +95,8 @@ namespace topmeperp.Controllers
             ViewBag.projectName = p.PROJECT_NAME;
             ViewBag.wage = id.Substring(0, 1).Trim();
             ContractModels contract = new ContractModels();
+            ViewBag.formid = service.getEstNo();
+            ViewBag.keyid = id;
             //取得合約金額與供應商名稱,採購項目等資料
             if (ViewBag.wage == "")
             {
@@ -138,6 +141,111 @@ namespace topmeperp.Controllers
             ViewData["items"] = JsonConvert.SerializeObject(lstContractItem);
             return View("ContractItems", contract);
         }
+
+        //DOM 申購作業功能紐對應不同Action
+        public class MultiButtonAttribute : ActionNameSelectorAttribute
+        {
+            public string Name { get; set; }
+            public MultiButtonAttribute(string name)
+            {
+                this.Name = name;
+            }
+            public override bool IsValidName(ControllerContext controllerContext,
+                string actionName, System.Reflection.MethodInfo methodInfo)
+            {
+                if (string.IsNullOrEmpty(this.Name))
+                {
+                    return false;
+                }
+                return controllerContext.HttpContext.Request.Form.AllKeys.Contains(this.Name);
+            }
+        }
+        [HttpPost]
+        [MultiButton("SaveEst")]
+        //儲存驗收單(驗收單草稿)
+        public ActionResult SaveEst(PLAN_ESTIMATION_FORM est)
+        {
+            //取得專案編號
+            logger.Info("Project Id:" + Request["id"]);
+            //取得專案名稱
+            logger.Info("Project Name:" + Request["projectName"]);
+            logger.Info("ContractId:" + Request["keyid"]);
+            //取得合約估驗品項ID
+            string[] lstItemId = Request["planitemid"].Split(',');
+            var i = 0;
+            for (i = 0; i < lstItemId.Count(); i++)
+            {
+                logger.Info("item_list return No.:" + lstItemId[i]);
+            }
+            string[] lstQty = Request["evaluated_qty"].Split(',');
+            //建立估驗單
+            logger.Info("create new Estimation Form");
+            UserService us = new UserService();
+            SYS_USER u = (SYS_USER)Session["user"];
+            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            est.PROJECT_ID = Request["id"];
+            est.CREATE_ID = u.USER_ID;
+            est.CREATE_DATE = DateTime.Now;
+            est.EST_FORM_ID = Request["formid"];
+            est.CONTRACT_ID = Request["contractid"];
+            est.PLUS_TAX = Request["tax"];
+            est.TAX_AMOUNT = int.Parse(Request["taxAmount"]);
+            est.STATUS = 0;
+            est.PAYMENT_TRANSFER = int.Parse(Request["totalAmount"]);
+            est.FOREIGN_PAYMENT = int.Parse(Request["foreign_payment"]);
+            est.DEDUCTED_ADVANCE_PAYMENT = int.Parse(Request["advanceAmount"]);
+            est.REMARK = Request["remark"];
+            est.RETENTION_PAYMENT = int.Parse(Request["retentionAmount"]);
+            PLAN_ESTIMATION_FORM item = new PLAN_ESTIMATION_FORM();
+            string estid = service.newEST(Request["formid"], est, lstItemId);
+            List<PLAN_ESTIMATION_ITEM> lstItem = new List<PLAN_ESTIMATION_ITEM>();
+            for (int j = 0; j < lstItemId.Count(); j++)
+            {
+                PLAN_ESTIMATION_ITEM items = new PLAN_ESTIMATION_ITEM();
+                items.PLAN_ITEM_ID = lstItemId[j];
+                if (lstQty[j].ToString() == "")
+                {
+                    items.EST_QTY = null;
+                }
+                else
+                {
+                    items.EST_QTY = decimal.Parse(lstQty[j]);
+                }
+                logger.Debug("Item No=" + items.PLAN_ITEM_ID + ", Qty =" + items.EST_QTY);
+                lstItem.Add(items);
+            }
+            int k = service.refreshEST(estid, est, lstItem);
+            return Redirect("ContractItems?id=" + Request["keyid"]);
+        }
+
+        //估驗單查詢
+        public ActionResult EstimationForm(string id)
+        {
+            logger.Info("Search For Estimation Form !!");
+            ViewBag.projectid = id;
+            TnderProject tndservice = new TnderProject();
+            TND_PROJECT p = tndservice.getProjectById(id);
+            ViewBag.projectName = p.PROJECT_NAME;
+            //估驗單草稿
+            int status = 10;
+            if (Request["status"] == null || Request["status"] == "")
+            {
+                status = 0;
+            }
+            List<ESTFunction> lstEST = service.getESTByEstId(id, Request["contractid"], Request["estid"], status);
+            return View(lstEST);
+        }
+
+        public ActionResult SearchEST()
+        {
+            logger.Info("projectid=" + Request["id"] + ", contractid =" + Request["contractid"] + ", estid =" + Request["estid"] + ", status =" + int.Parse(Request["status"]));
+            List<ESTFunction> lstEST = service.getESTByEstId(Request["id"], Request["contractid"], Request["estid"], int.Parse(Request["status"]));
+            ViewBag.SearchResult = "共取得" + lstEST.Count + "筆資料";
+            ViewBag.projectId = Request["id"];
+            ViewBag.projectName = Request["projectName"];
+            return View("EstimationForm", lstEST);
+        }
+
         //取得合約付款條件
         public string getPaymentTerms(string contractid)
         {
@@ -147,6 +255,19 @@ namespace topmeperp.Controllers
             string itemJson = objSerializer.Serialize(service.getPaymentTerm(contractid));
             logger.Info("plan payment terms info=" + itemJson);
             return itemJson;
+        }
+
+        //顯示單一估驗單功能
+        public ActionResult SingleEST(string id)
+        {
+            logger.Info("http get mehtod:" + id);
+            EstimationFormDetail singleForm = new EstimationFormDetail();
+            service.getPRByPrId(id);
+            singleForm.planEST = service.formEST;
+            singleForm.planESTItem = service.ESTItem;
+            singleForm.prj = service.getProjectById(singleForm.planEST.PROJECT_ID);
+            logger.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
+            return View(singleForm);
         }
     }
     }

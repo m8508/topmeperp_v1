@@ -386,7 +386,7 @@ namespace topmeperp.Service
 
         #region 取得得標標單項目內容
         //取得標單品項資料
-        public List<PLAN_ITEM> getPlanItem(string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub, string formName, string supplier)
+        public List<PLAN_ITEM> getPlanItem(string checkEx, string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub, string formName, string supplier)
         {
 
             logger.Info("search plan item by 九宮格 =" + typeCode1 + "search plan item by 次九宮格 =" + typeCode2 + "search plan item by 主系統 =" + systemMain + "search plan item by 次系統 =" + systemSub + "search plan item by 採購項目 =" + formName + "search plan item by 材料供應商 =" + supplier);
@@ -395,6 +395,7 @@ namespace topmeperp.Service
             string sql = "SELECT * FROM PLAN_ITEM pi ";
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("projectid", projectid));
+            
             //採購項目
             if (null != formName && formName != "")
             {
@@ -433,7 +434,11 @@ namespace topmeperp.Service
                 sql = sql + "AND pi.SUPPLIER_ID =@supplier ";
                 parameters.Add(new SqlParameter("supplier", supplier));
             }
-
+            //顯示未分類資料
+            if (null != checkEx && checkEx != "")
+            {
+                sql = sql + "AND pi.TYPE_CODE_1 is null or pi.TYPE_CODE_1='' ";
+            }
             using (var context = new topmepEntities())
             {
                 logger.Debug("get plan item sql=" + sql);
@@ -2385,6 +2390,10 @@ namespace topmeperp.Service
         #endregion
 
         #region 估驗
+
+        public PLAN_ESTIMATION_FORM formEST = null;
+        public List<EstimationForm> ESTItem = null;
+
         //取得個別廠商合約內容(含工資)
         public List<plansummary> getAllPlanContract(string projectid, string formName, string supplier)
         {
@@ -2479,6 +2488,153 @@ namespace topmeperp.Service
                    , new SqlParameter("contractid", contractid)).First();
             }
             return lst;
+        }
+        string sno_key = "EST";
+        public string getEstNo()
+        {
+            string estNo = null;
+            //取得估驗單編號
+            using (var context = new topmepEntities())
+            {
+                SerialKeyService snoservice = new SerialKeyService();
+                estNo = snoservice.getSerialKey(sno_key);
+            }
+            return estNo;
+        }
+
+        // 寫入估驗內容
+        public string newEST(string formid, PLAN_ESTIMATION_FORM form, string[] lstItemId)
+        {
+            //1.建立估驗單
+            logger.Info("create new estimation form ");
+            using (var context = new topmepEntities())
+            {
+                context.PLAN_ESTIMATION_FORM.Add(form);
+                int i = context.SaveChanges();
+                logger.Debug("Add Purchase Requisition=" + i);
+                //if (i > 0) { status = true; };
+                List<topmeperp.Models.PLAN_ESTIMATION_ITEM> lstItem = new List<PLAN_ESTIMATION_ITEM>();
+                string ItemId = "";
+                for (i = 0; i < lstItemId.Count(); i++)
+                {
+                    if (i < lstItemId.Count() - 1)
+                    {
+                        ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
+                    }
+                    else
+                    {
+                        ItemId = ItemId + "'" + lstItemId[i] + "'";
+                    }
+                }
+
+                string sql = "INSERT INTO PLAN_ESTIMATION_ITEM (EST_FORM_ID, PLAN_ITEM_ID) "
+                + "SELECT '" + formid + "' as EST_FORM_ID, A.PLAN_ITEM_ID as PLAN_ITEM_ID  "
+                + "FROM (SELECT pi.PLAN_ITEM_ID FROM PLAN_ITEM pi WHERE pi.PLAN_ITEM_ID IN (" + ItemId + "))A ";
+                logger.Info("sql =" + sql);
+                var parameters = new List<SqlParameter>();
+                i = context.Database.ExecuteSqlCommand(sql);
+                return formid;
+            }
+        }
+
+        //更新估驗數量
+        public int refreshEST(string formid, PLAN_ESTIMATION_FORM form, List<PLAN_ESTIMATION_ITEM> lstItem)
+        {
+            logger.Info("Update plan estimation form id =" + formid);
+            int i = 0;
+            int j = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.Entry(form).State = EntityState.Modified;
+                    i = context.SaveChanges();
+                    logger.Debug("Update plan estimation form =" + i);
+                    logger.Info("purchase estimation item = " + lstItem.Count);
+                    //2.將item資料寫入 
+                    foreach (PLAN_ESTIMATION_ITEM item in lstItem)
+                    {
+                        PLAN_ESTIMATION_ITEM existItem = null;
+                        var parameters = new List<SqlParameter>();
+                        parameters.Add(new SqlParameter("formid", formid));
+                        parameters.Add(new SqlParameter("itemid", item.PLAN_ITEM_ID));
+                        string sql = "SELECT * FROM PLAN_ESTIMATION_ITEM WHERE EST_FORM_ID=@formid AND PLAN_ITEM_ID=@itemid";
+                        logger.Info(sql + " ;" + formid + ",plan_item_id=" + item.PLAN_ITEM_ID);
+                        PLAN_ESTIMATION_ITEM excelItem = context.PLAN_ESTIMATION_ITEM.SqlQuery(sql, parameters.ToArray()).First();
+                        existItem = context.PLAN_ESTIMATION_ITEM.Find(excelItem.EST_ITEM_ID);
+                        logger.Debug("find exist item=" + existItem.PLAN_ITEM_ID);
+                        existItem.EST_QTY = item.EST_QTY;
+                        context.PLAN_ESTIMATION_ITEM.AddOrUpdate(existItem);
+                    }
+                    j = context.SaveChanges();
+                    logger.Debug("Update plan estimation item =" + j);
+                    return j;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("update new estimation form id fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return i;
+        }
+
+        //取得估驗單資料
+        public List<ESTFunction> getESTByEstId(string projectid, string contractid, string estid, int status)
+        {
+            logger.Info("search estimation form by 估驗單編號 =" + estid + ", 合約名稱 =" + contractid + ", 估驗單狀態 =" + status);
+            List<ESTFunction> lstForm = new List<ESTFunction>();
+            //處理SQL 預先填入專案代號,設定集合處理參數
+            if (10 == status)
+            {
+                string sql = "SELECT CONVERT(char(10), A.CREATE_DATE, 111) AS CREATE_DATE, A.EST_FORM_ID, A.STATUS, A.CONTRACT_NAME, A.SUPPLIER_NAME, ROW_NUMBER() OVER(ORDER BY A.EST_FORM_ID) AS NO " +
+                    "FROM (SELECT ef.CREATE_DATE, ef.EST_FORM_ID, ef.STATUS, STUFF(ef.CONTRACT_ID,6, 6, sup.COMPANY_NAME) AS CONTRACT_NAME, sup.COMPANY_NAME AS SUPPLIER_NAME " +
+                    "FROM PLAN_ESTIMATION_FORM ef INNER JOIN TND_SUPPLIER sup ON SUBSTRING(ef.CONTRACT_ID, 6, 6) = sup.SUPPLIER_ID WHERE ef.PROJECT_ID =@projectid)A ";
+                    
+
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("projectid", projectid));
+                sql = sql + "WHERE A.STATUS > 0 ";
+
+                //估驗單編號條件
+                if (null != estid && estid != "")
+                {
+                    sql = sql + "AND A.EST_FORM_ID =@estid ";
+                    parameters.Add(new SqlParameter("estid", estid));
+                }
+                //合約名稱條件
+                if (null != contractid && contractid != "")
+                {
+                    sql = sql + "AND A.CONTRACT_NAME LIKE @contractid ";
+                    parameters.Add(new SqlParameter("contractid", '%' + contractid + '%'));
+                }
+                using (var context = new topmepEntities())
+                {
+                    logger.Debug("get estimation form sql=" + sql);
+                    lstForm = context.Database.SqlQuery<ESTFunction>(sql, parameters.ToArray()).ToList();
+                }
+                logger.Info("get estimation form count=" + lstForm.Count);
+            }
+            else
+            {
+                string sql = "SELECT CONVERT(char(10), A.CREATE_DATE, 111) AS CREATE_DATE, A.EST_FORM_ID, A.STATUS, A.CONTRACT_NAME, A.SUPPLIER_NAME, ROW_NUMBER() OVER(ORDER BY A.EST_FORM_ID) AS NO " +
+                    "FROM (SELECT ef.CREATE_DATE, ef.EST_FORM_ID, ef.STATUS, STUFF(ef.CONTRACT_ID,6, 6, sup.COMPANY_NAME) AS CONTRACT_NAME, sup.COMPANY_NAME AS SUPPLIER_NAME " +
+                    "FROM PLAN_ESTIMATION_FORM ef INNER JOIN TND_SUPPLIER sup ON SUBSTRING(ef.CONTRACT_ID, 6, 6) = sup.SUPPLIER_ID WHERE ef.PROJECT_ID =@projectid)A ";
+
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("projectid", projectid));
+                sql = sql + "WHERE A.STATUS = 0 ";
+
+                using (var context = new topmepEntities())
+                {
+                    logger.Debug("get estimation form sql=" + sql);
+                    lstForm = context.Database.SqlQuery<ESTFunction>(sql, parameters.ToArray()).ToList();
+                }
+                logger.Info("get estimation form count=" + lstForm.Count);
+            }
+            return lstForm;
         }
 
         #endregion

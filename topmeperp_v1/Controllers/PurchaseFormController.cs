@@ -10,6 +10,7 @@ using topmeperp.Service;
 using System.IO;
 using System.Data;
 using System.Globalization;
+using Newtonsoft.Json;
 
 namespace topmeperp.Controllers
 {
@@ -60,7 +61,7 @@ namespace topmeperp.Controllers
         {
 
             log.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"]);
-            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"]);
+            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["chkEx"], Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"]);
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             ViewBag.projectId = Request["projectid"];
             return View("FormIndex", lstProject);
@@ -146,18 +147,21 @@ namespace topmeperp.Controllers
                 }
             }
             // selectSupplier.Add(empty);
+            List<string> listSupplier = service.getSupplier();
+            ViewData["supplier"] = listSupplier;
+            //ViewData["supplier"] = JsonConvert.SerializeObject(service.getSupplier());
+            log.Debug(ViewData["supplier"]);
             ViewBag.Supplier = selectSupplier;
             return View(singleForm);
         }
 
         //取得連動的聯絡人相關資料
-        public JsonResult QuerySupplier(string term)
+        public ActionResult QuerySupplier()
         {
-            var items = service.getSupplier();
-            var filteredItems = items.Where(
-                item => item.StartsWith(term));
-            return Json(filteredItems.DefaultIfEmpty(), JsonRequestBehavior.AllowGet);
+            var listSupplier = service.getSupplier();
+            return new JsonResult { Data = listSupplier, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
+
 
         public String UpdateFormName(FormCollection form)
         {
@@ -273,7 +277,7 @@ namespace topmeperp.Controllers
             {
                 fm.CREATE_DATE = DateTime.ParseExact(form.Get("createdate"), "yyyy/MM/dd", CultureInfo.InvariantCulture);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 log.Error(ex.StackTrace);
             }
@@ -1133,7 +1137,7 @@ namespace topmeperp.Controllers
         {
 
             log.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"]);
-            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"]);
+            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["chkEx"], Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"]);
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             ViewBag.projectId = Request["projectid"];
             SelectListItem empty = new SelectListItem();
