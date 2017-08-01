@@ -501,7 +501,7 @@ namespace topmeperp.Controllers
             }
             catch (Exception e)
             {
-                log.Error("Ex" + e.Message);
+                log.Error(e.StackTrace);
                 ViewBag.htmlString = e.Message;
             }
             return PartialView();
