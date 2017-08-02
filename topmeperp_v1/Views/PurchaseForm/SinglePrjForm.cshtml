@@ -10,7 +10,7 @@
 <script>
 
     function DefaultCtrl($scope, $http) {
-        $scope.names = [];
+        $scope.names = [ ];
         $http({
             method: 'GET',
             url: '/PurchaseForm/QuerySupplier'
@@ -19,7 +19,6 @@
         }, function () {
             alert('Error');
         })
-        $scope.names = [];
     }
     angular.module('MyModule', []).directive('autoComplete', function ($timeout) {
         return function (scope, iElement, iAttrs) {
@@ -35,12 +34,7 @@
     });
 
 </script>
-<div ng-app='MyModule'>
-    <div ng-controller='DefaultCtrl'>
-        <input auto-complete ui-items="names" ng-model="selected">
-        selected = {{selected}}
-    </div>
-</div>
+
 
 
 
