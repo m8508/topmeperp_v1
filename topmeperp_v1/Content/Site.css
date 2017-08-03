@@ -24,3 +24,64 @@ input {
 textarea {
     max-width: 500px;
 }
+
+/*表头固定*/
+.fixed_headers thead tr {
+    display: block;
+    position: relative;
+}
+.fixed_headers tbody {
+    display: block;
+    overflow: auto;
+    height: 500px;
+}
+/* 每列宽度
+//每列宽度*/
+.fixed_headers td:nth-child(1),
+.fixed_headers th:nth-child(1) {
+    width: 10px; /**功能 */
+}
+.fixed_headers td:nth-child(2),
+.fixed_headers th:nth-child(2) {
+    width: 150px;/**No. */
+}
+.fixed_headers td:nth-child(3),
+.fixed_headers th:nth-child(3) {
+    width: 20px;/**項次 . */
+}
+.fixed_headers td:nth-child(4),
+.fixed_headers th:nth-child(4) {
+    width: 350px;/**項目說明  . */
+}
+.fixed_headers td:nth-child(5),
+.fixed_headers th:nth-child(5) {
+    width: 30px;/**單位  . */
+}
+.fixed_headers td:nth-child(6),
+.fixed_headers th:nth-child(6) {
+    width: 100px;/**數量  . */
+}
+.fixed_headers td:nth-child(7),
+.fixed_headers th:nth-child(7) {
+    width: 100px;/**單價   . */
+}
+.fixed_headers td:nth-child(8),
+.fixed_headers th:nth-child(8) {
+    width: 150px;/**備註   . */
+}
+.fixed_headers td:nth-child(9),
+.fixed_headers th:nth-child(9) {
+    width: 10px;/**九宮格   . */
+}
+.fixed_headers td:nth-child(10),
+.fixed_headers th:nth-child(10) {
+    width: 10px;/**次九宮格   . */
+}
+.fixed_headers td:nth-child(11),
+.fixed_headers th:nth-child(11) {
+    min-width: 100px;/**主系統  . */
+}
+.fixed_headers td:nth-child(12),
+.fixed_headers th:nth-child(12) {
+    width: 100px;
+}
