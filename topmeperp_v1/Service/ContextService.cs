@@ -1956,6 +1956,20 @@ namespace topmeperp.Service
             }
             return supplier;
         }
+
+        //取得供應商聯絡人資料
+        public List<TND_SUP_CONTACT_INFO> getContactBySupplier(string supid)
+        {
+            List<TND_SUP_CONTACT_INFO>  contactors = null;
+            using (var context = new topmepEntities())
+            {
+                contactors = context.TND_SUP_CONTACT_INFO.SqlQuery("select sup.* from TND_SUP_CONTACT_INFO sup "
+                    + "where sup.SUPPLIER_MATERIAL_ID = @supid "
+                   , new SqlParameter("supid", supid)).ToList();
+                logger.Info("contacs:" + contactors.Count);
+            }
+            return contactors;
+        }
         public int updateContact(TND_SUP_CONTACT_INFO sc)
         {
             //更新供應商聯絡人資料
