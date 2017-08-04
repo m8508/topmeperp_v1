@@ -435,6 +435,9 @@
     <Compile Include="Models\PLAN_ITEM_DELIVERY.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\PLAN_OTHER_PAYMENT.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\PLAN_PAYMENT_TERMS.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
@@ -859,7 +862,9 @@
     <Content Include="Views\Estimation\ContractItems.cshtml" />
     <Content Include="Views\Estimation\EstimationForm.cshtml" />
     <Content Include="Views\Estimation\_EstimationFormList.cshtml" />
-    <Content Include="Views\ProjectPlan\dailyReportList.cshtml" />
+    <Content Include="Views\Estimation\SingleEST.cshtml" />
+    <Content Include="Views\Estimation\_AdvancePayment.cshtml" />
+    <Content Include="Views\Estimation\OtherPayment.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -2581,8 +2581,8 @@ namespace topmeperp.Service
             return i;
         }
 
-        //取得估驗單資料
-        public List<ESTFunction> getESTByEstId(string projectid, string contractid, string estid, int status)
+        //取得符合條件之估驗單名單
+        public List<ESTFunction> getESTListByEstId(string projectid, string contractid, string estid, int status)
         {
             logger.Info("search estimation form by 估驗單編號 =" + estid + ", 合約名稱 =" + contractid + ", 估驗單狀態 =" + status);
             List<ESTFunction> lstForm = new List<ESTFunction>();
@@ -2591,7 +2591,7 @@ namespace topmeperp.Service
             {
                 string sql = "SELECT CONVERT(char(10), A.CREATE_DATE, 111) AS CREATE_DATE, A.EST_FORM_ID, A.STATUS, A.CONTRACT_NAME, A.SUPPLIER_NAME, ROW_NUMBER() OVER(ORDER BY A.EST_FORM_ID) AS NO " +
                     "FROM (SELECT ef.CREATE_DATE, ef.EST_FORM_ID, ef.STATUS, STUFF(ef.CONTRACT_ID,6, 6, sup.COMPANY_NAME) AS CONTRACT_NAME, sup.COMPANY_NAME AS SUPPLIER_NAME " +
-                    "FROM PLAN_ESTIMATION_FORM ef INNER JOIN TND_SUPPLIER sup ON SUBSTRING(ef.CONTRACT_ID, 6, 6) = sup.SUPPLIER_ID WHERE ef.PROJECT_ID =@projectid)A ";
+                    "FROM PLAN_ESTIMATION_FORM ef LEFT JOIN TND_SUPPLIER sup ON SUBSTRING(ef.CONTRACT_ID, 6, 6) = sup.SUPPLIER_ID WHERE ef.PROJECT_ID =@projectid)A ";
                     
 
                 var parameters = new List<SqlParameter>();
@@ -2621,7 +2621,7 @@ namespace topmeperp.Service
             {
                 string sql = "SELECT CONVERT(char(10), A.CREATE_DATE, 111) AS CREATE_DATE, A.EST_FORM_ID, A.STATUS, A.CONTRACT_NAME, A.SUPPLIER_NAME, ROW_NUMBER() OVER(ORDER BY A.EST_FORM_ID) AS NO " +
                     "FROM (SELECT ef.CREATE_DATE, ef.EST_FORM_ID, ef.STATUS, STUFF(ef.CONTRACT_ID,6, 6, sup.COMPANY_NAME) AS CONTRACT_NAME, sup.COMPANY_NAME AS SUPPLIER_NAME " +
-                    "FROM PLAN_ESTIMATION_FORM ef INNER JOIN TND_SUPPLIER sup ON SUBSTRING(ef.CONTRACT_ID, 6, 6) = sup.SUPPLIER_ID WHERE ef.PROJECT_ID =@projectid)A ";
+                    "FROM PLAN_ESTIMATION_FORM ef LEFT JOIN TND_SUPPLIER sup ON SUBSTRING(ef.CONTRACT_ID, 6, 6) = sup.SUPPLIER_ID WHERE ef.PROJECT_ID =@projectid)A ";
 
                 var parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("projectid", projectid));
@@ -2637,6 +2637,57 @@ namespace topmeperp.Service
             return lstForm;
         }
 
+        //取得估驗單資料
+        public void getESTByEstId(string estid)
+        {
+            logger.Info("get form : formid=" + estid);
+            using (var context = new topmepEntities())
+            {
+                //取得估驗單檔頭資訊
+                string sql = "SELECT EST_FORM_ID, PROJECT_ID, CONTRACT_ID, PLUS_TAX, TAX_AMOUNT, PAYMENT_TRANSFER, FOREIGN_PAYMENT, RETENTION_PAYMENT, DEDUCTED_ADVANCE_PAYMENT, REMARK, " +
+                    "CREATE_ID, CREATE_DATE, SETTLEMENT, STATUS, TYPE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID =@estid ";
+
+                formEST = context.PLAN_ESTIMATION_FORM.SqlQuery(sql, new SqlParameter("estid", estid)).First();
+                //取得估驗單明細
+                ESTItem = context.Database.SqlQuery<EstimationForm>("SELECT pei.PLAN_ITEM_ID, pei.EST_QTY, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.ITEM_FORM_QUANTITY, " +
+                    "pi.ITEM_UNIT_PRICE FROM PLAN_ESTIMATION_ITEM pei LEFT JOIN PLAN_ESTIMATION_FORM ef ON pei.EST_FORM_ID = ef.EST_FORM_ID LEFT JOIN PLAN_ITEM pi ON " +
+                    "pei.PLAN_ITEM_ID = pi.PLAN_ITEM_ID WHERE pei.EST_FORM_ID =@estid", new SqlParameter("estid", estid)).ToList();
+                logger.Debug("get estimation form item count:" + ESTItem.Count);
+            }
+        }
+
+        public int addOtherPayment(List<PLAN_OTHER_PAYMENT> lstItem)
+        {
+            //1.新增其他扣款資料
+            int i = 0;
+            logger.Info("add other payment = " + lstItem.Count);
+            //2.將扣款資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (PLAN_OTHER_PAYMENT item in lstItem)
+                {
+                    context.PLAN_OTHER_PAYMENT.Add(item);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("add other payment count =" + i);
+            return i;
+        }
+        //取得估驗單其他扣款明細資料
+        public List<PLAN_OTHER_PAYMENT> getOtherPayById(string id)
+        {
+
+            logger.Info("get other payment by other payment id  =" + id);
+            List<PLAN_OTHER_PAYMENT> lstItem = new List<PLAN_OTHER_PAYMENT>();
+            //處理SQL 預先填入ID,設定集合處理參數
+            using (var context = new topmepEntities())
+            {
+                lstItem = context.Database.SqlQuery<PLAN_OTHER_PAYMENT>("SELECT * FROM PLAN_OTHER_PAYMENT WHERE OTHER_PAYMENT_ID =@id ; "
+            , new SqlParameter("id", id)).ToList();
+            }
+
+            return lstItem;
+        }
         #endregion
     }
 }

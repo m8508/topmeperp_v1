@@ -1945,7 +1945,7 @@ namespace topmeperp.Service
         //}
 
 
-        //取得供應商聯絡人資料
+        //取得供應商資料
         public TND_SUPPLIER getContactById(string supid)
         {
             using (var context = new topmepEntities())
