@@ -309,9 +309,7 @@ namespace topmeperp.Controllers
             for (int j = 0; j < lstAmount.Count(); j++)
             {
                 PLAN_OTHER_PAYMENT item = new PLAN_OTHER_PAYMENT();
-                item.PROJECT_ID = form["projectId"];
                 item.EST_FORM_ID = form["formid"];
-                item.OTHER_PAYMENT_ID = form["keyId"];
                 if (lstAmount[j].ToString() == "")
                 {
                     item.AMOUNT = null;
@@ -322,7 +320,7 @@ namespace topmeperp.Controllers
                 }
                 logger.Info("Other Payment Amount  =" + item.AMOUNT);
                 item.REASON = lstReason[j];
-                logger.Debug("Item Project id =" + item.PROJECT_ID + "且扣款原因為" + item.REASON);
+                logger.Debug("Item EST form id =" + item.EST_FORM_ID + "且扣款原因為" + item.REASON);
                 lstItem.Add(item);
             }
             int i = service.addOtherPayment(lstItem);
@@ -334,8 +332,6 @@ namespace topmeperp.Controllers
             {
                 msg = "新增其他扣款資料成功，EST_FORM_ID =" + form["formid"];
             }
-
-            logger.Info("Request:EST_FORM_ID =" + form["formid"]);
             return msg;
         }
     }
