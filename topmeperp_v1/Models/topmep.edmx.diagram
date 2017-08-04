@@ -47,8 +47,9 @@
         <EntityTypeShape EntityType="topmepModel.SYS_PARA" Width="1.5" PointX="21.375" PointY="19.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_SUP_INQUIRY" Width="1.5" PointX="22.375" PointY="6.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_SUP_INQUIRY_ITEM" Width="1.5" PointX="21.375" PointY="22.75" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_FORM" Width="1.5" PointX="13.375" PointY="20.125" />
         <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_ITEM" Width="1.5" PointX="22.375" PointY="3.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_FORM" Width="1.5" PointX="13.375" PointY="20.125" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_OTHER_PAYMENT" Width="1.5" PointX="23.375" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

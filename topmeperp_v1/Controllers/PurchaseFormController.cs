@@ -806,6 +806,7 @@ namespace topmeperp.Controllers
             item.USANCE_CASH = form["usancecash"];
             item.USANCE_UP_TO_U_1 = form["usance_1"];
             item.USANCE_UP_TO_U_2 = form["usance_2"];
+            item.REMARK = form["remark"];
             try
             {
                 item.DATE_1 = decimal.Parse(form["date1"]);

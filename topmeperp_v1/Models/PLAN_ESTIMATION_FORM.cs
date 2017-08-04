@@ -27,6 +27,7 @@ namespace topmeperp.Models
         public string CREATE_ID { get; set; }
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public string SETTLEMENT { get; set; }
+        public string TYPE { get; set; }
         public Nullable<int> STATUS { get; set; }
     }
 }

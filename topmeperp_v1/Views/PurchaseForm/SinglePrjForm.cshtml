@@ -9,17 +9,25 @@
 
 <script>
 
-    function DefaultCtrl($scope, $http) {
-        $scope.names = [ ];
-        $http({
-            method: 'GET',
-            url: '/PurchaseForm/QuerySupplier'
-        }).then(function (data) {
-            $scope.names = data.data;
-        }, function () {
-            alert('Error');
-        })
+    function DefaultCtrl($scope) {
+        $scope.names = [];
+        $.ajax({
+            url: "/PurchaseForm/QuerySupplier",
+            dataType: "json",
+            data: {
+                searchText: request.term
+            },
+            success: function (data) {
+                response($.map(data.data, function (item) {
+                    return {
+                        label: item.name,
+                        value: item.id
+                    };
+                }));
+            }
+        });
     }
+    
     angular.module('MyModule', []).directive('autoComplete', function ($timeout) {
         return function (scope, iElement, iAttrs) {
             iElement.autocomplete({
@@ -34,7 +42,12 @@
     });
 
 </script>
-
+<div ng-app='MyModule'>
+    <div ng-controller='DefaultCtrl'>
+        <input auto-complete ui-items="names" ng-model="selected" id="selected" name="selected">
+        selected = {{selected}}
+    </div>
+</div>
 
 
 
