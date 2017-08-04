@@ -8,6 +8,7 @@ using topmeperp.Models;
 using topmeperp.Service;
 using System.IO;
 using System.Data;
+using System.Web.Script.Serialization;
 
 namespace topmeperp.Controllers
 {
@@ -61,7 +62,7 @@ namespace topmeperp.Controllers
             qf.CREATE_DATE = DateTime.Now;
             qf.OWNER_NAME = uInfo.USER_NAME;
             qf.OWNER_EMAIL = uInfo.EMAIL;
-            qf.OWNER_TEL = uInfo.TEL+ "-" +uInfo.TEL_EXT;
+            qf.OWNER_TEL = uInfo.TEL + "-" + uInfo.TEL_EXT;
             qf.OWNER_FAX = uInfo.FAX;
             TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
             string fid = s.newForm(qf, lstItemId);
@@ -635,6 +636,26 @@ namespace topmeperp.Controllers
             {
                 return "發送失敗!!";
             }
+        }
+        //取得廠商資料
+        public string aotoCompleteData()
+        {
+            List<string> ls = null;
+            log.Debug("get supplier");
+            ls = service.getSupplier();
+            JavaScriptSerializer serializer = new JavaScriptSerializer();
+            return serializer.Serialize(ls);
+        }
+        //取得廠商聯絡人資料
+        public string getContactor()
+        {
+            List<TND_SUP_CONTACT_INFO> ls = null;
+            log.Debug("get contact By suppliername:" + Request["Supplier"] + ", " + Request["Supplier"].Substring(0, 7));
+            SupplierManage s = new SupplierManage();
+            string supid = Request["Supplier"].Substring(0, 7);
+            ls = s.getContactBySupplier(supid);
+            JavaScriptSerializer serializer = new JavaScriptSerializer();
+            return serializer.Serialize(ls);
         }
     }
 }

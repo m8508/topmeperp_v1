@@ -1947,8 +1947,8 @@ namespace topmeperp.Service
                 {
                     row.Cells[3].SetCellValue(double.Parse(item.ITEM_QTY.ToString())); //數量
                 }
-
-                if (null != item.ITEM_UNIT_PRICE && item.ITEM_UNIT_PRICE.ToString().Trim() != "")
+                //增加空白詢價單時，不寫入單價資料
+                if (null != item.ITEM_UNIT_PRICE && item.ITEM_UNIT_PRICE.ToString().Trim() != "" && !isTemp)
                 {
                     row.Cells[4].SetCellValue(double.Parse(item.ITEM_UNIT_PRICE.ToString())); //單價
                 }
@@ -2547,6 +2547,4 @@ namespace topmeperp.Service
         }
     }
     #endregion
-
-
 }
