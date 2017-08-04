@@ -274,6 +274,7 @@ namespace topmeperp.Controllers
             ViewBag.projectName = planService.getProject(Request["projectid"]).PROJECT_NAME;
             ViewBag.prj_uid = Request["prjuid"];
             ViewBag.taskName = planService.getProjectTask(Request["projectid"], int.Parse(Request["prjuid"])).TASK_NAME;
+            ViewBag.RptDate = Request["rptDate"];
             //1.依據任務取得相關施作項目內容
             DailyReport dailyRpt = planService.newDailyReport(Request["projectid"], int.Parse(Request["prjuid"]));
             return View(dailyRpt);
@@ -286,17 +287,36 @@ namespace topmeperp.Controllers
             log.Debug("form Data ItemId=" + f["planItemId"]);
             log.Debug("form Data Qty=planItemQty" + f["planItemQty"]);
 
+
             string projectid = f["Projectid"];
             int prjuid = int.Parse(f["PrjUid"]);
+            string strWeather = f["selWeather"];
+            string strSummary = f["txtSummary"];
+            string strSenceUser = f["txtSenceUser"];
+            string strSupervision = f["txtSupervision"];
+            string strOwner = f["txtOwner"];
+            string strRptDate = f["RptDate"];
 
             DailyReport newDailyRpt = new DailyReport();
             PLAN_DALIY_REPORT RptHeader = new PLAN_DALIY_REPORT();
             RptHeader.PROJECT_ID = projectid;
-            RptHeader.REPORT_DATE = DateTime.Now;
+            RptHeader.WEATHER = strWeather;
+            RptHeader.SUMMARY = strSummary;
+            RptHeader.SCENE_USER_NAME = strSenceUser;
+            RptHeader.SUPERVISION_NAME = strSupervision;
+            RptHeader.OWNER_NAME = strOwner;
             newDailyRpt.dailyRpt = RptHeader;
+            RptHeader.REPORT_DATE = DateTime.Parse(strRptDate);
             //取得日報編號
             SerialKeyService snService = new SerialKeyService();
-            RptHeader.REPORT_ID = snService.getSerialKey(planService.KEY_ID);
+            if (null == f["ReportID"] || "" == f["ReportID"])
+            {
+                RptHeader.REPORT_ID = snService.getSerialKey(planService.KEY_ID);
+            }else
+            {
+                RptHeader.REPORT_ID = f["ReportID"];
+            }
+
             RptHeader.CREATE_DATE = DateTime.Now;
             RptHeader.CREATE_USER_ID = u.USER_ID;
             //建立專案任務資料 (結構是支援多項任務，僅先使用一筆)

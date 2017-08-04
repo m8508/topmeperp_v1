@@ -132,7 +132,7 @@ namespace topmeperp.Service
             foreach (PLAN_TASK t in lstTask)
             {
                 //將跟節點置入Directory 內
-                if (t.PARENT_UID == 0)
+                if (t.PARENT_UID == 0 || dicTree.Count==0)
                 {
                     //rootnode.tags.Add("工期:" + t.DURATION);
                     rootnode.tags.Add("完成:" + t.FINISH_DATE.Value.ToString("yyyy/MM/dd"));

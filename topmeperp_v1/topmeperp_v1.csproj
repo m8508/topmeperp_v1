@@ -859,6 +859,7 @@
     <Content Include="Views\Estimation\ContractItems.cshtml" />
     <Content Include="Views\Estimation\EstimationForm.cshtml" />
     <Content Include="Views\Estimation\_EstimationFormList.cshtml" />
+    <Content Include="Views\ProjectPlan\dailyReportList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -2,48 +2,87 @@
 @{
     ViewBag.Title = "施工日報";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
-    ViewBag.Today = System.DateTime.Now.ToString("yyyy/MM/dd");
 }
-<h2>@ViewBag.Title</h2>
+<h3>@ViewBag.Title</h3>
 <!--條件區域-->
 <div class="page-header">
+    @ViewBag.Message
     <form name="formDailyReport" id="formDailyReport" action="" method="Post">
         <div class="container">
-            <div class="row pull-right">
-                <label for="reportDate">日期: </label>
-                <input type="text" id="reportDate" name="reportDate" value="@ViewBag.Today" size="7"/>
-                <label for="reportID">日報編號: </label>
-                <input type="text" id="reportID" name="reportID" value="" />
+            <div class="row form-group">
+                <label class="col-sm-1 control-label">日期:</label>
+                <div class="col-sm-2">
+                    <input class="form-control" type="text" id="reportDate" name="reportDate" value="@ViewBag.RptDate" size="7" readonly />
+                </div>
+                <label class="col-sm-1 control-label">日報編號:</label>
+                <div class="col-sm-2">
+                    <input class="form-control" type="text" id="reportID" name="reportID" value="" readonly />
+                </div>
+            </div>
+
+            <div class="row form-group">
+                <label class="col-sm-1 control-label">專案編號:</label>
+                <div class="col-sm-2">
+                    <input class="form-control" type="text" id="txtProjectId" name="txtProjectId" value="@ViewBag.projectId" readonly />
+                </div>
+                <label class="col-sm-1 control-label">專案名稱:</label>
+                <label class="col-sm-8 info">@ViewBag.projectName</label>
+            </div>
+
+            <div class="row form-group">
+                <label class="col-sm-1 control-label">任務編號:</label>
+                <div class="col-sm-2">
+                    <input class="form-control" type="text" id="txtPrjUid" name="txtPrjUid" value="@ViewBag.prj_uid" readonly />
+                </div>
+                <label class="col-sm-1 control-label">任務名稱:</label>
+                <label class="col-sm-8 info">@ViewBag.taskName</label>
+            </div>
+        </div>
+    </form>
+    <form name="formSaveItemRow" id="formSaveItemRow">
+        <!--日報摘要輸入區塊-->
+        <div class="row">
+            <div class="panel panel-info">
+                <div class="panel-heading">施工日報摘要</div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-4">
+                            <label class="col-xs-3 control-label">天氣:</label>
+                            <select id="selWeather" name="selWeather" class="form-control" style="width:auto">
+                                <option value="晴">晴</option>
+                                <option value="陰">陰</option>
+                                <option value="雨">雨</option>
+                            </select>
+                        </div>
+                        <div class="col-xs-8">
+                            <label class="col-xs-2 control-label">摘要:</label>
+                            <input class="form-control" type="text" id="txtSummary" name="txtSummary" value="" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding-top:5px">
+                        <div class="col-xs-4">
+                            <label class="col-xs-3 control-label">現場:</label>
+                            <input class="form-control" style="width:40%" type="text" id="txtSenceUser" name="txtSenceUser" value="" />
+                        </div>
+                        <div class="col-xs-4">
+                            <label class="col-xs-3 control-label">監造:</label>
+                            <input class="form-control" style="width:40%" type="text" id="txtSupervision" name="txtSupervision" value="" />
+                        </div>
+                        <div class="col-xs-4">
+                            <label class="col-xs-3 control-label">業主:</label>
+                            <input class="form-control" style="width:40%" type="text" id="txtOwner" name="txtOwner" value="" />
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="container">
-            <div class="row">
-                <div class="col-xs-3">
-                    <label for="txtProjectId">專案編號:</label>
-                    <input type="text" id="txtProjectId" name="txtProjectId" value="@ViewBag.projectId" />
-                </div>
-                <div class="col-xs-3">
-                    <label>專案名稱:@ViewBag.projectName </label>
-                </div>
-                <div class="col-xs-3">
-                    <label for="txtPrjUid">任務編號:</label>
-                    <input type="text" id="txtPrjUid" name="txtPrjUid" value="@ViewBag.prj_uid" />
-                </div>
-                <div class="col-xs-3">
-                    <label>任務名稱:@ViewBag.taskName </label>
-                </div>
-            </div>
-            @ViewBag.Message
-        </div>
-    </form>
-    <div class="container">
-        <ul class="nav nav-tabs">
-            <li class="active"><a data-toggle="tab" href="#divItem">料件</a></li>
-            <li><a data-toggle="tab" href="#divWorker">出工</a></li>
-            <li><a data-toggle="tab" href="#divMachine">機具</a></li>
-            <li><a data-toggle="tab" href="#divOther">重要記事</a></li>
-        </ul>
-        <form name="formSaveItemRow" id="formSaveItemRow">
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#divItem">料件</a></li>
+                <li><a data-toggle="tab" href="#divWorker">出工</a></li>
+                <li><a data-toggle="tab" href="#divMachine">機具</a></li>
+                <li><a data-toggle="tab" href="#divOther">重要記事</a></li>
+            </ul>
             <div class="tab-content">
                 <div id="divItem" class="tab-pane fade in active">
                     <h3>填寫料件施作記錄</h3>
@@ -160,7 +199,7 @@
                         <!-- <a id="add_worker_row" class="btn btn-default pull-left" onclick="addWorkerRow()">新增</a>
                         <a id='delete_worker_row' class="pull-right btn btn-default" onclick="delWorkerRow()">刪除</a>
                         <buttn typeof="button" class="pull-right btn btn-default" onclick="saveWorkerRow()">儲存</buttn> -->
-                        <buttn typeof="button" class="pull-right btn btn-default" onclick="nextTab('divMachine')">下一步</buttn>                       
+                        <buttn typeof="button" class="pull-right btn btn-default" onclick="nextTab('divMachine')">下一步</buttn>
                     </div>
                 </div>
                 <div id="divMachine" class="tab-pane fade">
@@ -236,26 +275,25 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-
                                         <tr id='addNoteR0'>
                                             <td>1</td>
                                             <td>
-                                            <textarea id='planNote' name='planNote' placeholder="請輸入本日重要記事" cols="500" rows="3" onblur="addNoteRow()"></textarea>
+                                                <textarea id='planNote' name='planNote' placeholder="請輸入本日重要記事" cols="500" rows="3" ></textarea>
+                                                <a id="add_note_row" class="btn btn-default pull-left" onclick="addNoteRow()">新增</a>
                                         </tr>
                                         <tr id='addNoteR1'></tr>
                                     </tbody>
                                 </table>
-                            </div>
-                            <a id="add_note_row" class="btn btn-default pull-left" onclick="addNoteRow()">新增</a>
+                            </div>  
                             <buttn typeof="button" class="pull-right btn btn-default" onclick="saveDailReport()">儲存</buttn>
                             <a id='delete_note_row' class="pull-right btn btn-default" onclick="delNoteRow()">刪除</a>
-
                         </div>
                     </div>
                 </div>
             </div>
-        </form>
-    </div>
+
+        </div>
+    </form>
     <script type="text/javascript">
         /***
          料件施作處理畫面
@@ -305,7 +343,7 @@
         var iNoteRow = 1;
         function addNoteRow() {
             $('#addNoteR' + iNoteRow).html("<td>" + (iNoteRow + 1) + "</td>" +
-               "<td><textarea id='planNote' name='planNote' placeholder='請輸入本日重要記事' cols='500' rows='3' onblur='addNoteRow()' autofocus ></textarea>");
+               "<td><textarea id='planNote' name='planNote' placeholder='請輸入本日重要記事' cols='500' rows='3' autofocus ></textarea>");
             $('#tab_Note').append('<tr id="addNoteR' + (iNoteRow + 1) + '"></tr>');
             iNoteRow++;
         }
@@ -322,7 +360,7 @@
         //儲存日報資料
         function saveDailReport(){
             var URLs = "saveItemRow";
-            var itemData= $("#formSaveItemRow").serialize() +"&Projectid=" +$("#txtProjectId").val() + "&PrjUid="+ $("#txtPrjUid").val()+ "&ReportID="+ $("#reportID").val();
+            var itemData= $("#formSaveItemRow").serialize() +"&Projectid=" +$("#txtProjectId").val() + "&PrjUid="+ $("#txtPrjUid").val()+ "&ReportID="+ $("#reportID").val()+"&RptDate="+$("#reportDate").val();
             alert(itemData);
             $.ajax({
                 url: URLs,
@@ -337,6 +375,6 @@
                 }
             });
         }
-       
+
     </script>
 </div>
