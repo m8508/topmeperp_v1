@@ -1,6 +1,6 @@
 ﻿@model topmeperp.Models.DailyReport
 @{
-    ViewBag.Title = "施工日報";
+    ViewBag.Title = "施工日報-填寫日報";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <h3>@ViewBag.Title</h3>
@@ -16,7 +16,7 @@
                 </div>
                 <label class="col-sm-1 control-label">日報編號:</label>
                 <div class="col-sm-2">
-                    <input class="form-control" type="text" id="reportID" name="reportID" value="" readonly />
+                    <input class="form-control" type="text" id="reportID" name="reportID" value="@ViewBag.RptId" readonly />
                 </div>
             </div>
 
@@ -279,14 +279,14 @@
                                             <td>1</td>
                                             <td>
                                                 <textarea id='planNote' name='planNote' placeholder="請輸入本日重要記事" cols="500" rows="3" ></textarea>
-                                                <a id="add_note_row" class="btn btn-default pull-left" onclick="addNoteRow()">新增</a>
+                                                <a id="add_note_row" class="btn btn-default" onclick="addNoteRow()">新增</a>
                                         </tr>
                                         <tr id='addNoteR1'></tr>
                                     </tbody>
                                 </table>
                             </div>  
-                            <buttn typeof="button" class="pull-right btn btn-default" onclick="saveDailReport()">儲存</buttn>
-                            <a id='delete_note_row' class="pull-right btn btn-default" onclick="delNoteRow()">刪除</a>
+                            <buttn typeof="button" class="pull-right btn btn-info" onclick="saveDailReport()">儲存</buttn>
+                            <a id='delete_note_row' class="pull-right btn btn-warning" onclick="delNoteRow()">刪除</a>
                         </div>
                     </div>
                 </div>

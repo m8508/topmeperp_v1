@@ -865,6 +865,8 @@
     <Content Include="Views\Estimation\SingleEST.cshtml" />
     <Content Include="Views\Estimation\_AdvancePayment.cshtml" />
     <Content Include="Views\Estimation\OtherPayment.cshtml" />
+    <Content Include="Views\ProjectPlan\dailyReportList.cshtml" />
+    <Content Include="Views\ProjectPlan\_getDailyReportList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

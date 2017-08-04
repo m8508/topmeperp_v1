@@ -270,13 +270,23 @@ namespace topmeperp.Controllers
         //填寫日報step2 :選取填寫內容
         public ActionResult dailyReportItem()
         {
-            ViewBag.projectId = Request["projectid"];
-            ViewBag.projectName = planService.getProject(Request["projectid"]).PROJECT_NAME;
-            ViewBag.prj_uid = Request["prjuid"];
-            ViewBag.taskName = planService.getProjectTask(Request["projectid"], int.Parse(Request["prjuid"])).TASK_NAME;
-            ViewBag.RptDate = Request["rptDate"];
+            DailyReport dailyRpt = null;
+            if (null == Request["rptID"])
+            {
+                ViewBag.projectId = Request["projectid"];
+                ViewBag.projectName = planService.getProject(Request["projectid"]).PROJECT_NAME;
+                ViewBag.prj_uid = Request["prjuid"];
+                ViewBag.taskName = planService.getProjectTask(Request["projectid"], int.Parse(Request["prjuid"])).TASK_NAME;
+                ViewBag.RptDate = Request["rptDate"];
+                dailyRpt = planService.newDailyReport(Request["projectid"], int.Parse(Request["prjuid"]));
+            }
+            else
+            {
+                string strRptId = Request["rptID"];
+                ViewBag.RptId = strRptId;
+                dailyRpt = planService.newDailyReport("", 0);
+            }
             //1.依據任務取得相關施作項目內容
-            DailyReport dailyRpt = planService.newDailyReport(Request["projectid"], int.Parse(Request["prjuid"]));
             return View(dailyRpt);
         }
         //儲存日報數量紀錄
@@ -312,7 +322,8 @@ namespace topmeperp.Controllers
             if (null == f["ReportID"] || "" == f["ReportID"])
             {
                 RptHeader.REPORT_ID = snService.getSerialKey(planService.KEY_ID);
-            }else
+            }
+            else
             {
                 RptHeader.REPORT_ID = f["ReportID"];
             }
@@ -388,6 +399,7 @@ namespace topmeperp.Controllers
                 item.REPORT_ID = RptHeader.REPORT_ID;
                 if ("" != aryNote[i].Trim())
                 {
+                    item.SORT = i + 1;
                     item.REMARK = aryNote[i].Trim();
                     newDailyRpt.lstRptNote.Add(item);
                 }
@@ -396,6 +408,7 @@ namespace topmeperp.Controllers
             string msg = planService.createDailyReport(newDailyRpt);
             return msg;
         }
+        //顯示日報維護畫面
         public ActionResult dailyReportList(string id)
         {
             if (null == id || "" == id)
@@ -405,6 +418,31 @@ namespace topmeperp.Controllers
             ViewBag.projectName = planService.getProject(id).PROJECT_NAME;
             ViewBag.projectId = id;
             return View();
+        }
+        //取得日報明細資料
+        public ActionResult getDailyReportList(FormCollection f)
+        {
+            //定義查詢條件
+            string strProjectid = f["txtProjectId"];
+            DateTime dtStart = DateTime.MinValue;
+            DateTime dtEnd = DateTime.MinValue;
+            string strSummary = null;
+            if ("" != f["reportDateStart"])
+            {
+                dtStart = DateTime.Parse(f["reportDateStart"]);
+            }
+            if ("" != f["reportDateEnd"])
+            {
+                dtEnd = DateTime.Parse(f["reportDateEnd"]);
+            }
+
+            if ("" != f["strSummary"])
+            {
+                strSummary = f["txtSummary"];
+            }
+            List<PLAN_DALIY_REPORT> lst = planService.getDailyReportList(strProjectid, dtStart, dtEnd, strSummary);
+            ViewBag.Result = "共" + lst.Count + " 筆日報紀錄!!";
+            return PartialView("_getDailyReportList", lst);
         }
     }
 }

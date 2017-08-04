@@ -132,7 +132,7 @@ namespace topmeperp.Service
             foreach (PLAN_TASK t in lstTask)
             {
                 //將跟節點置入Directory 內
-                if (t.PARENT_UID == 0 || dicTree.Count==0)
+                if (t.PARENT_UID == 0 || dicTree.Count == 0)
                 {
                     //rootnode.tags.Add("工期:" + t.DURATION);
                     rootnode.tags.Add("完成:" + t.FINISH_DATE.Value.ToString("yyyy/MM/dd"));
@@ -782,6 +782,11 @@ namespace topmeperp.Service
             newDailyRpt.lstDailyRptMachine4Show = SystemParameter.getSystemPara("ProjectPlanService", "Machine");
             return newDailyRpt;
         }
+        public DailyReport getDailyReport(string reportId)
+        {
+            DailyReport drDailyRpt = new DailyReport();
+            return drDailyRpt;
+        }
         //建立日報相關紀錄
         public string createDailyReport(DailyReport dr)
         {
@@ -822,6 +827,39 @@ namespace topmeperp.Service
                 logger.Debug("lstDailyRptItem count=" + lstDailyRptItem.Count);
             }
             return lstDailyRptItem;
+        }
+        //取得日報資料，缺乏加總數字
+        public List<PLAN_DALIY_REPORT> getDailyReportList(string projectid, DateTime dtStart, DateTime dtEnd, string strSummary)
+        {
+            List<PLAN_DALIY_REPORT> lst = null;
+            string sql = "SELECT REPORT_ID,PROJECT_ID,REPORT_DATE,WEATHER,SUMMARY,SCENE_USER_NAME,SUPERVISION_NAME,OWNER_NAME,"
+                + "MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
+                + "FROM PLAN_DALIY_REPORT WHERE PROJECT_ID=@projectid ";
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("projectid", projectid));
+            
+            if (null != dtStart && dtStart!=DateTime.MinValue)
+            {
+                sql = sql + " AND REPORT_DATE BETWEEN @dtStart AND @dtEnd";
+                parameters.Add(new SqlParameter("dtStart", dtStart));
+                if (null == dtEnd)
+                {
+                    dtEnd = dtStart.AddSeconds(86399.0);
+                }
+                parameters.Add(new SqlParameter("dtEnd", dtEnd));
+            }
+            if (null != strSummary && "" != strSummary)
+            {
+                sql = sql + " AND SUMMARY LIKE @strSummary";
+                parameters.Add(new SqlParameter("strSummary", "'%" + strSummary + "%'"));
+            }
+            sql = sql + " ORDER BY REPORT_DATE DESC";
+            logger.Info("sql=" + sql);
+            using (var context = new topmepEntities())
+            {
+                lst = context.PLAN_DALIY_REPORT.SqlQuery(sql, parameters.ToArray()).ToList();
+            }
+            return lst;
         }
     }
     #endregion
