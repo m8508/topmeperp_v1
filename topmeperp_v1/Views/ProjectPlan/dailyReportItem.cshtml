@@ -46,13 +46,9 @@
                 <div class="panel-heading">施工日報摘要</div>
                 <div class="panel-body">
                     <div class="row">
-                        <div class="col-xs-4">
+                        <div class="col-xs-4 bootstrap-select">
                             <label class="col-xs-3 control-label">天氣:</label>
-                            <select id="selWeather" name="selWeather" class="form-control" style="width:auto">
-                                <option value="晴">晴</option>
-                                <option value="陰">陰</option>
-                                <option value="雨">雨</option>
-                            </select>
+                            @Html.DropDownList("selWeather",(IEnumerable<SelectListItem>)ViewBag.ddlWeather, new { @class = "selectpicker" })
                         </div>
                         <div class="col-xs-8">
                             <label class="col-xs-2 control-label">摘要:</label>
@@ -154,7 +150,7 @@
                                                 <td>@Model.lstDailyRptItem4Show[idx].ITEM_DESC</td>
                                                 <td>@Model.lstDailyRptItem4Show[idx].QTY</td>
                                                 <td><input type='text' id='accumulateQty' name='accumulateQty' placeholder='0' size="5" value="@Model.lstDailyRptItem4Show[idx].ACCUMULATE_QTY" readonly /></td>
-                                                <td><input type='text' id='planItemQty' name='planItemQty' placeholder='0' size="5" value="@Model.lstDailyRptItem4Show[idx].QTY"/></td>
+                                                <td><input type='text' id='planItemQty' name='planItemQty' placeholder='0' size="5" value="@Model.lstDailyRptItem4Show[idx].FINSIH_QTY"/></td>
                                             </tr>
                                         }
                                         @{
@@ -210,7 +206,7 @@
                                                     <input type='hidden' id='workerKeyid' name='workerKeyid' value='@Model.lstDailyRptWokerType4Show[idx].KEY_FIELD' />
                                                 </td>
                                                 <td>@Model.lstDailyRptWokerType4Show[idx].VALUE_FIELD</td>
-                                                <td></td>
+                                                <td>@Model.lstDailyRptWokerType4Show[idx].LAST_QTY </td>
                                                 <td><input type='text' id='planWorkerQty' name='planWorkerQty' placeholder='0' size="5" value='@Model.lstDailyRptWokerType4Show[idx].WORKER_QTY'/></td>
                                             </tr>
                                         }
@@ -267,7 +263,7 @@
                                                     <input type='hidden' id='MachineKeyid' name='MachineKeyid' value='@Model.lstDailyRptMachine4Show[idx].KEY_FIELD' />
                                                 </td>
                                                 <td>@Model.lstDailyRptMachine4Show[idx].VALUE_FIELD</td>
-                                                <td></td>
+                                                <td>@Model.lstDailyRptMachine4Show[idx].LAST_QTY</td>
                                                 <td><input type='text' id='planMachineQty' name='planMachineQty' placeholder='0' size="5" value='@Model.lstDailyRptMachine4Show[idx].WORKER_QTY'  /></td>
                                             </tr>
                                         }
@@ -345,8 +341,11 @@
             </div>
         </div>
         <!--隱藏資料建立者-->
-        <input type="hidden" id="txtCreateUserId" name="txtCreateUserId" value="@Model.dailyRpt.CREATE_USER_ID" />
-        <input type="hidden" id="txtCreateDate" name="txtCreateDate" value="@Model.dailyRpt.CREATE_DATE" />
+        @if (null != Model.dailyRpt)
+        {
+            <input type="hidden" id="txtCreateUserId" name="txtCreateUserId" value="@Model.dailyRpt.CREATE_USER_ID" />
+            <input type="hidden" id="txtCreateDate" name="txtCreateDate" value="@Model.dailyRpt.CREATE_DATE" />
+        }
     </form>
     <script type="text/javascript">
         /***

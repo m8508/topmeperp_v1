@@ -780,8 +780,8 @@ namespace topmeperp.Service
             //建立料件資料
             newDailyRpt.lstDailyRptItem4Show = getItem(projectid, prjuid);
             //新報告上無Report ID 用假資料
-            newDailyRpt.lstDailyRptWokerType4Show = getDailyReportRecord4Worker("000", "Worker"); //SystemParameter.getSystemPara("ProjectPlanService", "Worker");
-            newDailyRpt.lstDailyRptMachine4Show = getDailyReportRecord4Worker("000", "Machine"); //SystemParameter.getSystemPara("ProjectPlanService", "Machine");
+            newDailyRpt.lstDailyRptWokerType4Show = getDailyReportRecord4Worker(projectid,"000", "Worker"); //SystemParameter.getSystemPara("ProjectPlanService", "Worker");
+            newDailyRpt.lstDailyRptMachine4Show = getDailyReportRecord4Worker(projectid,"000", "Machine"); //SystemParameter.getSystemPara("ProjectPlanService", "Machine");
             return newDailyRpt;
         }
         public DailyReport getDailyReport(string reportId)
@@ -794,8 +794,8 @@ namespace topmeperp.Service
                 drDailyRpt.dailyRpt = context.PLAN_DALIY_REPORT.SqlQuery(sql, new SqlParameter("reportId", reportId)).First();
                 drDailyRpt.lstDailyRptItem4Show = getItem(reportId);
                 drDailyRpt.lstRptTask = getTaskByReportId(reportId);
-                drDailyRpt.lstDailyRptWokerType4Show = getDailyReportRecord4Worker(reportId, "Worker");
-                drDailyRpt.lstDailyRptMachine4Show = getDailyReportRecord4Worker(reportId, "Machine");
+                drDailyRpt.lstDailyRptWokerType4Show = getDailyReportRecord4Worker(drDailyRpt.dailyRpt.PROJECT_ID, reportId, "Worker");
+                drDailyRpt.lstDailyRptMachine4Show = getDailyReportRecord4Worker(drDailyRpt.dailyRpt.PROJECT_ID, reportId, "Machine");
                 //取得重要事件
                 sql = "SELECT * FROM PLAN_DR_NOTE WHERE REPORT_ID=@reportId";
                 logger.Debug("get notes ,sql=" + sql + ",reportId=" + reportId);
@@ -839,7 +839,7 @@ namespace topmeperp.Service
             List<DailyReportItem> lstDailyRptItem = new List<DailyReportItem>();
             string sql = "SELECT TI.TASKUID,TI.PRJ_UID,TI.PROJECT_ID,TI.PROJECT_ITEM_ID,"
                 + " (SELECT ITEM_DESC FROM TND_PROJECT_ITEM i WHERE i.PROJECT_ITEM_ID=TI.PROJECT_ITEM_ID) ITEM_DESC,"
-                + " (SELECT SUM(ISNULL(FINISH_QTY,0)) FROM PLAN_DR_ITEM WHERE PLAN_ITEM_ID = TI.PROJECT_ITEM_ID) as ACCUMULATE_QTY ,QTY "
+                + " (SELECT SUM(ISNULL(FINISH_QTY,0)) FROM PLAN_DR_ITEM WHERE PLAN_ITEM_ID = TI.PROJECT_ITEM_ID) as ACCUMULATE_QTY ,QTY,null AS FINSIH_QTY "
                 + " FROM PLAN_TASK2MAPITEM TI LEFT OUTER JOIN vw_MAP_MATERLIALIST_DETAIL MAP "
                 + " ON TI.PROJECT_ITEM_ID = MAP.PROJECT_ITEM_ID "
                 + " WHERE TI.PROJECT_ID = @projectid AND TI.PRJ_UID = @prjuid "
@@ -855,9 +855,9 @@ namespace topmeperp.Service
         public List<DailyReportItem> getItem(string reportId)
         {
             List<DailyReportItem> lstDailyRptItem = new List<DailyReportItem>();
-            string sql = "SELECT DR_ITEM_ID AS TASKUID,0 as PRJ_UID,PROJECT_ID,PLAN_ITEM_ID as PROJECT_ITEM_ID,"
-                +"(SELECT ITEM_DESC FROM TND_PROJECT_ITEM p WHERE i.PLAN_ITEM_ID = p.PROJECT_ITEM_ID) AS ITEM_DESC, LAST_QTY AS ACCUMULATE_QTY, FINISH_QTY AS QTY "
-                +"FROM PLAN_DR_ITEM i WHERE REPORT_ID = @reportId; ";
+            string sql = "SELECT DR_ITEM_ID AS TASKUID,0 as PRJ_UID,i.PROJECT_ID,PLAN_ITEM_ID as PROJECT_ITEM_ID,QTY,"
+                +"(SELECT ITEM_DESC FROM TND_PROJECT_ITEM p WHERE i.PLAN_ITEM_ID = p.PROJECT_ITEM_ID) AS ITEM_DESC, LAST_QTY AS ACCUMULATE_QTY, FINISH_QTY "
+                + "FROM PLAN_DR_ITEM i,vw_MAP_MATERLIALIST_DETAIL Map WHERE REPORT_ID = @reportId AND Map.PROJECT_ITEM_ID=i.PLAN_ITEM_ID; ";
             using (var context = new topmepEntities())
             {
                 logger.Debug("sql=" + sql + ",reportId=" + reportId );
@@ -867,16 +867,25 @@ namespace topmeperp.Service
             return lstDailyRptItem;
         }
         //取得人工/機具使用數量
-        public List<DailyReportRecord4Worker> getDailyReportRecord4Worker(string reportid, string type)
+        public List<DailyReportRecord4Worker> getDailyReportRecord4Worker(string projectid,string reportid, string type)
         {
+            //string sql = "SELECT PA.FUNCTION_ID,PA.KEY_FIELD,PA.VALUE_FIELD,"
+            //    + "(SELECT SUM(ISNULL(WORKER_QTY, 0)) AS LAST_QTY FROM PLAN_DR_WORKER WHERE REPORT_ID = @ReportID AND PARA_KEY_ID = RPT.PARA_KEY_ID) AS LAST_QTY,"
+            //    + "RPT.WORKER_QTY,RPT.REMARK,RPT.REPORT_ID "
+            //    + "FROM  SYS_PARA PA LEFT OUTER JOIN(SELECT * FROM PLAN_DR_WORKER WHERE REPORT_ID = @ReportID ) RPT "
+            //    + " ON PA.KEY_FIELD = RPT.PARA_KEY_ID WHERE FUNCTION_ID = 'ProjectPlanService' AND FIELD_ID = @type ORDER BY KEY_FIELD; ";
+
             string sql = "SELECT PA.FUNCTION_ID,PA.KEY_FIELD,PA.VALUE_FIELD,"
-                + "(SELECT SUM(ISNULL(WORKER_QTY, 0)) AS LAST_QTY FROM PLAN_DR_WORKER WHERE REPORT_ID = @ReportID AND PARA_KEY_ID = RPT.PARA_KEY_ID) AS LAST_QTY,"
-                + "RPT.WORKER_QTY,RPT.REMARK,RPT.REPORT_ID "
-                + "FROM  SYS_PARA PA LEFT OUTER JOIN(SELECT * FROM PLAN_DR_WORKER WHERE REPORT_ID = @ReportID ) RPT "
-                + " ON PA.KEY_FIELD = RPT.PARA_KEY_ID WHERE FUNCTION_ID = 'ProjectPlanService' AND FIELD_ID = @type ORDER BY KEY_FIELD; ";
+                + "(SELECT SUM(ISNULL(WORKER_QTY, 0)) AS LAST_QTY FROM PLAN_DR_WORKER, PLAN_DALIY_REPORT "
+                + "WHERE PLAN_DALIY_REPORT.REPORT_ID = PLAN_DR_WORKER.REPORT_ID "
+                + "AND PLAN_DALIY_REPORT.PROJECT_ID = @projectid AND PLAN_DR_WORKER.PARA_KEY_ID = PA.KEY_FIELD) AS LAST_QTY, "
+                + "RPT.WORKER_QTY,RPT.REMARK,RPT.REPORT_ID FROM  SYS_PARA PA LEFT OUTER JOIN(SELECT * FROM PLAN_DR_WORKER WHERE REPORT_ID = @reportid) RPT ON PA.KEY_FIELD = RPT.PARA_KEY_ID "
+                + "WHERE FUNCTION_ID = 'ProjectPlanService' AND FIELD_ID =@type  ORDER BY KEY_FIELD; ";
+
             var parameters = new List<SqlParameter>();
             //設定專案名編號資料
-            parameters.Add(new SqlParameter("ReportID", reportid));
+            parameters.Add(new SqlParameter("projectid", projectid));
+            parameters.Add(new SqlParameter("reportid", reportid));
             parameters.Add(new SqlParameter("type", type));
 
             List<DailyReportRecord4Worker> lst = new List<DailyReportRecord4Worker>();

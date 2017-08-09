@@ -315,8 +315,9 @@ namespace topmeperp.Models
         public string PROJECT_ID { get; set; }
         public string PROJECT_ITEM_ID { get; set; }
         public string ITEM_DESC { get; set; }
-        public Nullable<decimal> QTY { get; set; }
-        public Nullable<decimal> ACCUMULATE_QTY { get; set; }
+        public Nullable<decimal> QTY { get; set; } //圖算數量
+        public Nullable<decimal> ACCUMULATE_QTY { get; set; }//累積數量
+        public Nullable<decimal> FINSIH_QTY { get; set; }//施作數量
     }
 
     public class ESTFunction

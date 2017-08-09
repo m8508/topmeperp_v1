@@ -279,6 +279,7 @@ namespace topmeperp.Controllers
                 ViewBag.taskName = planService.getProjectTask(Request["projectid"], int.Parse(Request["prjuid"])).TASK_NAME;
                 ViewBag.RptDate = Request["rptDate"];
                 dailyRpt = planService.newDailyReport(Request["projectid"], int.Parse(Request["prjuid"]));
+                ViewBag.selWeather = getDropdownList4Weather("");
             }
             else
             {
@@ -290,12 +291,31 @@ namespace topmeperp.Controllers
 
                 ViewBag.projectName = planService.getProject(dailyRpt.dailyRpt.PROJECT_ID).PROJECT_NAME;
                 ViewBag.prj_uid = dailyRpt.lstRptTask[0].PRJ_UID;
-                ViewBag.taskName = planService.getProjectTask(dailyRpt.dailyRpt.PROJECT_ID,int.Parse(dailyRpt.lstRptTask[0].PRJ_UID.ToString())).TASK_NAME;
-                ViewBag.RptDate =string.Format("{0:yyyy/MM/dd}", dailyRpt.dailyRpt.REPORT_DATE);
+                ViewBag.taskName = planService.getProjectTask(dailyRpt.dailyRpt.PROJECT_ID, int.Parse(dailyRpt.lstRptTask[0].PRJ_UID.ToString())).TASK_NAME;
+                ViewBag.RptDate = string.Format("{0:yyyy/MM/dd}", dailyRpt.dailyRpt.REPORT_DATE);
+                ViewBag.ddlWeather = getDropdownList4Weather(dailyRpt.dailyRpt.WEATHER);
             }
+
             //1.依據任務取得相關施作項目內容
             return View(dailyRpt);
         }
+        private List<SelectListItem> getDropdownList4Weather(string selecValue)
+        {
+            string[] aryWeather = { "晴", "陰", "雨" };
+            List<SelectListItem> lstWeather = new List<SelectListItem>();
+            for (int i = 0; i < aryWeather.Length; i++)
+            {
+                bool selected = aryWeather[i].Equals(selecValue);
+                lstWeather.Add(new SelectListItem()
+                {
+                    Text = aryWeather[i],
+                    Value = aryWeather[i],
+                    Selected = selected
+                });
+            }
+            return lstWeather;
+        }
+
         //儲存日報數量紀錄
         public string saveItemRow(FormCollection f)
         {
