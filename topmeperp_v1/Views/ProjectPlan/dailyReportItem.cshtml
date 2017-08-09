@@ -56,21 +56,49 @@
                         </div>
                         <div class="col-xs-8">
                             <label class="col-xs-2 control-label">摘要:</label>
-                            <input class="form-control" type="text" id="txtSummary" name="txtSummary" value="" />
+                            @if (null == @Model.dailyRpt)
+                            {
+                                <input class="form-control" type="text" id="txtSummary" name="txtSummary" value="" />
+                            }
+                            else
+                            {
+                                <input class="form-control" type="text" id="txtSummary" name="txtSummary" value="@Model.dailyRpt.SUMMARY" />
+                            }
                         </div>
                     </div>
                     <div class="row" style="padding-top:5px">
                         <div class="col-xs-4">
                             <label class="col-xs-3 control-label">現場:</label>
-                            <input class="form-control" style="width:40%" type="text" id="txtSenceUser" name="txtSenceUser" value="" />
+                            @if (null == @Model.dailyRpt)
+                            {
+                                <input class="form-control" style="width:40%" type="text" id="txtSenceUser" name="txtSenceUser" value="" />
+                            }
+                            else
+                            {
+                                <input class="form-control" style="width:40%" type="text" id="txtSenceUser" name="txtSenceUser" value="@Model.dailyRpt.SCENE_USER_NAME" />
+                            }
                         </div>
                         <div class="col-xs-4">
                             <label class="col-xs-3 control-label">監造:</label>
-                            <input class="form-control" style="width:40%" type="text" id="txtSupervision" name="txtSupervision" value="" />
+                            @if (null == @Model.dailyRpt)
+                            {
+                                <input class="form-control" style="width:40%" type="text" id="txtSupervision" name="txtSupervision" value="" />
+                            }
+                            else
+                            {
+                                <input class="form-control" style="width:40%" type="text" id="txtSupervision" name="txtSupervision" value="@Model.dailyRpt.SUPERVISION_NAME" />
+                            }
                         </div>
                         <div class="col-xs-4">
                             <label class="col-xs-3 control-label">業主:</label>
-                            <input class="form-control" style="width:40%" type="text" id="txtOwner" name="txtOwner" value="" />
+                            @if (null == @Model.dailyRpt)
+                            {
+                                <input class="form-control" style="width:40%" type="text" id="txtOwner" name="txtOwner" value="" />
+                            }
+                            else
+                            {
+                                <input class="form-control" style="width:40%" type="text" id="txtOwner" name="txtOwner" value="@Model.dailyRpt.OWNER_NAME" />
+                            }
                         </div>
                     </div>
                 </div>
@@ -125,8 +153,8 @@
                                                 </td>
                                                 <td>@Model.lstDailyRptItem4Show[idx].ITEM_DESC</td>
                                                 <td>@Model.lstDailyRptItem4Show[idx].QTY</td>
-                                                <td>@Model.lstDailyRptItem4Show[idx].ACCUMULATE_QTY</td>
-                                                <td><input type='text' id='planItemQty' name='planItemQty' placeholder='0' size="5" /></td>
+                                                <td><input type='text' id='accumulateQty' name='accumulateQty' placeholder='0' size="5" value="@Model.lstDailyRptItem4Show[idx].ACCUMULATE_QTY" readonly /></td>
+                                                <td><input type='text' id='planItemQty' name='planItemQty' placeholder='0' size="5" value="@Model.lstDailyRptItem4Show[idx].QTY"/></td>
                                             </tr>
                                         }
                                         @{
@@ -183,7 +211,7 @@
                                                 </td>
                                                 <td>@Model.lstDailyRptWokerType4Show[idx].VALUE_FIELD</td>
                                                 <td></td>
-                                                <td><input type='text' id='planWorkerQty' name='planWorkerQty' placeholder='0' size="5" /></td>
+                                                <td><input type='text' id='planWorkerQty' name='planWorkerQty' placeholder='0' size="5" value='@Model.lstDailyRptWokerType4Show[idx].WORKER_QTY'/></td>
                                             </tr>
                                         }
                                         @{
@@ -240,7 +268,7 @@
                                                 </td>
                                                 <td>@Model.lstDailyRptMachine4Show[idx].VALUE_FIELD</td>
                                                 <td></td>
-                                                <td><input type='text' id='planMachineQty' name='planMachineQty' placeholder='0' size="5" /></td>
+                                                <td><input type='text' id='planMachineQty' name='planMachineQty' placeholder='0' size="5" value='@Model.lstDailyRptMachine4Show[idx].WORKER_QTY'  /></td>
                                             </tr>
                                         }
                                         @{
@@ -260,6 +288,7 @@
                 </div>
                 <div id="divOther" class="tab-pane fade">
                     <h3>重要記事</h3>
+                    <a id="add_note_row" class="btn btn-default" onclick="addNoteRow()">新增</a>
                     <div class="container" id="NoteImp">
                         <div class="row clearfix">
                             <div class="col-md-12 column">
@@ -275,24 +304,49 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr id='addNoteR0'>
-                                            <td>1</td>
-                                            <td>
-                                                <textarea id='planNote' name='planNote' placeholder="請輸入本日重要記事" cols="500" rows="3" ></textarea>
-                                                <a id="add_note_row" class="btn btn-default" onclick="addNoteRow()">新增</a>
-                                        </tr>
-                                        <tr id='addNoteR1'></tr>
+                                        @{ 
+                                            var iNoteMaxRowIdx = 0;
+                                            var trNoteMaxRowIdx = "addNoteR";
+                                        }
+                                        @if (null ==Model.lstRptNote)
+                                        {
+                                            <tr id='addNoteR0'>
+                                                <td>1</td>
+                                                <td>
+                                                    <textarea id='planNote' name='planNote' placeholder="請輸入本日重要記事" cols="500" rows="3"></textarea>
+                                            </tr>
+                                            <tr id='addNoteR1'></tr>
+                                        }
+                                        else
+                                        {
+                                            for (int idx = 0; idx < Model.lstRptNote.Count; idx++)
+                                            {
+                                                var idxString = "addNoteR" + idx;
+                                                var idxCount = idx + 1;
+                                                <tr id='@idxString'>
+                                                    <td>@idxCount</td>
+                                                    <td>
+                                                        <textarea id='planNote' name='planNote' placeholder="請輸入本日重要記事" cols="500" rows="3">@Model.lstRptNote[idx].REMARK</textarea>
+                                                    </td>
+                                                </tr>
+                                            }
+                                            iNoteMaxRowIdx = @Model.lstRptNote.Count;
+                                            trNoteMaxRowIdx = "addNoteR" + iNoteMaxRowIdx;
+                                            <tr id='@trNoteMaxRowIdx'></tr>
+                                        }
                                     </tbody>
                                 </table>
-                            </div>  
+                            </div>
                             <buttn typeof="button" class="pull-right btn btn-info" onclick="saveDailReport()">儲存</buttn>
                             <a id='delete_note_row' class="pull-right btn btn-warning" onclick="delNoteRow()">刪除</a>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
+        <!--隱藏資料建立者-->
+        <input type="hidden" id="txtCreateUserId" name="txtCreateUserId" value="@Model.dailyRpt.CREATE_USER_ID" />
+        <input type="hidden" id="txtCreateDate" name="txtCreateDate" value="@Model.dailyRpt.CREATE_DATE" />
     </form>
     <script type="text/javascript">
         /***
@@ -340,7 +394,7 @@
         /***
         *重要記事
         */
-        var iNoteRow = 1;
+        var iNoteRow = @iNoteMaxRowIdx;
         function addNoteRow() {
             $('#addNoteR' + iNoteRow).html("<td>" + (iNoteRow + 1) + "</td>" +
                "<td><textarea id='planNote' name='planNote' placeholder='請輸入本日重要記事' cols='500' rows='3' autofocus ></textarea>");
@@ -361,7 +415,7 @@
         function saveDailReport(){
             var URLs = "saveItemRow";
             var itemData= $("#formSaveItemRow").serialize() +"&Projectid=" +$("#txtProjectId").val() + "&PrjUid="+ $("#txtPrjUid").val()+ "&ReportID="+ $("#reportID").val()+"&RptDate="+$("#reportDate").val();
-            alert(itemData);
+            //alert(itemData);
             $.ajax({
                 url: URLs,
                 data: itemData,
@@ -375,6 +429,5 @@
                 }
             });
         }
-
     </script>
 </div>

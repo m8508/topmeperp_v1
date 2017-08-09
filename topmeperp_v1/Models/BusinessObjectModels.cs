@@ -310,7 +310,7 @@ namespace topmeperp.Models
      */
     public class DailyReportItem
     {
-        public Nullable<int> TASKUID { get; set; }
+        public Nullable<Int64> TASKUID { get; set; }
         public int PRJ_UID { get; set; }
         public string PROJECT_ID { get; set; }
         public string PROJECT_ITEM_ID { get; set; }

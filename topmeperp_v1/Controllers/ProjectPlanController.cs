@@ -284,7 +284,14 @@ namespace topmeperp.Controllers
             {
                 string strRptId = Request["rptID"];
                 ViewBag.RptId = strRptId;
-                dailyRpt = planService.newDailyReport("", 0);
+                dailyRpt = planService.getDailyReport(strRptId);
+
+                ViewBag.projectId = dailyRpt.dailyRpt.PROJECT_ID;
+
+                ViewBag.projectName = planService.getProject(dailyRpt.dailyRpt.PROJECT_ID).PROJECT_NAME;
+                ViewBag.prj_uid = dailyRpt.lstRptTask[0].PRJ_UID;
+                ViewBag.taskName = planService.getProjectTask(dailyRpt.dailyRpt.PROJECT_ID,int.Parse(dailyRpt.lstRptTask[0].PRJ_UID.ToString())).TASK_NAME;
+                ViewBag.RptDate =string.Format("{0:yyyy/MM/dd}", dailyRpt.dailyRpt.REPORT_DATE);
             }
             //1.依據任務取得相關施作項目內容
             return View(dailyRpt);
@@ -296,7 +303,6 @@ namespace topmeperp.Controllers
             log.Debug("projectId=" + f["Projectid"] + ",prjUid=" + f["PrjUid"] + ",ReportId=" + f["ReportID"]);
             log.Debug("form Data ItemId=" + f["planItemId"]);
             log.Debug("form Data Qty=planItemQty" + f["planItemQty"]);
-
 
             string projectid = f["Projectid"];
             int prjuid = int.Parse(f["PrjUid"]);
@@ -322,14 +328,18 @@ namespace topmeperp.Controllers
             if (null == f["ReportID"] || "" == f["ReportID"])
             {
                 RptHeader.REPORT_ID = snService.getSerialKey(planService.KEY_ID);
+                RptHeader.CREATE_DATE = DateTime.Now;
+                RptHeader.CREATE_USER_ID = u.USER_ID;
             }
             else
             {
                 RptHeader.REPORT_ID = f["ReportID"];
+                RptHeader.CREATE_DATE = DateTime.Parse(f["txtCreateDate"]);
+                RptHeader.CREATE_USER_ID = f["txtCreateUserId"];
+                RptHeader.MODIFY_DATE = DateTime.Now;
+                RptHeader.MODIFY_USER_ID = u.USER_ID;
             }
 
-            RptHeader.CREATE_DATE = DateTime.Now;
-            RptHeader.CREATE_USER_ID = u.USER_ID;
             //建立專案任務資料 (結構是支援多項任務，僅先使用一筆)
             newDailyRpt.lstRptTask = new List<PLAN_DR_TASK>();
             PLAN_DR_TASK RptTask = new PLAN_DR_TASK();
