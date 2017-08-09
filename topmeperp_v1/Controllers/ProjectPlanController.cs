@@ -371,6 +371,7 @@ namespace topmeperp.Controllers
             newDailyRpt.lstRptItem = new List<PLAN_DR_ITEM>();
             string[] aryPlanItem = f["planItemId"].Split(',');
             string[] aryPlanItemQty = f["planItemQty"].Split(',');
+            string[] aryAccumulateQty = f["accumulateQty"].Split(',');
             log.Debug("count ItemiD=" + aryPlanItem.Length + ",qty=" + aryPlanItemQty.Length);
             newDailyRpt.lstRptItem = new List<PLAN_DR_ITEM>();
             for (int i = 0; i < aryPlanItem.Length; i++)
@@ -382,6 +383,10 @@ namespace topmeperp.Controllers
                 if ("" != aryPlanItemQty[i])
                 {
                     item.FINISH_QTY = decimal.Parse(aryPlanItemQty[i]);
+                }
+                if ("" != aryAccumulateQty[i])
+                {
+                    item.LAST_QTY = decimal.Parse(aryAccumulateQty[i]);
                 }
                 newDailyRpt.lstRptItem.Add(item);
             }
