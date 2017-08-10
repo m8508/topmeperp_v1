@@ -587,7 +587,7 @@ namespace topmeperp.Service
         }
 
         //取得標單品項資料
-        public List<TND_PROJECT_ITEM> getProjectItem(string checkEx, string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub,string delFlg)
+        public List<TND_PROJECT_ITEM> getProjectItem(string checkEx, string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub, string delFlg)
         {
             logger.Info("search projectitem by 九宮格 =" + typeCode1 + "search projectitem by 次九宮格 =" + typeCode2 + "search projectitem by 主系統 =" + systemMain + "search projectitem by 次系統 =" + systemSub);
             List<topmeperp.Models.TND_PROJECT_ITEM> lstItem = new List<TND_PROJECT_ITEM>();
@@ -1250,8 +1250,13 @@ namespace topmeperp.Service
             parameters.Add("projectid", item.PROJECT_ID);
             DataSet ds = ExecuteStoreQuery(sql, CommandType.Text, parameters);
             logger.Debug("sql=" + sql + "," + ds.Tables[0].Rows[0][0].ToString() + "," + ds.Tables[0].Rows[0][1].ToString());
-            int longMaxItem = int.Parse(ds.Tables[0].Rows[0][0].ToString());
-            int longMaxExcel = int.Parse(ds.Tables[0].Rows[0][1].ToString());
+            int longMaxExcel = 1;
+            int longMaxItem = 1;
+            if (DBNull.Value != ds.Tables[0].Rows[0][0])
+            {
+                longMaxItem = int.Parse(ds.Tables[0].Rows[0][0].ToString());
+                longMaxExcel = int.Parse(ds.Tables[0].Rows[0][1].ToString());
+            }
             logger.Debug("new project item id=" + longMaxItem + ",ExcelRowID=" + longMaxExcel);
             item.PROJECT_ITEM_ID = item.PROJECT_ID + "-" + longMaxItem;
             //新品項不會有Excel Row_id
