@@ -305,33 +305,33 @@ namespace topmeperp.Controllers
             // 取得其他扣款資料
             string[] lstAmount = form.Get("input_amount").Split(',');
             string[] lstReason = form.Get("input_reason").Split(',');
-            //List<PLAN_OTHER_PAYMENT> lstItem = new List<PLAN_OTHER_PAYMENT>();
-            //for (int j = 0; j < lstAmount.Count(); j++)
-            //{
-            //    PLAN_OTHER_PAYMENT item = new PLAN_OTHER_PAYMENT();
-            //    item.EST_FORM_ID = form["formid"];
-            //    if (lstAmount[j].ToString() == "")
-            //    {
-            //        item.AMOUNT = null;
-            //    }
-            //    else
-            //    {
-            //        item.AMOUNT = decimal.Parse(lstAmount[j]);
-            //    }
-            //    logger.Info("Other Payment Amount  =" + item.AMOUNT);
-            //    item.REASON = lstReason[j];
-            //    logger.Debug("Item EST form id =" + item.EST_FORM_ID + "且扣款原因為" + item.REASON);
-            //    lstItem.Add(item);
-            //}
-            //int i = service.addOtherPayment(lstItem);
-            //if (i == 0)
-            //{
-            //    msg = service.message;
-            //}
-            //else
-            //{
-            //    msg = "新增其他扣款資料成功，EST_FORM_ID =" + form["formid"];
-            //}
+            List<PLAN_OTHER_PAYMENT> lstItem = new List<PLAN_OTHER_PAYMENT>();
+            for (int j = 0; j < lstAmount.Count(); j++)
+            {
+                PLAN_OTHER_PAYMENT item = new PLAN_OTHER_PAYMENT();
+                item.EST_FORM_ID = form["formid"];
+                if (lstAmount[j].ToString() == "")
+                {
+                    item.AMOUNT = null;
+                }
+                else
+                {
+                    item.AMOUNT = decimal.Parse(lstAmount[j]);
+                }
+                logger.Info("Other Payment Amount  =" + item.AMOUNT);
+                item.REASON = lstReason[j];
+                logger.Debug("Item EST form id =" + item.EST_FORM_ID + "且扣款原因為" + item.REASON);
+                lstItem.Add(item);
+            }
+            int i = service.addOtherPayment(lstItem);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "新增其他扣款資料成功，EST_FORM_ID =" + form["formid"];
+            }
             return msg;
         }
     }
