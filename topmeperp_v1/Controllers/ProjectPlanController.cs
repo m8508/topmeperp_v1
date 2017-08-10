@@ -270,14 +270,52 @@ namespace topmeperp.Controllers
         //填寫日報step2 :選取填寫內容
         public ActionResult dailyReportItem()
         {
-            ViewBag.projectId = Request["projectid"];
-            ViewBag.projectName = planService.getProject(Request["projectid"]).PROJECT_NAME;
-            ViewBag.prj_uid = Request["prjuid"];
-            ViewBag.taskName = planService.getProjectTask(Request["projectid"], int.Parse(Request["prjuid"])).TASK_NAME;
+            DailyReport dailyRpt = null;
+            if (null == Request["rptID"])
+            {
+                ViewBag.projectId = Request["projectid"];
+                ViewBag.projectName = planService.getProject(Request["projectid"]).PROJECT_NAME;
+                ViewBag.prj_uid = Request["prjuid"];
+                ViewBag.taskName = planService.getProjectTask(Request["projectid"], int.Parse(Request["prjuid"])).TASK_NAME;
+                ViewBag.RptDate = Request["rptDate"];
+                dailyRpt = planService.newDailyReport(Request["projectid"], int.Parse(Request["prjuid"]));
+                ViewBag.selWeather = getDropdownList4Weather("");
+            }
+            else
+            {
+                string strRptId = Request["rptID"];
+                ViewBag.RptId = strRptId;
+                dailyRpt = planService.getDailyReport(strRptId);
+
+                ViewBag.projectId = dailyRpt.dailyRpt.PROJECT_ID;
+
+                ViewBag.projectName = planService.getProject(dailyRpt.dailyRpt.PROJECT_ID).PROJECT_NAME;
+                ViewBag.prj_uid = dailyRpt.lstRptTask[0].PRJ_UID;
+                ViewBag.taskName = planService.getProjectTask(dailyRpt.dailyRpt.PROJECT_ID, int.Parse(dailyRpt.lstRptTask[0].PRJ_UID.ToString())).TASK_NAME;
+                ViewBag.RptDate = string.Format("{0:yyyy/MM/dd}", dailyRpt.dailyRpt.REPORT_DATE);
+                ViewBag.ddlWeather = getDropdownList4Weather(dailyRpt.dailyRpt.WEATHER);
+            }
+
             //1.依據任務取得相關施作項目內容
-            DailyReport dailyRpt = planService.newDailyReport(Request["projectid"], int.Parse(Request["prjuid"]));
             return View(dailyRpt);
         }
+        private List<SelectListItem> getDropdownList4Weather(string selecValue)
+        {
+            string[] aryWeather = { "晴", "陰", "雨" };
+            List<SelectListItem> lstWeather = new List<SelectListItem>();
+            for (int i = 0; i < aryWeather.Length; i++)
+            {
+                bool selected = aryWeather[i].Equals(selecValue);
+                lstWeather.Add(new SelectListItem()
+                {
+                    Text = aryWeather[i],
+                    Value = aryWeather[i],
+                    Selected = selected
+                });
+            }
+            return lstWeather;
+        }
+
         //儲存日報數量紀錄
         public string saveItemRow(FormCollection f)
         {
@@ -288,17 +326,40 @@ namespace topmeperp.Controllers
 
             string projectid = f["Projectid"];
             int prjuid = int.Parse(f["PrjUid"]);
+            string strWeather = f["selWeather"];
+            string strSummary = f["txtSummary"];
+            string strSenceUser = f["txtSenceUser"];
+            string strSupervision = f["txtSupervision"];
+            string strOwner = f["txtOwner"];
+            string strRptDate = f["RptDate"];
 
             DailyReport newDailyRpt = new DailyReport();
             PLAN_DALIY_REPORT RptHeader = new PLAN_DALIY_REPORT();
             RptHeader.PROJECT_ID = projectid;
-            RptHeader.REPORT_DATE = DateTime.Now;
+            RptHeader.WEATHER = strWeather;
+            RptHeader.SUMMARY = strSummary;
+            RptHeader.SCENE_USER_NAME = strSenceUser;
+            RptHeader.SUPERVISION_NAME = strSupervision;
+            RptHeader.OWNER_NAME = strOwner;
             newDailyRpt.dailyRpt = RptHeader;
+            RptHeader.REPORT_DATE = DateTime.Parse(strRptDate);
             //取得日報編號
             SerialKeyService snService = new SerialKeyService();
-            RptHeader.REPORT_ID = snService.getSerialKey(planService.KEY_ID);
-            RptHeader.CREATE_DATE = DateTime.Now;
-            RptHeader.CREATE_USER_ID = u.USER_ID;
+            if (null == f["ReportID"] || "" == f["ReportID"])
+            {
+                RptHeader.REPORT_ID = snService.getSerialKey(planService.KEY_ID);
+                RptHeader.CREATE_DATE = DateTime.Now;
+                RptHeader.CREATE_USER_ID = u.USER_ID;
+            }
+            else
+            {
+                RptHeader.REPORT_ID = f["ReportID"];
+                RptHeader.CREATE_DATE = DateTime.Parse(f["txtCreateDate"]);
+                RptHeader.CREATE_USER_ID = f["txtCreateUserId"];
+                RptHeader.MODIFY_DATE = DateTime.Now;
+                RptHeader.MODIFY_USER_ID = u.USER_ID;
+            }
+
             //建立專案任務資料 (結構是支援多項任務，僅先使用一筆)
             newDailyRpt.lstRptTask = new List<PLAN_DR_TASK>();
             PLAN_DR_TASK RptTask = new PLAN_DR_TASK();
@@ -310,6 +371,7 @@ namespace topmeperp.Controllers
             newDailyRpt.lstRptItem = new List<PLAN_DR_ITEM>();
             string[] aryPlanItem = f["planItemId"].Split(',');
             string[] aryPlanItemQty = f["planItemQty"].Split(',');
+            string[] aryAccumulateQty = f["accumulateQty"].Split(',');
             log.Debug("count ItemiD=" + aryPlanItem.Length + ",qty=" + aryPlanItemQty.Length);
             newDailyRpt.lstRptItem = new List<PLAN_DR_ITEM>();
             for (int i = 0; i < aryPlanItem.Length; i++)
@@ -321,6 +383,10 @@ namespace topmeperp.Controllers
                 if ("" != aryPlanItemQty[i])
                 {
                     item.FINISH_QTY = decimal.Parse(aryPlanItemQty[i]);
+                }
+                if ("" != aryAccumulateQty[i])
+                {
+                    item.LAST_QTY = decimal.Parse(aryAccumulateQty[i]);
                 }
                 newDailyRpt.lstRptItem.Add(item);
             }
@@ -368,6 +434,7 @@ namespace topmeperp.Controllers
                 item.REPORT_ID = RptHeader.REPORT_ID;
                 if ("" != aryNote[i].Trim())
                 {
+                    item.SORT = i + 1;
                     item.REMARK = aryNote[i].Trim();
                     newDailyRpt.lstRptNote.Add(item);
                 }
@@ -376,6 +443,7 @@ namespace topmeperp.Controllers
             string msg = planService.createDailyReport(newDailyRpt);
             return msg;
         }
+        //顯示日報維護畫面
         public ActionResult dailyReportList(string id)
         {
             if (null == id || "" == id)
@@ -385,6 +453,31 @@ namespace topmeperp.Controllers
             ViewBag.projectName = planService.getProject(id).PROJECT_NAME;
             ViewBag.projectId = id;
             return View();
+        }
+        //取得日報明細資料
+        public ActionResult getDailyReportList(FormCollection f)
+        {
+            //定義查詢條件
+            string strProjectid = f["txtProjectId"];
+            DateTime dtStart = DateTime.MinValue;
+            DateTime dtEnd = DateTime.MinValue;
+            string strSummary = null;
+            if ("" != f["reportDateStart"])
+            {
+                dtStart = DateTime.Parse(f["reportDateStart"]);
+            }
+            if ("" != f["reportDateEnd"])
+            {
+                dtEnd = DateTime.Parse(f["reportDateEnd"]);
+            }
+
+            if ("" != f["strSummary"])
+            {
+                strSummary = f["txtSummary"];
+            }
+            List<PLAN_DALIY_REPORT> lst = planService.getDailyReportList(strProjectid, dtStart, dtEnd, strSummary);
+            ViewBag.Result = "共" + lst.Count + " 筆日報紀錄!!";
+            return PartialView("_getDailyReportList", lst);
         }
     }
 }

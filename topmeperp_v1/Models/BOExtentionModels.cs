@@ -26,13 +26,29 @@ namespace topmeperp.Models
         public PLAN_DALIY_REPORT dailyRpt { get; set; }
         //for display
         public List<DailyReportItem> lstDailyRptItem4Show { get; set; }
-        public List<SYS_PARA> lstDailyRptWokerType4Show { get; set; }
-        public List<SYS_PARA> lstDailyRptMachine4Show { get; set; }
+
+        public List<DailyReportRecord4Worker> lstDailyRptWokerType4Show { get; set; }
+        public List<DailyReportRecord4Worker> lstDailyRptMachine4Show { get; set; }
         //phyical data
         public List<PLAN_DR_TASK> lstRptTask { get; set; }
-        public List<PLAN_DR_ITEM > lstRptItem { get; set; }
+        public List<PLAN_DR_ITEM> lstRptItem { get; set; }
         public List<PLAN_DR_WORKER> lstRptWorkerAndMachine { get; set; }
-        public List<PLAN_DR_NOTE> lstRptNote{ get; set; }
-
+        public List<PLAN_DR_NOTE> lstRptNote { get; set; }
+    }
+    /// <summary>
+    /// 施工日報人工與機具資料物件
+    /// </summary>
+    /// <param name="projectid"></param>
+    /// <param name="prjuid"></param>
+    /// <returns></returns>
+    public class DailyReportRecord4Worker
+    {
+        public string FUNCTION_ID { get; set; }
+        public string KEY_FIELD { get; set; }
+        public string VALUE_FIELD { get; set; }
+        public Nullable<decimal> LAST_QTY { get; set; }
+        public Nullable<decimal> WORKER_QTY { get; set; }
+        public string REMARK { get; set; }
+        public string REPORT_ID { get; set; }
     }
 }

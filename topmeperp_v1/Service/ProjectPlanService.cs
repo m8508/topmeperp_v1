@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using topmeperp.Models;
+using System.Data.Entity.Migrations;
 
 namespace topmeperp.Service
 {
@@ -132,7 +133,7 @@ namespace topmeperp.Service
             foreach (PLAN_TASK t in lstTask)
             {
                 //將跟節點置入Directory 內
-                if (t.PARENT_UID == 0)
+                if (t.PARENT_UID == 0 || dicTree.Count == 0)
                 {
                     //rootnode.tags.Add("工期:" + t.DURATION);
                     rootnode.tags.Add("完成:" + t.FINISH_DATE.Value.ToString("yyyy/MM/dd"));
@@ -778,10 +779,31 @@ namespace topmeperp.Service
             DailyReport newDailyRpt = new DailyReport();
             //建立料件資料
             newDailyRpt.lstDailyRptItem4Show = getItem(projectid, prjuid);
-            newDailyRpt.lstDailyRptWokerType4Show = SystemParameter.getSystemPara("ProjectPlanService", "Worker");
-            newDailyRpt.lstDailyRptMachine4Show = SystemParameter.getSystemPara("ProjectPlanService", "Machine");
+            //新報告上無Report ID 用假資料
+            newDailyRpt.lstDailyRptWokerType4Show = getDailyReportRecord4Worker(projectid,"000", "Worker"); //SystemParameter.getSystemPara("ProjectPlanService", "Worker");
+            newDailyRpt.lstDailyRptMachine4Show = getDailyReportRecord4Worker(projectid,"000", "Machine"); //SystemParameter.getSystemPara("ProjectPlanService", "Machine");
             return newDailyRpt;
         }
+        public DailyReport getDailyReport(string reportId)
+        {
+            DailyReport drDailyRpt = new DailyReport();
+            using (var context = new topmepEntities())
+            {
+                string sql = "SELECT * FROM PLAN_DALIY_REPORT WHERE REPORT_ID=@reportId ";
+                logger.Debug("get daily report ,sql=" + sql + ",reportId=" + reportId);
+                drDailyRpt.dailyRpt = context.PLAN_DALIY_REPORT.SqlQuery(sql, new SqlParameter("reportId", reportId)).First();
+                drDailyRpt.lstDailyRptItem4Show = getItem(reportId);
+                drDailyRpt.lstRptTask = getTaskByReportId(reportId);
+                drDailyRpt.lstDailyRptWokerType4Show = getDailyReportRecord4Worker(drDailyRpt.dailyRpt.PROJECT_ID, reportId, "Worker");
+                drDailyRpt.lstDailyRptMachine4Show = getDailyReportRecord4Worker(drDailyRpt.dailyRpt.PROJECT_ID, reportId, "Machine");
+                //取得重要事件
+                sql = "SELECT * FROM PLAN_DR_NOTE WHERE REPORT_ID=@reportId";
+                logger.Debug("get notes ,sql=" + sql + ",reportId=" + reportId);
+                drDailyRpt.lstRptNote = context.PLAN_DR_NOTE.SqlQuery(sql, new SqlParameter("reportId", reportId)).ToList() ;
+            }
+            return drDailyRpt;
+        }
+
         //建立日報相關紀錄
         public string createDailyReport(DailyReport dr)
         {
@@ -789,7 +811,13 @@ namespace topmeperp.Service
             {
                 using (var db = new topmepEntities())
                 {
-                    db.PLAN_DALIY_REPORT.Add(dr.dailyRpt);
+                    //1.將日報相關資料刪除
+                    string sql = "DELETE FROM PLAN_DR_ITEM WHERE REPORT_ID=@reportId;DELETE FROM PLAN_DR_NOTE WHERE REPORT_ID = @reportId;DELETE FROM PLAN_DR_WORKER WHERE REPORT_ID = @reportId;DELETE FROM PLAN_DR_TASK WHERE REPORT_ID = @reportId;";
+                    logger.Info("remove daily Report:" + sql + ",reportid="+ dr.dailyRpt.REPORT_ID);
+                    int i = db.Database.ExecuteSqlCommand(sql, new SqlParameter("reportId", dr.dailyRpt.REPORT_ID));
+                    logger.Debug("remove daily Report:" + i);
+                    //2.
+                    db.PLAN_DALIY_REPORT.AddOrUpdate(dr.dailyRpt);
                     db.PLAN_DR_TASK.AddRange(dr.lstRptTask);
                     db.PLAN_DR_ITEM.AddRange(dr.lstRptItem);
                     db.PLAN_DR_WORKER.AddRange(dr.lstRptWorkerAndMachine);
@@ -810,7 +838,8 @@ namespace topmeperp.Service
         {
             List<DailyReportItem> lstDailyRptItem = new List<DailyReportItem>();
             string sql = "SELECT TI.TASKUID,TI.PRJ_UID,TI.PROJECT_ID,TI.PROJECT_ITEM_ID,"
-                + " (SELECT ITEM_DESC FROM TND_PROJECT_ITEM i WHERE i.PROJECT_ITEM_ID=TI.PROJECT_ITEM_ID) ITEM_DESC,0.0 as ACCUMULATE_QTY ,QTY "
+                + " (SELECT ITEM_DESC FROM TND_PROJECT_ITEM i WHERE i.PROJECT_ITEM_ID=TI.PROJECT_ITEM_ID) ITEM_DESC,"
+                + " (SELECT SUM(ISNULL(FINISH_QTY,0)) FROM PLAN_DR_ITEM WHERE PLAN_ITEM_ID = TI.PROJECT_ITEM_ID) as ACCUMULATE_QTY ,QTY,null AS FINISH_QTY "
                 + " FROM PLAN_TASK2MAPITEM TI LEFT OUTER JOIN vw_MAP_MATERLIALIST_DETAIL MAP "
                 + " ON TI.PROJECT_ITEM_ID = MAP.PROJECT_ITEM_ID "
                 + " WHERE TI.PROJECT_ID = @projectid AND TI.PRJ_UID = @prjuid "
@@ -818,10 +847,106 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 logger.Debug("sql=" + sql + ",projectid=" + projectid + ",prjuid=" + prjuid);
-                lstDailyRptItem = context.Database.SqlQuery<DailyReportItem>(sql, new SqlParameter("projectid", projectid), new SqlParameter("prjuid", prjuid)).ToList();
+                lstDailyRptItem = context.Database.SqlQuery<DailyReportItem>(sql, new SqlParameter("projectid", projectid), new SqlParameter("prjuid",prjuid)).ToList();
                 logger.Debug("lstDailyRptItem count=" + lstDailyRptItem.Count);
             }
             return lstDailyRptItem;
+        }
+        public List<DailyReportItem> getItem(string reportId)
+        {
+            List<DailyReportItem> lstDailyRptItem = new List<DailyReportItem>();
+            string sql = "SELECT DR_ITEM_ID AS TASKUID,0 as PRJ_UID,i.PROJECT_ID,PLAN_ITEM_ID as PROJECT_ITEM_ID,QTY,"
+                +"(SELECT ITEM_DESC FROM TND_PROJECT_ITEM p WHERE i.PLAN_ITEM_ID = p.PROJECT_ITEM_ID) AS ITEM_DESC, LAST_QTY AS ACCUMULATE_QTY, FINISH_QTY "
+                + "FROM PLAN_DR_ITEM i,vw_MAP_MATERLIALIST_DETAIL Map WHERE REPORT_ID = @reportId AND Map.PROJECT_ITEM_ID=i.PLAN_ITEM_ID; ";
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("sql=" + sql + ",reportId=" + reportId );
+                lstDailyRptItem = context.Database.SqlQuery<DailyReportItem>(sql, new SqlParameter("reportId", reportId)).ToList();
+                logger.Debug("lstDailyRptItem count=" + lstDailyRptItem.Count);
+            }
+            return lstDailyRptItem;
+        }
+        //取得人工/機具使用數量
+        public List<DailyReportRecord4Worker> getDailyReportRecord4Worker(string projectid,string reportid, string type)
+        {
+            //string sql = "SELECT PA.FUNCTION_ID,PA.KEY_FIELD,PA.VALUE_FIELD,"
+            //    + "(SELECT SUM(ISNULL(WORKER_QTY, 0)) AS LAST_QTY FROM PLAN_DR_WORKER WHERE REPORT_ID = @ReportID AND PARA_KEY_ID = RPT.PARA_KEY_ID) AS LAST_QTY,"
+            //    + "RPT.WORKER_QTY,RPT.REMARK,RPT.REPORT_ID "
+            //    + "FROM  SYS_PARA PA LEFT OUTER JOIN(SELECT * FROM PLAN_DR_WORKER WHERE REPORT_ID = @ReportID ) RPT "
+            //    + " ON PA.KEY_FIELD = RPT.PARA_KEY_ID WHERE FUNCTION_ID = 'ProjectPlanService' AND FIELD_ID = @type ORDER BY KEY_FIELD; ";
+
+            string sql = "SELECT PA.FUNCTION_ID,PA.KEY_FIELD,PA.VALUE_FIELD,"
+                + "(SELECT SUM(ISNULL(WORKER_QTY, 0)) AS LAST_QTY FROM PLAN_DR_WORKER, PLAN_DALIY_REPORT "
+                + "WHERE PLAN_DALIY_REPORT.REPORT_ID = PLAN_DR_WORKER.REPORT_ID "
+                + "AND PLAN_DALIY_REPORT.PROJECT_ID = @projectid AND PLAN_DR_WORKER.PARA_KEY_ID = PA.KEY_FIELD) AS LAST_QTY, "
+                + "RPT.WORKER_QTY,RPT.REMARK,RPT.REPORT_ID FROM  SYS_PARA PA LEFT OUTER JOIN(SELECT * FROM PLAN_DR_WORKER WHERE REPORT_ID = @reportid) RPT ON PA.KEY_FIELD = RPT.PARA_KEY_ID "
+                + "WHERE FUNCTION_ID = 'ProjectPlanService' AND FIELD_ID =@type  ORDER BY KEY_FIELD; ";
+
+            var parameters = new List<SqlParameter>();
+            //設定專案名編號資料
+            parameters.Add(new SqlParameter("projectid", projectid));
+            parameters.Add(new SqlParameter("reportid", reportid));
+            parameters.Add(new SqlParameter("type", type));
+
+            List<DailyReportRecord4Worker> lst = new List<DailyReportRecord4Worker>();
+            using (var context = new topmepEntities())
+            {
+                logger.Info("get DailyReportRecord4Worker sql:" + sql +",type=" + type);
+                lst = context.Database.SqlQuery<DailyReportRecord4Worker>(sql, parameters.ToArray()).ToList();
+            }
+            return lst;
+        }
+        //取得日報任務資料
+        public List<PLAN_DR_TASK> getTaskByReportId(string reportid)
+        {
+            string sql = "SELECT DT.REPORT_ID,DR_TASK_ID,DT.PROJECT_ID,DT.PRJ_UID,T.TASK_NAME "
+                + "FROM PLAN_DR_TASK DT ,PLAN_DALIY_REPORT RPT, PLAN_TASK T "
+                + "WHERE DT.REPORT_ID = RPT.REPORT_ID "
+                + "AND DT.PROJECT_ID = T.PROJECT_ID AND DT.PRJ_UID = T.PRJ_UID "
+                + "AND RPT.REPORT_ID =@ReportID ";
+            var parameters = new List<SqlParameter>();
+            //設定專案名編號資料
+            parameters.Add(new SqlParameter("ReportID", reportid));
+            List<PLAN_DR_TASK> lst = new List<PLAN_DR_TASK>();
+            using (var context = new topmepEntities())
+            {
+                logger.Info("get task for report sql:" + sql);
+                lst = context.Database.SqlQuery<PLAN_DR_TASK>(sql, parameters.ToArray()).ToList();
+            }
+            return lst;
+        }
+        //取得日報資料，缺乏加總數字
+        public List<PLAN_DALIY_REPORT> getDailyReportList(string projectid, DateTime dtStart, DateTime dtEnd, string strSummary)
+        {
+            List<PLAN_DALIY_REPORT> lst = null;
+            string sql = "SELECT REPORT_ID,PROJECT_ID,REPORT_DATE,WEATHER,SUMMARY,SCENE_USER_NAME,SUPERVISION_NAME,OWNER_NAME,"
+                + "MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
+                + "FROM PLAN_DALIY_REPORT WHERE PROJECT_ID=@projectid ";
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("projectid", projectid));
+
+            if (null != dtStart && dtStart != DateTime.MinValue)
+            {
+                sql = sql + " AND REPORT_DATE BETWEEN @dtStart AND @dtEnd";
+                parameters.Add(new SqlParameter("dtStart", dtStart));
+                if (null == dtEnd)
+                {
+                    dtEnd = dtStart.AddSeconds(86399.0);
+                }
+                parameters.Add(new SqlParameter("dtEnd", dtEnd));
+            }
+            if (null != strSummary && "" != strSummary)
+            {
+                sql = sql + " AND SUMMARY LIKE @strSummary";
+                parameters.Add(new SqlParameter("strSummary", "'%" + strSummary + "%'"));
+            }
+            sql = sql + " ORDER BY REPORT_DATE DESC";
+            logger.Info("sql=" + sql);
+            using (var context = new topmepEntities())
+            {
+                lst = context.PLAN_DALIY_REPORT.SqlQuery(sql, parameters.ToArray()).ToList();
+            }
+            return lst;
         }
     }
     #endregion

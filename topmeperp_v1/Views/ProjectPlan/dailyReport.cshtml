@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<topmeperp.Models.PLAN_TASK>
 @{
-    ViewBag.Title = "施工日報";
+    ViewBag.Title = "施工日報-選取任務";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <h2>@ViewBag.Title</h2>
@@ -28,7 +28,7 @@
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td><a href="~/ProjectPlan/dailyReportItem?projectid=@ViewBag.projectId&prjuid=@item.PRJ_UID ">填寫日報</a>   </td>
+                            <td><a href="~/ProjectPlan/dailyReportItem?projectid=@ViewBag.projectId&prjuid=@item.PRJ_UID&rptDate=@ViewBag.reportDate">填寫日報</a>   </td>
                             <td>@Html.DisplayFor(modelItem => item.TASK_NAME)</td>
                             <td>@Html.DisplayFor(modelItem => item.START_DATE)</td>
                             <td>@Html.DisplayFor(modelItem => item.FINISH_DATE)</td>

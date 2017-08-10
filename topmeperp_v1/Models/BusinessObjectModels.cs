@@ -315,13 +315,14 @@ namespace topmeperp.Models
      */
     public class DailyReportItem
     {
-        public Nullable<int> TASKUID { get; set; }
+        public Nullable<Int64> TASKUID { get; set; }
         public int PRJ_UID { get; set; }
         public string PROJECT_ID { get; set; }
         public string PROJECT_ITEM_ID { get; set; }
         public string ITEM_DESC { get; set; }
-        public Nullable<decimal> QTY { get; set; }
-        public Nullable<decimal> ACCUMULATE_QTY { get; set; }
+        public Nullable<decimal> QTY { get; set; } //圖算數量
+        public Nullable<decimal> ACCUMULATE_QTY { get; set; }//累積數量
+        public Nullable<decimal> FINISH_QTY { get; set; }//施作數量
     }
 
     public class ESTFunction
