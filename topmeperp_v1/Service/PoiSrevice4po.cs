@@ -225,7 +225,7 @@ namespace topmeperp.Service
                 }
                 logger.Debug("Excel Value:" + slog);
                 //將各Row 資料寫入物件內
-                //0.九宮格	1.次九宮格 2.主系統 3.次系統 4.折扣率 5.預算折扣率
+                //0.九宮格	1.次九宮格 2.主系統 3.次系統 4.預算折扣率
                 if (row.Cells[0].ToString().ToUpper() != "END")
                 {
                     lstBudget.Add(convertRow2PlanBudget(row, iRowIndex));

@@ -1387,7 +1387,7 @@ namespace topmeperp.Service
                     + "ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map "
                     + "ON it.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID RIGHT OUTER JOIN PLAN_ITEM pi ON it.PROJECT_ITEM_ID = pi.PLAN_ITEM_ID "
                     + "WHERE it.project_id =@projectid ) A "
-                    + "GROUP BY TYPE_CODE_1, TYPE_CODE_2, SYSTEM_MAIN, SYSTEM_SUB ORDER BY TYPE_CODE_1,TYPE_CODE_2 DESC;";
+                    + "GROUP BY TYPE_CODE_1, TYPE_CODE_2, SYSTEM_MAIN, SYSTEM_SUB ORDER BY ISNULL(TYPE_CODE_1,'無'), ISNULL(TYPE_CODE_2, '無') ;";
                 logger.Info("Get DirectCost SQL=" + sql + ",projectid=" + projectid);
                 lstDirecCost = context.Database.SqlQuery<DirectCost>(sql, new SqlParameter("projectid", projectid)).ToList();
 
