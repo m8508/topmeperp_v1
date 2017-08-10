@@ -22,7 +22,6 @@ namespace topmeperp.Service
         public string message = "";
         TND_PROJECT project = null;
         public TND_PROJECT budgetTable = null;
-        public List<PLAN_BUDGET> budgetTableItem = null;
 
 
         #region 得標標單項目處理

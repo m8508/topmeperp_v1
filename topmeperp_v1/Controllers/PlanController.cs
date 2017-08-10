@@ -300,7 +300,7 @@ namespace topmeperp.Controllers
             {
                 BudgetFormToExcel poi = new BudgetFormToExcel();
                 //檔案位置
-                string fileLocation = poi.exportExcel(service.budgetTable, service.budgetTableItem);
+                string fileLocation = poi.exportExcel(service.budgetTable);
                 //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
                 string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
                 Response.Clear();

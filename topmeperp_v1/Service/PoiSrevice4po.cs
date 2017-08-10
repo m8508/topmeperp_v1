@@ -65,18 +65,21 @@ namespace topmeperp.Service
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         string budgetFile = ContextService.strUploadPath + "\\budget_form.xlsx";
         string outputPath = ContextService.strUploadPath;
-
         IWorkbook hssfworkbook;
         ISheet sheet = null;
         string fileformat = "xlsx";
         //存放預算資料
+        CostAnalysisDataService service = new CostAnalysisDataService();
         public TND_PROJECT project = null;
-        public List<PLAN_BUDGET> typecodeItems = null;
+        public List<DirectCost> typecodeItems = null;
         public string errorMessage = null;
         string projId = null;
+        XSSFCellStyle style = null;
+        
         //建立預算下載表格
-        public string exportExcel(TND_PROJECT project, List<PLAN_BUDGET> typecodeItems)
+        public string exportExcel(TND_PROJECT project)
         {
+            List<DirectCost> typecodeItems = service.getDirectCost4Budget(project.PROJECT_ID);
             //1.讀取預算表格檔案
             InitializeWorkbook(budgetFile);
             sheet = (XSSFSheet)hssfworkbook.GetSheet("預算");
@@ -86,18 +89,52 @@ namespace topmeperp.Service
             sheet.GetRow(1).Cells[1].SetCellValue(project.PROJECT_ID);//專案編號
             logger.Debug("Table Head_2=" + sheet.GetRow(2).Cells[0].ToString());
             sheet.GetRow(2).Cells[1].SetCellValue(project.PROJECT_NAME);//專案名稱
-
-            //2.建立空白欄位
+            //3.填入資料
             int idxRow = 4;
-            IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
-            //預算//預算單列小計(填入公式)
-            for (int iTmp = 0; iTmp < 50; iTmp++)
+            foreach (DirectCost item in typecodeItems)
             {
-                row.CreateCell(8).CellFormula = "(G" + (idxRow + 1) + "*H" + (idxRow + 1) + "/100";
-                row.CreateCell(iTmp);
+                IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+                logger.Info("Row Id=" + idxRow);
+                //主九宮格編碼、次九宮格編碼、主系統、次系統、分項名稱(成本價)、合約金額、材料成本、預算折扣率、預算金額
+                //主九宮格編碼
+                row.CreateCell(0).SetCellValue(item.MAINCODE);
+                //次九宮格編碼
+                if (null != item.SUB_CODE && item.SUB_CODE.ToString().Trim() != "")
+                {
+                    row.CreateCell(1).SetCellValue(double.Parse(item.SUB_CODE.ToString()));
+                }
+                //主系統
+                if (null != item.SYSTEM_MAIN && item.SYSTEM_MAIN.ToString().Trim() != "")
+                {
+                    row.CreateCell(2).SetCellValue(item.SYSTEM_MAIN);
+                }
+                //次系統
+                if (null != item.SYSTEM_SUB && item.SYSTEM_SUB.ToString().Trim() != "")
+                {
+                    row.CreateCell(3).SetCellValue(item.SYSTEM_SUB);
+                }
+                //分項名稱
+                logger.Debug("ITEM DESC=" + item.MAINCODE_DESC);
+                row.CreateCell(4).SetCellValue(item.MAINCODE_DESC + "-" + item.SUB_DESC);
+                //合約金額
+                if (null != item.CONTRACT_PRICE && item.CONTRACT_PRICE.ToString().Trim() != "")
+                {
+                    row.CreateCell(5).SetCellValue(double.Parse(item.CONTRACT_PRICE.ToString()));
+                }
+                //材料成本
+                if (null != item.MATERIAL_COST && item.MATERIAL_COST.ToString().Trim() != "")
+                {
+                    row.CreateCell(6).SetCellValue(double.Parse(item.MATERIAL_COST.ToString()));
+                }
+                //預算金額
+                row.CreateCell(8).CellFormula = "G" + (idxRow + 1) + "*H" + (idxRow + 1) + "/100";
+                logger.Debug("getBudget cell style rowid=" + idxRow);
+                foreach (ICell c in row.Cells)
+                {
+                    c.CellStyle = style;
+                }
+                idxRow++;
             }
-            idxRow++;
-
             //4.另存新檔至專案所屬目錄 (增加Temp for zip 打包使用
             string fileLocation = null;
             fileLocation = outputPath + "\\" + project.PROJECT_ID + "\\" + project.PROJECT_ID + "_預算.xlsx";
@@ -188,7 +225,7 @@ namespace topmeperp.Service
                 }
                 logger.Debug("Excel Value:" + slog);
                 //將各Row 資料寫入物件內
-                //0.九宮格	1.次九宮格 2.折扣率 3.預算折扣率
+                //0.九宮格	1.次九宮格 2.主系統 3.次系統 4.折扣率 5.預算折扣率
                 if (row.Cells[0].ToString().ToUpper() != "END")
                 {
                     lstBudget.Add(convertRow2PlanBudget(row, iRowIndex));
