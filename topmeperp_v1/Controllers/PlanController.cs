@@ -274,7 +274,7 @@ namespace topmeperp.Controllers
             if (null == priId)
             //取得九宮格組合之直接成本資料
             {
-                CostAnalysisDataService s = new CostAnalysisDataService();//new
+                CostAnalysisDataService s = new CostAnalysisDataService();
                 List<DirectCost> budget1 = s.getDirectCost4Budget(id); // 目前工資是使用工率還未轉成工資
                 ViewBag.result = "共有" + (budget1.Count - 1) + "筆資料";
                 return View(budget1);
