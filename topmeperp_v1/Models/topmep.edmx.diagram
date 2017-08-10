@@ -19,12 +19,12 @@
         <AssociationConnector Association="topmepModel.FK_SYS_PRIVILEGE_SYS_ROLE" ManuallyRouted="false" />
         <AssociationConnector Association="topmepModel.FK_SYS_USER_SYS_ROLE" ManuallyRouted="false" />
         <EntityTypeShape EntityType="topmepModel.TND_PROJECT_FORM_ITEM" Width="3.25" PointX="14.75" PointY="3.125" IsExpanded="true" />
-        <EntityTypeShape EntityType="topmepModel.TND_MAP_LCP" Width="1.5" PointX="8.75" PointY="8.625" />
+        <EntityTypeShape EntityType="topmepModel.TND_MAP_LCP" Width="2.25" PointX="8" PointY="10.125" />
         <EntityTypeShape EntityType="topmepModel.TND_MAP_PLU" Width="1.5" PointX="16.375" PointY="8.75" />
         <EntityTypeShape EntityType="topmepModel.TND_MAP_DEVICE" Width="1.5" PointX="0.75" PointY="8.75" />
         <EntityTypeShape EntityType="topmepModel.TND_TASKASSIGN" Width="2.125" PointX="12.125" PointY="4.75" />
         <EntityTypeShape EntityType="topmepModel.TND_PROJECT_FORM" Width="2.375" PointX="2.875" PointY="12.375" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_BUDGET" Width="1.5" PointX="10.375" PointY="8.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_BUDGET" Width="1.875" PointX="10.375" PointY="8.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_PAYMENT_TERMS" Width="2.5" PointX="5.375" PointY="16.25" />
         <EntityTypeShape EntityType="topmepModel.PLAN_ITEM" Width="2.125" PointX="10.5" PointY="17.625" />
         <EntityTypeShape EntityType="topmepModel.TND_PROJECT" Width="2.75" PointX="2.5" PointY="17.25" />
@@ -47,8 +47,9 @@
         <EntityTypeShape EntityType="topmepModel.PLAN_SUP_INQUIRY" Width="5.125" PointX="22.375" PointY="6.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_SUP_INQUIRY_ITEM" Width="2.625" PointX="21.375" PointY="22.75" />
         <EntityTypeShape EntityType="topmepModel.TND_PROJECT_ITEM" Width="2.75" PointX="17.375" PointY="13.75" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_FORM" Width="2.375" PointX="13.375" PointY="19.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_ITEM" Width="2.5" PointX="22.375" PointY="3.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_OTHER_PAYMENT" Width="1.5" PointX="0.75" PointY="23.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_FORM" Width="1.5" PointX="13.375" PointY="19.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -452,6 +452,9 @@
     <Compile Include="Models\PLAN_ITEM_DELIVERY.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\PLAN_OTHER_PAYMENT.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\PLAN_PAYMENT_TERMS.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
