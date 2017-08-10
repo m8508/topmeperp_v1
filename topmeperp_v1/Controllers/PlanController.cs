@@ -275,7 +275,7 @@ namespace topmeperp.Controllers
             //取得九宮格組合之直接成本資料
             {
                 CostAnalysisDataService s = new CostAnalysisDataService();
-                List<DirectCost> budget1 = s.getDirectCost(id); // 目前工資是使用工率還未轉成工資
+                List<DirectCost> budget1 = s.getDirectCost4Budget(id); // 目前工資是使用工率還未轉成工資
                 ViewBag.result = "共有" + (budget1.Count - 1) + "筆資料";
                 return View(budget1);
             }
@@ -364,7 +364,9 @@ namespace topmeperp.Controllers
             string msg = "";
             string[] lsttypecode = form.Get("code1").Split(',');
             string[] lsttypesub = form.Get("code2").Split(',');
-            string[] lstCost = form.Get("inputtndratio").Split(',');
+            string[] lstsystemmain = form.Get("systemmain").Split(',');
+            string[] lstsystemsub = form.Get("systemsub").Split(',');
+            //string[] lstCost = form.Get("inputtndratio").Split(',');
             string[] lstPrice = form.Get("inputbudget").Split(',');
             List<PLAN_BUDGET> lstItem = new List<PLAN_BUDGET>();
             for (int j = 0; j < lstPrice.Count(); j++)
@@ -379,19 +381,21 @@ namespace topmeperp.Controllers
                 {
                     item.BUDGET_RATIO = decimal.Parse(lstPrice[j]);
                 }
-                if (lstCost[j].ToString() == "")
-                {
-                    item.TND_RATIO = null;
-                }
-                else
-                {
-                    item.TND_RATIO = decimal.Parse(lstCost[j]);
-                }
-                logger.Info("Budget ratio =" + item.BUDGET_RATIO + ",Cost ratio =" + item.TND_RATIO);
+                //if (lstCost[j].ToString() == "")
+                //{
+                //    item.TND_RATIO = null;
+                //}
+                //else
+                //{
+                //    item.TND_RATIO = decimal.Parse(lstCost[j]);
+                //}
+                logger.Info("Budget ratio =" + item.BUDGET_RATIO);
                 item.TYPE_CODE_1 = lsttypecode[j];
                 item.TYPE_CODE_2 = lsttypesub[j];
+                item.SYSTEM_MAIN = lstsystemmain[j];
+                item.SYSTEM_SUB = lstsystemsub[j];
                 item.CREATE_ID = u.USER_ID;
-                logger.Debug("Item Project id =" + item.PROJECT_ID + "且九宮格組合為" + item.TYPE_CODE_1 + item.TYPE_CODE_2);
+                logger.Debug("Item Project id =" + item.PROJECT_ID + "且九宮格組合為" + item.TYPE_CODE_1 + item.TYPE_CODE_2 + item.SYSTEM_MAIN + item.SYSTEM_SUB);
                 lstItem.Add(item);
             }
             int i = service.addBudget(lstItem);
@@ -418,6 +422,8 @@ namespace topmeperp.Controllers
             string msg = "";
             string[] lsttypecode = form.Get("code1").Split(',');
             string[] lsttypesub = form.Get("code2").Split(',');
+            string[] lstsystemmain = form.Get("systemmain").Split(',');
+            string[] lstsystemsub = form.Get("systemsub").Split(',');
             string[] lstPrice = form.Get("inputbudget").Split(',');
             List<PLAN_BUDGET> lstItem = new List<PLAN_BUDGET>();
             for (int j = 0; j < lstPrice.Count(); j++)
@@ -435,8 +441,10 @@ namespace topmeperp.Controllers
                 logger.Info("Budget ratio =" + item.BUDGET_RATIO);
                 item.TYPE_CODE_1 = lsttypecode[j];
                 item.TYPE_CODE_2 = lsttypesub[j];
+                item.SYSTEM_MAIN = lstsystemmain[j];
+                item.SYSTEM_SUB = lstsystemsub[j];
                 item.MODIFY_ID = u.USER_ID;
-                logger.Debug("Item Project id =" + item.PROJECT_ID + "且九宮格組合為" + item.TYPE_CODE_1 + item.TYPE_CODE_2);
+                logger.Debug("Item Project id =" + item.PROJECT_ID + "且九宮格組合為" + item.TYPE_CODE_1 + item.TYPE_CODE_2 + item.SYSTEM_MAIN + item.SYSTEM_SUB);
                 lstItem.Add(item);
             }
             int i = service.updateBudget(id, lstItem);

@@ -19,6 +19,8 @@
           <Property Name="CREATE_DATE" Type="datetime" />
           <Property Name="MODIFY_ID" Type="varchar" MaxLength="30" />
           <Property Name="MODIFY_DATE" Type="datetime" />
+          <Property Name="SYSTEM_MAIN" Type="varchar" MaxLength="100" />
+          <Property Name="SYSTEM_SUB" Type="varchar" MaxLength="100" />
         </EntityType>
         <EntityType Name="PLAN_DALIY_REPORT">
           <Key>
@@ -164,6 +166,7 @@
           </Key>
           <Property Name="OTHER_PAYMENT_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="EST_FORM_ID" Type="varchar" MaxLength="50" />
+          <Property Name="CONTRACT_ID" Type="varchar" MaxLength="50" />
           <Property Name="AMOUNT" Type="decimal" Precision="18" Scale="3" />
           <Property Name="REASON" Type="varchar" MaxLength="500" />
         </EntityType>
@@ -1073,7 +1076,6 @@
           <EntitySet Name="TND_TASKASSIGN" EntityType="topmepModel.TND_TASKASSIGN" />
           <EntitySet Name="TND_PROJECT_ITEM" EntityType="topmepModel.TND_PROJECT_ITEM" />
           <EntitySet Name="TND_PROJECT_FORM" EntityType="topmepModel.TND_PROJECT_FORM" />
-          <EntitySet Name="PLAN_BUDGET" EntityType="topmepModel.PLAN_BUDGET" />
           <EntitySet Name="PLAN_PAYMENT_TERMS" EntityType="topmepModel.PLAN_PAYMENT_TERMS" />
           <EntitySet Name="PLAN_ITEM" EntityType="topmepModel.PLAN_ITEM" />
           <EntitySet Name="TND_PROJECT" EntityType="topmepModel.TND_PROJECT" />
@@ -1101,6 +1103,7 @@
           <EntitySet Name="PLAN_ESTIMATION_ITEM" EntityType="topmepModel.PLAN_ESTIMATION_ITEM" />
           <EntitySet Name="PLAN_ESTIMATION_FORM" EntityType="topmepModel.PLAN_ESTIMATION_FORM" />
           <EntitySet Name="PLAN_OTHER_PAYMENT" EntityType="topmepModel.PLAN_OTHER_PAYMENT" />
+          <EntitySet Name="PLAN_BUDGET" EntityType="topmepModel.PLAN_BUDGET" />
         </EntityContainer>
         <EntityType Name="TND_PROJECT_FORM_ITEM">
           <Key>
@@ -1255,21 +1258,6 @@
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
           <Property Name="STATUS" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
           <Property Name="ISWAGE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="PLAN_BUDGET">
-          <Key>
-            <PropertyRef Name="PLAN_BUDGET_ID" />
-          </Key>
-          <Property Name="PLAN_BUDGET_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="PROJECT_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="TYPE_CODE_1" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="TYPE_CODE_2" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="BUDGET_RATIO" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
-          <Property Name="TND_RATIO" Type="Decimal" Precision="18" Scale="3" />
         </EntityType>
         <EntityType Name="PLAN_PAYMENT_TERMS">
           <Key>
@@ -1680,8 +1668,26 @@
           </Key>
           <Property Name="OTHER_PAYMENT_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="EST_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="CONTRACT_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="AMOUNT" Type="Decimal" Precision="18" Scale="3" />
           <Property Name="REASON" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="PLAN_BUDGET">
+          <Key>
+            <PropertyRef Name="PLAN_BUDGET_ID" />
+          </Key>
+          <Property Name="PLAN_BUDGET_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="TYPE_CODE_1" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="TYPE_CODE_2" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="TND_RATIO" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="BUDGET_RATIO" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="SYSTEM_MAIN" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="SYSTEM_SUB" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -2032,22 +2038,6 @@
                 <ScalarProperty Name="FORM_NAME" ColumnName="FORM_NAME" />
                 <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
                 <ScalarProperty Name="FORM_ID" ColumnName="FORM_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_BUDGET">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_BUDGET">
-              <MappingFragment StoreEntitySet="PLAN_BUDGET">
-                <ScalarProperty Name="TND_RATIO" ColumnName="TND_RATIO" />
-                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
-                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
-                <ScalarProperty Name="BUDGET_RATIO" ColumnName="BUDGET_RATIO" />
-                <ScalarProperty Name="TYPE_CODE_2" ColumnName="TYPE_CODE_2" />
-                <ScalarProperty Name="TYPE_CODE_1" ColumnName="TYPE_CODE_1" />
-                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
-                <ScalarProperty Name="PLAN_BUDGET_ID" ColumnName="PLAN_BUDGET_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -2468,8 +2458,27 @@
               <MappingFragment StoreEntitySet="PLAN_OTHER_PAYMENT">
                 <ScalarProperty Name="REASON" ColumnName="REASON" />
                 <ScalarProperty Name="AMOUNT" ColumnName="AMOUNT" />
+                <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
                 <ScalarProperty Name="EST_FORM_ID" ColumnName="EST_FORM_ID" />
                 <ScalarProperty Name="OTHER_PAYMENT_ID" ColumnName="OTHER_PAYMENT_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_BUDGET">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_BUDGET">
+              <MappingFragment StoreEntitySet="PLAN_BUDGET">
+                <ScalarProperty Name="SYSTEM_SUB" ColumnName="SYSTEM_SUB" />
+                <ScalarProperty Name="SYSTEM_MAIN" ColumnName="SYSTEM_MAIN" />
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+                <ScalarProperty Name="BUDGET_RATIO" ColumnName="BUDGET_RATIO" />
+                <ScalarProperty Name="TND_RATIO" ColumnName="TND_RATIO" />
+                <ScalarProperty Name="TYPE_CODE_2" ColumnName="TYPE_CODE_2" />
+                <ScalarProperty Name="TYPE_CODE_1" ColumnName="TYPE_CODE_1" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
+                <ScalarProperty Name="PLAN_BUDGET_ID" ColumnName="PLAN_BUDGET_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

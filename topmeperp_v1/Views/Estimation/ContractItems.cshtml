@@ -8,257 +8,234 @@
 @using (Html.BeginForm())
 {
     <div class="page-header">
-        <h3 style="height:10px;line-height:5px">@ViewBag.Title</h3>
-        <div class="row">
-            <div class="col-md-3 form-group" style="padding-top:10px">
-                <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.projectId" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            <h3 style="height:10px;line-height:5px">@ViewBag.Title</h3>
+            <div class="row">
+                <div class="col-md-3 form-group" style="padding-top:10px">
+                    <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.projectId" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                </div>
+                <div class="col-md-3" style="padding-top:10px">
+                    <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                </div>
+                <div class="col-md-3 form-group" style="padding-top:10px">
+                    <label for="date">估驗日期:</label><input id="date" name="date" type="text" value="@ViewBag.date" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                </div>
+                <div class="col-md-3 form-group" style="padding-top:10px">
+                    <label for="estCount">估驗次數:</label><input type="text" id="estCount" name="estCount" value="@ViewBag.estCount" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                </div>
             </div>
-            <div class="col-md-3" style="padding-top:10px">
-                <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
-            </div>
-            <div class="col-md-3 form-group" style="padding-top:10px">
-                <label for="id">估驗日期:</label><input id="date" name="date" type="text" value="@ViewBag.date" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
-            </div>
-            <div class="col-md-3 form-group" style="padding-top:10px">
-                <label for="id">估驗次數:</label><input type="text" id="" name="" value="" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-3 form-group">
-                <label for="id">發包項目:</label>
-                @if (ViewBag.wage == "")
-                {
-                    <input type="text" id="formname" name="formname" value="@ViewBag.formname" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
-                }
-                else
-                {
-                    <input type="text" id="formname" name="formname" value="@ViewBag.formname4Wage" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
-                }
-            </div>
-            <div class="col-md-3">
-
-                <label for="projectName">付款對象:</label>
-                @if (ViewBag.wage == "")
-                {
-                    <input type="text" id="supplier" name="supplier" value="@ViewBag.supplier" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
-                }
-                else
-                {
-                    <label for="projectName">付款對象:</label><input type="text" id="supplier" name="supplier" value="@ViewBag.supplier4Wage" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
-                }
-            </div>
-            <div class="col-md-3 form-group">
-                <label for="id">合約金額:</label>
-                @if (ViewBag.wage == "")
-                {
-                    <input id="contractamount" name="contractamount" type="text" value="@ViewBag.amount" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
-                }
-                else
-                {
-                    <input id="contractamount" name="contractamount" type="text" value="@ViewBag.amount4Wage" c class="form-control" style="background-color:#cccccc;" readonly="readonly" />
-                }
-            </div>
-            <div class="col-md-3 form-group">
-                <label for="id">估驗單編號:</label><input type="text" id="formid" name="formid" value="@ViewBag.formid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-3">
-                <label for="projectName">現金 • 期票比率:</label><button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@ViewBag.contractid')">查看</button>
-            </div>
-            <div class="col-md-4">
-                <label for="projectName">憑證:</label><br /><input type="text" id="piece" name="piece" style="width:60px;" />張<br /><input type="radio" id="invoice" name="invoice" value="N" />不檢查發票<input type="radio" id="invoice" name="invoice" value="E" />發票含保留款<input type="radio" id="invoice" name="invoice" value="I" />發票不含保留款
-            </div>
-            <div class="col-md-3 form-group">
-                <label for="id">稅金類別:</label><br /><input type="radio" id="tax" name="tax" value="E" checked />外加稅 : <input type="text" id="taxratio" name="taxratio" value="5" style="width:40px;" />% <input type="radio" id="tax" name="tax" value="O" />其他
-            </div>
-            <div class="col-md-2 form-group">
-                <label for="id">結帳:</label><br /><input type="radio" id="turnToFin" name="turnToFin" value="" />Y   <input type="radio" id="turnToFin" name="turnToFin" value="O" />N
-            </div>
-        </div>
-        <input type="hidden" name="contractid" id="contractid" value="@ViewBag.contractid">
-        <input type="hidden" name="keyid" id="keyid" value="@ViewBag.keyid">
-        <input type="hidden" name="type" id="type" value="@ViewBag.type">
-    </div>
-    <div class="contailer" ng-app="" ng-controller="myController">
-        @ViewBag.SearchResult
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>
-                        No.
-                    </th>
-                    <th>
-                        項次
-                    </th>
-                    <th>
-                        項目說明
-                    </th>
-                    <th>
-                        單位
-                    </th>
-                    <th>
-                        合約數量
-                    </th>
-                    <th>
-                        單價
-                    </th>
-                    <th>
-                        本期數量
-                    </th>
-                    <th>
-                        計價比率 %
-                    </th>
-                    <th>
-                        金額
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="row in item">
-                    <td>
-                        <input style="width:110px" type="text" class="form-control" name="planitemid" id="planitemid" value="{{row.PLAN_ITEM_ID}}" readonly="readonly" />
-                    </td>
-                    <td>
-                        {{row.ITEM_ID}}
-                    </td>
-                    <td>
-                        {{row.ITEM_DESC}}
-                    </td>
-                    <td>
-                        {{row.ITEM_UNIT}}
-                    </td>
-                    <td>
-                        {{row.ITEM_FORM_QUANTITY}}
-                    </td>
+            <div class="row">
+                <div class="col-md-3 form-group">
+                    <label for="formname">發包項目:</label>
                     @if (ViewBag.wage == "")
-                {
-                        <td>
-                            {{row.ITEM_UNIT_PRICE}}
-                        </td>
+                    {
+                        <input type="text" id="formname" name="formname" value="@ViewBag.formname" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
                     }
                     else
                     {
-                        <td>
-                            {{row.MAN_PRICE}}
-                        </td>
+                        <input type="text" id="formname" name="formname" value="@ViewBag.formname4Wage" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
                     }
+                </div>
+                <div class="col-md-3">
 
-                    <td>
-                        <input style="width:80px" type="text" class="form-control" ng-model="row.evaluated_qty" id="evaluated_qty" ng-init="row.evaluated_qty =''" name="evaluated_qty">
-                    </td>
-                    <td>
-                        <input style="width:80px" type="text" class="form-control" ng-model="row.evaluated_ratio" id="evaluated_ration" name="evaluated_ration">
-                    </td>
-                    <td>
-                        @if (ViewBag.wage == "")
-                        {
-                            <input style="width:150px" type="number" class="form-control pull-right" name="amount" id="amount" value="{{row.ITEM_UNIT_PRICE * row.evaluated_qty}}" readonly="readonly">
-                        }
-                        else
-                        {
-                            <input style="width:150px" type="number" class="form-control pull-right" name="amount" id="amount" value="{{row.MAN_PRICE * row.evaluated_qty}}" readonly="readonly">
-                        }
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <div class="pull-right" style="padding-bottom: 15px">
-
-            金額總計:
-            @if (ViewBag.wage == "")
-            {
-                <input id="totalAmount" name="totalAmount" type="number" value="{{GetTotalNum()}}" readonly="readonly" style="width:160px" />
-            }
-            else
-            {
-                <input id="totalAmount" name="totalAmount" type="number" value="{{GetTotalNum4Wage()}}" readonly="readonly" style="width:160px" />
-            }
-        </div>
-        <hr />
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>期別</th>
-                    <th>+ 代付支出<a href="/Estimation/AddRePayment/@ViewBag.formid" target="_blank">＠</a></th>
-                    <th>- 外勞扣款</th>
-                    <th>= 小計</th>
-                    <th>- 保留款 <input type="text" id="retention" name="retention" value="@ViewBag.retention" readonly="readonly" style="width:60px;" />%</th>
-                    <th>- 預付款<a href="/Estimation/AddRePayment/@ViewBag.formid" target="_blank">＠</a></th>
-                    <th>- 代付扣回<a href="/Estimation/AddRePayment/@ViewBag.paymentkey" target="_blank">＠</a></th>
-                    <th>- 其他扣款<a href="/Estimation/OtherPayment/@ViewBag.paymentkey" target="_blank">＠</a></th>
-                    <th>= 應付金額</th>
-                    <th>+ 營業稅</th>
-                    <th>= 實付金額</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>前期累計</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>本期金額</td>
-                    <td><input type="text" id="re_payment" name="re_payment" value="0" style="width:80px;" /></td>
-                    <td><input type="text" id="foreign_payment" name="foreign_payment" value="5000" style="width:80px;" /></td>
-                    <td><input id="Amount" name="Amount" type="text" value="" style="width:80px;" /></td>
-                    <td><input type="text" id="retentionAmount" name="retentionAmount" value="0" style="width:80px;" /></td>
-                    <td><input type="text" id="advanceAmount" name="advanceAmount" value="0" style="width:80px;" /></td>
-                    <td><input type="text" id="re_payment_deduction" name="re_payment_deduction" value="0" style="width:80px;" /></td>
-                    <td><input type="text" id="other_deduction" name="other_deduction" value="0" style="width:80px;" /></td>
-                    <td><input id="PayableAmount" name="PayableAmount" type="text" value="" style="width:80px;" /></td>
-                    <td><input type="text" id="taxAmount" name="taxAmount" value="" style="width:80px;" /></td>
-                    <td><input id="PaidAmount" name="PaidAmount" type="text" value="" style="width:80px;" /></td>
-                </tr>
-                <tr>
-                    <td>累計金額</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-            </tbody>
-        </table>
-        <textarea class="form-control" rows="10" id="remark" name="remark">說明事項</textarea>
-        <div class="row" style="padding-top:10px">
-            <div class="col-md-12">
-                <input type="submit" value="儲存" name="SaveEst" class="btn btn-default" />
-                <input type="submit" value="送出" name="AddEst" class="btn btn-warning" onclick="return Confirm_Form()" />
+                    <label for="supplier">付款對象:</label>
+                    @if (ViewBag.wage == "")
+                    {
+                        <input type="text" id="supplier" name="supplier" value="@ViewBag.supplier" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                    }
+                    else
+                    {
+                        <input type="text" id="supplier" name="supplier" value="@ViewBag.supplier4Wage" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                    }
+                </div>
+                <div class="col-md-3 form-group">
+                    <label for="contractamount">合約金額:</label>
+                    @if (ViewBag.wage == "")
+                    {
+                        <input id="contractamount" name="contractamount" type="text" value="@ViewBag.amount" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                    }
+                    else
+                    {
+                        <input id="contractamount" name="contractamount" type="text" value="@ViewBag.amount4Wage" c class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                    }
+                </div>
+                <div class="col-md-3 form-group">
+                    <label for="formid">估驗單編號:</label><input type="text" id="formid" name="formid" value="@ViewBag.formid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                </div>
             </div>
-        </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="paymentterms">現金 • 期票比率:</label><button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@ViewBag.contractid')">查看</button>
+                </div>
+                <div class="col-md-4">
+                    <label for="piece">憑證:</label><br /><input type="text" id="piece" name="piece" style="width:60px;" />張<br /><input type="radio" id="invoice" name="invoice" value="N" />不檢查發票<input type="radio" id="invoice" name="invoice" value="E" />發票含保留款<input type="radio" id="invoice" name="invoice" value="I" />發票不含保留款
+                </div>
+                <div class="col-md-3 form-group">
+                    <label for="tax">稅金類別:</label><br /><input type="radio" id="tax" name="tax" value="E" checked />外加稅 : <input type="text" id="taxratio" name="taxratio" value="5" style="width:40px;" />% <input type="radio" id="tax" name="tax" value="O" />其他
+                </div>
+                <div class="col-md-2 form-group">
+                    <label for="turnToFin">結帳:</label><br /><input type="radio" id="turnToFin" name="turnToFin" value="" />Y   <input type="radio" id="turnToFin" name="turnToFin" value="O" />N
+                </div>
+            </div>
+            <input type="hidden" name="contractid" id="contractid" value="@ViewBag.contractid">
+            <input type="hidden" name="keyid" id="keyid" value="@ViewBag.keyid">
+            <input type="hidden" name="type" id="type" value="@ViewBag.type">
+</div>
 
+<div class="contailer" ng-app="" ng-controller="myController">
+    @ViewBag.SearchResult
+    <table class="table" align="left">
+        <thead>
+            <tr>
+                <th>
+                    No.
+                </th>
+                <th>
+                    項次
+                </th>
+                <th>
+                    項目說明
+                </th>
+                <th>
+                    單位
+                </th>
+                <th>
+                    合約數量
+                </th>
+                <th>
+                    單價
+                </th>
+                <th>
+                    本期數量
+                </th>
+
+                <th>
+                    本期金額
+                </th>
+                <th>
+                    累計數量
+                </th>
+                <th>
+                    累計金額
+                </th>
+                <th>
+                    累計%
+                </th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+            <tr ng-repeat="row in item">
+                <td>
+                    <input style="width:110px" type="text" class="form-control" name="planitemid" id="planitemid" value="{{row.PLAN_ITEM_ID}}" readonly="readonly" />
+                </td>
+                <td>
+                    {{row.ITEM_ID}}
+                </td>
+                <td>
+                    {{row.ITEM_DESC}}
+                </td>
+                <td>
+                    {{row.ITEM_UNIT}}
+                </td>
+                <td>
+                    {{row.ITEM_FORM_QUANTITY | number : 0}}
+                </td>
+                @if (ViewBag.wage == "")
+                {
+                    <td>
+                        {{row.ITEM_UNIT_PRICE | number : 0}}
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        {{row.MAN_PRICE | number : 0}}
+                    </td>
+                }
+
+                <td>
+                    <input style="width:80px" type="text" class="form-control" ng-model="row.evaluated_qty" id="evaluated_qty" ng-init="row.evaluated_qty =''" name="evaluated_qty">
+                </td>
+                <td>
+                    @if (ViewBag.wage == "")
+                    {
+                        <input style="width:90px" type="number" class="form-control pull-right" name="amount" id="amount" value="{{row.ITEM_UNIT_PRICE * row.evaluated_qty}}" readonly="readonly">
+                    }
+                    else
+                    {
+                        <input style="width:90px" type="number" class="form-control pull-right" name="amount" id="amount" value="{{row.MAN_PRICE * row.evaluated_qty}}" readonly="readonly">
+                    }
+                </td>
+                <td>
+                    {{row.CUM_QTY | number : 0}}
+                </td>
+                <td>
+                    {{row.CUM_QTY * row.ITEM_UNIT_PRICE  | number : 0}}
+                </td>
+                <td>
+                    {{row.CUM_QTY / row.ITEM_FORM_QUANTITY *100 | number : 0}}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="pull-right" style="padding-bottom: 15px">
+        本期金額:$
+        @if (ViewBag.wage == "")
+        {
+            <input id="totalAmount" name="totalAmount" type="number" value="{{GetTotalNum()}}" readonly="readonly" style="width:80px" />
+        }
+        else
+        {
+            <input id="totalAmount" name="totalAmount" type="number" value="{{GetTotalNum4Wage()}}" readonly="readonly" style="width:80px" />
+        }
+        累計金額:$
+        @if (ViewBag.wage == "")
+        {
+            <input id="totalAmount" name="totalAmount" type="number" value="{{GetTotalSum()}}" readonly="readonly" style="width:90px" />
+        }
+        else
+        {
+            <input id="totalAmount" name="totalAmount" type="number" value="{{GetTotalSum4Wage()}}" readonly="readonly" style="width:90px" />
+        }
+        比率:
+        @if (ViewBag.wage == "")
+        {
+            <input id="totalAmount" name="totalAmount" type="number" value="{{GetTotalRatio()}}" readonly="readonly" style="width:40px" />
+        }
+        else
+        {
+            <input id="totalAmount" name="totalAmount" type="number" value="{{GetTotalRatio4Wage()}}" readonly="readonly" style="width:40px" />
+        }
+        <span>%</span>
     </div>
-}
+</div>
+
+        <hr />
+<div class="row" style="padding-top:10px;">
+    @{
+        Html.RenderPartial("PaymentDetails");
+    }
+</div>
+
+            <textarea class="form-control" rows="10" id="remark" name="remark">說明事項</textarea>
+
+            <div class="row" style="padding-top:10px">
+                <div class="col-md-12">
+                    <input type="submit" value="儲存" name="SaveEst" class="btn btn-default" />
+                    <input type="submit" value="送出" name="AddEst" class="btn btn-warning" onclick="return Confirm_Form()" />
+                </div>
+            </div>
+
+        }
+
 
 
 <!-- Modal :票期對話框-->
 <div class="row" style="padding-top:10px;">
     <div class="modal fade" id="paymentInfo" role="dialog">
         <div class="modal-dialog" id="paymentInfoDialog">
-            <!-- Modal content-->
-            @Html.Partial("_PaymentTerms");
-        </div>
-    </div>
-</div>
-<!-- Modal :保留款對話框-->
-<div class="row" style="padding-top:10px;">
-    <div class="modal fade" id="advancepayInfo" role="dialog">
-        <div class="modal-dialog" id="advancepayInfoDialog">
             <!-- Modal content-->
             @Html.Partial("_PaymentTerms");
         </div>
@@ -365,64 +342,39 @@
             }
             return sumWage;
         }
+        $scope.GetTotalSum = function () {
+            var cumsum = 0;
+            for (var i = 0; i < $scope.item.length; i++) {
+                cumsum += parseFloat($scope.item[i].ITEM_UNIT_PRICE * $scope.item[i].CUM_QTY);
+            }
+            return cumsum;
+        }
+        $scope.GetTotalSum4Wage = function () {
+            var cumsum = 0;
+            for (var i = 0; i < $scope.item.length; i++) {
+                cumsum += parseFloat($scope.item[i].MAN_PRICE * $scope.item[i].CUM_QTY);
+            }
+            return cumsum;
+        }
+        $scope.GetTotalRatio = function () {
+            var cumsum = 0;
+            var totalamount = 0;
+            for (var i = 0; i < $scope.item.length; i++) {
+                cumsum += parseFloat($scope.item[i].ITEM_UNIT_PRICE * $scope.item[i].CUM_QTY);
+                totalamount += parseFloat($scope.item[i].ITEM_UNIT_PRICE * $scope.item[i].ITEM_FORM_QUANTITY);
+            }
+            return parseInt(cumsum / totalamount * 100);
+        }
+        $scope.GetTotalRatio4Wage = function () {
+            var cumsum = 0;
+            var totalamount = 0;
+            for (var i = 0; i < $scope.item.length; i++) {
+                cumsum += parseFloat($scope.item[i].MAN_PRICE * $scope.item[i].CUM_QTY);
+                totalamount += parseFloat($scope.item[i].MAN_PRICE * $scope.item[i].ITEM_FORM_QUANTITY);
+            }
+            return parseInt(cumsum / totalamount * 100);
+        }
     }
-
-    $('#Amount').focus(function () {
-        var re_payment = parseFloat($("#re_payment").val());
-        var foreign_payment = parseFloat($("#foreign_payment").val());
-        var totalAmount = parseFloat($("#totalAmount").val());
-        var sum = parseInt(re_payment + foreign_payment + totalAmount);
-        if (sum != null) {
-            $('#Amount').val(sum);
-        }
-    });
-    $('#Amount').focus(function () {
-        var retention = parseFloat($("#retention").val());
-        var totalAmount = parseFloat($("#totalAmount").val());
-        var sum = parseInt(retention * totalAmount / 100);
-        if (sum != null) {
-            $('#retentionAmount').val(sum);
-        }
-    });
-    $('#Amount').focus(function () {
-        var retentionAmount = parseFloat($("#retentionAmount").val());
-        var Amount = parseFloat($("#Amount").val());
-        var advanceAmount = parseFloat($("#advanceAmount").val());
-        var re_payment_deduction = parseFloat($("#re_payment_deduction").val());
-        var other_deduction = parseFloat($("#other_deduction").val());
-        var sum = parseInt(Amount - retentionAmount - advanceAmount - re_payment_deduction - other_deduction);
-        if (sum != null) {
-            $('#PayableAmount').val(sum);
-        }
-    });
-
-    $('#taxAmount').focus(function () {
-        var method1 = $('input[name=tax]:radio:checked').val();
-        if (method1 == "E") {
-            var taxratio = parseFloat($("#taxratio").val());
-            var Amount = parseFloat($("#Amount").val());
-            var sum = parseInt(Amount * taxratio / 100);
-            if (sum != null) {
-                $('#taxAmount').val(sum);
-            }
-        }
-        else {
-            var taxAmount = 0;
-            if (taxAmount != null) {
-                $('#taxAmount').val(taxAmount);
-            }
-        }
-
-    });
-
-    $('#taxAmount').focus(function () {
-        var PayableAmount = parseFloat($("#PayableAmount").val());
-        var taxAmount = parseFloat($("#taxAmount").val());
-        var sum = parseInt(PayableAmount + taxAmount);
-        if (sum != null) {
-            $('#PaidAmount').val(sum);
-        }
-    });
 
 </script>
 

@@ -16,6 +16,7 @@ namespace topmeperp.Models
     {
         public int OTHER_PAYMENT_ID { get; set; }
         public string EST_FORM_ID { get; set; }
+        public string CONTRACT_ID { get; set; }
         public Nullable<decimal> AMOUNT { get; set; }
         public string REASON { get; set; }
     }
