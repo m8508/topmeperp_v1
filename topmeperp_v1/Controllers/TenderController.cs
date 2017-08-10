@@ -635,7 +635,7 @@ namespace topmeperp.Controllers
             InquiryFormService service = new InquiryFormService();
             logger.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"]);
             logger.Debug("Exception check=" + Request["chkEx"]);
-            List<TND_PROJECT_ITEM> lstItems = service.getProjectItem(Request["chkEx"], Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"]);
+            List<TND_PROJECT_ITEM> lstItems = service.getProjectItem(Request["chkEx"], Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"],Request["selDelFlag"]);
             ViewBag.Result = "共幾" + lstItems.Count + "筆資料";
             return PartialView(lstItems);
         }
@@ -654,7 +654,11 @@ namespace topmeperp.Controllers
             logger.Info("project item  info=" + itemJson);
             return itemJson;
         }
-
+        /// <summary>
+        /// 新增或更新Project_item 資料
+        /// </summary>
+        /// <param name="form"></param>
+        /// <returns></returns>
         public String addProjectItem(FormCollection form)
         {
             logger.Info("form:" + form.Count);
@@ -688,6 +692,7 @@ namespace topmeperp.Controllers
 
             item.SYSTEM_MAIN = form["system_main"];
             item.SYSTEM_SUB = form["system_sub"];
+            item.DEL_FLAG = form["selDelFlag"];
             try
             {
                 item.EXCEL_ROW_ID = long.Parse(form["excel_row_id"]);
@@ -705,7 +710,19 @@ namespace topmeperp.Controllers
             if (i == 0) { msg = service.message; }
             return msg;
         }
-
+        /// <summary>
+        /// Project_item 註記刪除
+        /// </summary>
+        /// <param name="itemid"></param>
+        /// <returns></returns>
+        public String delProjectItem(string itemid)
+        {
+            InquiryFormService service = new InquiryFormService();
+            string msg = "更新成功!!";
+            logger.Info("del project item by id=" + itemid);
+            int i = service.changeProjectItem(itemid, "Y");
+            return msg + "(" + i + ")";
+        }
         //上傳得標後標單內容(用於轉換專案狀態)
         [HttpPost]
         public ActionResult uploadPlanItem(TND_PROJECT prj, HttpPostedFileBase file)
@@ -730,7 +747,7 @@ namespace topmeperp.Controllers
             prj.CONTACT_EMAIL = Request["contactemail"];
             prj.DUE_DATE = Convert.ToDateTime(Request["duedate"]);
             prj.SCHDL_OFFER_DATE = Convert.ToDateTime(Request["schdlofferdate"]);
-            if(Request["starrowno"] != null || " " != Request["starrowno"])
+            if (Request["starrowno"] != null || " " != Request["starrowno"])
             { prj.START_ROW_NO = int.Parse(Request["starrowno"]); }
             //prj.WAGE_MULTIPLIER = decimal.Parse(Request["wage"]);
             prj.EXCEL_FILE_NAME = Request["excelfilename"];

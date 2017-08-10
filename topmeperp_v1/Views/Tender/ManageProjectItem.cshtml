@@ -24,7 +24,14 @@
                 <div class="col-md-4">
                     <label for="typeCode2">次九宮格:</label><input id="typeCode2" name="typeCode2" type="text" value="" class="form-control" />
                 </div>
-                <div class="col-md-4"><input type="checkbox" name="chkEx" id="chkEx" value="chkException" />未分類</div>
+                <div class="col-md-2"><input type="checkbox" name="chkEx" id="chkEx" value="chkException" />未分類</div>
+                <div class="col-md-2">刪除
+                    <select id="selDelFlag" name="selDelFlag">
+                        <option value="N" selected>否</option>
+                        <option value="Y">是</option>
+                        <option value="*">全部</option>
+                    </select>
+                </div>
             </div>
             <div class="row" style="padding-top:5px">
                 <div class="col-md-4">
@@ -43,14 +50,14 @@
                     </div>
                     <input id="btnQuery" class="btn btn-info" type="button" onclick="getComparisonData()" value="查詢" />
                     <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
-                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#projectItem" onclick="">新增</button>
+                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#projectItem" onclick="addProjectItem()">新增</button>
                 </div>
             </div>
         </div>
     </form>
 </div>
 
-<div class="container" id="comparisonData">
+<div class="container" id="comparisonData" style="width:1920px">
 </div>
 <!-- Modal :對話框-->
 <div class="modal fade" id="projectItem" role="dialog">
@@ -88,7 +95,22 @@
             }
         });
     }
-
+    //將ProjectItem 註記刪除
+    function delProjectItem(itemid) {
+       // alert(itemid);
+        $.ajax({
+            url: "/Tender/delProjectItem",
+            type: "POST",
+            data: { itemid: itemid },
+            dataType: "text",
+            success: function (data) {
+                alert(data);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('Error del data bys ajax');
+            }
+        });
+    }
     //由ID 取得資料填入表單
     function getProjectItem(itemid) {
         //alert(userid);
@@ -111,7 +133,7 @@
                 $('#system_main').val(data.SYSTEM_MAIN);
                 $('#system_sub').val(data.SYSTEM_SUB);
                 $('#excel_row_id').val(data.EXCEL_ROW_ID);
-
+                $('#flag').val("update");
                 $('#projectItem').modal('show'); // show bootstrap modal when complete loaded
                 //$('.modal-title').text('編輯設定資料'); // Set title to Bootstrap modal title
             },
@@ -120,7 +142,46 @@
             }
         });
     }
+    function addProjectItemAfter(itemid) {
+        //alert(userid);
+        $.ajax({
+            url: "/Tender/getProjectItem",
+            type: "GET",
+            data: { itemid: itemid },
+            dataType: "JSON",
+            success: function (data) {
+                $('#project_id').val(data.PROJECT_ID);
+                $('#type_code_1').val(data.TYPE_CODE_1);
+                $('#type_code_2').val(data.TYPE_CODE_2);
+                $('#system_main').val(data.SYSTEM_MAIN);
+                $('#system_sub').val(data.SYSTEM_SUB);
+                $('#excel_row_id').val(data.EXCEL_ROW_ID);
+                $('#flag').val("addAfter");
+                $('#projectItem').modal('show'); // show bootstrap modal when complete loaded
+                //$('.modal-title').text('編輯設定資料'); // Set title to Bootstrap modal title
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('Error get data from ajax');
+            }
+        });
+    }
+    function addProjectItem() {
 
+        $('#project_item_id').val("");
+        $('#item_id').val("");
+        $('#item_desc').val("");
+        $('#item_unit').val("");
+        $('#item_quantity').val("");
+        $('#item_unit_price').val("");
+        $('#item_remark').val("");
+        $('#type_code_1').val("");
+        $('#type_code_2').val("");
+        $('#system_main').val("");
+        $('#system_sub').val("");
+        $('#excel_row_id').val("");
+        $('#flag').val("add");
+        //$('#projectItem').modal('show'); // show bootstrap modal when complete loaded
+    }
     //更新project item
     $("#saveProjectItem").click(function () {
         var s = $('#formProjectItem').serialize();

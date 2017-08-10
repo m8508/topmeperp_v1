@@ -108,10 +108,6 @@ namespace topmeperp.Models
         public Nullable<decimal> TOTAL_P_COST { get; set; }
         public Nullable<decimal> COST_RATIO { get; set; }
         public Nullable<decimal> AMOUNT_BY_CODE { get; set; }
-        public string SYSTEM_MAIN { get; set; }
-        public string SYSTEM_SUB { get; set; }
-        public Nullable<decimal> CONTRACT_PRICE { get; set; }
-       
     }
     public class SystemCost
     {
@@ -224,14 +220,13 @@ namespace topmeperp.Models
         public string CONTRACT_NAME { get; set; }
         public string TYPE { get; set; }
     }
-        public class ContractModels
+    public class ContractModels
     {
         public IEnumerable<plansummary> contractItems { get; set; }
         public IEnumerable<plansummary> wagecontractItems { get; set; }
         public IEnumerable<PLAN_PAYMENT_TERMS> paymentTerms { get; set; }
         public PLAN_PAYMENT_TERMS planpayment { get; set; }
         public IEnumerable<PLAN_ITEM> planItems { get; set; }
-        public IEnumerable<EstimationForm> ESTItems { get; set; }
 
     }
     public class CostForBudget
@@ -336,7 +331,7 @@ namespace topmeperp.Models
     }
     public class EstimationForm : PLAN_ITEM
     {
-        public Nullable<decimal> CUM_QTY { get; set; }
+        public Nullable<decimal> CUMULATIVE_QTY { get; set; }
         public Nullable<decimal> EST_QTY { get; set; }
         public string REMARK { get; set; }
         public Int64 EST_ITEM_ID { get; set; }

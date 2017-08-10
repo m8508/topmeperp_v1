@@ -82,11 +82,10 @@
                     <tr>
                         <th>九宮格</th>
                         <th>次九宮格</th>
-                        <th>主系統</th>
-                        <th>次系統</th>
                         <th>名稱</th>
-                        <th>合約金額</th>
                         <th>材料成本</th>
+                        <th>投標折數 %</th>
+                        <th>工資成本</th>
                         <th>預算折數 %</th>
                         <th>預算金額</th>
                     </tr>
@@ -102,16 +101,19 @@
                                 <tr>
                                     <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
                                     <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
-                                    <td>@Html.TextBox("systemmain", @item.SYSTEM_MAIN, new { style = "width:200px", @readonly = "readonly" })</td>
-                                    <td>@Html.TextBox("systemsub", @item.SYSTEM_SUB, new { style = "width:200px", @readonly = "readonly" })</td>
                                     <td>
                                         @item.MAINCODE_DESC _ @item.SUB_DESC
                                     </td>
-                                    <td>@String.Format("{0:N0}", item.CONTRACT_PRICE)</td>
                                     <td>
                                         @String.Format("{0:N0}", item.MATERIAL_COST)
                                     </td>
-                                    <td><input type="text" style = "width:50px" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
+                                    <td>
+                                        @String.Format("{0:N0}", item.COST_RATIO)
+                                    </td>
+                                    <td>
+                                        @String.Format("{0:N0}", item.MAN_DAY)
+                                    </td>
+                                    <td><input type="text" class="form-control" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
                                     <td>
                                         @String.Format("{0:N0}", item.AMOUNT_BY_CODE)
                                     </td>
@@ -122,14 +124,17 @@
                                 <tr>
                                     <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
                                     <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
-                                    <td>@Html.TextBox("systemmain", @item.SYSTEM_MAIN, new { style = "width:200px", @readonly = "readonly" })</td>
-                                    <td>@Html.TextBox("systemsub", @item.SYSTEM_SUB, new { style = "width:200px", @readonly = "readonly" })</td>
                                     <td>
                                         @item.MAINCODE_DESC
                                     </td>
-                                    <td>@String.Format("{0:N0}", item.CONTRACT_PRICE)</td>
                                     <td>@String.Format("{0:N0}", item.MATERIAL_COST)</td>
-                                    <td><input type="text" style = "width:50px" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
+                                    <td>
+                                        @String.Format("{0:N0}", item.COST_RATIO)
+                                    </td>
+                                    <td>
+                                        @String.Format("{0:N0}", item.MAN_DAY)
+                                    </td>
+                                    <td><input type="text" class="form-control" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
                                     <td>
                                         @String.Format("{0:N0}", item.AMOUNT_BY_CODE)
                                     </td>
@@ -143,16 +148,19 @@
                                 <tr>
                                     <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
                                     <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
-                                    <td>@Html.TextBox("systemmain", @item.SYSTEM_MAIN, new { style = "width:200px", @readonly = "readonly" })</td>
-                                    <td>@Html.TextBox("systemsub", @item.SYSTEM_SUB, new { style = "width:200px", @readonly = "readonly" })</td>
                                     <td>
                                         @item.MAINCODE_DESC _ @item.SUB_DESC
                                     </td>
-                                    <td>@String.Format("{0:N0}", item.CONTRACT_PRICE)</td>
                                     <td>
                                         @String.Format("{0:N0}", item.MATERIAL_COST)
                                     </td>
-                                    <td><input type="text" style = "width:50px" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
+                                    <td>
+                                        <input type="text" class="form-control" name="inputtndratio" id="inputtndratio" value="@String.Format("{0:N0}", item.COST_RATIO)">
+                                    </td>
+                                    <td>
+                                        @String.Format("{0:N0}", item.MAN_DAY)
+                                    </td>
+                                    <td><input type="text" class="form-control" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
                                     <td>
                                         @String.Format("{0:N0}", item.AMOUNT_BY_CODE)
                                     </td>
@@ -163,14 +171,17 @@
                                 <tr>
                                     <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
                                     <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
-                                    <td>@Html.TextBox("systemmain", @item.SYSTEM_MAIN, new { style = "width:200px", @readonly = "readonly" })</td>
-                                    <td>@Html.TextBox("systemsub", @item.SYSTEM_SUB, new { style = "width:200px", @readonly = "readonly" })</td>
                                     <td>
                                         @item.MAINCODE_DESC
                                     </td>
-                                    <td>@String.Format("{0:N0}", item.CONTRACT_PRICE)</td>
                                     <td>@String.Format("{0:N0}", item.MATERIAL_COST)</td>
-                                    <td><input type="text" style = "width:50px" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
+                                    <td>
+                                        <input type="text" class="form-control" name="inputtndratio" id="inputtndratio" value="@String.Format("{0:N0}", item.COST_RATIO)">
+                                    </td>
+                                    <td>
+                                        @String.Format("{0:N0}", item.MAN_DAY)
+                                    </td>
+                                    <td><input type="text" class="form-control" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
                                     <td>
                                         @String.Format("{0:N0}", item.AMOUNT_BY_CODE)
                                     </td>

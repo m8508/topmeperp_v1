@@ -35,5 +35,6 @@ namespace topmeperp.Models
         public string SHEET_NAME { get; set; }
         public Nullable<long> EXCEL_ROW_ID { get; set; }
         public Nullable<decimal> QUO_PRICE { get; set; }
+        public string DEL_FLAG { get; set; }
     }
 }

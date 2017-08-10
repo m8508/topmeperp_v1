@@ -39,7 +39,7 @@ textarea {
 //每列宽度*/
 .fixed_headers td:nth-child(1),
 .fixed_headers th:nth-child(1) {
-    width: 10px; /**功能 */
+    width: 70px; /**功能 */
 }
 .fixed_headers td:nth-child(2),
 .fixed_headers th:nth-child(2) {
@@ -47,7 +47,8 @@ textarea {
 }
 .fixed_headers td:nth-child(3),
 .fixed_headers th:nth-child(3) {
-    width: 20px;/**項次 . */
+    width: 70px;/**項次 . */
+    overflow: auto;
 }
 .fixed_headers td:nth-child(4),
 .fixed_headers th:nth-child(4) {
@@ -55,7 +56,7 @@ textarea {
 }
 .fixed_headers td:nth-child(5),
 .fixed_headers th:nth-child(5) {
-    width: 30px;/**單位  . */
+    width: 50px;/**單位  . */
 }
 .fixed_headers td:nth-child(6),
 .fixed_headers th:nth-child(6) {
@@ -71,17 +72,17 @@ textarea {
 }
 .fixed_headers td:nth-child(9),
 .fixed_headers th:nth-child(9) {
-    width: 10px;/**九宮格   . */
+    width: 50px;/**九宮格   . */
 }
 .fixed_headers td:nth-child(10),
 .fixed_headers th:nth-child(10) {
-    width: 10px;/**次九宮格   . */
+    width: 50px;/**次九宮格   . */
 }
 .fixed_headers td:nth-child(11),
 .fixed_headers th:nth-child(11) {
-    min-width: 100px;/**主系統  . */
+    min-width: 120px;/**主系統  . */
 }
 .fixed_headers td:nth-child(12),
 .fixed_headers th:nth-child(12) {
-    width: 100px;
+    width: 120px;
 }
