@@ -635,7 +635,7 @@ namespace topmeperp.Controllers
             InquiryFormService service = new InquiryFormService();
             logger.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"]);
             logger.Debug("Exception check=" + Request["chkEx"]);
-            List<TND_PROJECT_ITEM> lstItems = service.getProjectItem(Request["chkEx"], Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"],Request["selDelFlag"]);
+            List<TND_PROJECT_ITEM> lstItems = service.getProjectItem(Request["chkEx"], Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["selDelFlag"]);
             ViewBag.Result = "共幾" + lstItems.Count + "筆資料";
             return PartialView(lstItems);
         }
@@ -687,8 +687,23 @@ namespace topmeperp.Controllers
                 logger.Error(item.PROJECT_ITEM_ID + " not unit price:" + ex.Message);
             }
             item.ITEM_REMARK = form["item_remark"];
-            item.TYPE_CODE_1 = form["type_code_1"];
-            item.TYPE_CODE_2 = form["type_code_2"];
+            if (form["type_code_1"].Trim() != "")
+            {
+                item.TYPE_CODE_1 = form["type_code_1"];
+            }
+            else
+            {
+                item.TYPE_CODE_1 = null;
+            }
+
+            if (form["type_code_2"].Trim() != "")
+            {
+                item.TYPE_CODE_2 = form["type_code_2"];
+            }
+            else
+            {
+                item.TYPE_CODE_2 = null;
+            }
 
             item.SYSTEM_MAIN = form["system_main"];
             item.SYSTEM_SUB = form["system_sub"];
@@ -706,7 +721,17 @@ namespace topmeperp.Controllers
             item.MODIFY_USER_ID = loginUser.USER_ID;
             item.MODIFY_DATE = DateTime.Now;
             InquiryFormService service = new InquiryFormService();
-            int i = service.updateProjectItem(item);
+            int i = 0;
+            string strFlag = form["flag"].Trim();
+            if (strFlag.Equals("addAfter"))
+            {
+               i= service.addProjectItemAfter(item);
+            }
+            else
+            {
+               i= service.updateProjectItem(item);
+            }
+
             if (i == 0) { msg = service.message; }
             return msg;
         }

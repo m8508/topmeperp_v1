@@ -398,7 +398,7 @@ namespace topmeperp.Service
                    "(SELECT TYPE_DESC FROM REF_TYPE_MAIN m WHERE m.TYPE_CODE_1 + m.TYPE_CODE_2 = p.TYPE_CODE_1) as TYPE_CODE_1_NAME, " +
                    "isnull(TYPE_CODE_2,'未分類') TYPE_CODE_2," +
                    "(SELECT TYPE_DESC FROM REF_TYPE_SUB sub WHERE sub.TYPE_CODE_ID = p.TYPE_CODE_1 AND sub.SUB_TYPE_CODE = p.TYPE_CODE_2) as TYPE_CODE_2_NAME " +
-                   "FROM TND_PROJECT_ITEM p WHERE PROJECT_ID = @projectid ORDER BY TYPE_CODE_1 ,Type_CODE_2; ";
+                   "FROM TND_PROJECT_ITEM p WHERE PROJECT_ID = @projectid AND ISNULL(DEL_FLAG,'N')='N'  ORDER BY TYPE_CODE_1 ,Type_CODE_2; ";
 
                 List<TYPE_CODE_INDEX> lstType = context.Database.SqlQuery<TYPE_CODE_INDEX>(sql, new SqlParameter("projectid", projectid)).ToList();
                 logger.Debug("get type index count=" + lstType.Count);
@@ -1189,9 +1189,9 @@ namespace topmeperp.Service
             return pitem;
         }
         //於現有品項下方新增一筆資料
-        public void addProjectItemAfter(TND_PROJECT_ITEM item)
+        public int addProjectItemAfter(TND_PROJECT_ITEM item)
         {
-            string sql = "UPDATE TND_PROJECT_ITEM SET EXCEL_ROW_ID=EXCEL_ROW_ID+2 WHERE PROJECT_ID = @projectid AND EXCEL_ROW_ID>= @ExcelRowId ";
+            string sql = "UPDATE TND_PROJECT_ITEM SET EXCEL_ROW_ID=EXCEL_ROW_ID+1 WHERE PROJECT_ID = @projectid AND EXCEL_ROW_ID> @ExcelRowId ";
 
             using (var db = new topmepEntities())
             {
@@ -1200,7 +1200,7 @@ namespace topmeperp.Service
             }
             item.PROJECT_ITEM_ID = "";
             item.EXCEL_ROW_ID = item.EXCEL_ROW_ID + 1;
-            updateProjectItem(item);
+            return updateProjectItem(item);
         }
         public int updateProjectItem(TND_PROJECT_ITEM item)
         {
