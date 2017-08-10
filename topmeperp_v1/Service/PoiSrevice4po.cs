@@ -93,7 +93,7 @@ namespace topmeperp.Service
             //預算//預算單列小計(填入公式)
             for (int iTmp = 0; iTmp < 50; iTmp++)
             {
-                row.CreateCell(8).CellFormula ="(G" + (idxRow + 1) + "*H" + (idxRow + 1)+"/100"; 
+                row.CreateCell(7).CellFormula ="(D" + (idxRow + 1) + "*E" + (idxRow + 1)+"/100 +F" + (idxRow + 1) + ")*G" + (idxRow + 1) + "/100"; 
                 row.CreateCell(iTmp);
             }
             idxRow++;
@@ -219,30 +219,22 @@ namespace topmeperp.Service
             {
                 item.TYPE_CODE_2 = row.Cells[1].ToString();
             }
-            if (row.Cells[2].ToString().Trim() != "")//3.主系統
+            if (null != row.Cells[row.Cells.Count - 4].ToString().Trim() || row.Cells[row.Cells.Count - 4].ToString().Trim() != "")//2.投標折數
             {
-                item.SYSTEM_MAIN = row.Cells[2].ToString();
-            }
-            if (row.Cells[3].ToString().Trim() != "")//4.次系統
-            {
-                item.SYSTEM_SUB = row.Cells[3].ToString();
-            }
-            //if (null != row.Cells[row.Cells.Count - 4].ToString().Trim() || row.Cells[row.Cells.Count - 4].ToString().Trim() != "")//2.投標折數
-            //{
-            //    try
-            //    {
-            //        decimal dQty = decimal.Parse(row.Cells[row.Cells.Count - 4].ToString());
-            //        logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[row.Cells.Count - 4].ToString());
-            //        item.TND_RATIO = dQty;
-            //    }
-            //    catch (Exception e)
-            //    {
-            //        logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[4].value=" + row.Cells[row.Cells.Count - 4].ToString());
-            //        logger.Error(e);
-            //    }
+                try
+                {
+                    decimal dQty = decimal.Parse(row.Cells[row.Cells.Count - 4].ToString());
+                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[row.Cells.Count - 4].ToString());
+                    item.TND_RATIO = dQty;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[4].value=" + row.Cells[row.Cells.Count - 4].ToString());
+                    logger.Error(e);
+                }
 
-            //}
-            if (null != row.Cells[row.Cells.Count - 2].ToString().Trim() || row.Cells[row.Cells.Count - 2].ToString().Trim() != "")//5.預算折數
+            }
+            if (null != row.Cells[row.Cells.Count - 2].ToString().Trim() || row.Cells[row.Cells.Count - 2].ToString().Trim() != "")//3.預算折數
             {
                 try
                 {

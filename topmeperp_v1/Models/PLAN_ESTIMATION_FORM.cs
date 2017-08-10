@@ -20,14 +20,12 @@ namespace topmeperp.Models
         public string PLUS_TAX { get; set; }
         public Nullable<decimal> TAX_AMOUNT { get; set; }
         public Nullable<decimal> PAYMENT_TRANSFER { get; set; }
-        public Nullable<decimal> FOREIGN_PAYMENT { get; set; }
-        public Nullable<decimal> RETENTION_PAYMENT { get; set; }
-        public Nullable<decimal> DEDUCTED_ADVANCE_PAYMENT { get; set; }
+        public Nullable<decimal> OTHER_PAYMENT { get; set; }
+        public Nullable<decimal> DEDUCTED_PAYMENT_TRANSFER { get; set; }
         public string REMARK { get; set; }
         public string CREATE_ID { get; set; }
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public string SETTLEMENT { get; set; }
         public string TYPE { get; set; }
-        public Nullable<int> STATUS { get; set; }
     }
 }

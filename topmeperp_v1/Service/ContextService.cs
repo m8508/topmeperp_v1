@@ -406,7 +406,7 @@ namespace topmeperp.Service
                 {
                     var parameters = new List<SqlParameter>();
                     parameters.Add(new SqlParameter("projectid", projectid));
-                    sql = "SELECT * FROM TND_PROJECT_ITEM WHERE PROJECT_ID = @projectid ";
+                    sql = "SELECT * FROM TND_PROJECT_ITEM WHERE ISNULL(DEL_FLAG,'N')='N' AND PROJECT_ID = @projectid  ";
                     if (idx.TYPE_CODE_1 == "未分類")
                     {
                         sql = sql + "AND TYPE_CODE_1 is null ";
@@ -426,6 +426,7 @@ namespace topmeperp.Service
                         sql = sql + "AND TYPE_CODE_2=@typecode2 ";
                         parameters.Add(new SqlParameter("typecode2", idx.TYPE_CODE_2));
                     }
+                    sql = sql + " ORDER BY EXCEL_ROW_ID";
                     //2.依據分類取得詢價單項次
                     List<TND_PROJECT_ITEM> lstProjectItem = context.TND_PROJECT_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
                     logger.Debug("get project item count=" + lstProjectItem.Count + ", by typecode1=" + idx.TYPE_CODE_1 + ",typeCode2=" + idx.TYPE_CODE_2);
@@ -451,13 +452,13 @@ namespace topmeperp.Service
                     {
                         f.FORM_NAME = f.FORM_NAME + "-" + idx.TYPE_CODE_2_NAME;
                     }
-                    f.FORM_NAME = "(" + idx.TYPE_CODE_1 + "," + idx.TYPE_CODE_2 + ")"+f.FORM_NAME;
+                    f.FORM_NAME = "(" + idx.TYPE_CODE_1 + "," + idx.TYPE_CODE_2 + ")" + f.FORM_NAME;
                     f.PROJECT_ID = projectid;
                     f.CREATE_ID = loginUser.USER_ID;
                     f.CREATE_DATE = DateTime.Now;
                     f.OWNER_NAME = loginUser.USER_NAME;
                     f.OWNER_EMAIL = loginUser.EMAIL;
-                    f.OWNER_TEL = loginUser.TEL+"-"+loginUser.TEL_EXT;
+                    f.OWNER_TEL = loginUser.TEL + "-" + loginUser.TEL_EXT;
                     f.OWNER_FAX = loginUser.FAX;
                     //4.建立表單
                     string fid = newForm(f, itemId);
@@ -503,7 +504,7 @@ namespace topmeperp.Service
                     + "SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_QTY, ITEM_UNIT_PRICE, ITEM_REMARK) "
                     + "SELECT '" + form.FORM_ID + "' as FORM_ID,ITEM_ID,PROJECT_ITEM_ID, TYPE_CODE_1 AS TYPE_CODE, "
                     + "TYPE_CODE_2 AS SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_QUANTITY, ITEM_UNIT_PRICE, ITEM_REMARK "
-                    + "FROM TND_PROJECT_ITEM where PROJECT_ITEM_ID IN (" + ItemId + ")";
+                    + "FROM TND_PROJECT_ITEM where PROJECT_ITEM_ID IN (" + ItemId + ") AND ISNULL(DEL_FLAG,'N')='N'";
                 logger.Info("sql =" + sql);
                 var parameters = new List<SqlParameter>();
                 i = context.Database.ExecuteSqlCommand(sql);
@@ -586,7 +587,7 @@ namespace topmeperp.Service
         }
 
         //取得標單品項資料
-        public List<TND_PROJECT_ITEM> getProjectItem(string checkEx, string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub)
+        public List<TND_PROJECT_ITEM> getProjectItem(string checkEx, string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub,string delFlg)
         {
             logger.Info("search projectitem by 九宮格 =" + typeCode1 + "search projectitem by 次九宮格 =" + typeCode2 + "search projectitem by 主系統 =" + systemMain + "search projectitem by 次系統 =" + systemSub);
             List<topmeperp.Models.TND_PROJECT_ITEM> lstItem = new List<TND_PROJECT_ITEM>();
@@ -624,6 +625,12 @@ namespace topmeperp.Service
                 {
                     sql = sql + "AND p.SYSTEM_SUB LIKE @systemSub ";
                     parameters.Add(new SqlParameter("systemSub", "%" + systemSub + "%"));
+                }
+                //刪除註記
+                if ("*" != delFlg)
+                {
+                    sql = sql + "AND ISNULL(p.DEL_FLAG,'N')=@delFlg ";
+                    parameters.Add(new SqlParameter("delFlg", delFlg));
                 }
             }
             sql = sql + "  ORDER BY EXCEL_ROW_ID;";
@@ -1181,10 +1188,24 @@ namespace topmeperp.Service
             }
             return pitem;
         }
+        //於現有品項下方新增一筆資料
+        public void addProjectItemAfter(TND_PROJECT_ITEM item)
+        {
+            string sql = "UPDATE TND_PROJECT_ITEM SET EXCEL_ROW_ID=EXCEL_ROW_ID+2 WHERE PROJECT_ID = @projectid AND EXCEL_ROW_ID>= @ExcelRowId ";
+
+            using (var db = new topmepEntities())
+            {
+                logger.Debug("add exce rowid sql=" + sql + ",projectid=" + item.PROJECT_ID + ",ExcelRowI=" + item.EXCEL_ROW_ID);
+                db.Database.ExecuteSqlCommand(sql, new SqlParameter("projectid", item.PROJECT_ID), new SqlParameter("ExcelRowId", item.EXCEL_ROW_ID));
+            }
+            item.PROJECT_ITEM_ID = "";
+            item.EXCEL_ROW_ID = item.EXCEL_ROW_ID + 1;
+            updateProjectItem(item);
+        }
         public int updateProjectItem(TND_PROJECT_ITEM item)
         {
             int i = 0;
-            if (null== item.PROJECT_ITEM_ID || item.PROJECT_ITEM_ID == "")
+            if (null == item.PROJECT_ITEM_ID || item.PROJECT_ITEM_ID == "")
             {
                 logger.Debug("add new project item in porjectid=" + item.PROJECT_ID);
                 item = getNewProjectItemID(item);
@@ -1206,6 +1227,21 @@ namespace topmeperp.Service
             }
             return i;
         }
+        //將Project Item 註記刪除
+        public int changeProjectItem(string itemid, string delFlag)
+        {
+            string sql = "UPDATE TND_PROJECT_ITEM SET DEL_FLAG=@delFlag WHERE PROJECT_ITEM_ID = @itemid";
+            int i = 0;
+            using (var db = new topmepEntities())
+            {
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("itemid", itemid));
+                parameters.Add(new SqlParameter("delFlag", delFlag));
+                logger.Info("Update Project_ITEM FLAG=" + sql + ",itemid=" + itemid + ",delFlag=" + delFlag);
+                i = db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            }
+            return i;
+        }
         private TND_PROJECT_ITEM getNewProjectItemID(TND_PROJECT_ITEM item)
         {
             string sql = "SELECT MAX(CAST(SUBSTRING(PROJECT_ITEM_ID,8,LEN(PROJECT_ITEM_ID)) AS INT) +1) MaxSN, MAX(EXCEL_ROW_ID) + 1 as Row "
@@ -1214,11 +1250,15 @@ namespace topmeperp.Service
             parameters.Add("projectid", item.PROJECT_ID);
             DataSet ds = ExecuteStoreQuery(sql, CommandType.Text, parameters);
             logger.Debug("sql=" + sql + "," + ds.Tables[0].Rows[0][0].ToString() + "," + ds.Tables[0].Rows[0][1].ToString());
-            int longMaxItem =int.Parse(ds.Tables[0].Rows[0][0].ToString());
-            int longMaxExcel =int.Parse(ds.Tables[0].Rows[0][1].ToString());
-            logger.Debug("new project item id=" + longMaxItem +",ExcelRowID=" + longMaxExcel);
+            int longMaxItem = int.Parse(ds.Tables[0].Rows[0][0].ToString());
+            int longMaxExcel = int.Parse(ds.Tables[0].Rows[0][1].ToString());
+            logger.Debug("new project item id=" + longMaxItem + ",ExcelRowID=" + longMaxExcel);
             item.PROJECT_ITEM_ID = item.PROJECT_ID + "-" + longMaxItem;
-            item.EXCEL_ROW_ID = longMaxExcel;
+            //新品項不會有Excel Row_id
+            if (null == item.EXCEL_ROW_ID || item.EXCEL_ROW_ID == 0)
+            {
+                item.EXCEL_ROW_ID = longMaxExcel;
+            }
             return item;
         }
     }
@@ -1245,7 +1285,7 @@ namespace topmeperp.Service
                 wageTableItem = context.Database.SqlQuery<PROJECT_ITEM_WITH_WAGE>("SELECT i.*,w.ratio,w.price,map.QTY as MAP_QTY FROM TND_PROJECT_ITEM i LEFT OUTER JOIN "
                     + "TND_WAGE w ON i.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID "
                     + "LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON i.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID "
-                    + "WHERE i.project_id = @projectid  ORDER BY i.EXCEL_ROW_ID; ", new SqlParameter("projectid", projectid)).ToList();
+                    + "WHERE i.project_id = @projectid AND ISNULL(i.DEL_FLAG,'N')='N' ORDER BY i.EXCEL_ROW_ID; ", new SqlParameter("projectid", projectid)).ToList();
                 logger.Debug("get project item count:" + wageTableItem.Count);
             }
         }
@@ -1338,7 +1378,7 @@ namespace topmeperp.Service
                     + "FROM(SELECT it.*, w.RATIO, w.PRICE, map.QTY MapQty FROM TND_PROJECT_ITEM it LEFT OUTER JOIN TND_WAGE w "
                     + "ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map "
                     + "ON it.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID "
-                    + "WHERE it.project_id =@projectid ) A "
+                    + "WHERE ISNULL(it.DEL_FLAG,'N')='N' AND it.project_id =@projectid ) A "
                     + "GROUP BY TYPE_CODE_1, TYPE_CODE_2 ORDER BY TYPE_CODE_1,TYPE_CODE_2;";
                 logger.Info("Get DirectCost SQL=" + sql + ",projectid=" + projectid);
                 lstDirecCost = context.Database.SqlQuery<DirectCost>(sql, new SqlParameter("projectid", projectid)).ToList();
@@ -1347,37 +1387,6 @@ namespace topmeperp.Service
             }
             DirectCost4Project = lstDirecCost;
             return DirectCost4Project;
-        }
-
-        public List<DirectCost> DirectCost4Budget = null;
-        //直接成本
-        public List<DirectCost> getDirectCost4Budget(string projectid)
-        {
-            List<DirectCost> lstDirecCost = null;
-            using (var context = new topmepEntities())
-            {
-                string sql = "SELECT (select TYPE_CODE_1 + TYPE_CODE_2 from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE, "
-                    + "(SELECT TYPE_DESC from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE_DESC ,"
-                    + "(SELECT SUB_TYPE_ID from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) T_SUB_CODE, "
-                    + "TYPE_CODE_2 SUB_CODE, (select TYPE_DESC from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) SUB_DESC, "
-                    + "SYSTEM_MAIN, SYSTEM_SUB, "
-                    + "SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) MATERIAL_COST, SUM(MapQty * ITEM_UNIT_PRICE) MATERIAL_COST_INMAP,"
-                    + "SUM(ITEM_QUANTITY * RATIO) MAN_DAY,"
-                    + "SUM(MapQty * RATIO) MAN_DAY_INMAP,"
-                    + "SUM(ITEM_QUANTITY * ITEM_UNIT_COST) CONTRACT_PRICE,"
-                    + "COUNT(*) ITEM_COUNT "
-                    + "FROM(SELECT it.*, w.RATIO, w.PRICE, pi.ITEM_UNIT_COST, map.QTY MapQty FROM TND_PROJECT_ITEM it LEFT OUTER JOIN TND_WAGE w "
-                    + "ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map "
-                    + "ON it.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID RIGHT OUTER JOIN PLAN_ITEM pi ON it.PROJECT_ITEM_ID = pi.PLAN_ITEM_ID "
-                    + "WHERE it.project_id =@projectid ) A "
-                    + "GROUP BY TYPE_CODE_1, TYPE_CODE_2, SYSTEM_MAIN, SYSTEM_SUB ORDER BY TYPE_CODE_1,TYPE_CODE_2;";
-                logger.Info("Get DirectCost SQL=" + sql + ",projectid=" + projectid);
-                lstDirecCost = context.Database.SqlQuery<DirectCost>(sql, new SqlParameter("projectid", projectid)).ToList();
-
-                logger.Info("Get DirectCost Record Count=" + lstDirecCost.Count);
-            }
-            DirectCost4Budget = lstDirecCost;
-            return DirectCost4Budget;
         }
         public List<SystemCost> getSystemCost(string projectid)
         {
@@ -1391,7 +1400,7 @@ namespace topmeperp.Service
                     + "FROM(SELECT it.*, w.RATIO, w.PRICE, map.QTY MAP_QTY FROM TND_PROJECT_ITEM it LEFT OUTER JOIN TND_WAGE w "
                     + "ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map "
                     + "ON it.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID "
-                    + "WHERE it.project_id =@projectid ) A "
+                    + "WHERE ISNULL(it.DEL_FLAG,'N')='N' AND it.project_id =@projectid ) A "
                     + "GROUP BY SYSTEM_MAIN, SYSTEM_SUB ORDER BY SYSTEM_MAIN, SYSTEM_SUB;";
                 logger.Debug("sql=" + sql);
                 lstSystemCost = context.Database.SqlQuery<SystemCost>(sql, new SqlParameter("projectid", projectid)).ToList();
@@ -1467,13 +1476,14 @@ namespace topmeperp.Service
         //取得特定專案報價之供應商資料
         public List<COMPARASION_DATA> getComparisonData(string projectid, string typecode1, string typecode2, string systemMain, string systemSub, string iswage, string formName)
         {
+            //加入Project Item DEL FLG
             List<COMPARASION_DATA> lst = new List<COMPARASION_DATA>();
             string sql = "SELECT  pfItem.FORM_ID AS FORM_ID, " +
                 "SUPPLIER_ID as SUPPLIER_NAME, FORM_NAME AS FORM_NAME,SUM(isNull(pfitem.ITEM_UNIT_PRICE,0) * isNull(pfitem.ITEM_QTY,0)) as TAmount " +
                 "FROM TND_PROJECT_ITEM pItem LEFT OUTER JOIN " +
                 "TND_PROJECT_FORM_ITEM pfItem ON pItem.PROJECT_ITEM_ID = pfItem.PROJECT_ITEM_ID " +
                 "inner join TND_PROJECT_FORM f on pfItem.FORM_ID = f.FORM_ID " +
-                "WHERE pItem.PROJECT_ID = @projectid AND SUPPLIER_ID is not null AND ISNULL(f.STATUS,'有效')='有效' AND ISNULL(f.ISWAGE,'N')=@iswage ";
+                "WHERE pItem.PROJECT_ID = @projectid AND ISNULL(pItem.DEL_FLAG,'N')='N' AND SUPPLIER_ID is not null AND ISNULL(f.STATUS,'有效')='有效' AND ISNULL(f.ISWAGE,'N')=@iswage ";
             var parameters = new List<SqlParameter>();
             //設定專案名編號資料
             parameters.Add(new SqlParameter("projectid", projectid));
@@ -1527,6 +1537,7 @@ namespace topmeperp.Service
         //比價資料
         public DataTable getComparisonDataToPivot(string projectid, string typecode1, string typecode2, string systemMain, string systemSub, string iswage, string formName)
         {
+            // 還不確定要不要加入刪除的項目
             if (null != formName && "" != formName)
             {
                 string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PROJECT_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
@@ -1536,7 +1547,7 @@ namespace topmeperp.Service
                 "from TND_PROJECT_ITEM pitem " +
                 "left join TND_PROJECT_FORM_ITEM fitem " +
                 " on pitem.PROJECT_ITEM_ID = fitem.PROJECT_ITEM_ID " +
-                "where pitem.PROJECT_ID = @projectid ";
+                "where pitem.PROJECT_ID = @projectid AND ISNULL(pitem.DEL_FLAG,'N')='N' ";
 
                 if (iswage == "Y")
                 {
@@ -1547,7 +1558,7 @@ namespace topmeperp.Service
                     "from TND_PROJECT_ITEM pitem " +
                     "left join TND_PROJECT_FORM_ITEM fitem " +
                     " on pitem.PROJECT_ITEM_ID = fitem.PROJECT_ITEM_ID " +
-                    "where pitem.PROJECT_ID = @projectid ";
+                    "where pitem.PROJECT_ID = @projectid ISNULL(pitem.DEL_FLAG,'N')='N' ";
                 }
 
                 var parameters = new Dictionary<string, Object>();
@@ -1749,7 +1760,7 @@ namespace topmeperp.Service
             {
                 context.TND_PROJECT_FORM.Add(form);
 
-                logger.Info("project form id = " + form.FORM_ID +",project form item conunt="+ items.Count);
+                logger.Info("project form id = " + form.FORM_ID + ",project form item conunt=" + items.Count);
                 //if (i > 0) { status = true; };
                 foreach (TND_PROJECT_FORM_ITEM item in items)
                 {
@@ -1863,7 +1874,6 @@ namespace topmeperp.Service
             //return zipTool.ZipFiles(tempFolder, null, p.PROJECT_NAME);
         }
     }
-
     #endregion
 
     #region 供應商管理區塊
@@ -1992,7 +2002,7 @@ namespace topmeperp.Service
         //取得供應商聯絡人資料
         public List<TND_SUP_CONTACT_INFO> getContactBySupplier(string supid)
         {
-            List<TND_SUP_CONTACT_INFO>  contactors = null;
+            List<TND_SUP_CONTACT_INFO> contactors = null;
             using (var context = new topmepEntities())
             {
                 contactors = context.TND_SUP_CONTACT_INFO.SqlQuery("select sup.* from TND_SUP_CONTACT_INFO sup "
