@@ -2407,8 +2407,8 @@ namespace topmeperp.Service
             //處理SQL 預先填入專案代號,設定集合處理參數
             string sql = "SELECT  ' ' + p.PROJECT_ID + p.SUPPLIER_ID + p.FORM_NAME AS CONTRACT_ID, p.SUPPLIER_ID, p.FORM_NAME, p.SUPPLIER_ID + '_' + p.FORM_NAME AS CONTRACT_NAME, '' AS TYPE," +
                     "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY p.SUPPLIER_ID) AS NO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid and p.ITEM_UNIT_PRICE IS NOT NULL " +
-                    "AND p.ITEM_UNIT_PRICE <> 0 GROUP BY p.PROJECT_ID, p.SUPPLIER_ID, p.FORM_NAME HAVING p.SUPPLIER_ID IS NOT NULL "; 
-            
+                    "AND p.ITEM_UNIT_PRICE <> 0 GROUP BY p.PROJECT_ID, p.SUPPLIER_ID, p.FORM_NAME HAVING p.SUPPLIER_ID IS NOT NULL ";
+
             //供應商
             if (null != supplier && supplier != "")
             {
@@ -2446,15 +2446,18 @@ namespace topmeperp.Service
         }
 
         //取得個別合約的明細資料
-        public List<PLAN_ITEM> getContractItemById(string contractid)
+        public List<EstimationForm> getContractItemById(string contractid)
         {
 
             logger.Info("get contract item by contractid  =" + contractid);
-            List<PLAN_ITEM> lstItem = new List<PLAN_ITEM>();
-            //處理SQL 預先填入專案代號,設定集合處理參數
+            List<EstimationForm> lstItem = new List<EstimationForm>();
+            //處理SQL 預先填入合約代號,設定集合處理參數
             using (var context = new topmepEntities())
             {
-                lstItem = context.Database.SqlQuery<PLAN_ITEM>("SELECT pi.* FROM PLAN_ITEM pi WHERE pi.PROJECT_ID + pi.SUPPLIER_ID + pi.FORM_NAME =@contractid OR pi.PROJECT_ID + pi.MAN_SUPPLIER_ID + pi.MAN_FORM_NAME =@contractid ; "
+                lstItem = context.Database.SqlQuery<EstimationForm>("SELECT pi.*, A.CUM_QTY FROM PLAN_ITEM pi JOIN (SELECT ei.PLAN_ITEM_ID, SUM(ei.EST_QTY) AS CUM_QTY " +
+                    "FROM PLAN_ESTIMATION_ITEM ei LEFT JOIN PLAN_ESTIMATION_FORM ef ON ei.EST_FORM_ID = ef.EST_FORM_ID JOIN TND_SUPPLIER sup ON SUBSTRING(ef.CONTRACT_ID, 6, 6) = sup.SUPPLIER_ID " +
+                    "WHERE STUFF(ef.CONTRACT_ID, 6, 6, sup.COMPANY_NAME) = @contractid GROUP BY ei.PLAN_ITEM_ID)A ON pi.PLAN_ITEM_ID = A.PLAN_ITEM_ID WHERE " +
+                    "pi.PROJECT_ID + pi.SUPPLIER_ID + pi.FORM_NAME = @contractid OR pi.PROJECT_ID + pi.MAN_SUPPLIER_ID + pi.MAN_FORM_NAME = @contractid ; "
             , new SqlParameter("contractid", contractid)).ToList();
             }
 
@@ -2595,7 +2598,7 @@ namespace topmeperp.Service
                 string sql = "SELECT CONVERT(char(10), A.CREATE_DATE, 111) AS CREATE_DATE, A.EST_FORM_ID, A.STATUS, A.CONTRACT_NAME, A.SUPPLIER_NAME, ROW_NUMBER() OVER(ORDER BY A.EST_FORM_ID) AS NO " +
                     "FROM (SELECT ef.CREATE_DATE, ef.EST_FORM_ID, ef.STATUS, STUFF(ef.CONTRACT_ID,6, 6, sup.COMPANY_NAME) AS CONTRACT_NAME, sup.COMPANY_NAME AS SUPPLIER_NAME " +
                     "FROM PLAN_ESTIMATION_FORM ef LEFT JOIN TND_SUPPLIER sup ON SUBSTRING(ef.CONTRACT_ID, 6, 6) = sup.SUPPLIER_ID WHERE ef.PROJECT_ID =@projectid)A ";
-                    
+
 
                 var parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("projectid", projectid));
@@ -2653,8 +2656,10 @@ namespace topmeperp.Service
                 formEST = context.PLAN_ESTIMATION_FORM.SqlQuery(sql, new SqlParameter("estid", estid)).First();
                 //取得估驗單明細
                 ESTItem = context.Database.SqlQuery<EstimationForm>("SELECT pei.PLAN_ITEM_ID, pei.EST_QTY, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.ITEM_FORM_QUANTITY, " +
-                    "pi.ITEM_UNIT_PRICE FROM PLAN_ESTIMATION_ITEM pei LEFT JOIN PLAN_ESTIMATION_FORM ef ON pei.EST_FORM_ID = ef.EST_FORM_ID LEFT JOIN PLAN_ITEM pi ON " +
-                    "pei.PLAN_ITEM_ID = pi.PLAN_ITEM_ID WHERE pei.EST_FORM_ID =@estid", new SqlParameter("estid", estid)).ToList();
+                    "pi.ITEM_UNIT_PRICE, A.CUM_QTY AS CUM_QTY FROM PLAN_ESTIMATION_ITEM pei LEFT JOIN PLAN_ESTIMATION_FORM ef ON pei.EST_FORM_ID = ef.EST_FORM_ID LEFT JOIN PLAN_ITEM pi ON " +
+                    "pei.PLAN_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN (SELECT pei.PLAN_ITEM_ID, sum(pei.EST_QTY) AS CUM_QTY FROM PLAN_ESTIMATION_ITEM pei JOIN PLAN_ESTIMATION_FORM ef ON " +
+                    "pei.EST_FORM_ID = ef.EST_FORM_ID WHERE ef.CREATE_DATE < (select CREATE_DATE from PLAN_ESTIMATION_FORM where EST_FORM_ID = @estid) GROUP BY  pei.PLAN_ITEM_ID)A " +
+                    "ON pei.PLAN_ITEM_ID = A.PLAN_ITEM_ID WHERE pei.EST_FORM_ID = @estid", new SqlParameter("estid", estid)).ToList();
                 logger.Debug("get estimation form item count:" + ESTItem.Count);
             }
         }
@@ -2685,12 +2690,106 @@ namespace topmeperp.Service
             //處理SQL 預先填入ID,設定集合處理參數
             using (var context = new topmepEntities())
             {
-                lstItem = context.Database.SqlQuery<PLAN_OTHER_PAYMENT>("SELECT * FROM PLAN_OTHER_PAYMENT WHERE OTHER_PAYMENT_ID =@id ; "
+                lstItem = context.Database.SqlQuery<PLAN_OTHER_PAYMENT>("SELECT * FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID =@id ; "
             , new SqlParameter("id", id)).ToList();
             }
 
             return lstItem;
         }
+
+        public int delOtherPayByESTId(string estid)
+        {
+            logger.Info("remove all other payment detail by EST FORM ID=" + estid);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("delete these other payment record by est form id=" + estid);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID=@estid", new SqlParameter("@estid", estid));
+            }
+            logger.Debug("delete PLAN OTHER PAYMENT count=" + i);
+            return i;
+        }
+
+        //更新估驗數量
+        public int refreshESTQty(string formid, List<PLAN_ESTIMATION_ITEM> lstItem)
+        {
+            logger.Info("Update estiomation items, it's est form id =" + formid);
+            int j = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    //將item資料寫入 
+                    foreach (PLAN_ESTIMATION_ITEM item in lstItem)
+                    {
+                        PLAN_ESTIMATION_ITEM existItem = null;
+                        var parameters = new List<SqlParameter>();
+                        parameters.Add(new SqlParameter("formid", formid));
+                        parameters.Add(new SqlParameter("itemid", item.PLAN_ITEM_ID));
+                        string sql = "SELECT * FROM PLAN_ESTIMATION_ITEM WHERE EST_FORM_ID=@formid AND PLAN_ITEM_ID=@itemid";
+                        logger.Info(sql + " ;" + formid + ",plan_item_id=" + item.PLAN_ITEM_ID);
+                        PLAN_ESTIMATION_ITEM excelItem = context.PLAN_ESTIMATION_ITEM.SqlQuery(sql, parameters.ToArray()).First();
+                        existItem = context.PLAN_ESTIMATION_ITEM.Find(excelItem.EST_ITEM_ID);
+
+                        logger.Debug("find exist item=" + existItem.PLAN_ITEM_ID);
+                        if (item.EST_QTY != null)
+                        {
+                            existItem.EST_QTY = item.EST_QTY;
+                        }
+                        context.PLAN_ESTIMATION_ITEM.AddOrUpdate(existItem);
+                    }
+                    j = context.SaveChanges();
+                    logger.Debug("Update estimation item =" + j);
+                    return j;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("update new est form id fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return j;
+        }
+        //取得新估驗單估驗次數
+        int est = 0;
+        public int getEstCountById(string contractid)
+        {
+            using (var context = new topmepEntities())
+            {
+                est = context.Database.SqlQuery<int>("SELECT COUNT(CONTRACT_ID)+1 AS EST_COUNT FROM PLAN_ESTIMATION_FORM " +
+                    "GROUP BY CONTRACT_ID HAVING CONTRACT_ID =@contractid "
+                   , new SqlParameter("contractid", contractid)).First();
+            }
+            return est;
+        }
+
+        //取得現有估驗單之估驗次數
+        int estcount = 0;
+        public int getEstCountByESTId(string estid)
+        {
+            using (var context = new topmepEntities())
+            {
+                estcount = context.Database.SqlQuery<int>("SELECT ISNULL((SELECT COUNT(ef.CONTRACT_ID) + 1 FROM PLAN_ESTIMATION_FORM ef WHERE ef.CREATE_DATE < " +
+                    "(select CREATE_DATE from PLAN_ESTIMATION_FORM where EST_FORM_ID =@estid) AND ef.CONTRACT_ID = (select CONTRACT_ID from PLAN_ESTIMATION_FORM " +
+                    "where EST_FORM_ID =@estid) GROUP BY ef.CONTRACT_ID),1) AS EST_COUNT  "
+                   , new SqlParameter("estid", estid)).First();
+            }
+            return estcount;
+        }
+
+        decimal otherpayamt = 0;
+        public decimal getOtherPayAmountById(string estid)
+        {
+            using (var context = new topmepEntities())
+            {
+                otherpayamt = context.Database.SqlQuery<decimal>("SELECT SUM(AMOUNT) AS AMOUNT FROM PLAN_OTHER_PAYMENT GROUP BY EST_FORM_ID HAVING EST_FORM_ID =@estid "
+                   , new SqlParameter("estid", estid)).FirstOrDefault();
+            }
+            return otherpayamt;
+        }
+
         #endregion
     }
 }

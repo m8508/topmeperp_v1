@@ -877,13 +877,14 @@
     <Content Include="UploadFile\budget_form.xlsx" />
     <Content Include="Views\Estimation\_PaymentTerms.cshtml" />
     <Content Include="Views\Estimation\ContractItems.cshtml" />
-    <Content Include="Views\Estimation\EstimationForm.cshtml" />
     <Content Include="Views\Estimation\_EstimationFormList.cshtml" />
     <Content Include="Views\Estimation\SingleEST.cshtml" />
-    <Content Include="Views\Estimation\_AdvancePayment.cshtml" />
+    <Content Include="Views\Estimation\AdvancePayment.cshtml" />
     <Content Include="Views\Estimation\OtherPayment.cshtml" />
     <Content Include="Views\ProjectPlan\dailyReportList.cshtml" />
     <Content Include="Views\ProjectPlan\_getDailyReportList.cshtml" />
+    <Content Include="Views\Estimation\PaymentDetails.cshtml" />
+    <Content Include="Views\Estimation\EstimationForm.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

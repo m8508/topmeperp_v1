@@ -1,6 +1,6 @@
 ﻿
 @{
-    ViewBag.Title = "申購單查詢";
+    ViewBag.Title = "估驗單查詢";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 
@@ -22,7 +22,7 @@
                 <label for="contractid">合約名稱 : </label>
                 <input id="contractid" name="contractid" class="form-control" />
                 <div class="col-md-6 form-group" style="padding-top:10px">
-                    <input type="checkbox" value="10" id="status" name="status"/>估驗單(已送審)
+                    <input type="checkbox" value="10" id="status" name="status" />估驗單(已送審)
                     <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
                 </div>
             </div>
@@ -42,7 +42,7 @@
         </div>
     </form>
 </div>
-<!--申購單列表區域-->
+<!--估驗單列表區域-->
 <div class="container-fluid">
     @ViewBag.SearchResult
     @if (null != Model)
@@ -68,5 +68,3 @@
         });
     })
 </script>
-
-
