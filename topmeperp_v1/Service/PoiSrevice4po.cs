@@ -74,8 +74,7 @@ namespace topmeperp.Service
         public List<DirectCost> typecodeItems = null;
         public string errorMessage = null;
         string projId = null;
-        XSSFCellStyle style = null;
-        
+
         //建立預算下載表格
         public string exportExcel(TND_PROJECT project)
         {
@@ -126,13 +125,15 @@ namespace topmeperp.Service
                 {
                     row.CreateCell(6).SetCellValue(double.Parse(item.MATERIAL_COST.ToString()));
                 }
-                //預算金額
-                row.CreateCell(8).CellFormula = "G" + (idxRow + 1) + "*H" + (idxRow + 1) + "/100";
-                logger.Debug("getBudget cell style rowid=" + idxRow);
                 foreach (ICell c in row.Cells)
                 {
-                    c.CellStyle = style;
+                    c.CellStyle = ExcelStyle.getContentStyle(hssfworkbook);
                 }
+                //預算金額
+                ICell cel8 = row.CreateCell(8);
+                cel8.CellFormula = "G" + (idxRow + 1) + "*H" + (idxRow + 1) + "/100";
+                cel8.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                logger.Debug("getBudget cell style rowid=" + idxRow);
                 idxRow++;
             }
             //4.另存新檔至專案所屬目錄 (增加Temp for zip 打包使用

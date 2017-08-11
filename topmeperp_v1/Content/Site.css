@@ -86,3 +86,53 @@ textarea {
 .fixed_headers th:nth-child(12) {
     width: 120px;
 }
+
+.fixed_headers1 thead tr {
+    display: block;
+    position: relative;
+}
+.fixed_headers1 tbody {
+    display: block;
+    overflow: auto;
+    height: 400px;
+}
+/* 每列宽度
+//每列宽度*/
+.fixed_headers1 td:nth-child(1),
+.fixed_headers1 th:nth-child(1) {
+    width: 100px; /**九宮格 */
+}
+.fixed_headers1 td:nth-child(2),
+.fixed_headers1 th:nth-child(2) {
+    width: 100px;/**次九宮格 */
+}
+.fixed_headers1 td:nth-child(3),
+.fixed_headers1 th:nth-child(3) {
+    width: 250px;/**主系統 */
+}
+.fixed_headers1 td:nth-child(4),
+.fixed_headers1 th:nth-child(4) {
+    width: 250px;/**次系統 */
+}
+.fixed_headers1 td:nth-child(5),
+.fixed_headers1 th:nth-child(5) {
+    width: 120px;/**名稱*/
+}
+.fixed_headers1 td:nth-child(6),
+.fixed_headers1 th:nth-child(6) {
+    width: 100px;/**合約金額*/
+}
+.fixed_headers1 td:nth-child(7),
+.fixed_headers1 th:nth-child(7) {
+    width: 100px;/**材料成本*/
+}
+.fixed_headers1 td:nth-child(8),
+.fixed_headers1 th:nth-child(8) {
+    width: 50px;/**預算比率*/
+}
+.fixed_headers1 td:nth-child(9),
+.fixed_headers1 th:nth-child(9) {
+    width: 100px;/**預算金額 */
+}
+
+
