@@ -300,7 +300,7 @@ namespace topmeperp.Service
                     case 4:
                         if (i < row.PhysicalNumberOfCells) //數量
                         {
-                            if (null != row.GetCell(i) )//&& row.GetCell(i).CellType.Equals(CellType.Blank))
+                            if (null != row.GetCell(i))//&& row.GetCell(i).CellType.Equals(CellType.Blank))
                             {
                                 try
                                 {
@@ -320,7 +320,7 @@ namespace topmeperp.Service
                     case 5:
                         if (i < row.PhysicalNumberOfCells)//採購數量
                         {
-                            if (null != row.GetCell(i) )//&& row.GetCell(i).CellType.Equals(CellType.Blank))
+                            if (null != row.GetCell(i))//&& row.GetCell(i).CellType.Equals(CellType.Blank))
                             {
                                 try
                                 {
@@ -340,7 +340,7 @@ namespace topmeperp.Service
                     case 6:
                         if (i < row.PhysicalNumberOfCells)//項目標單單價
                         {
-                            if (null != row.GetCell(i) )//&& row.GetCell(i).CellType.Equals(CellType.Blank))
+                            if (null != row.GetCell(i))//&& row.GetCell(i).CellType.Equals(CellType.Blank))
                             {
                                 try
                                 {
@@ -383,7 +383,7 @@ namespace topmeperp.Service
                         {
                             //if (row.GetCell(i).CellType.Equals(CellType.Blank))
                             //{
-                                planItem.SYSTEM_MAIN = row.GetCell(i).ToString();
+                            planItem.SYSTEM_MAIN = row.GetCell(i).ToString();
                             //}
                         }
                         break;
@@ -392,7 +392,7 @@ namespace topmeperp.Service
                         {
                             //if (row.GetCell(i).CellType.Equals(CellType.Blank))
                             //{
-                                planItem.SYSTEM_SUB = row.GetCell(i).ToString();
+                            planItem.SYSTEM_SUB = row.GetCell(i).ToString();
                             //}
                         }
                         break;
@@ -1668,17 +1668,7 @@ namespace topmeperp.Service
                 errorMessage = errorMessage + "<br/>" + message;
             }
         }
-        public XSSFCellStyle getContentStyle()
-        {
-            XSSFCellStyle oStyle = (XSSFCellStyle)hssfworkbook.CreateCellStyle();
 
-            //設定上下左右的框線
-            oStyle.BorderBottom = NPOI.SS.UserModel.BorderStyle.Thin;//粗
-            oStyle.BorderLeft = NPOI.SS.UserModel.BorderStyle.Thin;//細實線
-            oStyle.BorderRight = NPOI.SS.UserModel.BorderStyle.Thin;//虛線
-            oStyle.BorderTop = NPOI.SS.UserModel.BorderStyle.Thin;//...  
-            return oStyle;
-        }
     }
     #region 功率下載表格格式處理區段
     public class WageFormToExcel
@@ -1976,7 +1966,7 @@ namespace topmeperp.Service
             }
             else
             {
-                fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID+".xlsx";
+                fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx";
             }
             var file = new FileStream(fileLocation, FileMode.Create);
             logger.Info("new file name =" + file.Name + ",path=" + file.Position);
@@ -2072,7 +2062,7 @@ namespace topmeperp.Service
                     DateTime dtDueDate = new DateTime(intYear, intMonth, intDay);
                     form.DUEDATE = dtDueDate;
                 }
-                logger.Debug("form.DUEDATE:"+ form.DUEDATE);
+                logger.Debug("form.DUEDATE:" + form.DUEDATE);
             }
             catch (Exception ex)
             {
@@ -2164,6 +2154,7 @@ namespace topmeperp.Service
         public List<PROJECT_ITEM_WITH_WAGE> projectItems = null;
 
         XSSFCellStyle style = null;
+        XSSFCellStyle styleNumber = null;
 
         public void exportExcel(string projectid)
         {
@@ -2176,8 +2167,8 @@ namespace topmeperp.Service
             //2.開啟檔案
             logger.Info("InitializeWorkbook");
             InitializeWorkbook(templateFile);
-            style = getContentStyle();
-
+            style = ExcelStyle.getContentStyle(hssfworkbook);
+            styleNumber = ExcelStyle.getNumberStyle(hssfworkbook);
             //3.期初成本 僅提供office 格式2007 
             getInitialQuotation();
 
@@ -2196,7 +2187,7 @@ namespace topmeperp.Service
             hssfworkbook.Write(file);
             file.Close();
         }
-
+        //寫入初期成本標單
         private void getInitialQuotation()
         {
             //2.寫入初期成本標單 僅提供office 格式2007 
@@ -2214,57 +2205,77 @@ namespace topmeperp.Service
                 IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
                 //PK(PROJECT_ITEM_ID) 項次 名稱 單位 數量 單價 備註 九宮格 次九宮格 主系統 次系統
                 row.CreateCell(0).SetCellValue(item.PROJECT_ITEM_ID);//PK(PROJECT_ITEM_ID)
+                row.Cells[0].CellStyle = style;
                 row.CreateCell(1).SetCellValue(item.ITEM_ID);//項次
+                row.Cells[1].CellStyle = style;
                 logger.Debug("ITEM DESC=" + item.ITEM_DESC);
                 row.CreateCell(2).SetCellValue(item.ITEM_DESC);//項目說明
+                row.Cells[2].CellStyle = style;
                 row.CreateCell(3).SetCellValue(item.ITEM_UNIT);// 單位
+                row.Cells[3].CellStyle = style;
                 //標單數量
                 if (null != item.ITEM_QUANTITY && item.ITEM_QUANTITY.ToString().Trim() != "")
                 {
                     row.CreateCell(4).SetCellValue(double.Parse(item.ITEM_QUANTITY.ToString()));
+                    row.Cells[4].CellStyle = style;
+                }
+                else
+                {
+                    row.CreateCell(4).SetCellValue("");
                 }
                 //圖算數量
                 if (null != item.MAP_QTY && item.MAP_QTY.ToString().Trim() != "")
                 {
                     row.CreateCell(5).SetCellValue(double.Parse(item.MAP_QTY.ToString()));
+                    row.Cells[5].CellStyle = style;
+                }
+                else
+                {
+                    row.CreateCell(5).SetCellValue("");
                 }
                 //單價
+                ICell cel6 = row.CreateCell(6);
                 if (null != item.ITEM_UNIT_PRICE && item.ITEM_UNIT_PRICE.ToString().Trim() != "")
                 {
                     logger.Debug("UNIT PRICE=" + item.ITEM_UNIT_PRICE);
-                    row.CreateCell(6).SetCellValue(double.Parse(item.ITEM_UNIT_PRICE.ToString()));
+                    cel6.SetCellValue(double.Parse(item.ITEM_UNIT_PRICE.ToString()));
+                    cel6.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
                 }
                 ICell cel7 = row.CreateCell(7);
                 if (null != item.ITEM_QUANTITY && null != item.ITEM_UNIT_PRICE)
                 {
-                    logger.Debug("Fomulor=" + "F" + (idxRow+1) + "*G" + (idxRow+1));
+                    logger.Debug("Fomulor=" + "F" + (idxRow + 1) + "*G" + (idxRow + 1));
                     cel7.CellFormula = "F" + (idxRow + 1) + "*G" + (idxRow + 1);
+                    cel7.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
                 }
                 row.CreateCell(8).SetCellValue(item.ITEM_REMARK);// 備註
+                row.Cells[8].CellStyle = style;
                 row.CreateCell(9).SetCellValue(item.TYPE_CODE_1);// 九宮格
+                row.Cells[9].CellStyle = style;
                 row.CreateCell(10).SetCellValue(item.TYPE_CODE_2);// 次九宮格
+                row.Cells[10].CellStyle = style;
                 row.CreateCell(11).SetCellValue(item.SYSTEM_MAIN);// 主系統
+                row.Cells[11].CellStyle = style;
                 row.CreateCell(12).SetCellValue(item.SYSTEM_SUB);// 次系統
+                                                                 //  row.Cells[12].CellStyle = style;
                 if (null != item.RATIO)
                 {
                     row.CreateCell(13).SetCellValue(double.Parse(item.RATIO.ToString()));// 工率
                     ICell cel14 = row.CreateCell(14);
-                    cel14.CellFormula = "E" + (idxRow + 1)+ "*N" + (idxRow + 1) + "*N3";
+                    cel14.CellFormula = "E" + (idxRow + 1) + "*N" + (idxRow + 1) + "*N3";
                 }
                 else
                 {
                     row.CreateCell(13).SetCellValue("");// 工率
                     row.CreateCell(14).SetCellValue("");// 工資試算
                 }
-                logger.Debug("set cell style rowid=" + idxRow);
-                foreach (ICell c in row.Cells)
-                {
-                    c.CellStyle = style;
-                }
+                row.Cells[13].CellStyle = style;
+                row.Cells[14].CellStyle = style;
                 idxRow++;
             }
             if (projectItems.Count == 0) { errorMsg = "標單資料不完整!!</br>"; }
         }
+        //報價標單 
         private void getFinalQuotation()
         {
             //2.寫入報價標單 僅提供office 格式2007 
@@ -2320,46 +2331,67 @@ namespace topmeperp.Service
                 //主九宮格編碼、次九宮格編碼、分項名稱(成本價)、材料報價、折扣率、材料成本、標單工資、複價、投標係數、投標複價、比例、項數
                 //主九宮格編碼
                 row.CreateCell(0).SetCellValue(item.MAINCODE);
+                row.Cells[0].CellStyle = style;
                 //次九宮格編碼
                 if (null != item.SUB_CODE && item.SUB_CODE.ToString().Trim() != "")
                 {
                     row.CreateCell(1).SetCellValue(double.Parse(item.SUB_CODE.ToString()));
+                    row.Cells[1].CellStyle = style;
+                }
+                else
+                {
+                    row.CreateCell(1).SetCellValue("");
+                    row.Cells[1].CellStyle = style;
                 }
                 //分項名稱
                 logger.Debug("ITEM DESC=" + item.MAINCODE_DESC);
                 row.CreateCell(2).SetCellValue(item.MAINCODE_DESC + "-" + item.SUB_DESC);
+                row.Cells[2].CellStyle = style;
                 //材料報價
                 if (null != item.MATERIAL_COST && item.MATERIAL_COST.ToString().Trim() != "")
                 {
                     row.CreateCell(3).SetCellValue(double.Parse(item.MATERIAL_COST.ToString()));
+                    row.Cells[3].CellStyle = styleNumber;
+                }
+                else
+                {
+                    row.CreateCell(3).SetCellValue("");
+                    row.Cells[3].CellStyle = styleNumber;
                 }
                 //折扣率 預設100%
                 row.CreateCell(4).SetCellValue("100%");
+                row.Cells[4].CellStyle = style;
                 //材料成本
                 row.CreateCell(5).CellFormula = "D" + (idxRow + 1) + "*E" + (idxRow + 1);
+                row.Cells[5].CellStyle = styleNumber;
                 //標單工資from 工率
                 if (null != item.MAN_DAY && item.MAN_DAY.ToString().Trim() != "")
                 {
                     double manday = double.Parse(item.MAN_DAY.ToString());
                     row.CreateCell(6).SetCellFormula(manday + "*期初成本!N3");
+                    row.Cells[6].CellStyle = style;
+                }
+                else
+                {
+                    row.CreateCell(6).SetCellValue("");
+                    row.Cells[6].CellStyle = style;
                 }
                 //複價//報價複價(填入公式)
                 row.CreateCell(7).CellFormula = "F" + (idxRow + 1) + "+G" + (idxRow + 1);
-
+                row.Cells[7].CellStyle = styleNumber;
                 //投標係數、投標複價、比例、項數
                 row.CreateCell(8).SetCellValue("100%");// 投標係數
+                row.Cells[8].CellStyle = style;
                 // 投標複價
                 row.CreateCell(9).CellFormula = "F" + (idxRow + 1) + "*I" + (idxRow + 1); ;
+                row.Cells[9].CellStyle = styleNumber;
                 //比例
                 row.CreateCell(10).SetCellValue("0");// 比例
+                row.Cells[10].CellStyle = style;
                 if (null != item.ITEM_COUNT && item.ITEM_COUNT.ToString().Trim() != "")
                 {
                     row.CreateCell(11).SetCellValue(int.Parse(item.ITEM_COUNT.ToString())); //項數
-                }
-                logger.Debug("getDirectCost cell style rowid=" + idxRow);
-                foreach (ICell c in row.Cells)
-                {
-                    c.CellStyle = style;
+                    row.Cells[11].CellStyle = style;
                 }
                 idxRow++;
             }
@@ -2378,17 +2410,18 @@ namespace topmeperp.Service
             }
             summaryRow.Cells[2].SetCellValue("小計");
             summaryRow.Cells[3].SetCellFormula("SUM(D2:D" + (idxRow) + ")");
-
+            summaryRow.Cells[3].CellStyle = styleNumber;
             summaryRow.Cells[5].SetCellFormula("SUM(F2:F" + (idxRow) + ")");
+            summaryRow.Cells[5].CellStyle = styleNumber;
             summaryRow.Cells[6].SetCellFormula("SUM(G2:G" + (idxRow) + ")");
+            summaryRow.Cells[6].CellStyle = styleNumber;
             summaryRow.Cells[7].SetCellFormula("SUM(H2:H" + (idxRow) + ")");
+            summaryRow.Cells[7].CellStyle = styleNumber;
             summaryRow.Cells[9].SetCellFormula("SUM(J2:J" + (idxRow) + ")");
+            summaryRow.Cells[9].CellStyle = styleNumber;
             summaryRow.Cells[11].SetCellFormula("SUM(L2:L" + (idxRow) + ")");
+            summaryRow.Cells[11].CellStyle = styleNumber;
             logger.Debug("set cell style rowid=" + idxRow);
-            foreach (ICell c in summaryRow.Cells)
-            {
-                c.CellStyle = style;
-            }
         }
         //產生圖算成本
         private void getDirectCostFromMap(List<DirectCost> direcCostItems)
@@ -2403,40 +2436,55 @@ namespace topmeperp.Service
                 //主九宮格編碼 次九宮格編碼  分項名稱 材料報價    折扣率 材料成本    圖算工資 複價  項數
                 //主九宮格編碼
                 row.CreateCell(0).SetCellValue(item.MAINCODE);
+                row.Cells[0].CellStyle = style;
                 //次九宮格編碼
                 if (null != item.SUB_CODE && item.SUB_CODE.ToString().Trim() != "")
                 {
                     row.CreateCell(1).SetCellValue(double.Parse(item.SUB_CODE.ToString()));
                 }
+                else
+                {
+                    row.CreateCell(1).SetCellValue("");
+                }
+                row.Cells[1].CellStyle = style;
                 //分項名稱
                 logger.Debug("ITEM DESC=" + item.MAINCODE_DESC);
                 row.CreateCell(2).SetCellValue(item.MAINCODE_DESC + "-" + item.SUB_DESC);
+                row.Cells[2].CellStyle = style;
                 //材料報價
                 if (null != item.MATERIAL_COST_INMAP && item.MATERIAL_COST_INMAP.ToString().Trim() != "")
                 {
                     row.CreateCell(3).SetCellValue(double.Parse(item.MATERIAL_COST_INMAP.ToString()));
                 }
+                else
+                {
+                    row.CreateCell(3).SetCellValue("");
+                }
+                row.Cells[3].CellStyle = styleNumber;
                 //折扣率 預設100%
                 row.CreateCell(4).SetCellValue("100%");
+                row.Cells[4].CellStyle = style;
                 //材料成本
                 row.CreateCell(5).CellFormula = "D" + (idxRow + 1) + "*E" + (idxRow + 1);
+                row.Cells[5].CellStyle = styleNumber;
                 //圖算工資
                 if (null != item.MAN_DAY_INMAP && item.MAN_DAY_INMAP.ToString().Trim() != "")
                 {
                     double manday = double.Parse(item.MAN_DAY_INMAP.ToString());
                     row.CreateCell(6).SetCellFormula(manday + "*期初成本!N3");
                 }
+                else
+                {
+                    row.CreateCell(6).SetCellValue("");
+                }
+                row.Cells[6].CellStyle = styleNumber;
                 //複價//報價複價(填入公式)
                 row.CreateCell(7).CellFormula = "F" + (idxRow + 1) + "+G" + (idxRow + 1);
+                row.Cells[7].CellStyle = styleNumber;
                 //項數
                 if (null != item.ITEM_COUNT && item.ITEM_COUNT.ToString().Trim() != "")
                 {
                     row.CreateCell(8).SetCellValue(int.Parse(item.ITEM_COUNT.ToString())); //項數
-                }
-                logger.Debug("getDirectCostFromMap cell style rowid=" + idxRow);
-                foreach (ICell c in row.Cells)
-                {
-                    c.CellStyle = style;
                 }
                 idxRow++;
             }
@@ -2480,42 +2528,62 @@ namespace topmeperp.Service
                 logger.Info("Row Id=" + idxRow);
                 //分項名稱(成本價)-主系統	分項名稱(成本價)-次系統	標單材料成本	圖算材料成本	標單工資	圖算工資	標單成本	圖算成本	項數
                 row.CreateCell(0).SetCellValue(item.SYSTEM_MAIN);
+                row.Cells[0].CellStyle = style;
                 //分項名稱(成本價) - 次系統
                 row.CreateCell(1).SetCellValue(item.SYSTEM_SUB);
+                row.Cells[1].CellStyle = style;
                 //標單材料成本//
                 if (null != item.MATERIAL_COST && item.MATERIAL_COST.ToString().Trim() != "")
                 {
                     row.CreateCell(2).SetCellValue(double.Parse(item.MATERIAL_COST.ToString()));
                 }
+                else
+                {
+                    row.CreateCell(2).SetCellValue("");
+                }
+                row.Cells[2].CellStyle = styleNumber;
                 //圖算材料成本//
                 if (null != item.MATERIAL_COST_INMAP && item.MATERIAL_COST_INMAP.ToString().Trim() != "")
                 {
                     row.CreateCell(3).SetCellValue(double.Parse(item.MATERIAL_COST.ToString()));
                 }
+                else
+                {
+                    row.CreateCell(3).SetCellValue("");
+                }
+                row.Cells[3].CellStyle = styleNumber;
                 //標單工資//
                 if (null != item.MAN_DAY && item.MAN_DAY.ToString().Trim() != "")
                 {
                     double manday = double.Parse(item.MAN_DAY.ToString());
                     row.CreateCell(4).SetCellFormula(manday + "*期初成本!N3");
                 }
+                else
+                {
+                    row.CreateCell(4).SetCellValue("");
+                }
+                row.Cells[4].CellStyle = styleNumber;
                 //圖算工資
                 if (null != item.MAN_DAY_INMAP && item.MAN_DAY_INMAP.ToString().Trim() != "")
                 {
                     double manday = double.Parse(item.MAN_DAY_INMAP.ToString());
                     row.CreateCell(5).SetCellFormula(manday + "*期初成本!N3");
+                }else
+                {
+                    row.CreateCell(5).SetCellValue("");
                 }
+                row.Cells[5].CellStyle = styleNumber;
+
                 //標單成本               row.CreateCell(5).CellFormula = "D" + (idxRow + 1) + "*E" + (idxRow + 1);
                 row.CreateCell(6).CellFormula = "C" + (idxRow + 1) + "+E" + (idxRow + 1);
+                row.Cells[6].CellStyle = styleNumber;
                 //圖算成本
                 row.CreateCell(7).CellFormula = "D" + (idxRow + 1) + "+F" + (idxRow + 1);
+                row.Cells[7].CellStyle = styleNumber;
                 //項數
                 if (null != item.ITEM_COUNT && item.ITEM_COUNT.ToString().Trim() != "")
                 {
                     row.CreateCell(8).SetCellValue(int.Parse(item.ITEM_COUNT.ToString())); //項數
-                }
-                foreach (ICell c in row.Cells)
-                {
-                    c.CellStyle = style;
                 }
                 idxRow++;
             }
@@ -2534,17 +2602,60 @@ namespace topmeperp.Service
             }
             summaryRow.Cells[1].SetCellValue("直接工程費(小計)");
             summaryRow.Cells[2].SetCellFormula("SUM(C2:C" + (idxRow) + ")");
+            summaryRow.Cells[2].CellStyle = styleNumber;
             summaryRow.Cells[3].SetCellFormula("SUM(D2:D" + (idxRow) + ")");
+            summaryRow.Cells[3].CellStyle = styleNumber;
             summaryRow.Cells[4].SetCellFormula("SUM(E2:E" + (idxRow) + ")");
+            summaryRow.Cells[4].CellStyle = styleNumber;
             summaryRow.Cells[5].SetCellFormula("SUM(F2:F" + (idxRow) + ")");
+            summaryRow.Cells[5].CellStyle = styleNumber;
             summaryRow.Cells[6].SetCellFormula("SUM(G2:G" + (idxRow) + ")");
+            summaryRow.Cells[6].CellStyle = styleNumber;
             summaryRow.Cells[7].SetCellFormula("SUM(H2:H" + (idxRow) + ")");
+            summaryRow.Cells[7].CellStyle = styleNumber;
             summaryRow.Cells[8].SetCellFormula("SUM(I2:I" + (idxRow) + ")");
-            foreach (ICell c in summaryRow.Cells)
-            {
-                c.CellStyle = style;
-            }
         }
+    }
+    public class ExcelStyle
+    {
+        //顯示有逗號區分的數值資料
+        //HSSFCellStyle styleNumeric = (HSSFCellStyle)workbook.CreateCellStyle();
+        //HSSFDataFormat format = (HSSFDataFormat)workbook.CreateDataFormat();
+        //styleNumeric.DataFormat =format.GetFormat("###,##0");
+        //cell.CellStyle = styleNumeric;
+        public static XSSFCellStyle getNumberStyle(IWorkbook workbook)
+        {
+            XSSFCellStyle styleNumeric = (XSSFCellStyle)workbook.CreateCellStyle();
+            styleNumeric.BorderBottom = NPOI.SS.UserModel.BorderStyle.Thin;
+            styleNumeric.BorderLeft = NPOI.SS.UserModel.BorderStyle.Thin;//細實線
+            styleNumeric.BorderRight = NPOI.SS.UserModel.BorderStyle.Thin;//虛線
+            styleNumeric.BorderTop = NPOI.SS.UserModel.BorderStyle.Thin;//...  
+            XSSFDataFormat format = (XSSFDataFormat)workbook.CreateDataFormat();
+            styleNumeric.DataFormat = format.GetFormat("#,##0");
+            return styleNumeric;
+        }
+        public static XSSFCellStyle getContentStyle(IWorkbook workbook)
+        {
+            XSSFCellStyle oStyle = (XSSFCellStyle)workbook.CreateCellStyle();
+
+            //設定上下左右的框線
+            oStyle.BorderBottom = NPOI.SS.UserModel.BorderStyle.Thin;//粗
+            oStyle.BorderLeft = NPOI.SS.UserModel.BorderStyle.Thin;//細實線
+            oStyle.BorderRight = NPOI.SS.UserModel.BorderStyle.Thin;//虛線
+            oStyle.BorderTop = NPOI.SS.UserModel.BorderStyle.Thin;//...  
+            return oStyle;
+        }
+        //顯示百分比符號
+        //HSSFCellStyle stylePercent = (HSSFCellStyle)workbook.CreateCellStyle();
+        //HSSFDataFormat format = (HSSFDataFormat)workbook.CreateDataFormat();
+        //        stylePercent.DataFormat = format.GetFormat("#0.00%");
+        //cell.CellStyle = stylePercent;
+        //顯示日期格式
+        //HSSFCellStyle styleDate = (HSSFCellStyle)workbook.CreateCellStyle();
+        //HSSFDataFormat format = (HSSFDataFormat)workbook.CreateDataFormat();
+        //        styleDate.DataFormat = format.GetFormat("yyyy-mm-dd");
+        //cell.CellStyle = styleDate;
+
     }
     #endregion
 }
