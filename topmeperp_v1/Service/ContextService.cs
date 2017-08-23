@@ -709,7 +709,7 @@ namespace topmeperp.Service
                     i = context.SaveChanges();
                     logger.Debug("Update supplier inquiry form =" + i);
                     logger.Info("supplier inquiry form item = " + lstItem.Count);
-                    //2.將item資料寫入 
+                    //將item資料寫入 
                     foreach (TND_PROJECT_FORM_ITEM item in lstItem)
                     {
                         TND_PROJECT_FORM_ITEM existItem = null;

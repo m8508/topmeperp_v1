@@ -32,6 +32,5 @@ namespace topmeperp.Models
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
         public string STATUS { get; set; }
         public string ISWAGE { get; set; }
-        public string COUNTER_OFFER { get; set; }
     }
 }

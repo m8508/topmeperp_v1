@@ -398,7 +398,7 @@ namespace topmeperp.Service
             string sql = "SELECT * FROM PLAN_ITEM pi ";
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("projectid", projectid));
-            
+
             //採購項目
             if (null != formName && formName != "")
             {
@@ -2454,7 +2454,7 @@ namespace topmeperp.Service
             //處理SQL 預先填入合約代號,設定集合處理參數
             using (var context = new topmepEntities())
             {
-                lstItem = context.Database.SqlQuery<EstimationForm>("SELECT pi.*, A.CUM_QTY FROM PLAN_ITEM pi JOIN (SELECT ei.PLAN_ITEM_ID, SUM(ei.EST_QTY) AS CUM_QTY " +
+                lstItem = context.Database.SqlQuery<EstimationForm>("SELECT pi.*, A.CUM_QTY FROM PLAN_ITEM pi LEFT JOIN (SELECT ei.PLAN_ITEM_ID, SUM(ei.EST_QTY) AS CUM_QTY " +
                     "FROM PLAN_ESTIMATION_ITEM ei LEFT JOIN PLAN_ESTIMATION_FORM ef ON ei.EST_FORM_ID = ef.EST_FORM_ID JOIN TND_SUPPLIER sup ON SUBSTRING(ef.CONTRACT_ID, 6, 6) = sup.SUPPLIER_ID " +
                     "WHERE STUFF(ef.CONTRACT_ID, 6, 6, sup.COMPANY_NAME) = @contractid GROUP BY ei.PLAN_ITEM_ID)A ON pi.PLAN_ITEM_ID = A.PLAN_ITEM_ID WHERE " +
                     "pi.PROJECT_ID + pi.SUPPLIER_ID + pi.FORM_NAME = @contractid OR pi.PROJECT_ID + pi.MAN_SUPPLIER_ID + pi.MAN_FORM_NAME = @contractid ; "
@@ -2593,7 +2593,7 @@ namespace topmeperp.Service
             logger.Info("search estimation form by 估驗單編號 =" + estid + ", 合約名稱 =" + contractid + ", 估驗單狀態 =" + status);
             List<ESTFunction> lstForm = new List<ESTFunction>();
             //處理SQL 預先填入專案代號,設定集合處理參數
-            if (10 == status)
+            if (20 == status)
             {
                 string sql = "SELECT CONVERT(char(10), A.CREATE_DATE, 111) AS CREATE_DATE, A.EST_FORM_ID, A.STATUS, A.CONTRACT_NAME, A.SUPPLIER_NAME, ROW_NUMBER() OVER(ORDER BY A.EST_FORM_ID) AS NO " +
                     "FROM (SELECT ef.CREATE_DATE, ef.EST_FORM_ID, ef.STATUS, STUFF(ef.CONTRACT_ID,6, 6, sup.COMPANY_NAME) AS CONTRACT_NAME, sup.COMPANY_NAME AS SUPPLIER_NAME " +
@@ -2602,7 +2602,7 @@ namespace topmeperp.Service
 
                 var parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("projectid", projectid));
-                sql = sql + "WHERE A.STATUS > 0 ";
+                sql = sql + "WHERE A.STATUS > 10 ";
 
                 //估驗單編號條件
                 if (null != estid && estid != "")
@@ -2631,7 +2631,7 @@ namespace topmeperp.Service
 
                 var parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("projectid", projectid));
-                sql = sql + "WHERE A.STATUS = 0 ";
+                sql = sql + "WHERE A.STATUS < 20 ";
 
                 using (var context = new topmepEntities())
                 {
@@ -2647,13 +2647,14 @@ namespace topmeperp.Service
         public void getESTByEstId(string estid)
         {
             logger.Info("get form : formid=" + estid);
+            formEST = null;
             using (var context = new topmepEntities())
             {
                 //取得估驗單檔頭資訊
-                string sql = "SELECT EST_FORM_ID, PROJECT_ID, CONTRACT_ID, PLUS_TAX, TAX_AMOUNT, PAYMENT_TRANSFER, FOREIGN_PAYMENT, RETENTION_PAYMENT, DEDUCTED_ADVANCE_PAYMENT, REMARK, " +
+                string sql = "SELECT EST_FORM_ID, PROJECT_ID, CONTRACT_ID, PLUS_TAX, TAX_AMOUNT, TAX_RATIO, PAYMENT_TRANSFER, FOREIGN_PAYMENT, RETENTION_PAYMENT, MODIFY_DATE, REMARK, INVOICE, " +
                     "CREATE_ID, CREATE_DATE, SETTLEMENT, STATUS, TYPE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID =@estid ";
 
-                formEST = context.PLAN_ESTIMATION_FORM.SqlQuery(sql, new SqlParameter("estid", estid)).First();
+                formEST = context.PLAN_ESTIMATION_FORM.SqlQuery(sql, new SqlParameter("estid", estid)).FirstOrDefault();
                 //取得估驗單明細
                 ESTItem = context.Database.SqlQuery<EstimationForm>("SELECT pei.PLAN_ITEM_ID, pei.EST_QTY, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.ITEM_FORM_QUANTITY, " +
                     "pi.ITEM_UNIT_PRICE, A.CUM_QTY AS CUM_QTY FROM PLAN_ESTIMATION_ITEM pei LEFT JOIN PLAN_ESTIMATION_FORM ef ON pei.EST_FORM_ID = ef.EST_FORM_ID LEFT JOIN PLAN_ITEM pi ON " +
@@ -2674,6 +2675,8 @@ namespace topmeperp.Service
             {
                 foreach (PLAN_OTHER_PAYMENT item in lstItem)
                 {
+                    item.TYPE = "O";
+                    item.CREATE_DATE = DateTime.Now;
                     context.PLAN_OTHER_PAYMENT.Add(item);
                 }
                 i = context.SaveChanges();
@@ -2685,18 +2688,32 @@ namespace topmeperp.Service
         public List<PLAN_OTHER_PAYMENT> getOtherPayById(string id)
         {
 
-            logger.Info("get other payment by other payment id  =" + id);
+            logger.Info("get other payment by EST id + contractid  =" + id);
             List<PLAN_OTHER_PAYMENT> lstItem = new List<PLAN_OTHER_PAYMENT>();
             //處理SQL 預先填入ID,設定集合處理參數
             using (var context = new topmepEntities())
             {
-                lstItem = context.Database.SqlQuery<PLAN_OTHER_PAYMENT>("SELECT * FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID =@id ; "
+                lstItem = context.Database.SqlQuery<PLAN_OTHER_PAYMENT>("SELECT * FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID =@id AND TYPE = 'O' ; "
             , new SqlParameter("id", id)).ToList();
             }
 
             return lstItem;
         }
+        PLAN_ESTIMATION_FORM status = null;
+        //取得估驗單狀態
+        public PLAN_ESTIMATION_FORM getStatusById(string id)
+        {
 
+            logger.Info("get EST status by EST id + contractid  =" + id);
+            //處理SQL 預先填入ID,設定集合處理參數
+            using (var context = new topmepEntities())
+            {
+                status = context.Database.SqlQuery<PLAN_ESTIMATION_FORM>("SELECT * FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID + CONTRACT_ID =@id ; "
+            , new SqlParameter("id", id)).FirstOrDefault();
+            }
+
+            return status;
+        }
         public int delOtherPayByESTId(string estid)
         {
             logger.Info("remove all other payment detail by EST FORM ID=" + estid);
@@ -2704,7 +2721,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 logger.Info("delete these other payment record by est form id=" + estid);
-                i = context.Database.ExecuteSqlCommand("DELETE FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID=@estid", new SqlParameter("@estid", estid));
+                i = context.Database.ExecuteSqlCommand("DELETE FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID=@estid AND TYPE = 'O' ", new SqlParameter("@estid", estid));
             }
             logger.Debug("delete PLAN OTHER PAYMENT count=" + i);
             return i;
@@ -2752,14 +2769,15 @@ namespace topmeperp.Service
             }
             return j;
         }
+
         //取得新估驗單估驗次數
         int est = 0;
         public int getEstCountById(string contractid)
         {
             using (var context = new topmepEntities())
             {
-                est = context.Database.SqlQuery<int>("SELECT COUNT(CONTRACT_ID)+1 AS EST_COUNT FROM PLAN_ESTIMATION_FORM " +
-                    "GROUP BY CONTRACT_ID HAVING CONTRACT_ID =@contractid "
+                est = context.Database.SqlQuery<int>("SELECT ISNULL((SELECT COUNT(CONTRACT_ID) FROM PLAN_ESTIMATION_FORM " +
+                    "GROUP BY CONTRACT_ID HAVING CONTRACT_ID =@contractid),0)+1 AS EST_COUNT "
                    , new SqlParameter("contractid", contractid)).First();
             }
             return est;
@@ -2779,17 +2797,324 @@ namespace topmeperp.Service
             return estcount;
         }
 
-        decimal otherpayamt = 0;
-        public decimal getOtherPayAmountById(string estid)
+        AdvancePaymentFunction advancePay = null;
+        //取得估驗單預付款明細資料
+        public AdvancePaymentFunction getAdvancePayById(string id)
+        {
+
+            logger.Info("get advance payment by EST id + contractid  =" + id);
+            using (var context = new topmepEntities())
+            {
+                advancePay = context.Database.SqlQuery<AdvancePaymentFunction>("SELECT (SELECT AMOUNT FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID =@id AND TYPE = 'A') AS A_AMOUNT, " +
+                    "(SELECT AMOUNT FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID =@id AND TYPE = 'B') AS B_AMOUNT, " +
+                    "(SELECT AMOUNT FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID =@id AND TYPE = 'C') AS C_AMOUNT, " +
+                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = SUBSTRING(@id,10, LEN(@id)-9) AND TYPE = 'A' " +
+                    "AND CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = SUBSTRING(@id, 1,9) AND TYPE = 'A') GROUP BY CONTRACT_ID),0) CUM_A_AMOUNT, " +
+                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = SUBSTRING(@id,10, LEN(@id)-9) AND TYPE = 'B' " +
+                    "AND CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = SUBSTRING(@id, 1,9) AND TYPE = 'B') GROUP BY CONTRACT_ID),0) CUM_B_AMOUNT, " +
+                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = SUBSTRING(@id,10, LEN(@id)-9) AND TYPE = 'C' " +
+                    "AND CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = SUBSTRING(@id, 1,9) AND TYPE = 'C') GROUP BY CONTRACT_ID),0) CUM_C_AMOUNT  "
+            , new SqlParameter("id", id)).First();
+            }
+
+            return advancePay;
+        }
+
+        public int addAdvancePayment(List<PLAN_OTHER_PAYMENT> lstItem)
+        {
+            //1.新增預付款資料
+            int i = 0;
+            logger.Info("add advance payment = " + lstItem.Count);
+            //2.將預付款資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (PLAN_OTHER_PAYMENT item in lstItem)
+                {
+                    item.CREATE_DATE = DateTime.Now;
+                    context.PLAN_OTHER_PAYMENT.Add(item);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("add advance payment count =" + i);
+            return i;
+        }
+
+        //取得估驗單是否有預付款資料
+        public List<PLAN_OTHER_PAYMENT> getAdvancePayByESTId(string id)
+        {
+
+            logger.Info("get advance payment by EST id + contractid  =" + id);
+            List<PLAN_OTHER_PAYMENT> lstItem = new List<PLAN_OTHER_PAYMENT>();
+            //處理SQL 預先填入ID,設定集合處理參數
+            using (var context = new topmepEntities())
+            {
+                lstItem = context.Database.SqlQuery<PLAN_OTHER_PAYMENT>("SELECT * FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID =@id AND TYPE <> 'O' ; "
+            , new SqlParameter("id", id)).ToList();
+            }
+
+            return lstItem;
+        }
+
+        //更新預付款資料
+        public int updateAdvancePayment(string estid, List<PLAN_OTHER_PAYMENT> lstItem)
+        {
+            //1.修改預付款資料
+            int i = 0;
+            logger.Info("update advance payment = " + lstItem.Count);
+            //2.將預付款資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (PLAN_OTHER_PAYMENT item in lstItem)
+                {
+                    PLAN_OTHER_PAYMENT existItem = null;
+                    var parameters = new List<SqlParameter>();
+                    parameters.Add(new SqlParameter("estid", estid));
+                    parameters.Add(new SqlParameter("type", item.TYPE));
+                    string sql = "SELECT * FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = @estid and TYPE = @type ";
+                    logger.Info(sql + " ;" + item.EST_FORM_ID + item.TYPE);
+                    PLAN_OTHER_PAYMENT excelItem = context.PLAN_OTHER_PAYMENT.SqlQuery(sql, parameters.ToArray()).First();
+                    existItem = context.PLAN_OTHER_PAYMENT.Find(excelItem.OTHER_PAYMENT_ID);
+                    logger.Debug("find exist item=" + existItem.TYPE);
+                    existItem.AMOUNT = item.AMOUNT;
+                    context.PLAN_OTHER_PAYMENT.AddOrUpdate(existItem);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("update advance payment count =" + i);
+            return i;
+        }
+
+        PaymentDetailsFunction detailsPay = null;
+        //取得估驗單預付款明細資料
+        public PaymentDetailsFunction getDetailsPayById(string id)
+        {
+            logger.Info("get details payment by  id  =" + id);
+            using (var context = new topmepEntities())
+            {
+                detailsPay = context.Database.SqlQuery<PaymentDetailsFunction>("SELECT D.*,(D.EST_AMOUNT-D.T_FOREIGN) AS SUB_AMOUNT, (D.CUM_EST_AMOUNT - CUM_T_FOREIGN) AS CUM_SUB_AMOUNT, (D.EST_AMOUNT-D.T_FOREIGN-D.T_RETENTION-D.T_ADVANCE-D.T_OTHER) AS PAYABLE_AMOUNT, " +
+                    "(D.CUM_EST_AMOUNT-D.CUM_T_FOREIGN-D.CUM_T_RETENTION-D.CUM_T_ADVANCE-D.CUM_T_OTHER) AS CUM_PAYABLE_AMOUNT, " +
+                    "(D.EST_AMOUNT-D.T_FOREIGN-D.T_RETENTION-D.T_ADVANCE-D.T_OTHER + D.TAX_AMOUNT) AS PAID_AMOUNT, (D.CUM_EST_AMOUNT-D.CUM_T_FOREIGN-D.CUM_T_RETENTION-D.CUM_T_ADVANCE-D.CUM_T_OTHER + D.CUM_TAX_AMOUNT) AS CUM_PAID_AMOUNT, " +
+                    "(D.T_FOREIGN + D.CUM_T_FOREIGN) AS TOTAL_FOREIGN, (D.EST_AMOUNT - D.T_FOREIGN + D.CUM_EST_AMOUNT - CUM_T_FOREIGN) AS TOTAL_SUB_AMOUNT, (D.T_RETENTION + D.CUM_T_RETENTION) AS TOTAL_RETENTION, (D.T_ADVANCE + D.CUM_T_ADVANCE) AS TOTAL_ADVANCE, " +
+                    "(D.T_OTHER + D.CUM_T_OTHER) AS TOTAL_OTHER, (D.EST_AMOUNT-D.T_FOREIGN-D.T_RETENTION-D.T_ADVANCE-D.T_OTHER + D.CUM_EST_AMOUNT-D.CUM_T_FOREIGN - D.CUM_T_RETENTION - D.CUM_T_ADVANCE - D.CUM_T_OTHER ) AS TOTAL_PAYABLE_AMOUNT,  " +
+                    "(D.TAX_AMOUNT + D.CUM_TAX_AMOUNT) AS TOTAL_TAX_AMOUNT, (D.EST_AMOUNT-D.T_FOREIGN-D.T_RETENTION-D.T_ADVANCE-D.T_OTHER + D.TAX_AMOUNT + D.CUM_EST_AMOUNT-D.CUM_T_FOREIGN-D.CUM_T_RETENTION-D.CUM_T_ADVANCE-D.CUM_T_OTHER + D.CUM_TAX_AMOUNT) AS TOTAL_PAID_AMOUNT " +
+                    "FROM(SELECT ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID = @id AND TYPE <> 'O' GROUP BY EST_FORM_ID + CONTRACT_ID), 0) AS T_ADVANCE, " +
+                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9) AND TYPE <> 'O' " +
+                    "AND CREATE_DATE < (SELECT ISNULL((SELECT MAX(CREATE_DATE) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9)), GETDATE())) GROUP BY CONTRACT_ID),0) AS CUM_T_ADVANCE, " +
+                    "ISNULL((SELECT SUM(AMOUNT) AS AMOUNT FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID IN(SELECT EST_FORM_ID FROM PLAN_ESTIMATION_FORM WHERE CREATE_DATE < (SELECT DISTINCT ef.CREATE_DATE FROM PLAN_OTHER_PAYMENT pop JOIN PLAN_ESTIMATION_FORM ef " +
+                    "ON pop.EST_FORM_ID = ef.EST_FORM_ID WHERE pop.EST_FORM_ID = SUBSTRING(@id, 1, 9))) AND TYPE = 'O' AND CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9)),0) AS CUM_T_OTHER, " +
+                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE TYPE = 'O' GROUP BY EST_FORM_ID HAVING EST_FORM_ID = SUBSTRING(@id, 1, 9)),0) AS T_OTHER, " +
+                    "ISNULL((SELECT TAX_RATIO FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9)),0) AS TAX_RATIO, " +
+                    "ISNULL((SELECT RETENTION_PAYMENT FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9)),0) AS T_RETENTION, " +
+                    "ISNULL((SELECT TAX_AMOUNT FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9)),0) AS TAX_AMOUNT, " +
+                    "ISNULL((SELECT SUM(RETENTION_PAYMENT) FROM PLAN_ESTIMATION_FORM WHERE CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9) AND CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9))),0)  AS CUM_T_RETENTION, " +
+                    "ISNULL((SELECT SUM(TAX_AMOUNT) FROM PLAN_ESTIMATION_FORM WHERE CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9) AND CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9))),0) AS CUM_TAX_AMOUNT, " +
+                    "ISNULL((SELECT SUM(pei.EST_QTY * pi.ITEM_UNIT_PRICE) PRICE FROM PLAN_ESTIMATION_ITEM pei LEFT JOIN PLAN_ITEM pi ON PEI.PLAN_ITEM_ID = PI.PLAN_ITEM_ID WHERE pei.EST_FORM_ID = SUBSTRING(@id, 1, 9)),0) AS EST_AMOUNT, " +
+                    "ISNULL((SELECT SUM(pei.EST_QTY * pi.ITEM_UNIT_PRICE) PRICE FROM PLAN_ESTIMATION_ITEM pei LEFT JOIN PLAN_ITEM pi ON pei.PLAN_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN PLAN_ESTIMATION_FORM ef ON pei.EST_FORM_ID = ef.EST_FORM_ID WHERE ef.CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9))), 0) AS CUM_EST_AMOUNT,  " +
+                    "ISNULL((SELECT FOREIGN_PAYMENT FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9)),0) AS T_FOREIGN, ISNULL((SELECT SUM(FOREIGN_PAYMENT) FROM PLAN_ESTIMATION_FORM WHERE CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9) " +
+                    "AND CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9))),0) AS CUM_T_FOREIGN)D "
+            , new SqlParameter("id", id)).First();
+            }
+            return detailsPay;
+        }
+
+        decimal retention = 0;
+        public decimal getRetentionAmountById(string id)
         {
             using (var context = new topmepEntities())
             {
-                otherpayamt = context.Database.SqlQuery<decimal>("SELECT SUM(AMOUNT) AS AMOUNT FROM PLAN_OTHER_PAYMENT GROUP BY EST_FORM_ID HAVING EST_FORM_ID =@estid "
-                   , new SqlParameter("estid", estid)).FirstOrDefault();
+                retention = context.Database.SqlQuery<decimal>("SELECT RATIO * AMOUNT / 100 * 1.05 FROM(SELECT ISNULL((SELECT PAYMENT_RETENTION_RATIO FROM PLAN_PAYMENT_TERMS WHERE CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9)), 0) AS RATIO, " +
+                    "(SELECT ISNULL(SUM(pei.EST_QTY * pi.ITEM_UNIT_PRICE),0) PRICE FROM PLAN_ESTIMATION_ITEM pei LEFT JOIN PLAN_ITEM pi ON pei.PLAN_ITEM_ID = pi.PLAN_ITEM_ID WHERE pei.EST_FORM_ID = SUBSTRING(@id, 1, 9)) AS AMOUNT)B  "
+                   , new SqlParameter("id", id)).FirstOrDefault();
             }
-            return otherpayamt;
+            return retention;
+        }
+        //寫入估驗保留款
+        public int UpdateRetentionAmountById(string id)
+        {
+            int i = 0;
+            logger.Info("update retention payment of EST form by id" + id);
+            string sql = "UPDATE  PLAN_ESTIMATION_FORM SET RETENTION_PAYMENT = i.PAY, TAX_AMOUNT = i.TAX_AMOUNT  " +
+                "FROM(SELECT RATIO * AMOUNT / 100 * (1+TAX_RATIO/100) AS PAY, (AMOUNT -T_FOREIGN) * TAX_RATIO/100 AS TAX_AMOUNT FROM(SELECT ISNULL((SELECT PAYMENT_RETENTION_RATIO FROM PLAN_PAYMENT_TERMS WHERE " +
+                "CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9)), 0) AS RATIO, ISNULL((SELECT TAX_RATIO FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9)),0) AS TAX_RATIO, " +
+                "ISNULL((SELECT FOREIGN_PAYMENT FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9)),0) AS T_FOREIGN, " +
+                "(SELECT ISNULL(SUM(pei.EST_QTY * pi.ITEM_UNIT_PRICE), 0) PRICE FROM PLAN_ESTIMATION_ITEM pei LEFT JOIN PLAN_ITEM pi ON pei.PLAN_ITEM_ID = pi.PLAN_ITEM_ID " +
+                "WHERE pei.EST_FORM_ID = SUBSTRING(@id, 1, 9)) AS AMOUNT)B) i WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9)" ;
+            logger.Debug("batch sql:" + sql);
+            db = new topmepEntities();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("id", id));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            logger.Info("Update Record:" + i);
+            db = null;
+            return i;
+        }
+        public int delESTByESTId(string estid)
+        {
+            logger.Info("remove EST form detail by EST FORM ID =" + estid);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("delete EST form record by est form id =" + estid);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @estid ", new SqlParameter("@estid", estid));
+            }
+            logger.Debug("delete PLAN ESTIMATION FORM count=" + i);
+            return i;
         }
 
+        public int delESTItemsByESTId(string estid)
+        {
+            logger.Info("remove EST items detail by EST FORM ID  =" + estid);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("delete EST items record by est form id =" + estid);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM PLAN_ESTIMATION_ITEM WHERE EST_FORM_ID = @estid ", new SqlParameter("@estid", estid));
+            }
+            logger.Debug("delete PLAN ESTIMATION ITEM count=" + i);
+            return i;
+        }
+        //更新估驗單狀態為草稿
+        public int UpdateESTStatusById(string estid)
+        {
+            int i = 0;
+            logger.Info("update the status of EST form by estid" + estid);
+            string sql = "UPDATE  PLAN_ESTIMATION_FORM SET STATUS = 10 WHERE EST_FORM_ID = @estid ";
+            logger.Debug("batch sql:" + sql);
+            db = new topmepEntities();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("estid", estid));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            logger.Info("Update Record:" + i);
+            db = null;
+            return 1;
+        }
+
+        //更新估驗單狀態為送審
+        public int RefreshESTStatusById(string estid)
+        {
+            int i = 0;
+            logger.Info("update the status of EST form by estid" + estid);
+            string sql = "UPDATE  PLAN_ESTIMATION_FORM SET STATUS = 20 WHERE EST_FORM_ID = @estid ";
+            logger.Debug("batch sql:" + sql);
+            db = new topmepEntities();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("estid", estid));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            logger.Info("Update Record:" + i);
+            db = null;
+            return 1;
+        }
+
+        //修改估驗單內容
+        public int RefreshESTByEstId(string estid, string tax, decimal taxratio)
+        {
+            int i = 0;
+            logger.Info("update EST form by estid" + estid);
+            string sql = "UPDATE  PLAN_ESTIMATION_FORM SET PLUS_TAX = @tax, TAX_RATIO =@taxratio WHERE EST_FORM_ID = @estid "; 
+            logger.Debug("batch sql:" + sql);
+            db = new topmepEntities();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("estid", estid));
+            parameters.Add(new SqlParameter("tax", tax));
+            parameters.Add(new SqlParameter("taxratio", taxratio));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            logger.Info("Update Record:" + i);
+            db = null;
+            return i;
+        }
+        //修改估驗單額外扣款
+        public int RefreshESTAmountByEstId(string estid, decimal foreign_payment, decimal retention, decimal tax_amount, string remark)
+        {
+            int i = 0;
+            logger.Info("update EST form by estid" + estid);
+            string sql = "UPDATE  PLAN_ESTIMATION_FORM SET FOREIGN_PAYMENT = @foreign_payment, RETENTION_PAYMENT = @retention, TAX_AMOUNT =@tax_amount, REMARK =@remark WHERE EST_FORM_ID = @estid "; 
+            logger.Debug("batch sql:" + sql);
+            db = new topmepEntities();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("estid", estid));
+            parameters.Add(new SqlParameter("foreign_payment", foreign_payment));
+            parameters.Add(new SqlParameter("retention", retention));
+            parameters.Add(new SqlParameter("tax_amount", tax_amount));
+            parameters.Add(new SqlParameter("remark", remark));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            logger.Info("Update Record:" + i);
+            db = null;
+            return i;
+        }
+
+        //更新估驗單狀態為退件
+        public int RejectESTByEstId(string estid)
+        {
+            int i = 0;
+            logger.Info("reject EST form by estid" + estid);
+            string sql = "UPDATE  PLAN_ESTIMATION_FORM SET STATUS = 0 WHERE EST_FORM_ID = @estid ";
+            logger.Debug("batch sql:" + sql);
+            db = new topmepEntities();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("estid", estid));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            logger.Info("Update Record:" + i);
+            db = null;
+            return 1;
+        }
+
+        //更新估驗單狀態為已核可
+        public int ApproveESTByEstId(string estid)
+        {
+            int i = 0;
+            logger.Info("Approve EST form by estid" + estid);
+            string sql = "UPDATE  PLAN_ESTIMATION_FORM SET STATUS = 30 WHERE EST_FORM_ID = @estid ";
+            logger.Debug("batch sql:" + sql);
+            db = new topmepEntities();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("estid", estid));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            logger.Info("Update Record:" + i);
+            db = null;
+            return 1;
+        }
+        //取得估驗單憑證資料
+        public List<PLAN_INVOICE> getInvoiceById(string id)
+        {
+
+            logger.Info("get invoice by EST id + contractid  =" + id);
+            List<PLAN_INVOICE> lstItem = new List<PLAN_INVOICE>();
+            //處理SQL 預先填入ID,設定集合處理參數
+            using (var context = new topmepEntities())
+            {
+                lstItem = context.Database.SqlQuery<PLAN_INVOICE>("SELECT INVOICE_ID, EST_FORM_ID, CONTRACT_ID, INVOICE_DATE, INVOICE_NUMBER, " +
+                    "AMOUNT, TAX, TYPE, SUB_TYPE, PLAN_ITEM_ID, DISCOUNT_QTY, DISCOUNT_UNIT_PRICE, CREATE_DATE FROM PLAN_INVOICE WHERE EST_FORM_ID + CONTRACT_ID =@id ; "
+            , new SqlParameter("id", id)).ToList();
+            }
+
+            return lstItem;
+        }
+
+        public int addInvoice(List<PLAN_INVOICE> lstItem)
+        {
+            //1.新增憑證資料
+            int i = 0;
+            logger.Info("add invoice = " + lstItem.Count);
+            //2.將扣款資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (PLAN_INVOICE item in lstItem)
+                {
+                    item.CREATE_DATE = DateTime.Now;
+                    context.PLAN_INVOICE.Add(item);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("add invoice count =" + i);
+            return i;
+        }
         #endregion
     }
 }

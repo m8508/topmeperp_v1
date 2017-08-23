@@ -12,14 +12,20 @@ namespace topmeperp.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class PLAN_OTHER_PAYMENT
+    public partial class PLAN_INVOICE
     {
-        public long OTHER_PAYMENT_ID { get; set; }
+        public long INVOICE_ID { get; set; }
         public string EST_FORM_ID { get; set; }
         public string CONTRACT_ID { get; set; }
+        public string INVOICE_NUMBER { get; set; }
+        public Nullable<System.DateTime> INVOICE_DATE { get; set; }
         public Nullable<decimal> AMOUNT { get; set; }
-        public string REASON { get; set; }
+        public Nullable<decimal> TAX { get; set; }
         public string TYPE { get; set; }
+        public string SUB_TYPE { get; set; }
+        public string PLAN_ITEM_ID { get; set; }
+        public Nullable<decimal> DISCOUNT_QTY { get; set; }
+        public Nullable<decimal> DISCOUNT_UNIT_PRICE { get; set; }
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
     }
 }

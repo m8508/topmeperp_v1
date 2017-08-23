@@ -157,7 +157,6 @@ namespace topmeperp.Controllers
             lstContractItem = service.getContractItemById(id.Substring(1).Trim());
             //contract.planItems = lstContractItem;
             ViewBag.SearchResult = "共取得" + lstContractItem.Count + "筆資料";
-            ViewBag.other_deduction = service.getOtherPayAmountById(formid);
             //轉成Json字串
             ViewData["items"] = JsonConvert.SerializeObject(lstContractItem);
             return View("ContractItems", contract);
@@ -184,13 +183,44 @@ namespace topmeperp.Controllers
         [HttpPost]
         [MultiButton("SaveEst")]
         //儲存驗收單(驗收單草稿)
-        public ActionResult SaveEst(PLAN_ESTIMATION_FORM est)
+        public ActionResult SaveEst(FormCollection f)
+        {
+            //取得估驗單編號
+            logger.Info("EST form Id:" + Request["formid"]);
+            //更新估驗單
+            logger.Info("update Estimation Form");
+            //估驗單草稿(未送審) STATUS = 10
+            int k = service.UpdateESTStatusById(Request["formid"]);
+            return RedirectToAction("SingleEST", "Estimation", new { id = Request["formid"] });
+        }
+
+        [HttpPost]
+        [MultiButton("AddEst")]
+        //驗收單送審
+        public ActionResult AddEst(FormCollection f)
+        {
+            //取得估驗單編號
+            logger.Info("EST form Id:" + Request["formid"]);
+            //更新估驗單
+            logger.Info("update Estimation Form");
+            //估驗單(已送審) STATUS = 20
+            int k = service.RefreshESTStatusById(Request["formid"]);
+            return RedirectToAction("SingleEST", "Estimation", new { id = Request["formid"] });
+        }
+
+        public String ConfirmEst(PLAN_ESTIMATION_FORM est)
         {
             //取得專案編號
             logger.Info("Project Id:" + Request["id"]);
             //取得專案名稱
             logger.Info("Project Name:" + Request["projectName"]);
             logger.Info("ContractId:" + Request["keyid"]);
+            // 先刪除原先資料
+            logger.Info("EST form id =" + Request["formid"]);
+            logger.Info("Delete PLAN_ESTIMATION_FORM By EST_FORM_ID");
+            service.delESTByESTId(Request["formid"]);
+            logger.Info("Delete PLAN_ESTIMATION_ITEM By EST_FORM_ID");
+            service.delESTItemsByESTId(Request["formid"]);
             //取得合約估驗品項ID
             string[] lstItemId = Request["planitemid"].Split(',');
             var i = 0;
@@ -210,15 +240,25 @@ namespace topmeperp.Controllers
             est.EST_FORM_ID = Request["formid"];
             est.CONTRACT_ID = Request["contractid"];
             est.PLUS_TAX = Request["tax"];
-            est.TAX_AMOUNT = int.Parse(Request["taxAmount"]);
-            est.STATUS = 0;
-            est.PAYMENT_TRANSFER = int.Parse(Request["totalAmount"]);
-            est.FOREIGN_PAYMENT = int.Parse(Request["foreign_payment"]);
-            est.DEDUCTED_ADVANCE_PAYMENT = int.Parse(Request["advanceAmount"]);
             est.REMARK = Request["remark"];
-            est.RETENTION_PAYMENT = int.Parse(Request["retentionAmount"]);
+            est.INVOICE = Request["invoice"];
+            if (Request["tax"] == "E")
+            {
+                est.TAX_RATIO = decimal.Parse(Request["taxratio"]);
+            }
+            else
+            {
+                est.TAX_RATIO = 0;
+            }
+            try
+            {
+                est.FOREIGN_PAYMENT = int.Parse(Request["t_foreign"]);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(est.FOREIGN_PAYMENT + " not foreign_payment:" + ex.Message);
+            }
             est.TYPE = Request["type"];
-            PLAN_ESTIMATION_FORM item = new PLAN_ESTIMATION_FORM();
             string estid = service.newEST(Request["formid"], est, lstItemId);
             List<PLAN_ESTIMATION_ITEM> lstItem = new List<PLAN_ESTIMATION_ITEM>();
             for (int j = 0; j < lstItemId.Count(); j++)
@@ -237,9 +277,12 @@ namespace topmeperp.Controllers
                 lstItem.Add(items);
             }
             int k = service.refreshEST(estid, est, lstItem);
-            return RedirectToAction("SingleEST", "Estimation", new { id = Request["formid"] });
+            int m = service.UpdateRetentionAmountById(Request["formid"] + Request["contractid"]);
+            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            string itemJson = objSerializer.Serialize(service.getDetailsPayById(Request["formid"] + Request["contractid"]));
+            logger.Info("EST form details payment amount=" + itemJson);
+            return itemJson;
         }
-
         //估驗單查詢
         public ActionResult EstimationForm(string id)
         {
@@ -249,10 +292,10 @@ namespace topmeperp.Controllers
             TND_PROJECT p = tndservice.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
             //估驗單草稿
-            int status = 10;
+            int status = 20;
             if (Request["status"] == null || Request["status"] == "")
             {
-                status = 0;
+                status = 10;
             }
             List<ESTFunction> lstEST = service.getESTListByEstId(id, Request["contractid"], Request["estid"], status);
             return View(lstEST);
@@ -279,15 +322,6 @@ namespace topmeperp.Controllers
             return itemJson;
         }
 
-        //取得其他扣款金額
-        public string getOtherPayment(string formid)
-        {
-            logger.Info("access other payment by:" + formid);
-            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            string itemJson = objSerializer.Serialize(service.getOtherPayAmountById(formid));
-            logger.Info("EST form other payment amount=" + itemJson);
-            return itemJson;
-        }
         //顯示單一估驗單功能
         public ActionResult SingleEST(string id)
         {
@@ -309,13 +343,25 @@ namespace topmeperp.Controllers
                 plansummary lstWageContract = service.getPlanContractOfWage4Est(singleForm.planEST.CONTRACT_ID.Replace(singleForm.planEST.CONTRACT_ID.Substring(5, 6), s.COMPANY_NAME));
                 ViewBag.contractamount = lstWageContract.WAGE_COST;
             }
+            PLAN_PAYMENT_TERMS payment = service.getPaymentTerm(singleForm.planEST.CONTRACT_ID);
+            if (payment.PAYMENT_RETENTION_RATIO != null)
+            {
+                ViewBag.retention = payment.PAYMENT_RETENTION_RATIO;
+            }
+            else
+            {
+                ViewBag.retention = payment.USANCE_RETENTION_RATIO;
+            }
             ViewBag.estCount = service.getEstCountByESTId(id);
             ViewBag.formname = singleForm.planEST.CONTRACT_ID.Substring(11).Trim();
+            ViewBag.paymentkey = id + singleForm.planEST.CONTRACT_ID;
             singleForm.planESTItem = service.ESTItem;
             singleForm.prj = service.getProjectById(singleForm.planEST.PROJECT_ID);
             logger.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
+            PaymentDetailsFunction lstSummary = service.getDetailsPayById(id + singleForm.planEST.CONTRACT_ID);
             //轉成Json字串
             ViewData["items"] = JsonConvert.SerializeObject(singleForm.planESTItem);
+            ViewData["summary"] = JsonConvert.SerializeObject(lstSummary);
             return View(singleForm);
         }
         //其他扣款
@@ -327,9 +373,11 @@ namespace topmeperp.Controllers
             TND_PROJECT p = service.getProjectById(id.Substring(9, 5).Trim());
             ViewBag.projectName = p.PROJECT_NAME;
             ViewBag.contractid = id.Substring(9).Trim();
+            ViewBag.formname = id.Substring(20).Trim();
             ViewBag.formid = id.Substring(0, 9).Trim();
             List<PLAN_OTHER_PAYMENT> lstOtherPayItem = null;
             lstOtherPayItem = service.getOtherPayById(id);
+            ViewBag.status = service.getStatusById(id).STATUS;
             ViewBag.key = lstOtherPayItem.Count;
             logger.Debug("this other payment record =" + ViewBag.key + "筆");
             ViewData["items"] = JsonConvert.SerializeObject(lstOtherPayItem);
@@ -410,16 +458,22 @@ namespace topmeperp.Controllers
             }
             else
             {
-                msg = "新增其他扣款資料成功，EST_FORM_ID =" + form["formid"];
+                msg = "更新其他扣款資料成功，EST_FORM_ID =" + form["formid"];
             }
             return msg;
         }
 
-        //更新估驗數量
+        //更新估驗數量與稅率
         public String UpdateESTQty(FormCollection form)
         {
             logger.Info("form:" + form.Count);
             string msg = "";
+            string tax = form.Get("tax").Trim();
+            decimal taxratio = 0;
+            if (tax == "E")
+            {
+                taxratio = decimal.Parse(form.Get("taxratio").Trim());
+            }
             string[] lstPlanItemId = form.Get("planitemid").Split(',');
             string[] lstQty = form.Get("evaluated_qty").Split(',');
             List<PLAN_ESTIMATION_ITEM> lstItem = new List<PLAN_ESTIMATION_ITEM>();
@@ -438,19 +492,45 @@ namespace topmeperp.Controllers
                 logger.Debug("EST_FIRM_ID = " + form["estid"] + "It's Plan tem Id No=" + item.PLAN_ITEM_ID + ", EST Qty =" + item.EST_QTY);
                 lstItem.Add(item);
             }
+            int k = service.RefreshESTByEstId(form["estid"], tax, taxratio);
             int i = service.refreshESTQty(form["estid"], lstItem);
+            int m = service.UpdateRetentionAmountById(form["estid"] + form["contractid"]);
             if (i == 0)
             {
                 msg = service.message;
             }
             else
             {
-                msg = "更新估驗數量成功";
+                msg = "更新估驗數量成功，請確認各項金額是否正確 !";
             }
 
             logger.Info("Request: 更新數量訊息 = " + msg);
             return msg;
         }
+
+        //更新估驗數量
+        public String UpdateEST(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            string msg = "";
+            decimal foreign_payment = decimal.Parse(form.Get("t_foreign").Trim());
+            decimal retention = decimal.Parse(form.Get("t_retention").Trim());
+            decimal tax_amount = decimal.Parse(form.Get("tax_amount").Trim());
+            string remark = form.Get("remark").Trim();
+            int i = service.RefreshESTAmountByEstId(form["estid"], foreign_payment, retention, tax_amount, remark);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "更新估驗單成功";
+            }
+
+            logger.Info("Request: 更新估驗單訊息 = " + msg);
+            return msg;
+        }
+
         //預付款
         public ActionResult AdvancePayment(string id)
         {
@@ -463,7 +543,242 @@ namespace topmeperp.Controllers
             ViewBag.formid = id.Substring(0, 9).Trim();
             PLAN_PAYMENT_TERMS payment = service.getPaymentTerm(id.Substring(9).Trim());
             ViewBag.advancePaymentRatio = payment.PAYMENT_ADVANCE_RATIO;
+            AdvancePaymentFunction advancePay = service.getAdvancePayById(id);
+            List<PLAN_OTHER_PAYMENT> lstAdvancePayItem = null;
+            lstAdvancePayItem = service.getAdvancePayByESTId(id);
+            ViewBag.key = lstAdvancePayItem.Count;
+            ViewData["items"] = JsonConvert.SerializeObject(advancePay);
             return View();
+        }
+
+        public String AddAdvancePay(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            string msg = "";
+            string advance_payment = form.Get("advance_payment");
+            string temporary_loan = form.Get("temporary_loan");
+            string margins = form.Get("margins");
+            string[] lstItemId = String.Join(",", advance_payment, temporary_loan, margins).Split(',');
+            string[] lsttype = String.Join(",", "A", "B", "C").Split(',');
+            // 取得預付款資料
+            List<PLAN_OTHER_PAYMENT> lstItem = new List<PLAN_OTHER_PAYMENT>();
+            for (int j = 0; j < lstItemId.Count(); j++)
+            {
+                PLAN_OTHER_PAYMENT item = new PLAN_OTHER_PAYMENT();
+                item.EST_FORM_ID = form["formid"];
+                item.CONTRACT_ID = form["contractid"];
+                if (lstItemId[j].ToString() == "")
+                {
+                    item.AMOUNT = null;
+                }
+                else
+                {
+                    item.AMOUNT = decimal.Parse(lstItemId[j]);
+                }
+                logger.Info("Advance Payment Amount  =" + item.AMOUNT);
+                item.TYPE = lsttype[j];
+                logger.Debug("Item EST form id =" + item.EST_FORM_ID + " ,And Type =" + item.TYPE);
+                lstItem.Add(item);
+            }
+            int i = service.addAdvancePayment(lstItem);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "新增預付款資料成功，EST_FORM_ID =" + form["formid"];
+            }
+            return msg;
+        }
+
+        public String UpdateAdvancePay(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            string msg = "";
+            // 取得預付款資料
+            string advance_payment = form.Get("advance_payment");
+            string temporary_loan = form.Get("temporary_loan");
+            string margins = form.Get("margins");
+            string[] lstItemId = String.Join(",", advance_payment, temporary_loan, margins).Split(',');
+            string[] lsttype = String.Join(",", "A", "B", "C").Split(',');
+            List<PLAN_OTHER_PAYMENT> lstItem = new List<PLAN_OTHER_PAYMENT>();
+            for (int j = 0; j < lstItemId.Count(); j++)
+            {
+                PLAN_OTHER_PAYMENT item = new PLAN_OTHER_PAYMENT();
+                item.EST_FORM_ID = form["formid"];
+                if (lstItemId[j].ToString() == "")
+                {
+                    item.AMOUNT = null;
+                }
+                else
+                {
+                    item.AMOUNT = decimal.Parse(lstItemId[j]);
+                }
+                logger.Info("Advance Payment Amount  =" + item.AMOUNT);
+                item.TYPE = lsttype[j];
+                logger.Debug("Item EST form id =" + item.EST_FORM_ID + " ,And Type =" + item.TYPE);
+                lstItem.Add(item);
+            }
+            int i = service.updateAdvancePayment(form["formid"], lstItem);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "修改預付款資料成功，EST_FORM_ID =" + form["formid"];
+            }
+            return msg;
+        }
+
+        public String UpdateESTStatusById(FormCollection form)
+        {
+            //取得估驗單編號
+            logger.Info("EST form Id:" + form["estid"]);
+            //更新估驗單狀態
+            logger.Info("Update Estimation Form Status");
+            //估驗單(已送審) STATUS = 20
+            string msg = "";
+            int i = service.RefreshESTStatusById(form["estid"]);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "估驗單已送審";
+            }
+            return msg;
+        }
+
+        public String RejectESTById(FormCollection form)
+        {
+            //取得估驗單編號
+            logger.Info("EST form Id:" + form["estid"]);
+            //更新估驗單狀態
+            logger.Info("Reject Estimation Form ");
+            //估驗單(已退件) STATUS = 0
+            string msg = "";
+            int i = service.RejectESTByEstId(form["estid"]);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "估驗單已退回";
+            }
+            return msg;
+        }
+
+        public String ApproveESTById(FormCollection form)
+        {
+            //取得估驗單編號
+            logger.Info("EST form Id:" + form["estid"]);
+            //更新估驗單狀態
+            logger.Info("Confirm Estimation Form ");
+            //估驗單(已核可) STATUS = 30
+            string msg = "";
+            int i = service.ApproveESTByEstId(form["estid"]);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "估驗單已核可";
+            }
+            return msg;
+        }
+
+        //憑證
+        public ActionResult Invoice(string id)
+        {
+            logger.Info("Access To Invoice By EST Form Id =" + id);
+            ViewBag.keyId = id;
+            ViewBag.projectId = id.Substring(9, 5).Trim();
+            TND_PROJECT p = service.getProjectById(id.Substring(9, 5).Trim());
+            ViewBag.projectName = p.PROJECT_NAME;
+            ViewBag.formname = id.Substring(20).Trim();
+            ViewBag.contractid = id.Substring(9).Trim();
+            ViewBag.formid = id.Substring(0, 9).Trim();
+            TND_SUPPLIER lstSupplier = service.getSupplierInfo(id.Substring(14,6).Trim());
+            ViewBag.supplier = lstSupplier.COMPANY_NAME;
+            ViewBag.companyid = lstSupplier.COMPANY_ID;
+            EstimationFormDetail singleForm = new EstimationFormDetail();
+            service.getESTByEstId(id.Substring(0, 9).Trim());
+            singleForm.planEST = service.formEST;
+            ViewBag.type = "不檢查發票";
+            logger.Debug(singleForm.planEST.INVOICE);
+            if (singleForm.planEST.INVOICE == "E")
+            {
+                ViewBag.type = "發票含保留款";
+            }
+            else if (singleForm.planEST.INVOICE == "I")
+            {
+                ViewBag.type = "發票不含保留款";
+            }
+            ViewBag.tax = "其他";
+            if (singleForm.planEST.PLUS_TAX == "E")
+            {
+                ViewBag.tax = "外加稅 " + singleForm.planEST.TAX_RATIO + "  %";
+            }
+            List<PLAN_INVOICE> lstInvoice = null;
+            lstInvoice = service.getInvoiceById(id);
+            ViewBag.key = lstInvoice.Count;
+            logger.Debug("this invoice record =" + ViewBag.key + "筆");
+            ViewData["items"] = JsonConvert.SerializeObject(lstInvoice);
+            return View();
+        }
+
+        public String AddInvoice(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            string msg = "";
+            // 取得其他扣款資料
+            string[] lstDate = form.Get("invoice_date").Split(',');
+            string[] lstNumber = form.Get("invoice_number").Split(',');
+            string[] lstAmount = form.Get("input_amount").Split(',');
+            string[] lstTax = form.Get("taxamount").Split(',');
+            List<PLAN_INVOICE> lstItem = new List<PLAN_INVOICE>();
+            for (int j = 0; j < lstAmount.Count(); j++)
+            {
+                PLAN_INVOICE item = new PLAN_INVOICE();
+                item.EST_FORM_ID = form["formid"];
+                item.CONTRACT_ID = form["contractid"];
+                item.INVOICE_NUMBER = lstNumber[j];
+                item.INVOICE_DATE = Convert.ToDateTime(lstDate[j]);
+                if (lstAmount[j].ToString() == "")
+                {
+                    item.AMOUNT = null;
+                }
+                else
+                {
+                    item.AMOUNT = decimal.Parse(lstAmount[j]);
+                }
+                if (lstTax[j].ToString() == "")
+                {
+                    item.TAX = null;
+                }
+                else
+                {
+                    item.TAX = decimal.Parse(lstTax[j]);
+                }
+                logger.Info("Invoice Number = " + item.INVOICE_NUMBER + "and Invoice Amount =" + item.AMOUNT);
+                //logger.Debug("Item EST form id =" + item.EST_FORM_ID + "且憑證類型為" + item.TYPE);
+                lstItem.Add(item);
+            }
+            int i = service.addInvoice(lstItem);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "新增憑證資料成功，EST_FORM_ID =" + form["formid"];
+            }
+            return msg;
         }
     }
 }

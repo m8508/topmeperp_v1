@@ -347,4 +347,41 @@ namespace topmeperp.Models
         public PLAN_ESTIMATION_FORM planEST { get; set; }
         public IEnumerable<EstimationForm> planESTItem { get; set; }
     }
+    public class AdvancePaymentFunction 
+    {
+        public Nullable<decimal> A_AMOUNT { get; set; }
+        public Nullable<decimal> B_AMOUNT { get; set; }
+        public Nullable<decimal> C_AMOUNT { get; set; }
+        public Nullable<decimal> CUM_A_AMOUNT { get; set; }
+        public Nullable<decimal> CUM_B_AMOUNT { get; set; }
+        public Nullable<decimal> CUM_C_AMOUNT { get; set; }
+
+    }
+    public class PaymentDetailsFunction
+    {
+        public Nullable<decimal> T_ADVANCE { get; set; }
+        public Nullable<decimal> CUM_T_ADVANCE { get; set; }
+        public Nullable<decimal> T_OTHER { get; set; }
+        public Nullable<decimal> CUM_T_OTHER { get; set; }
+        public Nullable<decimal> T_RETENTION { get; set; }
+        public Nullable<decimal> CUM_T_RETENTION { get; set; }
+        public Nullable<decimal> T_FOREIGN { get; set; }
+        public Nullable<decimal> CUM_T_FOREIGN { get; set; }
+        public Nullable<decimal> SUB_AMOUNT { get; set; }
+        public Nullable<decimal> CUM_SUB_AMOUNT { get; set; }
+        public Nullable<decimal> PAYABLE_AMOUNT { get; set; }
+        public Nullable<decimal> CUM_PAYABLE_AMOUNT { get; set; }
+        public Nullable<decimal> PAID_AMOUNT { get; set; }
+        public Nullable<decimal> CUM_PAID_AMOUNT { get; set; }
+        public Nullable<decimal> TAX_AMOUNT { get; set; }
+        public Nullable<decimal> CUM_TAX_AMOUNT { get; set; }
+        public Nullable<decimal> TOTAL_TAX_AMOUNT { get; set; }
+        public Nullable<decimal> TOTAL_PAID_AMOUNT { get; set; }
+        public Nullable<decimal> TOTAL_PAYABLE_AMOUNT { get; set; }
+        public Nullable<decimal> TOTAL_OTHER { get; set; }
+        public Nullable<decimal> TOTAL_ADVANCE { get; set; }
+        public Nullable<decimal> TOTAL_RETENTION { get; set; }
+        public Nullable<decimal> TOTAL_SUB_AMOUNT { get; set; }
+        public Nullable<decimal> TOTAL_FOREIGN { get; set; }
+    }
 }

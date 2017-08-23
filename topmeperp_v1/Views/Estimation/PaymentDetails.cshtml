@@ -1,5 +1,7 @@
 ﻿
-<form id="formEST" name="formEST">
+
+
+<div class="row">
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -20,120 +22,43 @@
             <tr>
                 <td>前期累計</td>
                 <td></td>
+                <td><input type="text" id="cum_t_foreign" name="cum_t_foreign" value="" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
+                <td><input type="text" id="cum_sub_amount" name="cum_sub_amount" value="" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
+                <td><input type="text" id="cum_t_retention" name="cum_t_retention" value="" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
+                <td><input type="text" id="cum_t_advance" name="cum_t_advance" value="" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                 <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td><input type="text" id="cum_t_other" name="cum_t_other" value="" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
+                <td><input type="text" id="cum_payable_amount" name="cum_payable_amount" value="" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
+                <td><input type="text" id="cum_tax_amount" name="cum_tax_amount" value="" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
+                <td><input type="text" id="cum_paid_amount" name="cum_paid_amount" value="" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
             </tr>
             <tr>
                 <td>本期金額</td>
-                <td><input type="text" id="re_payment" name="re_payment" value="0" style="width:80px;" /></td>
-                <td><input type="text" id="foreign_payment" name="foreign_payment" value="0" style="width:80px;" /></td>
-                <td><input id="Amount" name="Amount" type="text" value="" style="width:80px;" /></td>
-                <td><input type="text" id="retentionAmount" name="retentionAmount" value="" style="width:80px;" /></td>
-                <td><input type="text" id="advanceAmount" name="advanceAmount" value="0" style="width:80px;" /></td>
-                <td><input type="text" id="re_payment_deduction" name="re_payment_deduction" value="0" style="width:80px;" /></td>
-                <td><input type="text" id="other_deduction" name="other_deduction" value="" onfocus="getOtherPayment('@ViewBag.formid')" style="width:80px;" /></td>
-                <td><input id="PayableAmount" name="PayableAmount" type="text" value="" style="width:80px;" /></td>
-                <td><input type="text" id="taxAmount" name="taxAmount" value="" style="width:80px;" /></td>
-                <td><input id="PaidAmount" name="PaidAmount" type="text" value="" style="width:80px;" /></td>
+                <td></td>
+                <td><input type="text" id="t_foreign" name="t_foreign" value="" style="width:80px;" /></td>
+                <td><input type="text" id="sub_amount" name="sub_amount" value="" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
+                <td><input type="text" id="t_retention" name="t_retention" value="" style="width:80px;" /></td>
+                <td><input type="text" id="t_advance" name="t_advance" value="" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
+                <td></td>
+                <td><input type="text" id="t_other" name="t_other" value="" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
+                <td><input type="text" id="payable_amount" name="payable_amount" value="" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
+                <td><input type="text" id="tax_amount" name="tax_amount" value="" style="width:80px;" /></td>
+                <td><input type="text" id="paid_amount" name="paid_amount" value="" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
             </tr>
             <tr>
                 <td>累計金額</td>
                 <td></td>
+                <td><input type="text" id="total_foreign" name="total_foreign" value="" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
+                <td><input type="text" id="total_sub_amount" name="total_sub_amount" value="" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
+                <td><input type="text" id="total_retention" name="total_retention" value="" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
+                <td><input type="text" id="total_advance" name="total_advance" value="" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                 <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td><input type="text" id="total_other" name="total_other" value="" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
+                <td><input type="text" id="total_payable_amount" name="total_payable_amount" value="" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
+                <td><input type="text" id="total_tax_amount" name="total_tax_amount" value="" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
+                <td><input type="text" id="total_paid_amount" name="total_paid_amount" value="" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
+               
             </tr>
         </tbody>
     </table>
-</form>
-
-<script type="text/javascript">
-
-    function getOtherPayment(formid) {
-        $.ajax({
-            url: "/Estimation/getOtherPayment",
-            type: "GET",
-            data: { formid: formid },
-            dataType: "JSON",
-            success: function (data) {
-                $('#other_deduction').val(data);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert('Error get data from ajax');
-            }
-        });
-    }
-
-    $('#Amount').focus(function () {
-        var re_payment = parseFloat($("#re_payment").val());
-        var foreign_payment = - parseFloat($("#foreign_payment").val());
-        var totalAmount = parseFloat($("#totalAmount").val());
-        var sum = parseInt(re_payment + foreign_payment + totalAmount);
-        if (sum != null) {
-            $('#Amount').val(sum);
-        }
-    });
-    $('#Amount').focus(function () {
-        var retention = parseFloat($("#retention").val());
-        var totalAmount = parseFloat($("#totalAmount").val());
-        var sum = parseInt(retention * totalAmount / 100 * 1.05);
-        if (sum != null) {
-            $('#retentionAmount').val(sum);
-        }
-    });
-    $('#Amount').focus(function () {
-        var retentionAmount = - parseFloat($("#retentionAmount").val());
-        var Amount = parseFloat($("#Amount").val());
-        var advanceAmount = - parseFloat($("#advanceAmount").val());
-        var re_payment_deduction = - parseFloat($("#re_payment_deduction").val());
-        var other_deduction = - parseFloat($("#other_deduction").val());
-        var sum = parseInt(Amount + retentionAmount + advanceAmount + re_payment_deduction + other_deduction);
-        if (sum != null) {
-            $('#PayableAmount').val(sum);
-        }
-    });
-
-    $('#taxAmount').focus(function () {
-        var method1 = $('input[name=tax]:radio:checked').val();
-        if (method1 == "E") {
-            var taxratio = parseFloat($("#taxratio").val());
-            var totalAmount = parseFloat($("#totalAmount").val());
-            var retention = parseFloat($("#retention").val());
-            var sum = parseInt(totalAmount * taxratio / 100 - (totalAmount * retention / 100 * taxratio / 100) );
-            if (sum != null) {
-                $('#taxAmount').val(sum);
-            }
-        }
-        else {
-            var taxAmount = 0;
-            if (taxAmount != null) {
-                $('#taxAmount').val(taxAmount);
-            }
-        }
-
-    });
-
-    $('#taxAmount').focus(function () {
-        var PayableAmount = parseFloat($("#PayableAmount").val());
-        var taxAmount = parseFloat($("#taxAmount").val());
-        var sum = parseInt(PayableAmount + taxAmount);
-        if (sum != null) {
-            $('#PaidAmount').val(sum);
-        }
-    });
-
-
-</script>
+</div>

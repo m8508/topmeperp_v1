@@ -26,11 +26,25 @@
                         <td>@item.SUPPLIER_NAME</td>
                         @if (item.STATUS == 0)
                         {
+
+                            <td><span style="color: red; font-size: 15px;">退件</span></td>
+
+                        }
+                        else if (item.STATUS == 10)
+                        {
                             <td>草稿</td>
+                        }
+                        else if (item.STATUS == 20)
+                        {
+                            <td>已送審</td>
+                        }
+                        else if (item.STATUS == 30)
+                        {
+                            <td><span style="color: blue; font-size: 15px;">已核可</span></td>
                         }
                         else
                         {
-                            <td>已送審</td>
+                            <td><span style="color: red; font-size: 15px;">已結帳</span></td>
                         }
                         <td><a href='@("../../UploadFile/" + ViewBag.projectid + "/Estimation/" + item.EST_FORM_ID + ".xlsx")'>下載</a></td>
                     </tr>

@@ -22,12 +22,14 @@ namespace topmeperp.Models
         public Nullable<decimal> PAYMENT_TRANSFER { get; set; }
         public Nullable<decimal> FOREIGN_PAYMENT { get; set; }
         public Nullable<decimal> RETENTION_PAYMENT { get; set; }
-        public Nullable<decimal> DEDUCTED_ADVANCE_PAYMENT { get; set; }
         public string REMARK { get; set; }
         public string CREATE_ID { get; set; }
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public string SETTLEMENT { get; set; }
         public string TYPE { get; set; }
         public Nullable<int> STATUS { get; set; }
+        public Nullable<decimal> TAX_RATIO { get; set; }
+        public Nullable<System.DateTime> MODIFY_DATE { get; set; }
+        public string INVOICE { get; set; }
     }
 }

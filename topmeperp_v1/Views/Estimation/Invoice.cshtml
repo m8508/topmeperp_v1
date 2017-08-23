@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "其他扣款 : ";
+    ViewBag.Title = "憑證明細 : ";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 
@@ -9,37 +9,58 @@
     <h3 style="height:10px;line-height:5px">@ViewBag.Title</h3><br />
     <div ng-app="" ng-controller="MyCtrl">
         <div style="padding-bottom : 20px">
-            @if (ViewBag.key > 0 && ViewBag.status < 30)
+            @if (ViewBag.key > 0)
             {
                 <input type="submit" value="修改" class="btn btn-success" id="updateForm" />
             }
-            else if (ViewBag.status < 30)
+            else
             {
                 <input type="submit" value="儲存" class="btn btn-success" id="saveForm" />
             }
             <input onclick="window.close();" value="關閉" type="button" class="btn btn-default" />
         </div>
-        <form id="otherpayment_form" name="otherpayment_form" ng-submit="submit()">
+        <form id="invoice_form" name="invoice_form" ng-submit="submit()">
             <div class="row">
-                <div class="col-md-4" style="padding-top:10px">
+                <div class="col-md-3" style="padding-top:10px">
                     <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
                 </div>
-                <div class="col-md-4 form-group" style="padding-top:10px">
+                <div class="col-md-3 form-group" style="padding-top:10px">
                     <label for="formname">發包項目:</label><input id="formname" name="formname" type="text" value="@ViewBag.formname" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
                 </div>
-                <div class="col-md-4 form-group" style="padding-top:10px">
+                <div class="col-md-3 form-group" style="padding-top:10px">
                     <label for="formid">估驗單編號:</label><input id="formid" name="formid" type="text" value="@ViewBag.formid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
                 </div>
-                <input type="hidden" id="contractid" name="contractid"  value="@ViewBag.contractid"/>
+                <div class="col-md-3" style="padding-top:10px">
+                    <label for="type">發票:</label><input id="type" name="type" type="text" value="@ViewBag.type" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3" style="padding-top:10px">
+                    <label for="supplier">付款對象:</label><input id="supplier" name="supplier" type="text" value="@ViewBag.supplier" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                </div>
+                <div class="col-md-3 form-group" style="padding-top:10px">
+                    <label for="formid">付款統一編號:</label><input id="company_id" name="company_id" type="text" value="@ViewBag.companyid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                </div>
+                <div class="col-md-3" style="padding-top:10px">
+                    <label for="tax">稅金類別:</label><input id="tax" name="tax" type="text" value="@ViewBag.tax" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                </div>
+
+                <input type="hidden" id="contractid" name="contractid" value="@ViewBag.contractid" />
             </div>
             <ng-form ng-repeat="key in keys" name="keyForm">
                 <span class="btn btn-info">
                     <button type="button" class="close" ng-click="remove($index)">&times;</button>
                 </span>
-                扣款金額：
-                <input type="number" id="input_amount" name="input_amount" ng-model="key.AMOUNT" required>
-                扣款原因：
-                <input type="text" style="width:500px" id="input_reason" name="input_reason" ng-model="key.REASON" required>
+                No.{{$index +1}}
+                憑證日期:
+                <input type="text" id="invoice_date" name="invoice_date" style="width:130px" ng-model="key.INVOICE_DATE " required>
+                憑證號碼:
+                <input type="text" id="invoice_number" name="invoice_number" style="width:130px" ng-model="key.INVOICE_NUMBER" required>
+                銷售金額：
+                <input type="number" id="input_amount" name="input_amount" style="width:100px" ng-model="key.AMOUNT" required>
+                營業稅：
+                <input type="number" id="taxamount" name="taxamount" style="width:100px" ng-model="key.TAX" required>
+
                 <br />
             </ng-form>
             <div style="padding-top : 20px">
@@ -54,21 +75,25 @@
     function MyCtrl($scope) {
         $scope.keys = @Html.Raw(ViewData["items"]);
         $scope.show = function () {
-            $scope.keys.push({ amount: $scope.key.AMOUNT, reason: $scope.key.REASON });
+            $scope.keys.push({ date: $scope.key.INVOICE_DATE, number:$scope.key.INVOICE_NUMBER, amount: $scope.key.AMOUNT, taxamount: $scope.key.TAX, type: $scope.key.TYPE });
 
         };
         $scope.addKey = function () {
-            $scope.keys.push({ amount: null, reason: '' });
+            $scope.keys.push({ date: null, tax: null, amount: null, tax: null });
 
         };
         $scope.remove = function (index) {
             $scope.keys.splice(index, 1);
         };
+        $scope.types = [
+            "二聯式", "三聯式", "收據 ", "工資單", "對開發票", "折讓單"
+        ];
     }
+
     $("#saveForm").click(function () {
         $.ajax({
-            url: '@Url.Action("AddOtherPay", "Estimation")',
-            data: $('#otherpayment_form').serialize(),
+            url: '@Url.Action("AddInvoice", "Estimation")',
+            data: $('#invoice_form').serialize(),
             type: "POST",
             dataType: 'text',
             success: function (msg) {
@@ -83,7 +108,7 @@
     $("#updateForm").click(function () {
         $.ajax({
             url: '@Url.Action("UpdateOtherPay", "Estimation")',
-            data: $('#otherpayment_form').serialize(),
+            data: $('#invoice_form').serialize(),
             type: "POST",
             dataType: 'text',
             success: function (msg) {
