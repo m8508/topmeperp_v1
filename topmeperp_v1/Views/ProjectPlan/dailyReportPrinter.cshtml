@@ -42,13 +42,24 @@
                             <td>
                                 @string.Format("{0:0}", Model.lstDailyRptItem4Show[idx].FINISH_QTY)
                             </td>
-                            <td>@(Model.lstDailyRptItem4Show[idx].ACCUMULATE_QTY + Model.lstDailyRptItem4Show[idx].FINISH_QTY)</td>
-                            <td>100%</td>
+                            <td>@string.Format("{0:0}", ((Model.lstDailyRptItem4Show[idx].ACCUMULATE_QTY == null ? 0 : Model.lstDailyRptItem4Show[idx].ACCUMULATE_QTY) + Model.lstDailyRptItem4Show[idx].FINISH_QTY))</td>
+                            <td>
+                                @{
+                                    decimal? percentage = null;
+                                    decimal? AccumlateQty = Model.lstDailyRptItem4Show[idx].ACCUMULATE_QTY;
+                                    decimal? finiQty = Model.lstDailyRptItem4Show[idx].FINISH_QTY;
+                                    if (Model.lstDailyRptItem4Show[idx].QTY > 0)
+                                    {
+                                        percentage = ((AccumlateQty == null ? 0 : AccumlateQty) + (finiQty == null ? 0 : finiQty)) / Model.lstDailyRptItem4Show[idx].QTY;
+                                    }
+                                }
+                                @string.Format("{0:P}", percentage)
+                            <td></td>
                         </tr>
-                    }
+                                    }
 
                     <!--施作的標單內容-->
-                    <tr><td colspan="4">出工數量</td><td colspan="4">機具數量</td></tr>
+                    <tr><th colspan="4" style="text-align:center">出工數量</th><th colspan="4" style="text-align:center">機具數量</th></tr>
                     <tr><td colspan="2">名稱</td><td>本日數量</td><td>累積數量</td><td colspan="2">名稱</td><td>本日數量</td><td>累積數量</td></tr>
                     @for (int idx = 0; idx < Model.lstDailyRptWokerType4Show.Count; idx++)
                     {
@@ -78,7 +89,6 @@
                                 <td></td>
                             }
                         </tr>
-
                     }
                     <tr><td colspan="2" rowspan="@Model.lstRptNote.Count">本日重要記事</td><td colspan="6" style="text-align:left">@Model.lstRptNote[0].REMARK</td></tr>
                     @for (int idx = 1; idx < Model.lstRptNote.Count; idx++)
