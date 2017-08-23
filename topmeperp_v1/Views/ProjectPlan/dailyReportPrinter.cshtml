@@ -40,7 +40,7 @@
                             <td style="text-align:left" colspan="2">@Model.lstDailyRptItem4Show[idx].ITEM_DESC</td>
                             <td>@Model.lstDailyRptItem4Show[idx].QTY</td>
                             <td>
-                               @Model.lstDailyRptItem4Show[idx].FINISH_QTY
+                                @string.Format("{0:0}", Model.lstDailyRptItem4Show[idx].FINISH_QTY)
                             </td>
                             <td>@(Model.lstDailyRptItem4Show[idx].ACCUMULATE_QTY + Model.lstDailyRptItem4Show[idx].FINISH_QTY)</td>
                             <td>100%</td>
@@ -55,13 +55,21 @@
                         <tr>
                             <!--工-->
                             <td colspan="2">@Model.lstDailyRptWokerType4Show[idx].VALUE_FIELD</td>
-                            <td>@Model.lstDailyRptWokerType4Show[idx].WORKER_QTY</td>
-                            <td>@(Model.lstDailyRptWokerType4Show[idx].LAST_QTY + Model.lstDailyRptWokerType4Show[idx].WORKER_QTY)</td>
+                            <td>
+                                @string.Format("{0:0}", Model.lstDailyRptWokerType4Show[idx].WORKER_QTY)
+                            </td>
+                            <td>
+                                @string.Format("{0:0}", Model.lstDailyRptWokerType4Show[idx].LAST_QTY + Model.lstDailyRptWokerType4Show[idx].WORKER_QTY)
+                            </td>
                             @if (idx < Model.lstDailyRptMachine4Show.Count - 1)
                             {
                                 <td colspan="2">@Model.lstDailyRptMachine4Show[idx].VALUE_FIELD</td>
-                                <td>@Model.lstDailyRptMachine4Show[idx].WORKER_QTY</td>
-                                <td>@(Model.lstDailyRptMachine4Show[idx].LAST_QTY + Model.lstDailyRptMachine4Show[idx].WORKER_QTY)</td>
+                                <td>
+                                    @string.Format("{0:0}", Model.lstDailyRptMachine4Show[idx].WORKER_QTY)
+                                </td>
+                                <td>
+                                    @string.Format("{0:0}", Model.lstDailyRptMachine4Show[idx].LAST_QTY + Model.lstDailyRptMachine4Show[idx].WORKER_QTY)
+                                </td>
                             }
                             else
                             {
@@ -72,7 +80,7 @@
                         </tr>
 
                     }
-                    <tr><td colspan="2" rowspan="@Model.lstRptNote.Count">本日重要記事</td><td colspan="6" style="text-align:left" >@Model.lstRptNote[0].REMARK</td></tr>
+                    <tr><td colspan="2" rowspan="@Model.lstRptNote.Count">本日重要記事</td><td colspan="6" style="text-align:left">@Model.lstRptNote[0].REMARK</td></tr>
                     @for (int idx = 1; idx < Model.lstRptNote.Count; idx++)
                     {
                         <tr>
