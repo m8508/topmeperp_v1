@@ -23,6 +23,7 @@ namespace topmeperp.Models
      */
     public class DailyReport
     {
+        public TND_PROJECT project { get; set; }
         public PLAN_DALIY_REPORT dailyRpt { get; set; }
         //for display
         public List<DailyReportItem> lstDailyRptItem4Show { get; set; }

@@ -792,6 +792,7 @@ namespace topmeperp.Service
                 string sql = "SELECT * FROM PLAN_DALIY_REPORT WHERE REPORT_ID=@reportId ";
                 logger.Debug("get daily report ,sql=" + sql + ",reportId=" + reportId);
                 drDailyRpt.dailyRpt = context.PLAN_DALIY_REPORT.SqlQuery(sql, new SqlParameter("reportId", reportId)).First();
+
                 drDailyRpt.lstDailyRptItem4Show = getItem(reportId);
                 drDailyRpt.lstRptTask = getTaskByReportId(reportId);
                 drDailyRpt.lstDailyRptWokerType4Show = getDailyReportRecord4Worker(drDailyRpt.dailyRpt.PROJECT_ID, reportId, "Worker");
@@ -856,7 +857,8 @@ namespace topmeperp.Service
         {
             List<DailyReportItem> lstDailyRptItem = new List<DailyReportItem>();
             string sql = "SELECT DR_ITEM_ID AS TASKUID,0 as PRJ_UID,i.PROJECT_ID,PLAN_ITEM_ID as PROJECT_ITEM_ID,QTY,"
-                +"(SELECT ITEM_DESC FROM TND_PROJECT_ITEM p WHERE i.PLAN_ITEM_ID = p.PROJECT_ITEM_ID) AS ITEM_DESC, LAST_QTY AS ACCUMULATE_QTY, FINISH_QTY "
+                + "(SELECT ITEM_ID FROM TND_PROJECT_ITEM p WHERE i.PLAN_ITEM_ID = p.PROJECT_ITEM_ID) AS ITEM_ID,"
+                + "(SELECT ITEM_DESC FROM TND_PROJECT_ITEM p WHERE i.PLAN_ITEM_ID = p.PROJECT_ITEM_ID) AS ITEM_DESC, LAST_QTY AS ACCUMULATE_QTY, FINISH_QTY "
                 + "FROM PLAN_DR_ITEM i,vw_MAP_MATERLIALIST_DETAIL Map WHERE REPORT_ID = @reportId AND Map.PROJECT_ITEM_ID=i.PLAN_ITEM_ID; ";
             using (var context = new topmepEntities())
             {

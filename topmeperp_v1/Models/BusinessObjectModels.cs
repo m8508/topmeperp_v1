@@ -316,6 +316,7 @@ namespace topmeperp.Models
         public Nullable<Int64> TASKUID { get; set; }
         public int PRJ_UID { get; set; }
         public string PROJECT_ID { get; set; }
+        public string ITEM_ID { get; set; }
         public string PROJECT_ITEM_ID { get; set; }
         public string ITEM_DESC { get; set; }
         public Nullable<decimal> QTY { get; set; } //圖算數量
