@@ -377,7 +377,8 @@ namespace topmeperp.Controllers
             ViewBag.formid = id.Substring(0, 9).Trim();
             List<PLAN_OTHER_PAYMENT> lstOtherPayItem = null;
             lstOtherPayItem = service.getOtherPayById(id);
-            ViewBag.status = service.getStatusById(id).STATUS;
+            ViewBag.status = -10; //估驗單尚未建立
+            ViewBag.status = service.getStatusById(id);
             ViewBag.key = lstOtherPayItem.Count;
             logger.Debug("this other payment record =" + ViewBag.key + "筆");
             ViewData["items"] = JsonConvert.SerializeObject(lstOtherPayItem);

@@ -2699,16 +2699,16 @@ namespace topmeperp.Service
 
             return lstItem;
         }
-        PLAN_ESTIMATION_FORM status = null;
+        
         //取得估驗單狀態
-        public PLAN_ESTIMATION_FORM getStatusById(string id)
+        public int getStatusById(string id)
         {
-
+            int status = -10;
             logger.Info("get EST status by EST id + contractid  =" + id);
             //處理SQL 預先填入ID,設定集合處理參數
             using (var context = new topmepEntities())
             {
-                status = context.Database.SqlQuery<PLAN_ESTIMATION_FORM>("SELECT * FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID + CONTRACT_ID =@id ; "
+                status = context.Database.SqlQuery<int>("SELECT STATUS FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID + CONTRACT_ID =@id ; "
             , new SqlParameter("id", id)).FirstOrDefault();
             }
 
