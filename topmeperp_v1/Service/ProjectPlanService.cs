@@ -950,7 +950,7 @@ namespace topmeperp.Service
             }
             return lst;
         }
-        //施工日報累計
+        //施工日報彙計
         public List<SummaryDailyReport> getSummaryReport(string projectid)
         {
             List<SummaryDailyReport> lst = null;
@@ -961,7 +961,7 @@ namespace topmeperp.Service
                 +"FROM PLAN_DALIY_REPORT rpt, PLAN_DR_ITEM rptItem WHERE rpt.REPORT_ID = rptItem.REPORT_ID "
                 +"GROUP BY PLAN_ITEM_ID) sumDailyRpt ON sumDailyRpt.PLAN_ITEM_ID = MAP.PROJECT_ITEM_ID "
                 +"WHERE i.PROJECT_ITEM_ID = MAP.PROJECT_ITEM_ID "
-                +"AND i.PROJECT_ID=@projectid ;";
+                + "AND i.PROJECT_ID=@projectid ORDER BY EXCEL_ROW_ID;";
             var parameters = new List<SqlParameter>();
             //設定專案名編號資料
             parameters.Add(new SqlParameter("projectid", projectid));
