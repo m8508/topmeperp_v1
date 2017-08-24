@@ -479,6 +479,7 @@ namespace topmeperp.Controllers
             ViewBag.Result = "共" + lst.Count + " 筆日報紀錄!!";
             return PartialView("_getDailyReportList", lst);
         }
+        //列印施工日報
         public ActionResult dailyReportPrinter()
         {
             DailyReport dailyRpt = null;
@@ -498,6 +499,14 @@ namespace topmeperp.Controllers
             ViewBag.ddlWeather = getDropdownList4Weather(dailyRpt.dailyRpt.WEATHER);
 
             return View(dailyRpt);
+        }
+        public ActionResult summaryReport()
+        {
+            List<SummaryDailyReport> lst= null;
+            string projectid = Request["projectid"];
+            log.Debug("summary report projectid=" + projectid);
+            lst = planService.getSummaryReport(projectid);
+            return View(lst);
         }
     }
 }

@@ -890,6 +890,7 @@
     <Content Include="Views\Estimation\EstimationForm.cshtml" />
     <Content Include="Views\Estimation\Invoice.cshtml" />
     <Content Include="Views\ProjectPlan\dailyReportPrinter.cshtml" />
+    <Content Include="Views\ProjectPlan\summaryReport.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

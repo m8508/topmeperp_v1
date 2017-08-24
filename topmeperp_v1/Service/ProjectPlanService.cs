@@ -950,6 +950,28 @@ namespace topmeperp.Service
             }
             return lst;
         }
+        //施工日報累計
+        public List<SummaryDailyReport> getSummaryReport(string projectid)
+        {
+            List<SummaryDailyReport> lst = null;
+            string sql = "SELECT i.PROJECT_ID, i.PROJECT_ITEM_ID,i.ITEM_ID,i.ITEM_DESC,i.ITEM_UNIT,i.ITEM_QUANTITY,i.TYPE_CODE_1,i.TYPE_CODE_2,"
+                + "i.SYSTEM_MAIN,i.SYSTEM_SUB,MAP.QTY,sumDailyRpt.ACCUMULATE_QTY,i.EXCEL_ROW_ID "
+                +"FROM TND_PROJECT_ITEM i, vw_MAP_MATERLIALIST_DETAIL MAP LEFT OUTER JOIN "
+                +"(SELECT SUM(FINISH_QTY) AS ACCUMULATE_QTY, PLAN_ITEM_ID "
+                +"FROM PLAN_DALIY_REPORT rpt, PLAN_DR_ITEM rptItem WHERE rpt.REPORT_ID = rptItem.REPORT_ID "
+                +"GROUP BY PLAN_ITEM_ID) sumDailyRpt ON sumDailyRpt.PLAN_ITEM_ID = MAP.PROJECT_ITEM_ID "
+                +"WHERE i.PROJECT_ITEM_ID = MAP.PROJECT_ITEM_ID "
+                +"AND i.PROJECT_ID=@projectid ;";
+            var parameters = new List<SqlParameter>();
+            //設定專案名編號資料
+            parameters.Add(new SqlParameter("projectid", projectid));
+            using (var context = new topmepEntities())
+            {
+                logger.Info("get getSummaryReport sql:" + sql + ",projectid=" + projectid);
+                lst = context.Database.SqlQuery<SummaryDailyReport>(sql, parameters.ToArray()).ToList();
+            }
+            return lst;
+        }
     }
     #endregion
 }
