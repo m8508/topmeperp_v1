@@ -3115,6 +3115,89 @@ namespace topmeperp.Service
             logger.Info("add invoice count =" + i);
             return i;
         }
+
+        //取得付款條件
+        public string getTermsByContractId(string contractid)
+        {
+            string terms = null;
+            logger.Info("get payment terms by contractid  =" + contractid);
+            //處理SQL 預先填入ID,設定集合處理參數
+            using (var context = new topmepEntities())
+            {
+                terms = context.Database.SqlQuery<string>("SELECT PAYMENT_TERMS FROM PLAN_PAYMENT_TERMS WHERE CONTRACT_ID =@contractid ; "
+            , new SqlParameter("contractid", contractid)).FirstOrDefault();
+            }
+
+            return terms;
+        }
+
+        //取得估驗單代付支出明細資料
+        public List<RePaymentFunction> getRePaymentById(string id)
+        {
+
+            logger.Info("get repayment by EST id + contractid  =" + id);
+            List<RePaymentFunction> lstItem = new List<RePaymentFunction>();
+            //處理SQL 預先填入ID,設定集合處理參數
+            using (var context = new topmepEntities())
+            {
+                lstItem = context.Database.SqlQuery<RePaymentFunction>("SELECT pop.AMOUNT AS AMOUNT, pop.REASON AS REASON, pop.CONTRACT_ID_FOR_REFUND AS CONTRACT_ID_FOR_REFUND, s.COMPANY_NAME AS COMPANY_NAME " +
+                    "FROM PLAN_OTHER_PAYMENT pop LEFT JOIN TND_SUPPLIER s ON SUBSTRING(pop.CONTRACT_ID_FOR_REFUND, 6, 6) = s.SUPPLIER_ID WHERE pop.EST_FORM_ID + pop.CONTRACT_ID =@id AND pop.TYPE = 'R' ; "
+            , new SqlParameter("id", id)).ToList();
+            }
+
+            return lstItem;
+        }
+
+        //取得專案發包廠商資料
+        public List<RePaymentFunction> getSupplierOfContractByPrjId(string prjid)
+        {
+
+            logger.Info("get repayment by EST id + contractid  =" + prjid);
+            List<RePaymentFunction> lstItem = new List<RePaymentFunction>();
+            //處理SQL 預先填入ID,設定集合處理參數
+            using (var context = new topmepEntities())
+            {
+                lstItem = context.Database.SqlQuery<RePaymentFunction>("SELECT DISTINCT pi.SUPPLIER_ID AS COMPANY_NAME, pi.PROJECT_ID + s.SUPPLIER_ID + pi.FORM_NAME AS CONTRACT_NAME " +
+                    "FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON pi.SUPPLIER_ID = s.COMPANY_NAME  WHERE PROJECT_ID =@prjid UNION SELECT DISTINCT MAN_SUPPLIER_ID, " +
+                    "PROJECT_ID + s.SUPPLIER_ID + MAN_FORM_NAME  FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON pi.MAN_SUPPLIER_ID = s.COMPANY_NAME WHERE PROJECT_ID =@prjid ; "
+            , new SqlParameter("prjid", prjid)).ToList();
+            }
+
+            return lstItem;
+        }
+
+        public int AddRePay(List<PLAN_OTHER_PAYMENT> lstItem)
+        {
+            //1.新增代付支出資料
+            int i = 0;
+            logger.Info("add repayment = " + lstItem.Count);
+            //2.將代付支出資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (PLAN_OTHER_PAYMENT item in lstItem)
+                {
+                    item.TYPE = "R";
+                    item.CREATE_DATE = DateTime.Now;
+                    context.PLAN_OTHER_PAYMENT.Add(item);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("add repayment count =" + i);
+            return i;
+        }
+
+        public int delRePayByESTId(string estid)
+        {
+            logger.Info("remove all repayment detail by EST FORM ID=" + estid);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("delete these repayment record by est form id=" + estid);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID=@estid AND TYPE = 'R' ", new SqlParameter("@estid", estid));
+            }
+            logger.Debug("delete PLAN OTHER PAYMENT count=" + i);
+            return i;
+        }
         #endregion
     }
 }

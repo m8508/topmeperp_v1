@@ -340,6 +340,7 @@ namespace topmeperp.Models
         public Int64 EST_ITEM_ID { get; set; }
         public Nullable<decimal> EST_RATIO { get; set; }
         public Int64 NO { get; set; }
+        public Nullable<decimal> CUM_RECEIPT_QTY { get; set; }
     }
     public class EstimationFormDetail
     {
@@ -383,5 +384,11 @@ namespace topmeperp.Models
         public Nullable<decimal> TOTAL_RETENTION { get; set; }
         public Nullable<decimal> TOTAL_SUB_AMOUNT { get; set; }
         public Nullable<decimal> TOTAL_FOREIGN { get; set; }
+    }
+
+    public class RePaymentFunction : PLAN_OTHER_PAYMENT
+    {
+        public string COMPANY_NAME { get; set; }
+        public string CONTRACT_NAME { get; set; }
     }
 }

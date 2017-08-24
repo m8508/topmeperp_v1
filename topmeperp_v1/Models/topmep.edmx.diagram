@@ -50,7 +50,7 @@
         <EntityTypeShape EntityType="topmepModel.PLAN_SUP_INQUIRY_ITEM" Width="1.5" PointX="21.375" PointY="22.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_FORM" Width="1.5" PointX="17.375" PointY="23.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_INVOICE" Width="1.5" PointX="13.375" PointY="19.75" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_OTHER_PAYMENT" Width="1.5" PointX="0.75" PointY="23.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_OTHER_PAYMENT" Width="1.5" PointX="0.75" PointY="24.125" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

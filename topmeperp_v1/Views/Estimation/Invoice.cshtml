@@ -60,7 +60,18 @@
                 <input type="number" id="input_amount" name="input_amount" style="width:100px" ng-model="key.AMOUNT" required>
                 營業稅：
                 <input type="number" id="taxamount" name="taxamount" style="width:100px" ng-model="key.TAX" required>
-
+                二聯式 :
+                <input type="radio" id="invoice_type" name="invoice_type" ng-model="key.TYPE" value="A" />
+                三聯式 :
+                <input type="radio" id="invoice_type" name="invoice_type" ng-model="key.TYPE" value="B" checked />
+                收據 :
+                <input type="radio" id="invoice_type" name="invoice_type" ng-model="key.TYPE" value="E" />
+                工資單 :
+                <input type="radio" id="invoice_type" name="invoice_type" ng-model="key.TYPE" value="F" />
+                對開發票 :
+                <input type="radio" id="invoice_type" name="invoice_type" ng-model="key.TYPE" value="G" />
+                折讓單 :
+                <input type="radio" id="invoice_type" name="invoice_type" ng-model="key.TYPE" value="C" />
                 <br />
             </ng-form>
             <div style="padding-top : 20px">

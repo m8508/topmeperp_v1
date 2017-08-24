@@ -67,7 +67,7 @@
                 <label for="paymentterms">現金 • 期票比率:</label><button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@ViewBag.contractid')">查看</button>
             </div>
             <div class="col-md-4">
-                <label for="piece">憑證:</label><br /><input type="text" id="piece" name="piece" style="width:60px;" />張<br /><input type="radio" id="invoice" name="invoice" value="N" />不檢查發票<input type="radio" id="invoice" name="invoice" value="E" checked/>發票含保留款<input type="radio" id="invoice" name="invoice" value="I" />發票不含保留款
+                <label for="piece">憑證:</label><br /><input type="text" id="piece" name="piece" style="width:60px;" />張 <a href="/Estimation/Invoice/@ViewBag.paymentkey" target="_blank">編輯</a><br /><input type="radio" id="invoice" name="invoice" value="N" />不檢查發票<input type="radio" id="invoice" name="invoice" value="E" checked />發票含保留款<input type="radio" id="invoice" name="invoice" value="I" />發票不含保留款
             </div>
             <div class="col-md-3 form-group">
                 <label for="tax">稅金類別:</label><br /><input type="radio" id="tax" name="tax" value="E" checked />外加稅 : <input type="text" id="taxratio" name="taxratio" value="5" style="width:40px;" />% <input type="radio" id="tax" name="tax" value="O" />其他
@@ -218,13 +218,13 @@
                 Html.RenderPartial("PaymentDetails");
             }
         </div>
-        <textarea class="form-control" rows="10" id="remark" name="remark">說明事項</textarea>
+        <textarea class="form-control" rows="10" id="remark" name="remark" placeholder="說明事項"></textarea>
     </form>
 </div>
 @using (Html.BeginForm())
 {
-    <input type="hidden" id="formid" name="formid" value="@ViewBag.formid"/>
-   
+    <input type="hidden" id="formid" name="formid" value="@ViewBag.formid" />
+
     <div class="row" style="padding-top:10px">
         <div class="col-md-12">
             <input type="submit" value="儲存" name="SaveEst" class="btn btn-default" />
@@ -235,12 +235,24 @@
 
 <!-- Modal :票期對話框-->
 <div class="row" style="padding-top:10px;">
-    <div class="modal fade" id="paymentInfo" role="dialog">
-        <div class="modal-dialog" id="paymentInfoDialog">
-            <!-- Modal content-->
-            @Html.Partial("_PaymentTerms");
+    @if (ViewBag.paymentTerms == "P")
+    {
+        <div class="modal fade" id="paymentInfo" role="dialog">
+            <div class="modal-dialog" id="paymentInfoDialog">
+                <!-- Modal content-->
+                @Html.Partial("_PaymentTerms");
+            </div>
         </div>
-    </div>
+    }
+    else
+    {
+        <div class="modal fade" id="paymentInfo" role="dialog">
+            <div class="modal-dialog" id="paymentInfoDialog">
+                <!-- Modal content-->
+                @Html.Partial("_PaymentTerms4S");
+            </div>
+        </div>
+    }
 </div>
 
 <script type="text/javascript">
