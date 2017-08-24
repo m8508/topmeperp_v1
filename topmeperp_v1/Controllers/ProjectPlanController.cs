@@ -479,5 +479,34 @@ namespace topmeperp.Controllers
             ViewBag.Result = "共" + lst.Count + " 筆日報紀錄!!";
             return PartialView("_getDailyReportList", lst);
         }
+        //列印施工日報
+        public ActionResult dailyReportPrinter()
+        {
+            DailyReport dailyRpt = null;
+            string rptId = Request["rptID"];
+            log.Debug("printer report rptid=" + rptId);
+
+            ViewBag.RptId = rptId;
+            dailyRpt = planService.getDailyReport(rptId);
+            dailyRpt.project = planService.getProject(dailyRpt.dailyRpt.PROJECT_ID);
+
+            //ViewBag.projectId = dailyRpt.dailyRpt.PROJECT_ID;
+            //ViewBag.projectName = planService.getProject(dailyRpt.dailyRpt.PROJECT_ID).PROJECT_NAME;
+            ViewBag.prj_uid = dailyRpt.lstRptTask[0].PRJ_UID;
+            ViewBag.taskName = planService.getProjectTask(dailyRpt.dailyRpt.PROJECT_ID, int.Parse(dailyRpt.lstRptTask[0].PRJ_UID.ToString())).TASK_NAME;
+
+            ViewBag.RptDate = string.Format("{0:yyyy/MM/dd ddd}", dailyRpt.dailyRpt.REPORT_DATE);
+            ViewBag.ddlWeather = getDropdownList4Weather(dailyRpt.dailyRpt.WEATHER);
+
+            return View(dailyRpt);
+        }
+        public ActionResult summaryReport()
+        {
+            List<SummaryDailyReport> lst= null;
+            string projectid = Request["projectid"];
+            log.Debug("summary report projectid=" + projectid);
+            lst = planService.getSummaryReport(projectid);
+            return View(lst);
+        }
     }
 }

@@ -792,6 +792,7 @@ namespace topmeperp.Service
                 string sql = "SELECT * FROM PLAN_DALIY_REPORT WHERE REPORT_ID=@reportId ";
                 logger.Debug("get daily report ,sql=" + sql + ",reportId=" + reportId);
                 drDailyRpt.dailyRpt = context.PLAN_DALIY_REPORT.SqlQuery(sql, new SqlParameter("reportId", reportId)).First();
+
                 drDailyRpt.lstDailyRptItem4Show = getItem(reportId);
                 drDailyRpt.lstRptTask = getTaskByReportId(reportId);
                 drDailyRpt.lstDailyRptWokerType4Show = getDailyReportRecord4Worker(drDailyRpt.dailyRpt.PROJECT_ID, reportId, "Worker");
@@ -856,7 +857,8 @@ namespace topmeperp.Service
         {
             List<DailyReportItem> lstDailyRptItem = new List<DailyReportItem>();
             string sql = "SELECT DR_ITEM_ID AS TASKUID,0 as PRJ_UID,i.PROJECT_ID,PLAN_ITEM_ID as PROJECT_ITEM_ID,QTY,"
-                +"(SELECT ITEM_DESC FROM TND_PROJECT_ITEM p WHERE i.PLAN_ITEM_ID = p.PROJECT_ITEM_ID) AS ITEM_DESC, LAST_QTY AS ACCUMULATE_QTY, FINISH_QTY "
+                + "(SELECT ITEM_ID FROM TND_PROJECT_ITEM p WHERE i.PLAN_ITEM_ID = p.PROJECT_ITEM_ID) AS ITEM_ID,"
+                + "(SELECT ITEM_DESC FROM TND_PROJECT_ITEM p WHERE i.PLAN_ITEM_ID = p.PROJECT_ITEM_ID) AS ITEM_DESC, LAST_QTY AS ACCUMULATE_QTY, FINISH_QTY "
                 + "FROM PLAN_DR_ITEM i,vw_MAP_MATERLIALIST_DETAIL Map WHERE REPORT_ID = @reportId AND Map.PROJECT_ITEM_ID=i.PLAN_ITEM_ID; ";
             using (var context = new topmepEntities())
             {
@@ -945,6 +947,28 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 lst = context.PLAN_DALIY_REPORT.SqlQuery(sql, parameters.ToArray()).ToList();
+            }
+            return lst;
+        }
+        //施工日報彙計
+        public List<SummaryDailyReport> getSummaryReport(string projectid)
+        {
+            List<SummaryDailyReport> lst = null;
+            string sql = "SELECT i.PROJECT_ID, i.PROJECT_ITEM_ID,i.ITEM_ID,i.ITEM_DESC,i.ITEM_UNIT,i.ITEM_QUANTITY,i.TYPE_CODE_1,i.TYPE_CODE_2,"
+                + "i.SYSTEM_MAIN,i.SYSTEM_SUB,MAP.QTY,sumDailyRpt.ACCUMULATE_QTY,i.EXCEL_ROW_ID "
+                +"FROM TND_PROJECT_ITEM i, vw_MAP_MATERLIALIST_DETAIL MAP LEFT OUTER JOIN "
+                +"(SELECT SUM(FINISH_QTY) AS ACCUMULATE_QTY, PLAN_ITEM_ID "
+                +"FROM PLAN_DALIY_REPORT rpt, PLAN_DR_ITEM rptItem WHERE rpt.REPORT_ID = rptItem.REPORT_ID "
+                +"GROUP BY PLAN_ITEM_ID) sumDailyRpt ON sumDailyRpt.PLAN_ITEM_ID = MAP.PROJECT_ITEM_ID "
+                +"WHERE i.PROJECT_ITEM_ID = MAP.PROJECT_ITEM_ID "
+                + "AND i.PROJECT_ID=@projectid ORDER BY EXCEL_ROW_ID;";
+            var parameters = new List<SqlParameter>();
+            //設定專案名編號資料
+            parameters.Add(new SqlParameter("projectid", projectid));
+            using (var context = new topmepEntities())
+            {
+                logger.Info("get getSummaryReport sql:" + sql + ",projectid=" + projectid);
+                lst = context.Database.SqlQuery<SummaryDailyReport>(sql, parameters.ToArray()).ToList();
             }
             return lst;
         }

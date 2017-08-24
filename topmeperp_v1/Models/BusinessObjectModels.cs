@@ -308,6 +308,7 @@ namespace topmeperp.Models
         public string SUPPLIER_ID { get; set; }
         public string NEED_DATE { get; set; }
     }
+    #region 施工日報區塊
     /***
      * 施工日報表料件記錄
      */
@@ -316,13 +317,32 @@ namespace topmeperp.Models
         public Nullable<Int64> TASKUID { get; set; }
         public int PRJ_UID { get; set; }
         public string PROJECT_ID { get; set; }
+        public string ITEM_ID { get; set; }
         public string PROJECT_ITEM_ID { get; set; }
         public string ITEM_DESC { get; set; }
         public Nullable<decimal> QTY { get; set; } //圖算數量
         public Nullable<decimal> ACCUMULATE_QTY { get; set; }//累積數量
         public Nullable<decimal> FINISH_QTY { get; set; }//施作數量
     }
-
+    /***
+     * 標單項目彙總表
+     */
+    public class SummaryDailyReport
+    {
+        public string PROJECT_ID { get; set; }
+        public string PROJECT_ITEM_ID { get; set; }
+        public string ITEM_ID { get; set; }
+        public string ITEM_DESC { get; set; }
+        public string ITEM_UNIT { get; set; }
+        public Nullable<decimal> ITEM_QUANTITY { get; set; }//標單數量
+        public string TYPE_CODE_1 { get; set; }
+        public string TYPE_CODE_2 { get; set; }
+        public string SYSTEM_MAIN { get; set; }
+        public string SYSTEM_SUB { get; set; }
+        public Nullable<decimal> QTY { get; set; } //圖算數量
+        public Nullable<decimal> ACCUMULATE_QTY { get; set; }//累積數量
+    }
+    #endregion
     public class ESTFunction
     {
         public Int64 NO { get; set; }

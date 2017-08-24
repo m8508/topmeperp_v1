@@ -270,6 +270,14 @@ namespace topmeperp.Service
             ///改用迴圈處理每個Cell
             for (int i = 0; i < 13; i++)
             {
+                /// Sample
+                ///  If row.GetCell(j).CellType = CellType.FORMULA Then    '== v.1.2.4版修改
+                //      D_dataRow(j) = row.GetCell(j).NumericCellValue
+                //    '-- 表示格子裡面，公式運算後的「值」，是數字（Numeric）。而非抓到「公式」。
+                //    Else
+                //        D_dataRow(j) = row.GetCell(j).StringCellValue   '--每一個欄位，都加入同一列 DataRow
+                //    End If
+                logger.Debug("for feaure rowID=" + i + ",cell tyle=" + row.GetCell(i).CellType);
                 switch (i)
                 {
                     case 0:
@@ -2568,7 +2576,8 @@ namespace topmeperp.Service
                 {
                     double manday = double.Parse(item.MAN_DAY_INMAP.ToString());
                     row.CreateCell(5).SetCellFormula(manday + "*期初成本!N3");
-                }else
+                }
+                else
                 {
                     row.CreateCell(5).SetCellValue("");
                 }

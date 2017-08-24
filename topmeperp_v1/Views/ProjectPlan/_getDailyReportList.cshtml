@@ -31,6 +31,9 @@
                     <tr>
                         <td><a href="/ProjectPlan/dailyReportItem?rptID=@m.REPORT_ID" >@m.REPORT_ID</a>
                          </td>
+                        <td>
+                            <a href="/ProjectPlan/dailyReportPrinter?rptID=@m.REPORT_ID">列印</a>
+                        </td>
                         <td>@Html.Label(@m.REPORT_DATE.Value.ToString("yyyy/MM/dd"))</td>
                         <td>@m.SUMMARY</td>
                         <td>@m.WEATHER</td>
