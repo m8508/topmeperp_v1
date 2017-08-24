@@ -892,6 +892,8 @@
     <Content Include="Views\Estimation\_PaymentTerms4S.cshtml" />
     <Content Include="Views\Estimation\RePayment.cshtml" />
     <Content Include="Views\Estimation\ChooseSupplier.cshtml" />
+    <Content Include="Views\ProjectPlan\dailyReportPrinter.cshtml" />
+    <Content Include="Views\ProjectPlan\summaryReport.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
