@@ -220,8 +220,8 @@ namespace topmeperp.Service
                 foreach (PLAN_ITEM item in planItem)
                 {
                     item.PROJECT_ID = project.PROJECT_ID;
-                    string strJson = JsonConvert.SerializeObject(item, Formatting.Indented);
-                    logger.Debug(strJson);
+                    //string strJson = JsonConvert.SerializeObject(item, Formatting.Indented);
+                    //logger.Debug(strJson);
                     context.PLAN_ITEM.Add(item);
                 }
                 try

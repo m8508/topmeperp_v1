@@ -243,7 +243,7 @@ namespace topmeperp.Service
             while (rows.MoveNext())
             {
                 row = (IRow)rows.Current;
-                logger.Debug("Cells Count=" + row.Cells.Count + ",Excel Value:" + row.Cells[0].ToString() + row.Cells[1]);
+                logger.Debug("Cells Count=" + row.Cells.Count + ",Excel Value:" + row.Cells[0].ToString());
                 //將各Row 資料寫入物件內
                 //代碼,項次,名稱,單位,標單數量,採購數量,單價,複價,備註,九宮格,次九宮格,主系統,次系統
                 if (row.Cells[0].ToString().ToUpper() != "")//代碼欄位有值才匯入
@@ -277,12 +277,19 @@ namespace topmeperp.Service
                 //    Else
                 //        D_dataRow(j) = row.GetCell(j).StringCellValue   '--每一個欄位，都加入同一列 DataRow
                 //    End If
-                logger.Debug("for feaure rowID=" + i + ",cell tyle=" + row.GetCell(i).CellType);
+                try
+                {
+                    logger.Debug("for feaure rowID=" + id + ",cell style=" + row.GetCell(i).CellType);
+                }
+                catch (Exception ex)
+                {
+                    logger.Warn("for feaure rowID=" + id + ",cell tyle=" + i + "ex:"+ ex.Message);
+                }
                 switch (i)
                 {
                     case 0:
                         //代碼
-                        if (i < row.PhysicalNumberOfCells)
+                        if (i < row.PhysicalNumberOfCells && null!=row.GetCell(i))
                         {
                             planItem.PLAN_ITEM_ID = row.GetCell(i).ToString();
                         }
@@ -318,8 +325,8 @@ namespace topmeperp.Service
                                 }
                                 catch (Exception e)
                                 {
-                                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.GetCell(i).ToString());
-                                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.GetCell(i).ToString());
+                                    logger.Error("data format Error on PLAN_ITEM_ID= " + planItem.PLAN_ITEM_ID + ",ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.GetCell(i).ToString());
+                                    logErrorMessage("data format Error on PLAN_ITEM_ID= " + planItem.PLAN_ITEM_ID + ",ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.GetCell(i).ToString());
                                     logger.Error(e.Message);
                                 }
                             }
@@ -338,8 +345,8 @@ namespace topmeperp.Service
                                 }
                                 catch (Exception e)
                                 {
-                                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.GetCell(i).ToString());
-                                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.GetCell(i).ToString());
+                                    logger.Error("data format Error on PLAN_ITEM_ID= " + planItem.PLAN_ITEM_ID + ",ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.GetCell(i).ToString());
+                                    logErrorMessage("data format Error on PLAN_ITEM_ID= " + planItem.PLAN_ITEM_ID + ",ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.GetCell(i).ToString());
                                     logger.Error(e.Message);
                                 }
                             }
@@ -358,8 +365,8 @@ namespace topmeperp.Service
                                 }
                                 catch (Exception e)
                                 {
-                                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.GetCell(i).ToString());
-                                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.GetCell(i).ToString());
+                                    logger.Error("data format Error on PLAN_ITEM_ID= " + planItem.PLAN_ITEM_ID + ",ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.GetCell(i).ToString());
+                                    logErrorMessage("data format Error on PLAN_ITEM_ID= " + planItem.PLAN_ITEM_ID + ",ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.GetCell(i).ToString());
                                     logger.Error(e.Message);
                                 }
                             }
@@ -2248,6 +2255,10 @@ namespace topmeperp.Service
                     logger.Debug("UNIT PRICE=" + item.ITEM_UNIT_PRICE);
                     cel6.SetCellValue(double.Parse(item.ITEM_UNIT_PRICE.ToString()));
                     cel6.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                }else
+                {
+                    cel6.SetCellValue("");
+                    cel6.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
                 }
                 ICell cel7 = row.CreateCell(7);
                 if (null != item.ITEM_QUANTITY && null != item.ITEM_UNIT_PRICE)
@@ -2255,16 +2266,20 @@ namespace topmeperp.Service
                     logger.Debug("Fomulor=" + "F" + (idxRow + 1) + "*G" + (idxRow + 1));
                     cel7.CellFormula = "F" + (idxRow + 1) + "*G" + (idxRow + 1);
                     cel7.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                }else
+                {
+                    cel7.SetCellValue("");
+                    cel7.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
                 }
-                row.CreateCell(8).SetCellValue(item.ITEM_REMARK);// 備註
+                row.CreateCell(8).SetCellValue((item.ITEM_REMARK==null?"":item.ITEM_REMARK));// 備註
                 row.Cells[8].CellStyle = style;
-                row.CreateCell(9).SetCellValue(item.TYPE_CODE_1);// 九宮格
+                row.CreateCell(9).SetCellValue((item.TYPE_CODE_1 == null ? "" : item.TYPE_CODE_1));// 九宮格
                 row.Cells[9].CellStyle = style;
-                row.CreateCell(10).SetCellValue(item.TYPE_CODE_2);// 次九宮格
+                row.CreateCell(10).SetCellValue(item.TYPE_CODE_2 == null ? "" : item.TYPE_CODE_2);// 次九宮格
                 row.Cells[10].CellStyle = style;
-                row.CreateCell(11).SetCellValue(item.SYSTEM_MAIN);// 主系統
+                row.CreateCell(11).SetCellValue((item.SYSTEM_MAIN == null ? "" : item.SYSTEM_MAIN));// 主系統
                 row.Cells[11].CellStyle = style;
-                row.CreateCell(12).SetCellValue(item.SYSTEM_SUB);// 次系統
+                row.CreateCell(12).SetCellValue((item.SYSTEM_SUB == null ? "" : item.SYSTEM_SUB));// 次系統
                                                                  //  row.Cells[12].CellStyle = style;
                 if (null != item.RATIO)
                 {
