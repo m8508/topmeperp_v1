@@ -894,6 +894,7 @@
     <Content Include="Views\Estimation\ChooseSupplier.cshtml" />
     <Content Include="Views\ProjectPlan\dailyReportPrinter.cshtml" />
     <Content Include="Views\ProjectPlan\summaryReport.cshtml" />
+    <Content Include="UploadFile\ProjectItem_Template_v1.xlsx" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

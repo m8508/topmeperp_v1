@@ -2699,5 +2699,126 @@ namespace topmeperp.Service
         //cell.CellStyle = styleDate;
 
     }
+    public class ProjectItem2Excel: ProjectItemFromExcel
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        string outputPath = ContextService.strUploadPath;
+        string templateFile = ContextService.strUploadPath + "\\ProjectItem_Template_v1.xlsx";
+        public string errorMsg = "";
+        public TND_PROJECT project = null;
+        public List<PROJECT_ITEM_WITH_WAGE> projectItems = null;
+        CostAnalysisDataService service = new CostAnalysisDataService();
+
+        XSSFCellStyle style = null;
+        XSSFCellStyle styleNumber = null;
+
+        public void exportExcel(string projectid)
+        {
+            //1 取得資料庫資料
+            logger.Info("get data from DB,id=" + projectid);
+            service.getProjectId(projectid);
+            project = service.wageTable;
+            projectItems = service.wageTableItem;
+
+            //2.開啟檔案
+            logger.Info("InitializeWorkbook");
+            InitializeWorkbook(templateFile);
+            style = ExcelStyle.getContentStyle(hssfworkbook);
+            styleNumber = ExcelStyle.getNumberStyle(hssfworkbook);
+            //3.標單品項 僅提供office 格式2007 
+            getProjectItem();
+
+            //4.令存新檔至專案所屬目錄
+            var file = new FileStream(outputPath + "\\" + project.PROJECT_ID + "\\" + project.PROJECT_ID + "_標單明細.xlsx", FileMode.Create);
+            logger.Info("output file=" + file.Name);
+            hssfworkbook.Write(file);
+            file.Close();
+        }
+        //寫入初期成本標單
+        private void getProjectItem()
+        {
+            //2.寫入初期成本標單 僅提供office 格式2007 
+            sheet = (XSSFSheet)hssfworkbook.GetSheet("標單品項");
+            logger.Debug("InitialQuotation  Head_1=" + sheet.GetRow(1).Cells[0].ToString() + "," + sheet.GetRow(1).Cells[1].ToString());
+            sheet.GetRow(1).Cells[1].SetCellValue(project.PROJECT_ID);//專案編號
+            sheet.GetRow(1).Cells[2].SetCellValue(project.PROJECT_NAME);//專案名稱
+            sheet.GetRow(2).Cells[1].SetCellValue(project.LOCATION);//專案名稱
+
+            int idxRow = 4;
+            foreach (PROJECT_ITEM_WITH_WAGE item in projectItems)
+            {
+                logger.Info("Row Id=" + idxRow);
+                IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+                //PK(PROJECT_ITEM_ID) 項次 名稱 單位 數量 單價 備註 九宮格 次九宮格 主系統 次系統,Excel 排序
+                row.CreateCell(0).SetCellValue(item.PROJECT_ITEM_ID);//PK(PROJECT_ITEM_ID)
+                row.Cells[0].CellStyle = style;
+                row.CreateCell(1).SetCellValue(item.ITEM_ID);//項次
+                row.Cells[1].CellStyle = style;
+                logger.Debug("ITEM DESC=" + item.ITEM_DESC);
+                row.CreateCell(2).SetCellValue(item.ITEM_DESC);//項目說明
+                row.Cells[2].CellStyle = style;
+                row.CreateCell(3).SetCellValue(item.ITEM_UNIT);// 單位
+                row.Cells[3].CellStyle = style;
+                //標單數量
+                if (null != item.ITEM_QUANTITY && item.ITEM_QUANTITY.ToString().Trim() != "")
+                {
+                    row.CreateCell(4).SetCellValue(double.Parse(item.ITEM_QUANTITY.ToString()));
+                    row.Cells[4].CellStyle = style;
+                }
+                else
+                {
+                    row.CreateCell(4).SetCellValue("");
+                }
+                //圖算數量
+                if (null != item.MAP_QTY && item.MAP_QTY.ToString().Trim() != "")
+                {
+                    row.CreateCell(5).SetCellValue(double.Parse(item.MAP_QTY.ToString()));
+                    row.Cells[5].CellStyle = style;
+                }
+                else
+                {
+                    row.CreateCell(5).SetCellValue("");
+                }
+                //單價
+                ICell cel6 = row.CreateCell(6);
+                if (null != item.ITEM_UNIT_PRICE && item.ITEM_UNIT_PRICE.ToString().Trim() != "")
+                {
+                    logger.Debug("UNIT PRICE=" + item.ITEM_UNIT_PRICE);
+                    cel6.SetCellValue(double.Parse(item.ITEM_UNIT_PRICE.ToString()));
+                    cel6.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                }
+                else
+                {
+                    cel6.SetCellValue("");
+                    cel6.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                }
+                ICell cel7 = row.CreateCell(7);
+                if (null != item.ITEM_QUANTITY && null != item.ITEM_UNIT_PRICE)
+                {
+                    logger.Debug("Fomulor=" + "F" + (idxRow + 1) + "*G" + (idxRow + 1));
+                    cel7.CellFormula = "F" + (idxRow + 1) + "*G" + (idxRow + 1);
+                    cel7.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                }
+                else
+                {
+                    cel7.SetCellValue("");
+                    cel7.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                }
+                row.CreateCell(8).SetCellValue((item.ITEM_REMARK == null ? "" : item.ITEM_REMARK));// 備註
+                row.Cells[8].CellStyle = style;
+                row.CreateCell(9).SetCellValue((item.TYPE_CODE_1 == null ? "" : item.TYPE_CODE_1));// 九宮格
+                row.Cells[9].CellStyle = style;
+                row.CreateCell(10).SetCellValue(item.TYPE_CODE_2 == null ? "" : item.TYPE_CODE_2);// 次九宮格
+                row.Cells[10].CellStyle = style;
+                row.CreateCell(11).SetCellValue((item.SYSTEM_MAIN == null ? "" : item.SYSTEM_MAIN));// 主系統
+                row.Cells[11].CellStyle = style;
+                row.CreateCell(12).SetCellValue((item.SYSTEM_SUB == null ? "" : item.SYSTEM_SUB));// 次系統
+                row.Cells[12].CellStyle = style;
+                row.CreateCell(13).SetCellValue((item.EXCEL_ROW_ID == null ? "" : item.EXCEL_ROW_ID.ToString()));// Excel 排序
+                row.Cells[13].CellStyle = style;
+                idxRow++;
+            }
+        }
+    }
     #endregion
 }

@@ -13,6 +13,7 @@
             </div>
             <div class="col-md-6" style="padding-top:10px">
                 <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                <a href="/Tender/downLoadProjectItem?projectid=@ViewBag.id" target="_blank">下載</a>
             </div>
         </div>
         <div class="container" id="divQuery">
@@ -63,6 +64,16 @@
     <div class="modal-dialog" id="projectItemDialog">
         <!-- Modal content-->
         @Html.Partial("_ProjectItem");
+    </div>
+</div>
+
+<!-- Modal :對話框 上傳檔案-->
+<div class="modal fade" id="formUploadItem" role="dialog">
+    <div class="modal-dialog" id="projectItemDialog">
+        <!-- Modal content-->
+       <form id="" name="">
+           上傳檔案專區
+       </form>
     </div>
 </div>
 
