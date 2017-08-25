@@ -195,7 +195,13 @@ namespace topmeperp.Service
             }
             return i;
         }
-
+        public int closeProject(string projectid)
+        {
+            logger.Debug("Close Project ID=" + projectid);
+            TND_PROJECT p = getProjectById(projectid);
+            p.STATUS = "結案";
+            return updateProject(p);
+        }
         #region 得標標單項目處理
         public int delAllItemByPlan()
         {

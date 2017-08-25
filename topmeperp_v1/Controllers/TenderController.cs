@@ -26,7 +26,7 @@ namespace topmeperp.Controllers
         // POST : Search
         public ActionResult Search()
         {
-            List<topmeperp.Models.TND_PROJECT> lstProject = SearchProjectByName(Request["textProejctName"], "備標");
+            List<topmeperp.Models.TND_PROJECT> lstProject = SearchProjectByName(Request["textProejctName"], Request["selProjectStatus"]);
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             return View("Index", lstProject);
         }
@@ -107,6 +107,7 @@ namespace topmeperp.Controllers
             ViewBag.result = message;
             return View(prj);
         }
+        
         public ActionResult Task(string id)
         {
             logger.Info("task assign page!!");
@@ -196,7 +197,14 @@ namespace topmeperp.Controllers
             }
             return View(viewModel);
         }
-
+        //將專案狀態調整為結案
+        public string closeProject()
+        {
+            string projectid = Request["projectid"];
+            TnderProject service = new TnderProject();
+            service.closeProject(projectid);
+            return "已結案!!";
+        }
         public ActionResult uploadMapInfo(string id)
         {
             logger.Info("upload map info for projectid=" + id);

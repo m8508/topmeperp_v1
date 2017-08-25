@@ -6,7 +6,9 @@
 
 <div class="container">
     <h1 style="padding-top:10px;">專案主頁</h1>
-    <div style="padding-top:10px;"><input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁"></div>
+    <div style="padding-top:10px;"><input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+        <input type="button" class="btn btn-danger" onclick="closeProject()" value="結案">
+    </div>
     <div style="padding-top:10px;">
         <h3 class="bg-info">備標作業功能區</h3>
         <p style="padding-top:10px;">
@@ -105,9 +107,7 @@
 </div>
 
 <script language="javascript" type="text/javascript">
-
     function printpage(printarea) {
-
         //var newstr = document.all.item(printarea).innerHTML;
         var newstr = document.getElementById(printarea).innerHTML;
         var oldstr = document.body.innerHTML;
@@ -115,5 +115,23 @@
         window.print();
         document.body.innerHTML = oldstr;
         return false;
+    }
+    function closeProject() {
+        var status = confirm('確定要將結案!!(@Model.tndProject.PROJECT_ID)');
+        if (status) {
+            var URLs = "/Tender/closeProject?projectid=@Model.tndProject.PROJECT_ID";
+            $.ajax({
+                url: URLs,
+                type: "POST",
+                dataType: 'text',
+                success: function (msg) {
+                    alert(msg);
+                    window.location = "/Tender/Index";
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                }
+            });
+        }
     }
 </script>
