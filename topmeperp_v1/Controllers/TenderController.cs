@@ -382,7 +382,7 @@ namespace topmeperp.Controllers
             }
             catch (Exception ex)
             {
-                logger.Error(ex.Message);
+                logger.Error(ex.StackTrace);
                 message = ex.Message;
             }
             ViewBag.result = message;
