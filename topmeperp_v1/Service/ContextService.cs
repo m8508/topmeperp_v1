@@ -939,16 +939,23 @@ namespace topmeperp.Service
             int i = 0;
             logger.Info("refreshProjectItem = " + items.Count);
             //2.將Excel 資料寫入 
-            using (var context = new topmepEntities())
+            try
             {
-                foreach (TND_MAP_PEP item in items)
+                using (var context = new topmepEntities())
                 {
-                    //item.PROJECT_ID = project.PROJECT_ID;
-                    context.TND_MAP_PEP.Add(item);
+                    foreach (TND_MAP_PEP item in items)
+                    {
+                        //item.PROJECT_ID = project.PROJECT_ID;
+                        context.TND_MAP_PEP.Add(item);
+                    }
+                    i = context.SaveChanges();
                 }
-                i = context.SaveChanges();
+                logger.Info("add TND_MAP_PEP count =" + i);
             }
-            logger.Info("add TND_MAP_PEP count =" + i);
+            catch (Exception ex)
+            {
+                logger.Error(ex.StackTrace);
+            }
             return i;
         }
         public int delMapPEPByProject(string projectid)
