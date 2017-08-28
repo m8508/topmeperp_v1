@@ -820,7 +820,6 @@ namespace topmeperp.Controllers
             return RedirectToAction("Index", "Plan");
         }
 
-
         /// <summary>
         /// 下載現有標單資料
         /// </summary>
@@ -841,5 +840,14 @@ namespace topmeperp.Controllers
             Response.WriteFile(fileLocation);
             Response.End();
         }
+        /// <summary>
+        /// 下載現有標單資料
+        /// </summary>
+        public string uploadProjectItem (HttpPostedFileBase file)
+        {
+            logger.Debug("ProjectID="+Request["id"] +",Upload ProjectItem=" + file.FileName);
+            return "TEST";
+        }
+
     }
 }

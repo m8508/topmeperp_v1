@@ -2270,24 +2270,24 @@ namespace topmeperp.Service
                 {
                     logger.Debug("UNIT PRICE=" + item.ITEM_UNIT_PRICE);
                     cel6.SetCellValue(double.Parse(item.ITEM_UNIT_PRICE.ToString()));
-                    cel6.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                    cel6.CellStyle = styleNumber;
                 }
                 else
                 {
                     cel6.SetCellValue("");
-                    cel6.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                    cel6.CellStyle = styleNumber;
                 }
                 ICell cel7 = row.CreateCell(7);
                 if (null != item.ITEM_QUANTITY && null != item.ITEM_UNIT_PRICE)
                 {
                     logger.Debug("Fomulor=" + "F" + (idxRow + 1) + "*G" + (idxRow + 1));
                     cel7.CellFormula = "F" + (idxRow + 1) + "*G" + (idxRow + 1);
-                    cel7.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                    cel7.CellStyle = styleNumber;
                 }
                 else
                 {
                     cel7.SetCellValue("");
-                    cel7.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                    cel7.CellStyle = styleNumber;
                 }
                 row.CreateCell(8).SetCellValue((item.ITEM_REMARK == null ? "" : item.ITEM_REMARK));// 備註
                 row.Cells[8].CellStyle = style;
@@ -2747,7 +2747,7 @@ namespace topmeperp.Service
             int idxRow = 4;
             foreach (PROJECT_ITEM_WITH_WAGE item in projectItems)
             {
-                logger.Info("Row Id=" + idxRow);
+                logger.Debug("Row Id=" + idxRow);
                 IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
                 //PK(PROJECT_ITEM_ID) 項次 名稱 單位 數量 單價 備註 九宮格 次九宮格 主系統 次系統,Excel 排序
                 row.CreateCell(0).SetCellValue(item.PROJECT_ITEM_ID);//PK(PROJECT_ITEM_ID)
@@ -2785,24 +2785,24 @@ namespace topmeperp.Service
                 {
                     logger.Debug("UNIT PRICE=" + item.ITEM_UNIT_PRICE);
                     cel6.SetCellValue(double.Parse(item.ITEM_UNIT_PRICE.ToString()));
-                    cel6.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                    cel6.CellStyle = styleNumber;
                 }
                 else
                 {
                     cel6.SetCellValue("");
-                    cel6.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                    cel6.CellStyle = styleNumber;
                 }
                 ICell cel7 = row.CreateCell(7);
                 if (null != item.ITEM_QUANTITY && null != item.ITEM_UNIT_PRICE)
                 {
                     logger.Debug("Fomulor=" + "F" + (idxRow + 1) + "*G" + (idxRow + 1));
                     cel7.CellFormula = "F" + (idxRow + 1) + "*G" + (idxRow + 1);
-                    cel7.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                    cel7.CellStyle = styleNumber;
                 }
                 else
                 {
                     cel7.SetCellValue("");
-                    cel7.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                    cel7.CellStyle = styleNumber;
                 }
                 row.CreateCell(8).SetCellValue((item.ITEM_REMARK == null ? "" : item.ITEM_REMARK));// 備註
                 row.Cells[8].CellStyle = style;
