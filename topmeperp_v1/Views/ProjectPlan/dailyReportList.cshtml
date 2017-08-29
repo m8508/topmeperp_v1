@@ -12,8 +12,8 @@
                 <input class="form-control" type="text" id="txtProjectId" name="txtProjectId" value="@ViewBag.projectId" readonly />
             </div>
             <label class="col-sm-1 control-label">專案名稱:</label>
-            <label class="col-sm-8 info">@ViewBag.projectName</label>
-            <a href='/ProjectPlan/summaryReport?projectid=@ViewBag.projectId' target="_blank">彙總表</a>
+            <label class="col-sm-8 info">@ViewBag.projectName (<a href='/ProjectPlan/summaryReport?projectid=@ViewBag.projectId' target="_blank">彙總表</a>)</label>
+
         </div>
 
         <div class="row form-group">

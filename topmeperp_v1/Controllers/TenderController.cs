@@ -26,7 +26,7 @@ namespace topmeperp.Controllers
         // POST : Search
         public ActionResult Search()
         {
-            List<topmeperp.Models.TND_PROJECT> lstProject = SearchProjectByName(Request["textProejctName"], "備標");
+            List<topmeperp.Models.TND_PROJECT> lstProject = SearchProjectByName(Request["textProejctName"], Request["selProjectStatus"]);
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             return View("Index", lstProject);
         }
@@ -107,6 +107,7 @@ namespace topmeperp.Controllers
             ViewBag.result = message;
             return View(prj);
         }
+
         public ActionResult Task(string id)
         {
             logger.Info("task assign page!!");
@@ -196,7 +197,14 @@ namespace topmeperp.Controllers
             }
             return View(viewModel);
         }
-
+        //將專案狀態調整為結案
+        public string closeProject()
+        {
+            string projectid = Request["projectid"];
+            TnderProject service = new TnderProject();
+            service.closeProject(projectid);
+            return "已結案!!";
+        }
         public ActionResult uploadMapInfo(string id)
         {
             logger.Info("upload map info for projectid=" + id);
@@ -382,7 +390,7 @@ namespace topmeperp.Controllers
             }
             catch (Exception ex)
             {
-                logger.Error(ex.Message);
+                logger.Error(ex.StackTrace);
                 message = ex.Message;
             }
             ViewBag.result = message;
@@ -725,11 +733,11 @@ namespace topmeperp.Controllers
             string strFlag = form["flag"].Trim();
             if (strFlag.Equals("addAfter"))
             {
-               i= service.addProjectItemAfter(item);
+                i = service.addProjectItemAfter(item);
             }
             else
             {
-               i= service.updateProjectItem(item);
+                i = service.updateProjectItem(item);
             }
 
             if (i == 0) { msg = service.message; }
@@ -810,6 +818,35 @@ namespace topmeperp.Controllers
             }
             TempData["result"] = message;
             return RedirectToAction("Index", "Plan");
+        }
+
+        /// <summary>
+        /// 下載現有標單資料
+        /// </summary>
+        public void downLoadProjectItem()
+        {
+            string projectid = Request["projectid"];
+            ProjectItem2Excel poiservice = new ProjectItem2Excel();
+            //產生檔案位置
+            poiservice.exportExcel(projectid);
+            string fileLocation = "/UploadFile/" + projectid + "/" + projectid + "_標單明細.xlsx";
+            //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
+            string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
+            Response.Clear();
+            Response.Charset = "utf-8";
+            Response.ContentType = "text/xls";
+            Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", filename));
+            ///"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx"
+            Response.WriteFile(fileLocation);
+            Response.End();
+        }
+        /// <summary>
+        /// 下載現有標單資料
+        /// </summary>
+        public string uploadProjectItem (HttpPostedFileBase file)
+        {
+            logger.Debug("ProjectID="+Request["id"] +",Upload ProjectItem=" + file.FileName);
+            return "TEST";
         }
 
     }

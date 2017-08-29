@@ -195,7 +195,13 @@ namespace topmeperp.Service
             }
             return i;
         }
-
+        public int closeProject(string projectid)
+        {
+            logger.Debug("Close Project ID=" + projectid);
+            TND_PROJECT p = getProjectById(projectid);
+            p.STATUS = "結案";
+            return updateProject(p);
+        }
         #region 得標標單項目處理
         public int delAllItemByPlan()
         {
@@ -220,8 +226,8 @@ namespace topmeperp.Service
                 foreach (PLAN_ITEM item in planItem)
                 {
                     item.PROJECT_ID = project.PROJECT_ID;
-                    string strJson = JsonConvert.SerializeObject(item, Formatting.Indented);
-                    logger.Debug(strJson);
+                    //string strJson = JsonConvert.SerializeObject(item, Formatting.Indented);
+                    //logger.Debug(strJson);
                     context.PLAN_ITEM.Add(item);
                 }
                 try
@@ -939,16 +945,23 @@ namespace topmeperp.Service
             int i = 0;
             logger.Info("refreshProjectItem = " + items.Count);
             //2.將Excel 資料寫入 
-            using (var context = new topmepEntities())
+            try
             {
-                foreach (TND_MAP_PEP item in items)
+                using (var context = new topmepEntities())
                 {
-                    //item.PROJECT_ID = project.PROJECT_ID;
-                    context.TND_MAP_PEP.Add(item);
+                    foreach (TND_MAP_PEP item in items)
+                    {
+                        //item.PROJECT_ID = project.PROJECT_ID;
+                        context.TND_MAP_PEP.Add(item);
+                    }
+                    i = context.SaveChanges();
                 }
-                i = context.SaveChanges();
+                logger.Info("add TND_MAP_PEP count =" + i);
             }
-            logger.Info("add TND_MAP_PEP count =" + i);
+            catch (Exception ex)
+            {
+                logger.Error(ex.StackTrace);
+            }
             return i;
         }
         public int delMapPEPByProject(string projectid)
