@@ -404,11 +404,18 @@ namespace topmeperp.Models
         public Nullable<decimal> TOTAL_RETENTION { get; set; }
         public Nullable<decimal> TOTAL_SUB_AMOUNT { get; set; }
         public Nullable<decimal> TOTAL_FOREIGN { get; set; }
+        public Nullable<decimal> T_REPAYMENT { get; set; }
+        public Nullable<decimal> CUM_T_REPAYMENT { get; set; }
+        public Nullable<decimal> T_REFUND { get; set; }
+        public Nullable<decimal> CUM_T_REFUND { get; set; }
+        public Nullable<decimal> TOTAL_REPAYMENT { get; set; }
+        public Nullable<decimal> TOTAL_REFUND { get; set; }
     }
 
     public class RePaymentFunction : PLAN_OTHER_PAYMENT
     {
         public string COMPANY_NAME { get; set; }
         public string CONTRACT_NAME { get; set; }
+        public Nullable<decimal> BALANCE { get; set; }
     }
 }

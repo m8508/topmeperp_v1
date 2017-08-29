@@ -1,10 +1,10 @@
 ﻿@model IEnumerable<topmeperp.Models.RePaymentFunction>
 
 @{
-    ViewBag.Title = "代付支出-選商 : ";
+    ViewBag.Title = "代付扣回-選商 : ";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
-@using (Html.BeginForm("AddRePayment", "Estimation", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+@using (Html.BeginForm("AddRefund", "Estimation", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     <div class="row" style="padding-top : 15px">
         <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
@@ -15,9 +15,20 @@
     <div style="padding-top : 20px">
         <table class="table">
             <tr>
-                <th><input type="checkbox" name="Check" id="Check">勾選</th>
+                <th><input type="checkbox" name="CheckAll" id="CheckAll">全選</th>
                 <th>
-                    廠商名稱
+                    請款單號
+                </th>
+                <th>
+                    請款廠商
+                </th>
+                <th>
+                    應扣金額
+                </th>
+                <th>
+                    說明事項
+                </th>
+                <th>
                 </th>
             </tr>
 
@@ -25,10 +36,19 @@
                 {
                 <tr>
                     <td>
-                        <input type="checkbox" id="chkItem" name="chkItem" value="@item.CONTRACT_NAME" />
+                        <input type="checkbox" id="chkItem" name="chkItem" value="@item.OTHER_PAYMENT_ID" />
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EST_FORM_ID_REFUND)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.COMPANY_NAME)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AMOUNT)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.REASON)
                     </td>
                 </tr>
             }
@@ -41,6 +61,17 @@
         </div>
     </div>
 }
+
+<script language="javascript" type="text/javascript">
+    $(document).ready (function () {
+        $("#CheckAll").click(function () {
+            if ($("#CheckAll").prop("checked")) {
+                $("input[name='chkItem']").prop("checked", true);
+            } else
+                $("input[name='chkItem']").prop("checked", false);
+        });
+    });
+</script>
 <script language="javascript" type="text/javascript">
     function GetCheckedValue(checkBoxName) {
         return $('input:checkbox[name=' + checkBoxName + '][checked=true]').map(function () {
@@ -49,3 +80,4 @@
           .get().join(',');
     }
 </script>
+

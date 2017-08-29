@@ -17,9 +17,8 @@
             <input type="button" class="btn btn-default" value="關閉" onclick="window.close();" />
         </div>
         <form id="repayment_form" name="repayment_form" ng-submit="submit()">
-            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("ChooseSupplier", "Estimation", new { id = @ViewBag.keyId })'; ">挑選廠商</button>
             <div class="row">
-                <div class="col-md-4" style="padding-top:10px">
+                <div class="col-md-4" style="padding-bottom:10px">
                     <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
                 </div>
                 <div class="col-md-4 form-group" style="padding-top:10px">
@@ -30,20 +29,55 @@
                 </div>
                 <input type="hidden" id="contractid" name="contractid" value="@ViewBag.contractid" />
             </div>
-           
-            <ng-form ng-repeat="key in keys" name="keyForm">
-                <span class="btn btn-info">
-                    <button type="button" class="close" ng-click="remove($index)">&times;</button>
-                </span>
-                廠商:
-                <input type="text" style="width:500px" ng-model="key.COMPANY_NAME" required>
-                應扣金額：
-                <input type="number" id="input_amount" name="input_amount" ng-model="key.AMOUNT" required>
-                說明事項：
-                <input type="text" style="width:500px" id="input_reason" name="input_reason" ng-model="key.REASON" required>
-                <input type="hidden" id="contractid4refund" name="contractid4refund" value={{key.CONTRACT_ID_FOR_REFUND}}>
-                <br />
-            </ng-form>
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("ChooseSupplier", "Estimation", new { id = @ViewBag.keyId })'; ">挑選廠商</button>
+            <div class="contailer" style="padding-top:20px" >
+                <ng-form ng-repeat="key in keys" name="keyForm">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    刪除
+                                </th>
+                                <th>
+                                    廠商:
+                                </th>
+                                <th>
+                                    應扣金額：
+                                </th>
+                                <th>
+                                    說明事項：
+                                </th>
+                                <th>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <span class="btn btn-info">
+                                        <button type="button" class="close" ng-click="remove($index)">&times;</button>
+                                    </span>
+                                </td>
+                                <td>
+                                    <input type="text" style="width:500px" ng-model="key.COMPANY_NAME" required readonly>
+                                </td>
+                                <td>
+                                    <input type="number" id="input_amount" name="input_amount" style="width:80px" ng-model="key.AMOUNT" required>
+                                    <span ng-show="keyForm.input_amount.$error.required" style="color:red;">應扣金額不可為空</span>
+                                </td>
+                                <td>
+                                    <input type="text" style="width:500px" id="input_reason" name="input_reason" ng-model="key.REASON" required>
+                                    <span ng-show="keyForm.input_reason.$error.required" style="color:red;">說明事項不可為空</span>
+                                </td>
+                                <td>
+                                    <input type="hidden" id="contractid4refund" name="contractid4refund" value={{key.CONTRACT_ID_FOR_REFUND}}>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br />
+                </ng-form>
+            </div>
         </form>
     </div>
 </div>
@@ -59,6 +93,30 @@
         };
     }
     $("#saveForm").click(function () {
+        var boolAmtEmpty = false;
+        $('table > tbody > tr').each(function(){
+            var amount = null;
+            amount = $.trim($(this).find("#input_amount").val());
+            if(amount == '') {
+                boolAmtEmpty = true;
+            }
+        });
+        if (boolAmtEmpty == true) {
+            alert('欄位 : 應扣金額，不可空白!');
+            return false;
+        }
+        var boolReasonEmpty = false;
+        $('table > tbody > tr').each(function(){
+            var reason = null;
+            reason = $.trim($(this).find("#input_reason").val());
+            if(reason == '') {
+                boolReasonEmpty = true;
+            }
+        });
+        if (boolReasonEmpty == true) {
+            alert('欄位 : 說明事項，不可空白!');
+            return false;
+        }
         $.ajax({
             url: '@Url.Action("UpdateRePay", "Estimation")',
             data: $('#repayment_form').serialize(),
@@ -73,6 +131,6 @@
             }
         });
     });
-    
+
 </script>
 

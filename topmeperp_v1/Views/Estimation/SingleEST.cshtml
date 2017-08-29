@@ -261,12 +261,12 @@
                     <thead>
                         <tr>
                             <th>期別</th>
-                            <th>+ 代付支出<a href="/Estimation/AddRePayment/@ViewBag.paymentkey" target="_blank">＠</a></th>
+                            <th>+ 代付支出<a href="/Estimation/RePayment/@ViewBag.paymentkey" target="_blank">＠</a></th>
                             <th>- 外勞扣款</th>
                             <th>= 小計</th>
                             <th>- 保留款 <input type="text" id="retention" name="retention" value="@ViewBag.retention" readonly="readonly" style="width:60px;" />%</th>
                             <th>- 預付款<a href="/Estimation/AdvancePayment/@ViewBag.paymentkey" target="_blank">＠</a></th>
-                            <th>- 代付扣回<a href="/Estimation/RePayment/@ViewBag.paymentkey" target="_blank">＠</a></th>
+                            <th>- 代付扣回<a href="/Estimation/Refund/@ViewBag.paymentkey" target="_blank">＠</a></th>
                             <th>- 其他扣款<a href="/Estimation/OtherPayment/@ViewBag.paymentkey" target="_blank" id="otherPay">＠</a></th>
                             <th>= 應付金額</th>
                             <th>+ 營業稅</th>
@@ -276,12 +276,12 @@
                     <tbody>
                         <tr>
                             <td>前期累計</td>
-                            <td></td>
+                            <td><input type="text" id="cum_t_repayment" name="cum_t_repayment" value="{{key.CUM_T_REPAYMENT}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="cum_t_foreign" name="cum_t_foreign" value="{{key.CUM_T_FOREIGN}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="cum_sub_amount" name="cum_sub_amount" value="{{key.CUM_SUB_AMOUNT}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="cum_t_retention" name="cum_t_retention" value="{{key.CUM_T_RETENTION}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="cum_t_advance" name="cum_t_advance" value="{{key.CUM_T_ADVANCE}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
-                            <td></td>
+                            <td><input type="text" id="cum_t_refund" name="cum_t_refund" value="{{key.CUM_T_REFUND}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="cum_t_other" name="cum_t_other" value="{{key.CUM_T_OTHER}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="cum_payable_amount" name="cum_payable_amount" value="{{key.PAYABLE_AMOUNT}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="cum_tax_amount" name="cum_tax_amount" value="{{key.CUM_TAX_AMOUNT}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
@@ -289,12 +289,12 @@
                         </tr>
                         <tr>
                             <td>本期金額</td>
-                            <td></td>
+                            <td><input type="text" id="t_repayment" name="t_repayment" value="{{key.T_REPAYMENT}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="t_foreign" name="t_foreign" value="{{key.T_FOREIGN}}" style="width:80px;" /></td>
                             <td><input type="text" id="sub_amount" name="sub_amount" value="{{key.SUB_AMOUNT}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="t_retention" name="t_retention" value="{{key.T_RETENTION}}" style="width:80px;" /></td>
                             <td><input type="text" id="t_advance" name="t_advance" value="{{key.T_ADVANCE}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
-                            <td></td>
+                            <td><input type="text" id="t_refund" name="t_refund" value="{{key.T_REFUND}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="t_other" name="t_other" value="{{key.T_OTHER}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="payable_amount" name="payable_amount" value="{{key.PAYABLE_AMOUNT}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="tax_amount" name="tax_amount" value="{{key.TAX_AMOUNT}}" style="width:80px;" /></td>
@@ -302,12 +302,12 @@
                         </tr>
                         <tr>
                             <td>累計金額</td>
-                            <td></td>
+                            <td><input type="text" id="total_repayment" name="total_repayment" value="{{key.TOTAL_REPAYMENT}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="total_foreign" name="total_foreign" value="{{key.TOTAL_FOREIGN}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="total_sub_amount" name="total_sub_amount" value="{{key.TOTAL_SUB_AMOUNT}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="total_retention" name="total_retention" value="{{key.TOTAL_RETENTION}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="total_advance" name="total_advance" value="{{key.TOTAL_ADVANCE}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
-                            <td></td>
+                            <td><input type="text" id="total_refund" name="total_refund" value="{{key.TOTAL_REFUND}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="total_other" name="total_other" value="{{key.TOTAL_OTHER}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="total_payable_amount" name="total_payable_amount" value="{{key.TOTAL_PAYABLE_AMOUNT}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="total_tax_amount" name="total_tax_amount" value="{{key.TOTAL_TAX_AMOUNT}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
@@ -317,7 +317,14 @@
                     </tbody>
                 </table>
             </div>
-            <textarea class="form-control" rows="10" id="remark" name="remark">@Model.planEST.REMARK</textarea>
+            <div class="col-md-12" style="padding-bottom:30px;">
+                <div class="col-md-6">
+                    <textarea class="form-control" rows="10" id="remark" name="remark">@Model.planEST.REMARK</textarea>
+                </div>
+                <div class="col-md-6 alert-info">
+                    @Html.Raw(TempData["balance"])
+                </div>
+            </div>
         </form>
     </div>
 </div>

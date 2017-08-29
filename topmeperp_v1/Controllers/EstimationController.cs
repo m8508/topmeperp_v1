@@ -159,6 +159,11 @@ namespace topmeperp.Controllers
             lstContractItem = service.getContractItemById(id.Substring(1).Trim());
             //contract.planItems = lstContractItem;
             ViewBag.SearchResult = "共取得" + lstContractItem.Count + "筆資料";
+            var balance = service.getBalanceOfRefundById(ViewBag.contractid);
+            if (balance > 0)
+            {
+                TempData["balance"] = "本合約目前尚有 " + string.Format("{0:C0}", balance) + "的代付支出款項，仍未扣回!";
+            }
             //轉成Json字串
             ViewData["items"] = JsonConvert.SerializeObject(lstContractItem);
             return View("ContractItems", contract);
@@ -362,6 +367,11 @@ namespace topmeperp.Controllers
             singleForm.prj = service.getProjectById(singleForm.planEST.PROJECT_ID);
             logger.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
             PaymentDetailsFunction lstSummary = service.getDetailsPayById(id + singleForm.planEST.CONTRACT_ID);
+            var balance = service.getBalanceOfRefundById(ViewBag.contractid);
+            if (balance > 0)
+            {
+                TempData["balance"] = "本合約目前尚有 " + string.Format("{0:C0}", balance) + "的代付支出款項，仍未扣回!";
+            }
             //轉成Json字串
             ViewData["items"] = JsonConvert.SerializeObject(singleForm.planESTItem);
             ViewData["summary"] = JsonConvert.SerializeObject(lstSummary);
@@ -512,7 +522,7 @@ namespace topmeperp.Controllers
             return msg;
         }
 
-        //更新估驗數量
+        //更新估驗單
         public String UpdateEST(FormCollection form)
         {
             logger.Info("form:" + form.Count);
@@ -845,7 +855,7 @@ namespace topmeperp.Controllers
             logger.Info("Key Id:" + Request["keyid"]);
             //取得使用者勾選品項ID
             logger.Info("item_list:" + Request["chkItem"]);
-            string[] lstItemId = Request["chkItem"].ToString().Split('|');
+            string[] lstItemId = Request["chkItem"].ToString().Split(',');
             logger.Info("select count:" + lstItemId.Count());
             var i = 0;
             for (i = 0; i < lstItemId.Count(); i++)
@@ -876,7 +886,7 @@ namespace topmeperp.Controllers
             // 再次取得代付支出資料
             string[] lstAmount = form.Get("input_amount").Split(',');
             string[] lstReason = form.Get("input_reason").Split(',');
-            string[] lstContract4Refund = form.Get("contractid4refund").Split('|');
+            string[] lstContract4Refund = form.Get("contractid4refund").Split(',');
             List<PLAN_OTHER_PAYMENT> lstItem = new List<PLAN_OTHER_PAYMENT>();
             for (int j = 0; j < lstAmount.Count(); j++)
             {
@@ -907,6 +917,132 @@ namespace topmeperp.Controllers
                 msg = "更新代付支出資料成功，EST_FORM_ID =" + form["formid"];
             }
             return msg;
+        }
+        //代付扣回
+        public ActionResult Refund(string id)
+        {
+            logger.Info("Access To Refund By EST Form Id =" + id);
+            ViewBag.keyId = id;
+            ViewBag.projectId = id.Substring(9, 5).Trim();
+            TND_PROJECT p = service.getProjectById(id.Substring(9, 5).Trim());
+            ViewBag.projectName = p.PROJECT_NAME;
+            ViewBag.contractid = id.Substring(9).Trim();
+            ViewBag.formname = id.Substring(20).Trim();
+            ViewBag.formid = id.Substring(0, 9).Trim();
+            List<RePaymentFunction> lstOtherPayItem = null;
+            List<RePaymentFunction> lstRefundItem = null;
+            lstOtherPayItem = service.getRefundById(id);
+            lstRefundItem = service.getRefundOfSupplierById(id);
+            ViewBag.status = -10; //估驗單尚未建立
+            ViewBag.status = service.getStatusById(id);
+            ViewBag.key = lstOtherPayItem.Count;
+            logger.Debug("this repayment record =" + ViewBag.key + "筆");
+            ViewData["items"] = JsonConvert.SerializeObject(lstOtherPayItem);
+            logger.Debug(ViewData["items"]);
+            return View(lstRefundItem);
+        }
+
+        //代付支出-選商
+        public ActionResult ChooseSupplierOfRefund(string id)
+        {
+            logger.Info("Access To Refund By EST Form Id =" + id);
+            ViewBag.keyId = id;
+            ViewBag.contractid = id.Substring(9).Trim();
+            ViewBag.formid = id.Substring(0, 9).Trim();
+            List<RePaymentFunction> lstSupplier = null;
+            lstSupplier = service.getSupplierOfContractRefundById(id.Substring(9).Trim());
+            ViewBag.status = -10; //估驗單尚未建立
+            ViewBag.status = service.getStatusById(id);
+            ViewBag.key = lstSupplier.Count;
+            logger.Debug("supplier record =" + ViewBag.key + "筆");
+            return View(lstSupplier);
+        }
+
+        public ActionResult AddRefund(string id)
+        {
+            //取得估驗單編號
+            logger.Info("EST Form Id:" + Request["formid"]);
+            //取得合約編號
+            logger.Info("Contract Id:" + Request["contractid"]);
+            //取得KEY_ID
+            logger.Info("Key Id:" + Request["keyid"]);
+            //取得使用者勾選品項ID
+            logger.Info("item_list:" + Request["chkItem"]);
+            string[] lstItemId = Request["chkItem"].ToString().Split(',');
+            logger.Info("select count:" + lstItemId.Count());
+            var i = 0;
+            for (i = 0; i < lstItemId.Count(); i++)
+            {
+                logger.Info("item_list return No.:" + lstItemId[i]);
+            }
+            PLAN_OTHER_PAYMENT Item = new PLAN_OTHER_PAYMENT();
+            string k = service.AddRefund(Request["formid"], Request["contractid"], lstItemId);
+            return Redirect("Refund?id=" + Request["keyid"]);
+        }
+
+        public String UpdateRefund(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            string msg = "";
+            // 先刪除原先資料
+            logger.Info("EST form id =" + form["formid"]);
+            logger.Info("Delete PLAN_OTHER_PAYMENT By EST_FORM_ID");
+            service.delRefundByESTId(form["formid"]);
+            // 再次取得代付扣回資料
+            string[] lstAmount = form.Get("input_amount").Split(',');
+            string[] lstReason = form.Get("input_reason").Split(',');
+            string[] lstEstCount = form.Get("est_count").Split(',');
+            string[] lstEstIdRefund = form.Get("est_id_refund").Split(',');
+            string[] lstContract4Refund = form.Get("contractid4refund").Split(',');
+            List<PLAN_OTHER_PAYMENT> lstItem = new List<PLAN_OTHER_PAYMENT>();
+            for (int j = 0; j < lstAmount.Count(); j++)
+            {
+                PLAN_OTHER_PAYMENT item = new PLAN_OTHER_PAYMENT();
+                item.EST_FORM_ID = form["formid"];
+                item.CONTRACT_ID = form["contractid"];
+                if (lstEstCount[j].ToString() == "")
+                {
+                    item.EST_COUNT_REFUND = null;
+                }
+                else
+                {
+                    item.EST_COUNT_REFUND = int.Parse(lstEstCount[j]);
+                }
+                if (lstAmount[j].ToString() == "")
+                {
+                    item.AMOUNT = null;
+                }
+                else
+                {
+                    item.AMOUNT = decimal.Parse(lstAmount[j]);
+                }
+                logger.Info("Other Payment Amount  =" + item.AMOUNT);
+                item.REASON = lstReason[j];
+                item.CONTRACT_ID_FOR_REFUND = lstContract4Refund[j];
+                item.EST_FORM_ID_REFUND = lstEstIdRefund[j];
+                logger.Debug("Item EST form id =" + item.EST_FORM_ID + "且扣款原因為" + item.REASON + "且請款對象為" + item.CONTRACT_ID_FOR_REFUND + "且請款單號為" + item.EST_FORM_ID_REFUND);
+                lstItem.Add(item);
+            }
+            int i = service.RefreshRefund(lstItem);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "更新代付扣回資料成功，EST_FORM_ID =" + form["formid"];
+            }
+            return msg;
+        }
+
+        //取得未核准的估驗單
+        public string getEstNoOfUnApproval()
+        {
+            logger.Debug("get EST No of un Approval By contractid:" + Request["contractid"]);
+            string contractid = Request["contractid"];
+            string UnApproval = null;
+            UnApproval = service.getEstNoByContractId(contractid);
+            return UnApproval;
         }
     }
 }

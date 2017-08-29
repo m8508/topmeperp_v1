@@ -192,6 +192,8 @@
           <Property Name="TYPE" Type="varchar" MaxLength="1" />
           <Property Name="CREATE_DATE" Type="datetime" />
           <Property Name="CONTRACT_ID_FOR_REFUND" Type="varchar" MaxLength="50" />
+          <Property Name="EST_FORM_ID_REFUND" Type="varchar" MaxLength="50" />
+          <Property Name="EST_COUNT_REFUND" Type="int" />
         </EntityType>
         <EntityType Name="PLAN_PAYMENT_TERMS">
           <Key>
@@ -1738,6 +1740,8 @@
           <Property Name="TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
           <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
           <Property Name="CONTRACT_ID_FOR_REFUND" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="EST_FORM_ID_REFUND" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="EST_COUNT_REFUND" Type="Int32" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -2546,6 +2550,8 @@
           <EntitySetMapping Name="PLAN_OTHER_PAYMENT">
             <EntityTypeMapping TypeName="topmepModel.PLAN_OTHER_PAYMENT">
               <MappingFragment StoreEntitySet="PLAN_OTHER_PAYMENT">
+                <ScalarProperty Name="EST_COUNT_REFUND" ColumnName="EST_COUNT_REFUND" />
+                <ScalarProperty Name="EST_FORM_ID_REFUND" ColumnName="EST_FORM_ID_REFUND" />
                 <ScalarProperty Name="CONTRACT_ID_FOR_REFUND" ColumnName="CONTRACT_ID_FOR_REFUND" />
                 <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
                 <ScalarProperty Name="TYPE" ColumnName="TYPE" />

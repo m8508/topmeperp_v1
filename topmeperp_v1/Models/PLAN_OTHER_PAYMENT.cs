@@ -22,5 +22,7 @@ namespace topmeperp.Models
         public string TYPE { get; set; }
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public string CONTRACT_ID_FOR_REFUND { get; set; }
+        public string EST_FORM_ID_REFUND { get; set; }
+        public Nullable<int> EST_COUNT_REFUND { get; set; }
     }
 }

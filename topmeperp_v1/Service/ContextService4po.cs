@@ -2699,7 +2699,7 @@ namespace topmeperp.Service
 
             return lstItem;
         }
-        
+
         //取得估驗單狀態
         public int getStatusById(string id)
         {
@@ -2809,11 +2809,11 @@ namespace topmeperp.Service
                     "(SELECT AMOUNT FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID =@id AND TYPE = 'B') AS B_AMOUNT, " +
                     "(SELECT AMOUNT FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID =@id AND TYPE = 'C') AS C_AMOUNT, " +
                     "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = SUBSTRING(@id,10, LEN(@id)-9) AND TYPE = 'A' " +
-                    "AND CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = SUBSTRING(@id, 1,9) AND TYPE = 'A') GROUP BY CONTRACT_ID),0) CUM_A_AMOUNT, " +
+                    "AND CREATE_DATE < ISNULL((SELECT CREATE_DATE FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = SUBSTRING(@id, 1,9) AND TYPE = 'A'), GETDATE()) GROUP BY CONTRACT_ID),0) CUM_A_AMOUNT, " +
                     "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = SUBSTRING(@id,10, LEN(@id)-9) AND TYPE = 'B' " +
-                    "AND CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = SUBSTRING(@id, 1,9) AND TYPE = 'B') GROUP BY CONTRACT_ID),0) CUM_B_AMOUNT, " +
+                    "AND CREATE_DATE < ISNULL((SELECT CREATE_DATE FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = SUBSTRING(@id, 1,9) AND TYPE = 'B'), GETDATE()) GROUP BY CONTRACT_ID),0) CUM_B_AMOUNT, " +
                     "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = SUBSTRING(@id,10, LEN(@id)-9) AND TYPE = 'C' " +
-                    "AND CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = SUBSTRING(@id, 1,9) AND TYPE = 'C') GROUP BY CONTRACT_ID),0) CUM_C_AMOUNT  "
+                    "AND CREATE_DATE < ISNULL((SELECT CREATE_DATE FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = SUBSTRING(@id, 1,9) AND TYPE = 'C'), GETDATE()) GROUP BY CONTRACT_ID),0) CUM_C_AMOUNT  "
             , new SqlParameter("id", id)).First();
             }
 
@@ -2848,7 +2848,7 @@ namespace topmeperp.Service
             //處理SQL 預先填入ID,設定集合處理參數
             using (var context = new topmepEntities())
             {
-                lstItem = context.Database.SqlQuery<PLAN_OTHER_PAYMENT>("SELECT * FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID =@id AND TYPE <> 'O' ; "
+                lstItem = context.Database.SqlQuery<PLAN_OTHER_PAYMENT>("SELECT * FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID =@id AND TYPE IN ('A','B','C') ; "
             , new SqlParameter("id", id)).ToList();
             }
 
@@ -2891,15 +2891,21 @@ namespace topmeperp.Service
             logger.Info("get details payment by  id  =" + id);
             using (var context = new topmepEntities())
             {
-                detailsPay = context.Database.SqlQuery<PaymentDetailsFunction>("SELECT D.*,(D.EST_AMOUNT-D.T_FOREIGN) AS SUB_AMOUNT, (D.CUM_EST_AMOUNT - CUM_T_FOREIGN) AS CUM_SUB_AMOUNT, (D.EST_AMOUNT-D.T_FOREIGN-D.T_RETENTION-D.T_ADVANCE-D.T_OTHER) AS PAYABLE_AMOUNT, " +
-                    "(D.CUM_EST_AMOUNT-D.CUM_T_FOREIGN-D.CUM_T_RETENTION-D.CUM_T_ADVANCE-D.CUM_T_OTHER) AS CUM_PAYABLE_AMOUNT, " +
-                    "(D.EST_AMOUNT-D.T_FOREIGN-D.T_RETENTION-D.T_ADVANCE-D.T_OTHER + D.TAX_AMOUNT) AS PAID_AMOUNT, (D.CUM_EST_AMOUNT-D.CUM_T_FOREIGN-D.CUM_T_RETENTION-D.CUM_T_ADVANCE-D.CUM_T_OTHER + D.CUM_TAX_AMOUNT) AS CUM_PAID_AMOUNT, " +
-                    "(D.T_FOREIGN + D.CUM_T_FOREIGN) AS TOTAL_FOREIGN, (D.EST_AMOUNT - D.T_FOREIGN + D.CUM_EST_AMOUNT - CUM_T_FOREIGN) AS TOTAL_SUB_AMOUNT, (D.T_RETENTION + D.CUM_T_RETENTION) AS TOTAL_RETENTION, (D.T_ADVANCE + D.CUM_T_ADVANCE) AS TOTAL_ADVANCE, " +
-                    "(D.T_OTHER + D.CUM_T_OTHER) AS TOTAL_OTHER, (D.EST_AMOUNT-D.T_FOREIGN-D.T_RETENTION-D.T_ADVANCE-D.T_OTHER + D.CUM_EST_AMOUNT-D.CUM_T_FOREIGN - D.CUM_T_RETENTION - D.CUM_T_ADVANCE - D.CUM_T_OTHER ) AS TOTAL_PAYABLE_AMOUNT,  " +
-                    "(D.TAX_AMOUNT + D.CUM_TAX_AMOUNT) AS TOTAL_TAX_AMOUNT, (D.EST_AMOUNT-D.T_FOREIGN-D.T_RETENTION-D.T_ADVANCE-D.T_OTHER + D.TAX_AMOUNT + D.CUM_EST_AMOUNT-D.CUM_T_FOREIGN-D.CUM_T_RETENTION-D.CUM_T_ADVANCE-D.CUM_T_OTHER + D.CUM_TAX_AMOUNT) AS TOTAL_PAID_AMOUNT " +
-                    "FROM(SELECT ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID = @id AND TYPE <> 'O' GROUP BY EST_FORM_ID + CONTRACT_ID), 0) AS T_ADVANCE, " +
-                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9) AND TYPE <> 'O' " +
-                    "AND CREATE_DATE < (SELECT ISNULL((SELECT MAX(CREATE_DATE) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9)), GETDATE())) GROUP BY CONTRACT_ID),0) AS CUM_T_ADVANCE, " +
+                detailsPay = context.Database.SqlQuery<PaymentDetailsFunction>("SELECT D.*,(D.EST_AMOUNT-D.T_FOREIGN+D.T_REPAYMENT) AS SUB_AMOUNT, (D.CUM_EST_AMOUNT - D.CUM_T_FOREIGN + D.CUM_T_REPAYMENT) AS CUM_SUB_AMOUNT, (D.EST_AMOUNT-D.T_FOREIGN-D.T_RETENTION-D.T_ADVANCE-D.T_OTHER+D.T_REPAYMENT-D.T_REFUND) AS PAYABLE_AMOUNT, " +
+                    "(D.CUM_EST_AMOUNT-D.CUM_T_FOREIGN-D.CUM_T_RETENTION-D.CUM_T_ADVANCE-D.CUM_T_OTHER+D.CUM_T_REPAYMENT-D.CUM_T_REFUND) AS CUM_PAYABLE_AMOUNT, " +
+                    "(D.EST_AMOUNT-D.T_FOREIGN-D.T_RETENTION-D.T_ADVANCE-D.T_OTHER + D.TAX_AMOUNT+D.T_REPAYMENT-D.T_REFUND) AS PAID_AMOUNT, (D.CUM_EST_AMOUNT-D.CUM_T_FOREIGN-D.CUM_T_RETENTION-D.CUM_T_ADVANCE-D.CUM_T_OTHER + D.CUM_TAX_AMOUNT+D.CUM_T_REPAYMENT-D.CUM_T_REFUND) AS CUM_PAID_AMOUNT, " +
+                    "(D.T_FOREIGN + D.CUM_T_FOREIGN) AS TOTAL_FOREIGN, (D.EST_AMOUNT - D.T_FOREIGN + D.CUM_EST_AMOUNT - D.CUM_T_FOREIGN + D.T_REPAYMENT + D.CUM_T_REPAYMENT) AS TOTAL_SUB_AMOUNT, (D.T_RETENTION + D.CUM_T_RETENTION) AS TOTAL_RETENTION, (D.T_ADVANCE + D.CUM_T_ADVANCE) AS TOTAL_ADVANCE, (D.T_REPAYMENT + D.CUM_T_REPAYMENT) AS TOTAL_REPAYMENT, " +
+                    "(D.T_REFUND + D.CUM_T_REFUND) AS TOTAL_REFUND, (D.T_OTHER + D.CUM_T_OTHER) AS TOTAL_OTHER, (D.EST_AMOUNT-D.T_FOREIGN-D.T_RETENTION-D.T_ADVANCE-D.T_OTHER + D.CUM_EST_AMOUNT-D.CUM_T_FOREIGN - D.CUM_T_RETENTION - D.CUM_T_ADVANCE - D.CUM_T_OTHER + D.CUM_T_REPAYMENT - D.CUM_T_REFUND) AS TOTAL_PAYABLE_AMOUNT,  " +
+                    "(D.TAX_AMOUNT + D.CUM_TAX_AMOUNT) AS TOTAL_TAX_AMOUNT, (D.EST_AMOUNT-D.T_FOREIGN-D.T_RETENTION-D.T_ADVANCE-D.T_OTHER + D.TAX_AMOUNT + D.CUM_EST_AMOUNT-D.CUM_T_FOREIGN-D.CUM_T_RETENTION-D.CUM_T_ADVANCE-D.CUM_T_OTHER + D.CUM_TAX_AMOUNT + D.CUM_T_REPAYMENT - D.CUM_T_REFUND) AS TOTAL_PAID_AMOUNT " +
+                    "FROM(SELECT ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID = @id AND TYPE IN('A', 'B', 'C') GROUP BY EST_FORM_ID + CONTRACT_ID), 0) AS T_ADVANCE, " +
+                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9) AND TYPE IN('A', 'B', 'C') " +
+                    "AND CREATE_DATE < (SELECT ISNULL((SELECT MIN(CREATE_DATE) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9) AND TYPE IN('A', 'B', 'C')), GETDATE())) GROUP BY CONTRACT_ID),0) AS CUM_T_ADVANCE, " +
+                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID = @id AND TYPE = 'R' GROUP BY EST_FORM_ID + CONTRACT_ID), 0) AS T_REPAYMENT, " +
+                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9) AND TYPE = 'R' " +
+                    "AND CREATE_DATE < (SELECT ISNULL((SELECT MIN(CREATE_DATE) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9) AND TYPE = 'R'), GETDATE())) GROUP BY CONTRACT_ID),0) AS CUM_T_REPAYMENT, " +
+                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID = @id AND TYPE = 'F' GROUP BY EST_FORM_ID + CONTRACT_ID), 0) AS T_REFUND, " +
+                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9) AND TYPE = 'F' " +
+                    "AND CREATE_DATE < (SELECT ISNULL((SELECT MIN(CREATE_DATE) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9) AND TYPE = 'F'), GETDATE())) GROUP BY CONTRACT_ID),0) AS CUM_T_REFUND, " +
                     "ISNULL((SELECT SUM(AMOUNT) AS AMOUNT FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID IN(SELECT EST_FORM_ID FROM PLAN_ESTIMATION_FORM WHERE CREATE_DATE < (SELECT DISTINCT ef.CREATE_DATE FROM PLAN_OTHER_PAYMENT pop JOIN PLAN_ESTIMATION_FORM ef " +
                     "ON pop.EST_FORM_ID = ef.EST_FORM_ID WHERE pop.EST_FORM_ID = SUBSTRING(@id, 1, 9))) AND TYPE = 'O' AND CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9)),0) AS CUM_T_OTHER, " +
                     "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE TYPE = 'O' GROUP BY EST_FORM_ID HAVING EST_FORM_ID = SUBSTRING(@id, 1, 9)),0) AS T_OTHER, " +
@@ -2938,7 +2944,7 @@ namespace topmeperp.Service
                 "CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9)), 0) AS RATIO, ISNULL((SELECT TAX_RATIO FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9)),0) AS TAX_RATIO, " +
                 "ISNULL((SELECT FOREIGN_PAYMENT FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9)),0) AS T_FOREIGN, " +
                 "(SELECT ISNULL(SUM(pei.EST_QTY * pi.ITEM_UNIT_PRICE), 0) PRICE FROM PLAN_ESTIMATION_ITEM pei LEFT JOIN PLAN_ITEM pi ON pei.PLAN_ITEM_ID = pi.PLAN_ITEM_ID " +
-                "WHERE pei.EST_FORM_ID = SUBSTRING(@id, 1, 9)) AS AMOUNT)B) i WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9)" ;
+                "WHERE pei.EST_FORM_ID = SUBSTRING(@id, 1, 9)) AS AMOUNT)B) i WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9)";
             logger.Debug("batch sql:" + sql);
             db = new topmepEntities();
             var parameters = new List<SqlParameter>();
@@ -3013,7 +3019,7 @@ namespace topmeperp.Service
         {
             int i = 0;
             logger.Info("update EST form by estid" + estid);
-            string sql = "UPDATE  PLAN_ESTIMATION_FORM SET PLUS_TAX = @tax, TAX_RATIO =@taxratio WHERE EST_FORM_ID = @estid "; 
+            string sql = "UPDATE  PLAN_ESTIMATION_FORM SET PLUS_TAX = @tax, TAX_RATIO =@taxratio WHERE EST_FORM_ID = @estid ";
             logger.Debug("batch sql:" + sql);
             db = new topmepEntities();
             var parameters = new List<SqlParameter>();
@@ -3031,7 +3037,7 @@ namespace topmeperp.Service
         {
             int i = 0;
             logger.Info("update EST form by estid" + estid);
-            string sql = "UPDATE  PLAN_ESTIMATION_FORM SET FOREIGN_PAYMENT = @foreign_payment, RETENTION_PAYMENT = @retention, TAX_AMOUNT =@tax_amount, REMARK =@remark WHERE EST_FORM_ID = @estid "; 
+            string sql = "UPDATE  PLAN_ESTIMATION_FORM SET FOREIGN_PAYMENT = @foreign_payment, RETENTION_PAYMENT = @retention, TAX_AMOUNT =@tax_amount, REMARK =@remark WHERE EST_FORM_ID = @estid ";
             logger.Debug("batch sql:" + sql);
             db = new topmepEntities();
             var parameters = new List<SqlParameter>();
@@ -3044,7 +3050,7 @@ namespace topmeperp.Service
             i = db.SaveChanges();
             logger.Info("Update Record:" + i);
             db = null;
-            return i;
+            return 1;
         }
 
         //更新估驗單狀態為退件
@@ -3152,14 +3158,14 @@ namespace topmeperp.Service
         public List<RePaymentFunction> getSupplierOfContractByPrjId(string prjid)
         {
 
-            logger.Info("get repayment by EST id + contractid  =" + prjid);
+            logger.Info("get repayment by projectid  =" + prjid);
             List<RePaymentFunction> lstItem = new List<RePaymentFunction>();
             //處理SQL 預先填入ID,設定集合處理參數
             using (var context = new topmepEntities())
             {
-                lstItem = context.Database.SqlQuery<RePaymentFunction>("SELECT DISTINCT pi.SUPPLIER_ID AS COMPANY_NAME, pi.PROJECT_ID + s.SUPPLIER_ID + pi.FORM_NAME AS CONTRACT_NAME " +
-                    "FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON pi.SUPPLIER_ID = s.COMPANY_NAME  WHERE PROJECT_ID =@prjid UNION SELECT DISTINCT MAN_SUPPLIER_ID, " +
-                    "PROJECT_ID + s.SUPPLIER_ID + MAN_FORM_NAME  FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON pi.MAN_SUPPLIER_ID = s.COMPANY_NAME WHERE PROJECT_ID =@prjid ; "
+                lstItem = context.Database.SqlQuery<RePaymentFunction>("SELECT DISTINCT pi.SUPPLIER_ID AS COMPANY_NAME, pi.PROJECT_ID + s.SUPPLIER_ID + REPLACE(pi.FORM_NAME,',','*') AS CONTRACT_NAME " +
+                    "FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON pi.SUPPLIER_ID = s.COMPANY_NAME  WHERE PROJECT_ID =@prjid UNION SELECT DISTINCT pi.MAN_SUPPLIER_ID, " +
+                    "pi.PROJECT_ID + s.SUPPLIER_ID + REPLACE(pi.MAN_FORM_NAME,',','*') FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON pi.MAN_SUPPLIER_ID = s.COMPANY_NAME WHERE PROJECT_ID =@prjid ; "
             , new SqlParameter("prjid", prjid)).ToList();
             }
 
@@ -3197,6 +3203,165 @@ namespace topmeperp.Service
             }
             logger.Debug("delete PLAN OTHER PAYMENT count=" + i);
             return i;
+        }
+
+        //取得估驗單代付扣回明細資料
+        public List<RePaymentFunction> getRefundById(string id)
+        {
+
+            logger.Info("get refund by EST id + contractid  =" + id);
+            List<RePaymentFunction> lstItem = new List<RePaymentFunction>();
+            //處理SQL 預先填入ID,設定集合處理參數
+            using (var context = new topmepEntities())
+            {
+                lstItem = context.Database.SqlQuery<RePaymentFunction>("SELECT A.*, ISNULL((SELECT COUNT(ef.CONTRACT_ID) + 1 FROM PLAN_ESTIMATION_FORM ef WHERE ef.CREATE_DATE <  " +
+                    "(SELECT DISTINCT pef.CREATE_DATE from PLAN_OTHER_PAYMENT pop LEFT JOIN PLAN_ESTIMATION_FORM pef ON pef.EST_FORM_ID = pop.EST_FORM_ID_REFUND WHERE pop.EST_FORM_ID = SUBSTRING(@id,1,9) AND pef.CREATE_DATE IS NOT NULL) " +
+                    "AND ef.CONTRACT_ID = (SELECT DISTINCT pef.CONTRACT_ID FROM PLAN_OTHER_PAYMENT pop LEFT JOIN PLAN_ESTIMATION_FORM pef ON pef.EST_FORM_ID = pop.EST_FORM_ID_REFUND WHERE pop.EST_FORM_ID = SUBSTRING(@id,1,9) AND pef.CREATE_DATE IS NOT NULL) " +
+                    "GROUP BY ef.CONTRACT_ID),1) AS EST_COUNT_REFUND FROM(SELECT pop.AMOUNT AS AMOUNT, pop.REASON AS REASON, pop.CONTRACT_ID AS CONTRACT_ID, " +
+                    "pop.EST_FORM_ID_REFUND AS EST_FORM_ID_REFUND, pop.CONTRACT_ID_FOR_REFUND AS CONTRACT_ID_FOR_REFUND, s.COMPANY_NAME AS COMPANY_NAME FROM PLAN_OTHER_PAYMENT pop LEFT JOIN TND_SUPPLIER s " +
+                    "ON SUBSTRING(pop.CONTRACT_ID_FOR_REFUND, 6, 6) = s.SUPPLIER_ID " +
+                    "WHERE pop.EST_FORM_ID + pop.CONTRACT_ID =@id AND pop.TYPE = 'F')A ; "
+            , new SqlParameter("id", id)).ToList();
+            }
+
+            return lstItem;
+        }
+
+        //取得特定廠商所有代付扣回明細資料
+        public List<RePaymentFunction> getRefundOfSupplierById(string id)
+        {
+
+            logger.Info("get all refunds of this supplier by EST id + contractid  =" + id);
+            List<RePaymentFunction> lstItem = new List<RePaymentFunction>();
+            //處理SQL 預先填入ID,設定集合處理參數
+            using (var context = new topmepEntities())
+            {
+                lstItem = context.Database.SqlQuery<RePaymentFunction>("SELECT pop.AMOUNT AS AMOUNT, pop.REASON AS REASON, pop.CONTRACT_ID AS CONTRACT_ID, " +
+                    "pop.EST_FORM_ID_REFUND AS EST_FORM_ID_REFUND, pop.EST_COUNT_REFUND AS EST_COUNT_REFUND, s.COMPANY_NAME AS COMPANY_NAME " +
+                    "FROM PLAN_OTHER_PAYMENT pop LEFT JOIN TND_SUPPLIER s ON SUBSTRING(pop.CONTRACT_ID_FOR_REFUND, 6, 6) = s.SUPPLIER_ID " +
+                    "WHERE pop.CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9) AND pop.TYPE = 'F' AND pop.EST_COUNT_REFUND IS NOT NULL ; "
+            , new SqlParameter("id", id)).ToList();
+            }
+
+            return lstItem;
+        }
+        //取得需扣回給代付廠商之資料
+        public List<RePaymentFunction> getSupplierOfContractRefundById(string id)
+        {
+
+            logger.Info("get refund by contractid  =" + id);
+            List<RePaymentFunction> lstItem = new List<RePaymentFunction>();
+            //處理SQL 預先填入ID,設定集合處理參數
+            using (var context = new topmepEntities())
+            {
+                lstItem = context.Database.SqlQuery<RePaymentFunction>("SELECT pop.AMOUNT AS AMOUNT, pop.REASON AS REASON, pop.CONTRACT_ID AS CONTRACT_ID, pop.EST_FORM_ID AS EST_FORM_ID_REFUND, " +
+                    "pop.OTHER_PAYMENT_ID AS OTHER_PAYMENT_ID, s.COMPANY_NAME AS COMPANY_NAME FROM PLAN_OTHER_PAYMENT pop LEFT JOIN TND_SUPPLIER s " +
+                    "ON SUBSTRING(pop.CONTRACT_ID, 6, 6) = s.SUPPLIER_ID " +
+                    "WHERE REPLACE(pop.CONTRACT_ID_FOR_REFUND,'*',',') =@id AND pop.TYPE = 'R' AND pop.CONTRACT_ID + pop.EST_FORM_ID + REPLACE(pop.CONTRACT_ID_FOR_REFUND,'*',',') + pop.REASON NOT IN " +
+                    "(SELECT REPLACE(op.CONTRACT_ID_FOR_REFUND,'*',',') + op.EST_FORM_ID_REFUND + op.CONTRACT_ID + op.REASON FROM PLAN_OTHER_PAYMENT op WHERE op.TYPE = 'F'); "
+            , new SqlParameter("id", id)).ToList();
+            }
+
+            return lstItem;
+        }
+
+        public string AddRefund(string formid, string contractid, string[] lstItemId)
+        {
+            //寫入代付支出資料
+            using (var context = new topmepEntities())
+            {
+                List<PLAN_OTHER_PAYMENT> lstItem = new List<PLAN_OTHER_PAYMENT>();
+            string ItemId = "";
+            for (i = 0; i < lstItemId.Count(); i++)
+            {
+                if (i < lstItemId.Count() - 1)
+                {
+                    ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
+                }
+                else
+                {
+                    ItemId = ItemId + "'" + lstItemId[i] + "'";
+                }
+            }
+
+            string sql = "INSERT INTO PLAN_OTHER_PAYMENT (EST_FORM_ID, CONTRACT_ID, AMOUNT, "
+                + "CONTRACT_ID_FOR_REFUND, REASON, EST_FORM_ID_REFUND, TYPE) "
+                + "SELECT '" + formid + "' AS EST_FORM_ID, '" + contractid + "' AS CONTRACT_ID, AMOUNT, CONTRACT_ID_FOR_REFUND, REASON, EST_FORM_ID AS EST_FORM_ID_REFUND, 'F' AS TYPE "
+                + "FROM PLAN_OTHER_PAYMENT where OTHER_PAYMENT_ID IN (" + ItemId + ")";
+            logger.Info("sql =" + sql);
+            var parameters = new List<SqlParameter>();
+            i = context.Database.ExecuteSqlCommand(sql);
+            return formid;
+        }
+    }
+
+        public int delRefundByESTId(string estid)
+        {
+            logger.Info("remove all refund detail by EST FORM ID=" + estid);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("delete these refund record by est form id=" + estid);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID=@estid AND TYPE = 'F' ", new SqlParameter("@estid", estid));
+            }
+            logger.Debug("delete PLAN OTHER PAYMENT count=" + i);
+            return i;
+        }
+
+        public int RefreshRefund(List<PLAN_OTHER_PAYMENT> lstItem)
+        {
+            //1.新增代付扣回資料
+            int i = 0;
+            logger.Info("add refund = " + lstItem.Count);
+            //2.將代付扣回資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (PLAN_OTHER_PAYMENT item in lstItem)
+                {
+                    item.TYPE = "F";
+                    item.CREATE_DATE = DateTime.Now;
+                    context.PLAN_OTHER_PAYMENT.Add(item);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("add refund count =" + i);
+            return i;
+        }
+
+        RePaymentFunction balance = null;
+        //取得廠商合約需扣回之總金額
+        public decimal getBalanceOfRefundById(string id)
+        {
+
+            logger.Info("get the balance of refund by contractid  =" + id);
+            decimal balance = 0;
+            //處理SQL 預先填入ID,設定集合處理參數
+            using (var context = new topmepEntities())
+            {
+                balance = context.Database.SqlQuery<decimal>("SELECT ISNULL(R_AMOUNT,0) - ISNULL(F_AMOUNT,0) AS BALANCE " +
+                    "FROM (SELECT CONTRACT_ID_FOR_REFUND, SUM(AMOUNT) AS R_AMOUNT FROM PLAN_OTHER_PAYMENT WHERE TYPE = 'R' GROUP BY CONTRACT_ID_FOR_REFUND) B " +
+                    "LEFT JOIN (SELECT CONTRACT_ID, SUM(AMOUNT) AS F_AMOUNT FROM PLAN_OTHER_PAYMENT WHERE TYPE = 'F' GROUP BY CONTRACT_ID)A " +
+                    "ON REPLACE(B.CONTRACT_ID_FOR_REFUND,'*',',') = A.CONTRACT_ID  GROUP BY B.CONTRACT_ID_FOR_REFUND, R_AMOUNT, F_AMOUNT " +
+                    "HAVING REPLACE(B.CONTRACT_ID_FOR_REFUND,'*',',') =@id AND ISNULL(R_AMOUNT,0) - ISNULL(F_AMOUNT,0) > 0 ; "
+                   , new SqlParameter("id", id)).FirstOrDefault();
+            }
+
+            return balance;
+        }
+
+        //取得未核准之估驗單號碼
+        public string getEstNoByContractId(string contractid)
+        {
+            string EstNo = null;
+            logger.Info("get payment terms by contractid  =" + contractid);
+            //處理SQL 預先填入ID,設定集合處理參數
+            using (var context = new topmepEntities())
+            {
+                EstNo = context.Database.SqlQuery<string>("SELECT EST_FORM_ID FROM PLAN_ESTIMATION_FORM WHERE CONTRACT_ID =@contractid AND STATUS < 30 ; "
+            , new SqlParameter("contractid", contractid)).FirstOrDefault();
+            }
+
+            return EstNo;
         }
         #endregion
     }

@@ -212,13 +212,20 @@
             </div>
         </div>
         <hr />
-        <input type="submit" value="計算" id="saveForm" name="saveForm" class="btn btn-success" />
+        <input type="submit" value="計算" id="saveForm" name="saveForm" class="btn btn-success"/>
         <div class="row" style="padding-top:10px;">
             @{
                 Html.RenderPartial("PaymentDetails");
             }
         </div>
-        <textarea class="form-control" rows="10" id="remark" name="remark" placeholder="說明事項"></textarea>
+        <div class="col-md-12" style="padding-bottom:30px;">
+            <div class="col-md-6">
+                <textarea class="form-control" rows="10" id="remark" name="remark" placeholder="說明事項"></textarea>
+            </div>
+            <div class="col-md-6 alert-info">
+                @Html.Raw(TempData["balance"])
+            </div>
+        </div>
     </form>
 </div>
 @using (Html.BeginForm())
@@ -227,7 +234,7 @@
 
     <div class="row" style="padding-top:10px">
         <div class="col-md-12">
-            <input type="submit" value="儲存" name="SaveEst" class="btn btn-default" />
+            <input type="submit" value="儲存" name="SaveEst" class="btn btn-default" onclick="return Confirm_Form()"/>
             <input type="submit" value="提交" name="AddEst" class="btn btn-warning" onclick="return Confirm_Form()" />
         </div>
     </div>
@@ -388,43 +395,43 @@
             return parseInt(cumsum / totalamount * 100);
         }
     }
-    $("#saveForm").click(function () {
-        $.ajax({
-            url: '@Url.Action("ConfirmEst", "Estimation")',
-            data: $('#formESTMain').serialize(),
-            type: "POST",
-            dataType: 'JSON',
-            success: function (data) {
-                $('#cum_t_foreign').val(data.CUM_T_FOREIGN);
-                $('#cum_sub_amount').val(data.CUM_SUB_AMOUNT);
-                $('#cum_t_retention').val(data.CUM_T_RETENTION);
-                $('#cum_t_advance').val(data.CUM_T_ADVANCE);
-                $('#cum_t_other').val(data.CUM_T_OTHER);
-                $('#cum_payable_amount').val(data.CUM_PAYABLE_AMOUNT);
-                $('#t_foreign').val(data.T_FOREIGN);
-                $('#sub_amount').val(data.SUB_AMOUNT);
-                $('#t_retention').val(data.T_RETENTION);
-                $('#t_advance').val(data.T_ADVANCE);
-                $('#t_other').val(data.T_OTHER);
-                $('#payable_amount').val(data.PAYABLE_AMOUNT);
-                $('#tax_amount').val(data.TAX_AMOUNT);
-                $('#cum_tax_amount').val(data.CUM_TAX_AMOUNT);
-                $('#cum_paid_amount').val(data.CUM_PAID_AMOUNT);
-                $('#paid_amount').val(data.PAID_AMOUNT);
-                $('#total_paid_amount').val(data.TOTAL_PAID_AMOUNT);
-                $('#total_payable_amount').val(data.TOTAL_PAYABLE_AMOUNT);
-                $('#total_foreign').val(data.TOTAL_FOREIGN);
-                $('#total_sub_amount').val(data.TOTAL_SUB_AMOUNT);
-                $('#total_retention').val(data.TOTAL_RETENTION);
-                $('#total_advance').val(data.TOTAL_ADVANCE);
-                $('#total_other').val(data.TOTAL_OTHER);
-                $('#total_tax_amount').val(data.TOTAL_TAX_AMOUNT);
-                alert("更新成功，若資料無誤請按下儲存或提交鍵 !");
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert(thrownError);
-            }
-        });
-    });
 
+    $("#saveForm").click(function () {
+            $.ajax({
+                url: '@Url.Action("ConfirmEst", "Estimation")',
+                data: $('#formESTMain').serialize(),
+                type: "POST",
+                dataType: 'JSON',
+                success: function (data) {
+                    $('#cum_t_foreign').val(data.CUM_T_FOREIGN);
+                    $('#cum_sub_amount').val(data.CUM_SUB_AMOUNT);
+                    $('#cum_t_retention').val(data.CUM_T_RETENTION);
+                    $('#cum_t_advance').val(data.CUM_T_ADVANCE);
+                    $('#cum_t_other').val(data.CUM_T_OTHER);
+                    $('#cum_payable_amount').val(data.CUM_PAYABLE_AMOUNT);
+                    $('#t_foreign').val(data.T_FOREIGN);
+                    $('#sub_amount').val(data.SUB_AMOUNT);
+                    $('#t_retention').val(data.T_RETENTION);
+                    $('#t_advance').val(data.T_ADVANCE);
+                    $('#t_other').val(data.T_OTHER);
+                    $('#payable_amount').val(data.PAYABLE_AMOUNT);
+                    $('#tax_amount').val(data.TAX_AMOUNT);
+                    $('#cum_tax_amount').val(data.CUM_TAX_AMOUNT);
+                    $('#cum_paid_amount').val(data.CUM_PAID_AMOUNT);
+                    $('#paid_amount').val(data.PAID_AMOUNT);
+                    $('#total_paid_amount').val(data.TOTAL_PAID_AMOUNT);
+                    $('#total_payable_amount').val(data.TOTAL_PAYABLE_AMOUNT);
+                    $('#total_foreign').val(data.TOTAL_FOREIGN);
+                    $('#total_sub_amount').val(data.TOTAL_SUB_AMOUNT);
+                    $('#total_retention').val(data.TOTAL_RETENTION);
+                    $('#total_advance').val(data.TOTAL_ADVANCE);
+                    $('#total_other').val(data.TOTAL_OTHER);
+                    $('#total_tax_amount').val(data.TOTAL_TAX_AMOUNT);
+                    alert("更新成功，若資料無誤請按下儲存或提交鍵 !");
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                }
+            });
+        });
 </script>
