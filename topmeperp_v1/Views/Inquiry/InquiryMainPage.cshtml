@@ -23,8 +23,11 @@
                         <option value="註銷">註銷</option>
                     </select>
                 </div>
-                <input id="Submit1" class="btn btn-info" type="submit" value="確認選商" />
-                <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+                    <input id="Submit1" class="btn btn-info" type="submit" value="確認選商" />
+                <div style="padding-top:20px;">
+                    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Index","Inquiry", new { id = @ViewBag.projectid})'; ">新增詢價單 </button>
+                    <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+                </div>
                 <div id="divProcessing" class="col-md-1">
                     <img src="~/Content/ajax-loader.gif">
                 </div>

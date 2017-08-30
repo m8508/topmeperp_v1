@@ -389,7 +389,7 @@ namespace topmeperp.Service
 
         #region 取得得標標單項目內容
         //取得標單品項資料
-        public List<PLAN_ITEM> getPlanItem(string checkEx, string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub, string formName, string supplier)
+        public List<PLAN_ITEM> getPlanItem(string checkEx, string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub, string formName, string supplier, string delFlg)
         {
 
             logger.Info("search plan item by 九宮格 =" + typeCode1 + "search plan item by 次九宮格 =" + typeCode2 + "search plan item by 主系統 =" + systemMain + "search plan item by 次系統 =" + systemSub + "search plan item by 採購項目 =" + formName + "search plan item by 材料供應商 =" + supplier);
@@ -442,6 +442,12 @@ namespace topmeperp.Service
             {
                 sql = sql + "AND pi.TYPE_CODE_1 is null or pi.TYPE_CODE_1='' ";
             }
+            //刪除註記
+            if ("*" != delFlg)
+            {
+                sql = sql + "AND ISNULL(pi.DEL_FLAG,'N')=@delFlg ";
+                parameters.Add(new SqlParameter("delFlg", delFlg));
+            }
             using (var context = new topmepEntities())
             {
                 logger.Debug("get plan item sql=" + sql);
@@ -482,6 +488,22 @@ namespace topmeperp.Service
                     message = e.Message;
                 }
 
+            }
+            return i;
+        }
+
+        //將Plan Item 註記刪除
+        public int changePlanItem(string itemid, string delFlag)
+        {
+            string sql = "UPDATE PLAN_ITEM SET DEL_FLAG=@delFlag WHERE PLAN_ITEM_ID = @itemid";
+            int i = 0;
+            using (var db = new topmepEntities())
+            {
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("itemid", itemid));
+                parameters.Add(new SqlParameter("delFlag", delFlag));
+                logger.Info("Update PLAN_ITEM FLAG=" + sql + ",itemid=" + itemid + ",delFlag=" + delFlag);
+                i = db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
             }
             return i;
         }
@@ -878,6 +900,34 @@ namespace topmeperp.Service
             return i;
         }
 
+        //更新採購詢價單單價
+        public int refreshSupplierFormItem(string formid, List<PLAN_SUP_INQUIRY_ITEM> lstItem)
+        {
+            logger.Info("Update plan supplier inquiry form id =" + formid);
+            int j = 0;
+            using (var context = new topmepEntities())
+            {
+                //將item單價寫入 
+                foreach (PLAN_SUP_INQUIRY_ITEM item in lstItem)
+                {
+                    PLAN_SUP_INQUIRY_ITEM existItem = null;
+                    var parameters = new List<SqlParameter>();
+                    parameters.Add(new SqlParameter("formid", formid));
+                    parameters.Add(new SqlParameter("itemid", item.PLAN_ITEM_ID));
+                    string sql = "SELECT * FROM PLAN_SUP_INQUIRY_ITEM WHERE INQUIRY_FORM_ID=@formid AND PLAN_ITEM_ID=@itemid";
+                    logger.Info(sql + " ;" + formid + ",plan_item_id=" + item.PLAN_ITEM_ID);
+                    PLAN_SUP_INQUIRY_ITEM excelItem = context.PLAN_SUP_INQUIRY_ITEM.SqlQuery(sql, parameters.ToArray()).First();
+                    existItem = context.PLAN_SUP_INQUIRY_ITEM.Find(excelItem.INQUIRY_ITEM_ID);
+                    logger.Debug("find exist item=" + existItem.ITEM_DESC);
+                    existItem.ITEM_UNIT_PRICE = item.ITEM_UNIT_PRICE;
+                    existItem.ITEM_REMARK = item.ITEM_REMARK;
+                    context.PLAN_SUP_INQUIRY_ITEM.AddOrUpdate(existItem);
+                }
+                j = context.SaveChanges();
+                logger.Debug("Update plan supplier inquiry form item =" + j);
+            }
+            return j;
+        }
         public int createPlanFormFromSupplier(PLAN_SUP_INQUIRY form, List<PLAN_SUP_INQUIRY_ITEM> items)
         {
             int i = 0;
@@ -909,18 +959,6 @@ namespace topmeperp.Service
                 //取得主系統選單
                 lst = context.Database.SqlQuery<string>("SELECT DISTINCT SYSTEM_MAIN FROM PLAN_ITEM　WHERE PROJECT_ID=@projectid;", new SqlParameter("projectid", projectid)).ToList();
                 logger.Info("Get System Main Count=" + lst.Count);
-            }
-            return lst;
-        }
-        //取得供應商選單
-        public List<string> getSupplier()
-        {
-            List<string> lst = new List<string>();
-            using (var context = new topmepEntities())
-            {
-                //取得供應商選單
-                lst = context.Database.SqlQuery<string>("SELECT (SELECT SUPPLIER_ID + '' + COMPANY_NAME FROM TND_SUPPLIER s2 WHERE s2.SUPPLIER_ID = s1.SUPPLIER_ID for XML PATH('')) AS suppliers FROM TND_SUPPLIER s1 ;").ToList();
-                logger.Info("Get Supplier Count=" + lst.Count);
             }
             return lst;
         }
@@ -3271,29 +3309,29 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 List<PLAN_OTHER_PAYMENT> lstItem = new List<PLAN_OTHER_PAYMENT>();
-            string ItemId = "";
-            for (i = 0; i < lstItemId.Count(); i++)
-            {
-                if (i < lstItemId.Count() - 1)
+                string ItemId = "";
+                for (i = 0; i < lstItemId.Count(); i++)
                 {
-                    ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
+                    if (i < lstItemId.Count() - 1)
+                    {
+                        ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
+                    }
+                    else
+                    {
+                        ItemId = ItemId + "'" + lstItemId[i] + "'";
+                    }
                 }
-                else
-                {
-                    ItemId = ItemId + "'" + lstItemId[i] + "'";
-                }
-            }
 
-            string sql = "INSERT INTO PLAN_OTHER_PAYMENT (EST_FORM_ID, CONTRACT_ID, AMOUNT, "
-                + "CONTRACT_ID_FOR_REFUND, REASON, EST_FORM_ID_REFUND, TYPE) "
-                + "SELECT '" + formid + "' AS EST_FORM_ID, '" + contractid + "' AS CONTRACT_ID, AMOUNT, CONTRACT_ID_FOR_REFUND, REASON, EST_FORM_ID AS EST_FORM_ID_REFUND, 'F' AS TYPE "
-                + "FROM PLAN_OTHER_PAYMENT where OTHER_PAYMENT_ID IN (" + ItemId + ")";
-            logger.Info("sql =" + sql);
-            var parameters = new List<SqlParameter>();
-            i = context.Database.ExecuteSqlCommand(sql);
-            return formid;
+                string sql = "INSERT INTO PLAN_OTHER_PAYMENT (EST_FORM_ID, CONTRACT_ID, AMOUNT, "
+                    + "CONTRACT_ID_FOR_REFUND, REASON, EST_FORM_ID_REFUND, TYPE) "
+                    + "SELECT '" + formid + "' AS EST_FORM_ID, '" + contractid + "' AS CONTRACT_ID, AMOUNT, CONTRACT_ID_FOR_REFUND, REASON, EST_FORM_ID AS EST_FORM_ID_REFUND, 'F' AS TYPE "
+                    + "FROM PLAN_OTHER_PAYMENT where OTHER_PAYMENT_ID IN (" + ItemId + ")";
+                logger.Info("sql =" + sql);
+                var parameters = new List<SqlParameter>();
+                i = context.Database.ExecuteSqlCommand(sql);
+                return formid;
+            }
         }
-    }
 
         public int delRefundByESTId(string estid)
         {

@@ -24,7 +24,10 @@
                     </select>
                 </div>
                 <input id="Submit1" class="btn btn-info" type="submit" value="查詢" />
-                <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+                <div style="padding-top:20px;">
+                    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("FormIndex","PurchaseForm", new { id = @ViewBag.projectid})'; ">新增詢價單</button>
+                    <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+                </div>
                 <div id="divProcessing" class="col-md-1">
                     <img src="~/Content/ajax-loader.gif">
                 </div>
@@ -35,19 +38,19 @@
 
 <div class="container">
     <ul class="nav nav-tabs">
-        <li class="active"><a data-toggle="tab" href="#inquiryTemplate">空白詢價單</a></li>
-        <li><a data-toggle="tab" href="#inquiry">廠商報價單</a></li>
+        <li class="active"><a data-toggle="tab" href="#inquiry">廠商報價單</a></li>
+        <li><a data-toggle="tab" href="#inquiryTemplate">空白詢價單</a></li>
     </ul>
 
     <div class="tab-content">
-        <div id="inquiryTemplate" class="tab-pane fade in active">
-            @{
-                Html.RenderPartial("_FormMainPage");
-            }
-        </div>
-        <div id="inquiry" class="tab-pane fade">
+        <div id="inquiry" class="tab-pane fade in active">
             @{
                 Html.RenderPartial("_PurchaseSupplierPage");
+            }
+        </div>
+        <div id="inquiryTemplate" class="tab-pane fade">
+            @{
+                Html.RenderPartial("_FormMainPage");
             }
         </div>
     </div>

@@ -22,7 +22,7 @@
                     <label class="col-md-2 control-label">專案名稱 : </label>
                     <div class="col-md-10">
                         <label class="input">
-                            @Html.TextBoxFor(m => m.PROJECT_NAME, new { @class = "form-control" })
+                            @Html.TextBoxFor(m => m.PROJECT_NAME, new { @class = "form-control" , @id = "project_name" })
                         </label>
                     </div>
 
@@ -101,7 +101,7 @@
                     <label class="col-md-2 control-label">開始Row: </label>
                     <div class='col-md-10'>
                         <label class="input">
-                            @Html.TextBoxFor(m => m.START_ROW_NO, new { @class = "form-control" })
+                            @Html.TextBoxFor(m => m.START_ROW_NO, new { @class = "form-control" , @id = "star_row_no" })
                         </label>
                     </div>
                     <label class="col-md-2 control-label">專案狀態 : </label>
@@ -126,7 +126,7 @@
         <br />
         <div class="row">
             <div class="" col-md-12">
-                <input type="submit" value="儲存" class="btn btn-default" />
+                <input type="submit" value="儲存" class="btn btn-default" onclick="return Confirm_Form()"/>
             </div>
         </div>
 
@@ -167,4 +167,27 @@
             });
         });
     })
+
+    function Confirm_Form() {
+        var name = $('#project_name').val();
+        var date1 = $('#schd_offer_date').val();
+        var date2 = $('#due_date').val();
+        var rowNo = $('#star_row_no').val();
+        if (name == "") { 
+            alert("專案名稱不可為空值，請輸入專案名稱！");
+            return false;
+        }
+        if (date1 == "") { 
+            alert("預計投標日不可為空值，請選取預計投標日！");
+            return false;
+        }
+        if (date2 == "") {
+            alert("收件日不可為空值，請選取收件日！");
+            return false;
+        }
+        if (rowNo == "") {
+            alert("整理後標單起始列不可為空值，請輸入整理後標單起始列列數！");
+            return false;
+        }
+    }
 </script>

@@ -19,8 +19,7 @@
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("uploadMapInfo","Tender", new { id = @Model.tndProject.PROJECT_ID})'; ">上傳圖算數量</button>
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("MapInfoMainPage","Tender", new { id = @Model.tndProject.PROJECT_ID})'; ">圖算數量修改</button>
 
-            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Index","Inquiry", new { id = @Model.tndProject.PROJECT_ID})'; ">新增詢價單 </button>
-            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("InquiryMainPage", "Inquiry", new { id = @Model.tndProject.PROJECT_ID})'; ">詢價單樣板/廠商詢價單查詢 </button>
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("InquiryMainPage", "Inquiry", new { id = @Model.tndProject.PROJECT_ID})'; ">詢價單新增 / 廠商詢價單查詢 </button>
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("ComparisonMain","Inquiry", new { id = @Model.tndProject.PROJECT_ID})'; ">比價作業</button>
 
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Index","Wage", new { id = @Model.tndProject.PROJECT_ID})'; ">工率表下載</button>

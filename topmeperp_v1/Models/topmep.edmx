@@ -165,6 +165,7 @@
           <Property Name="MAN_FORM_NAME" Type="varchar" MaxLength="150" />
           <Property Name="MAN_SUPPLIER_ID" Type="varchar" MaxLength="200" />
           <Property Name="LEAD_TIME" Type="decimal" Precision="5" Scale="1" />
+          <Property Name="DEL_FLAG" Type="varchar" MaxLength="2" />
         </EntityType>
         <EntityType Name="PLAN_ITEM_DELIVERY">
           <Key>
@@ -1104,7 +1105,6 @@
           <EntitySet Name="TND_PROJECT_FORM" EntityType="topmepModel.TND_PROJECT_FORM" />
           <EntitySet Name="PLAN_BUDGET" EntityType="topmepModel.PLAN_BUDGET" />
           <EntitySet Name="PLAN_PAYMENT_TERMS" EntityType="topmepModel.PLAN_PAYMENT_TERMS" />
-          <EntitySet Name="PLAN_ITEM" EntityType="topmepModel.PLAN_ITEM" />
           <EntitySet Name="TND_PROJECT" EntityType="topmepModel.TND_PROJECT" />
           <EntitySet Name="PLAN_TASK" EntityType="topmepModel.PLAN_TASK" />
           <EntitySet Name="TND_SUPPLIER" EntityType="topmepModel.TND_SUPPLIER" />
@@ -1132,6 +1132,7 @@
           <EntitySet Name="PLAN_ESTIMATION_FORM" EntityType="topmepModel.PLAN_ESTIMATION_FORM" />
           <EntitySet Name="PLAN_INVOICE" EntityType="topmepModel.PLAN_INVOICE" />
           <EntitySet Name="PLAN_OTHER_PAYMENT" EntityType="topmepModel.PLAN_OTHER_PAYMENT" />
+          <EntitySet Name="PLAN_ITEM" EntityType="topmepModel.PLAN_ITEM" />
         </EntityContainer>
         <EntityType Name="TND_PROJECT_FORM_ITEM">
           <Key>
@@ -1334,39 +1335,6 @@
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
           <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
           <Property Name="TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="PLAN_ITEM">
-          <Key>
-            <PropertyRef Name="PLAN_ITEM_ID" />
-          </Key>
-          <Property Name="PLAN_ITEM_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PROJECT_ID" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="ITEM_DESC" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="ITEM_UNIT" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="ITEM_QUANTITY" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="ITEM_UNIT_PRICE" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="MAN_PRICE" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="ITEM_REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="TYPE_CODE_1" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="TYPE_CODE_2" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="SUB_TYPE_CODE" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="SYSTEM_MAIN" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="SYSTEM_SUB" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
-          <Property Name="CREATE_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="EXCEL_ROW_ID" Type="Int64" />
-          <Property Name="FORM_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="SUPPLIER_ID" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="BUDGET_RATIO" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="ITEM_FORM_QUANTITY" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="ITEM_UNIT_COST" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="TND_RATIO" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="MAN_FORM_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="MAN_SUPPLIER_ID" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="LEAD_TIME" Type="Decimal" Precision="5" Scale="1" />
         </EntityType>
         <EntityType Name="TND_PROJECT">
           <Key>
@@ -1742,6 +1710,40 @@
           <Property Name="CONTRACT_ID_FOR_REFUND" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="EST_FORM_ID_REFUND" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="EST_COUNT_REFUND" Type="Int32" />
+        </EntityType>
+        <EntityType Name="PLAN_ITEM">
+          <Key>
+            <PropertyRef Name="PLAN_ITEM_ID" />
+          </Key>
+          <Property Name="PLAN_ITEM_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PROJECT_ID" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ITEM_DESC" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="ITEM_UNIT" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="ITEM_QUANTITY" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="ITEM_UNIT_PRICE" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="MAN_PRICE" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="ITEM_REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="TYPE_CODE_1" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="TYPE_CODE_2" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="SUB_TYPE_CODE" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="SYSTEM_MAIN" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="SYSTEM_SUB" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="CREATE_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="EXCEL_ROW_ID" Type="Int64" />
+          <Property Name="FORM_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="SUPPLIER_ID" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="BUDGET_RATIO" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="ITEM_FORM_QUANTITY" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="ITEM_UNIT_COST" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="TND_RATIO" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="MAN_FORM_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="MAN_SUPPLIER_ID" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="LEAD_TIME" Type="Decimal" Precision="5" Scale="1" />
+          <Property Name="DEL_FLAG" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -2144,40 +2146,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_ITEM">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_ITEM">
-              <MappingFragment StoreEntitySet="PLAN_ITEM">
-                <ScalarProperty Name="LEAD_TIME" ColumnName="LEAD_TIME" />
-                <ScalarProperty Name="MAN_SUPPLIER_ID" ColumnName="MAN_SUPPLIER_ID" />
-                <ScalarProperty Name="MAN_FORM_NAME" ColumnName="MAN_FORM_NAME" />
-                <ScalarProperty Name="TND_RATIO" ColumnName="TND_RATIO" />
-                <ScalarProperty Name="ITEM_UNIT_COST" ColumnName="ITEM_UNIT_COST" />
-                <ScalarProperty Name="ITEM_FORM_QUANTITY" ColumnName="ITEM_FORM_QUANTITY" />
-                <ScalarProperty Name="BUDGET_RATIO" ColumnName="BUDGET_RATIO" />
-                <ScalarProperty Name="SUPPLIER_ID" ColumnName="SUPPLIER_ID" />
-                <ScalarProperty Name="FORM_NAME" ColumnName="FORM_NAME" />
-                <ScalarProperty Name="EXCEL_ROW_ID" ColumnName="EXCEL_ROW_ID" />
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="CREATE_USER_ID" ColumnName="CREATE_USER_ID" />
-                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
-                <ScalarProperty Name="MODIFY_USER_ID" ColumnName="MODIFY_USER_ID" />
-                <ScalarProperty Name="SYSTEM_SUB" ColumnName="SYSTEM_SUB" />
-                <ScalarProperty Name="SYSTEM_MAIN" ColumnName="SYSTEM_MAIN" />
-                <ScalarProperty Name="SUB_TYPE_CODE" ColumnName="SUB_TYPE_CODE" />
-                <ScalarProperty Name="TYPE_CODE_2" ColumnName="TYPE_CODE_2" />
-                <ScalarProperty Name="TYPE_CODE_1" ColumnName="TYPE_CODE_1" />
-                <ScalarProperty Name="ITEM_REMARK" ColumnName="ITEM_REMARK" />
-                <ScalarProperty Name="MAN_PRICE" ColumnName="MAN_PRICE" />
-                <ScalarProperty Name="ITEM_UNIT_PRICE" ColumnName="ITEM_UNIT_PRICE" />
-                <ScalarProperty Name="ITEM_QUANTITY" ColumnName="ITEM_QUANTITY" />
-                <ScalarProperty Name="ITEM_UNIT" ColumnName="ITEM_UNIT" />
-                <ScalarProperty Name="ITEM_DESC" ColumnName="ITEM_DESC" />
-                <ScalarProperty Name="ITEM_ID" ColumnName="ITEM_ID" />
-                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
-                <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="TND_PROJECT">
             <EntityTypeMapping TypeName="topmepModel.TND_PROJECT">
               <MappingFragment StoreEntitySet="TND_PROJECT">
@@ -2560,6 +2528,41 @@
                 <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
                 <ScalarProperty Name="EST_FORM_ID" ColumnName="EST_FORM_ID" />
                 <ScalarProperty Name="OTHER_PAYMENT_ID" ColumnName="OTHER_PAYMENT_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_ITEM">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_ITEM">
+              <MappingFragment StoreEntitySet="PLAN_ITEM">
+                <ScalarProperty Name="DEL_FLAG" ColumnName="DEL_FLAG" />
+                <ScalarProperty Name="LEAD_TIME" ColumnName="LEAD_TIME" />
+                <ScalarProperty Name="MAN_SUPPLIER_ID" ColumnName="MAN_SUPPLIER_ID" />
+                <ScalarProperty Name="MAN_FORM_NAME" ColumnName="MAN_FORM_NAME" />
+                <ScalarProperty Name="TND_RATIO" ColumnName="TND_RATIO" />
+                <ScalarProperty Name="ITEM_UNIT_COST" ColumnName="ITEM_UNIT_COST" />
+                <ScalarProperty Name="ITEM_FORM_QUANTITY" ColumnName="ITEM_FORM_QUANTITY" />
+                <ScalarProperty Name="BUDGET_RATIO" ColumnName="BUDGET_RATIO" />
+                <ScalarProperty Name="SUPPLIER_ID" ColumnName="SUPPLIER_ID" />
+                <ScalarProperty Name="FORM_NAME" ColumnName="FORM_NAME" />
+                <ScalarProperty Name="EXCEL_ROW_ID" ColumnName="EXCEL_ROW_ID" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_USER_ID" ColumnName="CREATE_USER_ID" />
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="MODIFY_USER_ID" ColumnName="MODIFY_USER_ID" />
+                <ScalarProperty Name="SYSTEM_SUB" ColumnName="SYSTEM_SUB" />
+                <ScalarProperty Name="SYSTEM_MAIN" ColumnName="SYSTEM_MAIN" />
+                <ScalarProperty Name="SUB_TYPE_CODE" ColumnName="SUB_TYPE_CODE" />
+                <ScalarProperty Name="TYPE_CODE_2" ColumnName="TYPE_CODE_2" />
+                <ScalarProperty Name="TYPE_CODE_1" ColumnName="TYPE_CODE_1" />
+                <ScalarProperty Name="ITEM_REMARK" ColumnName="ITEM_REMARK" />
+                <ScalarProperty Name="MAN_PRICE" ColumnName="MAN_PRICE" />
+                <ScalarProperty Name="ITEM_UNIT_PRICE" ColumnName="ITEM_UNIT_PRICE" />
+                <ScalarProperty Name="ITEM_QUANTITY" ColumnName="ITEM_QUANTITY" />
+                <ScalarProperty Name="ITEM_UNIT" ColumnName="ITEM_UNIT" />
+                <ScalarProperty Name="ITEM_DESC" ColumnName="ITEM_DESC" />
+                <ScalarProperty Name="ITEM_ID" ColumnName="ITEM_ID" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
+                <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
