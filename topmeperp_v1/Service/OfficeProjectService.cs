@@ -65,11 +65,17 @@ namespace topmeperp.Service
                     //1.清除所有任務
                     string sql = "DELETE FROM PLAN_TASK WHERE PROJECT_ID=@projectid";
                     int i = context.Database.ExecuteSqlCommand(sql, new SqlParameter("projectid", project_id));
-                    logger.Debug("Remove Exist Task for projectid="+ project_id);
+                    logger.Debug("Remove Exist Task for projectid=" + project_id);
                     //2.匯入任務
                     foreach (PLAN_TASK pt in lstTask)
                     {
-                        context.PLAN_TASK.Add(pt);
+                        if (pt.TASK_NAME != null)
+                        {
+                            context.PLAN_TASK.Add(pt);
+                        }else
+                        {
+                            logger.Warn("task name is null:" + pt.PRJ_UID + ",id=" + pt.PRJ_ID);
+                        }
                     }
                     i = context.SaveChanges();
                     logger.Info("import task count=" + i);
