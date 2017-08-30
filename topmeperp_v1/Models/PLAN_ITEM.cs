@@ -42,5 +42,6 @@ namespace topmeperp.Models
         public string MAN_FORM_NAME { get; set; }
         public string MAN_SUPPLIER_ID { get; set; }
         public Nullable<decimal> LEAD_TIME { get; set; }
+        public string DEL_FLAG { get; set; }
     }
 }

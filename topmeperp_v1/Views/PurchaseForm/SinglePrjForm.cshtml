@@ -4,52 +4,7 @@
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 
-<script src="https://code.angularjs.org/1.0.0/angular-1.0.0.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/flick/jquery-ui.css"></script>
-
-<script>
-
-    function DefaultCtrl($scope) {
-        $scope.names = [];
-        $.ajax({
-            url: "/PurchaseForm/QuerySupplier",
-            dataType: "json",
-            data: {
-                searchText: request.term
-            },
-            success: function (data) {
-                response($.map(data.data, function (item) {
-                    return {
-                        label: item.name,
-                        value: item.id
-                    };
-                }));
-            }
-        });
-    }
-    
-    angular.module('MyModule', []).directive('autoComplete', function ($timeout) {
-        return function (scope, iElement, iAttrs) {
-            iElement.autocomplete({
-                source: scope[iAttrs.uiItems],
-                select: function () {
-                    $timeout(function () {
-                        iElement.trigger('input');
-                    }, 0);
-                }
-            });
-        };
-    });
-
-</script>
-<div ng-app='MyModule'>
-    <div ng-controller='DefaultCtrl'>
-        <input auto-complete ui-items="names" ng-model="selected" id="selected" name="selected">
-        selected = {{selected}}
-    </div>
-</div>
-
-
 
 <div class="page-header">
     <form id="formSupplier" name="formSupplier" action="UpdatePrjForm" method="post">
@@ -87,7 +42,7 @@
                     }
                     else
                     {
-                        @Html.DropDownList("Supplier", (IEnumerable<SelectListItem>)ViewBag.Supplier, String.Empty, new { id = "Supplier", @class = "easyui-combobox" })
+                        <input type="text" class="typeahead form-control" id="supplier" name="supplier" autocomplete="off">
                     }
                 </div>
             </div>
@@ -115,7 +70,7 @@
                     }
                     else
                     {
-                        <input type="text" class="form-control" id="inputcontact" style="background: #CCC" readonly="readonly" placeholder="不須輸入，由系統自動帶入">
+                        <select class="form-control" id="inputcontact" name="inputcontact"></select>
                     }
                 </div>
             </div>
@@ -215,6 +170,7 @@
                     <th>
                         備註
                     </th>
+                    <th></th>
                 </tr>
                 @foreach (var item in Model.planFormItem)
                 {
@@ -247,6 +203,7 @@
                         </td>
                         <td></td>
                         <td>@Html.TextBox("remark", @item.ITEM_REMARK, new { style = "width:500px", @class = "form-control" })</td>
+                        <td><input type="hidden" name="plan_item_id" id="plan_item_id" value="@item.PLAN_ITEM_ID"></td>
                     </tr>
                 }
             </table>
@@ -292,161 +249,42 @@
     })
 </script>
 <script type="text/javascript">
-    $(document).ready(function () {
-        $('#Supplier').change(function (e) {
-            e.preventDefault();
-            SupplierChangeEventHandler();
-        });
-        //將 Supplier下拉選單給置換為 Autocomplete Combobox
-        $("#Supplier").combobox({
-            panelHeight: '80px',
-            panelWidth: 350
-        });
-    });
-
-    function Getinputcontact(SUPPLIER_ID) {
-        alert('submit');
-        $.ajax({
-            url: '@Url.Action("GetSupplierInfo", "PurchaseForm")',
-            data: { SUPPLIER_ID: SUPPLIER_ID },
-            type: 'post',
-            cache: false,
-            async: false,
-            dataType: 'json',
-            success: function (data) {
-                if (data.length > 0) {
-                    $('#inputcontact').empty();
-                    $('#inputcontact').json(data);
+     ///Auto Complete 公司名稱
+    $('#supplier').typeahead({
+        source: function (query, process) {
+            return $.ajax({
+                url: '/PurchaseForm/aotoCompleteData',
+                type: 'post',
+                dataType: 'json',
+                success: function (result) {
+                    process(result);
                 }
-            }
-        });
+            })
+        },
+        afterSelect: function (data) {
+            getContactor(data);
+        }
     }
-    (function ($) {
-        $.widget("ui.combobox", {
-            _create: function () {
-                var input,
-                    that = this,
-                    select = this.element.hide(),
-                    selected = select.children(":selected"),
-                     value = selected.val() ? selected.text() : "",
-                    wrapper = this.wrapper = $("<span>")
-                        .addClass("ui-combobox")
-                       .insertAfter(select);
+    );
 
-                function removeIfInvalid(element) {
-                    var value = $(element).val(),
-                        matcher = new RegExp("^" + $.ui.autocomplete.escapeRegex(value) + "$", "i"),
-                        valid = false;
-                    select.children("option").each(function () {
-                        if ($(this).text().match(matcher)) {
-                            this.selected = valid = true;
-                            return false;
-                        }
-                    });
-                    if (!valid) {
-                        // remove invalid value, as it didn't match anything
-                        $(element)
-                            .val("")
-                            .attr("title", value + " 沒有符合的廠商，請重新輸入")
-                           .tooltip("open");
-                        select.val("");
-                        setTimeout(function () {
-                            input.tooltip("close").attr("title", "");
-                        }, 2500);
-                        input.data("autocomplete").term = "";
-                        return false;
-                    }
+    ///依據廠商資料取得聯絡人資訊
+    function getContactor(supid) {
+        $.ajax({
+            dataType: "json",
+            type: "POST",
+            async: false,
+            data: { "Supplier": supid },
+            url: '/PurchaseForm/getContactor',
+            cache: false,
+            success: function (data) {
+                console.log(data);
+                $("#inputcontact").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $("#inputcontact").append("<option value='" + data[i].CONTACT_ID + "'>" + data[i].CONTACT_ID + "-" + data[i].CONTACT_NAME + "</option>");
                 }
-                input = $("<input>")
-                    .appendTo(wrapper)
-                    .val(value)
-                    .attr("title", "")
-                    .addClass("ui-state-default ui-combobox-input")
-                    .autocomplete({
-                        delay: 0,
-                        minLength: 0,
-                        source: function (request, response) {
-                            var matcher = new RegExp($.ui.autocomplete.escapeRegex(request.term), "i");
-                            response(select.children("option").map(function () {
-                                var text = $(this).text();
-                                if (this.value && (!request.term || matcher.test(text)))
-                                    return {
-                                        label: text.replace(
-                                        new RegExp(
-                                         "(?![^&;]+;)(?!<[^<>]*)(" +
-                                        $.ui.autocomplete.escapeRegex(request.term) +
-                                         ")(?![^<>]*>)(?![^&;]+;)", "gi"
-                                          ), "$1"),
-                                        value: text,
-                                        option: this
-                                    };
-                            }));
-                        },
-                        select: function (event, ui) {
-                            ui.item.option.selected = true;
-                            that._trigger("selected", event, {
-                                item: ui.item.option
-                            });
-                        },
-                        change: function (event, ui) {
-                            if (!ui.item)
-                                return removeIfInvalid(this);
-                        }
-                    })
-        .addClass("ui-widget ui-widget-content ui-corner-left");
-
-                input.data("autocomplete")._renderItem = function (ul, item) {
-                    return $("<li>")
-                    .data("item.autocomplete", item)
-                    .append("<a>" + item.label + "</a>")
-                    .appendTo(ul);
-                };
-
-                $("<a>")
-                .attr("tabIndex", -1)
-                .attr("title", "Show All Items")
-                .tooltip()
-                .appendTo(wrapper)
-                .button({
-                    icons: {
-                        primary: "ui-icon-triangle-1-s"
-                    },
-                    text: false
-                })
-             .removeClass("ui-corner-all")
-                .addClass("ui-corner-right ui-combobox-toggle")
-                .click(function () {
-                    // close if already visible
-                    if (input.autocomplete("widget").is(":visible")) {
-                        input.autocomplete("close");
-                        removeIfInvalid(input);
-                        return;
-                    }
-                    // work around a bug (likely same cause as #5265)
-                    $(this).blur();
-                    1
-                    // pass empty string as value to search for, displaying all results
-                    input.autocomplete("search", "");
-                    input.focus();
-                });
-
-                input
-                .tooltip({
-                    position: {
-                        of: this.button
-                    },
-                    tooltipClass: "ui-state-highlight"
-                });
-            },
-
-            destroy: function () {
-                this.wrapper.remove();
-                this.element.show();
-                $.Widget.prototype.destroy.call(this);
             }
         });
-    })(jQuery);
-
+    };
 </script>
 <script type="text/javascript">
     $("#saveForm").click(function () {

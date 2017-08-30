@@ -841,7 +841,7 @@ namespace topmeperp.Controllers
             Response.End();
         }
         /// <summary>
-        /// 下載現有標單資料
+        /// 上載現有標單資料
         /// </summary>
         public string uploadProjectItem (HttpPostedFileBase file)
         {

@@ -10,7 +10,7 @@ using topmeperp.Service;
 using System.IO;
 using System.Data;
 using System.Globalization;
-using Newtonsoft.Json;
+using System.Web.Script.Serialization;
 
 namespace topmeperp.Controllers
 {
@@ -61,7 +61,8 @@ namespace topmeperp.Controllers
         {
 
             log.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"]);
-            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["chkEx"], Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"]);
+            //加入刪除註記 預設 "N"
+            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["chkEx"], Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"], "N");
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             ViewBag.projectId = Request["projectid"];
             return View("FormIndex", lstProject);
@@ -135,7 +136,8 @@ namespace topmeperp.Controllers
             empty.Value = "";
             empty.Text = "";
             List<SelectListItem> selectSupplier = new List<SelectListItem>();
-            foreach (string itm in service.getSupplier())
+            InquiryFormService s = new InquiryFormService();
+            foreach (string itm in s.getSupplier())
             {
                 log.Debug("Supplier=" + itm);
                 SelectListItem selectI = new SelectListItem();
@@ -147,22 +149,10 @@ namespace topmeperp.Controllers
                 }
             }
             // selectSupplier.Add(empty);
-            List<string> listSupplier = service.getSupplier();
-            ViewData["supplier"] = listSupplier;
-            //ViewData["supplier"] = JsonConvert.SerializeObject(service.getSupplier());
-            log.Debug(ViewData["supplier"]);
             ViewBag.Supplier = selectSupplier;
             return View(singleForm);
         }
-
-        //取得連動的聯絡人相關資料
-        public ActionResult QuerySupplier()
-        {
-            var listSupplier = service.getSupplier();
-            return new JsonResult { Data = listSupplier, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-        }
-
-
+        
         public String UpdateFormName(FormCollection form)
         {
             log.Info("form:" + form.Count);
@@ -230,13 +220,40 @@ namespace topmeperp.Controllers
             {
                 log.Info("item_list return No.:" + lstItemId[j]);
             }
-            PLAN_SUP_INQUIRY_ITEM item = new PLAN_SUP_INQUIRY_ITEM();
-            string i = service.addSupplierForm(fm, lstItemId);
+            string fid = service.addSupplierForm(fm, lstItemId);
+            string[] lstPlanItem = form.Get("plan_item_id").Split(',');
+            string[] lstPrice = form.Get("formunitprice").Split(',');
+            string[] lstRemark = form.Get("remark").Split(',');
+            List<PLAN_SUP_INQUIRY_ITEM> lstItem = new List<PLAN_SUP_INQUIRY_ITEM>();
+            for (int i = 0; i < lstItemId.Count(); i++)
+            {
+                PLAN_SUP_INQUIRY_ITEM item = new PLAN_SUP_INQUIRY_ITEM();
+                item.PLAN_ITEM_ID = lstPlanItem[i];
+                if (lstRemark[i].ToString() == "")
+                {
+                    item.ITEM_REMARK = null;
+                }
+                else
+                {
+                    item.ITEM_REMARK = lstRemark[i];
+                }
+                if (lstPrice[i].ToString() == "")
+                {
+                    item.ITEM_UNIT_PRICE = null;
+                }
+                else
+                {
+                    item.ITEM_UNIT_PRICE = decimal.Parse(lstPrice[i]);
+                }
+                log.Debug("Plan Item Id=" + item.PLAN_ITEM_ID + ", Price =" + item.ITEM_UNIT_PRICE);
+                lstItem.Add(item);
+            }
+            int k = service.refreshSupplierFormItem(fid, lstItem);
             //產生廠商詢價單實體檔案
-            service.getInqueryForm(i);
+            service.getInqueryForm(fid);
             PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
             poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false);
-            if (i == "")
+            if (fid == "")
             {
                 msg = service.message;
             }
@@ -1138,7 +1155,8 @@ namespace topmeperp.Controllers
         {
 
             log.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"]);
-            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["chkEx"], Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"]);
+            //加入刪除註記 預設 "N"
+            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["chkEx"], Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"], "N");
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             ViewBag.projectId = Request["projectid"];
             SelectListItem empty = new SelectListItem();
@@ -1200,6 +1218,29 @@ namespace topmeperp.Controllers
 
             log.Info("Request:PROJECT_ID =" + Request["projectId"]);
             return msg;
+        }
+
+        //取得廠商資料
+        public string aotoCompleteData()
+        {
+            List<string> ls = null;
+            log.Debug("get supplier");
+            InquiryFormService service = new InquiryFormService();
+            ls = service.getSupplier();
+            JavaScriptSerializer serializer = new JavaScriptSerializer();
+            return serializer.Serialize(ls);
+        }
+
+        //取得廠商聯絡人資料
+        public string getContactor()
+        {
+            List<TND_SUP_CONTACT_INFO> ls = null;
+            log.Debug("get contact By suppliername:" + Request["Supplier"] + ", " + Request["Supplier"].Substring(0, 7));
+            SupplierManage s = new SupplierManage();
+            string supid = Request["Supplier"].Substring(0, 7);
+            ls = s.getContactBySupplier(supid);
+            JavaScriptSerializer serializer = new JavaScriptSerializer();
+            return serializer.Serialize(ls);
         }
     }
 }

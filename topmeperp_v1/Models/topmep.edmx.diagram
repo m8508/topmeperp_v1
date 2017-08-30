@@ -26,7 +26,6 @@
         <EntityTypeShape EntityType="topmepModel.TND_PROJECT_FORM" Width="2.375" PointX="2.875" PointY="12.375" />
         <EntityTypeShape EntityType="topmepModel.PLAN_BUDGET" Width="1.875" PointX="10.375" PointY="8.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_PAYMENT_TERMS" Width="2.5" PointX="5.375" PointY="16.25" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_ITEM" Width="2.125" PointX="10.5" PointY="17.625" />
         <EntityTypeShape EntityType="topmepModel.TND_PROJECT" Width="2.75" PointX="2.5" PointY="17.25" />
         <EntityTypeShape EntityType="topmepModel.PLAN_TASK" Width="1.5" PointX="18.375" PointY="7.75" />
         <EntityTypeShape EntityType="topmepModel.TND_SUPPLIER" Width="1.5" PointX="12.375" PointY="8.75" />
@@ -51,6 +50,7 @@
         <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_FORM" Width="1.5" PointX="17.375" PointY="23.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_INVOICE" Width="1.5" PointX="13.375" PointY="19.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_OTHER_PAYMENT" Width="1.5" PointX="0.75" PointY="23.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_ITEM" Width="1.5" PointX="8.375" PointY="17.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
