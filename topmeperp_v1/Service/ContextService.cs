@@ -1589,9 +1589,9 @@ namespace topmeperp.Service
             if (null != formName && "" != formName)
             {
                 string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PROJECT_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
-                "(SELECT SUPPLIER_ID +'|' + fitem.FORM_ID + '|' + FORM_NAME FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID) as SUPPLIER_NAME, " +
+                "(SELECT SUPPLIER_ID +'|' + fitem.FORM_ID + '|' + FORM_NAME FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID AND ISNULL(f.STATUS,'有效')='有效') as SUPPLIER_NAME, " +
                 "pitem.ITEM_UNIT_PRICE 單價, " +
-                "(SELECT FORM_NAME FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID ) as FORM_NAME, fitem.ITEM_UNIT_PRICE " +
+                "(SELECT FORM_NAME FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID AND ISNULL(f.STATUS,'有效')='有效') as FORM_NAME, fitem.ITEM_UNIT_PRICE " +
                 "from TND_PROJECT_ITEM pitem " +
                 "left join TND_PROJECT_FORM_ITEM fitem " +
                 " on pitem.PROJECT_ITEM_ID = fitem.PROJECT_ITEM_ID " +
@@ -1600,9 +1600,9 @@ namespace topmeperp.Service
                 if (iswage == "Y")
                 {
                     sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PROJECT_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
-                    "(SELECT SUPPLIER_ID+'|'+ fitem.FORM_ID + '|' + FORM_NAME FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID) as SUPPLIER_NAME, " +
+                    "(SELECT SUPPLIER_ID+'|'+ fitem.FORM_ID + '|' + FORM_NAME FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID AND ISNULL(f.STATUS,'有效')='有效') as SUPPLIER_NAME, " +
                     "pitem.MAN_PRICE 工資單價, " +
-                    "(SELECT FORM_NAME FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID ) as FORM_NAME, fitem.ITEM_UNIT_PRICE " +
+                    "(SELECT FORM_NAME FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID AND ISNULL(f.STATUS,'有效')='有效') as FORM_NAME, fitem.ITEM_UNIT_PRICE " +
                     "from TND_PROJECT_ITEM pitem " +
                     "left join TND_PROJECT_FORM_ITEM fitem " +
                     " on pitem.PROJECT_ITEM_ID = fitem.PROJECT_ITEM_ID " +
@@ -1677,7 +1677,7 @@ namespace topmeperp.Service
             {
 
                 string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PROJECT_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
-                                "(SELECT SUPPLIER_ID+'|'+ fitem.FORM_ID + '|' + FORM_NAME FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID) as SUPPLIER_NAME, " +
+                                "(SELECT SUPPLIER_ID+'|'+ fitem.FORM_ID + '|' + FORM_NAME FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID AND ISNULL(f.STATUS,'有效')='有效') as SUPPLIER_NAME, " +
                                 "pitem.ITEM_UNIT_PRICE 單價,fitem.ITEM_UNIT_PRICE " +
                                 "from TND_PROJECT_ITEM pitem " +
                                 "left join TND_PROJECT_FORM_ITEM fitem " +
@@ -1687,7 +1687,7 @@ namespace topmeperp.Service
                 if (iswage == "Y")
                 {
                     sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PROJECT_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
-                    "(SELECT SUPPLIER_ID+'|'+ fitem.FORM_ID + '|' + FORM_NAME FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID) as SUPPLIER_NAME, " +
+                    "(SELECT SUPPLIER_ID+'|'+ fitem.FORM_ID + '|' + FORM_NAME FROM TND_PROJECT_FORM f WHERE f.FORM_ID = fitem.FORM_ID AND ISNULL(f.STATUS,'有效')='有效') as SUPPLIER_NAME, " +
                     "pitem.MAN_PRICE 工資單價,fitem.ITEM_UNIT_PRICE " +
                     "from TND_PROJECT_ITEM pitem " +
                     "left join TND_PROJECT_FORM_ITEM fitem " +

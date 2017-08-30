@@ -2410,7 +2410,7 @@ namespace topmeperp.Service
                 {
                     double manday = double.Parse(item.MAN_DAY.ToString());
                     row.CreateCell(6).SetCellFormula(manday + "*期初成本!N3");
-                    row.Cells[6].CellStyle = style;
+                    row.Cells[6].CellStyle = styleNumber;
                 }
                 else
                 {
