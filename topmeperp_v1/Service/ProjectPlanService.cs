@@ -118,7 +118,7 @@ namespace topmeperp.Service
         /// <returns></returns>
         public string getProjectTask4Tree(string projectid)
         {
-            string sql = "SELECT * FROM PLAN_TASK WHERE PROJECT_ID = @projectid and PRJ_ID>= "
+            string sql = "SELECT * FROM PLAN_TASK WHERE PROJECT_ID = @projectid AND TASK_NAME IS NOT NULL and PRJ_ID>= "
                 + "(SELECT PRJ_ID FROM PLAN_TASK where PROJECT_ID = @projectid and ROOT_TAG = 'Y') ORDER BY PRJ_ID;";
             List<PLAN_TASK> lstTask = new List<PLAN_TASK>();
             using (var context = new topmepEntities())
@@ -133,7 +133,7 @@ namespace topmeperp.Service
             foreach (PLAN_TASK t in lstTask)
             {
                 //將跟節點置入Directory 內
-                if (t.PARENT_UID == 0 || dicTree.Count == 0)
+                if (null==t.PARENT_UID || t.PARENT_UID == 0 || dicTree.Count == 0)
                 {
                     //rootnode.tags.Add("工期:" + t.DURATION);
                     rootnode.tags.Add("完成:" + t.FINISH_DATE.Value.ToString("yyyy/MM/dd"));
