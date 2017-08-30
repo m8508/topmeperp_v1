@@ -469,7 +469,7 @@ namespace topmeperp.Service
                 logger.Debug("Excel Value:" + row.Cells[0].ToString() + row.Cells[1] + row.Cells[2]);
                 //將各Row 資料寫入物件內
                 //0.項次	1.圖號	2.棟別	3.一次側位置	4.一次側名稱	5.二次側名稱	6.二次側位置	7.管材名稱	8管數/組	9管組數	10管長度/組數	11管總長
-                if (row.Cells.Count!=0 && row.Cells[0].ToString().ToUpper() != "END")
+                if (row.Cells.Count != 0 && row.Cells[0].ToString().ToUpper() != "END")
                 {
                     lstMapFW.Add(convertRow2TndMapFW(row, iRowIndex));
                 }
@@ -644,7 +644,7 @@ namespace topmeperp.Service
                 //1.項次	2.圖號	3.棟別	4.一次側位置	5.一次側名稱	6.二次側名稱	
                 //7.二次側位置	8.線材名稱	9.條數/組	10.線組數	11.線長度/條數	12.線總長	
                 //13.管材名稱	14.管長	15.管組數	16.管總長
-                if (row.Cells.Count!=0 && row.Cells[0].ToString().ToUpper() != "END")
+                if (row.Cells.Count != 0 && row.Cells[0].ToString().ToUpper() != "END")
                 {
                     logger.Debug("Excel Value:" + row.Cells[0].ToString() + row.Cells[1] + row.Cells[2]);
                     lstMapFP.Add(convertRow2TndMapFP(row, iRowIndex));
@@ -877,7 +877,7 @@ namespace topmeperp.Service
                 logger.Debug("Excel Value:" + slog);
                 //將各Row 資料寫入物件內
                 //0.PK	11.設備數量 
-                if (row.Cells.Count!=0 && row.Cells[0].ToString().ToUpper() != "END")
+                if (row.Cells.Count != 0 && row.Cells[0].ToString().ToUpper() != "END")
                 {
                     lstMapDEVICE.Add(convertRow2TndMapDEVICE(row, iRowIndex));
                 }
@@ -1109,7 +1109,7 @@ namespace topmeperp.Service
             }
             catch (Exception ex)
             {
-                logger.Debug("Row:" + excelrow + "cell count error :" + row.PhysicalNumberOfCells+ ",ex="+ex.StackTrace);
+                logger.Debug("Row:" + excelrow + "cell count error :" + row.PhysicalNumberOfCells + ",ex=" + ex.StackTrace);
                 return null;
             }
         }
@@ -1166,7 +1166,7 @@ namespace topmeperp.Service
                 logger.Debug("Excel Value:" + row.Cells[0].ToString() + row.Cells[1] + row.Cells[2]);
                 //將各Row 資料寫入物件內
                 //0.項次	1.圖號	2.棟別	3.一次側位置	4.一次側名稱	5.二次側名稱	6.二次側位置	7.線材名稱	8.條數/組	9.線組數	10.線長度/組數	11.線總長  12.地線名稱	13.地線條數	14.地線總長  15.管材名稱1	16.管長1	17.管組數1   18.管總長1	19.管材名稱2  20.管長2	21.管組數2  22.管總長2
-                if (row.Cells.Count!=0 && row.Cells[0].ToString().ToUpper() != "END")
+                if (row.Cells.Count != 0 && row.Cells[0].ToString().ToUpper() != "END")
                 {
                     lstMapLCP.Add(convertRow2TndMapLCP(row, iRowIndex));
                 }
@@ -1477,7 +1477,7 @@ namespace topmeperp.Service
                 row = (IRow)rows.Current;
                 //將各Row 資料寫入物件內
                 //0.項次	1.圖號	2.棟別	3.一次側位置	4.一次側名稱	5.二次側名稱	6.二次側位置	7.線材名稱	8.條數/組	9.線組數	10.線長度/條數	11.線總長  12.地線名稱	13.地線條數	14.地線總長  15.管材名稱	16.管長	17.管組數   18.管總長	
-                if (row.Cells.Count!=0 && row.Cells[0].ToString().ToUpper() != "END")
+                if (row.Cells.Count != 0 && row.Cells[0].ToString().ToUpper() != "END")
                 {
                     logger.Debug("Excel Value:" + row.Cells[0].ToString() + row.Cells[1] + row.Cells[2]);
                     lstMapPEP.Add(convertRow2TndMapPEP(row, iRowIndex));
@@ -2129,7 +2129,7 @@ namespace topmeperp.Service
             while (hasMore)
             {
                 row = sheet.GetRow(iRowIndex);
-                logger.Info("excel rowid=" + iRowIndex + ",cell count=" + row.Cells.Count);
+                logger.Info("excel rowid=" + iRowIndex + ",phyCount=" + row.PhysicalNumberOfCells + ",cells count" + row.Cells.Count);
                 if (row.Cells.Count < 6)
                 {
                     logger.Info("Row Index=" + iRowIndex + "column count has wrong" + row.Cells.Count);
@@ -2141,17 +2141,29 @@ namespace topmeperp.Service
                     {
                         logger.Debug("row id=" + iRowIndex + "Cells Count=" + row.Cells.Count + ",form item vllue:" + row.Cells[0].ToString() + ","
                             + row.Cells[1] + "," + row.Cells[2] + "," + row.Cells[3] + "," + ","
-                            + row.Cells[4] + "," + "," + row.Cells[5] + "," + row.Cells[6] + ",project item id=" + row.Cells[row.Cells.Count - 1]);
+                            + row.Cells[4] + "," + "," + row.Cells[5] + "," + row.Cells[6] + ",project item id=" + row.Cells[row.PhysicalNumberOfCells - 1]);
                         TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
                         item.ITEM_DESC = row.Cells[1].ToString();
                         item.ITEM_UNIT = row.Cells[2].ToString();
                         //標單數量
-                        decimal dQty = decimal.Parse(row.Cells[3].ToString());
-                        item.ITEM_QTY = dQty;
-
+                        if (null != row.Cells[3] && row.Cells[3].ToString() != "")
+                        {
+                            decimal dQty = decimal.Parse(row.Cells[3].ToString());
+                            item.ITEM_QTY = dQty;
+                        }else
+                        {
+                            logger.Warn("Qty format error:" + iRowIndex);
+                        }
                         //報價單單價
-                        decimal dUnitPrice = decimal.Parse(row.Cells[4].ToString());
-                        item.ITEM_UNIT_PRICE = dUnitPrice;
+                        if (null != row.Cells[4] && row.Cells[4].ToString() != "")
+                        {
+                            decimal dUnitPrice = decimal.Parse(row.Cells[4].ToString());
+                            item.ITEM_UNIT_PRICE = dUnitPrice;
+                        }
+                        else
+                        {
+                            logger.Warn("UnitPrice format error:" + iRowIndex);
+                        }
 
                         item.ITEM_REMARK = row.Cells[6].ToString();
                         logger.Info("Project ITEM ID=" + row.Cells[row.Cells.Count - 1].ToString());
@@ -2699,7 +2711,7 @@ namespace topmeperp.Service
         //cell.CellStyle = styleDate;
 
     }
-    public class ProjectItem2Excel: ProjectItemFromExcel
+    public class ProjectItem2Excel : ProjectItemFromExcel
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         string outputPath = ContextService.strUploadPath;
