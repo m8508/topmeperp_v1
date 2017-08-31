@@ -242,3 +242,4 @@ ModelManifest.xml
 .fake/
 /topmeperp_v1/Web.config
 /topmeperp_v1/UploadFile
+/topmeperp_v1/topmeperp_v1.csproj
