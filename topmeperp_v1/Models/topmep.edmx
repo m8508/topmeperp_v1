@@ -166,6 +166,8 @@
           <Property Name="MAN_SUPPLIER_ID" Type="varchar" MaxLength="200" />
           <Property Name="LEAD_TIME" Type="decimal" Precision="5" Scale="1" />
           <Property Name="DEL_FLAG" Type="varchar" MaxLength="2" />
+          <Property Name="INQUIRY_FORM_ID" Type="varchar" MaxLength="50" />
+          <Property Name="MAN_FORM_ID" Type="varchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="PLAN_ITEM_DELIVERY">
           <Key>
@@ -1744,6 +1746,8 @@
           <Property Name="MAN_SUPPLIER_ID" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Name="LEAD_TIME" Type="Decimal" Precision="5" Scale="1" />
           <Property Name="DEL_FLAG" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="INQUIRY_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="MAN_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -2534,6 +2538,8 @@
           <EntitySetMapping Name="PLAN_ITEM">
             <EntityTypeMapping TypeName="topmepModel.PLAN_ITEM">
               <MappingFragment StoreEntitySet="PLAN_ITEM">
+                <ScalarProperty Name="MAN_FORM_ID" ColumnName="MAN_FORM_ID" />
+                <ScalarProperty Name="INQUIRY_FORM_ID" ColumnName="INQUIRY_FORM_ID" />
                 <ScalarProperty Name="DEL_FLAG" ColumnName="DEL_FLAG" />
                 <ScalarProperty Name="LEAD_TIME" ColumnName="LEAD_TIME" />
                 <ScalarProperty Name="MAN_SUPPLIER_ID" ColumnName="MAN_SUPPLIER_ID" />

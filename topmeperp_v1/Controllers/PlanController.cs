@@ -215,12 +215,28 @@ namespace topmeperp.Controllers
             {
                 logger.Error(item.PLAN_ITEM_ID + " not unit price:" + ex.Message);
             }
+            item.ITEM_REMARK = form["item_remark"];
+            if (form["type_code_1"].Trim() != "")
+            {
+                item.TYPE_CODE_1 = form["type_code_1"];
+            }
+            else
+            {
+                item.TYPE_CODE_1 = null;
+            }
 
-            item.TYPE_CODE_1 = form["type_code_1"];
-            item.TYPE_CODE_2 = form["type_code_2"];
+            if (form["type_code_2"].Trim() != "")
+            {
+                item.TYPE_CODE_2 = form["type_code_2"];
+            }
+            else
+            {
+                item.TYPE_CODE_2 = null;
+            }
 
             item.SYSTEM_MAIN = form["system_main"];
             item.SYSTEM_SUB = form["system_sub"];
+            item.DEL_FLAG = form["selDelFlag"];
             try
             {
                 item.EXCEL_ROW_ID = long.Parse(form["excel_row_id"]);
@@ -234,7 +250,17 @@ namespace topmeperp.Controllers
             item.MODIFY_USER_ID = loginUser.USER_ID;
             item.MODIFY_DATE = DateTime.Now;
             PurchaseFormService service = new PurchaseFormService();
-            int i = service.updatePlanItem(item);
+            int i = 0;
+            string strFlag = form["flag"].Trim();
+            if (strFlag.Equals("addAfter"))
+            {
+                i = service.addPlanItemAfter(item);
+            }
+            else
+            {
+                i = service.updatePlanItem(item);
+            }
+
             if (i == 0) { msg = service.message; }
             return msg;
         }

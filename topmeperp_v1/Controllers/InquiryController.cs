@@ -137,13 +137,40 @@ namespace topmeperp.Controllers
             {
                 log.Info("item_list return No.:" + lstItemId[j]);
             }
-            TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
-            string i = service.addNewSupplierForm(fm, lstItemId);
+            string fid = service.addNewSupplierForm(fm, lstItemId);
+            string[] lstProjectItem = form.Get("project_item_id").Split(',');
+            string[] lstPrice = form.Get("formunitprice").Split(',');
+            string[] lstRemark = form.Get("remark").Split(',');
+            List<TND_PROJECT_FORM_ITEM> lstItem = new List<TND_PROJECT_FORM_ITEM>();
+            for (int i = 0; i < lstItemId.Count(); i++)
+            {
+                TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
+                item.PROJECT_ITEM_ID = lstProjectItem[i];
+                if (lstRemark[i].ToString() == "")
+                {
+                    item.ITEM_REMARK = null;
+                }
+                else
+                {
+                    item.ITEM_REMARK = lstRemark[i];
+                }
+                if (lstPrice[i].ToString() == "")
+                {
+                    item.ITEM_UNIT_PRICE = null;
+                }
+                else
+                {
+                    item.ITEM_UNIT_PRICE = decimal.Parse(lstPrice[i]);
+                }
+                log.Debug("Project Item Id=" + item.PROJECT_ITEM_ID + ", Price =" + item.ITEM_UNIT_PRICE);
+                lstItem.Add(item);
+            }
+            int k = service.refreshSupplierFormItem(fid, lstItem);
             //產生廠商詢價單實體檔案
-            service.getInqueryForm(i);
+            service.getInqueryForm(fid);
             InquiryFormToExcel poi = new InquiryFormToExcel();
             poi.exportExcel(service.formInquiry, service.formInquiryItem, false);
-            if (i == "")
+            if (fid == "")
             {
                 msg = service.message;
             }

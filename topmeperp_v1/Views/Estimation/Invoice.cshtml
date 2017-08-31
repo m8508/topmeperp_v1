@@ -53,7 +53,24 @@
                 </span>
                 No.{{$index +1}}
                 憑證日期:
-                <input type="text" id="invoice_date" name="invoice_date" style="width:130px" ng-model="key.INVOICE_DATE " required>
+                <input type="date" id="invoice_date" name="invoice_date" style="width:130px" ng-model="key.INVOICE_DATE " required>
+                <div role="alert">
+                    <span class="error" ng-show="keyForm.input.$error.required">
+                        Required!
+                    </span>
+                    <span class="error" ng-show="keyForm.input.$error.date">
+                        Not a valid date!
+                    </span>
+                </div>
+                <tt>value = {{key.INVOICE_DATE | date: "yyyy-MM-dd"}}</tt>
+                <br />
+                <tt>myForm.input.$valid = {{keyForm.input.$valid}}</tt>
+                <br />
+                <tt>myForm.input.$error = {{keyForm.input.$error}}</tt>
+                <br />
+                <tt>myForm.$valid = {{myForm.$valid}}</tt>
+                <br />
+                <tt>myForm.$error.required = {{!!myForm.$error.required}}</tt>
                 憑證號碼:
                 <input type="text" id="invoice_number" name="invoice_number" style="width:130px" ng-model="key.INVOICE_NUMBER" required>
                 銷售金額：
@@ -86,7 +103,7 @@
     function MyCtrl($scope) {
         $scope.keys = @Html.Raw(ViewData["items"]);
         $scope.show = function () {
-            $scope.keys.push({ date: $scope.key.INVOICE_DATE, number:$scope.key.INVOICE_NUMBER, amount: $scope.key.AMOUNT, taxamount: $scope.key.TAX, type: $scope.key.TYPE });
+            $scope.keys.push({ number:$scope.key.INVOICE_NUMBER, amount: $scope.key.AMOUNT, taxamount: $scope.key.TAX, type: $scope.key.TYPE });
 
         };
         $scope.addKey = function () {

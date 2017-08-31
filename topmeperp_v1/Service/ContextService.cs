@@ -700,6 +700,36 @@ namespace topmeperp.Service
             }
             return sf.FORM_ID;
         }
+
+        //更新廠商詢價單單價
+        public int refreshSupplierFormItem(string formid, List<TND_PROJECT_FORM_ITEM> lstItem)
+        {
+            logger.Info("Update project supplier inquiry form id =" + formid);
+            int j = 0;
+            using (var context = new topmepEntities())
+            {
+                //將item單價寫入 
+                foreach (TND_PROJECT_FORM_ITEM item in lstItem)
+                {
+                    TND_PROJECT_FORM_ITEM existItem = null;
+                    var parameters = new List<SqlParameter>();
+                    parameters.Add(new SqlParameter("formid", formid));
+                    parameters.Add(new SqlParameter("itemid", item.PROJECT_ITEM_ID));
+                    string sql = "SELECT * FROM TND_PROJECT_FORM_ITEM WHERE FORM_ID=@formid AND PROJECT_ITEM_ID=@itemid";
+                    logger.Info(sql + " ;" + formid + ",project_item_id=" + item.PROJECT_ITEM_ID);
+                    TND_PROJECT_FORM_ITEM excelItem = context.TND_PROJECT_FORM_ITEM.SqlQuery(sql, parameters.ToArray()).First();
+                    existItem = context.TND_PROJECT_FORM_ITEM.Find(excelItem.FORM_ITEM_ID);
+                    logger.Debug("find exist item=" + existItem.ITEM_DESC);
+                    existItem.ITEM_UNIT_PRICE = item.ITEM_UNIT_PRICE;
+                    existItem.ITEM_REMARK = item.ITEM_REMARK;
+                    context.TND_PROJECT_FORM_ITEM.AddOrUpdate(existItem);
+                }
+                j = context.SaveChanges();
+                logger.Debug("Update project supplier inquiry form item =" + j);
+            }
+            return j;
+        }
+
         //更新廠商詢價單資料
         public int refreshSupplierForm(string formid, TND_PROJECT_FORM sf, List<TND_PROJECT_FORM_ITEM> lstItem)
         {

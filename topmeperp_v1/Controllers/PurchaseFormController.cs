@@ -108,7 +108,7 @@ namespace topmeperp.Controllers
         }
         public ActionResult FormMainPage(string id)
         {
-            log.Info("purchase form by projectID =" + id + ",status=" + Request["status"]);
+            log.Info("purchase form by projectID =" + id + ",status=" + Request["status"] + ",type=" + Request["type"] + ",formname=" + Request["formname"]);
             PurchaseFormModel formData = new PurchaseFormModel();
             if (null != id && id != "")
             {
@@ -116,11 +116,12 @@ namespace topmeperp.Controllers
                 TND_PROJECT p = service.getProjectById(id);
                 ViewBag.projectName = p.PROJECT_NAME;
                 formData.planTemplateForm = service.getFormTemplateByProject(id);
-                formData.planFormFromSupplier = service.getFormByProject(id, Request["status"]);
+                formData.planFormFromSupplier = service.getFormByProject(id, Request["status"], Request["type"], Request["formname"]);
             }
             ViewBag.Status = "有效";
             return View(formData);
         }
+
         //顯示單一詢價單、報價單功能
         public ActionResult SinglePrjForm(string id)
         {

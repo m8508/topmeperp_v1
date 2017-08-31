@@ -230,6 +230,9 @@ namespace topmeperp.Models
         public IEnumerable<PLAN_PAYMENT_TERMS> paymentTerms { get; set; }
         public PLAN_PAYMENT_TERMS planpayment { get; set; }
         public IEnumerable<PLAN_ITEM> planItems { get; set; }
+        public TND_PROJECT prj { get; set; }
+        public PLAN_ESTIMATION_FORM planEST { get; set; }
+        public IEnumerable<EstimationForm> planESTItem { get; set; }
 
     }
     public class CostForBudget
@@ -362,12 +365,7 @@ namespace topmeperp.Models
         public Int64 NO { get; set; }
         public Nullable<decimal> CUM_RECEIPT_QTY { get; set; }
     }
-    public class EstimationFormDetail
-    {
-        public TND_PROJECT prj { get; set; }
-        public PLAN_ESTIMATION_FORM planEST { get; set; }
-        public IEnumerable<EstimationForm> planESTItem { get; set; }
-    }
+    
     public class AdvancePaymentFunction 
     {
         public Nullable<decimal> A_AMOUNT { get; set; }

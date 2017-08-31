@@ -334,7 +334,7 @@ namespace topmeperp.Controllers
         public ActionResult SingleEST(string id)
         {
             logger.Info("http get mehtod:" + id);
-            EstimationFormDetail singleForm = new EstimationFormDetail();
+            ContractModels singleForm = new ContractModels();
             service.getESTByEstId(id);
             singleForm.planEST = service.formEST;
             ViewBag.wage = singleForm.planEST.TYPE;
@@ -360,6 +360,7 @@ namespace topmeperp.Controllers
             {
                 ViewBag.retention = payment.USANCE_RETENTION_RATIO;
             }
+            ViewBag.paymentTerms = service.getTermsByContractId(singleForm.planEST.CONTRACT_ID);
             ViewBag.estCount = service.getEstCountByESTId(id);
             ViewBag.formname = singleForm.planEST.CONTRACT_ID.Substring(11).Trim();
             ViewBag.paymentkey = id + singleForm.planEST.CONTRACT_ID;
@@ -720,7 +721,7 @@ namespace topmeperp.Controllers
             TND_SUPPLIER lstSupplier = service.getSupplierInfo(id.Substring(14, 6).Trim());
             ViewBag.supplier = lstSupplier.COMPANY_NAME;
             ViewBag.companyid = lstSupplier.COMPANY_ID;
-            EstimationFormDetail singleForm = new EstimationFormDetail();
+            ContractModels singleForm = new ContractModels();
             service.getESTByEstId(id.Substring(0, 9).Trim());
             singleForm.planEST = service.formEST;
             try

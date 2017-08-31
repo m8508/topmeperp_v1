@@ -448,6 +448,7 @@ namespace topmeperp.Service
                 sql = sql + "AND ISNULL(pi.DEL_FLAG,'N')=@delFlg ";
                 parameters.Add(new SqlParameter("delFlg", delFlg));
             }
+            sql = sql + "  ORDER BY EXCEL_ROW_ID;";
             using (var context = new topmepEntities())
             {
                 logger.Debug("get plan item sql=" + sql);
@@ -474,6 +475,12 @@ namespace topmeperp.Service
         public int updatePlanItem(PLAN_ITEM item)
         {
             int i = 0;
+            if (null == item.PLAN_ITEM_ID || item.PLAN_ITEM_ID == "")
+            {
+                logger.Debug("add new plan item in porjectid=" + item.PROJECT_ID);
+                item = getNewPlanItemID(item);
+            }
+            logger.Debug("plan item key=" + item.PLAN_ITEM_ID);
             using (var context = new topmepEntities())
             {
                 try
@@ -487,11 +494,49 @@ namespace topmeperp.Service
                     logger.Error(e.StackTrace);
                     message = e.Message;
                 }
-
             }
             return i;
         }
 
+        private PLAN_ITEM getNewPlanItemID(PLAN_ITEM item)
+        {
+            string sql = "SELECT MAX(CAST(SUBSTRING(PLAN_ITEM_ID,8,LEN(PLAN_ITEM_ID)) AS INT) +1) MaxSN, MAX(EXCEL_ROW_ID) + 1 as Row "
+                + " FROM PLAN_ITEM WHERE PROJECT_ID = @projectid ; ";
+            var parameters = new Dictionary<string, Object>();
+            parameters.Add("projectid", item.PROJECT_ID);
+            DataSet ds = ExecuteStoreQuery(sql, CommandType.Text, parameters);
+            logger.Debug("sql=" + sql + "," + ds.Tables[0].Rows[0][0].ToString() + "," + ds.Tables[0].Rows[0][1].ToString());
+            int longMaxExcel = 1;
+            int longMaxItem = 1;
+            if (DBNull.Value != ds.Tables[0].Rows[0][0])
+            {
+                longMaxItem = int.Parse(ds.Tables[0].Rows[0][0].ToString());
+                longMaxExcel = int.Parse(ds.Tables[0].Rows[0][1].ToString());
+            }
+            logger.Debug("new plan item id=" + longMaxItem + ",ExcelRowID=" + longMaxExcel);
+            item.PLAN_ITEM_ID = item.PROJECT_ID + "-" + longMaxItem;
+            //新品項不會有Excel Row_id
+            if (null == item.EXCEL_ROW_ID || item.EXCEL_ROW_ID == 0)
+            {
+                item.EXCEL_ROW_ID = longMaxExcel;
+            }
+            return item;
+        }
+
+        //於現有品項下方新增一筆資料
+        public int addPlanItemAfter(PLAN_ITEM item)
+        {
+            string sql = "UPDATE PLAN_ITEM SET EXCEL_ROW_ID=EXCEL_ROW_ID+1 WHERE PROJECT_ID = @projectid AND EXCEL_ROW_ID> @ExcelRowId ";
+
+            using (var db = new topmepEntities())
+            {
+                logger.Debug("add exce rowid sql=" + sql + ",projectid=" + item.PROJECT_ID + ",ExcelRowI=" + item.EXCEL_ROW_ID);
+                db.Database.ExecuteSqlCommand(sql, new SqlParameter("projectid", item.PROJECT_ID), new SqlParameter("ExcelRowId", item.EXCEL_ROW_ID));
+            }
+            item.PLAN_ITEM_ID = "";
+            item.EXCEL_ROW_ID = item.EXCEL_ROW_ID + 1;
+            return updatePlanItem(item);
+        }
         //將Plan Item 註記刪除
         public int changePlanItem(string itemid, string delFlag)
         {
@@ -726,22 +771,43 @@ namespace topmeperp.Service
 
 
 
-        public List<PlanSupplierFormFunction> getFormByProject(string projectid, string _status)
+        public List<PlanSupplierFormFunction> getFormByProject(string projectid, string _status, string _type, string formname)
         {
             string status = "有效";
             if (null != _status && _status != "*")
             {
                 status = _status;
             }
+            string type = "N";
+            if (null != _type && _type != "*")
+            {
+                type = _type;
+            }
             List<PlanSupplierFormFunction> lst = new List<PlanSupplierFormFunction>();
+            string sql = "SELECT a.INQUIRY_FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, SUM(b.ITEM_QTY*b.ITEM_UNIT_PRICE) AS TOTAL_PRICE, ROW_NUMBER() OVER(ORDER BY a.INQUIRY_FORM_ID DESC) AS NO, ISNULL(a.STATUS, '有效') AS STATUS, ISNULL(a.ISWAGE,'N') ISWAGE " +
+                    "FROM PLAN_SUP_INQUIRY a left JOIN PLAN_SUP_INQUIRY_ITEM b ON a.INQUIRY_FORM_ID = b.INQUIRY_FORM_ID WHERE ISNULL(a.STATUS,'有效')=@status AND ISNULL(a.ISWAGE,'N')=@type  ";
+            var parameters = new List<SqlParameter>();
+            //設定專案編號資料
+            parameters.Add(new SqlParameter("projectid", projectid));
+            //設定詢價單是否有效
+            parameters.Add(new SqlParameter("status", status));
+            //設定詢價單為工資或材料
+            parameters.Add(new SqlParameter("type", type));
+            //詢價單名稱條件
+            if (null != formname && formname != "")
+            {
+                sql = sql + "AND a.FORM_NAME LIKE @formname ";
+                parameters.Add(new SqlParameter("formname", "%" + formname + "%"));
+            }
+            sql = sql + " GROUP BY a.INQUIRY_FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, a.PROJECT_ID, a.STATUS, a.ISWAGE HAVING  a.SUPPLIER_ID IS NOT NULL " +
+                    "AND a.PROJECT_ID =@projectid ORDER BY a.INQUIRY_FORM_ID DESC, a.FORM_NAME ;";
+
+            logger.Info("sql=" + sql);
             using (var context = new topmepEntities())
             {
-                string sql = "SELECT a.INQUIRY_FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, SUM(b.ITEM_QTY*b.ITEM_UNIT_PRICE) AS TOTAL_PRICE, ROW_NUMBER() OVER(ORDER BY a.INQUIRY_FORM_ID DESC) AS NO, ISNULL(A.STATUS, '有效') AS STATUS, ISNULL(A.ISWAGE,'N') ISWAGE " +
-                    "FROM PLAN_SUP_INQUIRY a left JOIN PLAN_SUP_INQUIRY_ITEM b ON a.INQUIRY_FORM_ID = b.INQUIRY_FORM_ID WHERE ISNULL(A.STATUS,'有效')=@status GROUP BY a.INQUIRY_FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, a.PROJECT_ID, a.STATUS, a.ISWAGE HAVING  a.SUPPLIER_ID IS NOT NULL " +
-                    "AND a.PROJECT_ID =@projectid ORDER BY a.INQUIRY_FORM_ID DESC, a.FORM_NAME ";
-                lst = context.Database.SqlQuery<PlanSupplierFormFunction>(sql, new SqlParameter("status", status), new SqlParameter("projectid", projectid)).ToList();
+                lst = context.Database.SqlQuery<PlanSupplierFormFunction>(sql, parameters.ToArray()).ToList();
+                logger.Info("get plan supplier form function count:" + lst.Count);
             }
-            logger.Info("get plan supplier form function count:" + lst.Count);
             return lst;
         }
 
@@ -1407,7 +1473,7 @@ namespace topmeperp.Service
         {
             int i = 0;
             logger.Info("Copy cost from Quote to Tnd by form id" + formid);
-            string sql = "UPDATE  PLAN_ITEM SET item_unit_price = i.ITEM_UNIT_PRICE, supplier_id = i.SUPPLIER_ID, form_name = i.FORM_NAME " +
+            string sql = "UPDATE  PLAN_ITEM SET item_unit_price = i.ITEM_UNIT_PRICE, supplier_id = i.SUPPLIER_ID, form_name = i.FORM_NAME, inquiry_form_id = i.INQUIRY_FORM_ID " +
                 "FROM(select i.plan_item_id, fi.ITEM_UNIT_PRICE, fi.INQUIRY_FORM_ID, pf.SUPPLIER_ID, pf.FORM_NAME from PLAN_ITEM i " +
                 ", PLAN_SUP_INQUIRY_ITEM fi, PLAN_SUP_INQUIRY pf " +
                "where i.PLAN_ITEM_ID = fi.PLAN_ITEM_ID and fi.INQUIRY_FORM_ID = pf.INQUIRY_FORM_ID and fi.INQUIRY_FORM_ID = @formid) i " +
@@ -1416,7 +1482,7 @@ namespace topmeperp.Service
             //將工資報價單更新工資報價欄位
             if (iswage == "Y")
             {
-                sql = "UPDATE  PLAN_ITEM SET man_price = i.ITEM_UNIT_PRICE, man_supplier_id = i.SUPPLIER_ID, man_form_name = i.FORM_NAME "
+                sql = "UPDATE  PLAN_ITEM SET man_price = i.ITEM_UNIT_PRICE, man_supplier_id = i.SUPPLIER_ID, man_form_name = i.FORM_NAME, man_form_id = i.INQUIRY_FORM_ID "
                 + "FROM (select i.plan_item_id, fi.ITEM_UNIT_PRICE, fi.INQUIRY_FORM_ID, pf.SUPPLIER_ID, pf.FORM_NAME from PLAN_ITEM i "
                 + ", PLAN_SUP_INQUIRY_ITEM fi, PLAN_SUP_INQUIRY pf "
                 + "where i.PLAN_ITEM_ID = fi.PLAN_ITEM_ID and fi.INQUIRY_FORM_ID = pf.INQUIRY_FORM_ID and fi.INQUIRY_FORM_ID = @formid) i "
@@ -3113,7 +3179,7 @@ namespace topmeperp.Service
         {
             int i = 0;
             logger.Info("Approve EST form by estid" + estid);
-            string sql = "UPDATE  PLAN_ESTIMATION_FORM SET STATUS = 30 WHERE EST_FORM_ID = @estid ";
+            string sql = "UPDATE  PLAN_ESTIMATION_FORM SET STATUS = 30, MODIFY_DATE = GETDATE() WHERE EST_FORM_ID = @estid ";
             logger.Debug("batch sql:" + sql);
             db = new topmepEntities();
             var parameters = new List<SqlParameter>();

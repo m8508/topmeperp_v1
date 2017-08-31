@@ -168,6 +168,7 @@
                     <th>
                         備註
                     </th>
+                    <th></th>
 
                 </tr>
                 @foreach (var item in Model.prjFormItem)
@@ -202,6 +203,9 @@
 
                         <td></td>
                         <td>@Html.TextBox("remark", @item.ITEM_REMARK, new { style = "width:500px", @class="form-control"})</td>
+                        <td>
+                            <input type="hidden"  name="project_item_id" id="project_item_id" value="@item.PROJECT_ITEM_ID" >
+                        </td>
                     </tr>
                 }
             </table>

@@ -121,9 +121,9 @@ namespace topmeperp.Service
                     row.CreateCell(5).SetCellValue(double.Parse(item.CONTRACT_PRICE.ToString()));
                 }
                 //材料成本
-                if (null != item.MATERIAL_COST && item.MATERIAL_COST.ToString().Trim() != "")
+                if (null != item.MATERIAL_COST_INMAP && item.MATERIAL_COST_INMAP.ToString().Trim() != "")
                 {
-                    row.CreateCell(6).SetCellValue(double.Parse(item.MATERIAL_COST.ToString()));
+                    row.CreateCell(6).SetCellValue(double.Parse(item.MATERIAL_COST_INMAP.ToString()));
                 }
                 foreach (ICell c in row.Cells)
                 {
