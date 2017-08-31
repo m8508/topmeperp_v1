@@ -469,7 +469,7 @@ namespace topmeperp.Service
                 logger.Debug("Excel Value:" + row.Cells[0].ToString() + row.Cells[1] + row.Cells[2]);
                 //將各Row 資料寫入物件內
                 //0.項次	1.圖號	2.棟別	3.一次側位置	4.一次側名稱	5.二次側名稱	6.二次側位置	7.管材名稱	8管數/組	9管組數	10管長度/組數	11管總長
-                if (row.Cells.Count!=0 && row.Cells[0].ToString().ToUpper() != "END")
+                if (row.Cells.Count != 0 && row.Cells[0].ToString().ToUpper() != "END")
                 {
                     lstMapFW.Add(convertRow2TndMapFW(row, iRowIndex));
                 }
@@ -644,7 +644,7 @@ namespace topmeperp.Service
                 //1.項次	2.圖號	3.棟別	4.一次側位置	5.一次側名稱	6.二次側名稱	
                 //7.二次側位置	8.線材名稱	9.條數/組	10.線組數	11.線長度/條數	12.線總長	
                 //13.管材名稱	14.管長	15.管組數	16.管總長
-                if (row.Cells.Count!=0 && row.Cells[0].ToString().ToUpper() != "END")
+                if (row.Cells.Count != 0 && row.Cells[0].ToString().ToUpper() != "END")
                 {
                     logger.Debug("Excel Value:" + row.Cells[0].ToString() + row.Cells[1] + row.Cells[2]);
                     lstMapFP.Add(convertRow2TndMapFP(row, iRowIndex));
@@ -877,7 +877,7 @@ namespace topmeperp.Service
                 logger.Debug("Excel Value:" + slog);
                 //將各Row 資料寫入物件內
                 //0.PK	11.設備數量 
-                if (row.Cells.Count!=0 && row.Cells[0].ToString().ToUpper() != "END")
+                if (row.Cells.Count != 0 && row.Cells[0].ToString().ToUpper() != "END")
                 {
                     lstMapDEVICE.Add(convertRow2TndMapDEVICE(row, iRowIndex));
                 }
@@ -1109,7 +1109,7 @@ namespace topmeperp.Service
             }
             catch (Exception ex)
             {
-                logger.Debug("Row:" + excelrow + "cell count error :" + row.PhysicalNumberOfCells+ ",ex="+ex.StackTrace);
+                logger.Debug("Row:" + excelrow + "cell count error :" + row.PhysicalNumberOfCells + ",ex=" + ex.StackTrace);
                 return null;
             }
         }
@@ -1166,7 +1166,7 @@ namespace topmeperp.Service
                 logger.Debug("Excel Value:" + row.Cells[0].ToString() + row.Cells[1] + row.Cells[2]);
                 //將各Row 資料寫入物件內
                 //0.項次	1.圖號	2.棟別	3.一次側位置	4.一次側名稱	5.二次側名稱	6.二次側位置	7.線材名稱	8.條數/組	9.線組數	10.線長度/組數	11.線總長  12.地線名稱	13.地線條數	14.地線總長  15.管材名稱1	16.管長1	17.管組數1   18.管總長1	19.管材名稱2  20.管長2	21.管組數2  22.管總長2
-                if (row.Cells.Count!=0 && row.Cells[0].ToString().ToUpper() != "END")
+                if (row.Cells.Count != 0 && row.Cells[0].ToString().ToUpper() != "END")
                 {
                     lstMapLCP.Add(convertRow2TndMapLCP(row, iRowIndex));
                 }
@@ -1477,7 +1477,7 @@ namespace topmeperp.Service
                 row = (IRow)rows.Current;
                 //將各Row 資料寫入物件內
                 //0.項次	1.圖號	2.棟別	3.一次側位置	4.一次側名稱	5.二次側名稱	6.二次側位置	7.線材名稱	8.條數/組	9.線組數	10.線長度/條數	11.線總長  12.地線名稱	13.地線條數	14.地線總長  15.管材名稱	16.管長	17.管組數   18.管總長	
-                if (row.Cells.Count!=0 && row.Cells[0].ToString().ToUpper() != "END")
+                if (row.Cells.Count != 0 && row.Cells[0].ToString().ToUpper() != "END")
                 {
                     logger.Debug("Excel Value:" + row.Cells[0].ToString() + row.Cells[1] + row.Cells[2]);
                     lstMapPEP.Add(convertRow2TndMapPEP(row, iRowIndex));
@@ -2129,7 +2129,7 @@ namespace topmeperp.Service
             while (hasMore)
             {
                 row = sheet.GetRow(iRowIndex);
-                logger.Info("excel rowid=" + iRowIndex + ",cell count=" + row.Cells.Count);
+                logger.Info("excel rowid=" + iRowIndex + ",phyCount=" + row.PhysicalNumberOfCells + ",cells count" + row.Cells.Count);
                 if (row.Cells.Count < 6)
                 {
                     logger.Info("Row Index=" + iRowIndex + "column count has wrong" + row.Cells.Count);
@@ -2141,17 +2141,30 @@ namespace topmeperp.Service
                     {
                         logger.Debug("row id=" + iRowIndex + "Cells Count=" + row.Cells.Count + ",form item vllue:" + row.Cells[0].ToString() + ","
                             + row.Cells[1] + "," + row.Cells[2] + "," + row.Cells[3] + "," + ","
-                            + row.Cells[4] + "," + "," + row.Cells[5] + "," + row.Cells[6] + ",project item id=" + row.Cells[row.Cells.Count - 1]);
+                            + row.Cells[4] + "," + "," + row.Cells[5] + "," + row.Cells[6] + ",project item id=" + row.Cells[row.PhysicalNumberOfCells - 1]);
                         TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
                         item.ITEM_DESC = row.Cells[1].ToString();
                         item.ITEM_UNIT = row.Cells[2].ToString();
                         //標單數量
-                        decimal dQty = decimal.Parse(row.Cells[3].ToString());
-                        item.ITEM_QTY = dQty;
-
+                        if (null != row.Cells[3] && row.Cells[3].ToString() != "")
+                        {
+                            decimal dQty = decimal.Parse(row.Cells[3].ToString());
+                            item.ITEM_QTY = dQty;
+                        }
+                        else
+                        {
+                            logger.Warn("Qty format error:" + iRowIndex);
+                        }
                         //報價單單價
-                        decimal dUnitPrice = decimal.Parse(row.Cells[4].ToString());
-                        item.ITEM_UNIT_PRICE = dUnitPrice;
+                        if (null != row.Cells[4] && row.Cells[4].ToString() != "")
+                        {
+                            decimal dUnitPrice = decimal.Parse(row.Cells[4].ToString());
+                            item.ITEM_UNIT_PRICE = dUnitPrice;
+                        }
+                        else
+                        {
+                            logger.Warn("UnitPrice format error:" + iRowIndex);
+                        }
 
                         item.ITEM_REMARK = row.Cells[6].ToString();
                         logger.Info("Project ITEM ID=" + row.Cells[row.Cells.Count - 1].ToString());
@@ -2212,7 +2225,9 @@ namespace topmeperp.Service
             logger.Info("generate syten cost by projectid=" + project.PROJECT_ID);
             //6建立報價標單Sheet
             getSystemCost(service.getSystemCost(project.PROJECT_ID));
-            //7.令存新檔至專案所屬目錄
+            //7.建立預算參考表
+            getBudgetEva();
+            //8.令存新檔至專案所屬目錄
             var file = new FileStream(outputPath + "\\" + project.PROJECT_ID + "\\" + project.PROJECT_ID + "_CostAnalysis.xlsx", FileMode.Create);
             logger.Info("output file=" + file.Name);
             hssfworkbook.Write(file);
@@ -2410,7 +2425,7 @@ namespace topmeperp.Service
                 {
                     double manday = double.Parse(item.MAN_DAY.ToString());
                     row.CreateCell(6).SetCellFormula(manday + "*期初成本!N3");
-                    row.Cells[6].CellStyle = style;
+                    row.Cells[6].CellStyle = styleNumber;
                 }
                 else
                 {
@@ -2657,6 +2672,79 @@ namespace topmeperp.Service
             summaryRow.Cells[7].CellStyle = styleNumber;
             summaryRow.Cells[8].SetCellFormula("SUM(I2:I" + (idxRow) + ")");
         }
+        //預算參考表
+        private void getBudgetEva()
+        {
+            List<DirectCost> typecodeItems = service.getDirectCost4Budget(project.PROJECT_ID);
+            //1.讀取預算表格檔案
+            sheet = (XSSFSheet)hssfworkbook.GetSheet("預算參考表");
+            //2.填入表頭資料
+            logger.Debug("Table Head_1=" + sheet.GetRow(1).Cells[0].ToString());
+            sheet.GetRow(1).Cells[1].SetCellValue(project.PROJECT_ID);//專案編號
+            logger.Debug("Table Head_2=" + sheet.GetRow(2).Cells[0].ToString());
+            sheet.GetRow(2).Cells[1].SetCellValue(project.PROJECT_NAME);//專案名稱
+            //3.填入資料
+            int idxRow = 4;
+            foreach (DirectCost item in typecodeItems)
+            {
+                IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+                logger.Info("Row Id=" + idxRow);
+                //主九宮格編碼、次九宮格編碼、主系統、次系統、分項名稱(成本價)、合約金額、材料成本、預算折扣率、預算金額
+                //主九宮格編碼
+                row.CreateCell(0).SetCellValue(item.MAINCODE);
+                row.Cells[0].CellStyle = style;
+                //次九宮格編碼
+                row.CreateCell(1).SetCellValue("");
+                if (null != item.SUB_CODE && item.SUB_CODE.ToString().Trim() != "")
+                {
+                    row.Cells[1].SetCellValue(double.Parse(item.SUB_CODE.ToString()));
+                }
+                row.Cells[1].CellStyle = style;
+                //主系統
+                row.CreateCell(2).SetCellValue("");
+                if (null != item.SYSTEM_MAIN && item.SYSTEM_MAIN.ToString().Trim() != "")
+                {
+                    row.Cells[2].SetCellValue(item.SYSTEM_MAIN);
+                }
+                row.Cells[2].CellStyle = style;
+                //次系統
+                row.CreateCell(3).SetCellValue("");
+                if (null != item.SYSTEM_SUB && item.SYSTEM_SUB.ToString().Trim() != "")
+                {
+                    row.Cells[3].SetCellValue(item.SYSTEM_SUB);              
+                }
+                row.Cells[3].CellStyle = style;
+                //分項名稱
+                logger.Debug("ITEM DESC=" + item.MAINCODE_DESC);
+                row.CreateCell(4).SetCellValue(item.MAINCODE_DESC + "-" + item.SUB_DESC);
+                row.Cells[4].CellStyle = style;
+                //合約金額
+                if (null != item.CONTRACT_PRICE && item.CONTRACT_PRICE.ToString().Trim() != "")
+                {
+                    row.CreateCell(5).SetCellValue(double.Parse(item.CONTRACT_PRICE.ToString()));
+                    row.Cells[5].CellStyle = styleNumber;
+                }
+                //材料成本
+                if (null != item.MATERIAL_COST && item.MATERIAL_COST.ToString().Trim() != "")
+                {
+                    row.CreateCell(6).SetCellValue(double.Parse(item.MATERIAL_COST.ToString()));
+                    row.Cells[6].CellStyle = styleNumber;
+                }
+                //圖算*工率
+                if (null != item.MAN_DAY_INMAP && item.MAN_DAY_INMAP.ToString().Trim() != "")
+                {
+                    row.CreateCell(7).SetCellValue(double.Parse(item.MAN_DAY_INMAP.ToString()));
+                    row.Cells[7].CellStyle = styleNumber;
+                }
+                //預算金額
+                ICell cel9 = row.CreateCell(9);
+                cel9.CellFormula = "H" + (idxRow + 1) + "*I" + (idxRow + 1) + "/100";
+                cel9.CellStyle = styleNumber;
+                logger.Debug("getBudget cell style rowid=" + idxRow);
+                idxRow++;
+            }
+
+        }
     }
     public class ExcelStyle
     {
@@ -2699,7 +2787,7 @@ namespace topmeperp.Service
         //cell.CellStyle = styleDate;
 
     }
-    public class ProjectItem2Excel: ProjectItemFromExcel
+    public class ProjectItem2Excel : ProjectItemFromExcel
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         string outputPath = ContextService.strUploadPath;
