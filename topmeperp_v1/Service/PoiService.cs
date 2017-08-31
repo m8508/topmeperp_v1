@@ -2150,7 +2150,8 @@ namespace topmeperp.Service
                         {
                             decimal dQty = decimal.Parse(row.Cells[3].ToString());
                             item.ITEM_QTY = dQty;
-                        }else
+                        }
+                        else
                         {
                             logger.Warn("Qty format error:" + iRowIndex);
                         }
@@ -2224,7 +2225,9 @@ namespace topmeperp.Service
             logger.Info("generate syten cost by projectid=" + project.PROJECT_ID);
             //6建立報價標單Sheet
             getSystemCost(service.getSystemCost(project.PROJECT_ID));
-            //7.令存新檔至專案所屬目錄
+            //7.建立預算參考表
+            getBudgetEva();
+            //8.令存新檔至專案所屬目錄
             var file = new FileStream(outputPath + "\\" + project.PROJECT_ID + "\\" + project.PROJECT_ID + "_CostAnalysis.xlsx", FileMode.Create);
             logger.Info("output file=" + file.Name);
             hssfworkbook.Write(file);
@@ -2668,6 +2671,70 @@ namespace topmeperp.Service
             summaryRow.Cells[7].SetCellFormula("SUM(H2:H" + (idxRow) + ")");
             summaryRow.Cells[7].CellStyle = styleNumber;
             summaryRow.Cells[8].SetCellFormula("SUM(I2:I" + (idxRow) + ")");
+        }
+        //預算參考表
+        private void getBudgetEva()
+        {
+            List<DirectCost> typecodeItems = service.getDirectCost4Budget(project.PROJECT_ID);
+            //1.讀取預算表格檔案
+            sheet = (XSSFSheet)hssfworkbook.GetSheet("預算參考表");
+            //2.填入表頭資料
+            logger.Debug("Table Head_1=" + sheet.GetRow(1).Cells[0].ToString());
+            sheet.GetRow(1).Cells[1].SetCellValue(project.PROJECT_ID);//專案編號
+            logger.Debug("Table Head_2=" + sheet.GetRow(2).Cells[0].ToString());
+            sheet.GetRow(2).Cells[1].SetCellValue(project.PROJECT_NAME);//專案名稱
+            //3.填入資料
+            int idxRow = 4;
+            foreach (DirectCost item in typecodeItems)
+            {
+                IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+                logger.Info("Row Id=" + idxRow);
+                //主九宮格編碼、次九宮格編碼、主系統、次系統、分項名稱(成本價)、合約金額、材料成本、預算折扣率、預算金額
+                //主九宮格編碼
+                row.CreateCell(0).SetCellValue(item.MAINCODE);
+                row.Cells[0].CellStyle = style;
+                //次九宮格編碼
+                if (null != item.SUB_CODE && item.SUB_CODE.ToString().Trim() != "")
+                {
+                    row.CreateCell(1).SetCellValue(double.Parse(item.SUB_CODE.ToString()));
+                    row.Cells[1].CellStyle = style;
+                }
+                //主系統
+                if (null != item.SYSTEM_MAIN && item.SYSTEM_MAIN.ToString().Trim() != "")
+                {
+                    row.CreateCell(2).SetCellValue(item.SYSTEM_MAIN);
+                    row.Cells[2].CellStyle = style;
+                }
+                //次系統
+                if (null != item.SYSTEM_SUB && item.SYSTEM_SUB.ToString().Trim() != "")
+                {
+                    row.CreateCell(3).SetCellValue(item.SYSTEM_SUB);
+                    row.Cells[3].CellStyle = style;
+                }
+                //分項名稱
+                logger.Debug("ITEM DESC=" + item.MAINCODE_DESC);
+                row.CreateCell(4).SetCellValue(item.MAINCODE_DESC + "-" + item.SUB_DESC);
+                row.Cells[4].CellStyle = style;
+                //合約金額
+                if (null != item.CONTRACT_PRICE && item.CONTRACT_PRICE.ToString().Trim() != "")
+                {
+                    row.CreateCell(5).SetCellValue(double.Parse(item.CONTRACT_PRICE.ToString()));
+                    row.Cells[5].CellStyle = styleNumber;
+                }
+                //材料成本
+                if (null != item.MATERIAL_COST && item.MATERIAL_COST.ToString().Trim() != "")
+                {
+                    row.CreateCell(6).SetCellValue(double.Parse(item.MATERIAL_COST.ToString()));
+                    row.Cells[6].CellStyle = styleNumber;
+                }
+                //預算金額
+                ICell cel8 = row.CreateCell(8);
+                cel8.CellFormula = "G" + (idxRow + 1) + "*H" + (idxRow + 1) + "/100";
+                cel8.CellStyle = styleNumber;
+                logger.Debug("getBudget cell style rowid=" + idxRow);
+                idxRow++;
+            }
+
         }
     }
     public class ExcelStyle
