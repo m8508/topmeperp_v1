@@ -413,7 +413,7 @@ namespace topmeperp.Controllers
                 Response.Clear();
                 Response.Charset = "utf-8";
                 Response.ContentType = "text/xls";
-                Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", filename + ".xlsx"));
+                Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", filename ));
                 ///"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx"
                 Response.WriteFile(fileLocation);
                 Response.End();
