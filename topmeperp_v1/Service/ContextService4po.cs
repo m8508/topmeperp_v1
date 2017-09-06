@@ -1169,7 +1169,7 @@ namespace topmeperp.Service
             List<COMPARASION_DATA_4PLAN> lst = new List<COMPARASION_DATA_4PLAN>();
             string sql = "SELECT  pfItem.INQUIRY_FORM_ID AS INQUIRY_FORM_ID, " +
                 "f.SUPPLIER_ID as SUPPLIER_NAME, f.FORM_NAME AS FORM_NAME, ISNULL(STATUS,'有效') STATUS, SUM(pfitem.ITEM_UNIT_PRICE*pfitem.ITEM_QTY) as TAmount, " +
-                "CEILING(SUM(pfitem.ITEM_UNIT_PRICE*pfitem.ITEM_QTY) / SUM(w.RATIO*pItem.ITEM_FORM_QUANTITY)) as AvgMPrice " +
+                "ISNULL(CEILING(SUM(pfitem.ITEM_UNIT_PRICE*pfitem.ITEM_QTY) / SUM(w.RATIO*pItem.ITEM_FORM_QUANTITY)),0) as AvgMPrice " +
                 "FROM PLAN_ITEM pItem LEFT OUTER JOIN " +
                 "PLAN_SUP_INQUIRY_ITEM pfItem ON pItem.PLAN_ITEM_ID = pfItem.PLAN_ITEM_ID " +
                 "inner join PLAN_SUP_INQUIRY f on pfItem.INQUIRY_FORM_ID = f.INQUIRY_FORM_ID " +
@@ -2563,8 +2563,8 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 lstItem = context.Database.SqlQuery<EstimationForm>("SELECT pi.*, A.CUM_QTY FROM PLAN_ITEM pi LEFT JOIN (SELECT ei.PLAN_ITEM_ID, SUM(ei.EST_QTY) AS CUM_QTY " +
-                    "FROM PLAN_ESTIMATION_ITEM ei LEFT JOIN PLAN_ESTIMATION_FORM ef ON ei.EST_FORM_ID = ef.EST_FORM_ID JOIN TND_SUPPLIER sup ON SUBSTRING(ef.CONTRACT_ID, 6, 6) = sup.SUPPLIER_ID " +
-                    "WHERE STUFF(ef.CONTRACT_ID, 6, 6, sup.COMPANY_NAME) = @contractid GROUP BY ei.PLAN_ITEM_ID)A ON pi.PLAN_ITEM_ID = A.PLAN_ITEM_ID WHERE " +
+                    "FROM PLAN_ESTIMATION_ITEM ei LEFT JOIN PLAN_ESTIMATION_FORM ef ON ei.EST_FORM_ID = ef.EST_FORM_ID JOIN TND_SUPPLIER sup ON SUBSTRING(ef.CONTRACT_ID, 7, 7) = sup.SUPPLIER_ID " +
+                    "WHERE STUFF(ef.CONTRACT_ID, 7, 7, sup.COMPANY_NAME) = @contractid GROUP BY ei.PLAN_ITEM_ID)A ON pi.PLAN_ITEM_ID = A.PLAN_ITEM_ID WHERE " +
                     "pi.PROJECT_ID + pi.SUPPLIER_ID + pi.FORM_NAME = @contractid OR pi.PROJECT_ID + pi.MAN_SUPPLIER_ID + pi.MAN_FORM_NAME = @contractid ; "
             , new SqlParameter("contractid", contractid)).ToList();
             }
@@ -2704,8 +2704,8 @@ namespace topmeperp.Service
             if (20 == status)
             {
                 string sql = "SELECT CONVERT(char(10), A.CREATE_DATE, 111) AS CREATE_DATE, A.EST_FORM_ID, A.STATUS, A.CONTRACT_NAME, A.SUPPLIER_NAME, ROW_NUMBER() OVER(ORDER BY A.EST_FORM_ID) AS NO " +
-                    "FROM (SELECT ef.CREATE_DATE, ef.EST_FORM_ID, ef.STATUS, STUFF(ef.CONTRACT_ID,6, 6, sup.COMPANY_NAME) AS CONTRACT_NAME, sup.COMPANY_NAME AS SUPPLIER_NAME " +
-                    "FROM PLAN_ESTIMATION_FORM ef LEFT JOIN TND_SUPPLIER sup ON SUBSTRING(ef.CONTRACT_ID, 6, 6) = sup.SUPPLIER_ID WHERE ef.PROJECT_ID =@projectid)A ";
+                    "FROM (SELECT ef.CREATE_DATE, ef.EST_FORM_ID, ef.STATUS, STUFF(ef.CONTRACT_ID,7, 7, sup.COMPANY_NAME) AS CONTRACT_NAME, sup.COMPANY_NAME AS SUPPLIER_NAME " +
+                    "FROM PLAN_ESTIMATION_FORM ef LEFT JOIN TND_SUPPLIER sup ON SUBSTRING(ef.CONTRACT_ID, 7, 7) = sup.SUPPLIER_ID WHERE ef.PROJECT_ID =@projectid)A ";
 
 
                 var parameters = new List<SqlParameter>();
@@ -2734,8 +2734,8 @@ namespace topmeperp.Service
             else
             {
                 string sql = "SELECT CONVERT(char(10), A.CREATE_DATE, 111) AS CREATE_DATE, A.EST_FORM_ID, A.STATUS, A.CONTRACT_NAME, A.SUPPLIER_NAME, ROW_NUMBER() OVER(ORDER BY A.EST_FORM_ID) AS NO " +
-                    "FROM (SELECT ef.CREATE_DATE, ef.EST_FORM_ID, ef.STATUS, STUFF(ef.CONTRACT_ID,6, 6, sup.COMPANY_NAME) AS CONTRACT_NAME, sup.COMPANY_NAME AS SUPPLIER_NAME " +
-                    "FROM PLAN_ESTIMATION_FORM ef LEFT JOIN TND_SUPPLIER sup ON SUBSTRING(ef.CONTRACT_ID, 6, 6) = sup.SUPPLIER_ID WHERE ef.PROJECT_ID =@projectid)A ";
+                    "FROM (SELECT ef.CREATE_DATE, ef.EST_FORM_ID, ef.STATUS, STUFF(ef.CONTRACT_ID,7, 7, sup.COMPANY_NAME) AS CONTRACT_NAME, sup.COMPANY_NAME AS SUPPLIER_NAME " +
+                    "FROM PLAN_ESTIMATION_FORM ef LEFT JOIN TND_SUPPLIER sup ON SUBSTRING(ef.CONTRACT_ID, 7, 7) = sup.SUPPLIER_ID WHERE ef.PROJECT_ID =@projectid)A ";
 
                 var parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("projectid", projectid));
@@ -3255,7 +3255,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 lstItem = context.Database.SqlQuery<RePaymentFunction>("SELECT pop.AMOUNT AS AMOUNT, pop.REASON AS REASON, pop.CONTRACT_ID_FOR_REFUND AS CONTRACT_ID_FOR_REFUND, s.COMPANY_NAME AS COMPANY_NAME " +
-                    "FROM PLAN_OTHER_PAYMENT pop LEFT JOIN TND_SUPPLIER s ON SUBSTRING(pop.CONTRACT_ID_FOR_REFUND, 6, 6) = s.SUPPLIER_ID WHERE pop.EST_FORM_ID + pop.CONTRACT_ID =@id AND pop.TYPE = 'R' ; "
+                    "FROM PLAN_OTHER_PAYMENT pop LEFT JOIN TND_SUPPLIER s ON SUBSTRING(pop.CONTRACT_ID_FOR_REFUND, 7, 7) = s.SUPPLIER_ID WHERE pop.EST_FORM_ID + pop.CONTRACT_ID =@id AND pop.TYPE = 'R' ; "
             , new SqlParameter("id", id)).ToList();
             }
 
@@ -3327,7 +3327,7 @@ namespace topmeperp.Service
                     "AND ef.CONTRACT_ID = (SELECT DISTINCT pef.CONTRACT_ID FROM PLAN_OTHER_PAYMENT pop LEFT JOIN PLAN_ESTIMATION_FORM pef ON pef.EST_FORM_ID = pop.EST_FORM_ID_REFUND WHERE pop.EST_FORM_ID = SUBSTRING(@id,1,9) AND pef.CREATE_DATE IS NOT NULL) " +
                     "GROUP BY ef.CONTRACT_ID),1) AS EST_COUNT_REFUND FROM(SELECT pop.AMOUNT AS AMOUNT, pop.REASON AS REASON, pop.CONTRACT_ID AS CONTRACT_ID, " +
                     "pop.EST_FORM_ID_REFUND AS EST_FORM_ID_REFUND, pop.CONTRACT_ID_FOR_REFUND AS CONTRACT_ID_FOR_REFUND, s.COMPANY_NAME AS COMPANY_NAME FROM PLAN_OTHER_PAYMENT pop LEFT JOIN TND_SUPPLIER s " +
-                    "ON SUBSTRING(pop.CONTRACT_ID_FOR_REFUND, 6, 6) = s.SUPPLIER_ID " +
+                    "ON SUBSTRING(pop.CONTRACT_ID_FOR_REFUND, 7, 7) = s.SUPPLIER_ID " +
                     "WHERE pop.EST_FORM_ID + pop.CONTRACT_ID =@id AND pop.TYPE = 'F')A ; "
             , new SqlParameter("id", id)).ToList();
             }
@@ -3346,7 +3346,7 @@ namespace topmeperp.Service
             {
                 lstItem = context.Database.SqlQuery<RePaymentFunction>("SELECT pop.AMOUNT AS AMOUNT, pop.REASON AS REASON, pop.CONTRACT_ID AS CONTRACT_ID, " +
                     "pop.EST_FORM_ID_REFUND AS EST_FORM_ID_REFUND, pop.EST_COUNT_REFUND AS EST_COUNT_REFUND, s.COMPANY_NAME AS COMPANY_NAME " +
-                    "FROM PLAN_OTHER_PAYMENT pop LEFT JOIN TND_SUPPLIER s ON SUBSTRING(pop.CONTRACT_ID_FOR_REFUND, 6, 6) = s.SUPPLIER_ID " +
+                    "FROM PLAN_OTHER_PAYMENT pop LEFT JOIN TND_SUPPLIER s ON SUBSTRING(pop.CONTRACT_ID_FOR_REFUND, 7, 7) = s.SUPPLIER_ID " +
                     "WHERE pop.CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9) AND pop.TYPE = 'F' AND pop.EST_COUNT_REFUND IS NOT NULL ; "
             , new SqlParameter("id", id)).ToList();
             }
@@ -3364,7 +3364,7 @@ namespace topmeperp.Service
             {
                 lstItem = context.Database.SqlQuery<RePaymentFunction>("SELECT pop.AMOUNT AS AMOUNT, pop.REASON AS REASON, pop.CONTRACT_ID AS CONTRACT_ID, pop.EST_FORM_ID AS EST_FORM_ID_REFUND, " +
                     "pop.OTHER_PAYMENT_ID AS OTHER_PAYMENT_ID, s.COMPANY_NAME AS COMPANY_NAME FROM PLAN_OTHER_PAYMENT pop LEFT JOIN TND_SUPPLIER s " +
-                    "ON SUBSTRING(pop.CONTRACT_ID, 6, 6) = s.SUPPLIER_ID " +
+                    "ON SUBSTRING(pop.CONTRACT_ID, 7, 7) = s.SUPPLIER_ID " +
                     "WHERE REPLACE(pop.CONTRACT_ID_FOR_REFUND,'*',',') =@id AND pop.TYPE = 'R' AND pop.CONTRACT_ID + pop.EST_FORM_ID + REPLACE(pop.CONTRACT_ID_FOR_REFUND,'*',',') + pop.REASON NOT IN " +
                     "(SELECT REPLACE(op.CONTRACT_ID_FOR_REFUND,'*',',') + op.EST_FORM_ID_REFUND + op.CONTRACT_ID + op.REASON FROM PLAN_OTHER_PAYMENT op WHERE op.TYPE = 'F'); "
             , new SqlParameter("id", id)).ToList();
