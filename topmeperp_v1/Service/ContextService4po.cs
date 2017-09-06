@@ -676,7 +676,7 @@ namespace topmeperp.Service
                 string sql = "INSERT INTO PLAN_SUP_INQUIRY_ITEM (INQUIRY_FORM_ID, PLAN_ITEM_ID, TYPE_CODE, "
                     + "SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_QTY, ITEM_UNIT_PRICE, ITEM_REMARK) "
                     + "SELECT '" + form.INQUIRY_FORM_ID + "' as INQUIRY_FORM_ID, PLAN_ITEM_ID, TYPE_CODE_1 AS TYPE_CODE, "
-                    + "TYPE_CODE_2 AS SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_QUANTITY, ITEM_UNIT_PRICE, ITEM_REMARK "
+                    + "TYPE_CODE_2 AS SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_FORM_QUANTITY, ITEM_UNIT_PRICE, ITEM_REMARK "
                     + "FROM PLAN_ITEM where PLAN_ITEM_ID IN (" + ItemId + ")";
                 logger.Info("sql =" + sql);
                 var parameters = new List<SqlParameter>();
@@ -1168,10 +1168,12 @@ namespace topmeperp.Service
         {
             List<COMPARASION_DATA_4PLAN> lst = new List<COMPARASION_DATA_4PLAN>();
             string sql = "SELECT  pfItem.INQUIRY_FORM_ID AS INQUIRY_FORM_ID, " +
-                "f.SUPPLIER_ID as SUPPLIER_NAME, f.FORM_NAME AS FORM_NAME, ISNULL(STATUS,'有效') STATUS, SUM(pfitem.ITEM_UNIT_PRICE*pfitem.ITEM_QTY) as TAmount " +
+                "f.SUPPLIER_ID as SUPPLIER_NAME, f.FORM_NAME AS FORM_NAME, ISNULL(STATUS,'有效') STATUS, SUM(pfitem.ITEM_UNIT_PRICE*pfitem.ITEM_QTY) as TAmount, " +
+                "CEILING(SUM(pfitem.ITEM_UNIT_PRICE*pfitem.ITEM_QTY) / SUM(w.RATIO*pItem.ITEM_FORM_QUANTITY)) as AvgMPrice " +
                 "FROM PLAN_ITEM pItem LEFT OUTER JOIN " +
                 "PLAN_SUP_INQUIRY_ITEM pfItem ON pItem.PLAN_ITEM_ID = pfItem.PLAN_ITEM_ID " +
                 "inner join PLAN_SUP_INQUIRY f on pfItem.INQUIRY_FORM_ID = f.INQUIRY_FORM_ID " +
+                "left join TND_WAGE w on pItem.PLAN_ITEM_ID = w.PROJECT_ITEM_ID " +
                 "WHERE pItem.PROJECT_ID = @projectid AND f.SUPPLIER_ID is not null AND ISNULL(STATUS,'有效') <> '註銷' AND ISNULL(f.ISWAGE,'N')=@iswage  ";
             var parameters = new List<SqlParameter>();
             //設定專案名編號資料
@@ -1469,6 +1471,7 @@ namespace topmeperp.Service
             logger.Info("Update Cost:" + i);
             return i;
         }
+        //將發包廠商之詢價單價格寫入PLAN_ITEM且寫入後不得再覆寫
         public int batchUpdateCostFromQuote(string formid, string iswage)
         {
             int i = 0;
@@ -1477,7 +1480,7 @@ namespace topmeperp.Service
                 "FROM(select i.plan_item_id, fi.ITEM_UNIT_PRICE, fi.INQUIRY_FORM_ID, pf.SUPPLIER_ID, pf.FORM_NAME from PLAN_ITEM i " +
                 ", PLAN_SUP_INQUIRY_ITEM fi, PLAN_SUP_INQUIRY pf " +
                "where i.PLAN_ITEM_ID = fi.PLAN_ITEM_ID and fi.INQUIRY_FORM_ID = pf.INQUIRY_FORM_ID and fi.INQUIRY_FORM_ID = @formid) i " +
-                "WHERE  i.plan_item_id = PLAN_ITEM.PLAN_ITEM_ID ";
+                "WHERE  i.plan_item_id = PLAN_ITEM.PLAN_ITEM_ID AND PLAN_ITEM.ITEM_UNIT_PRICE IS NULL ";
 
             //將工資報價單更新工資報價欄位
             if (iswage == "Y")
@@ -1486,7 +1489,7 @@ namespace topmeperp.Service
                 + "FROM (select i.plan_item_id, fi.ITEM_UNIT_PRICE, fi.INQUIRY_FORM_ID, pf.SUPPLIER_ID, pf.FORM_NAME from PLAN_ITEM i "
                 + ", PLAN_SUP_INQUIRY_ITEM fi, PLAN_SUP_INQUIRY pf "
                 + "where i.PLAN_ITEM_ID = fi.PLAN_ITEM_ID and fi.INQUIRY_FORM_ID = pf.INQUIRY_FORM_ID and fi.INQUIRY_FORM_ID = @formid) i "
-                + "WHERE  i.plan_item_id = PLAN_ITEM.PLAN_ITEM_ID ";
+                + "WHERE  i.plan_item_id = PLAN_ITEM.PLAN_ITEM_ID AND PLAN_ITEM.MAN_PRICE IS NULL ";
             }
             logger.Debug("batch sql:" + sql);
             db = new topmepEntities();
@@ -1570,7 +1573,8 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 // ITEM_UNIT IS NOT NULL(確認單位欄位是空值就是不需採購的欄位嗎) AND ITEM_UNIT_PRICE IS NULL
-                lst = context.Database.SqlQuery<PLAN_ITEM>("SELECT * FROM PLAN_ITEM WHERE PROJECT_ID =@projectid AND ITEM_UNIT IS NOT NULL AND ITEM_UNIT_PRICE IS NULL  ;"
+                lst = context.Database.SqlQuery<PLAN_ITEM>("SELECT * FROM PLAN_ITEM WHERE PROJECT_ID =@projectid AND ITEM_UNIT IS NOT NULL AND ITEM_UNIT_PRICE IS NULL " +
+                    "OR PROJECT_ID =@projectid AND ITEM_UNIT IS NOT NULL AND MAN_PRICE IS NULL ;"
                     , new SqlParameter("projectid", projectid)).ToList();
             }
             logger.Info("get plan pending items count:" + lst.Count);
@@ -3432,7 +3436,6 @@ namespace topmeperp.Service
             return i;
         }
 
-        RePaymentFunction balance = null;
         //取得廠商合約需扣回之總金額
         public decimal getBalanceOfRefundById(string id)
         {

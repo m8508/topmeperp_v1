@@ -16,13 +16,17 @@
                     <label for="formName" class="col-md-2 text-right">採購項目</label> <input class="form-control col-md-3" id="formName" name="formName" type="text" />
                 </div>
                 <div class="row col-md-12" style="padding-top:15px;">
-                    <div class="col-md-11 pull-right">
+                    <div class="col-md-8 alert-info">
+                        @Html.Raw(TempData["result"])
+                    </div>
+                    <div class="col-md-3 pull-right">
                         <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
                         <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
                     </div>
                     <div id="divProcessing" class="col-md-1">
                         <img src="~/Content/ajax-loader.gif">
                     </div>
+                    
                 </div>
             </form>
         </div>

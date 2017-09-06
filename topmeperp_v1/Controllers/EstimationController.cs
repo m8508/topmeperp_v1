@@ -132,6 +132,11 @@ namespace topmeperp.Controllers
                 }
                 ViewBag.estCount = service.getEstCountById(lstContract.CONTRACT_ID);
                 ViewBag.paymentTerms = service.getTermsByContractId(lstContract.CONTRACT_ID);
+                var balance = service.getBalanceOfRefundById(lstContract.CONTRACT_ID);
+                if (balance > 0)
+                {
+                    TempData["balance"] = "本合約目前尚有 " + string.Format("{0:C0}", balance) + "的代付支出款項，仍未扣回!";
+                }
             }
             else
             {
@@ -152,6 +157,11 @@ namespace topmeperp.Controllers
                 }
                 ViewBag.estCount = service.getEstCountById(lstWageContract.CONTRACT_ID);
                 ViewBag.paymentTerms = service.getTermsByContractId(lstWageContract.CONTRACT_ID);
+                var balance = service.getBalanceOfRefundById(lstWageContract.CONTRACT_ID);
+                if (balance > 0)
+                {
+                    TempData["balance"] = "本合約目前尚有 " + string.Format("{0:C0}", balance) + "的代付支出款項，仍未扣回!";
+                }
             }
             ViewBag.date = DateTime.Now;
             ViewBag.paymentkey = ViewBag.formid + ViewBag.contractid;
@@ -159,11 +169,6 @@ namespace topmeperp.Controllers
             lstContractItem = service.getContractItemById(id.Substring(1).Trim());
             //contract.planItems = lstContractItem;
             ViewBag.SearchResult = "共取得" + lstContractItem.Count + "筆資料";
-            var balance = service.getBalanceOfRefundById(ViewBag.contractid);
-            if (balance > 0)
-            {
-                TempData["balance"] = "本合約目前尚有 " + string.Format("{0:C0}", balance) + "的代付支出款項，仍未扣回!";
-            }
             //轉成Json字串
             ViewData["items"] = JsonConvert.SerializeObject(lstContractItem);
             return View("ContractItems", contract);
@@ -194,11 +199,24 @@ namespace topmeperp.Controllers
         {
             //取得估驗單編號
             logger.Info("EST form Id:" + Request["formid"]);
-            //更新估驗單
-            logger.Info("update Estimation Form");
-            //估驗單草稿(未送審) STATUS = 10
-            int k = service.UpdateESTStatusById(Request["formid"]);
-            return RedirectToAction("SingleEST", "Estimation", new { id = Request["formid"] });
+            logger.Info("Project Id:" + Request["contractid"].Substring(0, 5).Trim());
+            logger.Info("get EST No of un Approval By contractid:" + Request["contractid"]);
+            string contractid = Request["contractid"];
+            string UnApproval = null;
+            UnApproval = service.getEstNoByContractId(contractid);
+            if (UnApproval != null && "" != UnApproval)
+            {
+                TempData["result"] = "目前尚有未核准的估驗單，估驗單編號為" + UnApproval + "，待此單核准後再新增估驗單!";
+                return RedirectToAction("Valuation", "Estimation", new { id = Request["contractid"].Substring(0, 5).Trim() });
+            }
+            else
+            {
+                //更新估驗單
+                logger.Info("update Estimation Form");
+                //估驗單草稿(未送審) STATUS = 10
+                int k = service.UpdateESTStatusById(Request["formid"]);
+                return RedirectToAction("SingleEST", "Estimation", new { id = Request["formid"] });
+            }
         }
 
         [HttpPost]
@@ -208,11 +226,24 @@ namespace topmeperp.Controllers
         {
             //取得估驗單編號
             logger.Info("EST form Id:" + Request["formid"]);
-            //更新估驗單
-            logger.Info("update Estimation Form");
-            //估驗單(已送審) STATUS = 20
-            int k = service.RefreshESTStatusById(Request["formid"]);
-            return RedirectToAction("SingleEST", "Estimation", new { id = Request["formid"] });
+            logger.Info("get EST No of un Approval By contractid:" + Request["contractid"]);
+            logger.Info("Project Id:" + Request["contractid"].Substring(0, 5).Trim());
+            string contractid = Request["contractid"];
+            string UnApproval = null;
+            UnApproval = service.getEstNoByContractId(contractid);
+            if (UnApproval != null && "" != UnApproval)
+            {
+                TempData["result"] = "目前尚有未核准的估驗單，估驗單編號為" + UnApproval + "，待此單核准後再新增估驗單!";
+                return RedirectToAction("Valuation", "Estimation", new { id = Request["contractid"].Substring(0, 5).Trim() });
+            }
+            else
+            {
+                //更新估驗單
+                logger.Info("update Estimation Form");
+                //估驗單(已送審) STATUS = 20
+                int k = service.RefreshESTStatusById(Request["formid"]);
+                return RedirectToAction("SingleEST", "Estimation", new { id = Request["formid"] });
+            }
         }
 
         public String ConfirmEst(PLAN_ESTIMATION_FORM est)
@@ -222,73 +253,87 @@ namespace topmeperp.Controllers
             //取得專案名稱
             logger.Info("Project Name:" + Request["projectName"]);
             logger.Info("ContractId:" + Request["keyid"]);
-            // 先刪除原先資料
-            logger.Info("EST form id =" + Request["formid"]);
-            logger.Info("Delete PLAN_ESTIMATION_FORM By EST_FORM_ID");
-            service.delESTByESTId(Request["formid"]);
-            logger.Info("Delete PLAN_ESTIMATION_ITEM By EST_FORM_ID");
-            service.delESTItemsByESTId(Request["formid"]);
-            //取得合約估驗品項ID
-            string[] lstItemId = Request["planitemid"].Split(',');
-            var i = 0;
-            for (i = 0; i < lstItemId.Count(); i++)
+            logger.Info("get EST No of un Approval By contractid:" + Request["contractid"]);
+            string contractid = Request["contractid"];
+            string UnApproval = null;
+            UnApproval = service.getEstNoByContractId(contractid);
+            if (UnApproval != null && "" != UnApproval)
             {
-                logger.Info("item_list return No.:" + lstItemId[i]);
-            }
-            string[] lstQty = Request["evaluated_qty"].Split(',');
-            //建立估驗單
-            logger.Info("create new Estimation Form");
-            UserService us = new UserService();
-            SYS_USER u = (SYS_USER)Session["user"];
-            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
-            est.PROJECT_ID = Request["id"];
-            est.CREATE_ID = u.USER_ID;
-            est.CREATE_DATE = DateTime.Now;
-            est.EST_FORM_ID = Request["formid"];
-            est.CONTRACT_ID = Request["contractid"];
-            est.PLUS_TAX = Request["tax"];
-            est.REMARK = Request["remark"];
-            est.INVOICE = Request["invoice"];
-            if (Request["tax"] == "E")
-            {
-                est.TAX_RATIO = decimal.Parse(Request["taxratio"]);
+                System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+                string itemJson = objSerializer.Serialize(service.getEstNoByContractId(contractid));
+                logger.Info("EST form No of UnApproval =" + itemJson);
+                return itemJson;
             }
             else
             {
-                est.TAX_RATIO = 0;
-            }
-            try
-            {
-                est.FOREIGN_PAYMENT = int.Parse(Request["t_foreign"]);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(est.FOREIGN_PAYMENT + " not foreign_payment:" + ex.Message);
-            }
-            est.TYPE = Request["type"];
-            string estid = service.newEST(Request["formid"], est, lstItemId);
-            List<PLAN_ESTIMATION_ITEM> lstItem = new List<PLAN_ESTIMATION_ITEM>();
-            for (int j = 0; j < lstItemId.Count(); j++)
-            {
-                PLAN_ESTIMATION_ITEM items = new PLAN_ESTIMATION_ITEM();
-                items.PLAN_ITEM_ID = lstItemId[j];
-                if (lstQty[j].ToString() == "")
+                // 先刪除原先資料
+                logger.Info("EST form id =" + Request["formid"]);
+                logger.Info("Delete PLAN_ESTIMATION_FORM By EST_FORM_ID");
+                service.delESTByESTId(Request["formid"]);
+                logger.Info("Delete PLAN_ESTIMATION_ITEM By EST_FORM_ID");
+                service.delESTItemsByESTId(Request["formid"]);
+                //取得合約估驗品項ID
+                string[] lstItemId = Request["planitemid"].Split(',');
+                var i = 0;
+                for (i = 0; i < lstItemId.Count(); i++)
                 {
-                    items.EST_QTY = null;
+                    logger.Info("item_list return No.:" + lstItemId[i]);
+                }
+                string[] lstQty = Request["evaluated_qty"].Split(',');
+                //建立估驗單
+                logger.Info("create new Estimation Form");
+                UserService us = new UserService();
+                SYS_USER u = (SYS_USER)Session["user"];
+                SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+                est.PROJECT_ID = Request["id"];
+                est.CREATE_ID = u.USER_ID;
+                est.CREATE_DATE = DateTime.Now;
+                est.EST_FORM_ID = Request["formid"];
+                est.CONTRACT_ID = Request["contractid"];
+                est.PLUS_TAX = Request["tax"];
+                est.REMARK = Request["remark"];
+                est.INVOICE = Request["invoice"];
+                if (Request["tax"] == "E")
+                {
+                    est.TAX_RATIO = decimal.Parse(Request["taxratio"]);
                 }
                 else
                 {
-                    items.EST_QTY = decimal.Parse(lstQty[j]);
+                    est.TAX_RATIO = 0;
                 }
-                logger.Debug("Item No=" + items.PLAN_ITEM_ID + ", Qty =" + items.EST_QTY);
-                lstItem.Add(items);
+                try
+                {
+                    est.FOREIGN_PAYMENT = int.Parse(Request["t_foreign"]);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(est.FOREIGN_PAYMENT + " not foreign_payment:" + ex.Message);
+                }
+                est.TYPE = Request["type"];
+                string estid = service.newEST(Request["formid"], est, lstItemId);
+                List<PLAN_ESTIMATION_ITEM> lstItem = new List<PLAN_ESTIMATION_ITEM>();
+                for (int j = 0; j < lstItemId.Count(); j++)
+                {
+                    PLAN_ESTIMATION_ITEM items = new PLAN_ESTIMATION_ITEM();
+                    items.PLAN_ITEM_ID = lstItemId[j];
+                    if (lstQty[j].ToString() == "")
+                    {
+                        items.EST_QTY = null;
+                    }
+                    else
+                    {
+                        items.EST_QTY = decimal.Parse(lstQty[j]);
+                    }
+                    logger.Debug("Item No=" + items.PLAN_ITEM_ID + ", Qty =" + items.EST_QTY);
+                    lstItem.Add(items);
+                }
+                int k = service.refreshEST(estid, est, lstItem);
+                int m = service.UpdateRetentionAmountById(Request["formid"] + Request["contractid"]);
+                System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+                string itemJson = objSerializer.Serialize(service.getDetailsPayById(Request["formid"] + Request["contractid"]));
+                logger.Info("EST form details payment amount=" + itemJson);
+                return itemJson;
             }
-            int k = service.refreshEST(estid, est, lstItem);
-            int m = service.UpdateRetentionAmountById(Request["formid"] + Request["contractid"]);
-            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            string itemJson = objSerializer.Serialize(service.getDetailsPayById(Request["formid"] + Request["contractid"]));
-            logger.Info("EST form details payment amount=" + itemJson);
-            return itemJson;
         }
         //估驗單查詢
         public ActionResult EstimationForm(string id)
@@ -764,11 +809,16 @@ namespace topmeperp.Controllers
         {
             logger.Info("form:" + form.Count);
             string msg = "";
-            // 取得其他扣款資料
+            // 取得憑證資料
             string[] lstDate = form.Get("invoice_date").Split(',');
             string[] lstNumber = form.Get("invoice_number").Split(',');
             string[] lstAmount = form.Get("input_amount").Split(',');
             string[] lstTax = form.Get("taxamount").Split(',');
+            string[] lstType = form.Get("invoicetype").Split(',');
+            string[] lstSubType = form.Get("sub_type").Split(',');
+            string[] lstPlanItem = form.Get("plan_item_id").Split(',');
+            string[] lstDiscountQty = form.Get("discount_qty").Split(',');
+            string[] lstDiscountPrice = form.Get("discount_unit_price").Split(',');
             List<PLAN_INVOICE> lstItem = new List<PLAN_INVOICE>();
             for (int j = 0; j < lstAmount.Count(); j++)
             {
@@ -792,6 +842,25 @@ namespace topmeperp.Controllers
                 else
                 {
                     item.TAX = decimal.Parse(lstTax[j]);
+                }
+                item.TYPE = lstType[j];
+                item.SUB_TYPE = lstSubType[j];
+                item.PLAN_ITEM_ID = lstPlanItem[j];
+                if (lstDiscountQty[j].ToString() == "")
+                {
+                    item.DISCOUNT_QTY = null;
+                }
+                else
+                {
+                    item.DISCOUNT_QTY = decimal.Parse(lstDiscountQty[j]);
+                }
+                if (lstDiscountPrice[j].ToString() == "")
+                {
+                    item.DISCOUNT_UNIT_PRICE = null;
+                }
+                else
+                {
+                    item.DISCOUNT_UNIT_PRICE = decimal.Parse(lstDiscountPrice[j]);
                 }
                 logger.Info("Invoice Number = " + item.INVOICE_NUMBER + "and Invoice Amount =" + item.AMOUNT);
                 //logger.Debug("Item EST form id =" + item.EST_FORM_ID + "且憑證類型為" + item.TYPE);
@@ -1045,5 +1114,7 @@ namespace topmeperp.Controllers
             UnApproval = service.getEstNoByContractId(contractid);
             return UnApproval;
         }
+
+        
     }
 }

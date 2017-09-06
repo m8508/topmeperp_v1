@@ -153,7 +153,7 @@ namespace topmeperp.Controllers
             ViewBag.Supplier = selectSupplier;
             return View(singleForm);
         }
-        
+
         public String UpdateFormName(FormCollection form)
         {
             log.Info("form:" + form.Count);
@@ -726,6 +726,259 @@ namespace topmeperp.Controllers
             return PartialView();
         }
 
+        //工資比價功能資料頁
+        public ActionResult Comparison4Wage(string id)
+        {
+            //傳入專案編號，
+            log.Info("start project id=" + id);
+
+            //取得專案基本資料
+            PurchaseFormService service = new PurchaseFormService();
+            TND_PROJECT p = service.getProjectById(id);
+            ViewBag.id = p.PROJECT_ID;
+            ViewBag.projectName = p.PROJECT_NAME;
+            SelectListItem empty = new SelectListItem();
+            empty.Value = "";
+            empty.Text = "";
+            //取得主系統資料
+            List<SelectListItem> selectMain = new List<SelectListItem>();
+            foreach (string itm in service.getSystemMain(id))
+            {
+                log.Debug("Main System=" + itm);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = itm;
+                selectI.Text = itm;
+                if (null != itm && "" != itm)
+                {
+                    selectMain.Add(selectI);
+                }
+            }
+            // selectMain.Add(empty);
+            ViewBag.SystemMain = selectMain;
+            //取得次系統資料
+            List<SelectListItem> selectSub = new List<SelectListItem>();
+            foreach (string itm in service.getSystemSub(id))
+            {
+                log.Debug("Sub System=" + itm);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = itm;
+                selectI.Text = itm;
+                if (null != itm && "" != itm)
+                {
+                    selectSub.Add(selectI);
+                }
+            }
+            //selectSub.Add(empty);
+            ViewBag.SystemSub = selectSub;
+            //設定查詢條件
+            return View();
+        }
+
+        //取得工資比價資料
+        [HttpPost]
+        public ActionResult ComparisonData4Wage(FormCollection form)
+        {
+            //傳入查詢條件
+            log.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"] + ",Form Name=" + Request["formName"]);
+            string iswage = "Y";
+            //取得備標品項與詢價資料
+            try
+            {
+                if (null != Request["formName"] && "" != Request["formName"])
+                {
+                    DataTable dt = service.getComparisonDataToPivot(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"], iswage);
+                    @ViewBag.ResultMsg = "共" + dt.Rows.Count + "筆";
+
+                    //畫面上權限管理控制
+                    //頁面上使用ViewBag 定義開關\@ViewBag.F10006
+                    //由Session 取得權限清單
+                    List<SYS_FUNCTION> lstFunctions = (List<SYS_FUNCTION>)Session["functions"];
+                    //開關預設關閉
+                    @ViewBag.F10006 = "disabled";
+                    //輪巡功能清單，若全線存在則將開關打開 @ViewBag.F10006 = "";
+                    foreach (SYS_FUNCTION f in lstFunctions)
+                    {
+                        if (f.FUNCTION_ID == "F10006")
+                        {
+                            @ViewBag.F10006 = "";
+                        }
+                    }
+                    string htmlString = "<table class='table table-bordered'><tr>";
+                    //處理表頭
+                    for (int i = 1; i < 6; i++)
+                    {
+                        log.Debug("column name=" + dt.Columns[i].ColumnName);
+                        htmlString = htmlString + "<th>" + dt.Columns[i].ColumnName + "</th>";
+                    }
+                    //處理供應商表頭
+                    Dictionary<string, COMPARASION_DATA_4PLAN> dirSupplierQuo = service.dirSupplierQuo;
+                    log.Debug("Column Count=" + dt.Columns.Count);
+                    List<string> list = new List<string>();
+                    for (int i = 7; i < dt.Columns.Count; i++)
+                    {
+                        log.Debug("column name=" + dt.Columns[i].ColumnName);
+                        string[] tmpString = dt.Columns[i].ColumnName.Split('|');
+                        //<a href="/PurchaseForm/SinglePrjForm/@item.INQUIRY_FORM_ID" target="_blank">@item.INQUIRY_FORM_ID</a>
+                        decimal tAmount = (decimal)dirSupplierQuo[tmpString[1]].TAmount;
+                        string strAmout = string.Format("{0:C0}", tAmount);
+                        decimal avgPrice = (decimal)dirSupplierQuo[tmpString[1]].AvgMPrice;
+                        string strAvgPrice = string.Format("{0:N0}", avgPrice);
+
+                        htmlString = htmlString + "<th><table><tr><td>" + tmpString[0] + '(' + tmpString[2] + ')' +
+                            "</td><button type='button' class='btn-xs' " + @ViewBag.F10006 + " onclick=\"clickSupplier('" + tmpString[1] + "','" + iswage + "')\"><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>" +
+                            "</button>" + "<button type = 'button' class='btn-xs' onclick=\"removeSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-remove' aria-hidden='true'></span></button>" +
+                            "<button type='button' class='btn-xs'><a href='/PurchaseForm/SinglePrjForm/" + tmpString[1] + "'" + " target='_blank'><span class='glyphicon glyphicon-list-alt' aria-hidden='true'></span></a>" +
+                            "<br/><tr><td style = 'text-align:center;background-color:pink;'>工資/天 :" + strAvgPrice + "</td>" +
+                            "<td style = 'text-align:center;background-color:yellow;' >總價 :" + strAmout + "</td>" +
+                            "</tr></table></th>";
+                    }
+                    htmlString = htmlString + "</tr>";
+                    //處理資料表
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        htmlString = htmlString + "<tr>";
+                        for (int i = 1; i < 5; i++)
+                        {
+                            htmlString = htmlString + "<td>" + dr[i] + "</td>";
+                        }
+                        //單價欄位  <input type='text' id='cost_@item.INQUIRY_ITEM_ID' name='cost_@item.INQUIRY_ITEM_ID' size='5' />
+                        //decimal price = decimal.Parse(dr[5].ToString());
+                        if (dr[5].ToString() != "")
+                        {
+                            log.Debug("data row col 5=" + (decimal)dr[5]);
+                            htmlString = htmlString + "<td><input type='text' id='cost_" + dr[1] + "' name='cost_" + dr[1] + "' size='5' value='" + String.Format("{0:N0}", (decimal)dr[5]) + "' /></td>";
+                        }
+                        else
+                        {
+                            htmlString = htmlString + "<td></td>";
+                        }
+                        //String.Format("{0:C}", 0);
+                        //處理報價資料
+                        for (int i = 7; i < dt.Columns.Count; i++)
+                        {
+                            //<td><button class="btn-link" onclick="clickPrice('@item.INQUIRY_ITEM_ID', '@item.QUOTATION_PRICE')">@item.QUOTATION_PRICE</button> </td>
+                            if (dr[i].ToString() != "")
+                            {
+                                htmlString = htmlString + "<td><button class='btn-link' onclick=\"clickPrice('" + dr[1] + "', '" + dr[i] + "','" + iswage + "')\">" + String.Format("{0:N0}", (decimal)dr[i]) + "</button> </td>";
+                            }
+                            else
+                            {
+                                htmlString = htmlString + "<td></td>";
+                            }
+                        }
+                        htmlString = htmlString + "</tr>";
+                    }
+                    htmlString = htmlString + "</table>";
+                    //加入預算資料
+                    BudgetDataService bs = new BudgetDataService();
+                    DirectCost iteminfo = bs.getItemBudget(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"]);
+                    ViewBag.itembudget = iteminfo.ITEM_BUDGET;
+                    //產生畫面
+                    IHtmlString str = new HtmlString(htmlString);
+                    ViewBag.htmlString = str;
+                }
+                else
+                {
+                    DataTable dt = service.getComparisonDataToPivot(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"], iswage);
+                    @ViewBag.ResultMsg = "共" + dt.Rows.Count + "筆";
+
+                    //畫面上權限管理控制
+                    //頁面上使用ViewBag 定義開關\@ViewBag.F10006
+                    //由Session 取得權限清單
+                    List<SYS_FUNCTION> lstFunctions = (List<SYS_FUNCTION>)Session["functions"];
+                    //開關預設關閉
+                    @ViewBag.F10006 = "disabled";
+                    //輪巡功能清單，若全線存在則將開關打開 @ViewBag.F10006 = "";
+                    foreach (SYS_FUNCTION f in lstFunctions)
+                    {
+                        if (f.FUNCTION_ID == "F10006")
+                        {
+                            @ViewBag.F10006 = "";
+                        }
+                    }
+                    string htmlString = "<table class='table table-bordered'><tr>";
+                    //處理表頭
+                    for (int i = 1; i < 6; i++)
+                    {
+                        log.Debug("column name=" + dt.Columns[i].ColumnName);
+                        htmlString = htmlString + "<th>" + dt.Columns[i].ColumnName + "</th>";
+                    }
+                    //處理供應商表頭
+                    Dictionary<string, COMPARASION_DATA_4PLAN> dirSupplierQuo = service.dirSupplierQuo;
+                    log.Debug("Column Count=" + dt.Columns.Count);
+                    List<string> list = new List<string>();
+                    for (int i = 6; i < dt.Columns.Count; i++)
+                    {
+                        log.Debug("column name=" + dt.Columns[i].ColumnName);
+                        string[] tmpString = dt.Columns[i].ColumnName.Split('|');
+                        //<a href="/PurchaseForm/SinglePrjForm/@item.INQUIRY_FORM_ID" target="_blank">@item.INQUIRY_FORM_ID</a>
+                        decimal tAmount = (decimal)dirSupplierQuo[tmpString[1]].TAmount;
+                        string strAmout = string.Format("{0:C0}", tAmount);
+                        decimal avgPrice = (decimal)dirSupplierQuo[tmpString[1]].AvgMPrice;
+                        string strAvgPrice = string.Format("{0:N0}", avgPrice);
+
+                        htmlString = htmlString + "<th><table><tr><td>" + tmpString[0] + '(' + tmpString[2] + ')' +
+                            "</td><button type='button' class='btn-xs' " + @ViewBag.F10006 + " onclick=\"clickSupplier('" + tmpString[1] + "','" + iswage + "')\"><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>" +
+                            "</button>" + "<button type = 'button' class='btn-xs' onclick=\"removeSupplier('" + tmpString[1] + "')\"><span class='glyphicon glyphicon-remove' aria-hidden='true'></span></button>" +
+                            "<button type='button' class='btn-xs'><a href='/PurchaseForm/SinglePrjForm/" + tmpString[1] + "'" + " target='_blank'><span class='glyphicon glyphicon-list-alt' aria-hidden='true'></span></a>" +
+                            "<br/><tr><td style = 'text-align:center;background-color:pink;'>工資/天 :" + strAvgPrice + "</td>" +
+                            "<td style = 'text-align:center;background-color:yellow;'>總價 :" + strAmout + "</td>" +
+                            "</tr></table></th>";
+                    }
+                    htmlString = htmlString + "</tr>";
+                    //處理資料表
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        htmlString = htmlString + "<tr>";
+                        for (int i = 1; i < 5; i++)
+                        {
+                            htmlString = htmlString + "<td>" + dr[i] + "</td>";
+                        }
+                        //單價欄位  <input type='text' id='cost_@item.INQUIRY_ITEM_ID' name='cost_@item.INQUIRY_ITEM_ID' size='5' />
+                        //decimal price = decimal.Parse(dr[5].ToString());
+                        if (dr[5].ToString() != "")
+                        {
+                            log.Debug("data row col 5=" + (decimal)dr[5]);
+                            htmlString = htmlString + "<td><input type='text' id='cost_" + dr[1] + "' name='cost_" + dr[1] + "' size='5' value='" + String.Format("{0:N0}", (decimal)dr[5]) + "' /></td>";
+                        }
+                        else
+                        {
+                            htmlString = htmlString + "<td></td>";
+                        }
+                        //String.Format("{0:C}", 0);
+                        //處理報價資料
+                        for (int i = 6; i < dt.Columns.Count; i++)
+                        {
+                            //<td><button class="btn-link" onclick="clickPrice('@item.INQUIRY_ITEM_ID', '@item.QUOTATION_PRICE')">@item.QUOTATION_PRICE</button> </td>
+                            if (dr[i].ToString() != "")
+                            {
+                                htmlString = htmlString + "<td><button class='btn-link' onclick=\"clickPrice('" + dr[1] + "', '" + dr[i] + "','" + iswage + "')\">" + String.Format("{0:N0}", (decimal)dr[i]) + "</button> </td>";
+                            }
+                            else
+                            {
+                                htmlString = htmlString + "<td></td>";
+                            }
+                        }
+                        htmlString = htmlString + "</tr>";
+                    }
+                    htmlString = htmlString + "</table>";
+                    //加入預算資料
+                    BudgetDataService bs = new BudgetDataService();
+                    DirectCost iteminfo = bs.getItemBudget(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"]);
+                    ViewBag.itembudget = iteminfo.ITEM_BUDGET;
+                    //產生畫面
+                    IHtmlString str = new HtmlString(htmlString);
+                    ViewBag.htmlString = str;
+                }
+            }
+            catch (Exception e)
+            {
+                log.Error("Ex" + e.Message);
+                ViewBag.htmlString = e.Message;
+            }
+            return PartialView();
+        }
+
         //移除議價資料
         public string RemoveSupplierForm(string formid)
         {
@@ -755,493 +1008,493 @@ namespace topmeperp.Controllers
             log.Info("formid=" + Request["formid"] + ",iswage=" + Request["iswage"]);
             int i = service.batchUpdateCostFromQuote(Request["formid"], Request["iswage"]);
             return "更新成功!!";
-        }
+    }
 
-        public void changeStatus()
-        {
-            string formid = Request["formId"];
-            string status = Request["status"];
-            log.Debug("change form status:" + formid + ",status=" + status);
-            service.changePlanFormStatus(formid, status);
-        }
-        //取得採購合約資料
-        public ActionResult PurchasingContract(string id)
-        {
-            //傳入專案編號，
-            log.Info("start project id=" + id);
-            //取得專案基本資料
-            ViewBag.id = id;
-            PurchaseFormService service = new PurchaseFormService();
-            TND_PROJECT p = service.getProjectById(id);
-            ViewBag.projectName = p.PROJECT_NAME;
-            //取得採購合約金額與預算等資料
-            List<plansummary> lstContract = null;
-            List<plansummary> lstWageContract = null;
-            ContractModels contract = new ContractModels();
-            lstContract = service.getPlanContract(id);
-            lstWageContract = service.getPlanContract4Wage(id);
-            contract.contractItems = lstContract;
-            contract.wagecontractItems = lstWageContract;
-            plansummary contractAmount = service.getPlanContractAmount(id);
-            ViewBag.budget = contractAmount.TOTAL_BUDGET;
-            ViewBag.cost = contractAmount.TOTAL_COST;
-            ViewBag.revenue = contractAmount.TOTAL_REVENUE;
-            ViewBag.profit = contractAmount.TOTAL_PROFIT;
-            ViewBag.SearchResult = "共取得" + lstContract.Count + "筆資料";
-            ViewBag.Result = lstContract.Count;
-            ViewBag.Result4Wage = lstWageContract.Count;
-            int i = service.addContractId(id);
-            int j = service.addContractIdForWage(id);
-            return View(contract);
-        }
+    public void changeStatus()
+    {
+        string formid = Request["formId"];
+        string status = Request["status"];
+        log.Debug("change form status:" + formid + ",status=" + status);
+        service.changePlanFormStatus(formid, status);
+    }
+    //取得採購合約資料
+    public ActionResult PurchasingContract(string id)
+    {
+        //傳入專案編號，
+        log.Info("start project id=" + id);
+        //取得專案基本資料
+        ViewBag.id = id;
+        PurchaseFormService service = new PurchaseFormService();
+        TND_PROJECT p = service.getProjectById(id);
+        ViewBag.projectName = p.PROJECT_NAME;
+        //取得採購合約金額與預算等資料
+        List<plansummary> lstContract = null;
+        List<plansummary> lstWageContract = null;
+        ContractModels contract = new ContractModels();
+        lstContract = service.getPlanContract(id);
+        lstWageContract = service.getPlanContract4Wage(id);
+        contract.contractItems = lstContract;
+        contract.wagecontractItems = lstWageContract;
+        plansummary contractAmount = service.getPlanContractAmount(id);
+        ViewBag.budget = contractAmount.TOTAL_BUDGET;
+        ViewBag.cost = contractAmount.TOTAL_COST;
+        ViewBag.revenue = contractAmount.TOTAL_REVENUE;
+        ViewBag.profit = contractAmount.TOTAL_PROFIT;
+        ViewBag.SearchResult = "共取得" + lstContract.Count + "筆資料";
+        ViewBag.Result = lstContract.Count;
+        ViewBag.Result4Wage = lstWageContract.Count;
+        int i = service.addContractId(id);
+        int j = service.addContractIdForWage(id);
+        return View(contract);
+    }
 
-        //取得合約付款條件
-        public string getPaymentTerms(string contractid)
-        {
-            PurchaseFormService service = new PurchaseFormService();
-            log.Info("access the terms of payment by:" + Request["contractid"]);
-            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            string itemJson = objSerializer.Serialize(service.getPaymentTerm(contractid));
-            log.Info("plan payment terms info=" + itemJson);
-            return itemJson;
-        }
-        #region 合約付款條件
-        //寫入合約付款條件
-        public String addPaymentTerms(FormCollection form)
-        {
-            log.Info("form:" + form.Count);
-            string msg = "更新成功!!";
+    //取得合約付款條件
+    public string getPaymentTerms(string contractid)
+    {
+        PurchaseFormService service = new PurchaseFormService();
+        log.Info("access the terms of payment by:" + Request["contractid"]);
+        System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+        string itemJson = objSerializer.Serialize(service.getPaymentTerm(contractid));
+        log.Info("plan payment terms info=" + itemJson);
+        return itemJson;
+    }
+    #region 合約付款條件
+    //寫入合約付款條件
+    public String addPaymentTerms(FormCollection form)
+    {
+        log.Info("form:" + form.Count);
+        string msg = "更新成功!!";
 
-            PLAN_PAYMENT_TERMS item = new PLAN_PAYMENT_TERMS();
-            item.PROJECT_ID = form["project_id"];
-            item.CONTRACT_ID = form["contract_id"];
-            item.PAYMENT_FREQUENCY = form["payfrequency"];
-            item.PAYMENT_TERMS = form["payterms"];
-            item.PAYMENT_TYPE = form["paymenttype"];
-            item.PAYMENT_CASH = form["paymentcash"];
-            item.PAYMENT_UP_TO_U_1 = form["payment_1"];
-            item.PAYMENT_UP_TO_U_2 = form["payment_2"];
-            item.USANCE_CASH = form["usancecash"];
-            item.USANCE_UP_TO_U_1 = form["usance_1"];
-            item.USANCE_UP_TO_U_2 = form["usance_2"];
-            item.REMARK = form["remark"];
-            try
-            {
-                item.DATE_1 = decimal.Parse(form["date1"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not date_1:" + ex.Message);
-            }
-            try
-            {
-                item.DATE_2 = decimal.Parse(form["date2"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not date_2:" + ex.Message);
-            }
-            try
-            {
-                item.DATE_3 = decimal.Parse(form["date3"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not date_3:" + ex.Message);
-            }
-            try
-            {
-                item.USANCE_UP_TO_U_DATE1 = decimal.Parse(form["usance_date1"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usance_date1:" + ex.Message);
-            }
-            try
-            {
-                item.USANCE_UP_TO_U_DATE2 = decimal.Parse(form["usance_date2"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usance_date2:" + ex.Message);
-            }
-            try
-            {
-                item.PAYMENT_UP_TO_U_DATE1 = decimal.Parse(form["payment_date1"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not payment_date1:" + ex.Message);
-            }
-            try
-            {
-                item.PAYMENT_UP_TO_U_DATE2 = decimal.Parse(form["payment_date2"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not payment_date2:" + ex.Message);
-            }
-            try
-            {
-                item.USANCE_ADVANCE_RATIO = decimal.Parse(form["usanceadvance"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usanceadvance:" + ex.Message);
-            }
-            try
-            {
-                item.USANCE_ADVANCE_CASH_RATIO = decimal.Parse(form["usanceadvance_cash"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usanceadvance_cash:" + ex.Message);
-            }
-            try
-            {
-                item.USANCE_ADVANCE_1_RATIO = decimal.Parse(form["usanceadvance_1"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usanceadvance_1:" + ex.Message);
-            }
-            try
-            {
-                item.USANCE_ADVANCE_2_RATIO = decimal.Parse(form["usanceadvance_2"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usanceadvance_2:" + ex.Message);
-            }
-            try
-            {
-                item.PAYMENT_ADVANCE_RATIO = decimal.Parse(form["paymentadvance"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not paymentadvance:" + ex.Message);
-            }
-            try
-            {
-                item.PAYMENT_ADVANCE_CASH_RATIO = decimal.Parse(form["paymentadvance_cash"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not paymentadvance_cash:" + ex.Message);
-            }
-            try
-            {
-                item.PAYMENT_ADVANCE_1_RATIO = decimal.Parse(form["paymentadvance_1"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not paymentadvance_1:" + ex.Message);
-            }
-            try
-            {
-                item.PAYMENT_ADVANCE_2_RATIO = decimal.Parse(form["paymentadvance_2"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not paymentadvance_2:" + ex.Message);
-            }
-            try
-            {
-                item.PAYMENT_ESTIMATED_RATIO = decimal.Parse(form["paymentestimated"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not paymentestimated:" + ex.Message);
-            }
-            try
-            {
-                item.PAYMENT_ESTIMATED_CASH_RATIO = decimal.Parse(form["paymentestimated_cash"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not paymentestimated_cash:" + ex.Message);
-            }
-            try
-            {
-                item.PAYMENT_ESTIMATED_1_RATIO = decimal.Parse(form["paymentestimated_1"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not paymentestimated_1:" + ex.Message);
-            }
-            try
-            {
-                item.PAYMENT_ESTIMATED_2_RATIO = decimal.Parse(form["paymentestimated_2"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not paymentestimated_2:" + ex.Message);
-            }
-            try
-            {
-                item.PAYMENT_RETENTION_RATIO = decimal.Parse(form["paymentretention"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not paymentretention:" + ex.Message);
-            }
-            try
-            {
-                item.PAYMENT_RETENTION_CASH_RATIO = decimal.Parse(form["paymentretention_cash"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not paymentretention_cash:" + ex.Message);
-            }
-            try
-            {
-                item.PAYMENT_RETENTION_1_RATIO = decimal.Parse(form["paymentretention_1"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not paymentretention_1:" + ex.Message);
-            }
-            try
-            {
-                item.PAYMENT_RETENTION_2_RATIO = decimal.Parse(form["paymentretention_2"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not paymentretention_2:" + ex.Message);
-            }
-            try
-            {
-                item.USANCE_GOODS_RATIO = decimal.Parse(form["usancegoods"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usancegoods:" + ex.Message);
-            }
-            try
-            {
-                item.USANCE_GOODS_CASH_RATIO = decimal.Parse(form["usancegoods_cash"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usancegoods_cash:" + ex.Message);
-            }
-            try
-            {
-                item.USANCE_GOODS_1_RATIO = decimal.Parse(form["usancegoods_1"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usancegoods_1:" + ex.Message);
-            }
-            try
-            {
-                item.USANCE_GOODS_2_RATIO = decimal.Parse(form["usancegoods_2"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usancegoods_2:" + ex.Message);
-            }
-            try
-            {
-                item.USANCE_FINISHED_RATIO = decimal.Parse(form["usancefinished"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usancefinished:" + ex.Message);
-            }
-            try
-            {
-                item.USANCE_FINISHED_CASH_RATIO = decimal.Parse(form["usancefinished_cash"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usancefinished_cash:" + ex.Message);
-            }
-            try
-            {
-                item.USANCE_FINISHED_1_RATIO = decimal.Parse(form["usancefinished_1"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usancefinished_1:" + ex.Message);
-            }
-            try
-            {
-                item.USANCE_FINISHED_2_RATIO = decimal.Parse(form["usancefinished_2"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usancefinished_2:" + ex.Message);
-            }
-            try
-            {
-                item.USANCE_RETENTION_RATIO = decimal.Parse(form["usanceretention"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usanceretention:" + ex.Message);
-            }
-            try
-            {
-                item.USANCE_RETENTION_CASH_RATIO = decimal.Parse(form["usanceretention_cash"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usanceretention_cash:" + ex.Message);
-            }
-            try
-            {
-                item.USANCE_RETENTION_1_RATIO = decimal.Parse(form["usanceretention_1"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usanceretention_1:" + ex.Message);
-            }
-            try
-            {
-                item.USANCE_RETENTION_2_RATIO = decimal.Parse(form["usanceretention_2"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usanceretention_2:" + ex.Message);
-            }
-            SYS_USER loginUser = (SYS_USER)Session["user"];
-            item.CREATE_ID = loginUser.USER_ID;
-            item.CREATE_DATE = DateTime.Now;
-            PurchaseFormService service = new PurchaseFormService();
-            int i = service.updatePaymentTerms(item);
-            if (i == 0) { msg = service.message; }
-            return msg;
+        PLAN_PAYMENT_TERMS item = new PLAN_PAYMENT_TERMS();
+        item.PROJECT_ID = form["project_id"];
+        item.CONTRACT_ID = form["contract_id"];
+        item.PAYMENT_FREQUENCY = form["payfrequency"];
+        item.PAYMENT_TERMS = form["payterms"];
+        item.PAYMENT_TYPE = form["paymenttype"];
+        item.PAYMENT_CASH = form["paymentcash"];
+        item.PAYMENT_UP_TO_U_1 = form["payment_1"];
+        item.PAYMENT_UP_TO_U_2 = form["payment_2"];
+        item.USANCE_CASH = form["usancecash"];
+        item.USANCE_UP_TO_U_1 = form["usance_1"];
+        item.USANCE_UP_TO_U_2 = form["usance_2"];
+        item.REMARK = form["remark"];
+        try
+        {
+            item.DATE_1 = decimal.Parse(form["date1"]);
         }
-        #endregion
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not date_1:" + ex.Message);
+        }
+        try
+        {
+            item.DATE_2 = decimal.Parse(form["date2"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not date_2:" + ex.Message);
+        }
+        try
+        {
+            item.DATE_3 = decimal.Parse(form["date3"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not date_3:" + ex.Message);
+        }
+        try
+        {
+            item.USANCE_UP_TO_U_DATE1 = decimal.Parse(form["usance_date1"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not usance_date1:" + ex.Message);
+        }
+        try
+        {
+            item.USANCE_UP_TO_U_DATE2 = decimal.Parse(form["usance_date2"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not usance_date2:" + ex.Message);
+        }
+        try
+        {
+            item.PAYMENT_UP_TO_U_DATE1 = decimal.Parse(form["payment_date1"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not payment_date1:" + ex.Message);
+        }
+        try
+        {
+            item.PAYMENT_UP_TO_U_DATE2 = decimal.Parse(form["payment_date2"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not payment_date2:" + ex.Message);
+        }
+        try
+        {
+            item.USANCE_ADVANCE_RATIO = decimal.Parse(form["usanceadvance"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not usanceadvance:" + ex.Message);
+        }
+        try
+        {
+            item.USANCE_ADVANCE_CASH_RATIO = decimal.Parse(form["usanceadvance_cash"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not usanceadvance_cash:" + ex.Message);
+        }
+        try
+        {
+            item.USANCE_ADVANCE_1_RATIO = decimal.Parse(form["usanceadvance_1"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not usanceadvance_1:" + ex.Message);
+        }
+        try
+        {
+            item.USANCE_ADVANCE_2_RATIO = decimal.Parse(form["usanceadvance_2"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not usanceadvance_2:" + ex.Message);
+        }
+        try
+        {
+            item.PAYMENT_ADVANCE_RATIO = decimal.Parse(form["paymentadvance"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not paymentadvance:" + ex.Message);
+        }
+        try
+        {
+            item.PAYMENT_ADVANCE_CASH_RATIO = decimal.Parse(form["paymentadvance_cash"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not paymentadvance_cash:" + ex.Message);
+        }
+        try
+        {
+            item.PAYMENT_ADVANCE_1_RATIO = decimal.Parse(form["paymentadvance_1"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not paymentadvance_1:" + ex.Message);
+        }
+        try
+        {
+            item.PAYMENT_ADVANCE_2_RATIO = decimal.Parse(form["paymentadvance_2"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not paymentadvance_2:" + ex.Message);
+        }
+        try
+        {
+            item.PAYMENT_ESTIMATED_RATIO = decimal.Parse(form["paymentestimated"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not paymentestimated:" + ex.Message);
+        }
+        try
+        {
+            item.PAYMENT_ESTIMATED_CASH_RATIO = decimal.Parse(form["paymentestimated_cash"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not paymentestimated_cash:" + ex.Message);
+        }
+        try
+        {
+            item.PAYMENT_ESTIMATED_1_RATIO = decimal.Parse(form["paymentestimated_1"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not paymentestimated_1:" + ex.Message);
+        }
+        try
+        {
+            item.PAYMENT_ESTIMATED_2_RATIO = decimal.Parse(form["paymentestimated_2"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not paymentestimated_2:" + ex.Message);
+        }
+        try
+        {
+            item.PAYMENT_RETENTION_RATIO = decimal.Parse(form["paymentretention"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not paymentretention:" + ex.Message);
+        }
+        try
+        {
+            item.PAYMENT_RETENTION_CASH_RATIO = decimal.Parse(form["paymentretention_cash"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not paymentretention_cash:" + ex.Message);
+        }
+        try
+        {
+            item.PAYMENT_RETENTION_1_RATIO = decimal.Parse(form["paymentretention_1"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not paymentretention_1:" + ex.Message);
+        }
+        try
+        {
+            item.PAYMENT_RETENTION_2_RATIO = decimal.Parse(form["paymentretention_2"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not paymentretention_2:" + ex.Message);
+        }
+        try
+        {
+            item.USANCE_GOODS_RATIO = decimal.Parse(form["usancegoods"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not usancegoods:" + ex.Message);
+        }
+        try
+        {
+            item.USANCE_GOODS_CASH_RATIO = decimal.Parse(form["usancegoods_cash"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not usancegoods_cash:" + ex.Message);
+        }
+        try
+        {
+            item.USANCE_GOODS_1_RATIO = decimal.Parse(form["usancegoods_1"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not usancegoods_1:" + ex.Message);
+        }
+        try
+        {
+            item.USANCE_GOODS_2_RATIO = decimal.Parse(form["usancegoods_2"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not usancegoods_2:" + ex.Message);
+        }
+        try
+        {
+            item.USANCE_FINISHED_RATIO = decimal.Parse(form["usancefinished"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not usancefinished:" + ex.Message);
+        }
+        try
+        {
+            item.USANCE_FINISHED_CASH_RATIO = decimal.Parse(form["usancefinished_cash"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not usancefinished_cash:" + ex.Message);
+        }
+        try
+        {
+            item.USANCE_FINISHED_1_RATIO = decimal.Parse(form["usancefinished_1"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not usancefinished_1:" + ex.Message);
+        }
+        try
+        {
+            item.USANCE_FINISHED_2_RATIO = decimal.Parse(form["usancefinished_2"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not usancefinished_2:" + ex.Message);
+        }
+        try
+        {
+            item.USANCE_RETENTION_RATIO = decimal.Parse(form["usanceretention"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not usanceretention:" + ex.Message);
+        }
+        try
+        {
+            item.USANCE_RETENTION_CASH_RATIO = decimal.Parse(form["usanceretention_cash"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not usanceretention_cash:" + ex.Message);
+        }
+        try
+        {
+            item.USANCE_RETENTION_1_RATIO = decimal.Parse(form["usanceretention_1"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not usanceretention_1:" + ex.Message);
+        }
+        try
+        {
+            item.USANCE_RETENTION_2_RATIO = decimal.Parse(form["usanceretention_2"]);
+        }
+        catch (Exception ex)
+        {
+            log.Error(item.CONTRACT_ID + " not usanceretention_2:" + ex.Message);
+        }
+        SYS_USER loginUser = (SYS_USER)Session["user"];
+        item.CREATE_ID = loginUser.USER_ID;
+        item.CREATE_DATE = DateTime.Now;
+        PurchaseFormService service = new PurchaseFormService();
+        int i = service.updatePaymentTerms(item);
+        if (i == 0) { msg = service.message; }
+        return msg;
+    }
+    #endregion
 
-        List<PLAN_ITEM> planitems = null;
-        //取得採購遺漏項目
-        public ActionResult PendingItems(string id)
+    List<PLAN_ITEM> planitems = null;
+    //取得採購遺漏項目
+    public ActionResult PendingItems(string id)
+    {
+        log.Info("start project id=" + id);
+        PurchaseFormService service = new PurchaseFormService();
+        List<PLAN_ITEM> lstItem = new List<PLAN_ITEM>();
+        planitems = service.getPendingItems(id);
+        ViewBag.SearchResult = "共取得" + planitems.Count + "筆資料";
+        return View(planitems);
+    }
+    public ActionResult LeadTimeMainPage(string id)
+    {
+        log.Info("purchase form index : projectid=" + id);
+        ViewBag.projectId = id;
+        SelectListItem empty = new SelectListItem();
+        empty.Value = "";
+        empty.Text = "";
+        //取得材料合約供應商資料
+        List<SelectListItem> selectMain = new List<SelectListItem>();
+        foreach (string itm in service.getSupplierForContract(id))
         {
-            log.Info("start project id=" + id);
-            PurchaseFormService service = new PurchaseFormService();
-            List<PLAN_ITEM> lstItem = new List<PLAN_ITEM>();
-            planitems = service.getPendingItems(id);
-            ViewBag.SearchResult = "共取得" + planitems.Count + "筆資料";
-            return View(planitems);
-        }
-        public ActionResult LeadTimeMainPage(string id)
-        {
-            log.Info("purchase form index : projectid=" + id);
-            ViewBag.projectId = id;
-            SelectListItem empty = new SelectListItem();
-            empty.Value = "";
-            empty.Text = "";
-            //取得材料合約供應商資料
-            List<SelectListItem> selectMain = new List<SelectListItem>();
-            foreach (string itm in service.getSupplierForContract(id))
+            log.Debug("supplier=" + itm);
+            SelectListItem selectI = new SelectListItem();
+            selectI.Value = itm;
+            selectI.Text = itm;
+            if (null != itm && "" != itm)
             {
-                log.Debug("supplier=" + itm);
-                SelectListItem selectI = new SelectListItem();
-                selectI.Value = itm;
-                selectI.Text = itm;
-                if (null != itm && "" != itm)
-                {
-                    selectMain.Add(selectI);
-                }
+                selectMain.Add(selectI);
             }
-            // selectMain.Add(empty);
-            ViewBag.supplier = selectMain;
-            return View();
         }
-        // POST : Search
-        [HttpPost]
-        public ActionResult LeadTimeMainPage(FormCollection f)
-        {
+        // selectMain.Add(empty);
+        ViewBag.supplier = selectMain;
+        return View();
+    }
+    // POST : Search
+    [HttpPost]
+    public ActionResult LeadTimeMainPage(FormCollection f)
+    {
 
-            log.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"]);
-            //加入刪除註記 預設 "N"
-            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["chkEx"], Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"], "N");
-            ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
-            ViewBag.projectId = Request["projectid"];
-            SelectListItem empty = new SelectListItem();
-            empty.Value = "";
-            empty.Text = "";
-            //取得材料合約供應商資料
-            List<SelectListItem> selectMain = new List<SelectListItem>();
-            foreach (string itm in service.getSupplierForContract(Request["projectid"]))
-            {
-                log.Debug("supplier=" + itm);
-                SelectListItem selectI = new SelectListItem();
-                selectI.Value = itm;
-                selectI.Text = itm;
-                if (null != itm && "" != itm)
-                {
-                    selectMain.Add(selectI);
-                }
-            }
-            // selectMain.Add(empty);
-            ViewBag.supplier = selectMain;
-            return View("LeadTimeMainPage", lstProject);
-        }
-        //更新採購項目之採購前置時間
-        public String AddLeadTime(FormCollection form)
+        log.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"]);
+        //加入刪除註記 預設 "N"
+        List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["chkEx"], Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"], "N");
+        ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
+        ViewBag.projectId = Request["projectid"];
+        SelectListItem empty = new SelectListItem();
+        empty.Value = "";
+        empty.Text = "";
+        //取得材料合約供應商資料
+        List<SelectListItem> selectMain = new List<SelectListItem>();
+        foreach (string itm in service.getSupplierForContract(Request["projectid"]))
         {
-            log.Info("form:" + form.Count);
-            SYS_USER u = (SYS_USER)Session["user"];
-            string msg = "";
-            string[] lstplanitemid = form.Get("planitemid").Split(',');
-            string[] lstLeadTime = form.Get("leadtime").Split(',');
-            List<PLAN_ITEM> lstItem = new List<PLAN_ITEM>();
-            for (int j = 0; j < lstLeadTime.Count(); j++)
+            log.Debug("supplier=" + itm);
+            SelectListItem selectI = new SelectListItem();
+            selectI.Value = itm;
+            selectI.Text = itm;
+            if (null != itm && "" != itm)
             {
-                PLAN_ITEM item = new PLAN_ITEM();
-                item.PROJECT_ID = form["projectId"];
-                if (lstLeadTime[j].ToString() == "")
-                {
-                    item.LEAD_TIME = null;
-                }
-                else
-                {
-                    item.LEAD_TIME = decimal.Parse(lstLeadTime[j]);
-                }
-                log.Info("Lead Time =" + item.LEAD_TIME);
-                item.PLAN_ITEM_ID = lstplanitemid[j];
-                item.MODIFY_USER_ID = u.USER_ID;
-                log.Debug("Item Project id =" + item.PROJECT_ID + "且plan item id 為" + item.PLAN_ITEM_ID + "其項目採購前置時間為" + item.LEAD_TIME);
-                lstItem.Add(item);
+                selectMain.Add(selectI);
             }
-            int i = service.updateLeadTime(form["projectId"], lstItem);
-            if (i == 0)
+        }
+        // selectMain.Add(empty);
+        ViewBag.supplier = selectMain;
+        return View("LeadTimeMainPage", lstProject);
+    }
+    //更新採購項目之採購前置時間
+    public String AddLeadTime(FormCollection form)
+    {
+        log.Info("form:" + form.Count);
+        SYS_USER u = (SYS_USER)Session["user"];
+        string msg = "";
+        string[] lstplanitemid = form.Get("planitemid").Split(',');
+        string[] lstLeadTime = form.Get("leadtime").Split(',');
+        List<PLAN_ITEM> lstItem = new List<PLAN_ITEM>();
+        for (int j = 0; j < lstLeadTime.Count(); j++)
+        {
+            PLAN_ITEM item = new PLAN_ITEM();
+            item.PROJECT_ID = form["projectId"];
+            if (lstLeadTime[j].ToString() == "")
             {
-                msg = service.message;
+                item.LEAD_TIME = null;
             }
             else
             {
-                msg = "更新採購前置時間成功，PROJECT_ID =" + Request["projectId"];
+                item.LEAD_TIME = decimal.Parse(lstLeadTime[j]);
             }
-
-            log.Info("Request:PROJECT_ID =" + Request["projectId"]);
-            return msg;
+            log.Info("Lead Time =" + item.LEAD_TIME);
+            item.PLAN_ITEM_ID = lstplanitemid[j];
+            item.MODIFY_USER_ID = u.USER_ID;
+            log.Debug("Item Project id =" + item.PROJECT_ID + "且plan item id 為" + item.PLAN_ITEM_ID + "其項目採購前置時間為" + item.LEAD_TIME);
+            lstItem.Add(item);
         }
-
-        //取得廠商資料
-        public string aotoCompleteData()
+        int i = service.updateLeadTime(form["projectId"], lstItem);
+        if (i == 0)
         {
-            List<string> ls = null;
-            log.Debug("get supplier");
-            InquiryFormService service = new InquiryFormService();
-            ls = service.getSupplier();
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
-            return serializer.Serialize(ls);
+            msg = service.message;
+        }
+        else
+        {
+            msg = "更新採購前置時間成功，PROJECT_ID =" + Request["projectId"];
         }
 
-        //取得廠商聯絡人資料
-        public string getContactor()
-        {
-            List<TND_SUP_CONTACT_INFO> ls = null;
-            log.Debug("get contact By suppliername:" + Request["Supplier"] + ", " + Request["Supplier"].Substring(0, 7));
-            SupplierManage s = new SupplierManage();
-            string supid = Request["Supplier"].Substring(0, 7);
-            ls = s.getContactBySupplier(supid);
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
-            return serializer.Serialize(ls);
-        }
+        log.Info("Request:PROJECT_ID =" + Request["projectId"]);
+        return msg;
     }
+
+    //取得廠商資料
+    public string aotoCompleteData()
+    {
+        List<string> ls = null;
+        log.Debug("get supplier");
+        InquiryFormService service = new InquiryFormService();
+        ls = service.getSupplier();
+        JavaScriptSerializer serializer = new JavaScriptSerializer();
+        return serializer.Serialize(ls);
+    }
+
+    //取得廠商聯絡人資料
+    public string getContactor()
+    {
+        List<TND_SUP_CONTACT_INFO> ls = null;
+        log.Debug("get contact By suppliername:" + Request["Supplier"] + ", " + Request["Supplier"].Substring(0, 7));
+        SupplierManage s = new SupplierManage();
+        string supid = Request["Supplier"].Substring(0, 7);
+        ls = s.getContactBySupplier(supid);
+        JavaScriptSerializer serializer = new JavaScriptSerializer();
+        return serializer.Serialize(ls);
+    }
+}
 }

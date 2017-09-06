@@ -896,6 +896,8 @@
     <Content Include="Views\ProjectPlan\summaryReport.cshtml" />
     <Content Include="Views\Estimation\ChooseSupplierOfRefund.cshtml" />
     <Content Include="Views\Estimation\Refund.cshtml" />
+    <Content Include="Views\PurchaseForm\Comparison4Wage.cshtml" />
+    <Content Include="Views\PurchaseForm\ComparisonData4Wage.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

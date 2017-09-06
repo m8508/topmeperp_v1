@@ -231,6 +231,7 @@
 @using (Html.BeginForm())
 {
     <input type="hidden" id="formid" name="formid" value="@ViewBag.formid" />
+    <input type="hidden" id="contractid" name="contractid" value="@ViewBag.contractid" />
 
     <div class="row" style="padding-top:10px">
         <div class="col-md-12">
@@ -409,11 +410,15 @@
                     $('#cum_t_advance').val(data.CUM_T_ADVANCE);
                     $('#cum_t_other').val(data.CUM_T_OTHER);
                     $('#cum_payable_amount').val(data.CUM_PAYABLE_AMOUNT);
+                    $('#cum_t_repayment').val(data.CUM_T_REPAYMENT);
+                    $('#cum_t_refund').val(data.CUM_T_REFUND);
                     $('#t_foreign').val(data.T_FOREIGN);
                     $('#sub_amount').val(data.SUB_AMOUNT);
                     $('#t_retention').val(data.T_RETENTION);
                     $('#t_advance').val(data.T_ADVANCE);
                     $('#t_other').val(data.T_OTHER);
+                    $('#t_repayment').val(data.T_REPAYMENT);
+                    $('#t_refund').val(data.T_REFUND);
                     $('#payable_amount').val(data.PAYABLE_AMOUNT);
                     $('#tax_amount').val(data.TAX_AMOUNT);
                     $('#cum_tax_amount').val(data.CUM_TAX_AMOUNT);
@@ -427,7 +432,15 @@
                     $('#total_advance').val(data.TOTAL_ADVANCE);
                     $('#total_other').val(data.TOTAL_OTHER);
                     $('#total_tax_amount').val(data.TOTAL_TAX_AMOUNT);
-                    alert("更新成功，若資料無誤請按下儲存或提交鍵 !");
+                    $('#total_repayment').val(data.TOTAL_REPAYMENT);
+                    $('#total_refund').val(data.TOTAL_REFUND);
+                    if (data.PAYABLE_AMOUNT == null || data.PAYABLE_AMOUNT == '') {
+                        alert("目前尚有未核准的估驗單，估驗單編號為" + data + "，待此單核准後再新增估驗單!");
+                    }
+                    else
+                    {
+                        alert("更新成功，若資料無誤請按下儲存或提交鍵 !");
+                    }
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     alert(thrownError);

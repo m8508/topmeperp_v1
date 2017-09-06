@@ -176,6 +176,8 @@ namespace topmeperp.Models
         public string FORM_NAME { get; set; }
         //預算金額
         public Nullable<decimal> BAmount { get; set; }
+        //平均一日工資
+        public Nullable<decimal> AvgMPrice { get; set; }
     }
     public class budgetsummary
     {
