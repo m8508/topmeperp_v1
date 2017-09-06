@@ -481,7 +481,16 @@ namespace topmeperp.Controllers
             {
                 PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
                 //檔案位置
-                string fileLocation = poi.exportExcel4poAll(service.formInquiry, service.formInquiryItem, false);
+                string fileLocation = null;
+                if (null == Request["isReal"])
+                {
+                    fileLocation = poi.exportExcel4poAll(service.formInquiry, service.formInquiryItem, false, false);
+                }
+                else
+                {
+                    fileLocation = poi.exportExcel4poAll(service.formInquiry, service.formInquiryItem, false, true);
+
+                }
                 //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
                 string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
                 Response.Clear();

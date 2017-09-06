@@ -29,5 +29,6 @@ namespace topmeperp.Models
         public string ITEM_REMARK { get; set; }
         public string MODIFY_ID { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
+        public Nullable<decimal> WAGE_PRICE { get; set; }
     }
 }

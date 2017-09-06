@@ -56,7 +56,9 @@
                             含工帶料
                         </td>
                         <td>@item.STATUS</td>
-                        <td><a href='@("../../UploadFile/" + ViewBag.projectid + "/Quotes/" + item.INQUIRY_FORM_ID + ".xlsx")'>下載</a></td>
+                        <td>
+                            <a href="/PurchaseForm/downLoadInquiryForm4All?formid=@item.INQUIRY_FORM_ID&isReal=Y" target="_blank">下載</a>
+                        </td>
                     </tr>
                 }
             </tbody>

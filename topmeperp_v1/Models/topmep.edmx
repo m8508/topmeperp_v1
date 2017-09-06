@@ -322,6 +322,7 @@
           <Property Name="ITEM_UNIT" Type="varchar" MaxLength="10" />
           <Property Name="ITEM_QTY" Type="decimal" Precision="18" Scale="0" />
           <Property Name="ITEM_UNIT_PRICE" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="WAGE_PRICE" Type="decimal" Precision="18" Scale="0" />
           <Property Name="ITEM_QTY_ORG" Type="decimal" Precision="18" Scale="0" />
           <Property Name="ITEM_UNITPRICE_ORG" Type="decimal" Precision="18" Scale="0" />
           <Property Name="ITEM_REMARK" Type="varchar" MaxLength="1000" />
@@ -1679,6 +1680,7 @@
           <Property Name="ITEM_REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
           <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="WAGE_PRICE" Type="Decimal" Precision="18" Scale="0" />
         </EntityType>
         <EntityType Name="PLAN_INVOICE">
           <Key>
@@ -2482,6 +2484,7 @@
           <EntitySetMapping Name="PLAN_SUP_INQUIRY_ITEM">
             <EntityTypeMapping TypeName="topmepModel.PLAN_SUP_INQUIRY_ITEM">
               <MappingFragment StoreEntitySet="PLAN_SUP_INQUIRY_ITEM">
+                <ScalarProperty Name="WAGE_PRICE" ColumnName="WAGE_PRICE" />
                 <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
                 <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
                 <ScalarProperty Name="ITEM_REMARK" ColumnName="ITEM_REMARK" />
