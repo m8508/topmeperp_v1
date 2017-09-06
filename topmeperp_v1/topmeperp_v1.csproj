@@ -898,6 +898,9 @@
     <Content Include="Views\Estimation\Refund.cshtml" />
     <Content Include="Views\PurchaseForm\Comparison4Wage.cshtml" />
     <Content Include="Views\PurchaseForm\ComparisonData4Wage.cshtml" />
+    <Content Include="Views\PurchaseForm\SinglePrjForm4All.cshtml" />
+    <Content Include="Views\PurchaseForm\_PurchaseSupplier4All.cshtml" />
+    <Content Include="UploadFile\Inquiry_form_templateAll.xlsx" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

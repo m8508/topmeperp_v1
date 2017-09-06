@@ -52,6 +52,7 @@
 <div class="container">
     <ul class="nav nav-tabs">
         <li class="active"><a data-toggle="tab" href="#inquiry">廠商報價單</a></li>
+        <li><a data-toggle="tab" href="#inquiryAll">含工帶料</a></li>
         <li><a data-toggle="tab" href="#inquiryTemplate">空白詢價單</a></li>
     </ul>
 
@@ -59,6 +60,11 @@
         <div id="inquiry" class="tab-pane fade in active">
             @{
                 Html.RenderPartial("_PurchaseSupplierPage");
+            }
+        </div>
+        <div id="inquiryAll" class="tab-pane fade">
+            @{
+                Html.RenderPartial("_PurchaseSupplier4All");
             }
         </div>
         <div id="inquiryTemplate" class="tab-pane fade">

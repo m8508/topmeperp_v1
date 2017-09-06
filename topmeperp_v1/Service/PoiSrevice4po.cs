@@ -45,18 +45,6 @@ namespace topmeperp.Service
                 file.Close();
             }
         }
-
-        public XSSFCellStyle getContentStyle()
-        {
-            XSSFCellStyle oStyle = (XSSFCellStyle)hssfworkbook.CreateCellStyle();
-
-            //設定上下左右的框線
-            oStyle.BorderBottom = NPOI.SS.UserModel.BorderStyle.Thin;//粗
-            oStyle.BorderLeft = NPOI.SS.UserModel.BorderStyle.Thin;//細實線
-            oStyle.BorderRight = NPOI.SS.UserModel.BorderStyle.Thin;//虛線
-            oStyle.BorderTop = NPOI.SS.UserModel.BorderStyle.Thin;//...  
-            return oStyle;
-        }
     }
 
     #region 預算下載表格格式處理區段
@@ -318,11 +306,14 @@ namespace topmeperp.Service
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         string templateFile = ContextService.strUploadPath + "\\Inquiry_form_template.xlsx";
+        string templateFile4All = ContextService.strUploadPath + "\\Inquiry_form_templateAll.xlsx";
         public string outputPath = ContextService.strUploadPath;
 
         IWorkbook hssfworkbook;
         ISheet sheet = null;
         string fileformat = "xlsx";
+        XSSFCellStyle style = null;
+        XSSFCellStyle styleNumber = null;
         //存放供應商報價單資料
         public PLAN_SUP_INQUIRY form = null;
         public List<PLAN_SUP_INQUIRY_ITEM> formItems = null;
@@ -400,6 +391,101 @@ namespace topmeperp.Service
             file.Close();
             return fileLocation;
         }
+        // string fileformat = "xlsx";
+        //建立採購詢價單樣板
+        public string exportExcel4poAll(PLAN_SUP_INQUIRY form, List<PLAN_SUP_INQUIRY_ITEM> formItems, bool isTemp)
+        {
+            //1.讀取樣板檔案
+            InitializeWorkbook(templateFile4All);
+            style = ExcelStyle.getContentStyle(hssfworkbook);
+            styleNumber = ExcelStyle.getNumberStyle(hssfworkbook);
+            sheet = (XSSFSheet)hssfworkbook.GetSheet("詢價單");
+            //2.填入表頭資料
+            logger.Debug("Template Head_1=" + sheet.GetRow(2).Cells[0].ToString());
+            sheet.GetRow(2).Cells[1].SetCellValue(form.PROJECT_ID);//專案名稱
+            logger.Debug("Template Head_2=" + sheet.GetRow(3).Cells[0].ToString());
+            sheet.GetRow(3).Cells[1].SetCellValue(form.FORM_NAME);//採購項目:
+            logger.Debug("Template Head_3=" + sheet.GetRow(4).Cells[0].ToString());
+            sheet.GetRow(4).Cells[1].SetCellValue(form.OWNER_NAME);//承辦人:
+            logger.Debug("Template Head_4=" + sheet.GetRow(5).Cells[0].ToString());
+            sheet.GetRow(5).Cells[1].SetCellValue(form.OWNER_TEL);//聯絡電話:
+            logger.Debug("Template Head_5=" + sheet.GetRow(6).Cells[0].ToString());
+            sheet.GetRow(6).Cells[1].SetCellValue(form.OWNER_EMAIL);//EMAIL:
+            logger.Debug("Template Head_6=" + sheet.GetRow(7).Cells[0].ToString());
+            sheet.GetRow(7).Cells[1].SetCellValue(form.OWNER_FAX);//FAX:
+            logger.Debug("Template Head_1=" + sheet.GetRow(2).Cells[2].ToString());
+            sheet.GetRow(2).Cells[3].SetCellValue(form.SUPPLIER_ID);//廠商名稱
+            logger.Debug("Template Head_2=" + sheet.GetRow(3).Cells[2].ToString());
+            sheet.GetRow(3).Cells[3].SetCellValue(form.CONTACT_NAME);//聯絡人
+            logger.Debug("Template Head_3=" + sheet.GetRow(4).Cells[2].ToString());
+            sheet.GetRow(4).Cells[3].SetCellValue(form.CONTACT_EMAIL);//電子信箱
+            logger.Debug("Template Head_4=" + sheet.GetRow(5).Cells[2].ToString());
+            sheet.GetRow(5).Cells[3].SetCellValue((form.DUEDATE).ToString());//報價期限
+            logger.Debug("Template Head_5=" + sheet.GetRow(6).Cells[2].ToString());
+            sheet.GetRow(6).Cells[3].SetCellValue(form.INQUIRY_FORM_ID);//編號
+
+            //3.填入表單明細
+            int idxRow = 9;
+            foreach (PLAN_SUP_INQUIRY_ITEM item in formItems)
+            {
+                IRow row = sheet.CreateRow(idxRow);
+                //項次 項目說明    單位 數量  材料單價 材料複價  工資單價 工資複價 備註
+                row.CreateCell(0);
+                row.Cells[0].SetCellValue(idxRow - 8);///項次
+                row.Cells[0].CellStyle = style;
+                logger.Debug("Inquiry :ITEM DESC=" + item.ITEM_DESC);
+                row.CreateCell(1);
+                row.Cells[1].SetCellValue(item.ITEM_DESC);//項目說明
+                row.Cells[1].CellStyle = style;
+                row.CreateCell(2);
+                row.Cells[2].SetCellValue(item.ITEM_UNIT);// 單位
+                row.Cells[2].CellStyle = style;
+                row.CreateCell(3);
+                if (null != item.ITEM_QTY && item.ITEM_QTY.ToString().Trim() != "")
+                {
+                    row.Cells[3].SetCellValue(double.Parse(item.ITEM_QTY.ToString())); //數量
+                }
+                row.Cells[3].CellStyle = style;
+                row.CreateCell(4);//單價
+                row.Cells[4].SetCellValue("");
+                row.Cells[4].CellStyle = style;
+                row.CreateCell(5);
+                row.Cells[5].SetCellValue("");
+                row.Cells[5].CellStyle = style;
+                row.CreateCell(6);//工資
+                row.Cells[6].SetCellValue("");
+                row.Cells[6].CellStyle = style;
+                row.CreateCell(7);
+                row.Cells[7].SetCellValue("");
+                row.Cells[7].CellStyle = style;
+                row.CreateCell(8);
+                row.Cells[8].SetCellValue(item.ITEM_REMARK);// 備註
+                row.Cells[8].CellStyle = style;
+                //建立空白
+                for (int iTmp = 9; iTmp < 26; iTmp++)
+                {
+                    row.CreateCell(iTmp);
+                }
+                //填入標單項次編號 PROJECT_ITEM_ID
+                row.Cells[25].SetCellValue(item.PLAN_ITEM_ID);
+                idxRow++;
+            }
+            //4.另存新檔至專案所屬目錄 (增加Temp for zip 打包使用)
+            string fileLocation = null;
+            if (isTemp)
+            {
+                fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\Temp\\" + form.FORM_NAME + "[工料]_空白.xlsx";
+            }
+            else
+            {
+                fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_NAME + "[工料]_空白.xlsx";
+            }
+            var file = new FileStream(fileLocation, FileMode.Create);
+            logger.Info("new file name =" + file.Name + ",path=" + file.Position);
+            hssfworkbook.Write(file);
+            file.Close();
+            return fileLocation;
+        }
 
         private void InitializeWorkbook(string path)
         {
@@ -425,6 +511,146 @@ namespace topmeperp.Service
         {
             //1.讀取供應商報價單\
             InitializeWorkbook(fileExcel);
+
+            //2.讀取檔頭 資料
+            processForm(projectid, iswage);
+
+            //3.取得表單明細,逐行讀取資料
+            IRow row = null;
+            int iRowIndex = 9; //0 表 Row 1
+            bool hasMore = true;
+            //循序處理每一筆資料之欄位!!
+            formItems = new List<PLAN_SUP_INQUIRY_ITEM>();
+            while (hasMore)
+            {
+                row = sheet.GetRow(iRowIndex);
+                logger.Info("excel rowid=" + iRowIndex + ",cell count=" + row.Cells.Count);
+                if (row.Cells.Count < 6)
+                {
+                    logger.Info("Row Index=" + iRowIndex + "column count has wrong" + row.Cells.Count);
+                    throw new Exception("詢價單明細欄位有問題，請調整欄位相關資料(" + row.Cells.Count + ")");
+                }
+                else
+                {
+                    try
+                    {
+                        logger.Debug("row id=" + iRowIndex + "Cells Count=" + row.Cells.Count + ",purchase form item vllue:" + row.Cells[0].ToString() + ","
+                            + row.Cells[1] + "," + row.Cells[2] + "," + row.Cells[3] + "," + ","
+                            + row.Cells[4] + "," + "," + row.Cells[5] + "," + row.Cells[6] + ",plan item id=" + row.Cells[row.Cells.Count - 1]);
+                        PLAN_SUP_INQUIRY_ITEM item = new PLAN_SUP_INQUIRY_ITEM();
+                        item.ITEM_DESC = row.Cells[1].ToString();
+                        item.ITEM_UNIT = row.Cells[2].ToString();
+                        //標單數量
+                        decimal dQty = decimal.Parse(row.Cells[3].ToString());
+                        item.ITEM_QTY = dQty;
+
+                        //報價單單價
+                        decimal dUnitPrice = decimal.Parse(row.Cells[4].ToString());
+                        item.ITEM_UNIT_PRICE = dUnitPrice;
+
+                        item.ITEM_REMARK = row.Cells[6].ToString();
+                        logger.Info("Plan ITEM ID=" + row.Cells[row.Cells.Count - 1].ToString());
+                        item.PLAN_ITEM_ID = row.Cells[row.Cells.Count - 1].ToString();
+                        formItems.Add(item);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error("Row Data Error:" + iRowIndex);
+                        logger.Error(ex.GetType() + ":" + ex.StackTrace);
+                    }
+                }
+                iRowIndex++;
+            }
+        }
+        public void convertInquiryAll(string fileExcel, string projectid )
+        {
+            //1.讀取供應商報價單\
+            InitializeWorkbook(fileExcel);
+            //2.讀取檔頭 資料
+            processForm(projectid, "A");
+
+            //3.取得表單明細,逐行讀取資料
+            IRow row = null;
+            int iRowIndex = 9; //0 表 Row 1
+            bool hasMore = true;
+            //循序處理每一筆資料之欄位!!
+            //項次 項目說明    單位 數量  材料單價 材料複價  工資單價 工資複價 備註
+            formItems = new List<PLAN_SUP_INQUIRY_ITEM>();
+            while (hasMore)
+            {
+                row = sheet.GetRow(iRowIndex);           
+                if (null == row || row.Cells.Count < 6)
+                {
+                    hasMore = false;
+                }
+                else
+                {
+                    logger.Info("excel rowid=" + iRowIndex + ",cell count=" + row.Cells.Count);
+                    try
+                    {
+                        logger.Debug("row id=" + iRowIndex + "Cells Count=" + row.Cells.Count + ",purchase form item vllue:" + row.Cells[0].ToString() + ","
+                            + row.Cells[1] + "," + row.Cells[2] + "," + row.Cells[3] + "," + ","
+                            + row.Cells[4] + "," + "," + row.Cells[5] + "," + row.Cells[6] + ",plan item id=" + row.Cells[row.Cells.Count - 1]);
+                        PLAN_SUP_INQUIRY_ITEM item = new PLAN_SUP_INQUIRY_ITEM();
+                        item.ITEM_DESC = row.Cells[1].ToString();
+                        item.ITEM_UNIT = row.Cells[2].ToString();
+                        //標單數量
+                        try
+                        {
+                            if (row.Cells[3].ToString() != "")
+                            {
+                                decimal dQty = decimal.Parse(row.Cells[3].ToString());
+                                item.ITEM_QTY = dQty;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.Warn("Row Index=" + iRowIndex + "item.ITEM_QTY Error:" + ex.StackTrace);
+                        }
+                        //材料單價
+                        try
+                        {
+                            if (row.Cells[4].ToString() != "")
+                            {
+                                decimal dUnitPrice = decimal.Parse(row.Cells[4].ToString());
+                                item.ITEM_UNIT_PRICE = dUnitPrice;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.Warn("Row Index=" + iRowIndex + "item.ITEM_UNIT_PRICE Error:" + ex.StackTrace);
+                        }
+                        //材料單價
+                        try
+                        {
+                            if (row.Cells[6].ToString() != "")
+                            {
+                                decimal dWagePrice = decimal.Parse(row.Cells[6].ToString());
+                                item.WAGE_PRICE = dWagePrice;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.Warn("Row Index=" + iRowIndex + "item.WAGE_PRICE Error:" + ex.StackTrace);
+                        }
+
+                        item.ITEM_REMARK = row.Cells[8].ToString();
+                        logger.Info("Plan ITEM ID=" + row.Cells[row.Cells.Count - 1].ToString());
+                        item.PLAN_ITEM_ID = row.Cells[row.Cells.Count - 1].ToString();
+                        formItems.Add(item);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error("Row Data Error:" + iRowIndex);
+                        logger.Error(ex.GetType() + ":" + ex.StackTrace);
+                    }
+                }
+                iRowIndex++;
+            }
+        }
+
+        private void processForm(string projectid, string iswage)
+        {
             //2.依據檔案附檔名使用不同物件讀取Excel 檔案，並開啟廠商報價單Sheet
             if (fileformat == "xls")
             {
@@ -441,7 +667,7 @@ namespace topmeperp.Service
             {
                 sheet = (XSSFSheet)hssfworkbook.GetSheetAt(0);
             }
-            //3.讀取檔頭 資料
+            //4.讀取檔頭 資料
             //專案名稱
             form = new PLAN_SUP_INQUIRY();
             //專案名稱:	P0120
@@ -495,56 +721,10 @@ namespace topmeperp.Service
             }
 
             //FAX:
-            logger.Debug(sheet.GetRow(7).Cells[0].ToString());
-            form.OWNER_FAX = sheet.GetRow(7).Cells[0].ToString();
-
-            //3.取得表單明細,逐行讀取資料
-            IRow row = null;
-            int iRowIndex = 9; //0 表 Row 1
-            bool hasMore = true;
-            //循序處理每一筆資料之欄位!!
-            formItems = new List<PLAN_SUP_INQUIRY_ITEM>();
-            while (hasMore)
-            {
-                row = sheet.GetRow(iRowIndex);
-                logger.Info("excel rowid=" + iRowIndex + ",cell count=" + row.Cells.Count);
-                if (row.Cells.Count < 6)
-                {
-                    logger.Info("Row Index=" + iRowIndex + "column count has wrong" + row.Cells.Count);
-                    throw new Exception("詢價單明細欄位有問題，請調整欄位相關資料(" + row.Cells.Count + ")");
-                }
-                else
-                {
-                    try
-                    {
-                        logger.Debug("row id=" + iRowIndex + "Cells Count=" + row.Cells.Count + ",purchase form item vllue:" + row.Cells[0].ToString() + ","
-                            + row.Cells[1] + "," + row.Cells[2] + "," + row.Cells[3] + "," + ","
-                            + row.Cells[4] + "," + "," + row.Cells[5] + "," + row.Cells[6] + ",plan item id=" + row.Cells[row.Cells.Count - 1]);
-                        PLAN_SUP_INQUIRY_ITEM item = new PLAN_SUP_INQUIRY_ITEM();
-                        item.ITEM_DESC = row.Cells[1].ToString();
-                        item.ITEM_UNIT = row.Cells[2].ToString();
-                        //標單數量
-                        decimal dQty = decimal.Parse(row.Cells[3].ToString());
-                        item.ITEM_QTY = dQty;
-
-                        //報價單單價
-                        decimal dUnitPrice = decimal.Parse(row.Cells[4].ToString());
-                        item.ITEM_UNIT_PRICE = dUnitPrice;
-
-                        item.ITEM_REMARK = row.Cells[6].ToString();
-                        logger.Info("Plan ITEM ID=" + row.Cells[row.Cells.Count - 1].ToString());
-                        item.PLAN_ITEM_ID = row.Cells[row.Cells.Count - 1].ToString();
-                        formItems.Add(item);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.Error("Row Data Error:" + iRowIndex);
-                        logger.Error(ex.GetType() + ":" + ex.StackTrace);
-                    }
-                }
-                iRowIndex++;
-            }
+            logger.Debug(sheet.GetRow(7).Cells[1].ToString());
+            form.OWNER_FAX = sheet.GetRow(7).Cells[1].ToString();
         }
+
     }
 
 }

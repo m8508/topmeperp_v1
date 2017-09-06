@@ -22,18 +22,29 @@
                             <tr>
                                 <td>
                                     <a href="/PurchaseForm/SinglePrjForm/@item.INQUIRY_FORM_ID" target="_blank">@item.INQUIRY_FORM_ID</a>
+                                    <a href="/PurchaseForm/SinglePrjForm/@item.INQUIRY_FORM_ID" target="_blank">[含工帶料]</a>
                                     <input type="hidden" name="inquiryformid" id="inquiryformid" value="@item.INQUIRY_FORM_ID">
                                 </td>
                                 <td><input type="text" class="form-control" name="formname" id="formname" value="" style="width:500px"></td>
-                                <td><a href="/PurchaseForm/downLoadInquiryForm?formid=@item.INQUIRY_FORM_ID" target="_blank">下載</a></td>
+                                <td>
+                                    <a href="/PurchaseForm/downLoadInquiryForm?formid=@item.INQUIRY_FORM_ID" target="_blank">下載</a>
+                                    <a href="/PurchaseForm/downLoadInquiryForm4All?formid=@item.INQUIRY_FORM_ID" target="_blank">含工帶料</a>
+                                </td>
                             </tr>
                         }
                         else
                         {
                             <tr>
-                                <td><a href="/PurchaseForm/SinglePrjForm/@item.INQUIRY_FORM_ID" target="_blank">@item.INQUIRY_FORM_ID</a></td>
+                                <td>
+                                    <a href="/PurchaseForm/SinglePrjForm/@item.INQUIRY_FORM_ID" target="_blank">@item.INQUIRY_FORM_ID</a>
+                                    <a href="/PurchaseForm/SinglePrjForm/@item.INQUIRY_FORM_ID" target="_blank">[含工帶料]</a>
+                                </td>
                                 <td>@item.FORM_NAME</td>
-                                <td><a href="/PurchaseForm/downLoadInquiryForm?formid=@item.INQUIRY_FORM_ID" target="_blank">下載</a></td>
+                                <td>
+                                    <a href="/PurchaseForm/downLoadInquiryForm?formid=@item.INQUIRY_FORM_ID" target="_blank">下載</a>
+                                    <a href="/PurchaseForm/downLoadInquiryForm4All?formid=@item.INQUIRY_FORM_ID" target="_blank">含工帶料</a>
+                                </td>
+
                             </tr>
                         }
                     }
@@ -47,7 +58,7 @@
     </form>
 </div>
 <div class="row">
-    <div class="" col-md-12">
+    <div class="col-md-12">
         <input type="button" value="新增空白詢價單名稱" class="btn btn-default" id="saveForm" />
     </div>
 </div>
