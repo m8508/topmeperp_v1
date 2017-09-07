@@ -111,6 +111,7 @@ namespace topmeperp.Models
         public string SYSTEM_MAIN { get; set; }
         public string SYSTEM_SUB { get; set; }
         public Nullable<decimal> CONTRACT_PRICE { get; set; }
+        public Nullable<decimal> BUDGET_WAGE { get; set; }
     }
     public class SystemCost
     {

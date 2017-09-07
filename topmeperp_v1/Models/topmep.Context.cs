@@ -42,7 +42,6 @@ namespace topmeperp.Models
         public virtual DbSet<TND_MAP_DEVICE> TND_MAP_DEVICE { get; set; }
         public virtual DbSet<TND_TASKASSIGN> TND_TASKASSIGN { get; set; }
         public virtual DbSet<TND_PROJECT_FORM> TND_PROJECT_FORM { get; set; }
-        public virtual DbSet<PLAN_BUDGET> PLAN_BUDGET { get; set; }
         public virtual DbSet<PLAN_PAYMENT_TERMS> PLAN_PAYMENT_TERMS { get; set; }
         public virtual DbSet<TND_PROJECT> TND_PROJECT { get; set; }
         public virtual DbSet<PLAN_TASK> PLAN_TASK { get; set; }
@@ -65,8 +64,9 @@ namespace topmeperp.Models
         public virtual DbSet<PLAN_ESTIMATION_FORM> PLAN_ESTIMATION_FORM { get; set; }
         public virtual DbSet<PLAN_SUP_INQUIRY> PLAN_SUP_INQUIRY { get; set; }
         public virtual DbSet<PLAN_OTHER_PAYMENT> PLAN_OTHER_PAYMENT { get; set; }
-        public virtual DbSet<PLAN_ITEM> PLAN_ITEM { get; set; }
         public virtual DbSet<PLAN_SUP_INQUIRY_ITEM> PLAN_SUP_INQUIRY_ITEM { get; set; }
         public virtual DbSet<PLAN_INVOICE> PLAN_INVOICE { get; set; }
+        public virtual DbSet<PLAN_BUDGET> PLAN_BUDGET { get; set; }
+        public virtual DbSet<PLAN_ITEM> PLAN_ITEM { get; set; }
     }
 }
