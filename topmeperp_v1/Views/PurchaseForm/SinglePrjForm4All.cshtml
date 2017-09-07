@@ -5,6 +5,7 @@
 }
 
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/flick/jquery-ui.css"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 
 <div class="page-header">
     <form id="formSupplier" name="formSupplier" action="UpdatePrjForm" method="post">
@@ -200,7 +201,14 @@
                                 <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="" style="width:100px">
                             }
                         </td>
-                        <td></td>
+                        <td>
+                            @{ var price = ""; }
+                            @if (@item.ITEM_UNIT_PRICE != null)
+                            {
+                               price = (item.ITEM_UNIT_PRICE * item.ITEM_QTY).ToString();
+                            }
+                             @price
+                        </td>
                         <td>
                             @if (@item.WAGE_PRICE != null)
                             {
@@ -211,7 +219,13 @@
                                 <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="" style="width:100px">
                             }
                         </td>
-                        <td></td>
+                        <td>
+                            @if (@item.WAGE_PRICE != null)
+                            {
+                                price = (item.WAGE_PRICE * item.ITEM_QTY).ToString();
+                            }
+                            @price
+                        </td>
                         <td>@Html.TextBox("remark", @item.ITEM_REMARK, new { style = "width:500px", @class = "form-control" })</td>
                         <td><input type="hidden" name="plan_item_id" id="plan_item_id" value="@item.PLAN_ITEM_ID"></td>
                     </tr>
