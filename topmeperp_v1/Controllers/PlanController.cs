@@ -416,6 +416,7 @@ namespace topmeperp.Controllers
             string[] lstsystemsub = form.Get("systemsub").Split(',');
             //string[] lstCost = form.Get("inputtndratio").Split(',');
             string[] lstPrice = form.Get("inputbudget").Split(',');
+            string[] lstWagePrice = form.Get("inputbudget4wage").Split(',');
             List<PLAN_BUDGET> lstItem = new List<PLAN_BUDGET>();
             for (int j = 0; j < lstPrice.Count(); j++)
             {
@@ -428,6 +429,14 @@ namespace topmeperp.Controllers
                 else
                 {
                     item.BUDGET_RATIO = decimal.Parse(lstPrice[j]);
+                }
+                if (lstWagePrice[j].ToString() == "")
+                {
+                    item.BUDGET_WAGE_RATIO = null;
+                }
+                else
+                {
+                    item.BUDGET_WAGE_RATIO = decimal.Parse(lstWagePrice[j]);
                 }
                 //if (lstCost[j].ToString() == "")
                 //{
@@ -473,6 +482,7 @@ namespace topmeperp.Controllers
             string[] lstsystemmain = form.Get("systemmain").Split(',');
             string[] lstsystemsub = form.Get("systemsub").Split(',');
             string[] lstPrice = form.Get("inputbudget").Split(',');
+            string[] lstWagePrice = form.Get("inputbudget4wage").Split(',');
             List<PLAN_BUDGET> lstItem = new List<PLAN_BUDGET>();
             for (int j = 0; j < lstPrice.Count(); j++)
             {
@@ -485,6 +495,14 @@ namespace topmeperp.Controllers
                 else
                 {
                     item.BUDGET_RATIO = decimal.Parse(lstPrice[j]);
+                }
+                if (lstWagePrice[j].ToString() == "")
+                {
+                    item.BUDGET_WAGE_RATIO = null;
+                }
+                else
+                {
+                    item.BUDGET_WAGE_RATIO = decimal.Parse(lstWagePrice[j]);
                 }
                 logger.Info("Budget ratio =" + item.BUDGET_RATIO);
                 item.TYPE_CODE_1 = lsttypecode[j];

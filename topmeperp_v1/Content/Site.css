@@ -128,10 +128,14 @@ textarea {
 }
 .fixed_headers1 td:nth-child(8),
 .fixed_headers1 th:nth-child(8) {
-    width: 50px;/**預算比率*/
+    width: 50px;/**材料預算比率*/
 }
 .fixed_headers1 td:nth-child(9),
 .fixed_headers1 th:nth-child(9) {
+    width: 50px;/**工資預算比率*/
+}
+.fixed_headers1 td:nth-child(10),
+.fixed_headers1 th:nth-child(10) {
     width: 100px;/**預算金額 */
 }
 

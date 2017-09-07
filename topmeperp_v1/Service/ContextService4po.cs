@@ -142,7 +142,7 @@ namespace topmeperp.Service
         {
             int i = 0;
             logger.Info("update budget ratio to plan items by id :" + id);
-            string sql = "UPDATE PLAN_ITEM SET PLAN_ITEM.BUDGET_RATIO = plan_budget.BUDGET_RATIO " +
+            string sql = "UPDATE PLAN_ITEM SET PLAN_ITEM.BUDGET_RATIO = plan_budget.BUDGET_RATIO, PLAN_ITEM.BUDGET_WAGE_RATIO = plan_budget.BUDGET_WAGE_RATIO " +
                    "from PLAN_ITEM inner join " +
                    "plan_budget on @id + PLAN_ITEM.TYPE_CODE_1 + PLAN_ITEM.TYPE_CODE_2 + PLAN_ITEM.SYSTEM_MAIN + PLAN_ITEM.SYSTEM_SUB " +
                    "= @id + plan_budget.TYPE_CODE_1 + plan_budget.TYPE_CODE_2 + plan_budget.SYSTEM_MAIN + plan_budget.SYSTEM_SUB ";
@@ -284,7 +284,7 @@ namespace topmeperp.Service
             {
                 string sql = "SELECT C.*, SUM((MATERIAL_COST_INMAP) * BUDGET / 100) AS AMOUNT_BY_CODE FROM " +
                     "(SELECT MAINCODE, MAINCODE_DESC, SUB_CODE, SUB_DESC, MATERIAL_COST_INMAP, MAN_DAY, CONTRACT_PRICE, D.SYSTEM_MAIN, D.SYSTEM_SUB, "
-                    + "BUDGET_RATIO as BUDGET, COST_RATIO FROM (SELECT" +
+                    + "BUDGET_RATIO as BUDGET, BUDGET_WAGE_RATIO as BUDGET_WAGE, COST_RATIO FROM (SELECT" +
                     "(select TYPE_CODE_1 + TYPE_CODE_2 from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE, " +
                     "(select TYPE_DESC from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE_DESC ," +
                     "(select SUB_TYPE_ID from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) T_SUB_CODE, " +
@@ -294,6 +294,7 @@ namespace topmeperp.Service
                     "FROM (SELECT it.*, w.RATIO, w.PRICE, map.QTY MapQty, pi.ITEM_UNIT_COST FROM TND_PROJECT_ITEM it LEFT OUTER JOIN TND_WAGE w " +
                     "ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON it.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID RIGHT OUTER JOIN PLAN_ITEM pi ON it.PROJECT_ITEM_ID = pi.PLAN_ITEM_ID WHERE it.project_id = @projectid) A " +
                     "GROUP BY TYPE_CODE_1, TYPE_CODE_2, A.SYSTEM_MAIN, A.SYSTEM_SUB) B LEFT OUTER JOIN (SELECT p.TYPE_CODE_1, p.TYPE_CODE_2, p.SYSTEM_MAIN, p.SYSTEM_SUB, SUM(p.BUDGET_RATIO*p.ITEM_QUANTITY)/SUM(p.ITEM_QUANTITY) BUDGET_RATIO, " +
+                    "SUM(p.BUDGET_WAGE_RATIO*p.ITEM_QUANTITY)/SUM(p.ITEM_QUANTITY) BUDGET_WAGE_RATIO, " +
                     "SUM(p.TND_RATIO*p.ITEM_QUANTITY)/SUM(p.ITEM_QUANTITY) COST_RATIO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid GROUP BY p.TYPE_CODE_1, p.TYPE_CODE_2, p.SYSTEM_MAIN, p.SYSTEM_SUB) D ON MAINCODE + SUB_CODE + B.SYSTEM_MAIN + B.SYSTEM_SUB = D.TYPE_CODE_1 + D.TYPE_CODE_2 + D.SYSTEM_MAIN + D.SYSTEM_SUB " +
                     ") C GROUP BY MAINCODE, MAINCODE_DESC, SUB_CODE, SUB_DESC, C.SYSTEM_MAIN, C.SYSTEM_SUB, MATERIAL_COST_INMAP, MAN_DAY, CONTRACT_PRICE, BUDGET, COST_RATIO ORDER BY MAINCODE, SUB_CODE";
                 logger.Info("sql = " + sql);
