@@ -878,6 +878,92 @@ namespace topmeperp.Controllers
             return msg;
         }
 
+        public String UpdateInvoice(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            string msg = "";
+            // 先刪除原先資料
+            logger.Info("EST form id =" + form["formid"]);
+            logger.Info("Delete PLAN_INVOICE By EST_FORM_ID");
+            service.delInvoiceByESTId(form["formid"]);
+            // 再次取得憑證資料
+            string[] lstDate = form.Get("invoice_date").Split(',');
+            string[] lstNumber = form.Get("invoice_number").Split(',');
+            string[] lstAmount = form.Get("input_amount").Split(',');
+            string[] lstTax = form.Get("taxamount").Split(',');
+            string[] lstType = form.Get("invoicetype").Split(',');
+            string[] lstSubType = form.Get("sub_type").Split(',');
+            string[] lstPlanItem = form.Get("plan_item_id").Split(',');
+            string[] lstDiscountQty = form.Get("discount_qty").Split(',');
+            string[] lstDiscountPrice = form.Get("discount_unit_price").Split(',');
+            List<PLAN_INVOICE> lstItem = new List<PLAN_INVOICE>();
+            for (int j = 0; j < lstAmount.Count(); j++)
+            {
+                PLAN_INVOICE item = new PLAN_INVOICE();
+                item.EST_FORM_ID = form["formid"];
+                item.CONTRACT_ID = form["contractid"];
+                item.INVOICE_NUMBER = lstNumber[j];
+                item.INVOICE_DATE = Convert.ToDateTime(lstDate[j]);
+                if (lstAmount[j].ToString() == "")
+                {
+                    item.AMOUNT = null;
+                }
+                else
+                {
+                    item.AMOUNT = decimal.Parse(lstAmount[j]);
+                }
+                if (lstTax[j].ToString() == "")
+                {
+                    item.TAX = null;
+                }
+                else
+                {
+                    item.TAX = decimal.Parse(lstTax[j]);
+                }
+                item.TYPE = lstType[j];
+                if (lstType[j] == "折讓單")
+                {
+                    item.SUB_TYPE = lstSubType[j];
+                    item.PLAN_ITEM_ID = lstPlanItem[j];
+                    if (lstDiscountQty[j].ToString() == "")
+                    {
+                        item.DISCOUNT_QTY = null;
+                    }
+                    else
+                    {
+                        item.DISCOUNT_QTY = decimal.Parse(lstDiscountQty[j]);
+                    }
+                    if (lstDiscountPrice[j].ToString() == "")
+                    {
+                        item.DISCOUNT_UNIT_PRICE = null;
+                    }
+                    else
+                    {
+                        item.DISCOUNT_UNIT_PRICE = decimal.Parse(lstDiscountPrice[j]);
+                    }
+                }
+                else
+                {
+                    item.SUB_TYPE = null;
+                    item.PLAN_ITEM_ID = null;
+                    item.DISCOUNT_QTY = null;
+                    item.DISCOUNT_UNIT_PRICE = null;
+                }
+                logger.Info("Invoice Number = " + item.INVOICE_NUMBER + "and Invoice Amount =" + item.AMOUNT);
+                lstItem.Add(item);
+            }
+            int i = service.addInvoice(lstItem);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "更新憑證資料成功，EST_FORM_ID =" + form["formid"];
+            }
+            return msg;
+        }
+
         //代付支出
         public ActionResult RePayment(string id)
         {
