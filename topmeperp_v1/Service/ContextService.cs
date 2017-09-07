@@ -1439,6 +1439,35 @@ namespace topmeperp.Service
             DirectCost4Budget = lstDirecCost;
             return DirectCost4Budget;
         }
+        //預算參考表
+        public List<DirectCost> getDirectCost4BudgetRef(string projectid)
+        {
+            List<DirectCost> lstDirecCost = null;
+            using (var context = new topmepEntities())
+            {
+                string sql = "SELECT (select TYPE_CODE_1 + TYPE_CODE_2 from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE, "
+                    + "(SELECT TYPE_DESC from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE_DESC ,"
+                    + "(SELECT SUB_TYPE_ID from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) T_SUB_CODE, "
+                    + "TYPE_CODE_2 SUB_CODE, (select TYPE_DESC from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) SUB_DESC, "
+                    + "SYSTEM_MAIN, SYSTEM_SUB, "
+                    + "SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) MATERIAL_COST, SUM(MapQty * ITEM_UNIT_PRICE) MATERIAL_COST_INMAP,"
+                    + "SUM(ITEM_QUANTITY * RATIO) MAN_DAY,"
+                    + "SUM(MapQty * RATIO) MAN_DAY_INMAP,"
+                    + "SUM(ITEM_QUANTITY * ITEM_UNIT_COST) CONTRACT_PRICE,"
+                    + "COUNT(*) ITEM_COUNT "
+                    + "FROM(SELECT it.*, w.RATIO, w.PRICE, it.ITEM_UNIT_PRICE ITEM_UNIT_COST, map.QTY MapQty FROM TND_PROJECT_ITEM it LEFT OUTER JOIN TND_WAGE w "
+                    + "ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map "
+                    + "ON it.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID "
+                    + "WHERE it.project_id =@projectid ) A "
+                    + "GROUP BY TYPE_CODE_1, TYPE_CODE_2, SYSTEM_MAIN, SYSTEM_SUB ORDER BY ISNULL(TYPE_CODE_1,'無'), ISNULL(TYPE_CODE_2, '無') ;";
+                logger.Info("Get DirectCost SQL=" + sql + ",projectid=" + projectid);
+                lstDirecCost = context.Database.SqlQuery<DirectCost>(sql, new SqlParameter("projectid", projectid)).ToList();
+
+                logger.Info("Get DirectCost Record Count=" + lstDirecCost.Count);
+            }
+            DirectCost4Budget = lstDirecCost;
+            return DirectCost4Budget;
+        }
         //直接成本
         public List<DirectCost> getDirectCost(string projectid)
         {
