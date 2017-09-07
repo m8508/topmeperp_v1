@@ -3468,6 +3468,19 @@ namespace topmeperp.Service
 
             return EstNo;
         }
+
+        public int delInvoiceByESTId(string estid)
+        {
+            logger.Info("remove all invoice detail by EST FORM ID=" + estid);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("delete these invoice record by est form id=" + estid);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM PLAN_INVOICE WHERE EST_FORM_ID=@estid ", new SqlParameter("@estid", estid));
+            }
+            logger.Debug("delete PLAN INVOICE count=" + i);
+            return i;
+        }
         #endregion
     }
 }
