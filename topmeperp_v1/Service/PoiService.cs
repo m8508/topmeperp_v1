@@ -2724,22 +2724,26 @@ namespace topmeperp.Service
                     row.CreateCell(5).SetCellValue(double.Parse(item.CONTRACT_PRICE.ToString()));
                     row.Cells[5].CellStyle = styleNumber;
                 }
-                //材料成本
+                //材料成本 與預算折扣率
                 if (null != item.MATERIAL_COST && item.MATERIAL_COST.ToString().Trim() != "")
                 {
                     row.CreateCell(6).SetCellValue(double.Parse(item.MATERIAL_COST.ToString()));
                     row.Cells[6].CellStyle = styleNumber;
+                    row.CreateCell(7).SetCellValue(100);
+                    row.Cells[7].CellStyle = style;
                 }
                 //圖算*工率
                 if (null != item.MAN_DAY_INMAP && item.MAN_DAY_INMAP.ToString().Trim() != "")
                 {
-                    row.CreateCell(7).SetCellValue(double.Parse(item.MAN_DAY_INMAP.ToString()));
-                    row.Cells[7].CellStyle = styleNumber;
+                    row.CreateCell(8).SetCellFormula(item.MAN_DAY_INMAP.ToString()+"*I3");
+                    row.Cells[8].CellStyle = styleNumber;
+                    row.CreateCell(9).SetCellValue(100);
+                    row.Cells[9].CellStyle = style;
                 }
                 //預算金額
-                ICell cel9 = row.CreateCell(9);
-                cel9.CellFormula = "H" + (idxRow + 1) + "*I" + (idxRow + 1) + "/100";
-                cel9.CellStyle = styleNumber;
+                ICell cell10 = row.CreateCell(10);
+                cell10.CellFormula = "G" + (idxRow + 1) + "*H" + (idxRow + 1) + "/100";
+                cell10.CellStyle = styleNumber;
                 logger.Debug("getBudget cell style rowid=" + idxRow);
                 idxRow++;
             }
