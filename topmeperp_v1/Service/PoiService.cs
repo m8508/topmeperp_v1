@@ -2747,7 +2747,7 @@ namespace topmeperp.Service
                 row.Cells[9].CellStyle = style;
                 //預算金額
                 ICell cell10 = row.CreateCell(10);
-                cell10.CellFormula = "(G" + (idxRow + 1) + "*H" + (idxRow + 1) + "100)+(I"+ (idxRow + 1) +"*J" + (idxRow + 1) +"/100)";
+                cell10.CellFormula = "(G" + (idxRow + 1) + "*H" + (idxRow + 1) + "/100)+(I"+ (idxRow + 1) +"*J" + (idxRow + 1) +"/100)";
                 cell10.CellStyle = styleNumber;
                 logger.Debug("getBudget cell style rowid=" + idxRow);
                 idxRow++;
