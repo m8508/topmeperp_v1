@@ -2118,7 +2118,7 @@ namespace topmeperp.Service
 
             //FAX:
             logger.Debug(sheet.GetRow(7).Cells[0].ToString());
-            form.OWNER_FAX = sheet.GetRow(7).Cells[0].ToString();
+            form.OWNER_FAX = sheet.GetRow(7).Cells[1].ToString();
 
             //3.取得表單明細,逐行讀取資料
             IRow row = null;
@@ -2675,7 +2675,7 @@ namespace topmeperp.Service
         //預算參考表
         private void getBudgetEva()
         {
-            List<DirectCost> typecodeItems = service.getDirectCost4Budget(project.PROJECT_ID);
+            List<DirectCost> typecodeItems = service.getDirectCost4BudgetRef(project.PROJECT_ID);
             //1.讀取預算表格檔案
             sheet = (XSSFSheet)hssfworkbook.GetSheet("預算參考表");
             //2.填入表頭資料
@@ -2719,30 +2719,35 @@ namespace topmeperp.Service
                 row.CreateCell(4).SetCellValue(item.MAINCODE_DESC + "-" + item.SUB_DESC);
                 row.Cells[4].CellStyle = style;
                 //合約金額
+                row.CreateCell(5).SetCellValue("");
                 if (null != item.CONTRACT_PRICE && item.CONTRACT_PRICE.ToString().Trim() != "")
                 {
-                    row.CreateCell(5).SetCellValue(double.Parse(item.CONTRACT_PRICE.ToString()));
+                    row.Cells[5].SetCellValue(double.Parse(item.CONTRACT_PRICE.ToString()));
                     row.Cells[5].CellStyle = styleNumber;
                 }
                 //材料成本 與預算折扣率
+                row.CreateCell(6).SetCellValue("");
+                row.CreateCell(7).SetCellValue("");
                 if (null != item.MATERIAL_COST && item.MATERIAL_COST.ToString().Trim() != "")
                 {
-                    row.CreateCell(6).SetCellValue(double.Parse(item.MATERIAL_COST.ToString()));
-                    row.Cells[6].CellStyle = styleNumber;
-                    row.CreateCell(7).SetCellValue(100);
-                    row.Cells[7].CellStyle = style;
+                    row.Cells[6].SetCellValue(double.Parse(item.MATERIAL_COST.ToString()));
+                    row.Cells[7].SetCellValue("100%");
                 }
+                row.Cells[6].CellStyle = styleNumber;
+                row.Cells[7].CellStyle = style;
                 //圖算*工率
+                row.CreateCell(8).SetCellValue("");
+                row.CreateCell(9).SetCellValue("");
                 if (null != item.MAN_DAY_INMAP && item.MAN_DAY_INMAP.ToString().Trim() != "")
                 {
-                    row.CreateCell(8).SetCellFormula(item.MAN_DAY_INMAP.ToString()+"*I3");
-                    row.Cells[8].CellStyle = styleNumber;
-                    row.CreateCell(9).SetCellValue(100);
-                    row.Cells[9].CellStyle = style;
+                    row.Cells[8].SetCellFormula(item.MAN_DAY_INMAP.ToString()+"*I3");
+                    row.Cells[9].SetCellValue("100%");
                 }
+                row.Cells[8].CellStyle = styleNumber;
+                row.Cells[9].CellStyle = style;
                 //預算金額
                 ICell cell10 = row.CreateCell(10);
-                cell10.CellFormula = "G" + (idxRow + 1) + "*H" + (idxRow + 1) + "/100";
+                cell10.CellFormula = "(G" + (idxRow + 1) + "*H" + (idxRow + 1) + ")+(I"+ (idxRow + 1) +"*J" + (idxRow + 1) +")";
                 cell10.CellStyle = styleNumber;
                 logger.Debug("getBudget cell style rowid=" + idxRow);
                 idxRow++;
