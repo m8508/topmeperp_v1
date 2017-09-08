@@ -335,7 +335,7 @@ namespace topmeperp.Service
 
         // string fileformat = "xlsx";
         //建立採購詢價單樣板
-        public string exportExcel4po(PLAN_SUP_INQUIRY form, List<PLAN_SUP_INQUIRY_ITEM> formItems, bool isTemp)
+        public string exportExcel4po(PLAN_SUP_INQUIRY form, List<PLAN_SUP_INQUIRY_ITEM> formItems, bool isTemp, bool isReal)
         {
             //1.讀取樣板檔案
             InitializeWorkbook(templateFile);
@@ -356,8 +356,12 @@ namespace topmeperp.Service
                 {
                     row.Cells[3].SetCellValue(double.Parse(item.ITEM_QTY.ToString())); //數量
                 }
-                // row.Cells[4].SetCellValue(idxRow - 8);//單價
-                // row.Cells[5].SetCellValue(idxRow - 8);複價
+                if (isReal && null !=item.ITEM_UNIT_PRICE && item.ITEM_UNIT_PRICE.ToString()!="")
+                {
+                    row.Cells[4].SetCellValue(item.ITEM_UNIT_PRICE.ToString());
+                    row.Cells[5].SetCellFormula("D" + (idxRow +1)+ "*E" + (idxRow+1));//複價
+                }
+
                 row.Cells[6].SetCellValue(item.ITEM_REMARK);// 備註
                                                             //建立空白欄位
                 for (int iTmp = 7; iTmp < 27; iTmp++)
@@ -373,11 +377,17 @@ namespace topmeperp.Service
             if (isTemp)
             {
                 fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\Temp\\" + form.FORM_NAME + "\\" + form.FORM_NAME + "_空白.xlsx";
-               // fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\Temp\\" + form.FORM_NAME + "\\" + form.FORM_NAME + "_空白.xlsx";
             }
             else
             {
-                fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_NAME + "_空白.xlsx";
+                if (isReal)
+                {
+                    fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.INQUIRY_FORM_ID + ".xlsx";
+                }
+                else
+                {
+                    fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_NAME + "_空白.xlsx";
+                }
             }
             var file = new FileStream(fileLocation, FileMode.Create);
             logger.Info("new file name =" + file.Name + ",path=" + file.Position);

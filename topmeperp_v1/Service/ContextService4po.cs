@@ -749,7 +749,7 @@ namespace topmeperp.Service
             {
                 getInqueryForm(f.INQUIRY_FORM_ID);
                 ZipFileCreator.CreateDirectory(tempFolder + formInquiry.FORM_NAME);
-                string fileLocation = poi.exportExcel4po(formInquiry, formInquiryItem, true);
+                string fileLocation = poi.exportExcel4po(formInquiry, formInquiryItem, true,false);
                 logger.Debug("temp file=" + fileLocation);
             }
             //4.Zip all file
