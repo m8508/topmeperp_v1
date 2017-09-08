@@ -505,10 +505,38 @@ namespace topmeperp.Controllers
                     item.BUDGET_WAGE_RATIO = decimal.Parse(lstWagePrice[j]);
                 }
                 logger.Info("Budget ratio =" + item.BUDGET_RATIO);
-                item.TYPE_CODE_1 = lsttypecode[j];
-                item.TYPE_CODE_2 = lsttypesub[j];
-                item.SYSTEM_MAIN = lstsystemmain[j];
-                item.SYSTEM_SUB = lstsystemsub[j];
+                if (lsttypecode[j].ToString() == "")
+                {
+                    item.TYPE_CODE_1 = "";
+                }
+                else
+                {
+                    item.TYPE_CODE_1 = lsttypecode[j];
+                }
+                if (lsttypesub[j].ToString() == "")
+                {
+                    item.TYPE_CODE_2 = "";
+                }
+                else
+                {
+                    item.TYPE_CODE_2 = lsttypesub[j];
+                }
+                if (lstsystemmain[j].ToString() == "")
+                {
+                    item.SYSTEM_MAIN = "";
+                }
+                else
+                {
+                    item.SYSTEM_MAIN = lstsystemmain[j];
+                }
+                if (lstsystemsub[j].ToString() == "")
+                {
+                    item.SYSTEM_SUB = "";
+                }
+                else
+                {
+                    item.SYSTEM_SUB = lstsystemsub[j];
+                }
                 item.MODIFY_ID = u.USER_ID;
                 logger.Debug("Item Project id =" + item.PROJECT_ID + "且九宮格組合為" + item.TYPE_CODE_1 + item.TYPE_CODE_2 + item.SYSTEM_MAIN + item.SYSTEM_SUB);
                 lstItem.Add(item);

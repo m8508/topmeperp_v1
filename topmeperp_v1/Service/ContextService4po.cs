@@ -121,7 +121,7 @@ namespace topmeperp.Service
                         parameters.Add(new SqlParameter("code2", item.TYPE_CODE_2));
                         parameters.Add(new SqlParameter("systemmain", item.SYSTEM_MAIN));
                         parameters.Add(new SqlParameter("systemsub", item.SYSTEM_SUB));
-                        string sql = "SELECT * FROM PLAN_BUDGET WHERE PROJECT_ID = @projectid and TYPE_CODE_1 + TYPE_CODE_2 + SYSTEM_MAIN + SYSTEM_SUB = @code1 + @code2 + @systemmain + @systemsub";
+                        string sql = "SELECT * FROM PLAN_BUDGET WHERE PROJECT_ID = @projectid and ISNULL(TYPE_CODE_1, '') + ISNULL(TYPE_CODE_2, '') + ISNULL(SYSTEM_MAIN, '') + ISNULL(SYSTEM_SUB, '') = @code1 + @code2 + @systemmain + @systemsub";
                         logger.Info(sql + " ;" + item.PROJECT_ID + item.TYPE_CODE_1 + item.TYPE_CODE_2 + item.SYSTEM_MAIN + item.SYSTEM_SUB);
                         PLAN_BUDGET excelItem = context.PLAN_BUDGET.SqlQuery(sql, parameters.ToArray()).First();
                         existItem = context.PLAN_BUDGET.Find(excelItem.PLAN_BUDGET_ID);
@@ -129,6 +129,7 @@ namespace topmeperp.Service
                     }
                     logger.Debug("find exist item=" + existItem.PLAN_BUDGET_ID);
                     existItem.BUDGET_RATIO = item.BUDGET_RATIO;
+                    existItem.BUDGET_WAGE_RATIO = item.BUDGET_WAGE_RATIO;
                     existItem.MODIFY_ID = item.MODIFY_ID;
                     existItem.MODIFY_DATE = DateTime.Now;
                     context.PLAN_BUDGET.AddOrUpdate(existItem);
@@ -144,8 +145,8 @@ namespace topmeperp.Service
             logger.Info("update budget ratio to plan items by id :" + id);
             string sql = "UPDATE PLAN_ITEM SET PLAN_ITEM.BUDGET_RATIO = plan_budget.BUDGET_RATIO, PLAN_ITEM.BUDGET_WAGE_RATIO = plan_budget.BUDGET_WAGE_RATIO " +
                    "from PLAN_ITEM inner join " +
-                   "plan_budget on @id + PLAN_ITEM.TYPE_CODE_1 + PLAN_ITEM.TYPE_CODE_2 + PLAN_ITEM.SYSTEM_MAIN + PLAN_ITEM.SYSTEM_SUB " +
-                   "= @id + plan_budget.TYPE_CODE_1 + plan_budget.TYPE_CODE_2 + plan_budget.SYSTEM_MAIN + plan_budget.SYSTEM_SUB ";
+                   "plan_budget on @id + ISNULL(PLAN_ITEM.TYPE_CODE_1, '') + ISNULL(PLAN_ITEM.TYPE_CODE_2, '') + ISNULL(PLAN_ITEM.SYSTEM_MAIN, '') + ISNULL(PLAN_ITEM.SYSTEM_SUB, '') " +
+                   "= @id + ISNULL(plan_budget.TYPE_CODE_1, '') + ISNULL(plan_budget.TYPE_CODE_2, '') + ISNULL(plan_budget.SYSTEM_MAIN, '') + ISNULL(plan_budget.SYSTEM_SUB, '') ";
             logger.Debug("sql:" + sql);
             db = new topmepEntities();
             var parameters = new List<SqlParameter>();
@@ -295,8 +296,8 @@ namespace topmeperp.Service
                     "ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON it.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID RIGHT OUTER JOIN PLAN_ITEM pi ON it.PROJECT_ITEM_ID = pi.PLAN_ITEM_ID WHERE it.project_id = @projectid) A " +
                     "GROUP BY TYPE_CODE_1, TYPE_CODE_2, A.SYSTEM_MAIN, A.SYSTEM_SUB) B LEFT OUTER JOIN (SELECT p.TYPE_CODE_1, p.TYPE_CODE_2, p.SYSTEM_MAIN, p.SYSTEM_SUB, SUM(p.BUDGET_RATIO*p.ITEM_QUANTITY)/SUM(p.ITEM_QUANTITY) BUDGET_RATIO, " +
                     "SUM(p.BUDGET_WAGE_RATIO*p.ITEM_QUANTITY)/SUM(p.ITEM_QUANTITY) BUDGET_WAGE_RATIO, " +
-                    "SUM(p.TND_RATIO*p.ITEM_QUANTITY)/SUM(p.ITEM_QUANTITY) COST_RATIO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid GROUP BY p.TYPE_CODE_1, p.TYPE_CODE_2, p.SYSTEM_MAIN, p.SYSTEM_SUB) D ON MAINCODE + SUB_CODE + B.SYSTEM_MAIN + B.SYSTEM_SUB = D.TYPE_CODE_1 + D.TYPE_CODE_2 + D.SYSTEM_MAIN + D.SYSTEM_SUB " +
-                    ") C GROUP BY MAINCODE, MAINCODE_DESC, SUB_CODE, SUB_DESC, C.SYSTEM_MAIN, C.SYSTEM_SUB, MATERIAL_COST_INMAP, MAN_DAY, CONTRACT_PRICE, BUDGET, COST_RATIO ORDER BY MAINCODE, SUB_CODE";
+                    "SUM(p.TND_RATIO*p.ITEM_QUANTITY)/SUM(p.ITEM_QUANTITY) COST_RATIO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid GROUP BY p.TYPE_CODE_1, p.TYPE_CODE_2, p.SYSTEM_MAIN, p.SYSTEM_SUB) D ON ISNULL(MAINCODE, '') + ISNULL(SUB_CODE, '') + ISNULL(B.SYSTEM_MAIN, '') + ISNULL(B.SYSTEM_SUB, '') = ISNULL(D.TYPE_CODE_1, '') + ISNULL(D.TYPE_CODE_2, '') + ISNULL(D.SYSTEM_MAIN, '') + ISNULL(D.SYSTEM_SUB, '') " +
+                    ") C GROUP BY MAINCODE, MAINCODE_DESC, SUB_CODE, SUB_DESC, C.SYSTEM_MAIN, C.SYSTEM_SUB, MATERIAL_COST_INMAP, MAN_DAY, CONTRACT_PRICE, BUDGET, BUDGET_WAGE, COST_RATIO ORDER BY ISNULL(MAINCODE, '無'), ISNULL(SUB_CODE, '無') ";
                 logger.Info("sql = " + sql);
                 var parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("projectid", projectid));

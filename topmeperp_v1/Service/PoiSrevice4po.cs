@@ -214,7 +214,7 @@ namespace topmeperp.Service
                 }
                 logger.Debug("Excel Value:" + slog);
                 //將各Row 資料寫入物件內
-                //0.九宮格	1.次九宮格 2.主系統 3.次系統 4.預算折扣率
+                //0.九宮格	1.次九宮格 2.主系統 3.次系統 4.預算折扣率 6.工資預算折扣率
                 if (row.Cells[0].ToString().ToUpper() != "END")
                 {
                     lstBudget.Add(convertRow2PlanBudget(row, iRowIndex));
@@ -268,13 +268,28 @@ namespace topmeperp.Service
             //    }
 
             //}
-            if (null != row.Cells[row.Cells.Count - 2].ToString().Trim() || row.Cells[row.Cells.Count - 2].ToString().Trim() != "")//5.預算折數
+            if (null != row.Cells[row.Cells.Count - 4].ToString().Trim() || row.Cells[row.Cells.Count - 4].ToString().Trim() != "")//5.預算折數
+            {
+                try
+                {
+                    decimal dQty = decimal.Parse(row.Cells[row.Cells.Count - 4].ToString());
+                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[row.Cells.Count - 4].ToString());
+                    item.BUDGET_RATIO = dQty;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[6].value=" + row.Cells[row.Cells.Count - 4].ToString());
+                    logger.Error(e);
+                }
+
+            }
+            if (null != row.Cells[row.Cells.Count - 2].ToString().Trim() || row.Cells[row.Cells.Count - 2].ToString().Trim() != "")//6.工資預算折數
             {
                 try
                 {
                     decimal dQty = decimal.Parse(row.Cells[row.Cells.Count - 2].ToString());
                     logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[row.Cells.Count - 2].ToString());
-                    item.BUDGET_RATIO = dQty;
+                    item.BUDGET_WAGE_RATIO = dQty;
                 }
                 catch (Exception e)
                 {

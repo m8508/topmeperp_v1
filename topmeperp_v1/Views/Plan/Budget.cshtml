@@ -98,7 +98,7 @@
                         {
                             if (ViewBag.budgetdata != null)
                             {
-                                if (item.MAINCODE != null && item.SUB_CODE != "0")
+                                if (item.MAINCODE != null && item.SUB_CODE != null)
                                 {
                                     <tr>
                                         <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
@@ -119,7 +119,7 @@
                                         </td>
                                     </tr>
                                 }
-                                else if (item.SUB_CODE == "0")
+                                else if (item.SUB_CODE == null)
                                 {
                                     <tr>
                                         <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
@@ -141,7 +141,7 @@
                             }
                             else
                             {
-                                if (item.MAINCODE != null && item.SUB_CODE != "0")
+                                if (item.MAINCODE != null && item.SUB_CODE != null)
                                 {
                                     <tr>
                                         <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
@@ -162,7 +162,7 @@
                                         </td>
                                     </tr>
                                 }
-                                else if (item.SUB_CODE == "0")
+                                else if (item.SUB_CODE == null)
                                 {
                                     <tr>
                                         <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
