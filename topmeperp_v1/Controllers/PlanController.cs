@@ -61,7 +61,7 @@ namespace topmeperp.Controllers
             }
         }
 
-        //上傳得標後標單內容(用於標單內容有異動時)
+        //上傳得標後標單內容(用於標單內容有異動時)_2017/9/8
         [HttpPost]
         public ActionResult uploadPlanItem(TND_PROJECT prj, HttpPostedFileBase file)
         {
