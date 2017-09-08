@@ -747,11 +747,13 @@ namespace topmeperp.Service
             foreach (PLAN_SUP_INQUIRY f in lstTemplate)
             {
                 getInqueryForm(f.INQUIRY_FORM_ID);
+                ZipFileCreator.CreateDirectory(tempFolder + formInquiry.FORM_NAME);
                 string fileLocation = poi.exportExcel4po(formInquiry, formInquiryItem, true);
                 logger.Debug("temp file=" + fileLocation);
             }
             //4.Zip all file
-            return zipTool.ZipFiles(tempFolder, null, p.PROJECT_NAME);
+            return zipTool.ZipDirectory(tempFolder);
+            //return zipTool.ZipFiles(tempFolder, null, p.PROJECT_NAME);
         }
         //取得採購詢價單樣板(供應商欄位為0)
         public List<PLAN_SUP_INQUIRY> getFormTemplateByProject(string projectid)

@@ -2731,7 +2731,7 @@ namespace topmeperp.Service
                 if (null != item.MATERIAL_COST && item.MATERIAL_COST.ToString().Trim() != "")
                 {
                     row.Cells[6].SetCellValue(double.Parse(item.MATERIAL_COST.ToString()));
-                    row.Cells[7].SetCellValue(100);
+                    row.Cells[7].SetCellValue("100%");
                 }
                 row.Cells[6].CellStyle = styleNumber;
                 row.Cells[7].CellStyle = style;
@@ -2741,13 +2741,13 @@ namespace topmeperp.Service
                 if (null != item.MAN_DAY_INMAP && item.MAN_DAY_INMAP.ToString().Trim() != "")
                 {
                     row.Cells[8].SetCellFormula(item.MAN_DAY_INMAP.ToString()+"*I3");
-                    row.Cells[9].SetCellValue(100);
+                    row.Cells[9].SetCellValue("100%");
                 }
                 row.Cells[8].CellStyle = styleNumber;
                 row.Cells[9].CellStyle = style;
                 //預算金額
                 ICell cell10 = row.CreateCell(10);
-                cell10.CellFormula = "(G" + (idxRow + 1) + "*H" + (idxRow + 1) + "/100)+(I"+ (idxRow + 1) +"*J" + (idxRow + 1) +"/100)";
+                cell10.CellFormula = "(G" + (idxRow + 1) + "*H" + (idxRow + 1) + ")+(I"+ (idxRow + 1) +"*J" + (idxRow + 1) +")";
                 cell10.CellStyle = styleNumber;
                 logger.Debug("getBudget cell style rowid=" + idxRow);
                 idxRow++;
