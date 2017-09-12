@@ -68,5 +68,6 @@ namespace topmeperp.Models
         public virtual DbSet<PLAN_INVOICE> PLAN_INVOICE { get; set; }
         public virtual DbSet<PLAN_BUDGET> PLAN_BUDGET { get; set; }
         public virtual DbSet<PLAN_ITEM> PLAN_ITEM { get; set; }
+        public virtual DbSet<PLAN_ACCOUNT> PLAN_ACCOUNT { get; set; }
     }
 }

@@ -423,4 +423,13 @@ namespace topmeperp.Models
         public string CONTRACT_NAME { get; set; }
         public Nullable<decimal> BALANCE { get; set; }
     }
+
+    public class CashFlowFunction
+    {
+        public string DATE_CASHFLOW { get; set; }
+        public Nullable<decimal> AMOUNT_INFLOW { get; set; }
+        public Nullable<decimal> AMOUNT_OUTFLOW { get; set; }
+        public Nullable<decimal> BALANCE { get; set; }
+        public Nullable<decimal> RUNNING_TOTAL { get; set; }
+    }
 }

@@ -5,6 +5,20 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
     <Schema Namespace="topmepModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="PLAN_ACCOUNT">
+          <Key>
+            <PropertyRef Name="PLAN_ACCOUNT_ID" />
+          </Key>
+          <Property Name="PLAN_ACCOUNT_ID" Type="bigint" Nullable="false" />
+          <Property Name="PROJECT_ID" Type="varchar" MaxLength="20" />
+          <Property Name="CONTRACT_ID" Type="varchar" MaxLength="50" />
+          <Property Name="EST_FORM_ID" Type="varchar" MaxLength="50" />
+          <Property Name="PAYMENT_DATE" Type="datetime" />
+          <Property Name="AMOUNT" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="ACCOUNT_TYPE" Type="varchar" MaxLength="1" />
+          <Property Name="ISDEBIT" Type="varchar" MaxLength="1" />
+          <Property Name="STATUS" Type="int" />
+        </EntityType>
         <EntityType Name="PLAN_BUDGET">
           <Key>
             <PropertyRef Name="PLAN_BUDGET_ID" />
@@ -819,6 +833,7 @@
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="topmepModelStoreContainer">
+          <EntitySet Name="PLAN_ACCOUNT" EntityType="Self.PLAN_ACCOUNT" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAN_BUDGET" EntityType="Self.PLAN_BUDGET" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAN_DALIY_REPORT" EntityType="Self.PLAN_DALIY_REPORT" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAN_DR_ITEM" EntityType="Self.PLAN_DR_ITEM" Schema="dbo" store:Type="Tables" />
@@ -1138,6 +1153,7 @@
           <EntitySet Name="PLAN_INVOICE" EntityType="topmepModel.PLAN_INVOICE" />
           <EntitySet Name="PLAN_BUDGET" EntityType="topmepModel.PLAN_BUDGET" />
           <EntitySet Name="PLAN_ITEM" EntityType="topmepModel.PLAN_ITEM" />
+          <EntitySet Name="PLAN_ACCOUNT" EntityType="topmepModel.PLAN_ACCOUNT" />
         </EntityContainer>
         <EntityType Name="TND_PROJECT_FORM_ITEM">
           <Key>
@@ -1754,6 +1770,20 @@
           <Property Name="INQUIRY_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="MAN_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="BUDGET_WAGE_RATIO" Type="Decimal" Precision="18" Scale="3" />
+        </EntityType>
+        <EntityType Name="PLAN_ACCOUNT">
+          <Key>
+            <PropertyRef Name="PLAN_ACCOUNT_ID" />
+          </Key>
+          <Property Name="PLAN_ACCOUNT_ID" Type="Int64" Nullable="false" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="CONTRACT_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="EST_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PAYMENT_DATE" Type="DateTime" Precision="3" />
+          <Property Name="AMOUNT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="ACCOUNT_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="ISDEBIT" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="STATUS" Type="Int32" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -2578,6 +2608,21 @@
                 <ScalarProperty Name="ITEM_ID" ColumnName="ITEM_ID" />
                 <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
                 <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_ACCOUNT">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_ACCOUNT">
+              <MappingFragment StoreEntitySet="PLAN_ACCOUNT">
+                <ScalarProperty Name="STATUS" ColumnName="STATUS" />
+                <ScalarProperty Name="ISDEBIT" ColumnName="ISDEBIT" />
+                <ScalarProperty Name="ACCOUNT_TYPE" ColumnName="ACCOUNT_TYPE" />
+                <ScalarProperty Name="AMOUNT" ColumnName="AMOUNT" />
+                <ScalarProperty Name="PAYMENT_DATE" ColumnName="PAYMENT_DATE" />
+                <ScalarProperty Name="EST_FORM_ID" ColumnName="EST_FORM_ID" />
+                <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
+                <ScalarProperty Name="PLAN_ACCOUNT_ID" ColumnName="PLAN_ACCOUNT_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

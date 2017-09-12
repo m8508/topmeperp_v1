@@ -1,0 +1,55 @@
+﻿@model IEnumerable<topmeperp.Models.PLAN_ACCOUNT>
+
+<div class="container">
+    <h2 class="text-center" style="padding-top:50px;">收入明細</h2>
+</div>
+<input type="button" class="btn btn-success" onclick="closewin();" value="關閉">
+<div style="padding-top:30px;">
+    <table class="table">
+        <tr>
+            <th>
+                估驗單編號
+            </th>
+            <th>
+                預計入帳日期
+            </th>
+            <th>
+                金額
+            </th>
+            <th>
+                帳款類別
+            </th>
+            <th>
+                暫不入帳
+            </th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <a href="/Estimation/SingleEST?id=@item.EST_FORM_ID" target="_blank">@item.EST_FORM_ID</a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PAYMENT_DATE)
+                </td>
+                <td>
+                    @String.Format("{0:$#,##0.#}", item.AMOUNT)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ACCOUNT_TYPE)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.STATUS)
+                </td>
+            </tr>
+        }
+    </table>
+</div>
+
+<script type="text/javascript">
+function closewin()
+{
+window.open('', '_self', ''); window.close();
+}
+</script>

@@ -701,13 +701,30 @@ namespace topmeperp.Service
             try
             {
                 logger.Debug(sheet.GetRow(5).Cells[2].ToString() + "," + sheet.GetRow(5).Cells[3].ToString() + "," + sheet.GetRow(5).Cells[3].CellType);
-                form.DUEDATE = DateTime.Parse(sheet.GetRow(5).Cells[3].ToString());
-
+                if (null == sheet.GetRow(5).Cells[3] || "" == sheet.GetRow(5).Cells[3].ToString())
+                {
+                    form.DUEDATE = DateTime.Now;
+                }
+                else
+                {
+                    string[] aryDate = sheet.GetRow(5).Cells[3].ToString().Split('/');
+                    int intYear = int.Parse(aryDate[0]); ;
+                    int intMonth = int.Parse(aryDate[1]);
+                    int intDay = int.Parse(aryDate[2]);
+                    if (intYear < 1900)
+                    {
+                        intYear = intYear + 1911;
+                    }
+                    DateTime dtDueDate = new DateTime(intYear, intMonth, intDay);
+                    form.DUEDATE = dtDueDate;
+                }
+                logger.Debug("form.DUEDATE:" + form.DUEDATE);
             }
             catch (Exception ex)
             {
                 logger.Error("Datetime format error: " + ex.Message);
-                throw new Exception("日期格式有錯(YYYY/MM/DD");
+                form.DUEDATE = DateTime.Now;
+                // throw new Exception("日期格式有錯(YYYY/MM/DD");
             }
             //電子信箱:	admin@topmep
             logger.Debug(sheet.GetRow(6).Cells[0].ToString() + "," + sheet.GetRow(6).Cells[1]);

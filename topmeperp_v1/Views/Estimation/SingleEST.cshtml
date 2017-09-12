@@ -333,12 +333,12 @@
         @if (Model.planEST.STATUS < 20)
         {
             <input type="submit" value="儲存" id="SaveEst" name="SaveEst" class="btn btn-default" />
-            <input type="submit" value="送審" id="SubmitEst" name="SubmitEst" class="btn btn-warning" onclick="return Confirm_Form()" />
+            <input type="submit" value="送審" id="SubmitEst" name="SubmitEst" class="btn btn-warning" />
         }
         @if (Model.planEST.STATUS >= 20 && Model.planEST.STATUS < 30)
         {
             <input type="submit" value="退件" id="RejectEst" name="RejectEst" class="btn btn-warning" />
-            <input type="submit" value="核可" id="ApproveEst" name="ConfirmEst" class="btn btn-danger" />
+            <input type="submit" value="核可" id="ApproveEst" name="ApproveEst" class="btn btn-danger" />
         }
     </div>
 </div>

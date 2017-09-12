@@ -1,0 +1,88 @@
+﻿@model IEnumerable<topmeperp.Models.CashFlowFunction>
+
+<div class="container">
+    <h2 class="text-center" style="padding-top:50px;">收支報表</h2>
+</div>
+<input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+<div style="padding-top:30px;">
+    <table class="table">
+        <tr>
+            <th>
+                日期
+            </th>
+            <th>
+                收入
+            </th>
+            <th>
+                支出
+            </th>
+            <th>
+                合計
+            </th>
+            <th>
+                累計
+            </th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DATE_CASHFLOW)
+                </td>
+                @if (item.AMOUNT_INFLOW != 0)
+                {
+                    <td>
+                        <a href="/CashFlow/CashInFlowItem?id=@item.DATE_CASHFLOW" target="_blank">@String.Format("{0:$#,##0.#}", item.AMOUNT_INFLOW)</a>
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        @String.Format("{0:$#,##0.#}", item.AMOUNT_INFLOW)
+                    </td>
+                }
+                @if (item.AMOUNT_OUTFLOW != 0)
+                {
+                    <td>
+                        <a href="/CashFlow/CashOutFlowItem?id=@item.DATE_CASHFLOW" target="_blank">@String.Format("{0:$#,##0.#}", item.AMOUNT_OUTFLOW)</a>
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        @String.Format("{0:$#,##0.#}", item.AMOUNT_OUTFLOW)
+                    </td>
+                }
+                @if (item.BALANCE >= 0)
+                    {
+                        <td>
+                            @String.Format("{0:$#,##0.#; ($#,##0.#);-}", item.BALANCE)
+                        </td>
+                    }
+                    else
+                    {
+                        <td>
+                            <span style="font-weight:bold;color:crimson">
+                                @String.Format("{0:$#,##0.#; ($#,##0.#);-}", item.BALANCE)
+                            </span>
+                        </td>
+                    }
+                    @if (item.RUNNING_TOTAL >= 0)
+                    {
+                        <td>
+                            @String.Format("{0:$#,##0.#; ($#,##0.#);-}", item.RUNNING_TOTAL)
+                        </td>
+                    }
+                    else
+                    {
+                        <td>
+                            <span style="font-weight:bold;color:crimson">
+                                @String.Format("{0:$#,##0.#; ($#,##0.#);-}", item.RUNNING_TOTAL)
+                            </span>
+                        </td>
+                    }
+                </tr>
+                }
+            </table>
+        </div>

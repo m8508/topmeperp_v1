@@ -400,6 +400,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\CashFlowController.cs" />
     <Compile Include="Controllers\EstimationController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InquiryController.cs" />
@@ -422,6 +423,9 @@
     <Compile Include="Models\BOExtentionModels.cs" />
     <Compile Include="Models\BusinessObjectModels.cs" />
     <Compile Include="Models\PivotDataModel.cs" />
+    <Compile Include="Models\PLAN_ACCOUNT.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\PLAN_BUDGET.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
@@ -901,6 +905,9 @@
     <Content Include="Views\PurchaseForm\SinglePrjForm4All.cshtml" />
     <Content Include="Views\PurchaseForm\_PurchaseSupplier4All.cshtml" />
     <Content Include="UploadFile\Inquiry_form_templateAll.xlsx" />
+    <Content Include="Views\CashFlow\Index.cshtml" />
+    <Content Include="Views\CashFlow\CashInFlowItem.cshtml" />
+    <Content Include="Views\CashFlow\CashOutFlowItem.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

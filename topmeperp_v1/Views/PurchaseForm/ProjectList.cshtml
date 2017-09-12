@@ -14,10 +14,10 @@
             業主管理
         </th>
         <th>
-            詢價與採購管理
+            詢價與議約發包管理
         </th>
         <th>
-            供應商發包管理
+            供應商採購管理
         </th>
     </tr>
 
@@ -38,14 +38,15 @@
                 <button type="button" class="btn btn-info" onclick="location.href='@Url.Action("ManagePlanItem", "Plan", new { id = item.PROJECT_ID })'; ">標單上傳與查詢</button>
             </td>
             <td>
-                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("FormMainPage","PurchaseForm", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">詢價單新增 / 廠商詢價單查詢</button>
-                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PurchaseOrder","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">採購作業</button>
-                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PurchaseOrderIndex","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">採購單查詢</button>
+                <button type="button" class="btn btn-warning" @ViewBag.F10005 onclick="location.href='@Url.Action("Budget", "Plan", new { id = item.PROJECT_ID })'">預算作業</button>
+                <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("FormMainPage","PurchaseForm", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">詢價單新增 / 廠商詢價單查詢</button>
+                <button type="button" class="btn btn-info" onclick="location.href='@Url.Action("PurchaseMain", "PurchaseForm", new { id = item.PROJECT_ID })'; ">議約發包</button>
+                <button type="button" class="btn btn-info" onclick="location.href='@Url.Action("LeadTimeMainPage", "PurchaseForm", new { id = item.PROJECT_ID })'; ">設備前置時間</button>
+               
             </td>
             <td>
-                <button type="button" class="btn btn-info" @ViewBag.F10005 onclick="location.href='@Url.Action("Budget", "Plan", new { id = item.PROJECT_ID })'">預算作業</button>
-                <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("PurchaseMain", "PurchaseForm", new { id = item.PROJECT_ID })'; ">議約發包</button>
-                <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("LeadTimeMainPage", "PurchaseForm", new { id = item.PROJECT_ID })'; ">設備前置時間</button>
+                <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("PurchaseOrder","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">採購作業</button>
+                <button type="button" class="btn btn-info" onclick="location.href='@Url.Action("PurchaseOrderIndex","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">採購單查詢</button>
             </td>
         </tr>
     }

@@ -3486,5 +3486,59 @@ namespace topmeperp.Service
             return i;
         }
         #endregion
+
+        //取得6個月內現金流資料
+        public List<CashFlowFunction> getCashFlow()
+        {
+
+            logger.Info("get cash flow order by date in six months !!");
+            List<CashFlowFunction> lstItem = new List<CashFlowFunction>();
+            //處理SQL 預先填入ID,設定集合處理參數
+            using (var context = new topmepEntities())
+            {
+                lstItem = context.Database.SqlQuery<CashFlowFunction>("SELECT C.DATE_CASHFLOW AS DATE_CASHFLOW, C.AMOUNT_INFLOW AS AMOUNT_INFLOW, C.AMOUNT_OUTFLOW AS AMOUNT_OUTFLOW, C.BALANCE AS BALANCE, C.RUNNING_TOTAL AS RUNNING_TOTAL " +
+                    "FROM (SELECT CASHFLOW_1.DATE_CASHFLOW, CASHFLOW_1.AMOUNT_INFLOW, CASHFLOW_1.AMOUNT_OUTFLOW, CASHFLOW_1.BALANCE, SUM(CASHFLOW_2.BALANCE) RUNNING_TOTAL FROM (SELECT DISTINCT CONVERT(char(10), pa.PAYMENT_DATE, 111) AS DATE_CASHFLOW, " +
+                    "ISNULL(A.AMOUNT_INFLOW,0) AS AMOUNT_INFLOW, ISNULL(B.AMOUNT_OUTFLOW, 0) AS AMOUNT_OUTFLOW, ISNULL(A.AMOUNT_INFLOW, 0) - ISNULL(B.AMOUNT_OUTFLOW, 0) AS BALANCE FROM PLAN_ACCOUNT pa LEFT JOIN " +
+                    "(SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_INFLOW, SUM(pla.AMOUNT) AS AMOUNT_INFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'Y' AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 " +
+                    "GROUP BY CONVERT(char(10), PAYMENT_DATE, 111))A ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = A.DATE_INFLOW LEFT JOIN(SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_OUTFLOW, " +
+                    "SUM(pla.AMOUNT) AS AMOUNT_OUTFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'N' AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYMENT_DATE, 111))B " +
+                    "ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = B.DATE_OUTFLOW)CASHFLOW_1, (SELECT DISTINCT CONVERT(char(10), pa.PAYMENT_DATE, 111) AS DATE_CASHFLOW, ISNULL(A.AMOUNT_INFLOW, 0) AS AMOUNT_INFLOW, " +
+                    "ISNULL(B.AMOUNT_OUTFLOW, 0) AS AMOUNT_OUTFLOW, ISNULL(A.AMOUNT_INFLOW, 0) -ISNULL(B.AMOUNT_OUTFLOW, 0) AS BALANCE FROM PLAN_ACCOUNT pa LEFT JOIN (SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_INFLOW, " +
+                    "SUM(pla.AMOUNT) AS AMOUNT_INFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'Y' AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 " +
+                    "GROUP BY CONVERT(char(10), PAYMENT_DATE, 111))A ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = A.DATE_INFLOW LEFT JOIN (SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_OUTFLOW, " +
+                    "SUM(pla.AMOUNT) AS AMOUNT_OUTFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'N' AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYMENT_DATE, 111))B " +
+                    "ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = B.DATE_OUTFLOW)CASHFLOW_2 WHERE CASHFLOW_1.DATE_CASHFLOW >= CASHFLOW_2.DATE_CASHFLOW GROUP BY CASHFLOW_1.DATE_CASHFLOW,CASHFLOW_1.AMOUNT_INFLOW, CASHFLOW_1.AMOUNT_OUTFLOW,CASHFLOW_1.BALANCE)C " +
+                    "WHERE C.AMOUNT_INFLOW <> 0 OR C.AMOUNT_OUTFLOW <> 0 ORDER BY C.DATE_CASHFLOW ASC ; ").ToList();
+                logger.Info("Get Cash Flow Count=" + lstItem.Count);
+            }
+
+            return lstItem;
+        }
+
+        //取得特定日期之收入(Debit)
+        public List<PLAN_ACCOUNT> getDebitByDate(string date)
+        {
+            List<PLAN_ACCOUNT> lstDebit = new List<PLAN_ACCOUNT>();
+            using (var context = new topmepEntities())
+            {
+                lstDebit = context.PLAN_ACCOUNT.SqlQuery("select a.* from PLAN_ACCOUNT a "
+                    + "where a.ISDEBIT = 'Y' AND CONVERT(char(10),a.PAYMENT_DATE,111) = @date "
+                   , new SqlParameter("date", date)).ToList();
+            }
+            return lstDebit;
+        }
+
+        //取得特定日期之支出(Credit)
+        public List<PLAN_ACCOUNT> getCreditByDate(string date)
+        {
+            List<PLAN_ACCOUNT> lstCredit = new List<PLAN_ACCOUNT>();
+            using (var context = new topmepEntities())
+            {
+                lstCredit = context.PLAN_ACCOUNT.SqlQuery("select a.* from PLAN_ACCOUNT a "
+                    + "where a.ISDEBIT = 'N' AND CONVERT(char(10),a.PAYMENT_DATE,111) = @date "
+                   , new SqlParameter("date", date)).ToList();
+            }
+            return lstCredit;
+        }
     }
 }
