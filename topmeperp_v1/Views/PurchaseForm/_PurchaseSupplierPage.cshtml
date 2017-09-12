@@ -65,14 +65,16 @@
                         </td>
 
                         <td>@item.STATUS</td>
-                        <td><a href='@("../../UploadFile/" + ViewBag.projectid + "/Quotes/" + item.INQUIRY_FORM_ID + ".xlsx")'>下載</a></td>
+                        <td>
+                            <a href="/PurchaseForm/downLoadInquiryForm?formid=@item.INQUIRY_FORM_ID&isTemp=N&isReal=Y" target="_blank">下載</a>
+                        </td>
 
                     </tr>
-                }
+                                }
             </tbody>
         </table>
     </div>
-}
+                                }
 <script type="text/javascript">
     $(function () {
         $("#UploadForm").ajaxForm({

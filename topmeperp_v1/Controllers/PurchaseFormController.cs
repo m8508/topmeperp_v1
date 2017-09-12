@@ -102,7 +102,7 @@ namespace topmeperp.Controllers
             //樣本轉廠商採購單時再產生即可)
             service.getInqueryForm(fid);
             PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
-            poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false);
+            poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false,false);
             return Redirect("FormMainPage?id=" + qf.PROJECT_ID);
             //return RedirectToAction("InquiryMainPage","Inquiry", qf.PROJECT_ID);
         }
@@ -264,7 +264,7 @@ namespace topmeperp.Controllers
             //產生廠商詢價單實體檔案
             service.getInqueryForm(fid);
             PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
-            poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false);
+            poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false,true);
             if (fid == "")
             {
                 msg = service.message;
@@ -453,12 +453,22 @@ namespace topmeperp.Controllers
         public void downLoadInquiryForm()
         {
             string formid = Request["formid"];
+            bool isTemp = false;
+            bool isReal = false;
             service.getInqueryForm(formid);
+            if (null != Request["isTemp"] && Request["isTemp"]=="Y")
+            {
+                isTemp = true;
+            }
+            if (null != Request["isReal"] && Request["isReal"] == "Y")
+            {
+                isReal = true;
+            }
             if (null != service.formInquiry)
             {
                 PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
                 //檔案位置
-                string fileLocation = poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false);
+                string fileLocation = poi.exportExcel4po(service.formInquiry, service.formInquiryItem, isTemp, isReal);
                 //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
                 string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
                 Response.Clear();
