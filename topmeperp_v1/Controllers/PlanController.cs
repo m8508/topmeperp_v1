@@ -23,20 +23,7 @@ namespace topmeperp.Controllers
         {
             List<topmeperp.Models.TND_PROJECT> lstProject = SearchProjectByName("", "專案執行");
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
-            //畫面上權限管理控制
-            //頁面上使用ViewBag 定義開關\@ViewBag.F10005
-            //由Session 取得權限清單
-            List<SYS_FUNCTION> lstFunctions = (List<SYS_FUNCTION>)Session["functions"];
-            //開關預設關閉
-            @ViewBag.F10005 = "disabled";
-            //輪巡功能清單，若全線存在則將開關打開 @ViewBag.F10005 = "";
-            foreach (SYS_FUNCTION f in lstFunctions)
-            {
-                if (f.FUNCTION_ID == "F10005")
-                {
-                    @ViewBag.F10005 = "";
-                }
-            }
+            
             return View(lstProject);
         }
 
@@ -118,7 +105,6 @@ namespace topmeperp.Controllers
             TND_PROJECT p = service.getProjectById(id);
             ViewBag.id = p.PROJECT_ID;
             ViewBag.projectName = p.PROJECT_NAME;
-
             SelectListItem empty = new SelectListItem();
             empty.Value = "";
             empty.Text = "";
@@ -167,6 +153,20 @@ namespace topmeperp.Controllers
             logger.Debug("Exception check=" + Request["chkEx"]);
             List<PLAN_ITEM> lstItems = service.getPlanItem(Request["chkEx"], Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"], Request["supplier"], Request["selDelFlag"]);
             ViewBag.Result = "共" + lstItems.Count + "筆資料";
+            //畫面上權限管理控制
+            //頁面上使用ViewBag 定義開關\@ViewBag.F10005
+            //由Session 取得權限清單
+            List<SYS_FUNCTION> lstFunctions = (List<SYS_FUNCTION>)Session["functions"];
+            //開關預設關閉
+            @ViewBag.F10005 = "disabled";
+            //輪巡功能清單，若全線存在則將開關打開 @ViewBag.F10005 = "";
+            foreach (SYS_FUNCTION f in lstFunctions)
+            {
+                if (f.FUNCTION_ID == "F10005")
+                {
+                    @ViewBag.F10005 = "";
+                }
+            }
             return PartialView(lstItems);
         }
         public string getPlanItem(string itemid)
@@ -214,6 +214,14 @@ namespace topmeperp.Controllers
             catch (Exception ex)
             {
                 logger.Error(item.PLAN_ITEM_ID + " not unit price:" + ex.Message);
+            }
+            try
+            {
+                item.ITEM_UNIT_COST = decimal.Parse(form["item_unit_cost"]);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(item.PLAN_ITEM_ID + " not unit cost:" + ex.Message);
             }
             item.ITEM_REMARK = form["item_remark"];
             if (form["type_code_1"].Trim() != "")

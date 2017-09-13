@@ -536,6 +536,7 @@ namespace topmeperp.Service
                 db.Database.ExecuteSqlCommand(sql, new SqlParameter("projectid", item.PROJECT_ID), new SqlParameter("ExcelRowId", item.EXCEL_ROW_ID));
             }
             item.PLAN_ITEM_ID = "";
+            item.ITEM_UNIT_COST = null;
             item.EXCEL_ROW_ID = item.EXCEL_ROW_ID + 1;
             return updatePlanItem(item);
         }

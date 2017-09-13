@@ -25,6 +25,20 @@ namespace topmeperp.Controllers
         {
             List<topmeperp.Models.TND_PROJECT> lstProject = SearchProjectByName("", "專案執行");
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
+            //畫面上權限管理控制
+            //頁面上使用ViewBag 定義開關\@ViewBag.F10005
+            //由Session 取得權限清單
+            List<SYS_FUNCTION> lstFunctions = (List<SYS_FUNCTION>)Session["functions"];
+            //開關預設關閉
+            @ViewBag.F10005 = "disabled";
+            //輪巡功能清單，若全線存在則將開關打開 @ViewBag.F10005 = "";
+            foreach (SYS_FUNCTION f in lstFunctions)
+            {
+                if (f.FUNCTION_ID == "F10005")
+                {
+                    @ViewBag.F10005 = "";
+                }
+            }
             return View(lstProject);
         }
 

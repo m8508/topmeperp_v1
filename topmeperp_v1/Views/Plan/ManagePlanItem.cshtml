@@ -145,6 +145,7 @@
                 $('#item_quantity').val(data.ITEM_QUANTITY);
                 $('#item_form_quantity').val(data.ITEM_FORM_QUANTITY);
                 $('#item_unit_price').val(data.ITEM_UNIT_PRICE);
+                $('#item_unit_cost').val(data.ITEM_UNIT_COST);
                 $('#item_remark').val(data.ITEM_REMARK);
                 $('#type_code_1').val(data.TYPE_CODE_1);
                 $('#type_code_2').val(data.TYPE_CODE_2);
@@ -153,6 +154,42 @@
                 $('#excel_row_id').val(data.EXCEL_ROW_ID);
                 $('#flag').val("update");
                 $('#planItem').modal('show'); // show bootstrap modal when complete loaded
+                $('#price2owner').hide();
+                //$('.modal-title').text('編輯設定資料'); // Set title to Bootstrap modal title
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('Error get data from ajax');
+            }
+        });
+    }
+
+    //由ID 取得資料填入表單
+    function getPlanItem4Owner(itemid) {
+        //alert(userid);
+        $.ajax({
+            url: "/Plan/getPlanItem",
+            type: "GET",
+            data: { itemid: itemid },
+            dataType: "JSON",
+            success: function (data) {
+                $('#project_id').val(data.PROJECT_ID);
+                $('#plan_item_id').val(data.PLAN_ITEM_ID);
+                $('#item_id').val(data.ITEM_ID);
+                $('#item_desc').val(data.ITEM_DESC);
+                $('#item_unit').val(data.ITEM_UNIT);
+                $('#item_quantity').val(data.ITEM_QUANTITY);
+                $('#item_form_quantity').val(data.ITEM_FORM_QUANTITY);
+                $('#item_unit_price').val(data.ITEM_UNIT_PRICE);
+                $('#item_unit_cost').val(data.ITEM_UNIT_COST);
+                $('#item_remark').val(data.ITEM_REMARK);
+                $('#type_code_1').val(data.TYPE_CODE_1);
+                $('#type_code_2').val(data.TYPE_CODE_2);
+                $('#system_main').val(data.SYSTEM_MAIN);
+                $('#system_sub').val(data.SYSTEM_SUB);
+                $('#excel_row_id').val(data.EXCEL_ROW_ID);
+                $('#flag').val("update");
+                $('#planItem').modal('show'); // show bootstrap modal when complete loaded
+                $('#price2owner').show();
                 //$('.modal-title').text('編輯設定資料'); // Set title to Bootstrap modal title
             },
             error: function (jqXHR, textStatus, errorThrown) {
@@ -175,8 +212,10 @@
                 $('#system_main').val(data.SYSTEM_MAIN);
                 $('#system_sub').val(data.SYSTEM_SUB);
                 $('#excel_row_id').val(data.EXCEL_ROW_ID);
+                $('#item_unit_cost').val("");
                 $('#flag').val("addAfter");
                 $('#planItem').modal('show'); // show bootstrap modal when complete loaded
+                $('#price2owner').hide();
                 //$('.modal-title').text('編輯設定資料'); // Set title to Bootstrap modal title
             },
             error: function (jqXHR, textStatus, errorThrown) {
@@ -198,7 +237,9 @@
         $('#system_main').val("");
         $('#system_sub').val("");
         $('#excel_row_id').val("");
+        $('#item_unit_cost').val("");
         $('#flag').val("add");
+        $('#price2owner').hide();
         //$('#projectItem').modal('show'); // show bootstrap modal when complete loaded
     }
 
@@ -240,4 +281,3 @@
         document.getElementById("formFileUpload").submit();
     }
 </script>
-

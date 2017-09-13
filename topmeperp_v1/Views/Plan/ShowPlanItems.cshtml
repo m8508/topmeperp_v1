@@ -57,7 +57,9 @@
                         <button type="button" class="btn btn-default btn-xs" onclick="delPlanItem('@item.PLAN_ITEM_ID')">
                             <span class="glyphicon glyphicon-remove" aria-hidden="true" style="color:red"></span>
                         </button>
-
+                        <button type="button" class="btn btn-default btn-xs" @ViewBag.F100010 onclick="getPlanItem4Owner('@item.PLAN_ITEM_ID')">
+                            <span class="glyphicon glyphicon-usd" aria-hidden="true" style="color:red"></span>
+                        </button>
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.PLAN_ITEM_ID)
