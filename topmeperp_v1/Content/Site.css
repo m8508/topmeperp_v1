@@ -116,7 +116,7 @@ textarea {
 }
 .fixed_headers1 td:nth-child(5),
 .fixed_headers1 th:nth-child(5) {
-    width: 120px;/**名稱*/
+    width: 200px;/**名稱*/
 }
 .fixed_headers1 td:nth-child(6),
 .fixed_headers1 th:nth-child(6) {

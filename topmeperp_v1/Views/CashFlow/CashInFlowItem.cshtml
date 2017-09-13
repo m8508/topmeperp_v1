@@ -8,16 +8,16 @@
     <table class="table">
         <tr>
             <th>
-                估驗單編號
+                帳款類別
+            </th>
+            <th>
+                帳款單據編號
             </th>
             <th>
                 預計入帳日期
             </th>
             <th>
                 金額
-            </th>
-            <th>
-                帳款類別
             </th>
             <th>
                 暫不入帳
@@ -28,16 +28,16 @@
         {
             <tr>
                 <td>
+                    @Html.DisplayFor(modelItem => item.ACCOUNT_TYPE)
+                </td>
+                <td>
                     <a href="/Estimation/SingleEST?id=@item.EST_FORM_ID" target="_blank">@item.EST_FORM_ID</a>
-</td>
+                </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.PAYMENT_DATE)
                 </td>
                 <td>
                     @String.Format("{0:$#,##0.#}", item.AMOUNT)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ACCOUNT_TYPE)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.STATUS)
@@ -47,8 +47,7 @@
     </table>
 </div>
 <script type="text/javascript">
-function closewin()
-{
-window.open('', '_self', ''); window.close();
-}
+    function closewin() {
+        window.open('', '_self', ''); window.close();
+    }
 </script>

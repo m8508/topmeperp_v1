@@ -90,7 +90,10 @@
                 單價
             </th>
             <th>
-                預算比 %
+                材料預算比 %
+            </th>
+            <th>
+                工資預算比 %
             </th>
             <th>
                 備註
@@ -132,6 +135,9 @@
                 </td>
                 <td>
                     @Html.TextBox("budgetratio", @String.Format("{0:N0}", item.BUDGET_RATIO), new { style = "width:70px" })
+                </td>
+                <td>
+                    @Html.TextBox("budgetwageratio", @String.Format("{0:N0}", item.BUDGET_WAGE_RATIO), new { style = "width:70px" })
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.ITEM_REMARK)

@@ -145,8 +145,8 @@ namespace topmeperp.Service
             logger.Info("update budget ratio to plan items by id :" + id);
             string sql = "UPDATE PLAN_ITEM SET PLAN_ITEM.BUDGET_RATIO = plan_budget.BUDGET_RATIO, PLAN_ITEM.BUDGET_WAGE_RATIO = plan_budget.BUDGET_WAGE_RATIO " +
                    "from PLAN_ITEM inner join " +
-                   "plan_budget on '@id' + ISNULL(PLAN_ITEM.TYPE_CODE_1, '') + ISNULL(PLAN_ITEM.TYPE_CODE_2, '') + ISNULL(PLAN_ITEM.SYSTEM_MAIN, '') + ISNULL(PLAN_ITEM.SYSTEM_SUB, '') " +
-                   "= '@id' + ISNULL(plan_budget.TYPE_CODE_1, '') + ISNULL(plan_budget.TYPE_CODE_2, '') + ISNULL(plan_budget.SYSTEM_MAIN, '') + ISNULL(plan_budget.SYSTEM_SUB, '') ";
+                   "plan_budget on REPLACE(PLAN_ITEM.PROJECT_ID, ' ', '') + ISNULL(REPLACE(PLAN_ITEM.TYPE_CODE_1, ' ', ''), '') + ISNULL(REPLACE(PLAN_ITEM.TYPE_CODE_2, ' ', ''), '') + ISNULL(REPLACE(PLAN_ITEM.SYSTEM_MAIN, ' ', ''), '') + ISNULL(REPLACE(PLAN_ITEM.SYSTEM_SUB, ' ', ''), '') " +
+                   "= REPLACE(plan_budget.PROJECT_ID, ' ', '') + ISNULL(REPLACE(plan_budget.TYPE_CODE_1, ' ', ''), '') + ISNULL(REPLACE(plan_budget.TYPE_CODE_2, ' ', ''), '') + ISNULL(REPLACE(plan_budget.SYSTEM_MAIN, ' ', ''), '') + ISNULL(REPLACE(plan_budget.SYSTEM_SUB, ' ', ''), '') WHERE PLAN_ITEM.PROJECT_ID = '@id' ";
             logger.Debug("sql:" + sql);
             db = new topmepEntities();
             var parameters = new List<SqlParameter>();

@@ -137,7 +137,7 @@ namespace topmeperp.Controllers
             pr.RECIPIENT = Request["recipient"];
             pr.LOCATION = Request["location"];
             pr.REMARK = Request["caution"];
-            pr.STATUS = 10;
+            pr.STATUS = 10; //表示申購單已送出
             pr.PRJ_UID = int.Parse(Request["prj_uid"]);
             PLAN_PURCHASE_REQUISITION_ITEM item = new PLAN_PURCHASE_REQUISITION_ITEM();
             string prid = service.newPR(Request["id"], pr, lstItemId);
@@ -201,7 +201,7 @@ namespace topmeperp.Controllers
             pr.RECIPIENT = Request["recipient"];
             pr.LOCATION = Request["location"];
             pr.REMARK = Request["caution"];
-            pr.STATUS = 0;
+            pr.STATUS = 0; //表示申購單未送出，只是存檔而已
             pr.PRJ_UID = int.Parse(Request["prj_uid"]);
             PLAN_PURCHASE_REQUISITION_ITEM item = new PLAN_PURCHASE_REQUISITION_ITEM();
             string prid = service.newPR(Request["id"], pr, lstItemId);
@@ -414,15 +414,15 @@ namespace topmeperp.Controllers
         public ActionResult PurchaseOperation(string id, FormCollection form)
         {
             log.Info("Access to Purchase Operation page!!");
-            ViewBag.projectid = id.Substring(0, 5).Trim();
+            ViewBag.projectid = id.Substring(0, 6).Trim();
             TnderProject tndservice = new TnderProject();
-            TND_PROJECT p = tndservice.getProjectById(id.Substring(0, 5).Trim());
+            TND_PROJECT p = tndservice.getProjectById(id.Substring(0, 6).Trim());
             ViewBag.projectName = p.PROJECT_NAME;
-            ViewBag.supplier = id.Substring(16).Trim();
-            ViewBag.parentPrId = id.Substring(6, 9).Trim();
+            ViewBag.supplier = id.Substring(17).Trim();
+            ViewBag.parentPrId = id.Substring(7, 9).Trim();
             ViewBag.OrderDate = DateTime.Now;
             PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
-            service.getPRByPrId(id.Substring(6, 9).Trim());
+            service.getPRByPrId(id.Substring(7, 9).Trim());
             singleForm.planPR = service.formPR;
             ViewBag.recipient = singleForm.planPR.RECIPIENT;
             ViewBag.location = singleForm.planPR.LOCATION;
