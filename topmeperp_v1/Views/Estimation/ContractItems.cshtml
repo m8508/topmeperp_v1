@@ -51,11 +51,11 @@
                 <label for="contractamount">合約金額:</label>
                 @if (ViewBag.wage == "")
             {
-                    <input id="contractamount" name="contractamount" type="text" value="@ViewBag.amount" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                    <input id="contractamount" name="contractamount" type="text" value="@String.Format("{0:#,##0.#}", ViewBag.amount)" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
                 }
                 else
                 {
-                    <input id="contractamount" name="contractamount" type="text" value="@ViewBag.amount4Wage" c class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                    <input id="contractamount" name="contractamount" type="text" value="@String.Format("{0:$#,##0.#}", ViewBag.amount4Wage)" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
                 }
             </div>
             <div class="col-md-3 form-group">
@@ -160,7 +160,7 @@
                         <td>
                             @if (ViewBag.wage == "")
                             {
-                                <input style="width:90px" type="number" class="form-control pull-right" name="amount" id="amount" value="{{row.ITEM_UNIT_PRICE * row.evaluated_qty}}" readonly="readonly">
+                                <input style="width:90px" type="number" class="form-control pull-right" name="amount" id="amount" value="{{row.ITEM_UNIT_PRICE  * row.evaluated_qty}}" readonly="readonly">
                             }
                             else
                             {

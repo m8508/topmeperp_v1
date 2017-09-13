@@ -662,7 +662,7 @@ namespace topmeperp.Service
                 iRowIndex++;
             }
         }
-        //處理詢價單，報價單表投
+        //處理詢價單，報價單表頭
         private void processForm(string projectid, string iswage)
         {
             //2.依據檔案附檔名使用不同物件讀取Excel 檔案，並開啟廠商報價單Sheet
