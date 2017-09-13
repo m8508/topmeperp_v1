@@ -17,8 +17,8 @@ namespace topmeperp.Service
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public IWorkbook hssfworkbook;
         public ISheet sheet = null;
-        string fileformat = "xlsx";
-        string projId = null;
+        protected string fileformat = "xlsx";
+        protected string projId = null;
         public List<TND_PROJECT_ITEM> lstProjectItem = null;
         public List<PLAN_ITEM> lstPlanItem = null;
         public string errorMessage = null;
@@ -69,6 +69,7 @@ namespace topmeperp.Service
             }
             ConvertExcelToTndProjectItem(startrow);
         }
+        //轉換標單內容物件
         //轉換標單內容物件
         public void ConvertExcelToTndProjectItem(int startrow)
         {
@@ -173,6 +174,72 @@ namespace topmeperp.Service
                 projectItem.CREATE_DATE = System.DateTime.Now;
                 return projectItem;
             }
+            if (row.Cells[7].ToString().Trim() != "")//九宮格
+            {
+                projectItem.TYPE_CODE_1 = row.Cells[7].ToString();
+            }
+            if (row.Cells[8].ToString().Trim() != "")//次九宮格
+            {
+                projectItem.TYPE_CODE_2 = row.Cells[8].ToString();
+            }
+            if (row.Cells[9].ToString().Trim() != "")//主系統
+            {
+                projectItem.SYSTEM_MAIN = row.Cells[9].ToString();
+            }
+            if (row.Cells[10].ToString().Trim() != "")//次系統
+            {
+                projectItem.SYSTEM_SUB = row.Cells[10].ToString();
+            }
+            projectItem.PROJECT_ITEM_ID = projId + "-" + id;
+            projectItem.EXCEL_ROW_ID = excelrow;
+            projectItem.CREATE_DATE = System.DateTime.Now;
+
+            logger.Info("TndprojectItem=" + projectItem.ToString());
+            return projectItem;
+        }
+        //更新標單次序
+        private TND_PROJECT_ITEM convertRow2TndProjectItem4Refresh(int id, IRow row, int excelrow)
+        {
+            TND_PROJECT_ITEM projectItem = new TND_PROJECT_ITEM();
+            projectItem.PROJECT_ID = projId;
+
+            if (row.Cells[0].ToString().Trim() != "")//PK
+            {
+                projectItem.PROJECT_ITEM_ID = row.Cells[0].ToString();
+            }
+            if (row.Cells[1].ToString().Trim() != "")//項次
+            {
+                projectItem.ITEM_ID = row.Cells[1].ToString();
+            }
+            if (row.Cells[2].ToString().Trim() != "")//名稱
+            {
+                projectItem.ITEM_DESC = row.Cells[2].ToString();
+            }
+
+            if (row.Cells[3].ToString().Trim() != "")//單位
+            {
+                projectItem.ITEM_UNIT = row.Cells[3].ToString();
+            }
+            if (row.Cells[4].ToString().Trim() != "")//數量
+            {
+                try
+                {
+                    decimal dQty = decimal.Parse(row.Cells[4].ToString());
+                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[4].ToString());
+                    projectItem.ITEM_QUANTITY = dQty;
+                }
+                catch (Exception e)
+                {
+                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",value=" + row.Cells[4].ToString());
+                    logger.Error(e.Message);
+                }
+
+            }
+            if (row.Cells[6].ToString().Trim() != "")//備註
+            {
+                projectItem.ITEM_REMARK = row.Cells[6].ToString();
+            }
+
             if (row.Cells[7].ToString().Trim() != "")//九宮格
             {
                 projectItem.TYPE_CODE_1 = row.Cells[7].ToString();
@@ -1688,7 +1755,7 @@ namespace topmeperp.Service
             return item;
         }
         #endregion
-        private void logErrorMessage(string message)
+        protected void logErrorMessage(string message)
         {
             if (errorMessage == null)
             {
@@ -2833,7 +2900,7 @@ namespace topmeperp.Service
             hssfworkbook.Write(file);
             file.Close();
         }
-        //寫入初期成本標單
+        //寫入標單品項
         private void getProjectItem()
         {
             //2.寫入初期成本標單 僅提供office 格式2007 
@@ -2918,6 +2985,160 @@ namespace topmeperp.Service
                 idxRow++;
             }
         }
+        public void ConvertDataForTenderProject(string projectId)
+        {
+            projId = projectId;
+            //1.依據檔案附檔名使用不同物件讀取Excel 檔案，並開啟整理後標單Sheet
+            if (fileformat == "xls")
+            {
+                logger.Debug("office 2003:" + fileformat + " for projectID=" + projId);
+                sheet = (HSSFSheet)hssfworkbook.GetSheet("標單品項");
+            }
+            else
+            {
+                logger.Debug("office 2007:" + fileformat + " for projectID=" + projId);
+                sheet = (XSSFSheet)hssfworkbook.GetSheet("標單品項");
+            }
+            if (null == sheet)
+            {
+                logger.Error("檔案內沒有標單品項(Sheet)! filename=" + fileformat);
+                throw new Exception("標單品項");
+            }
+            ConvertExcelToTndProjectItem(5);
+        }
+        //轉換標單內容物件
+        public new void ConvertExcelToTndProjectItem(int startrow)
+        {
+            IRow row = null;
+            lstProjectItem = new List<TND_PROJECT_ITEM>();
+            System.Collections.IEnumerator rows = sheet.GetRowEnumerator();
+            //2.逐行讀取資料
+            int iRowIndex = 0; //0 表 Row 1
+
+            //2.1  忽略不要的行數..
+            while (iRowIndex < (startrow - 1))
+            {
+                rows.MoveNext();
+                iRowIndex++;
+                row = (IRow)rows.Current;
+                logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
+            }
+            //循序處理每一筆資料之欄位!!
+            iRowIndex++;
+            int itemId = 1;
+            while (rows.MoveNext())
+            {
+                row = (IRow)rows.Current;
+                logger.Debug("Cells Count=" + row.Cells.Count + ",Excel Value:" + row.Cells[0].ToString());
+                //將各Row 資料寫入物件內
+                //項次,名稱,單位,數量,單價,複價,備註,九宮格,次九宮格,主系統,次系統
+                if (row.Cells[0].ToString().ToUpper() != "END")
+                {
+                    lstProjectItem.Add(convertRow2TndProjectItem4Refresh(itemId, row, iRowIndex));
+                }
+                else
+                {
+                    logger.Info("Finish convert Job : count=" + lstProjectItem.Count);
+                    return;
+                }
+                iRowIndex++;
+                itemId++;
+            }
+        }
+        //更新標單次序
+        private TND_PROJECT_ITEM convertRow2TndProjectItem4Refresh(int id, IRow row, int excelrow)
+        {
+            TND_PROJECT_ITEM projectItem = new TND_PROJECT_ITEM();
+            projectItem.PROJECT_ID = projId;
+
+            if (row.Cells[0].ToString().Trim() != "")//PK 0
+            {
+                projectItem.PROJECT_ITEM_ID = row.Cells[0].ToString();
+            }
+            if (row.Cells[1].ToString().Trim() != "")//項次 1
+            {
+                projectItem.ITEM_ID = row.Cells[1].ToString();
+            }
+            if (row.Cells[2].ToString().Trim() != "")//名稱 2
+            {
+                projectItem.ITEM_DESC = row.Cells[2].ToString();
+            }
+
+            if (row.Cells[3].ToString().Trim() != "")//單位 3
+            {
+                projectItem.ITEM_UNIT = row.Cells[3].ToString();
+            }
+            if (row.Cells[4].ToString().Trim() != "")//數量 4
+            {
+                try
+                {
+                    decimal dQty = decimal.Parse(row.Cells[4].ToString());
+                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[4].ToString());
+                    projectItem.ITEM_QUANTITY = dQty;
+                }
+                catch (Exception e)
+                {
+                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",value=" + row.Cells[4].ToString());
+                    logger.Error(e.Message);
+                }
+
+            }
+            if (row.Cells[5].ToString().Trim() != "")//圖算數量 5
+            {
+            }
+
+            if (row.Cells[6].ToString().Trim() != "")//單價  6
+            {
+                try
+                {
+                    decimal dPrice = decimal.Parse(row.Cells[6].ToString());
+                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[4].ToString());
+                    projectItem.ITEM_UNIT_PRICE = dPrice;
+                }
+                catch (Exception e)
+                {
+                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",value=" + row.Cells[6].ToString());
+                    logger.Error(e.Message);
+                }
+
+            }
+            if (row.Cells[7].ToString().Trim() != "")//複價 7
+            {
+
+            }
+
+            if (row.Cells[8].ToString().Trim() != "")//備註 8
+            {
+                projectItem.ITEM_REMARK = row.Cells[8].ToString();
+            }
+
+            if (row.Cells[9].ToString().Trim() != "")//九宮格 9
+            {
+                projectItem.TYPE_CODE_1 = row.Cells[9].ToString();
+            }
+            if (row.Cells[10].ToString().Trim() != "")//次九宮格 10
+            {
+                projectItem.TYPE_CODE_2 = row.Cells[10].ToString();
+            }
+            if (row.Cells[11].ToString().Trim() != "")//主系統 11
+            {
+                projectItem.SYSTEM_MAIN = row.Cells[11].ToString();
+            }
+            if (row.Cells[12].ToString().Trim() != "")//次系統 12
+            {
+                projectItem.SYSTEM_SUB = row.Cells[12].ToString();
+            }
+            if (row.Cells[13].ToString().Trim() != "")//Excel 13
+            {
+                projectItem.EXCEL_ROW_ID = long.Parse(row.Cells[13].ToString());
+            }
+
+            projectItem.CREATE_DATE = System.DateTime.Now;
+            logger.Info("TndprojectItem=" + projectItem.ToString());
+            return projectItem;
+        }
+
+
     }
     #endregion
 }
