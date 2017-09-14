@@ -1045,6 +1045,22 @@ namespace topmeperp.Service
             return lst;
         }
 
+        //判斷詢價單是否已被寫入PLAN_ITEM(詢價單已為發包採用)
+        public Boolean getSupplierContractByFormId(string formid)
+        {
+            logger.Info("get boolean of formid in the plan item by formid=" + formid);
+            //處理SQL 預先填入ID,設定集合處理參數
+            Boolean count = false;
+            using (var context = new topmepEntities())
+            {
+                count = context.Database.SqlQuery<Boolean>("SELECT CAST(COUNT(*) AS BIT) AS BOOLEAN FROM PLAN_ITEM WHERE INQUIRY_FORM_ID =@formid OR MAN_FORM_ID =@formid  ; "
+            , new SqlParameter("formid", formid)).FirstOrDefault();
+            }
+
+            return count;
+        }
+
+
         //取得次系統選單
         public List<string> getSystemSub(string projectid)
         {
