@@ -192,7 +192,20 @@
                             @item.ITEM_QTY
                         </td>
                         <td>
-                            @if (@item.ITEM_UNIT_PRICE != null)
+                            @if (ViewBag.targetSupplier != false)
+                            {
+                                if (@item.ITEM_UNIT_PRICE != null)
+                                {
+                                    <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="@item.ITEM_UNIT_PRICE" style="width:100px" readonly>
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="" style="width:100px" readonly>
+                                }
+                            }
+                            else
+                            {
+                            if (@item.ITEM_UNIT_PRICE != null)
                             {
                                 <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="@item.ITEM_UNIT_PRICE" style="width:100px">
                             }
@@ -200,9 +213,19 @@
                             {
                                 <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="" style="width:100px">
                             }
+                            }
                         </td>
                         <td></td>
-                        <td>@Html.TextBox("remark", @item.ITEM_REMARK, new { style = "width:500px", @class = "form-control" })</td>
+                        <td>
+                            @if (ViewBag.targetSupplier != false)
+                            {
+                                @Html.TextBox("remark", @item.ITEM_REMARK, new { style = "width:500px", @class = "form-control", @readonly = "readonly" })
+                            }
+                            else
+                            {
+                                @Html.TextBox("remark", @item.ITEM_REMARK, new { style = "width:500px", @class = "form-control" })
+                            }
+                        </td>                       
                         <td><input type="hidden" name="plan_item_id" id="plan_item_id" value="@item.PLAN_ITEM_ID"></td>
                     </tr>
                 }

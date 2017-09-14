@@ -167,6 +167,7 @@ namespace topmeperp.Controllers
             singleForm.planForm = service.formInquiry;
             singleForm.planFormItem = service.formInquiryItem;
             singleForm.prj = service.getProjectById(singleForm.planForm.PROJECT_ID);
+            ViewBag.targetSupplier = service.getSupplierContractByFormId(id); //判斷詢價單是否已寫入PLAN_ITEM以供發包採購
             log.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
             //取得供應商資料
             SelectListItem empty = new SelectListItem();
@@ -415,6 +416,10 @@ namespace topmeperp.Controllers
                 int i = 0;
                 //如果詢價單編號為空白，新增詢價單資料，否則更新相關詢價單資料-new
                 log.Debug("Parser Excel File Finish!");
+                if (service.getSupplierContractByFormId(quoteFormService.form.INQUIRY_FORM_ID) != false)
+                {
+                    return "此詢價單編號已被發包採購使用，不可重覆匯入!!";
+                }
                 if (null != quoteFormService.form.INQUIRY_FORM_ID && quoteFormService.form.INQUIRY_FORM_ID != "")
                 {
                     log.Info("Update Plan Form for Inquiry:" + quoteFormService.form.INQUIRY_FORM_ID);
