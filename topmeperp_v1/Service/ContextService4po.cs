@@ -143,7 +143,7 @@ namespace topmeperp.Service
         {
             int i = 0;
             logger.Info("update budget ratio to plan items by id :" + id);
-            string sql = "UPDATE PLAN_ITEM SET PLAN_ITEM.BUDGET_RATIO = plan_budget.BUDGET_RATIO, PLAN_ITEM.BUDGET_WAGE_RATIO = plan_budget.BUDGET_WAGE_RATIO " + 
+            string sql = "UPDATE PLAN_ITEM SET PLAN_ITEM.BUDGET_RATIO = plan_budget.BUDGET_RATIO, PLAN_ITEM.BUDGET_WAGE_RATIO = plan_budget.BUDGET_WAGE_RATIO " +
                    "from PLAN_ITEM inner join " +
                    "plan_budget on REPLACE(PLAN_ITEM.PROJECT_ID, ' ', '') + IIF(REPLACE(PLAN_ITEM.TYPE_CODE_1, ' ', '') is null, '', IIF(REPLACE(PLAN_ITEM.TYPE_CODE_1, ' ', '') = 0, '', REPLACE(PLAN_ITEM.TYPE_CODE_1, ' ', ''))) + IIF(REPLACE(PLAN_ITEM.TYPE_CODE_2, ' ', '') is null, '', IIF(REPLACE(PLAN_ITEM.TYPE_CODE_2, ' ', '') = 0, '', REPLACE(PLAN_ITEM.TYPE_CODE_2, ' ', ''))) + IIF(REPLACE(PLAN_ITEM.SYSTEM_MAIN, ' ', '') is null, '', REPLACE(PLAN_ITEM.SYSTEM_MAIN, ' ', '')) + IIF(REPLACE(PLAN_ITEM.SYSTEM_SUB, ' ', '') is null, '', REPLACE(PLAN_ITEM.SYSTEM_SUB, ' ', '')) " +
                    "= REPLACE(plan_budget.PROJECT_ID, ' ', '') + IIF(REPLACE(plan_budget.TYPE_CODE_1, ' ', '') is null, '', IIF(REPLACE(plan_budget.TYPE_CODE_1, ' ', '') = 0, '', REPLACE(plan_budget.TYPE_CODE_1, ' ', ''))) + IIF(REPLACE(plan_budget.TYPE_CODE_2, ' ', '') is null, '', IIF(REPLACE(plan_budget.TYPE_CODE_2, ' ', '') = 0, '', REPLACE(plan_budget.TYPE_CODE_2, ' ', ''))) + IIF(REPLACE(plan_budget.SYSTEM_MAIN, ' ', '') is null, '', REPLACE(plan_budget.SYSTEM_MAIN, ' ', '')) + IIF(REPLACE(plan_budget.SYSTEM_SUB, ' ', '') is null, '', REPLACE(plan_budget.SYSTEM_SUB, ' ', '')) WHERE PLAN_ITEM.PROJECT_ID  = @id ";
@@ -750,7 +750,7 @@ namespace topmeperp.Service
             {
                 getInqueryForm(f.INQUIRY_FORM_ID);
                 ZipFileCreator.CreateDirectory(tempFolder + formInquiry.FORM_NAME);
-                string fileLocation = poi.exportExcel4po(formInquiry, formInquiryItem, true,false);
+                string fileLocation = poi.exportExcel4po(formInquiry, formInquiryItem, true, false);
                 logger.Debug("temp file=" + fileLocation);
             }
             //4.Zip all file
@@ -770,6 +770,28 @@ namespace topmeperp.Service
                     + ",MODIFY_ID,MODIFY_DATE,ISNULL(STATUS,'有效') STATUS, ISNULL(ISWAGE,'N') ISWAGE "
                     + "FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NULL AND PROJECT_ID =@projectid ORDER BY INQUIRY_FORM_ID DESC";
                 lst = context.PLAN_SUP_INQUIRY.SqlQuery(sql, new SqlParameter("projectid", projectid)).ToList();
+            }
+            return lst;
+        }
+        //採發階段發包分項與預算 (材料預算)
+        public List<PURCHASE_ORDER> getTemplateRefBudget(string projectid)
+        {
+            logger.Info("get purchase template by projectid=" + projectid);
+            List<PURCHASE_ORDER> lst = new List<PURCHASE_ORDER>();
+            using (var context = new topmepEntities())
+            {
+                var parameters = new List<SqlParameter>();
+                //設定專案編號資料
+                parameters.Add(new SqlParameter("projectid", projectid));
+                //取得詢價單樣本資訊
+                string sql = "SELECT tmp.*,CountPO,"
+                    + "(SELECT SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) as CostMaterial FROM PLAN_ITEM it "
+                    + "WHERE it.PLAN_ITEM_ID in (SELECT  iit.PLAN_ITEM_ID FROM PLAN_SUP_INQUIRY_ITEM iit WHERE iit.INQUIRY_FORM_ID = tmp.INQUIRY_FORM_ID)) AS BudgetAmount "
+                    + "FROM (SELECT * FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID is Null) tmp,"
+                    + "(SELECT COUNT(*) CountPO,FORM_NAME,PROJECT_ID FROM  PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NOT Null GROUP BY FORM_NAME,PROJECT_ID) Quo "
+                    + "WHERE Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME AND tmp.PROJECT_ID=@projectid";
+                logger.Debug("sql=" + sql + ",projectId=" + projectid);
+                lst = context.Database.SqlQuery<PURCHASE_ORDER>(sql, parameters.ToArray()).ToList();
             }
             return lst;
         }

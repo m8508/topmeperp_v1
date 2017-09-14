@@ -158,6 +158,10 @@ namespace topmeperp.Models
         /// 含工帶料報價單
         /// </summary>
         public IEnumerable<PLAN_SUP_INQUIRY> planForm4All { get; set; }
+        /// <summary>
+        /// 個報價單與預算
+        /// </summary>
+        public IEnumerable<PURCHASE_ORDER> planTemplateWithBudget { get; set; }
     }
     public class PlanSupplierFormFunction : PLAN_SUP_INQUIRY
     {

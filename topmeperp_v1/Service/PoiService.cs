@@ -2769,55 +2769,40 @@ namespace topmeperp.Service
                     row.Cells[1].SetCellValue(double.Parse(item.SUB_CODE.ToString()));
                 }
                 row.Cells[1].CellStyle = style;
-                //主系統
-                row.CreateCell(2).SetCellValue("");
-                if (null != item.SYSTEM_MAIN && item.SYSTEM_MAIN.ToString().Trim() != "")
-                {
-                    row.Cells[2].SetCellValue(item.SYSTEM_MAIN);
-                }
-                row.Cells[2].CellStyle = style;
-                //次系統
-                row.CreateCell(3).SetCellValue("");
-                if (null != item.SYSTEM_SUB && item.SYSTEM_SUB.ToString().Trim() != "")
-                {
-                    row.Cells[3].SetCellValue(item.SYSTEM_SUB);              
-                }
-                row.Cells[3].CellStyle = style;
                 //分項名稱
                 logger.Debug("ITEM DESC=" + item.MAINCODE_DESC);
-                row.CreateCell(4).SetCellValue(item.MAINCODE_DESC + "-" + item.SUB_DESC);
-                row.Cells[4].CellStyle = style;
+                row.CreateCell(2).SetCellValue(item.MAINCODE_DESC + "-" + item.SUB_DESC);
+                row.Cells[2].CellStyle = style;
                 //合約金額
-                row.CreateCell(5).SetCellValue("");
+                row.CreateCell(3).SetCellValue("");
                 if (null != item.CONTRACT_PRICE && item.CONTRACT_PRICE.ToString().Trim() != "")
                 {
-                    row.Cells[5].SetCellValue(double.Parse(item.CONTRACT_PRICE.ToString()));
-                    row.Cells[5].CellStyle = styleNumber;
+                    row.Cells[3].SetCellValue(double.Parse(item.CONTRACT_PRICE.ToString()));
+                    row.Cells[3].CellStyle = styleNumber;
                 }
                 //材料成本 與預算折扣率
-                row.CreateCell(6).SetCellValue("");
-                row.CreateCell(7).SetCellValue("");
+                row.CreateCell(4).SetCellValue("");
                 if (null != item.MATERIAL_COST && item.MATERIAL_COST.ToString().Trim() != "")
                 {
-                    row.Cells[6].SetCellValue(double.Parse(item.MATERIAL_COST.ToString()));
+                    row.Cells[4].SetCellValue(double.Parse(item.MATERIAL_COST.ToString()));
+                    row.Cells[4].CellStyle = styleNumber;
+                }
+                row.CreateCell(5).SetCellValue("100");
+                row.Cells[5].CellStyle = style;
+                //圖算*工率
+                row.CreateCell(6).SetCellValue("");  //圖算*工率
+                row.CreateCell(7).SetCellValue("");
+                if (null != item.MAN_DAY_INMAP && item.MAN_DAY_INMAP.ToString().Trim() != "")
+                {
+                    row.Cells[6].SetCellFormula(item.MAN_DAY_INMAP.ToString()+"*G3");
                     row.Cells[7].SetCellValue("100");
                 }
                 row.Cells[6].CellStyle = styleNumber;
                 row.Cells[7].CellStyle = style;
-                //圖算*工率
-                row.CreateCell(8).SetCellValue("");
-                row.CreateCell(9).SetCellValue("");
-                if (null != item.MAN_DAY_INMAP && item.MAN_DAY_INMAP.ToString().Trim() != "")
-                {
-                    row.Cells[8].SetCellFormula(item.MAN_DAY_INMAP.ToString()+"*I3");
-                    row.Cells[9].SetCellValue("100");
-                }
-                row.Cells[8].CellStyle = styleNumber;
-                row.Cells[9].CellStyle = style;
                 //預算金額
-                ICell cell10 = row.CreateCell(10);
-                cell10.CellFormula = "(G" + (idxRow + 1) + "*H" + (idxRow + 1) + "/100)+(I"+ (idxRow + 1) +"*J" + (idxRow + 1) +"/100)";
-                cell10.CellStyle = styleNumber;
+                ICell cell8 = row.CreateCell(8);
+                cell8.CellFormula = "(E" + (idxRow + 1) + "*F" + (idxRow + 1) + "/100)+(G"+ (idxRow + 1) +"*H" + (idxRow + 1) +"/100)";
+                cell8.CellStyle = styleNumber;
                 logger.Debug("getBudget cell style rowid=" + idxRow);
                 idxRow++;
             }
