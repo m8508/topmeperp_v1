@@ -143,10 +143,10 @@ namespace topmeperp.Service
         {
             int i = 0;
             logger.Info("update budget ratio to plan items by id :" + id);
-            string sql = "UPDATE PLAN_ITEM SET PLAN_ITEM.BUDGET_RATIO = plan_budget.BUDGET_RATIO, PLAN_ITEM.BUDGET_WAGE_RATIO = plan_budget.BUDGET_WAGE_RATIO " +
+            string sql = "UPDATE PLAN_ITEM SET PLAN_ITEM.BUDGET_RATIO = plan_budget.BUDGET_RATIO, PLAN_ITEM.BUDGET_WAGE_RATIO = plan_budget.BUDGET_WAGE_RATIO " + 
                    "from PLAN_ITEM inner join " +
-                   "plan_budget on REPLACE(PLAN_ITEM.PROJECT_ID, ' ', '') + ISNULL(REPLACE(PLAN_ITEM.TYPE_CODE_1, ' ', ''), '') + ISNULL(REPLACE(PLAN_ITEM.TYPE_CODE_2, ' ', ''), '') + ISNULL(REPLACE(PLAN_ITEM.SYSTEM_MAIN, ' ', ''), '') + ISNULL(REPLACE(PLAN_ITEM.SYSTEM_SUB, ' ', ''), '') " +
-                   "= REPLACE(plan_budget.PROJECT_ID, ' ', '') + ISNULL(REPLACE(plan_budget.TYPE_CODE_1, ' ', ''), '') + ISNULL(REPLACE(plan_budget.TYPE_CODE_2, ' ', ''), '') + ISNULL(REPLACE(plan_budget.SYSTEM_MAIN, ' ', ''), '') + ISNULL(REPLACE(plan_budget.SYSTEM_SUB, ' ', ''), '') WHERE PLAN_ITEM.PROJECT_ID = '@id' ";
+                   "plan_budget on REPLACE(PLAN_ITEM.PROJECT_ID, ' ', '') + IIF(REPLACE(PLAN_ITEM.TYPE_CODE_1, ' ', '') is null, '', IIF(REPLACE(PLAN_ITEM.TYPE_CODE_1, ' ', '') = 0, '', REPLACE(PLAN_ITEM.TYPE_CODE_1, ' ', ''))) + IIF(REPLACE(PLAN_ITEM.TYPE_CODE_2, ' ', '') is null, '', IIF(REPLACE(PLAN_ITEM.TYPE_CODE_2, ' ', '') = 0, '', REPLACE(PLAN_ITEM.TYPE_CODE_2, ' ', ''))) + IIF(REPLACE(PLAN_ITEM.SYSTEM_MAIN, ' ', '') is null, '', REPLACE(PLAN_ITEM.SYSTEM_MAIN, ' ', '')) + IIF(REPLACE(PLAN_ITEM.SYSTEM_SUB, ' ', '') is null, '', REPLACE(PLAN_ITEM.SYSTEM_SUB, ' ', '')) " +
+                   "= REPLACE(plan_budget.PROJECT_ID, ' ', '') + IIF(REPLACE(plan_budget.TYPE_CODE_1, ' ', '') is null, '', IIF(REPLACE(plan_budget.TYPE_CODE_1, ' ', '') = 0, '', REPLACE(plan_budget.TYPE_CODE_1, ' ', ''))) + IIF(REPLACE(plan_budget.TYPE_CODE_2, ' ', '') is null, '', IIF(REPLACE(plan_budget.TYPE_CODE_2, ' ', '') = 0, '', REPLACE(plan_budget.TYPE_CODE_2, ' ', ''))) + IIF(REPLACE(plan_budget.SYSTEM_MAIN, ' ', '') is null, '', REPLACE(plan_budget.SYSTEM_MAIN, ' ', '')) + IIF(REPLACE(plan_budget.SYSTEM_SUB, ' ', '') is null, '', REPLACE(plan_budget.SYSTEM_SUB, ' ', '')) WHERE PLAN_ITEM.PROJECT_ID  = @id ";
             logger.Debug("sql:" + sql);
             db = new topmepEntities();
             var parameters = new List<SqlParameter>();
