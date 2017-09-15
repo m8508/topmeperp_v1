@@ -202,10 +202,10 @@ namespace topmeperp.Controllers
             }
             // selectSupplier.Add(empty);
             ViewBag.Supplier = selectSupplier;
-            if (null != Request["IsWage"])
-            {
-                return View("SinglePrjForm4All", singleForm);
-            }
+            //if (null != Request["IsWage"])
+            //{
+            //    return View("SinglePrjForm4All", singleForm);
+            //}
             return View(singleForm);
 
         }
@@ -306,10 +306,10 @@ namespace topmeperp.Controllers
                 lstItem.Add(item);
             }
             int k = service.refreshSupplierFormItem(fid, lstItem);
-            //產生廠商詢價單實體檔案
-            service.getInqueryForm(fid);
-            PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
-            poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false, true);
+            
+            //service.getInqueryForm(fid);
+            //PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
+            //poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false, true);
             if (fid == "")
             {
                 msg = service.message;
