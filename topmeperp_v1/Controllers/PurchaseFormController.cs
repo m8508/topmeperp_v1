@@ -147,6 +147,14 @@ namespace topmeperp.Controllers
                 TND_PROJECT p = service.getProjectById(id);
                 ViewBag.projectName = p.PROJECT_NAME;
                 service.getInquiryWithBudget(p);
+                if (p.WAGE_MULTIPLIER == null)
+                {
+                    ViewBag.wageunitprice = "2500";
+                }
+                else
+                {
+                    ViewBag.wageunitprice = p.WAGE_MULTIPLIER;
+                }
             }
             ViewBag.Status = "有效";
             return View(service.POFormData);
