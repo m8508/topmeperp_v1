@@ -116,7 +116,7 @@ namespace topmeperp.Controllers
             //樣本轉廠商採購單時再產生即可)
             service.getInqueryForm(fid);
             PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
-            poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false,false);
+            poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false, false);
             return Redirect("FormMainPage?id=" + qf.PROJECT_ID);
             //return RedirectToAction("InquiryMainPage","Inquiry", qf.PROJECT_ID);
         }
@@ -137,22 +137,19 @@ namespace topmeperp.Controllers
             ViewBag.Status = "有效";
             return View(formData);
         }
-        //空白詢價單管理功能
+        //採發作業-空白詢價單管理功能
         public ActionResult FormTemplateMgr(string id)
         {
             log.Info("purchase form by projectID =" + id + ",status=" + Request["status"] + ",type=" + Request["type"] + ",formname=" + Request["formname"]);
-            PurchaseFormModel formData = new PurchaseFormModel();
             if (null != id && id != "")
             {
                 ViewBag.projectid = id;
                 TND_PROJECT p = service.getProjectById(id);
                 ViewBag.projectName = p.PROJECT_NAME;
-                formData.planTemplateWithBudget = service.getTemplateRefBudget(id);
-                //formData.planFormFromSupplier = service.getFormByProject(id, Request["status"], Request["type"], Request["formname"]);
-                //formData.planForm4All = service.getFormByProject(id, Request["status"], "A", Request["formname"]);
+                service.getInquiryWithBudget(p);
             }
             ViewBag.Status = "有效";
-            return View(formData);
+            return View(service.POFormData);
         }
         //顯示單一詢價單、報價單功能
         public ActionResult SinglePrjForm(string id)
@@ -295,7 +292,7 @@ namespace topmeperp.Controllers
             //產生廠商詢價單實體檔案
             service.getInqueryForm(fid);
             PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
-            poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false,true);
+            poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false, true);
             if (fid == "")
             {
                 msg = service.message;
@@ -491,7 +488,7 @@ namespace topmeperp.Controllers
             bool isTemp = false;
             bool isReal = false;
             service.getInqueryForm(formid);
-            if (null != Request["isTemp"] && Request["isTemp"]=="Y")
+            if (null != Request["isTemp"] && Request["isTemp"] == "Y")
             {
                 isTemp = true;
             }

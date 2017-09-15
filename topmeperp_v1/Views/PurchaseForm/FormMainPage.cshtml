@@ -39,6 +39,7 @@
                 <input id="Submit12" class="btn btn-info" type="submit" value="查詢" />
                 <div style="padding-top:20px;">
                     <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("FormIndex","PurchaseForm", new { id = @ViewBag.projectid})'; ">新增詢價單</button>
+                    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("FormTemplateMgr","PurchaseForm", new { id = @ViewBag.projectid})'; ">空白詢價單</button>
                     <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
                 </div>
                 <div id="divProcessing" class="col-md-1">
@@ -50,29 +51,10 @@
 </div>
 
 <div class="container">
-    <ul class="nav nav-tabs">
-        <li class="active"><a data-toggle="tab" href="#inquiry">廠商報價單</a></li>
-        @*<li><a data-toggle="tab" href="#inquiryAll">含工帶料</a></li>*@
-        <li><a data-toggle="tab" href="#inquiryTemplate">空白詢價單</a></li>
-    </ul>
-
-    <div class="tab-content">
-        <div id="inquiry" class="tab-pane fade in active">
-            @{
-                Html.RenderPartial("_PurchaseSupplierPage");
-            }
-        </div>
-        @*   <div id="inquiryAll" class="tab-pane fade">
-                @{
-                    Html.RenderPartial("_PurchaseSupplier4All");
-                }
-            </div>*@
-        <div id="inquiryTemplate" class="tab-pane fade">
-            @{
-                Html.RenderPartial("_FormMainPage");
-            }
-        </div>
-    </div>
+    <h5>廠商報價單</h5>
+    @{
+        Html.RenderPartial("_FormMainPage");
+    }
 </div>
 
 <script type="text/javascript">
@@ -84,24 +66,5 @@
             $("#divProcessing").show();
         });
     });
-    function createTemplate() {
-        var projectid = $("input[id=id]").val();
-        var URLs = "/PurchaseForm/createPlanEmptyForm";
-        $("#divProcessing").show();
-        $.ajax({
-            url: URLs,
-            data: { "projectid": projectid },
-            type: "POST",
-            dataType: 'text',
-            success: function (msg) {
-                alert(msg);
-                $("#divProcessing").hide();
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert(thrownError);
-                $("#divProcessing").hide();
-            }
-        });
-    }
 </script>
 
