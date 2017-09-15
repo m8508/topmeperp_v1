@@ -28,6 +28,9 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @{
+                            decimal WageBudgetAmt = 0;
+                        }
                         @foreach (var item in Model.wageTemplateWithBudget)
                 {
                             <tr>
@@ -38,7 +41,8 @@
                                 <td>
                                     @if (null != item.BudgetAmount)
                                     {
-                                        String.Format("{0:#,##}", item.BudgetAmount);
+                                        @String.Format("{0:#,##}", item.BudgetAmount);
+                                        WageBudgetAmt = WageBudgetAmt + item.BudgetAmount;
                                     }
                                     else
                                     {
@@ -54,11 +58,12 @@
 
                     </tbody>
                 </table>
-            }
-            else
-            {
-                <p>尚未建立相關詢價單樣板，透過批次建立詢價單或新增詢價單建立空白詢價單!!</p>
-            }
+                <h3 class="text-left">分項預算總額: @String.Format("{0:#,##}", WageBudgetAmt)</h3>
+                            }
+                            else
+                            {
+                                <p>尚未建立相關詢價單樣板，透過批次建立詢價單或新增詢價單建立空白詢價單!!</p>
+                            }
         </form>
     </div>
 </div>

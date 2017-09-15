@@ -564,11 +564,11 @@ namespace topmeperp.Service
             int i2 = 0;
             using (var context = new topmepEntities())
             {
-                //0.清除所有空白詢價單樣板
-                string sql = "DELETE FROM PLAN_SUP_INQUIRY_ITEM WHERE INQUIRY_FORM_ID IN (SELECT INQUIRY_FORM_ID FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NULL AND PROJECT_ID=@projectid);";
+                //0.清除所有空白詢價單樣板//僅刪除材料之空白詢價單
+                string sql = "DELETE FROM PLAN_SUP_INQUIRY_ITEM WHERE INQUIRY_FORM_ID IN (SELECT INQUIRY_FORM_ID FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NULL AND PROJECT_ID=@projectid AND ISNULL(ISWAGE,'N')='N');";
                 i2 = context.Database.ExecuteSqlCommand(sql, new SqlParameter("projectid", projectid));
                 logger.Info("delete template inquiry form item  by porjectid=" + projectid + ",result=" + i2);
-                sql = "DELETE FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NULL AND PROJECT_ID=@projectid; ";
+                sql = "DELETE FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NULL AND PROJECT_ID=@projectid AND ISNULL(ISWAGE,'N')='N'; ";
                 i2 = context.Database.ExecuteSqlCommand(sql, new SqlParameter("projectid", projectid));
                 logger.Info("delete template inquiry form  by porjectid=" + projectid + ",result=" + i2);
 
@@ -775,16 +775,16 @@ namespace topmeperp.Service
             return lst;
         }
         //採發階段發包分項與預算 (材料預算)
-        public PurchaseFormModel getInquiryWithBudget(TND_PROJECT project)
+        public PurchaseFormModel getInquiryWithBudget(TND_PROJECT project,string status)
         {
             POFormData = new PurchaseFormModel();
             getBudgetSummary(project);
-            POFormData.materialTemplateWithBudget = getTemplateRefBudget(project, "N");
-            POFormData.wageTemplateWithBudget = getTemplateRefBudget(project, "Y");
+            POFormData.materialTemplateWithBudget = getTemplateRefBudget(project, "N",status);
+            POFormData.wageTemplateWithBudget = getTemplateRefBudget(project, "Y", status);
             return POFormData;
         }
         //取得詢價單樣本與分項預算
-        public IEnumerable<PURCHASE_ORDER> getTemplateRefBudget(TND_PROJECT project, string iswage)
+        public IEnumerable<PURCHASE_ORDER> getTemplateRefBudget(TND_PROJECT project, string iswage,string status)
         {
             logger.Info("get purchase template by projectid=" + project.PROJECT_ID);
             List<PURCHASE_ORDER> lst = new List<PURCHASE_ORDER>();
@@ -794,22 +794,23 @@ namespace topmeperp.Service
             {
                 var parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("projectid", project.PROJECT_ID));
+                parameters.Add(new SqlParameter("status", status));
                 if (iswage == "N")
                 {
                     //取得詢價單樣本資訊 - 材料預算-圖算數量*報價標單(Project_item)單價 * 預算折扣比率
                     sql = "SELECT tmp.*,CountPO, (SELECT SUM(v.QTY * it.ITEM_UNIT_COST * it.BUDGET_RATIO/100 ) as BudgetAmount FROM PLAN_ITEM it LEFT JOIN vw_MAP_MATERLIALIST v ON it.PLAN_ITEM_ID = v.PROJECT_ITEM_ID  "
                        + "WHERE it.PLAN_ITEM_ID in (SELECT  iit.PLAN_ITEM_ID FROM PLAN_SUP_INQUIRY_ITEM iit WHERE iit.INQUIRY_FORM_ID = tmp.INQUIRY_FORM_ID)) AS BudgetAmount "
-                       + "FROM(SELECT * FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID is Null AND ISNULL(STATUS,'有效')<>'註銷' AND ISNULL(ISWAGE,'N')='N') tmp LEFT OUTER JOIN "
+                       + "FROM(SELECT * FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID is Null AND ISNULL(STATUS,'有效')=@status AND ISNULL(ISWAGE,'N')='N') tmp LEFT OUTER JOIN "
                        + "(SELECT COUNT(*) CountPO, FORM_NAME, PROJECT_ID FROM  PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NOT Null GROUP BY FORM_NAME, PROJECT_ID) Quo "
                        + "ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME AND tmp.PROJECT_ID = @projectid";
                 }
                 else
                 {
                     // 取得詢價單樣本資訊 - 工資預算 - 圖算數量 * 工資單(預設2500) * 工率*  預算折扣比率
-                    sql = "SELECT tmp.*,CountPO,(SELECT SUM(v.QTY * w.RATIO * it.BUDGET_WAGE_RATIO / 100 * @wageunitprice) as BudgetCost FROM PLAN_ITEM it LEFT JOIN "
+                    sql = "SELECT tmp.*,CountPO,(SELECT SUM(v.QTY * w.RATIO * it.BUDGET_WAGE_RATIO / 100 * @wageunitprice) as BudgetAmount FROM PLAN_ITEM it LEFT JOIN "
                         + "vw_MAP_MATERLIALIST v ON it.PLAN_ITEM_ID = v.PROJECT_ITEM_ID LEFT JOIN TND_WAGE w ON it.PLAN_ITEM_ID = w.PROJECT_ITEM_ID "
                         + "WHERE it.PLAN_ITEM_ID in (SELECT  iit.PLAN_ITEM_ID FROM PLAN_SUP_INQUIRY_ITEM iit WHERE iit.INQUIRY_FORM_ID = tmp.INQUIRY_FORM_ID)) AS BudgetAmount "
-                        + "FROM(SELECT * FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID is Null AND ISNULL(STATUS, '有效') <> '註銷' AND ISNULL(ISWAGE, 'N') = 'Y') tmp LEFT OUTER JOIN "
+                        + "FROM(SELECT * FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID is Null AND ISNULL(STATUS, '有效')=@status AND ISNULL(ISWAGE, 'N') = 'Y') tmp LEFT OUTER JOIN "
                         + "(SELECT COUNT(*) CountPO, FORM_NAME, PROJECT_ID FROM  PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NOT Null "
                         + "GROUP BY FORM_NAME, PROJECT_ID) Quo ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME AND tmp.PROJECT_ID = @projectid;";
                     if (null != project.WAGE_MULTIPLIER)

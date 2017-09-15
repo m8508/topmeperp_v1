@@ -21,18 +21,7 @@
                         <option value="註銷">註銷</option>
                     </select>
                 </div>
-                <div id="type" class="col-md-2 text-left">
-                    <label for="type" style="text-align:right">種類 :</label>
-                    <select id="type" name="type">
-                        <option value="*">全部</option>
-                        <option value="N">材料</option>
-                        <option value="Y">工資</option>
-                    </select>
-                </div>
                 <div id="status" class="col-md-2 text-left">
-                    <div id="divProcessing" class="col-md-1">
-                        <img src="~/Content/ajax-loader.gif">
-                    </div>
                     <input id="Submit12" class="btn btn-info" type="submit" value="查詢" />
                     <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
                 </div>
@@ -42,6 +31,9 @@
 </div>
 
 <div class="container">
+    <div id="divProcessing" class="col-md-1">
+        <img src="~/Content/ajax-loader.gif">
+    </div>
     <ul class="nav nav-tabs">
         <li class="active"><a data-toggle="tab" href="#tempMagerial">材料設備</a></li>
         <li><a data-toggle="tab" href="#tempWage">代工</a></li>
