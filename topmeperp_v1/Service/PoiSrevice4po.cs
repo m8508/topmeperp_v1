@@ -82,7 +82,7 @@ namespace topmeperp.Service
             {
                 IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
                 logger.Info("Row Id=" + idxRow);
-                //主九宮格編碼、次九宮格編碼、主系統、次系統、分項名稱(成本價)、合約金額、材料成本、預算折扣率、預算金額
+                //主九宮格編碼、次九宮格編碼、分項名稱(成本價)、合約金額、材料成本、預算折扣率、預算金額
                 //主九宮格編碼
                 row.CreateCell(0).SetCellValue(item.MAINCODE);
                 //次九宮格編碼
@@ -90,36 +90,35 @@ namespace topmeperp.Service
                 {
                     row.CreateCell(1).SetCellValue(double.Parse(item.SUB_CODE.ToString()));
                 }
-                //主系統
-                if (null != item.SYSTEM_MAIN && item.SYSTEM_MAIN.ToString().Trim() != "")
-                {
-                    row.CreateCell(2).SetCellValue(item.SYSTEM_MAIN);
-                }
-                //次系統
-                if (null != item.SYSTEM_SUB && item.SYSTEM_SUB.ToString().Trim() != "")
-                {
-                    row.CreateCell(3).SetCellValue(item.SYSTEM_SUB);
-                }
                 //分項名稱
                 logger.Debug("ITEM DESC=" + item.MAINCODE_DESC);
-                row.CreateCell(4).SetCellValue(item.MAINCODE_DESC + "-" + item.SUB_DESC);
+                row.CreateCell(2).SetCellValue(item.MAINCODE_DESC + "-" + item.SUB_DESC);
                 //合約金額
                 if (null != item.CONTRACT_PRICE && item.CONTRACT_PRICE.ToString().Trim() != "")
                 {
-                    row.CreateCell(5).SetCellValue(double.Parse(item.CONTRACT_PRICE.ToString()));
+                    row.CreateCell(3).SetCellValue(double.Parse(item.CONTRACT_PRICE.ToString()));
                 }
                 //材料成本
                 if (null != item.MATERIAL_COST_INMAP && item.MATERIAL_COST_INMAP.ToString().Trim() != "")
                 {
-                    row.CreateCell(6).SetCellValue(double.Parse(item.MATERIAL_COST_INMAP.ToString()));
+                    row.CreateCell(4).SetCellValue(double.Parse(item.MATERIAL_COST_INMAP.ToString()));
                 }
+                //材料折扣率 
+                row.CreateCell(5).SetCellValue("");
+                //工資成本
+                if (null != item.MAN_DAY_INMAP && item.MAN_DAY_INMAP.ToString().Trim() != "")
+                {
+                    row.CreateCell(6).SetCellValue(double.Parse(item.MAN_DAY_INMAP.ToString()));
+                }
+                //工資折扣率 
+                row.CreateCell(7).SetCellValue("");
                 foreach (ICell c in row.Cells)
                 {
-                    c.CellStyle = ExcelStyle.getContentStyle(hssfworkbook);
+                c.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
                 }
                 //預算金額
                 ICell cel8 = row.CreateCell(8);
-                cel8.CellFormula = "G" + (idxRow + 1) + "*H" + (idxRow + 1) + "/100";
+                cel8.CellFormula = "(E" + (idxRow + 1) + "*F" + (idxRow + 1) + "/100)+(G" + (idxRow + 1) + "*H" + (idxRow + 1) + "/100)";
                 cel8.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
                 logger.Debug("getBudget cell style rowid=" + idxRow);
                 idxRow++;
@@ -245,14 +244,14 @@ namespace topmeperp.Service
             {
                 item.TYPE_CODE_2 = row.Cells[1].ToString();
             }
-            if (row.Cells[2].ToString().Trim() != "")//3.主系統
-            {
-                item.SYSTEM_MAIN = row.Cells[2].ToString();
-            }
-            if (row.Cells[3].ToString().Trim() != "")//4.次系統
-            {
-                item.SYSTEM_SUB = row.Cells[3].ToString();
-            }
+            //if (row.Cells[2].ToString().Trim() != "")//3.主系統
+            //{
+               // item.SYSTEM_MAIN = row.Cells[2].ToString();
+            //}
+            //if (row.Cells[3].ToString().Trim() != "")//4.次系統
+            //{
+                //item.SYSTEM_SUB = row.Cells[3].ToString();
+            //}
             //if (null != row.Cells[row.Cells.Count - 4].ToString().Trim() || row.Cells[row.Cells.Count - 4].ToString().Trim() != "")//2.投標折數
             //{
             //    try

@@ -91,6 +91,7 @@ namespace topmeperp.Controllers
             log.Info("Project Name:" + Request["prjId"]);
             //取得使用者勾選品項ID
             log.Info("item_list:" + Request["chkItem"]);
+            log.Info("emptyform:" + Request["emptyform"]);
             string[] lstItemId = Request["chkItem"].ToString().Split(',');
             log.Info("select count:" + lstItemId.Count());
             var i = 0;
@@ -119,10 +120,10 @@ namespace topmeperp.Controllers
             string fid = service.newPlanForm(qf, lstItemId);
             //產生採購詢價單實體檔案(是否需先註解掉，因為空白詢價單不用產生實體檔，
             //樣本轉廠商採購單時再產生即可)
-            //service.getInqueryForm(fid);
-            //PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
-            //poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false, false);
-            return Redirect("FormTemplateMgr/" + qf.PROJECT_ID);
+            service.getInqueryForm(fid);
+            PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
+            poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false,false);
+            return Redirect("FormMainPage?id=" + qf.PROJECT_ID);
             //return RedirectToAction("InquiryMainPage","Inquiry", qf.PROJECT_ID);
         }
         public ActionResult FormMainPage(string id)
@@ -142,31 +143,22 @@ namespace topmeperp.Controllers
             ViewBag.Status = "有效";
             return View(formData);
         }
-        //採發作業-空白詢價單管理功能
+        //空白詢價單管理功能
         public ActionResult FormTemplateMgr(string id)
         {
-            log.Info("purchase form by projectID =" + id + ",status=" + Request["status"]);
+            log.Info("purchase form by projectID =" + id + ",status=" + Request["status"] + ",type=" + Request["type"] + ",formname=" + Request["formname"]);
+            PurchaseFormModel formData = new PurchaseFormModel();
             if (null != id && id != "")
             {
                 ViewBag.projectid = id;
                 TND_PROJECT p = service.getProjectById(id);
                 ViewBag.projectName = p.PROJECT_NAME;
-                string status = "有效";
-                if (null != Request["status"])
-                {
-                    status = Request["status"];
-                }
-                service.getInquiryWithBudget(p, status);
-                if (p.WAGE_MULTIPLIER == null)
-                {
-                    ViewBag.wageunitprice = "2500";
-                }
-                else
-                {
-                    ViewBag.wageunitprice = p.WAGE_MULTIPLIER;
-                }
+                formData.planTemplateWithBudget = service.getTemplateRefBudget(id);
+                //formData.planFormFromSupplier = service.getFormByProject(id, Request["status"], Request["type"], Request["formname"]);
+                //formData.planForm4All = service.getFormByProject(id, Request["status"], "A", Request["formname"]);
             }
-            return View(service.POFormData);
+            ViewBag.Status = "有效";
+            return View(formData);
         }
         //顯示單一詢價單、報價單功能
         public ActionResult SinglePrjForm(string id)
@@ -591,6 +583,7 @@ namespace topmeperp.Controllers
             ViewBag.projectName = p.PROJECT_NAME;
             //取得未決標需議價之詢價單資料
             string iswage = "N";
+            ViewBag.isWage = Request["isWage"];
             if (null != Request["isWage"])
             {
                 iswage = Request["isWage"];
@@ -599,6 +592,7 @@ namespace topmeperp.Controllers
             BudgetDataService bs = new BudgetDataService();
             DirectCost iteminfo = bs.getItemBudget(id, Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formname"]);
             ViewBag.itembudget = iteminfo.ITEM_BUDGET;
+            ViewBag.itemwagebudget = iteminfo.ITEM_BUDGET_WAGE;
             ViewBag.SearchResult = "共取得" + lstforms.Count + "筆資料";
             return View(lstforms);
         }
@@ -608,6 +602,7 @@ namespace topmeperp.Controllers
             BudgetDataService bs = new BudgetDataService();
             DirectCost iteminfo = bs.getItemBudget(Request["id"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formname"]);
             ViewBag.itembudget = iteminfo.ITEM_BUDGET;
+            ViewBag.itemwagebudget = iteminfo.ITEM_BUDGET_WAGE;
             ViewBag.SearchResult = "共取得" + lstforms.Count + "筆資料";
             return View("PurchaseMain", lstforms);
         }
@@ -667,6 +662,7 @@ namespace topmeperp.Controllers
             //傳入查詢條件
             log.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"] + ",Form Name=" + Request["formName"]);
             string iswage = "N";
+            ViewBag.isWage = Request["isWage"];
             //取得備標品項與詢價資料
             try
             {
@@ -760,6 +756,7 @@ namespace topmeperp.Controllers
                     BudgetDataService bs = new BudgetDataService();
                     DirectCost iteminfo = bs.getItemBudget(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"]);
                     ViewBag.itembudget = iteminfo.ITEM_BUDGET;
+                    ViewBag.itemwagebudget = iteminfo.ITEM_BUDGET_WAGE;
                     //產生畫面
                     IHtmlString str = new HtmlString(htmlString);
                     ViewBag.htmlString = str;
@@ -854,6 +851,7 @@ namespace topmeperp.Controllers
                     BudgetDataService bs = new BudgetDataService();
                     DirectCost iteminfo = bs.getItemBudget(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"]);
                     ViewBag.itembudget = iteminfo.ITEM_BUDGET;
+                    ViewBag.itemwagebudget = iteminfo.ITEM_BUDGET_WAGE;
                     //產生畫面
                     IHtmlString str = new HtmlString(htmlString);
                     ViewBag.htmlString = str;
@@ -1014,6 +1012,7 @@ namespace topmeperp.Controllers
                     BudgetDataService bs = new BudgetDataService();
                     DirectCost iteminfo = bs.getItemBudget(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"]);
                     ViewBag.itembudget = iteminfo.ITEM_BUDGET;
+                    ViewBag.itemwagebudget = iteminfo.ITEM_BUDGET_WAGE;
                     //產生畫面
                     IHtmlString str = new HtmlString(htmlString);
                     ViewBag.htmlString = str;
@@ -1107,6 +1106,7 @@ namespace topmeperp.Controllers
                     BudgetDataService bs = new BudgetDataService();
                     DirectCost iteminfo = bs.getItemBudget(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"]);
                     ViewBag.itembudget = iteminfo.ITEM_BUDGET;
+                    ViewBag.itemwagebudget = iteminfo.ITEM_BUDGET_WAGE;
                     //產生畫面
                     IHtmlString str = new HtmlString(htmlString);
                     ViewBag.htmlString = str;

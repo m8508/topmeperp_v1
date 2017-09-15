@@ -3,6 +3,7 @@
 {
     <!--不好的方式但檔著先屆時設為Hidden-->
     <input type="hidden" id="prjId" name="prjId" value="@ViewBag.projectid" />
+    <input type="hidden" id="emptyform" name="emptyform" value="" />
     <table class="table">
         <tr>
             <th><input type="checkbox" name="CheckAll" id="CheckAll">全選</th>
@@ -96,7 +97,6 @@
             <input id="Submit1" type="submit" value="新增詢價單樣本" />
         </div>
     </div>
-
 }
 
 
@@ -109,6 +109,18 @@
                 $("input[name='chkItem']").prop("checked", false);
         });
     });
+
+    function Confirm_Form() {
+        if (confirm("空白詢價單新增成功後，要繼續輸入廠商詢價單資料！") == true) {
+            return $("#emptyform").val('S');
+            
+        }
+        else
+        {
+            alert("請輸入空白詢價單名稱");
+            return $("#emptyform").val('E');
+        }
+    }
 </script>
 <script language="javascript" type="text/javascript">
     function GetCheckedValue(checkBoxName) {

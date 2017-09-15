@@ -145,8 +145,8 @@ namespace topmeperp.Service
             logger.Info("update budget ratio to plan items by id :" + id);
             string sql = "UPDATE PLAN_ITEM SET PLAN_ITEM.BUDGET_RATIO = plan_budget.BUDGET_RATIO, PLAN_ITEM.BUDGET_WAGE_RATIO = plan_budget.BUDGET_WAGE_RATIO " +
                    "from PLAN_ITEM inner join " +
-                   "plan_budget on REPLACE(PLAN_ITEM.PROJECT_ID, ' ', '') + IIF(REPLACE(PLAN_ITEM.TYPE_CODE_1, ' ', '') is null, '', IIF(REPLACE(PLAN_ITEM.TYPE_CODE_1, ' ', '') = 0, '', REPLACE(PLAN_ITEM.TYPE_CODE_1, ' ', ''))) + IIF(REPLACE(PLAN_ITEM.TYPE_CODE_2, ' ', '') is null, '', IIF(REPLACE(PLAN_ITEM.TYPE_CODE_2, ' ', '') = 0, '', REPLACE(PLAN_ITEM.TYPE_CODE_2, ' ', ''))) + IIF(REPLACE(PLAN_ITEM.SYSTEM_MAIN, ' ', '') is null, '', REPLACE(PLAN_ITEM.SYSTEM_MAIN, ' ', '')) + IIF(REPLACE(PLAN_ITEM.SYSTEM_SUB, ' ', '') is null, '', REPLACE(PLAN_ITEM.SYSTEM_SUB, ' ', '')) " +
-                   "= REPLACE(plan_budget.PROJECT_ID, ' ', '') + IIF(REPLACE(plan_budget.TYPE_CODE_1, ' ', '') is null, '', IIF(REPLACE(plan_budget.TYPE_CODE_1, ' ', '') = 0, '', REPLACE(plan_budget.TYPE_CODE_1, ' ', ''))) + IIF(REPLACE(plan_budget.TYPE_CODE_2, ' ', '') is null, '', IIF(REPLACE(plan_budget.TYPE_CODE_2, ' ', '') = 0, '', REPLACE(plan_budget.TYPE_CODE_2, ' ', ''))) + IIF(REPLACE(plan_budget.SYSTEM_MAIN, ' ', '') is null, '', REPLACE(plan_budget.SYSTEM_MAIN, ' ', '')) + IIF(REPLACE(plan_budget.SYSTEM_SUB, ' ', '') is null, '', REPLACE(plan_budget.SYSTEM_SUB, ' ', '')) WHERE PLAN_ITEM.PROJECT_ID  = @id ";
+                   "plan_budget on REPLACE(PLAN_ITEM.PROJECT_ID, ' ', '') + IIF(REPLACE(PLAN_ITEM.TYPE_CODE_1, ' ', '') is null, '', IIF(REPLACE(PLAN_ITEM.TYPE_CODE_1, ' ', '') = 0, '', REPLACE(PLAN_ITEM.TYPE_CODE_1, ' ', ''))) + IIF(REPLACE(PLAN_ITEM.TYPE_CODE_2, ' ', '') is null, '', IIF(REPLACE(PLAN_ITEM.TYPE_CODE_2, ' ', '') = 0, '', REPLACE(PLAN_ITEM.TYPE_CODE_2, ' ', ''))) " +
+                   "= REPLACE(plan_budget.PROJECT_ID, ' ', '') + IIF(REPLACE(plan_budget.TYPE_CODE_1, ' ', '') is null, '', IIF(REPLACE(plan_budget.TYPE_CODE_1, ' ', '') = 0, '', REPLACE(plan_budget.TYPE_CODE_1, ' ', ''))) + IIF(REPLACE(plan_budget.TYPE_CODE_2, ' ', '') is null, '', IIF(REPLACE(plan_budget.TYPE_CODE_2, ' ', '') = 0, '', REPLACE(plan_budget.TYPE_CODE_2, ' ', ''))) WHERE PLAN_ITEM.PROJECT_ID  = @id ";
             logger.Debug("sql:" + sql);
             db = new topmepEntities();
             var parameters = new List<SqlParameter>();
@@ -283,21 +283,22 @@ namespace topmeperp.Service
             List<DirectCost> lstBudget = new List<DirectCost>();
             using (var context = new topmepEntities())
             {
-                string sql = "SELECT C.*, SUM((MATERIAL_COST_INMAP) * BUDGET / 100) AS AMOUNT_BY_CODE FROM " +
-                    "(SELECT MAINCODE, MAINCODE_DESC, SUB_CODE, SUB_DESC, MATERIAL_COST_INMAP, MAN_DAY, CONTRACT_PRICE, D.SYSTEM_MAIN, D.SYSTEM_SUB, "
+                string sql = "SELECT C.*, SUM(MATERIAL_COST_INMAP * BUDGET / 100) + SUM(MAN_DAY_INMAP * BUDGET_WAGE / 100) AS AMOUNT_BY_CODE FROM " +
+                    "(SELECT MAINCODE, MAINCODE_DESC, SUB_CODE, SUB_DESC, MATERIAL_COST_INMAP, MAN_DAY_INMAP, CONTRACT_PRICE, "
                     + "BUDGET_RATIO as BUDGET, BUDGET_WAGE_RATIO as BUDGET_WAGE, COST_RATIO FROM (SELECT" +
                     "(select TYPE_CODE_1 + TYPE_CODE_2 from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE, " +
                     "(select TYPE_DESC from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE_DESC ," +
                     "(select SUB_TYPE_ID from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) T_SUB_CODE, " +
                     "TYPE_CODE_2 SUB_CODE," +
-                    "(select TYPE_DESC from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) SUB_DESC, A.SYSTEM_MAIN, A.SYSTEM_SUB, " +
-                    "SUM(MapQty * ITEM_UNIT_PRICE) MATERIAL_COST_INMAP, SUM(ITEM_QUANTITY * PRICE) MAN_DAY, SUM(ITEM_QUANTITY * ITEM_UNIT_COST) CONTRACT_PRICE, count(*) ITEM_COUNT " +
-                    "FROM (SELECT it.*, w.RATIO, w.PRICE, map.QTY MapQty, pi.ITEM_UNIT_COST FROM TND_PROJECT_ITEM it LEFT OUTER JOIN TND_WAGE w " +
-                    "ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON it.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID RIGHT OUTER JOIN PLAN_ITEM pi ON it.PROJECT_ITEM_ID = pi.PLAN_ITEM_ID WHERE it.project_id = @projectid AND pi.ITEM_QUANTITY is not null and pi.ITEM_QUANTITY <>0) A " +
-                    "GROUP BY TYPE_CODE_1, TYPE_CODE_2, A.SYSTEM_MAIN, A.SYSTEM_SUB) B LEFT OUTER JOIN (SELECT p.TYPE_CODE_1, p.TYPE_CODE_2, p.SYSTEM_MAIN, p.SYSTEM_SUB, SUM(p.BUDGET_RATIO*p.ITEM_QUANTITY)/SUM(p.ITEM_QUANTITY) BUDGET_RATIO, " +
-                    "SUM(p.BUDGET_WAGE_RATIO*p.ITEM_QUANTITY)/SUM(p.ITEM_QUANTITY) BUDGET_WAGE_RATIO, " +
-                    "SUM(p.TND_RATIO*p.ITEM_QUANTITY)/SUM(p.ITEM_QUANTITY) COST_RATIO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid GROUP BY p.TYPE_CODE_1, p.TYPE_CODE_2, p.SYSTEM_MAIN, p.SYSTEM_SUB) D ON ISNULL(MAINCODE, '') + ISNULL(SUB_CODE, '') + ISNULL(B.SYSTEM_MAIN, '') + ISNULL(B.SYSTEM_SUB, '') = ISNULL(D.TYPE_CODE_1, '') + ISNULL(D.TYPE_CODE_2, '') + ISNULL(D.SYSTEM_MAIN, '') + ISNULL(D.SYSTEM_SUB, '') " +
-                    ") C GROUP BY MAINCODE, MAINCODE_DESC, SUB_CODE, SUB_DESC, C.SYSTEM_MAIN, C.SYSTEM_SUB, MATERIAL_COST_INMAP, MAN_DAY, CONTRACT_PRICE, BUDGET, BUDGET_WAGE, COST_RATIO ORDER BY ISNULL(MAINCODE, '無'), ISNULL(SUB_CODE, '無') ";
+                    "(select TYPE_DESC from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) SUB_DESC, " +
+                    "SUM(MapQty * ITEM_UNIT_PRICE) MATERIAL_COST_INMAP, SUM(MapQty * RATIO * WagePrice) MAN_DAY_INMAP, SUM(ITEM_QUANTITY * Price4Owner) CONTRACT_PRICE, count(*) ITEM_COUNT " +
+                    "FROM (SELECT it.*, w.RATIO, w.PRICE, map.QTY MapQty, ISNULL(p.WAGE_MULTIPLIER, 0) AS WagePrice, pi.ITEM_UNIT_PRICE AS Price4Owner FROM TND_PROJECT_ITEM it LEFT OUTER JOIN TND_WAGE w " +
+                    "ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON it.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID RIGHT OUTER JOIN PLAN_ITEM pi ON it.PROJECT_ITEM_ID = pi.PLAN_ITEM_ID " +
+                    "LEFT JOIN TND_PROJECT p ON it.PROJECT_ID = p.PROJECT_ID WHERE it.project_id = @projectid AND pi.ITEM_QUANTITY is not null and pi.ITEM_QUANTITY <>0) A " +
+                    "GROUP BY TYPE_CODE_1, TYPE_CODE_2) B LEFT OUTER JOIN (SELECT p.TYPE_CODE_1, p.TYPE_CODE_2, SUM(p.BUDGET_RATIO*map.QTY)/SUM(map.QTY) BUDGET_RATIO, " +
+                    "SUM(p.BUDGET_WAGE_RATIO*map.QTY)/SUM(map.QTY) BUDGET_WAGE_RATIO, " +
+                    "SUM(p.TND_RATIO*map.QTY)/SUM(map.QTY) COST_RATIO FROM PLAN_ITEM p LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON p.PLAN_ITEM_ID = map.PROJECT_ITEM_ID WHERE p.PROJECT_ID =@projectid GROUP BY p.TYPE_CODE_1, p.TYPE_CODE_2) D ON ISNULL(MAINCODE, '') + ISNULL(SUB_CODE, '') = ISNULL(D.TYPE_CODE_1, '') + ISNULL(D.TYPE_CODE_2, '') " +
+                    ") C GROUP BY MAINCODE, MAINCODE_DESC, SUB_CODE, SUB_DESC, MATERIAL_COST_INMAP, MAN_DAY_INMAP, CONTRACT_PRICE, BUDGET, BUDGET_WAGE, COST_RATIO ORDER BY ISNULL(MAINCODE, '無'), ISNULL(SUB_CODE, '無') ";
                 logger.Info("sql = " + sql);
                 var parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("projectid", projectid));
@@ -312,16 +313,16 @@ namespace topmeperp.Service
             DirectCost lstTotalCost = null;
             using (var context = new topmepEntities())
             {
-                string sql = "SELECT SUM(MATERIAL_COST_INMAP) AS TOTAL_COST, SUM(BUDGET) AS TOTAL_BUDGET, SUM(P_COST) AS TOTAL_P_COST FROM (SELECT(select TYPE_CODE_1 + TYPE_CODE_2 from REF_TYPE_MAIN WHERE  " +
+                string sql = "SELECT SUM(TND_COST) AS TOTAL_COST, SUM(BUDGET) AS MATERIAL_BUDGET, SUM(BUDGET_WAGE) AS WAGE_BUDGET, SUM(BUDGET) + SUM(BUDGET_WAGE) AS TOTAL_BUDGET, SUM(P_COST) AS TOTAL_P_COST FROM (SELECT(select TYPE_CODE_1 + TYPE_CODE_2 from REF_TYPE_MAIN WHERE  " +
                     "TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE, (select TYPE_DESC from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE_DESC, " +
                     "(select SUB_TYPE_ID from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) T_SUB_CODE, TYPE_CODE_2 SUB_CODE, " +
                     "(select TYPE_DESC from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) SUB_DESC, SUM(MapQty * ITEM_UNIT_PRICE) MATERIAL_COST_INMAP, " +
-                    "SUM(ITEM_QUANTITY * PRICE) MAN_DAY,count(*) ITEM_COUNT, SUM(MapQty * ITEM_UNIT_PRICE * BUDGET_RATIO/100) BUDGET, " +
-                    "SUM(ITEM_FORM_QUANTITY * PRICE_SUP) P_COST, SUM(ITEM_QUANTITY * ITEM_UNIT_COST) TND_COST FROM " +
-                    "(SELECT it.*, w.RATIO, w.PRICE, map.QTY MapQty, pi.ITEM_UNIT_PRICE AS PRICE_SUP, pi.BUDGET_RATIO, pi.ITEM_FORM_QUANTITY, pi.ITEM_UNIT_COST FROM TND_PROJECT_ITEM it LEFT OUTER JOIN " +
-                    "TND_WAGE w ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON it.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID RIGHT OUTER JOIN PLAN_ITEM pi " +
+                    "SUM(MapQty * RATIO * WagePrice) MAN_DAY_INMAP,count(*) ITEM_COUNT, SUM(MapQty * ITEM_UNIT_PRICE * BUDGET_RATIO/100) BUDGET, SUM(MapQty * RATIO * WagePrice * BUDGET_WAGE_RATIO/100) BUDGET_WAGE, " +
+                    "SUM(MapQty * PRICE_SUP) + SUM(MapQty * MAN_PRICE_SUP) P_COST, SUM(ITEM_QUANTITY * PRICE_OWNER) TND_COST FROM " +
+                    "(SELECT it.*, w.RATIO, w.PRICE, map.QTY MapQty, pi.ITEM_UNIT_COST AS PRICE_SUP, pi.MAN_PRICE AS MAN_PRICE_SUP, pi.BUDGET_RATIO, pi.BUDGET_WAGE_RATIO, ISNULL(p.WAGE_MULTIPLIER, 0) AS WagePrice, pi.ITEM_UNIT_PRICE AS PRICE_OWNER FROM TND_PROJECT_ITEM it LEFT OUTER JOIN " +
+                    "TND_WAGE w ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON it.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID LEFT JOIN TND_PROJECT p ON it.PROJECT_ID = p.PROJECT_ID RIGHT OUTER JOIN PLAN_ITEM pi " +
                     "ON it.PROJECT_ITEM_ID = pi.PLAN_ITEM_ID WHERE it.project_id = @projectid) A  " +
-                    "GROUP BY TYPE_CODE_1, TYPE_CODE_2, SYSTEM_MAIN, SYSTEM_SUB)B ";
+                    "GROUP BY TYPE_CODE_1, TYPE_CODE_2)B ";
                 logger.Info("sql = " + sql);
                 lstTotalCost = context.Database.SqlQuery<DirectCost>(sql, new SqlParameter("projectid", projectid)).First();
             }
@@ -335,7 +336,9 @@ namespace topmeperp.Service
             logger.Info("search plan item by 九宮格 =" + typeCode1 + "search plan item by 次九宮格 =" + typeCode2 + "search plan item by 主系統 =" + systemMain + "search plan item by 次系統 =" + systemSub + "search plan item by 採購名稱 =" + formName);
             DirectCost lstItemBudget = null;
             //處理SQL 預先填入專案代號,設定集合處理參數
-            string sql = "SELECT SUM(pi.ITEM_QUANTITY*pi.ITEM_UNIT_COST) AS ITEM_COST, SUM(pi.ITEM_QUANTITY*pi.ITEM_UNIT_COST*pi.BUDGET_RATIO/100) AS ITEM_BUDGET FROM PLAN_ITEM pi ";
+            string sql = "SELECT SUM(map.QTY*pi.ITEM_UNIT_PRICE) AS ITEM_COST, SUM(map.QTY*tpi.ITEM_UNIT_PRICE*pi.BUDGET_RATIO/100) AS ITEM_BUDGET, SUM(map.QTY*w.RATIO*ISNULL(p.WAGE_MULTIPLIER, 0)*pi.BUDGET_WAGE_RATIO/100) AS ITEM_BUDGET_WAGE FROM PLAN_ITEM pi " +
+                "LEFT JOIN TND_PROJECT_ITEM tpi ON pi.PLAN_ITEM_ID = tpi.PROJECT_ITEM_ID LEFT OUTER JOIN TND_WAGE w ON pi.PLAN_ITEM_ID = w.PROJECT_ITEM_ID LEFT JOIN TND_PROJECT p ON pi.PROJECT_ID = p.PROJECT_ID " +
+                "LEFT JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID ";
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("projectid", projectid));
             //採購項目
@@ -680,7 +683,7 @@ namespace topmeperp.Service
                 string sql = "INSERT INTO PLAN_SUP_INQUIRY_ITEM (INQUIRY_FORM_ID, PLAN_ITEM_ID, TYPE_CODE, "
                     + "SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_QTY, ITEM_UNIT_PRICE, ITEM_REMARK) "
                     + "SELECT '" + form.INQUIRY_FORM_ID + "' as INQUIRY_FORM_ID, PLAN_ITEM_ID, TYPE_CODE_1 AS TYPE_CODE, "
-                    + "TYPE_CODE_2 AS SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_FORM_QUANTITY, ITEM_UNIT_PRICE, ITEM_REMARK "
+                    + "TYPE_CODE_2 AS SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_FORM_QUANTITY, ITEM_UNIT_COST, ITEM_REMARK "
                     + "FROM PLAN_ITEM where PLAN_ITEM_ID IN (" + ItemId + ")";
                 logger.Info("sql =" + sql);
                 var parameters = new List<SqlParameter>();
@@ -1217,11 +1220,11 @@ namespace topmeperp.Service
                          "FROM (select p.SUPPLIER_ID,  p.INQUIRY_FORM_ID, p.FORM_NAME AS code1, ISNULL(STATUS,'有效') STATUS, ISNULL(ISWAGE,'N')ISWAGE FROM PLAN_SUP_INQUIRY p LEFT OUTER JOIN PLAN_SUP_INQUIRY_ITEM pi " +
                          "ON p.INQUIRY_FORM_ID = pi.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL AND ISNULL(STATUS,'有效') <> '註銷' AND ISWAGE <> 'Y' GROUP BY p.FORM_NAME, p.INQUIRY_FORM_ID, p.STATUS, " +
                          "p.SUPPLIER_ID, p.ISWAGE HAVING p.FORM_NAME NOT IN (SELECT p.FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid " +
-                         "AND p.ITEM_UNIT_PRICE IS NOT NULL AND p.ITEM_UNIT_PRICE <> 0 GROUP BY p.FORM_NAME))C LEFT OUTER JOIN " +
+                         "AND p.ITEM_UNIT_COST IS NOT NULL AND p.ITEM_UNIT_COST<> 0 GROUP BY p.FORM_NAME))C LEFT OUTER JOIN " +
                          "(select  B.type, B.INQUIRY_FORM_ID, B.TOTAL_ROW AS TOTAL_ROWS, B.TOTALPRICE AS TOTAL_PRICE FROM (select p.FORM_NAME as type, p.INQUIRY_FORM_ID " +
                          "from PLAN_SUP_INQUIRY_ITEM pi LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL " +
                          "and pi.ITEM_UNIT_PRICE is not null GROUP BY p.INQUIRY_FORM_ID, p.FORM_NAME HAVING p.FORM_NAME NOT IN " +
-                         "(SELECT p.FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid AND p.ITEM_UNIT_PRICE IS NOT NULL AND p.ITEM_UNIT_PRICE <> 0 GROUP BY p.FORM_NAME)) A " +
+                         "(SELECT p.FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid AND p.ITEM_UNIT_COST IS NOT NULL AND p.ITEM_UNIT_COST <> 0 GROUP BY p.FORM_NAME)) A " +
                          "RIGHT OUTER JOIN (select p.FORM_NAME as type, p.INQUIRY_FORM_ID, " +
                          "count(*) TOTAL_ROW, sum(ITEM_QTY * ITEM_UNIT_PRICE) TOTALPRICE from PLAN_SUP_INQUIRY_ITEM pi LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL GROUP BY p.INQUIRY_FORM_ID, " +
                          "p.FORM_NAME) B ON A.INQUIRY_FORM_ID + A.type = B.INQUIRY_FORM_ID + B.type) D ON C.INQUIRY_FORM_ID + C.code1 = D.INQUIRY_FORM_ID + D.type ";
@@ -1267,13 +1270,13 @@ namespace topmeperp.Service
         {
             List<COMPARASION_DATA_4PLAN> lst = new List<COMPARASION_DATA_4PLAN>();
             string sql = "SELECT  pfItem.INQUIRY_FORM_ID AS INQUIRY_FORM_ID, " +
-                "f.SUPPLIER_ID as SUPPLIER_NAME, f.FORM_NAME AS FORM_NAME, ISNULL(STATUS,'有效') STATUS, SUM(pfitem.ITEM_UNIT_PRICE*pfitem.ITEM_QTY) as TAmount, " +
-                "ISNULL(CEILING(SUM(pfitem.ITEM_UNIT_PRICE*pfitem.ITEM_QTY) / SUM(w.RATIO*pItem.ITEM_FORM_QUANTITY)),0) as AvgMPrice " +
+                "f.SUPPLIER_ID as SUPPLIER_NAME, f.FORM_NAME AS FORM_NAME, ISNULL(f.STATUS,'有效') STATUS, SUM(pfitem.ITEM_UNIT_PRICE*pfitem.ITEM_QTY) as TAmount, " +
+                "ISNULL(CEILING(SUM(pfitem.ITEM_UNIT_PRICE*pfitem.ITEM_QTY) / SUM(w.RATIO*map.QTY*ISNULL(p.WAGE_MULTIPLIER, 0))),0) as AvgMPrice " +
                 "FROM PLAN_ITEM pItem LEFT OUTER JOIN " +
                 "PLAN_SUP_INQUIRY_ITEM pfItem ON pItem.PLAN_ITEM_ID = pfItem.PLAN_ITEM_ID " +
                 "inner join PLAN_SUP_INQUIRY f on pfItem.INQUIRY_FORM_ID = f.INQUIRY_FORM_ID " +
-                "left join TND_WAGE w on pItem.PLAN_ITEM_ID = w.PROJECT_ITEM_ID " +
-                "WHERE pItem.PROJECT_ID = @projectid AND f.SUPPLIER_ID is not null AND ISNULL(STATUS,'有效') <> '註銷' AND ISNULL(f.ISWAGE,'N')=@iswage  ";
+                "left join TND_WAGE w on pItem.PLAN_ITEM_ID = w.PROJECT_ITEM_ID LEFT JOIN vw_MAP_MATERLIALIST map ON pItem.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT JOIN TND_PROJECT p ON pItem.PROJECT_ID = p.PROJECT_ID " +
+                "WHERE pItem.PROJECT_ID = @projectid AND f.SUPPLIER_ID is not null AND ISNULL(f.STATUS,'有效') <> '註銷' AND ISNULL(f.ISWAGE,'N')=@iswage  ";
             var parameters = new List<SqlParameter>();
             //設定專案名編號資料
             parameters.Add(new SqlParameter("projectid", projectid));
@@ -1333,7 +1336,7 @@ namespace topmeperp.Service
             {
                 string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PLAN_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
                 "(SELECT SUPPLIER_ID+'|'+ fitem.INQUIRY_FORM_ID +'|' + FORM_NAME FROM PLAN_SUP_INQUIRY f WHERE f.INQUIRY_FORM_ID = fitem.INQUIRY_FORM_ID ) as SUPPLIER_NAME, " +
-                "pitem.ITEM_UNIT_PRICE 單價, " +
+                "pitem.ITEM_UNIT_COST 材料單價, " +
                 "(SELECT FORM_NAME FROM PLAN_SUP_INQUIRY f WHERE f.INQUIRY_FORM_ID = fitem.INQUIRY_FORM_ID ) as FORM_NAME, fitem.ITEM_UNIT_PRICE  " +
                 "from PLAN_ITEM pitem " +
                 "left join PLAN_SUP_INQUIRY_ITEM fitem " +
@@ -1421,7 +1424,7 @@ namespace topmeperp.Service
             {
                 string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PLAN_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
                 "(SELECT SUPPLIER_ID+'|'+ fitem.INQUIRY_FORM_ID +'|' + FORM_NAME FROM PLAN_SUP_INQUIRY f WHERE f.INQUIRY_FORM_ID = fitem.INQUIRY_FORM_ID ) as SUPPLIER_NAME, " +
-                "pitem.ITEM_UNIT_PRICE 單價, fitem.ITEM_UNIT_PRICE " +
+                "pitem.ITEM_UNIT_COST 材料單價, fitem.ITEM_UNIT_PRICE " +
                 "from PLAN_ITEM pitem " +
                 "left join PLAN_SUP_INQUIRY_ITEM fitem " +
                 " on pitem.PLAN_ITEM_ID = fitem.PLAN_ITEM_ID " +
@@ -1555,7 +1558,7 @@ namespace topmeperp.Service
             int i = 0;
             logger.Info("Update Cost:plan item id=" + planItemid + ",price=" + price);
             db = new topmepEntities();
-            string sql = "UPDATE PLAN_ITEM SET ITEM_UNIT_PRICE =@price WHERE PLAN_ITEM_ID=@pitemid ";
+            string sql = "UPDATE PLAN_ITEM SET ITEM_UNIT_COST =@price WHERE PLAN_ITEM_ID=@pitemid ";
             //將工資報價單更新工資報價欄位
             if (iswage == "Y")
             {
@@ -1575,11 +1578,11 @@ namespace topmeperp.Service
         {
             int i = 0;
             logger.Info("Copy cost from Quote to Tnd by form id" + formid);
-            string sql = "UPDATE  PLAN_ITEM SET item_unit_price = i.ITEM_UNIT_PRICE, supplier_id = i.SUPPLIER_ID, form_name = i.FORM_NAME, inquiry_form_id = i.INQUIRY_FORM_ID " +
+            string sql = "UPDATE  PLAN_ITEM SET item_unit_cost = i.ITEM_UNIT_PRICE, supplier_id = i.SUPPLIER_ID, form_name = i.FORM_NAME, inquiry_form_id = i.INQUIRY_FORM_ID " +
                 "FROM(select i.plan_item_id, fi.ITEM_UNIT_PRICE, fi.INQUIRY_FORM_ID, pf.SUPPLIER_ID, pf.FORM_NAME from PLAN_ITEM i " +
                 ", PLAN_SUP_INQUIRY_ITEM fi, PLAN_SUP_INQUIRY pf " +
                "where i.PLAN_ITEM_ID = fi.PLAN_ITEM_ID and fi.INQUIRY_FORM_ID = pf.INQUIRY_FORM_ID and fi.INQUIRY_FORM_ID = @formid) i " +
-                "WHERE  i.plan_item_id = PLAN_ITEM.PLAN_ITEM_ID AND PLAN_ITEM.ITEM_UNIT_PRICE IS NULL ";
+                "WHERE  i.plan_item_id = PLAN_ITEM.PLAN_ITEM_ID AND PLAN_ITEM.ITEM_UNIT_COST IS NULL ";
 
             //將工資報價單更新工資報價欄位
             if (iswage == "Y")
@@ -1672,7 +1675,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 // ITEM_UNIT IS NOT NULL(確認單位欄位是空值就是不需採購的欄位嗎) AND ITEM_UNIT_PRICE IS NULL
-                lst = context.Database.SqlQuery<PLAN_ITEM>("SELECT * FROM PLAN_ITEM WHERE PROJECT_ID =@projectid AND ITEM_UNIT IS NOT NULL AND ITEM_UNIT_PRICE IS NULL " +
+                lst = context.Database.SqlQuery<PLAN_ITEM>("SELECT * FROM PLAN_ITEM WHERE PROJECT_ID =@projectid AND ITEM_UNIT IS NOT NULL AND ITEM_UNIT_COST IS NULL " +
                     "OR PROJECT_ID =@projectid AND ITEM_UNIT IS NOT NULL AND MAN_PRICE IS NULL ;"
                     , new SqlParameter("projectid", projectid)).ToList();
             }

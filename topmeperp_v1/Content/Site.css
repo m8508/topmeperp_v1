@@ -108,35 +108,32 @@ textarea {
 }
 .fixed_headers1 td:nth-child(3),
 .fixed_headers1 th:nth-child(3) {
-    width: 250px;/**主系統 */
+    width: 150px;/**名稱 */
 }
 .fixed_headers1 td:nth-child(4),
 .fixed_headers1 th:nth-child(4) {
-    width: 250px;/**次系統 */
+    width: 100px;/**合約金額 */
 }
 .fixed_headers1 td:nth-child(5),
 .fixed_headers1 th:nth-child(5) {
-    width: 200px;/**名稱*/
+    width: 100px;/**材料成本*/
 }
 .fixed_headers1 td:nth-child(6),
 .fixed_headers1 th:nth-child(6) {
-    width: 100px;/**合約金額*/
+    width: 60px;/**材料預算比率*/
 }
 .fixed_headers1 td:nth-child(7),
 .fixed_headers1 th:nth-child(7) {
-    width: 100px;/**材料成本*/
+    width: 150px;/**工資成本*/
 }
 .fixed_headers1 td:nth-child(8),
 .fixed_headers1 th:nth-child(8) {
-    width: 50px;/**材料預算比率*/
+    width: 60px;/**工資預算比率*/
 }
 .fixed_headers1 td:nth-child(9),
 .fixed_headers1 th:nth-child(9) {
-    width: 50px;/**工資預算比率*/
+    width: 150px;/**預算金額*/
 }
-.fixed_headers1 td:nth-child(10),
-.fixed_headers1 th:nth-child(10) {
-    width: 100px;/**預算金額 */
-}
+
 
 

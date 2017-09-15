@@ -102,7 +102,7 @@ namespace topmeperp.Models
         public Nullable<int> ITEM_COUNT { get; set; }
         public Nullable<decimal> BUDGET { get; set; }
         public Nullable<decimal> TOTAL_COST { get; set; }
-        public Nullable<decimal> TOTAL_BUDGET { get; set; }
+        public Nullable<decimal> MATERIAL_BUDGET { get; set; }
         public Nullable<decimal> ITEM_COST { get; set; }
         public Nullable<decimal> ITEM_BUDGET { get; set; }
         public Nullable<decimal> TOTAL_P_COST { get; set; }
@@ -112,6 +112,10 @@ namespace topmeperp.Models
         public string SYSTEM_SUB { get; set; }
         public Nullable<decimal> CONTRACT_PRICE { get; set; }
         public Nullable<decimal> BUDGET_WAGE { get; set; }
+        public Nullable<decimal> WAGE_BUDGET { get; set; }
+        public Nullable<decimal> TOTAL_BUDGET { get; set; }
+        public Nullable<decimal> ITEM_BUDGET_WAGE { get; set; }
+        
     }
     public class SystemCost
     {
