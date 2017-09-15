@@ -9,4 +9,9 @@ namespace topmeperp.Models
         public Nullable<decimal> BudgetAmount { get; set; }
         public Nullable<int> CountPO { get; set; }
     }
+    public class BUDGET_SUMMANY 
+    {
+        public Nullable<decimal> Material_Budget { get; set; }
+        public Nullable<decimal> Wage_Budget { get; set; }
+    }
 }

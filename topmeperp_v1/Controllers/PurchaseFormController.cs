@@ -103,6 +103,11 @@ namespace topmeperp.Controllers
             UserService us = new UserService();
             SYS_USER u = (SYS_USER)Session["user"];
             SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            qf.FORM_NAME = Request["formName"];
+            if (null != Request["isWage"])
+            {
+                qf.ISWAGE = "Y";
+            }
             qf.PROJECT_ID = Request["prjId"];
             qf.CREATE_ID = u.USER_ID;
             qf.CREATE_DATE = DateTime.Now;
@@ -114,10 +119,10 @@ namespace topmeperp.Controllers
             string fid = service.newPlanForm(qf, lstItemId);
             //產生採購詢價單實體檔案(是否需先註解掉，因為空白詢價單不用產生實體檔，
             //樣本轉廠商採購單時再產生即可)
-            service.getInqueryForm(fid);
-            PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
-            poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false,false);
-            return Redirect("FormMainPage?id=" + qf.PROJECT_ID);
+            //service.getInqueryForm(fid);
+            //PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
+            //poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false, false);
+            return Redirect("FormTemplateMgr/" + qf.PROJECT_ID);
             //return RedirectToAction("InquiryMainPage","Inquiry", qf.PROJECT_ID);
         }
         public ActionResult FormMainPage(string id)
@@ -129,30 +134,39 @@ namespace topmeperp.Controllers
                 ViewBag.projectid = id;
                 TND_PROJECT p = service.getProjectById(id);
                 ViewBag.projectName = p.PROJECT_NAME;
-                formData.planTemplateForm = service.getFormTemplateByProject(id);
+                //formData.planTemplateForm = service.getFormTemplateByProject(id);
                 formData.planFormFromSupplier = service.getFormByProject(id, Request["status"], Request["type"], Request["formname"]);
-                formData.planForm4All = service.getFormByProject(id, Request["status"], "A", Request["formname"]);
+                //formData.planForm4All = service.getFormByProject(id, Request["status"], "A", Request["formname"]);
             }
 
             ViewBag.Status = "有效";
             return View(formData);
         }
-        //空白詢價單管理功能
+        //採發作業-空白詢價單管理功能
         public ActionResult FormTemplateMgr(string id)
         {
-            log.Info("purchase form by projectID =" + id + ",status=" + Request["status"] + ",type=" + Request["type"] + ",formname=" + Request["formname"]);
-            PurchaseFormModel formData = new PurchaseFormModel();
+            log.Info("purchase form by projectID =" + id + ",status=" + Request["status"]);
             if (null != id && id != "")
             {
                 ViewBag.projectid = id;
                 TND_PROJECT p = service.getProjectById(id);
                 ViewBag.projectName = p.PROJECT_NAME;
-                formData.planTemplateWithBudget = service.getTemplateRefBudget(id);
-                //formData.planFormFromSupplier = service.getFormByProject(id, Request["status"], Request["type"], Request["formname"]);
-                //formData.planForm4All = service.getFormByProject(id, Request["status"], "A", Request["formname"]);
+                string status = "有效";
+                if (null != Request["status"])
+                {
+                    status = Request["status"];
+                }
+                service.getInquiryWithBudget(p, status);
+                if (p.WAGE_MULTIPLIER == null)
+                {
+                    ViewBag.wageunitprice = "2500";
+                }
+                else
+                {
+                    ViewBag.wageunitprice = p.WAGE_MULTIPLIER;
+                }
             }
-            ViewBag.Status = "有效";
-            return View(formData);
+            return View(service.POFormData);
         }
         //顯示單一詢價單、報價單功能
         public ActionResult SinglePrjForm(string id)
@@ -167,6 +181,7 @@ namespace topmeperp.Controllers
             singleForm.planForm = service.formInquiry;
             singleForm.planFormItem = service.formInquiryItem;
             singleForm.prj = service.getProjectById(singleForm.planForm.PROJECT_ID);
+            ViewBag.targetSupplier = service.getSupplierContractByFormId(id); //判斷詢價單是否已寫入PLAN_ITEM以供發包採購
             log.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
             //取得供應商資料
             SelectListItem empty = new SelectListItem();
@@ -187,10 +202,10 @@ namespace topmeperp.Controllers
             }
             // selectSupplier.Add(empty);
             ViewBag.Supplier = selectSupplier;
-            if (null != Request["IsWage"])
-            {
-                return View("SinglePrjForm4All", singleForm);
-            }
+            //if (null != Request["IsWage"])
+            //{
+            //    return View("SinglePrjForm4All", singleForm);
+            //}
             return View(singleForm);
 
         }
@@ -291,10 +306,10 @@ namespace topmeperp.Controllers
                 lstItem.Add(item);
             }
             int k = service.refreshSupplierFormItem(fid, lstItem);
-            //產生廠商詢價單實體檔案
-            service.getInqueryForm(fid);
-            PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
-            poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false,true);
+            
+            //service.getInqueryForm(fid);
+            //PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
+            //poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false, true);
             if (fid == "")
             {
                 msg = service.message;
@@ -415,6 +430,10 @@ namespace topmeperp.Controllers
                 int i = 0;
                 //如果詢價單編號為空白，新增詢價單資料，否則更新相關詢價單資料-new
                 log.Debug("Parser Excel File Finish!");
+                if (service.getSupplierContractByFormId(quoteFormService.form.INQUIRY_FORM_ID) != false)
+                {
+                    return "此詢價單編號已被發包採購使用，不可重覆匯入!!";
+                }
                 if (null != quoteFormService.form.INQUIRY_FORM_ID && quoteFormService.form.INQUIRY_FORM_ID != "")
                 {
                     log.Info("Update Plan Form for Inquiry:" + quoteFormService.form.INQUIRY_FORM_ID);
@@ -486,7 +505,7 @@ namespace topmeperp.Controllers
             bool isTemp = false;
             bool isReal = false;
             service.getInqueryForm(formid);
-            if (null != Request["isTemp"] && Request["isTemp"]=="Y")
+            if (null != Request["isTemp"] && Request["isTemp"] == "Y")
             {
                 isTemp = true;
             }

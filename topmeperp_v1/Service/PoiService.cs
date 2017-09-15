@@ -2774,11 +2774,11 @@ namespace topmeperp.Service
                 row.CreateCell(2).SetCellValue(item.MAINCODE_DESC + "-" + item.SUB_DESC);
                 row.Cells[2].CellStyle = style;
                 //合約金額
-                row.CreateCell(3).SetCellValue("");
+                row.CreateCell(3).SetCellValue("--");
                 if (null != item.CONTRACT_PRICE && item.CONTRACT_PRICE.ToString().Trim() != "")
                 {
-                    row.Cells[3].SetCellValue(double.Parse(item.CONTRACT_PRICE.ToString()));
-                    row.Cells[3].CellStyle = styleNumber;
+                   // row.Cells[3].SetCellValue(double.Parse(item.CONTRACT_PRICE.ToString()));
+                  //  row.Cells[3].CellStyle = styleNumber;
                 }
                 //材料成本 與預算折扣率
                 row.CreateCell(4).SetCellValue("");
