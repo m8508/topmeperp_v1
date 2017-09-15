@@ -143,22 +143,31 @@ namespace topmeperp.Controllers
             ViewBag.Status = "有效";
             return View(formData);
         }
-        //空白詢價單管理功能
+        //採發作業-空白詢價單管理功能
         public ActionResult FormTemplateMgr(string id)
         {
-            log.Info("purchase form by projectID =" + id + ",status=" + Request["status"] + ",type=" + Request["type"] + ",formname=" + Request["formname"]);
-            PurchaseFormModel formData = new PurchaseFormModel();
+            log.Info("purchase form by projectID =" + id + ",status=" + Request["status"]);
             if (null != id && id != "")
             {
                 ViewBag.projectid = id;
                 TND_PROJECT p = service.getProjectById(id);
                 ViewBag.projectName = p.PROJECT_NAME;
-                formData.planTemplateWithBudget = service.getTemplateRefBudget(id);
-                //formData.planFormFromSupplier = service.getFormByProject(id, Request["status"], Request["type"], Request["formname"]);
-                //formData.planForm4All = service.getFormByProject(id, Request["status"], "A", Request["formname"]);
+                string status = "有效";
+                if (null != Request["status"])
+                {
+                    status = Request["status"];
+                }
+                service.getInquiryWithBudget(p, status);
+                if (p.WAGE_MULTIPLIER == null)
+                {
+                    ViewBag.wageunitprice = "2500";
+                }
+                else
+                {
+                    ViewBag.wageunitprice = p.WAGE_MULTIPLIER;
+                }
             }
-            ViewBag.Status = "有效";
-            return View(formData);
+            return View(service.POFormData);
         }
         //顯示單一詢價單、報價單功能
         public ActionResult SinglePrjForm(string id)
