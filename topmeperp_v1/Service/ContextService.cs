@@ -1420,17 +1420,16 @@ namespace topmeperp.Service
                     + "(SELECT TYPE_DESC from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE_DESC ,"
                     + "(SELECT SUB_TYPE_ID from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) T_SUB_CODE, "
                     + "TYPE_CODE_2 SUB_CODE, (select TYPE_DESC from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) SUB_DESC, "
-                    + "SYSTEM_MAIN, SYSTEM_SUB, "
                     + "SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) MATERIAL_COST, SUM(MapQty * ITEM_UNIT_PRICE) MATERIAL_COST_INMAP,"
-                    + "SUM(ITEM_QUANTITY * RATIO) MAN_DAY,"
-                    + "SUM(MapQty * RATIO) MAN_DAY_INMAP,"
-                    + "SUM(ITEM_QUANTITY * ITEM_UNIT_COST) CONTRACT_PRICE,"
+                    + "SUM(ITEM_QUANTITY * RATIO * WagePrice) MAN_DAY,"
+                    + "SUM(MapQty * RATIO * WagePrice) MAN_DAY_INMAP,"
+                    + "SUM(ITEM_QUANTITY * Price4Owner) CONTRACT_PRICE,"
                     + "COUNT(*) ITEM_COUNT "
-                    + "FROM(SELECT it.*, w.RATIO, w.PRICE, pi.ITEM_UNIT_COST, map.QTY MapQty FROM TND_PROJECT_ITEM it LEFT OUTER JOIN TND_WAGE w "
+                    + "FROM(SELECT it.*, w.RATIO, w.PRICE, pi.ITEM_UNIT_PRICE Price4Owner, map.QTY MapQty, ISNULL(p.WAGE_MULTIPLIER, 0) AS WagePrice FROM TND_PROJECT_ITEM it LEFT OUTER JOIN TND_WAGE w "
                     + "ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map "
-                    + "ON it.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID RIGHT OUTER JOIN PLAN_ITEM pi ON it.PROJECT_ITEM_ID = pi.PLAN_ITEM_ID "
+                    + "ON it.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID RIGHT OUTER JOIN PLAN_ITEM pi ON it.PROJECT_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN TND_PROJECT p ON it.PROJECT_ID = p.PROJECT_ID  "
                     + "WHERE it.project_id =@projectid ) A "
-                    + "GROUP BY TYPE_CODE_1, TYPE_CODE_2, SYSTEM_MAIN, SYSTEM_SUB ORDER BY ISNULL(TYPE_CODE_1,'無'), ISNULL(TYPE_CODE_2, '無') ;";
+                    + "GROUP BY TYPE_CODE_1, TYPE_CODE_2 ORDER BY ISNULL(TYPE_CODE_1,'無'), ISNULL(TYPE_CODE_2, '無') ;";
                 logger.Info("Get DirectCost SQL=" + sql + ",projectid=" + projectid);
                 lstDirecCost = context.Database.SqlQuery<DirectCost>(sql, new SqlParameter("projectid", projectid)).ToList();
 

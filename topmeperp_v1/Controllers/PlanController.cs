@@ -339,7 +339,9 @@ namespace topmeperp.Controllers
             BudgetDataService bs = new BudgetDataService();
             List<DirectCost> budget2 = bs.getBudget(id);
             DirectCost totalinfo = bs.getTotalCost(id);
-            ViewBag.budget = (null==totalinfo.TOTAL_BUDGET?0: totalinfo.TOTAL_BUDGET);
+            ViewBag.budget = (null==totalinfo.MATERIAL_BUDGET?0: totalinfo.MATERIAL_BUDGET);
+            ViewBag.wagebudget = (null == totalinfo.WAGE_BUDGET ? 0 : totalinfo.WAGE_BUDGET);
+            ViewBag.totalbudget = (null == totalinfo.TOTAL_BUDGET ? 0 : totalinfo.TOTAL_BUDGET);
             ViewBag.cost = (null == totalinfo.TOTAL_COST ? 0 : totalinfo.TOTAL_COST) ;
             ViewBag.p_cost = (null == totalinfo.TOTAL_P_COST ? 0 : totalinfo.TOTAL_P_COST); 
             ViewBag.result = "共有" + budget2.Count + "筆資料";
@@ -588,7 +590,9 @@ namespace topmeperp.Controllers
             DirectCost iteminfo = bs.getItemBudget(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"]);
 
           
-            ViewBag.budget = (null == totalinfo.TOTAL_BUDGET ? 0 : totalinfo.TOTAL_BUDGET);
+            ViewBag.budget = (null == totalinfo.MATERIAL_BUDGET ? 0 : totalinfo.MATERIAL_BUDGET);
+            ViewBag.wagebudget = (null == totalinfo.WAGE_BUDGET ? 0 : totalinfo.WAGE_BUDGET);
+            ViewBag.totalbudget = (null == totalinfo.TOTAL_BUDGET ? 0 : totalinfo.TOTAL_BUDGET);
             ViewBag.cost =  (null == totalinfo.TOTAL_COST ? 0 : totalinfo.TOTAL_COST);
             ViewBag.itembudget = (null == iteminfo.ITEM_BUDGET ? 0 : iteminfo.ITEM_BUDGET);
             ViewBag.itemcost = (null == iteminfo.ITEM_COST ? 0 : iteminfo.ITEM_COST); 

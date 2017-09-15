@@ -428,7 +428,7 @@ namespace topmeperp.Service
                                 {
                                     decimal dQty = decimal.Parse(row.GetCell(i).ToString());
                                     logger.Info("excelrow=" + excelrow + ",value=" + row.GetCell(i).ToString());
-                                    planItem.ITEM_UNIT_COST = dQty;
+                                    planItem.ITEM_UNIT_PRICE = dQty;
                                 }
                                 catch (Exception e)
                                 {
