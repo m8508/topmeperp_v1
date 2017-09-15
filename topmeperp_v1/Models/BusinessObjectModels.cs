@@ -151,6 +151,10 @@ namespace topmeperp.Models
     public class PurchaseFormModel
     {
         /// <summary>
+        /// 預算金額
+        /// </summary>
+        public BUDGET_SUMMANY BudgetSummary { get; set; }
+        /// <summary>
         /// 採購詢價單樣本
         /// </summary>
         public IEnumerable<PLAN_SUP_INQUIRY> planTemplateForm { get; set; }
@@ -162,6 +166,15 @@ namespace topmeperp.Models
         /// 含工帶料報價單
         /// </summary>
         public IEnumerable<PLAN_SUP_INQUIRY> planForm4All { get; set; }
+        /// <summary>
+        /// 材料報價單樣本與預算
+        /// </summary>
+        public IEnumerable<PURCHASE_ORDER> materialTemplateWithBudget { get; set; }
+        /// <summary>
+        /// 代工報價單樣本與預算
+        /// </summary>
+        public IEnumerable<PURCHASE_ORDER> wageTemplateWithBudget { get; set; }
+
     }
     public class PlanSupplierFormFunction : PLAN_SUP_INQUIRY
     {
