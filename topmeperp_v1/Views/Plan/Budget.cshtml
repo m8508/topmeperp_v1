@@ -17,9 +17,12 @@
         <input id="btnUploadfile" name="btnUploadfile" type="submit" class="btn-primary" value="匯入檔案" />
     </form>
     <div class="col-md-12">
-        <div class="col-md-8"></div>
+        <div class="col-md-4"></div>
         <div class="col-md-4 alert-info">
             @Html.Raw(TempData["result"])
+        </div>
+        <div class="col-md-4 alert-info">
+            @Html.Raw(TempData["wagePrice"])
         </div>
     </div>
     <div class="col-md-12 form-group" style="padding-top:40px">

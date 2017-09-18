@@ -320,6 +320,10 @@ namespace topmeperp.Controllers
             TnderProject service = new TnderProject();
             TND_PROJECT p = service.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
+            if (p.WAGE_MULTIPLIER == null || p.WAGE_MULTIPLIER == 0)
+            {
+                TempData["wagePrice"] = "單日工資金額尚未輸入，工資成本無法計算!!";
+            }
             //取得直接成本資料
             PlanService ps = new PlanService();
             var priId = ps.getBudgetById(id);
@@ -331,8 +335,8 @@ namespace topmeperp.Controllers
             //取得九宮格組合之直接成本資料
             {
                 CostAnalysisDataService s = new CostAnalysisDataService();
-                List<DirectCost> budget1 = s.getDirectCost4Budget(id); // 目前工資是使用工率還未轉成工資
-                ViewBag.result = "共有" + (budget1.Count - 1) + "筆資料";
+                List<DirectCost> budget1 = s.getDirectCost4Budget(id);
+                ViewBag.result = "共有" + (budget1.Count) + "筆資料";
                 return View(budget1);
             }
             //取得已寫入之九宮格組合預算資料
