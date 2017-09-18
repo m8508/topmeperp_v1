@@ -104,6 +104,11 @@ namespace topmeperp.Controllers
             UserService us = new UserService();
             SYS_USER u = (SYS_USER)Session["user"];
             SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            qf.FORM_NAME = Request["formName"];
+            if (null != Request["isWage"])
+            {
+                qf.ISWAGE = "Y";
+            }
             qf.PROJECT_ID = Request["prjId"];
             qf.CREATE_ID = u.USER_ID;
             qf.CREATE_DATE = DateTime.Now;
@@ -118,14 +123,7 @@ namespace topmeperp.Controllers
             service.getInqueryForm(fid);
             PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
             poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false,false);
-            if (Request["emptyform"] == "E")
-            {
-                return Redirect("FormMainPage?id=" + qf.PROJECT_ID);
-            }
-            else
-            {
-                return Redirect("SinglePrjForm?id=" + fid);
-            }
+            return Redirect("FormMainPage?id=" + qf.PROJECT_ID);
             //return RedirectToAction("InquiryMainPage","Inquiry", qf.PROJECT_ID);
         }
         public ActionResult FormMainPage(string id)
@@ -137,15 +135,40 @@ namespace topmeperp.Controllers
                 ViewBag.projectid = id;
                 TND_PROJECT p = service.getProjectById(id);
                 ViewBag.projectName = p.PROJECT_NAME;
-                formData.planTemplateForm = service.getFormTemplateByProject(id);
+                //formData.planTemplateForm = service.getFormTemplateByProject(id);
                 formData.planFormFromSupplier = service.getFormByProject(id, Request["status"], Request["type"], Request["formname"]);
-                formData.planForm4All = service.getFormByProject(id, Request["status"], "A", Request["formname"]);
+                //formData.planForm4All = service.getFormByProject(id, Request["status"], "A", Request["formname"]);
             }
 
             ViewBag.Status = "有效";
             return View(formData);
         }
-
+        //採發作業-空白詢價單管理功能
+        public ActionResult FormTemplateMgr(string id)
+        {
+            log.Info("purchase form by projectID =" + id + ",status=" + Request["status"]);
+            if (null != id && id != "")
+            {
+                ViewBag.projectid = id;
+                TND_PROJECT p = service.getProjectById(id);
+                ViewBag.projectName = p.PROJECT_NAME;
+                string status = "有效";
+                if (null != Request["status"])
+                {
+                    status = Request["status"];
+                }
+                service.getInquiryWithBudget(p, status);
+                if (p.WAGE_MULTIPLIER == null)
+                {
+                    ViewBag.wageunitprice = "2500";
+                }
+                else
+                {
+                    ViewBag.wageunitprice = p.WAGE_MULTIPLIER;
+                }
+            }
+            return View(service.POFormData);
+        }
         //顯示單一詢價單、報價單功能
         public ActionResult SinglePrjForm(string id)
         {
@@ -180,10 +203,10 @@ namespace topmeperp.Controllers
             }
             // selectSupplier.Add(empty);
             ViewBag.Supplier = selectSupplier;
-            if (null != Request["IsWage"])
-            {
-                return View("SinglePrjForm4All", singleForm);
-            }
+            //if (null != Request["IsWage"])
+            //{
+            //    return View("SinglePrjForm4All", singleForm);
+            //}
             return View(singleForm);
 
         }
@@ -284,10 +307,10 @@ namespace topmeperp.Controllers
                 lstItem.Add(item);
             }
             int k = service.refreshSupplierFormItem(fid, lstItem);
-            //產生廠商詢價單實體檔案
-            service.getInqueryForm(fid);
-            PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
-            poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false,true);
+            
+            //service.getInqueryForm(fid);
+            //PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
+            //poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false, true);
             if (fid == "")
             {
                 msg = service.message;
@@ -483,7 +506,7 @@ namespace topmeperp.Controllers
             bool isTemp = false;
             bool isReal = false;
             service.getInqueryForm(formid);
-            if (null != Request["isTemp"] && Request["isTemp"]=="Y")
+            if (null != Request["isTemp"] && Request["isTemp"] == "Y")
             {
                 isTemp = true;
             }
