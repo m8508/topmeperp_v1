@@ -3,7 +3,7 @@
 <!--不好的方式但檔著先屆時設為Hidden-->
 <input type="hidden" id="prjId" name="prjId" value="@ViewBag.projectid" />
 <div class="container">
-    <h2 style="padding-top:30px;">漏報品項 : </h2>
+    <h2 style="padding-top:30px;">材料漏報品項 : </h2>
 </div>
 <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
 <div style="padding-top:10px;">@ViewBag.SearchResult</div>
@@ -63,7 +63,7 @@
                 @Html.DisplayFor(modelItem => item.ITEM_QUANTITY)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ITEM_UNIT_PRICE)
+                @Html.DisplayFor(modelItem => item.ITEM_UNIT_COST)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.ITEM_REMARK)

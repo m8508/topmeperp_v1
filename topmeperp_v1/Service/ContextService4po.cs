@@ -297,7 +297,8 @@ namespace topmeperp.Service
                     "LEFT JOIN TND_PROJECT p ON it.PROJECT_ID = p.PROJECT_ID WHERE it.project_id = @projectid AND pi.ITEM_QUANTITY is not null and pi.ITEM_QUANTITY <>0) A " +
                     "GROUP BY TYPE_CODE_1, TYPE_CODE_2) B LEFT OUTER JOIN (SELECT p.TYPE_CODE_1, p.TYPE_CODE_2, SUM(p.BUDGET_RATIO*map.QTY)/SUM(map.QTY) BUDGET_RATIO, " +
                     "SUM(p.BUDGET_WAGE_RATIO*map.QTY)/SUM(map.QTY) BUDGET_WAGE_RATIO, " +
-                    "SUM(p.TND_RATIO*map.QTY)/SUM(map.QTY) COST_RATIO FROM PLAN_ITEM p LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON p.PLAN_ITEM_ID = map.PROJECT_ITEM_ID WHERE p.PROJECT_ID =@projectid GROUP BY p.TYPE_CODE_1, p.TYPE_CODE_2) D ON ISNULL(MAINCODE, '') + ISNULL(SUB_CODE, '') = ISNULL(D.TYPE_CODE_1, '') + ISNULL(D.TYPE_CODE_2, '') " +
+                    "SUM(p.TND_RATIO*map.QTY)/SUM(map.QTY) COST_RATIO FROM PLAN_ITEM p LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON p.PLAN_ITEM_ID = map.PROJECT_ITEM_ID WHERE p.PROJECT_ID =@projectid GROUP BY p.TYPE_CODE_1, p.TYPE_CODE_2) D " +
+                    "ON IIF(MAINCODE is null, '', IIF(MAINCODE = 0, '', MAINCODE)) + IIF(SUB_CODE is null, '', IIF(SUB_CODE = 0, '', SUB_CODE)) = IIF(REPLACE(D.TYPE_CODE_1, ' ', '') is null, '', IIF(REPLACE(D.TYPE_CODE_1, ' ', '') = 0, '', REPLACE(D.TYPE_CODE_1, ' ', ''))) + IIF(REPLACE(D.TYPE_CODE_2, ' ', '') is null, '', IIF(REPLACE(D.TYPE_CODE_2, ' ', '') = 0, '', REPLACE(D.TYPE_CODE_2, ' ', ''))) " +
                     ") C GROUP BY MAINCODE, MAINCODE_DESC, SUB_CODE, SUB_DESC, MATERIAL_COST_INMAP, MAN_DAY_INMAP, CONTRACT_PRICE, BUDGET, BUDGET_WAGE, COST_RATIO ORDER BY ISNULL(MAINCODE, '無'), ISNULL(SUB_CODE, '無') ";
                 logger.Info("sql = " + sql);
                 var parameters = new List<SqlParameter>();
@@ -803,9 +804,9 @@ namespace topmeperp.Service
                     //取得詢價單樣本資訊 - 材料預算-圖算數量*報價標單(Project_item)單價 * 預算折扣比率
                     sql = "SELECT tmp.*,CountPO, (SELECT SUM(v.QTY * it.ITEM_UNIT_COST * it.BUDGET_RATIO/100 ) as BudgetAmount FROM PLAN_ITEM it LEFT JOIN vw_MAP_MATERLIALIST v ON it.PLAN_ITEM_ID = v.PROJECT_ITEM_ID  "
                        + "WHERE it.PLAN_ITEM_ID in (SELECT  iit.PLAN_ITEM_ID FROM PLAN_SUP_INQUIRY_ITEM iit WHERE iit.INQUIRY_FORM_ID = tmp.INQUIRY_FORM_ID)) AS BudgetAmount "
-                       + "FROM(SELECT * FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID is Null AND ISNULL(STATUS,'有效')=@status AND ISNULL(ISWAGE,'N')='N') tmp LEFT OUTER JOIN "
+                       + "FROM(SELECT * FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID is Null AND PROJECT_ID = @projectid AND ISNULL(STATUS,'有效')=@status AND ISNULL(ISWAGE,'N')='N') tmp LEFT OUTER JOIN "
                        + "(SELECT COUNT(*) CountPO, FORM_NAME, PROJECT_ID FROM  PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NOT Null GROUP BY FORM_NAME, PROJECT_ID) Quo "
-                       + "ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME AND tmp.PROJECT_ID = @projectid";
+                       + "ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME ";
                 }
                 else
                 {
@@ -813,9 +814,9 @@ namespace topmeperp.Service
                     sql = "SELECT tmp.*,CountPO,(SELECT SUM(v.QTY * w.RATIO * it.BUDGET_WAGE_RATIO / 100 * @wageunitprice) as BudgetAmount FROM PLAN_ITEM it LEFT JOIN "
                         + "vw_MAP_MATERLIALIST v ON it.PLAN_ITEM_ID = v.PROJECT_ITEM_ID LEFT JOIN TND_WAGE w ON it.PLAN_ITEM_ID = w.PROJECT_ITEM_ID "
                         + "WHERE it.PLAN_ITEM_ID in (SELECT  iit.PLAN_ITEM_ID FROM PLAN_SUP_INQUIRY_ITEM iit WHERE iit.INQUIRY_FORM_ID = tmp.INQUIRY_FORM_ID)) AS BudgetAmount "
-                        + "FROM(SELECT * FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID is Null AND ISNULL(STATUS, '有效')=@status AND ISNULL(ISWAGE, 'N') = 'Y') tmp LEFT OUTER JOIN "
+                        + "FROM(SELECT * FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID is Null AND PROJECT_ID = @projectid AND ISNULL(STATUS, '有效')=@status AND ISNULL(ISWAGE, 'N') = 'Y') tmp LEFT OUTER JOIN "
                         + "(SELECT COUNT(*) CountPO, FORM_NAME, PROJECT_ID FROM  PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NOT Null "
-                        + "GROUP BY FORM_NAME, PROJECT_ID) Quo ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME AND tmp.PROJECT_ID = @projectid;";
+                        + "GROUP BY FORM_NAME, PROJECT_ID) Quo ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME ;";
                     if (null != project.WAGE_MULTIPLIER)
                     {
                         wageunitprice = (decimal)project.WAGE_MULTIPLIER;
@@ -1675,8 +1676,21 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 // ITEM_UNIT IS NOT NULL(確認單位欄位是空值就是不需採購的欄位嗎) AND ITEM_UNIT_PRICE IS NULL
-                lst = context.Database.SqlQuery<PLAN_ITEM>("SELECT * FROM PLAN_ITEM WHERE PROJECT_ID =@projectid AND ITEM_UNIT IS NOT NULL AND ITEM_UNIT_COST IS NULL " +
-                    "OR PROJECT_ID =@projectid AND ITEM_UNIT IS NOT NULL AND MAN_PRICE IS NULL ;"
+                lst = context.Database.SqlQuery<PLAN_ITEM>("SELECT * FROM PLAN_ITEM WHERE PROJECT_ID =@projectid AND ITEM_UNIT IS NOT NULL AND ITEM_UNIT <> '' AND ITEM_UNIT_COST IS NULL ;"
+                    , new SqlParameter("projectid", projectid)).ToList();
+            }
+            logger.Info("get plan pending items count:" + lst.Count);
+            return lst;
+        }
+
+
+        public List<PLAN_ITEM> getPendingItems4Wage(string projectid)
+        {
+            List<PLAN_ITEM> lst = new List<PLAN_ITEM>();
+            using (var context = new topmepEntities())
+            {
+                // ITEM_UNIT IS NOT NULL(確認單位欄位是空值就是不需採購的欄位嗎) AND ITEM_UNIT_PRICE IS NULL
+                lst = context.Database.SqlQuery<PLAN_ITEM>("SELECT * FROM PLAN_ITEM WHERE PROJECT_ID =@projectid AND ITEM_UNIT IS NOT NULL AND ITEM_UNIT <> '' AND MAN_PRICE IS NULL ;"
                     , new SqlParameter("projectid", projectid)).ToList();
             }
             logger.Info("get plan pending items count:" + lst.Count);

@@ -90,6 +90,10 @@ namespace topmeperp.Service
                 {
                     row.CreateCell(1).SetCellValue(double.Parse(item.SUB_CODE.ToString()));
                 }
+                else
+                {
+                    row.CreateCell(1).SetCellValue("");
+                }
                 //分項名稱
                 logger.Debug("ITEM DESC=" + item.MAINCODE_DESC);
                 row.CreateCell(2).SetCellValue(item.MAINCODE_DESC + "-" + item.SUB_DESC);
@@ -98,10 +102,18 @@ namespace topmeperp.Service
                 {
                     row.CreateCell(3).SetCellValue(double.Parse(item.CONTRACT_PRICE.ToString()));
                 }
+                else
+                {
+                    row.CreateCell(3).SetCellValue("");
+                }
                 //材料成本
                 if (null != item.MATERIAL_COST_INMAP && item.MATERIAL_COST_INMAP.ToString().Trim() != "")
                 {
                     row.CreateCell(4).SetCellValue(double.Parse(item.MATERIAL_COST_INMAP.ToString()));
+                }
+                else
+                {
+                    row.CreateCell(4).SetCellValue("");
                 }
                 //材料折扣率 
                 row.CreateCell(5).SetCellValue("");
@@ -109,6 +121,10 @@ namespace topmeperp.Service
                 if (null != item.MAN_DAY_INMAP && item.MAN_DAY_INMAP.ToString().Trim() != "")
                 {
                     row.CreateCell(6).SetCellValue(double.Parse(item.MAN_DAY_INMAP.ToString()));
+                }
+                else
+                {
+                    row.CreateCell(6).SetCellValue("");
                 }
                 //工資折扣率 
                 row.CreateCell(7).SetCellValue("");

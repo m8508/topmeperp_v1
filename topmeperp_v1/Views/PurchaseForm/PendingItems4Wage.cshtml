@@ -1,12 +1,14 @@
 ﻿@model IEnumerable<topmeperp.Models.PLAN_ITEM>
-@using (Html.BeginForm("Create", "PurchaseForm", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
-{
+
     <!--不好的方式但檔著先屆時設為Hidden-->
     <input type="hidden" id="prjId" name="prjId" value="@ViewBag.projectid" />
-    <input type="hidden" id="emptyform" name="emptyform" value="" />
+    <div class="container">
+        <h2 style="padding-top:30px;">工資漏報品項 : </h2>
+    </div>
+    <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+    <div style="padding-top:10px;">@ViewBag.SearchResult</div>
     <table class="table">
         <tr>
-            <th><input type="checkbox" name="CheckAll" id="CheckAll">全選</th>
             <th>
                 No.
             </th>
@@ -24,9 +26,6 @@
             </th>
             <th>
                 單價
-            </th>
-            <th>
-                複價
             </th>
             <th>
                 備註
@@ -49,9 +48,6 @@
         {
             <tr>
                 <td>
-                    <input type="checkbox" id="chkItem" name="chkItem" value="@item.PLAN_ITEM_ID" />
-                </td>
-                <td>
                     @Html.DisplayFor(modelItem => item.PLAN_ITEM_ID)
                 </td>
                 <td>
@@ -65,9 +61,6 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.ITEM_QUANTITY)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ITEM_UNIT_PRICE)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.MAN_PRICE)
@@ -89,45 +82,4 @@
                 </td>
             </tr>
         }
-    </table><br />
-    <div class="row">
-        <div class="col-md-3"><input type="text" id="formName" name="formName" value="" class="form-control" placeholder="請輸入詢價單名稱" /></div>
-        <div class="col-md-1"><input type="checkbox" id="isWage" name="isWage" checked value="Y" /><labe>工資</labe></div>
-        <div class="col-md-1 pull-left">
-            <input id="Submit1" type="submit" value="新增詢價單樣本" onclick="Confirm_Form()"/>
-        </div>
-    </div>
-}
-
-
-<script language="javascript" type="text/javascript">
-    $(document).ready(function () {
-        $("#CheckAll").click(function () {
-            if ($("#CheckAll").prop("checked")) {
-                $("input[name='chkItem']").prop("checked", true);
-            } else
-                $("input[name='chkItem']").prop("checked", false);
-        });
-    });
-
-    function Confirm_Form() {
-        if (confirm("空白詢價單新增成功後，要繼續輸入廠商詢價單資料！") == true) {
-            return $("#emptyform").val('S');
-            
-        }
-        else
-        {
-            return $("#emptyform").val('E');
-        }
-    }
-</script>
-<script language="javascript" type="text/javascript">
-    function GetCheckedValue(checkBoxName) {
-        return $('input:checkbox[name=' + checkBoxName + '][checked=true]').map(function () {
-            return $(this).val();
-        })
-          .get().join(',');
-    }
-</script>
-
-
+    </table>

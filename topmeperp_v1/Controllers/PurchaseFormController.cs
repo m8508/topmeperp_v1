@@ -122,8 +122,15 @@ namespace topmeperp.Controllers
             //樣本轉廠商採購單時再產生即可)
             service.getInqueryForm(fid);
             PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
-            poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false,false);
-            return Redirect("FormMainPage?id=" + qf.PROJECT_ID);
+            poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false, false);
+            if (Request["emptyform"] == "E")
+            {
+                return Redirect("FormMainPage?id=" + qf.PROJECT_ID);
+            }
+            else
+            {
+                return Redirect("SinglePrjForm?id=" + fid);
+            }
             //return RedirectToAction("InquiryMainPage","Inquiry", qf.PROJECT_ID);
         }
         public ActionResult FormMainPage(string id)
@@ -152,6 +159,10 @@ namespace topmeperp.Controllers
                 ViewBag.projectid = id;
                 TND_PROJECT p = service.getProjectById(id);
                 ViewBag.projectName = p.PROJECT_NAME;
+                PlanService ps = new PlanService();
+                var priId = ps.getBudgetById(id);
+                ViewBag.budgetdata = priId;
+                ViewBag.budgetmessage = "尚未編列預算";
                 string status = "有效";
                 if (null != Request["status"])
                 {
@@ -307,7 +318,7 @@ namespace topmeperp.Controllers
                 lstItem.Add(item);
             }
             int k = service.refreshSupplierFormItem(fid, lstItem);
-            
+
             //service.getInqueryForm(fid);
             //PurchaseFormtoExcel poi = new PurchaseFormtoExcel();
             //poi.exportExcel4po(service.formInquiry, service.formInquiryItem, false, true);
@@ -1519,7 +1530,7 @@ namespace topmeperp.Controllers
         #endregion
 
         List<PLAN_ITEM> planitems = null;
-        //取得採購遺漏項目
+        //取得材料採購遺漏項目
         public ActionResult PendingItems(string id)
         {
             log.Info("start project id=" + id);
@@ -1645,6 +1656,18 @@ namespace topmeperp.Controllers
             ls = s.getContactBySupplier(supid);
             JavaScriptSerializer serializer = new JavaScriptSerializer();
             return serializer.Serialize(ls);
+        }
+
+        List<PLAN_ITEM> planitems4wage = null;
+        //取得工資採購遺漏項目
+        public ActionResult PendingItems4Wage(string id)
+        {
+            log.Info("start project id=" + id);
+            PurchaseFormService service = new PurchaseFormService();
+            List<PLAN_ITEM> lstItem = new List<PLAN_ITEM>();
+            planitems4wage = service.getPendingItems4Wage(id);
+            ViewBag.SearchResult = "共取得" + planitems4wage.Count + "筆資料";
+            return View(planitems4wage);
         }
     }
 }

@@ -4,7 +4,16 @@
     <form id="4formName" name="4formName" action="UpdateFormName" method="post">
         @if (null != Model.materialTemplateWithBudget)
         {
-            <h3 class="text-left">材料預算: @String.Format("{0:#,##}", Model.BudgetSummary.Material_Budget)</h3>
+            <h3 class="text-left">
+                材料預算: @if (ViewBag.budgetdata != null)
+                {
+                    @String.Format("{0:#,##}", Model.BudgetSummary.Material_Budget);
+                }
+                else
+                {
+                    @ViewBag.budgetmessage;
+                }
+            </h3>
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -45,7 +54,16 @@
                     }
                 </tbody>
             </table>
-            <h3 class="text-left">分項預算總額: @String.Format("{0:#,##}", BudgetAmt)</h3>
+                <h3 class="text-left">
+                    分項預算總額: @if (ViewBag.budgetdata != null)
+                    {
+                        @String.Format("{0:#,##}", BudgetAmt);
+                    }
+                    else
+                    {
+                        @ViewBag.budgetmessage;
+                    }
+                </h3>
                         }
                         else
                         {

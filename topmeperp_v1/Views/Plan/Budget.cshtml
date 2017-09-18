@@ -21,8 +21,9 @@
         <div class="col-md-4 alert-info">
             @Html.Raw(TempData["result"])
         </div>
-        <div class="col-md-4 alert-info">
+        <div class="col-md-4 alert-danger">
             @Html.Raw(TempData["wagePrice"])
+            <a href="/Tender/Create/@ViewBag.projectid" target="_blank" class="btn btn-link">輸入單日工資</a> 
         </div>
     </div>
     <div class="col-md-12 form-group" style="padding-top:40px">

@@ -913,6 +913,7 @@
     <Content Include="Views\PurchaseForm\FormTemplateMgr.cshtml" />
     <Content Include="Views\PurchaseForm\_FormTempList.cshtml" />
     <Content Include="Views\PurchaseForm\_FormTempList4wage.cshtml" />
+    <Content Include="Views\PurchaseForm\PendingItems4Wage.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
