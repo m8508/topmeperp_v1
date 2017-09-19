@@ -94,7 +94,7 @@
         <div class="col-md-3"><input type="text" id="formName" name="formName" value="" class="form-control" placeholder="請輸入詢價單名稱" /></div>
         <div class="col-md-1"><input type="checkbox" id="isWage" name="isWage" checked value="Y" /><labe>工資</labe></div>
         <div class="col-md-1 pull-left">
-            <input id="Submit1" type="submit" value="新增詢價單樣本" onclick="Confirm_Form()"/>
+            <input id="Submit1" type="submit" value="新增詢價單樣本" onclick="return Confirm_Form()"/>
         </div>
     </div>
 }
@@ -111,6 +111,11 @@
     });
 
     function Confirm_Form() {
+        var method1 = $('input[name=chkItem]:checkbox:checked').val();
+        if (typeof (method1) == "undefined") { // 注意檢查完全沒有選取的寫法，這行是精華
+            alert("沒有選取要詢價的品項，請勾選品項後重新按下新增鈕！");
+            return false;
+        }
         if (confirm("空白詢價單新增成功後，要繼續輸入廠商詢價單資料！") == true) {
             return $("#emptyform").val('S');
             
