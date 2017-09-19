@@ -795,7 +795,14 @@ namespace topmeperp.Service
             logger.Debug("Template Head_4=" + sheet.GetRow(5).Cells[2].ToString());
             sheet.GetRow(5).Cells[3].SetCellValue((form.DUEDATE).ToString());//報價期限
             logger.Debug("Template Head_5=" + sheet.GetRow(6).Cells[2].ToString());
-            sheet.GetRow(6).Cells[3].SetCellValue(form.INQUIRY_FORM_ID);//編號
+            if (form.SUPPLIER_ID != null && "" != form.SUPPLIER_ID)
+            {
+                sheet.GetRow(6).Cells[3].SetCellValue(form.INQUIRY_FORM_ID);//廠商詢價單編號
+            }
+            else
+            {
+                sheet.GetRow(6).Cells[3].SetCellValue("");//空白詢價單不提供編號
+            }
         }
     }
 }

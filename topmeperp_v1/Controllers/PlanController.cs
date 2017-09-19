@@ -320,6 +320,7 @@ namespace topmeperp.Controllers
             TnderProject service = new TnderProject();
             TND_PROJECT p = service.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
+            ViewBag.wageAmount = p.WAGE_MULTIPLIER;
             if (p.WAGE_MULTIPLIER == null || p.WAGE_MULTIPLIER == 0)
             {
                 TempData["wagePrice"] = "單日工資金額尚未輸入，工資成本無法計算!!";
@@ -384,7 +385,7 @@ namespace topmeperp.Controllers
             //檢查工率乘數是否存在
             TnderProject tndservice = new TnderProject();
             TND_PROJECT p = tndservice.getProjectById(Request["projectid"]);
-            ViewBag.projectWage = p.WAGE_MULTIPLIER;
+            //ViewBag.projectWage = p.WAGE_MULTIPLIER;
             //if (null == ViewBag.projectWage) { throw new Exception(Request["projectid"] + "'s Wage Multiplier is not exist !!");}
             //檔案變數名稱(fileBudget)需要與前端畫面對應(view 的 file name and file id)
             if (null != fileBudget && fileBudget.ContentLength != 0)
@@ -597,9 +598,10 @@ namespace topmeperp.Controllers
             ViewBag.budget = (null == totalinfo.MATERIAL_BUDGET ? 0 : totalinfo.MATERIAL_BUDGET);
             ViewBag.wagebudget = (null == totalinfo.WAGE_BUDGET ? 0 : totalinfo.WAGE_BUDGET);
             ViewBag.totalbudget = (null == totalinfo.TOTAL_BUDGET ? 0 : totalinfo.TOTAL_BUDGET);
-            ViewBag.cost =  (null == totalinfo.TOTAL_COST ? 0 : totalinfo.TOTAL_COST);
+            //ViewBag.cost =  (null == totalinfo.TOTAL_COST ? 0 : totalinfo.TOTAL_COST);
             ViewBag.itembudget = (null == iteminfo.ITEM_BUDGET ? 0 : iteminfo.ITEM_BUDGET);
-            ViewBag.itemcost = (null == iteminfo.ITEM_COST ? 0 : iteminfo.ITEM_COST); 
+            ViewBag.itemwagebudget = (null == iteminfo.ITEM_BUDGET_WAGE ? 0 : iteminfo.ITEM_BUDGET_WAGE);
+            //ViewBag.itemcost = (null == iteminfo.ITEM_COST ? 0 : iteminfo.ITEM_COST); 
             return View("BudgetForForm", lstProject);
         }
         //修改Plan_Item 個別預算

@@ -14,19 +14,19 @@
             廠商名稱
         </th>
         <th>
-            投標金額
+            材料預算
         </th>
         <th>
-            預算
-        </th>
-        <th>
-            發包金額
+            材料發包金額
         </th>
         <th>
             工資
         </th>
         <th>
-           成本
+            投標金額
+        </th>
+        <th>
+           總成本
         </th>
         <th>
             毛利
@@ -50,11 +50,7 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.SUPPLIER_ID)
                 </td>
-                <td>
-                    <span style="color: blue; font-size: 15px;">
-                        @String.Format("{0:N0}", item.REVENUE)
-                    </span>
-                </td>
+               
                 <td>
                     <span style="color: blue; font-size: 15px;">
                         @String.Format("{0:N0}", item.BUDGET)
@@ -68,6 +64,11 @@
                 <td>
                     <span style="color: blue; font-size: 15px;">
                         @String.Format("{0:N0}", item.WAGE_COST)
+                    </span>
+                </td>
+                <td>
+                    <span style="color: blue; font-size: 15px;">
+                        @String.Format("{0:N0}", item.REVENUE)
                     </span>
                 </td>
                 <td>

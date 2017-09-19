@@ -23,7 +23,14 @@
         </div>
         <div class="col-md-4 alert-danger">
             @Html.Raw(TempData["wagePrice"])
+            @if (ViewBag.wageAmount == null)
+            {
             <a href="/Tender/Create/@ViewBag.projectid" target="_blank" class="btn btn-link">輸入單日工資</a> 
+            }
+            else
+            {
+            <label>單日工資: @ViewBag.wageAmount</label><a href="/Tender/Create/@ViewBag.projectid" target="_blank" class="btn btn-link">修改單日工資</a>
+            }
         </div>
     </div>
     <div class="col-md-12 form-group" style="padding-top:40px">
@@ -131,11 +138,11 @@
                                         <td>
                                             @String.Format("{0:N0}", item.MATERIAL_COST_INMAP)
                                         </td>
-                                        <td><input type="text" style="width:50px" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
+                                        <td><input type="text" style="width:60px" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
                                         <td>
                                             @String.Format("{0:N0}", item.MAN_DAY_INMAP)
                                         </td>
-                                        <td><input type="text" style="width:50px" name="inputbudget4wage" id="inputbudget4wage" value="@String.Format("{0:N0}", item.BUDGET_WAGE)"></td>
+                                        <td><input type="text" style="width:60px" name="inputbudget4wage" id="inputbudget4wage" value="@String.Format("{0:N0}", item.BUDGET_WAGE)"></td>
                                         <td>
                                             @String.Format("{0:N0}", item.AMOUNT_BY_CODE)
                                         </td>
@@ -151,11 +158,11 @@
                                         </td>
                                         <td>@String.Format("{0:N0}", item.CONTRACT_PRICE)</td>
                                         <td>@String.Format("{0:N0}", item.MATERIAL_COST_INMAP)</td>
-                                        <td><input type="text" style="width:50px" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
+                                        <td><input type="text" style="width:60px" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
                                         <td>
                                             @String.Format("{0:N0}", item.MAN_DAY_INMAP)
                                         </td>
-                                        <td><input type="text" style="width:50px" name="inputbudget4wage" id="inputbudget4wage" value="@String.Format("{0:N0}", item.BUDGET_WAGE)"></td>
+                                        <td><input type="text" style="width:60px" name="inputbudget4wage" id="inputbudget4wage" value="@String.Format("{0:N0}", item.BUDGET_WAGE)"></td>
                                         <td>
                                             @String.Format("{0:N0}", item.AMOUNT_BY_CODE)
                                         </td>
@@ -176,11 +183,11 @@
                                         <td>
                                             @String.Format("{0:N0}", item.MATERIAL_COST_INMAP)
                                         </td>
-                                        <td><input type="text" style="width:50px" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
+                                        <td><input type="text" style="width:60px" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
                                         <td>
                                             @String.Format("{0:N0}", item.MAN_DAY_INMAP)
                                         </td>
-                                        <td><input type="text" style="width:50px" name="inputbudget4wage" id="inputbudget4wage" value="@String.Format("{0:N0}", item.BUDGET_WAGE)"></td>
+                                        <td><input type="text" style="width:60px" name="inputbudget4wage" id="inputbudget4wage" value="@String.Format("{0:N0}", item.BUDGET_WAGE)"></td>
                                         <td>
                                             @String.Format("{0:N0}", item.AMOUNT_BY_CODE)
                                         </td>
@@ -196,11 +203,11 @@
                                         </td>
                                         <td>@String.Format("{0:N0}", item.CONTRACT_PRICE)</td>
                                         <td>@String.Format("{0:N0}", item.MATERIAL_COST_INMAP)</td>
-                                        <td><input type="text" style="width:50px" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
+                                        <td><input type="text" style="width:60px" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
                                         <td>
                                             @String.Format("{0:N0}", item.MAN_DAY_INMAP)
                                         </td>
-                                        <td><input type="text" style="width:50px" name="inputbudget4wage" id="inputbudget4wage" value="@String.Format("{0:N0}", item.BUDGET_WAGE)"></td>
+                                        <td><input type="text" style="width:60px" name="inputbudget4wage" id="inputbudget4wage" value="@String.Format("{0:N0}", item.BUDGET_WAGE)"></td>
                                         <td>
                                             @String.Format("{0:N0}", item.AMOUNT_BY_CODE)
                                         </td>

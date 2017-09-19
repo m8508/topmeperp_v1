@@ -13,7 +13,9 @@
         <th>
             廠商名稱
         </th>
-       
+        <th>
+            預算金額
+        </th>
         <th>
             發包金額
         </th>
@@ -36,6 +38,11 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.MAN_SUPPLIER_ID)
+                </td>
+                <td>
+                    <span style="color: blue; font-size: 15px;">
+                        @String.Format("{0:N0}", item.WAGE_BUDGET)
+                    </span>
                 </td>
                 <td>
                     <span style="color: blue; font-size: 15px;">

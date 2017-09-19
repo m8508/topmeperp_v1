@@ -246,6 +246,7 @@ namespace topmeperp.Models
         public string MAN_SUPPLIER_ID { get; set; }
         public string CONTRACT_NAME { get; set; }
         public string TYPE { get; set; }
+        public Nullable<decimal> WAGE_BUDGET { get; set; }
     }
     public class ContractModels
     {
