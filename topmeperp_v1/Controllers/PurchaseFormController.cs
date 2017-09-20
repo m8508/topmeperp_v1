@@ -214,10 +214,15 @@ namespace topmeperp.Controllers
             }
             // selectSupplier.Add(empty);
             ViewBag.Supplier = selectSupplier;
-            //if (null != Request["IsWage"])
-            //{
-            //    return View("SinglePrjForm4All", singleForm);
-            //}
+            //設定更新標籤 for 空白詢價單
+            if (null != Request["update"])
+            {
+                ViewBag.update = "Y";
+            }
+            else
+            {
+                ViewBag.update = "N";
+            }
             return View(singleForm);
 
         }
@@ -348,14 +353,17 @@ namespace topmeperp.Controllers
             {
                 fm.ISWAGE = form.Get("isWage");
             }
-            fm.SUPPLIER_ID = form.Get("supplier").Trim();
-            fm.DUEDATE = Convert.ToDateTime(form.Get("inputdateline"));
+            if (form.Get("supplier").Trim() != "")
+            {
+                fm.SUPPLIER_ID = form.Get("supplier").Trim();
+                fm.DUEDATE = Convert.ToDateTime(form.Get("inputdateline"));
+                fm.CONTACT_NAME = form.Get("inputcontact").Trim();
+                fm.CONTACT_EMAIL = form.Get("inputemail").Trim();
+            }
             fm.OWNER_NAME = form.Get("inputowner").Trim();
             fm.OWNER_TEL = form.Get("inputphone").Trim();
             fm.OWNER_FAX = form.Get("inputownerfax").Trim();
             fm.OWNER_EMAIL = form.Get("inputowneremail").Trim();
-            fm.CONTACT_NAME = form.Get("inputcontact").Trim();
-            fm.CONTACT_EMAIL = form.Get("inputemail").Trim();
             fm.INQUIRY_FORM_ID = form.Get("inputformnumber").Trim();
             fm.FORM_NAME = form.Get("formname").Trim();
             fm.CREATE_ID = form.Get("createid").Trim();
