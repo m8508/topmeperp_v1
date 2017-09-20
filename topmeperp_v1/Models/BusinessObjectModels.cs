@@ -115,7 +115,8 @@ namespace topmeperp.Models
         public Nullable<decimal> WAGE_BUDGET { get; set; }
         public Nullable<decimal> TOTAL_BUDGET { get; set; }
         public Nullable<decimal> ITEM_BUDGET_WAGE { get; set; }
-        
+        public Nullable<decimal> MAN_DAY_4EXCEL { get; set; }
+
     }
     public class SystemCost
     {

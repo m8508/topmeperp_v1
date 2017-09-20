@@ -118,13 +118,10 @@ namespace topmeperp.Service
                 //材料折扣率 
                 row.CreateCell(5).SetCellValue("");
                 //工資成本
-                if (null != item.MAN_DAY_INMAP && item.MAN_DAY_INMAP.ToString().Trim() != "")
+                row.CreateCell(6).SetCellValue("");  //圖算*工率
+                if (null != item.MAN_DAY_4EXCEL && item.MAN_DAY_4EXCEL.ToString().Trim() != "")
                 {
-                    row.CreateCell(6).SetCellValue(double.Parse(item.MAN_DAY_INMAP.ToString()));
-                }
-                else
-                {
-                    row.CreateCell(6).SetCellValue("");
+                    row.Cells[6].SetCellFormula(item.MAN_DAY_4EXCEL.ToString() + "*G3");
                 }
                 //工資折扣率 
                 row.CreateCell(7).SetCellValue("");

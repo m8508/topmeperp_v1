@@ -291,10 +291,10 @@ namespace topmeperp.Service
                     "(select SUB_TYPE_ID from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) T_SUB_CODE, " +
                     "TYPE_CODE_2 SUB_CODE," +
                     "(select TYPE_DESC from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) SUB_DESC, " +
-                    "SUM(MapQty * ITEM_UNIT_PRICE) MATERIAL_COST_INMAP, SUM(MapQty * RATIO * WagePrice) MAN_DAY_INMAP, SUM(ITEM_QUANTITY * Price4Owner) CONTRACT_PRICE, count(*) ITEM_COUNT " +
-                    "FROM (SELECT it.*, w.RATIO, w.PRICE, map.QTY MapQty, ISNULL(p.WAGE_MULTIPLIER, 0) AS WagePrice, pi.ITEM_UNIT_PRICE AS Price4Owner FROM TND_PROJECT_ITEM it LEFT OUTER JOIN TND_WAGE w " +
-                    "ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON it.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID RIGHT OUTER JOIN PLAN_ITEM pi ON it.PROJECT_ITEM_ID = pi.PLAN_ITEM_ID " +
-                    "LEFT JOIN TND_PROJECT p ON it.PROJECT_ID = p.PROJECT_ID WHERE it.project_id = @projectid) A " +
+                    "SUM(MapQty * tndPrice) MATERIAL_COST_INMAP, SUM(MapQty * RATIO * WagePrice) MAN_DAY_INMAP, SUM(ITEM_UNIT_PRICE * tndPrice) CONTRACT_PRICE, count(*) ITEM_COUNT " +
+                    "FROM (SELECT pi.*, w.RATIO, w.PRICE, map.QTY MapQty, ISNULL(p.WAGE_MULTIPLIER, 0) AS WagePrice, it.ITEM_UNIT_PRICE AS tndPrice, it.ITEM_QUANTITY AS tndQTY FROM PLAN_ITEM pi LEFT OUTER JOIN TND_WAGE w " +
+                    "ON pi.PLAN_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT OUTER JOIN TND_PROJECT_ITEM it ON it.PROJECT_ITEM_ID = pi.PLAN_ITEM_ID " +
+                    "LEFT JOIN TND_PROJECT p ON pi.PROJECT_ID = p.PROJECT_ID WHERE it.project_id = @projectid) A " +
                     "GROUP BY TYPE_CODE_1, TYPE_CODE_2) B LEFT OUTER JOIN (SELECT p.TYPE_CODE_1, p.TYPE_CODE_2, SUM(p.BUDGET_RATIO*map.QTY)/SUM(map.QTY) BUDGET_RATIO, " +
                     "SUM(p.BUDGET_WAGE_RATIO*map.QTY)/SUM(map.QTY) BUDGET_WAGE_RATIO, " +
                     "SUM(p.TND_RATIO*map.QTY)/SUM(map.QTY) COST_RATIO FROM PLAN_ITEM p LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON p.PLAN_ITEM_ID = map.PROJECT_ITEM_ID WHERE p.PROJECT_ID =@projectid GROUP BY p.TYPE_CODE_1, p.TYPE_CODE_2) D " +
@@ -317,11 +317,11 @@ namespace topmeperp.Service
                 string sql = "SELECT SUM(ISNULL(TND_COST,0)) AS TOTAL_COST, SUM(ISNULL(BUDGET,0)) AS MATERIAL_BUDGET, SUM(ISNULL(BUDGET_WAGE,0)) AS WAGE_BUDGET, SUM(ISNULL(BUDGET,0)) + SUM(ISNULL(BUDGET_WAGE,0)) AS TOTAL_BUDGET, SUM(ISNULL(P_COST,0)) AS TOTAL_P_COST FROM (SELECT(select TYPE_CODE_1 + TYPE_CODE_2 from REF_TYPE_MAIN WHERE  " +
                     "TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE, (select TYPE_DESC from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE_DESC, " +
                     "(select SUB_TYPE_ID from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) T_SUB_CODE, TYPE_CODE_2 SUB_CODE, " +
-                    "(select TYPE_DESC from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) SUB_DESC, SUM(MapQty * ITEM_UNIT_PRICE) MATERIAL_COST_INMAP, " +
-                    "SUM(MapQty * RATIO * WagePrice) MAN_DAY_INMAP,count(*) ITEM_COUNT, SUM(MapQty * ITEM_UNIT_PRICE * ISNULL(BUDGET_RATIO, 100)/100) BUDGET, SUM(MapQty * RATIO * WagePrice * ISNULL(BUDGET_WAGE_RATIO, 100)/100) BUDGET_WAGE, " +
-                    "SUM(MapQty * PRICE_SUP) + SUM(MapQty * MAN_PRICE_SUP) P_COST, SUM(ITEM_QUANTITY * PRICE_OWNER) TND_COST FROM " +
-                    "(SELECT it.*, w.RATIO, w.PRICE, map.QTY MapQty, pi.ITEM_UNIT_COST AS PRICE_SUP, pi.MAN_PRICE AS MAN_PRICE_SUP, pi.BUDGET_RATIO, pi.BUDGET_WAGE_RATIO, ISNULL(p.WAGE_MULTIPLIER, 0) AS WagePrice, pi.ITEM_UNIT_PRICE AS PRICE_OWNER FROM TND_PROJECT_ITEM it LEFT OUTER JOIN " +
-                    "TND_WAGE w ON it.PROJECT_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON it.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID LEFT JOIN TND_PROJECT p ON it.PROJECT_ID = p.PROJECT_ID RIGHT OUTER JOIN PLAN_ITEM pi " +
+                    "(select TYPE_DESC from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) SUB_DESC, SUM(MapQty * tndPrice) MATERIAL_COST_INMAP, " +
+                    "SUM(MapQty * RATIO * WagePrice) MAN_DAY_INMAP,count(*) ITEM_COUNT, SUM(MapQty * tndPrice * ISNULL(BUDGET_RATIO, 100)/100) BUDGET, SUM(MapQty * RATIO * WagePrice * ISNULL(BUDGET_WAGE_RATIO, 100)/100) BUDGET_WAGE, " +
+                    "SUM(MapQty * ITEM_UNIT_COST) + SUM(MapQty * MAN_PRICE) P_COST, SUM(tndQTY * ITEM_UNIT_PRICE) TND_COST FROM " +
+                    "(SELECT pi.*, w.RATIO, w.PRICE, map.QTY MapQty, ISNULL(p.WAGE_MULTIPLIER, 0) AS WagePrice, it.ITEM_UNIT_PRICE AS tndPrice, it.ITEM_QUANTITY AS tndQTY FROM PLAN_ITEM pi LEFT OUTER JOIN " +
+                    "TND_WAGE w ON pi.PLAN_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT JOIN TND_PROJECT p ON pi.PROJECT_ID = p.PROJECT_ID LEFT OUTER JOIN TND_PROJECT_ITEM it " +
                     "ON it.PROJECT_ITEM_ID = pi.PLAN_ITEM_ID WHERE it.project_id = @projectid) A  " +
                     "GROUP BY TYPE_CODE_1, TYPE_CODE_2)B ";
                 logger.Info("sql = " + sql);
@@ -684,8 +684,8 @@ namespace topmeperp.Service
                 string sql = "INSERT INTO PLAN_SUP_INQUIRY_ITEM (INQUIRY_FORM_ID, PLAN_ITEM_ID, TYPE_CODE, "
                     + "SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_QTY, ITEM_UNIT_PRICE, ITEM_REMARK) "
                     + "SELECT '" + form.INQUIRY_FORM_ID + "' as INQUIRY_FORM_ID, PLAN_ITEM_ID, TYPE_CODE_1 AS TYPE_CODE, "
-                    + "TYPE_CODE_2 AS SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_FORM_QUANTITY, ITEM_UNIT_COST, ITEM_REMARK "
-                    + "FROM PLAN_ITEM where PLAN_ITEM_ID IN (" + ItemId + ")";
+                    + "TYPE_CODE_2 AS SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, map.QTY, ITEM_UNIT_COST, ITEM_REMARK "
+                    + "FROM PLAN_ITEM pi LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID where PLAN_ITEM_ID IN (" + ItemId + ")";
                 logger.Info("sql =" + sql);
                 var parameters = new List<SqlParameter>();
                 i = context.Database.ExecuteSqlCommand(sql);

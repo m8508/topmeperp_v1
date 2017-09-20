@@ -25,11 +25,12 @@
             @Html.Raw(TempData["wagePrice"])
             @if (ViewBag.wageAmount == null)
             {
-            <a href="/Tender/Create/@ViewBag.projectid" target="_blank" class="btn btn-link">輸入單日工資</a> 
+            <a href="/Tender/Create/@ViewBag.projectid" target="_blank" class="btn btn-link">輸入單日工資</a>
             }
             else
             {
             <label>單日工資: @ViewBag.wageAmount</label><a href="/Tender/Create/@ViewBag.projectid" target="_blank" class="btn btn-link">修改單日工資</a>
+            <input type="button" class="btn btn-warning" onclick="myrefresh()" value="更新">
             }
         </div>
     </div>
@@ -267,5 +268,8 @@
             }
         });
     });
+    function myrefresh() {
+        window.location.reload();
+    }
 </script>
 
