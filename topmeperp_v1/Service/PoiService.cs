@@ -2784,7 +2784,7 @@ namespace topmeperp.Service
                 row.CreateCell(4).SetCellValue("");
                 if (null != item.MATERIAL_COST && item.MATERIAL_COST.ToString().Trim() != "")
                 {
-                    row.Cells[4].SetCellValue(double.Parse(item.MATERIAL_COST.ToString()));
+                    row.Cells[4].SetCellValue(double.Parse(item.MATERIAL_COST_INMAP.ToString()));
                     row.Cells[4].CellStyle = styleNumber;
                 }
                 row.CreateCell(5).SetCellValue("100");
