@@ -96,7 +96,7 @@ namespace topmeperp.Controllers
                 //check password
                 if (null != newUser.PASSWORD && newUser.PASSWORD != Request["confirmpwd"])
                 {
-                    ViewBag.ErrorMessage = "密碼不相同!!";
+                    ViewBag.ErrorMessage = "密碼欄位有問題，請重新輸入!";
                     return View("UserProfile", u);
                 }
                 u.PASSWORD = newUser.PASSWORD;
