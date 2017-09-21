@@ -914,6 +914,7 @@
     <Content Include="Views\PurchaseForm\_FormTempList.cshtml" />
     <Content Include="Views\PurchaseForm\_FormTempList4wage.cshtml" />
     <Content Include="Views\PurchaseForm\PendingItems4Wage.cshtml" />
+    <Content Include="Views\UserManage\UserProfile.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
