@@ -6,13 +6,15 @@
 <div class="container">
     <h1 style="padding-top:10px;">專案執行主頁 : </h1>
 </div>
-<div style="padding-bottom:30px;"></div>
-
 <!--專案列表區域-->
 <div class="container">
     @ViewBag.SearchResult
-    @if (null != Model)
-    {
-        Html.RenderPartial("ProjectList");
-    }
+    <div class="row">
+        <div class="col-md-12 col-sm-6">
+            @if (null != Model)
+            {
+                Html.RenderPartial("ProjectList");
+            }
+        </div>
+    </div>
 </div>
