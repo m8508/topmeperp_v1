@@ -56,6 +56,9 @@ namespace topmeperp.Service
         IWorkbook hssfworkbook;
         ISheet sheet = null;
         string fileformat = "xlsx";
+        XSSFCellStyle style = null;
+        XSSFCellStyle styleNumber = null;
+
         //存放預算資料
         CostAnalysisDataService service = new CostAnalysisDataService();
         public TND_PROJECT project = null;
@@ -71,6 +74,8 @@ namespace topmeperp.Service
             InitializeWorkbook(budgetFile);
             sheet = (XSSFSheet)hssfworkbook.GetSheet("預算");
 
+            style = ExcelStyle.getContentStyle(hssfworkbook);
+            styleNumber = ExcelStyle.getNumberStyle(hssfworkbook);
             //2.填入表頭資料
             logger.Debug("Table Head_1=" + sheet.GetRow(1).Cells[0].ToString());
             sheet.GetRow(1).Cells[1].SetCellValue(project.PROJECT_ID);//專案編號
@@ -116,7 +121,7 @@ namespace topmeperp.Service
                     row.CreateCell(4).SetCellValue("");
                 }
                 //材料折扣率 
-                row.CreateCell(5).SetCellValue("");
+                row.CreateCell(5).SetCellValue("100");
                 //工資成本
                 row.CreateCell(6).SetCellValue("");  //圖算*工率
                 if (null != item.MAN_DAY_4EXCEL && item.MAN_DAY_4EXCEL.ToString().Trim() != "")
@@ -124,18 +129,42 @@ namespace topmeperp.Service
                     row.Cells[6].SetCellFormula(item.MAN_DAY_4EXCEL.ToString() + "*G3");
                 }
                 //工資折扣率 
-                row.CreateCell(7).SetCellValue("");
+                row.CreateCell(7).SetCellValue("100");
                 foreach (ICell c in row.Cells)
                 {
-                c.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                    c.CellStyle = styleNumber;
                 }
                 //預算金額
                 ICell cel8 = row.CreateCell(8);
                 cel8.CellFormula = "(E" + (idxRow + 1) + "*F" + (idxRow + 1) + "/100)+(G" + (idxRow + 1) + "*H" + (idxRow + 1) + "/100)";
-                cel8.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                cel8.CellStyle = styleNumber;
                 logger.Debug("getBudget cell style rowid=" + idxRow);
                 idxRow++;
             }
+            //加入加總欄位
+            IRow summaryRow = sheet.CreateRow(idxRow);
+            summaryRow.CreateCell(0).SetCellValue("");
+            summaryRow.Cells[0].CellStyle = style;
+            summaryRow.CreateCell(1).SetCellValue("");
+            summaryRow.Cells[1].CellStyle = style;
+            summaryRow.CreateCell(2).SetCellValue("加總");
+            summaryRow.Cells[2].CellStyle = style;
+            summaryRow.CreateCell(3);
+            summaryRow.Cells[3].SetCellFormula("SUM(D5:D" + idxRow + ")");
+            summaryRow.Cells[3].CellStyle = styleNumber;
+            summaryRow.CreateCell(4);
+            summaryRow.Cells[4].SetCellFormula("SUM(E5:E" + idxRow + ")");
+            summaryRow.Cells[4].CellStyle = styleNumber;
+            summaryRow.CreateCell(5).SetCellValue("");
+            summaryRow.Cells[5].CellStyle = style;
+            summaryRow.CreateCell(6);
+            summaryRow.Cells[6].SetCellFormula("SUM(G5:G" + idxRow + ")");
+            summaryRow.Cells[6].CellStyle = styleNumber;
+            summaryRow.CreateCell(7).SetCellValue("");
+            summaryRow.Cells[7].CellStyle = style;
+            summaryRow.CreateCell(8);
+            summaryRow.Cells[8].SetCellFormula("SUM(I5:I" + idxRow + ")");
+            summaryRow.Cells[8].CellStyle = styleNumber;
             //4.另存新檔至專案所屬目錄 (增加Temp for zip 打包使用
             string fileLocation = null;
             fileLocation = outputPath + "\\" + project.PROJECT_ID + "\\" + project.PROJECT_ID + "_預算.xlsx";
