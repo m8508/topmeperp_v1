@@ -1458,10 +1458,9 @@ namespace topmeperp.Service
                     + "ON it.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID "
                     + "WHERE it.project_id =@projectid ) A "
                     + "GROUP BY TYPE_CODE_1, TYPE_CODE_2 ORDER BY ISNULL(TYPE_CODE_1,'無'), ISNULL(TYPE_CODE_2, '無') ;";
-                logger.Info("Get DirectCost SQL=" + sql + ",projectid=" + projectid);
+                logger.Info("Get DirectCost for budget SQL=" + sql + ",projectid=" + projectid);
                 lstDirecCost = context.Database.SqlQuery<DirectCost>(sql, new SqlParameter("projectid", projectid)).ToList();
-
-                logger.Info("Get DirectCost Record Count=" + lstDirecCost.Count);
+                logger.Info("Get DirectCost for budget Record Count=" + lstDirecCost.Count);
             }
             DirectCost4Budget = lstDirecCost;
             return DirectCost4Budget;
@@ -1487,7 +1486,6 @@ namespace topmeperp.Service
                     + "GROUP BY TYPE_CODE_1, TYPE_CODE_2 ORDER BY TYPE_CODE_1,TYPE_CODE_2;";
                 logger.Info("Get DirectCost SQL=" + sql + ",projectid=" + projectid);
                 lstDirecCost = context.Database.SqlQuery<DirectCost>(sql, new SqlParameter("projectid", projectid)).ToList();
-
                 logger.Info("Get DirectCost Record Count=" + lstDirecCost.Count);
             }
             DirectCost4Project = lstDirecCost;
@@ -1507,7 +1505,7 @@ namespace topmeperp.Service
                     + "ON it.PROJECT_ITEM_ID = map.PROJECT_ITEM_ID "
                     + "WHERE ISNULL(it.DEL_FLAG,'N')='N' AND it.project_id =@projectid ) A "
                     + "GROUP BY SYSTEM_MAIN, SYSTEM_SUB ORDER BY SYSTEM_MAIN, SYSTEM_SUB;";
-                logger.Debug("sql=" + sql);
+                logger.Debug("Get SystemCost sql=" + sql);
                 lstSystemCost = context.Database.SqlQuery<SystemCost>(sql, new SqlParameter("projectid", projectid)).ToList();
                 logger.Info("Get SystemCost Record Count=" + lstSystemCost.Count);
             }
