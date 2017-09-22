@@ -277,8 +277,8 @@ namespace topmeperp.Service
             {
                 try
                 {
-                    context.SYS_USER.AddOrUpdate(t => t.USER_ID,u);
-                    i=context.SaveChanges();
+                    context.SYS_USER.AddOrUpdate(t => t.USER_ID, u);
+                    i = context.SaveChanges();
                 }
                 catch (Exception ex)
                 {
@@ -288,6 +288,13 @@ namespace topmeperp.Service
             }
             return i;
         }
+        ///密碼欄位加密方法
+        ///SELECT encryptbypassphrase('aaa','plaintext data') AS aaa_key , encryptbypASsphrase('ccc','plaintext data') AS ccc_key;
+        ///SELECT encryptbypassphrase('aaa','plaintext data') AS aaa_key, encryptbypASsphrase('ccc', 'plaintext data') AS ccc_key;
+
+        // DECLARE @ss VARBINARY(100)
+        ///SELECT @ss = encryptbypassphrase('aaa', 'plaintext data')
+        ///SELECT N'加解密測試','plaintext data' AS 明文, @ss AS 密文, cast(decryptbypassphrase('aaa', @ss) AS VARCHAR(max))
     }
     #endregion
     #region 九宮格次九宮格管理區塊
