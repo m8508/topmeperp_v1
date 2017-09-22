@@ -2287,13 +2287,17 @@ namespace topmeperp.Service
             logger.Info("generate direct cost by projectid=" + project.PROJECT_ID);
             getDirectCostFromSouce(service.getDirectCost(project.PROJECT_ID));
             getDirectCostFromMap(service.DirectCost4Project);
+            logger.Info("generate direct cost End!!");
             //5建立報價標單Sheet
             getFinalQuotation();
-            logger.Info("generate syten cost by projectid=" + project.PROJECT_ID);
             //6建立報價標單Sheet
+            logger.Info("generate sytem cost by projectid=" + project.PROJECT_ID);
             getSystemCost(service.getSystemCost(project.PROJECT_ID));
+            logger.Info("generate sytem cost end!!");
             //7.建立預算參考表
+            logger.Info("generate budget evaluate !!");
             getBudgetEva();
+            logger.Info("generate budget evaluate end!!");
             //8.令存新檔至專案所屬目錄
             var file = new FileStream(outputPath + "\\" + project.PROJECT_ID + "\\" + project.PROJECT_ID + "_CostAnalysis.xlsx", FileMode.Create);
             logger.Info("output file=" + file.Name);
@@ -2305,7 +2309,7 @@ namespace topmeperp.Service
         {
             //2.寫入初期成本標單 僅提供office 格式2007 
             sheet = (XSSFSheet)hssfworkbook.GetSheet("期初成本");
-            logger.Debug("InitialQuotation  Head_1=" + sheet.GetRow(1).Cells[0].ToString() + "," + sheet.GetRow(1).Cells[1].ToString());
+            logger.Info("InitialQuotation  Head_1=" + sheet.GetRow(1).Cells[0].ToString() + "," + sheet.GetRow(1).Cells[1].ToString());
             sheet.GetRow(1).Cells[1].SetCellValue(project.PROJECT_ID);//專案編號
             sheet.GetRow(1).Cells[2].SetCellValue(project.PROJECT_NAME);//專案名稱
             sheet.GetRow(2).Cells[1].SetCellValue(project.LOCATION);//專案名稱
@@ -2314,14 +2318,13 @@ namespace topmeperp.Service
 
             foreach (PROJECT_ITEM_WITH_WAGE item in projectItems)
             {
-                logger.Info("Row Id=" + idxRow);
+                logger.Debug("Row Id=" + idxRow + "," + item.ITEM_DESC);
                 IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
                 //PK(PROJECT_ITEM_ID) 項次 名稱 單位 數量 單價 備註 九宮格 次九宮格 主系統 次系統
                 row.CreateCell(0).SetCellValue(item.PROJECT_ITEM_ID);//PK(PROJECT_ITEM_ID)
                 row.Cells[0].CellStyle = style;
                 row.CreateCell(1).SetCellValue(item.ITEM_ID);//項次
                 row.Cells[1].CellStyle = style;
-                logger.Debug("ITEM DESC=" + item.ITEM_DESC);
                 row.CreateCell(2).SetCellValue(item.ITEM_DESC);//項目說明
                 row.Cells[2].CellStyle = style;
                 row.CreateCell(3).SetCellValue(item.ITEM_UNIT);// 單位
@@ -2396,6 +2399,7 @@ namespace topmeperp.Service
                 row.Cells[14].CellStyle = style;
                 idxRow++;
             }
+            logger.Info("InitialQuotation finish!!");
             if (projectItems.Count == 0) { errorMsg = "標單資料不完整!!</br>"; }
         }
         //報價標單 
@@ -2757,7 +2761,7 @@ namespace topmeperp.Service
             foreach (DirectCost item in typecodeItems)
             {
                 IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
-                logger.Info("Row Id=" + idxRow);
+                logger.Debug("Row Id=" + idxRow + ",ITEM_DESC=" + item.MAINCODE_DESC);
                 //主九宮格編碼、次九宮格編碼、主系統、次系統、分項名稱(成本價)、合約金額、材料成本、預算折扣率、預算金額
                 //主九宮格編碼
                 row.CreateCell(0).SetCellValue(item.MAINCODE);
@@ -2770,21 +2774,20 @@ namespace topmeperp.Service
                 }
                 row.Cells[1].CellStyle = style;
                 //分項名稱
-                logger.Debug("ITEM DESC=" + item.MAINCODE_DESC);
                 row.CreateCell(2).SetCellValue(item.MAINCODE_DESC + "-" + item.SUB_DESC);
                 row.Cells[2].CellStyle = style;
                 //合約金額
                 row.CreateCell(3).SetCellValue("--");
                 if (null != item.CONTRACT_PRICE && item.CONTRACT_PRICE.ToString().Trim() != "")
                 {
-                   // row.Cells[3].SetCellValue(double.Parse(item.CONTRACT_PRICE.ToString()));
-                  //  row.Cells[3].CellStyle = styleNumber;
+                    // row.Cells[3].SetCellValue(double.Parse(item.CONTRACT_PRICE.ToString()));
+                    //  row.Cells[3].CellStyle = styleNumber;
                 }
                 //材料成本 與預算折扣率
                 row.CreateCell(4).SetCellValue("");
                 if (null != item.MATERIAL_COST && item.MATERIAL_COST.ToString().Trim() != "")
                 {
-                    row.Cells[4].SetCellValue(double.Parse(item.MATERIAL_COST.ToString()));
+                    row.Cells[4].SetCellValue(double.Parse(item.MATERIAL_COST_INMAP.ToString()));
                     row.Cells[4].CellStyle = styleNumber;
                 }
                 row.CreateCell(5).SetCellValue("100");
@@ -2794,19 +2797,42 @@ namespace topmeperp.Service
                 row.CreateCell(7).SetCellValue("");
                 if (null != item.MAN_DAY_INMAP && item.MAN_DAY_INMAP.ToString().Trim() != "")
                 {
-                    row.Cells[6].SetCellFormula(item.MAN_DAY_INMAP.ToString()+"*G3");
+                    row.Cells[6].SetCellFormula(item.MAN_DAY_INMAP.ToString() + "*G3");
                     row.Cells[7].SetCellValue("100");
                 }
                 row.Cells[6].CellStyle = styleNumber;
                 row.Cells[7].CellStyle = style;
                 //預算金額
                 ICell cell8 = row.CreateCell(8);
-                cell8.CellFormula = "(E" + (idxRow + 1) + "*F" + (idxRow + 1) + "/100)+(G"+ (idxRow + 1) +"*H" + (idxRow + 1) +"/100)";
+                cell8.CellFormula = "(E" + (idxRow + 1) + "*F" + (idxRow + 1) + "/100)+(G" + (idxRow + 1) + "*H" + (idxRow + 1) + "/100)";
                 cell8.CellStyle = styleNumber;
                 logger.Debug("getBudget cell style rowid=" + idxRow);
                 idxRow++;
             }
-
+            //加入加總欄位
+            IRow summaryRow = sheet.CreateRow(idxRow);
+            summaryRow.CreateCell(0).SetCellValue("");
+            summaryRow.Cells[0].CellStyle = style;
+            summaryRow.CreateCell(1).SetCellValue("");
+            summaryRow.Cells[1].CellStyle = style;
+            summaryRow.CreateCell(2).SetCellValue("加總");
+            summaryRow.Cells[2].CellStyle = style;
+            summaryRow.CreateCell(3);
+            summaryRow.Cells[3].SetCellFormula("SUM(D5:D" + idxRow + ")");
+            summaryRow.Cells[3].CellStyle = styleNumber;
+            summaryRow.CreateCell(4);
+            summaryRow.Cells[4].SetCellFormula("SUM(E5:E" + idxRow + ")");
+            summaryRow.Cells[4].CellStyle = styleNumber;
+            summaryRow.CreateCell(5).SetCellValue("");
+            summaryRow.Cells[5].CellStyle = style;
+            summaryRow.CreateCell(6);
+            summaryRow.Cells[6].SetCellFormula("SUM(G5:G" + idxRow + ")");
+            summaryRow.Cells[6].CellStyle = styleNumber;
+            summaryRow.CreateCell(7).SetCellValue("");
+            summaryRow.Cells[7].CellStyle = style;
+            summaryRow.CreateCell(8);
+            summaryRow.Cells[8].SetCellFormula("SUM(I5:I" + idxRow + ")");
+            summaryRow.Cells[8].CellStyle = styleNumber;
         }
     }
     public class ExcelStyle

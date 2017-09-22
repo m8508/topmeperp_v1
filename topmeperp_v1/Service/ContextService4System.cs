@@ -231,6 +231,7 @@ namespace topmeperp.Service
             }
             return u;
         }
+        //取得使用者授權資料
         public List<PrivilegeFunction> getPrivilege(string roleid)
         {
             List<PrivilegeFunction> lst = new List<PrivilegeFunction>();
@@ -245,6 +246,7 @@ namespace topmeperp.Service
             logger.Info("get function count:" + lst.Count);
             return lst;
         }
+        //更新權限資料
         public int updatePrivilege(string roleid, string[] functions)
         {
             int i = 0;
@@ -265,6 +267,24 @@ namespace topmeperp.Service
                 }
                 i = context.SaveChanges();
                 logger.Info("create privlilege data count:" + i);
+            }
+            return i;
+        }
+        public int updateProfile(SYS_USER u)
+        {
+            int i = 1;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.SYS_USER.AddOrUpdate(t => t.USER_ID,u);
+                    i=context.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.StackTrace);
+                    i = -1;
+                }
             }
             return i;
         }
@@ -342,14 +362,14 @@ namespace topmeperp.Service
     public class SystemParameter
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        public static List<SYS_PARA> getSystemPara(string functionid,string fieldid)
+        public static List<SYS_PARA> getSystemPara(string functionid, string fieldid)
         {
             List<SYS_PARA> lst = new List<SYS_PARA>();
             using (var context = new topmepEntities())
             {
                 lst = context.SYS_PARA.SqlQuery("SELECT * FROM SYS_PARA WHERE FUNCTION_ID=@functionid AND FIELD_ID=@fieldid ORDER BY KEY_FIELD;"
-                    ,new SqlParameter("functionid", functionid),new SqlParameter("fieldid", fieldid)).ToList();
-                logger.Debug("get SYS_PARA Count" + lst.Count +",functionid="+functionid+",fieldid="+ fieldid);
+                    , new SqlParameter("functionid", functionid), new SqlParameter("fieldid", fieldid)).ToList();
+                logger.Debug("get SYS_PARA Count" + lst.Count + ",functionid=" + functionid + ",fieldid=" + fieldid);
             }
             return lst;
         }

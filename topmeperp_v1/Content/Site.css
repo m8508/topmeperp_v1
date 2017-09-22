@@ -30,6 +30,7 @@ textarea {
     display: block;
     position: relative;
 }
+
 .fixed_headers tbody {
     display: block;
     overflow: auto;
@@ -41,47 +42,58 @@ textarea {
 .fixed_headers th:nth-child(1) {
     width: 70px; /**功能 */
 }
+
 .fixed_headers td:nth-child(2),
 .fixed_headers th:nth-child(2) {
-    width: 150px;/**No. */
+    width: 150px; /**No. */
 }
+
 .fixed_headers td:nth-child(3),
 .fixed_headers th:nth-child(3) {
-    width: 70px;/**項次 . */
+    width: 70px; /**項次 . */
     overflow: auto;
 }
+
 .fixed_headers td:nth-child(4),
 .fixed_headers th:nth-child(4) {
-    width: 350px;/**項目說明  . */
+    width: 350px; /**項目說明  . */
 }
+
 .fixed_headers td:nth-child(5),
 .fixed_headers th:nth-child(5) {
-    width: 50px;/**單位  . */
+    width: 50px; /**單位  . */
 }
+
 .fixed_headers td:nth-child(6),
 .fixed_headers th:nth-child(6) {
-    width: 100px;/**數量  . */
+    width: 100px; /**數量  . */
 }
+
 .fixed_headers td:nth-child(7),
 .fixed_headers th:nth-child(7) {
-    width: 100px;/**單價   . */
+    width: 100px; /**單價   . */
 }
+
 .fixed_headers td:nth-child(8),
 .fixed_headers th:nth-child(8) {
-    width: 150px;/**備註   . */
+    width: 150px; /**備註   . */
 }
+
 .fixed_headers td:nth-child(9),
 .fixed_headers th:nth-child(9) {
-    width: 50px;/**九宮格   . */
+    width: 50px; /**九宮格   . */
 }
+
 .fixed_headers td:nth-child(10),
 .fixed_headers th:nth-child(10) {
-    width: 50px;/**次九宮格   . */
+    width: 50px; /**次九宮格   . */
 }
+
 .fixed_headers td:nth-child(11),
 .fixed_headers th:nth-child(11) {
-    min-width: 120px;/**主系統  . */
+    min-width: 120px; /**主系統  . */
 }
+
 .fixed_headers td:nth-child(12),
 .fixed_headers th:nth-child(12) {
     width: 120px;
@@ -91,6 +103,7 @@ textarea {
     display: block;
     position: relative;
 }
+
 .fixed_headers1 tbody {
     display: block;
     overflow: auto;
@@ -102,38 +115,111 @@ textarea {
 .fixed_headers1 th:nth-child(1) {
     width: 100px; /**九宮格 */
 }
+
 .fixed_headers1 td:nth-child(2),
 .fixed_headers1 th:nth-child(2) {
-    width: 100px;/**次九宮格 */
+    width: 100px; /**次九宮格 */
 }
+
 .fixed_headers1 td:nth-child(3),
 .fixed_headers1 th:nth-child(3) {
-    width: 220px;/**名稱 */
+    width: 220px; /**名稱 */
 }
+
 .fixed_headers1 td:nth-child(4),
 .fixed_headers1 th:nth-child(4) {
-    width: 130px;/**合約金額 */
+    width: 130px; /**合約金額 */
 }
+
 .fixed_headers1 td:nth-child(5),
 .fixed_headers1 th:nth-child(5) {
-    width: 130px;/**材料成本*/
+    width: 130px; /**材料成本*/
 }
+
 .fixed_headers1 td:nth-child(6),
 .fixed_headers1 th:nth-child(6) {
-    width: 60px;/**材料預算比率*/
+    width: 60px; /**材料預算比率*/
 }
+
 .fixed_headers1 td:nth-child(7),
 .fixed_headers1 th:nth-child(7) {
-    width: 130px;/**工資成本*/
+    width: 130px; /**工資成本*/
 }
+
 .fixed_headers1 td:nth-child(8),
 .fixed_headers1 th:nth-child(8) {
-    width: 60px;/**工資預算比率*/
+    width: 60px; /**工資預算比率*/
 }
+
 .fixed_headers1 td:nth-child(9),
 .fixed_headers1 th:nth-child(9) {
-    width: 150px;/**預算金額*/
+    width: 150px; /**預算金額*/
+}
+/**RWD Table CSS*/
+.rwd-table {
+    background: #fff;
+    overflow: hidden;
 }
 
+    .rwd-table tr:nth-of-type(2n) {
+        background: #eee;
+    }
 
+    .rwd-table th,
+    .rwd-table td {
+        margin: 0.5em 1em;
+    }
 
+.rwd-table {
+    min-width: 100%;
+}
+
+    .rwd-table th {
+        display: none;
+    }
+
+    .rwd-table td {
+        display: block;
+    }
+
+        .rwd-table td:before {
+            content: attr(data-th) " ";
+            font-weight: bold;
+            width: 6.5em;
+            display: inline-block;
+        }
+
+    .rwd-table th, .rwd-table td {
+        text-align: left;
+    }
+
+        .rwd-table th, .rwd-table td:before {
+            color: #D20B2A;
+            font-weight: bold;
+        }
+
+@media (min-width: 736px) {
+    .rwd-table td:before {
+        display: none;
+    }
+
+    .rwd-table th, .rwd-table td {
+        display: table-cell;
+        padding: 0.25em 0.5em;
+    }
+
+        .rwd-table th:first-child,
+        .rwd-table td:first-child {
+            padding-left: 0;
+        }
+
+        .rwd-table th:last-child,
+        .rwd-table td:last-child {
+            padding-right: 0;
+        }
+
+    .rwd-table th,
+    .rwd-table td {
+        padding: 1em !important;
+    }
+}
