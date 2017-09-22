@@ -127,7 +127,7 @@ namespace topmeperp.Service
                 row.CreateCell(7).SetCellValue("");
                 foreach (ICell c in row.Cells)
                 {
-                c.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                    c.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
                 }
                 //預算金額
                 ICell cel8 = row.CreateCell(8);
@@ -259,11 +259,11 @@ namespace topmeperp.Service
             }
             //if (row.Cells[2].ToString().Trim() != "")//3.主系統
             //{
-               // item.SYSTEM_MAIN = row.Cells[2].ToString();
+            // item.SYSTEM_MAIN = row.Cells[2].ToString();
             //}
             //if (row.Cells[3].ToString().Trim() != "")//4.次系統
             //{
-                //item.SYSTEM_SUB = row.Cells[3].ToString();
+            //item.SYSTEM_SUB = row.Cells[3].ToString();
             //}
             //if (null != row.Cells[row.Cells.Count - 4].ToString().Trim() || row.Cells[row.Cells.Count - 4].ToString().Trim() != "")//2.投標折數
             //{
@@ -368,10 +368,10 @@ namespace topmeperp.Service
                 {
                     row.Cells[3].SetCellValue(double.Parse(item.ITEM_QTY.ToString())); //數量
                 }
-                if (isReal && null !=item.ITEM_UNIT_PRICE && item.ITEM_UNIT_PRICE.ToString()!="")
+                if (isReal && null != item.ITEM_UNIT_PRICE && item.ITEM_UNIT_PRICE.ToString() != "")
                 {
                     row.Cells[4].SetCellValue(item.ITEM_UNIT_PRICE.ToString());
-                    row.Cells[5].SetCellFormula("D" + (idxRow +1)+ "*E" + (idxRow+1));//複價
+                    row.Cells[5].SetCellFormula("D" + (idxRow + 1) + "*E" + (idxRow + 1));//複價
                 }
 
                 row.Cells[6].SetCellValue(item.ITEM_REMARK);// 備註
@@ -802,4 +802,213 @@ namespace topmeperp.Service
             }
         }
     }
+    #region 公司費用預算下載表格格式處理區段
+    public class ExpBudgetFormToExcel
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        string budgetFile = ContextService.strUploadPath + "\\budget_form.xlsx";
+        string outputPath = ContextService.strUploadPath;
+        IWorkbook hssfworkbook;
+        ISheet sheet = null;
+        string fileformat = "xlsx";
+        //存放公司費用預算資料
+        //CostAnalysisDataService service = new CostAnalysisDataService();
+        public List<FIN_EXPENSE_BUDGET> subjects = null;
+        public string errorMessage = null;
+        int budgetYear = 0;
+
+        //建立公司費用預算下載表格
+        public string exportExcel(int year)
+        {
+            //List<DirectCost> typecodeItems = service.getDirectCost4Budget(project.PROJECT_ID);
+            //1.讀取公司費用預算表格檔案
+            InitializeWorkbook(budgetFile);
+            sheet = (XSSFSheet)hssfworkbook.GetSheet("公司費用預算");
+
+            //2.填入表頭資料
+            logger.Debug("Table Head_1=" + sheet.GetRow(1).Cells[0].ToString());
+            sheet.GetRow(1).Cells[1].SetCellValue(year);//公司費用預算年度
+                                                        //3.填入資料
+            int idxRow = 4;
+            foreach (FIN_EXPENSE_BUDGET item in subjects)
+            {
+                IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+                logger.Info("Row Id=" + idxRow);
+                //項目、項目代碼
+                //項目
+                //row.CreateCell(0).SetCellValue(item.MAINCODE);
+                //項目代碼
+                //if (null != item.SUB_CODE && item.SUB_CODE.ToString().Trim() != "")
+                //{
+                //row.CreateCell(1).SetCellValue(double.Parse(item.SUB_CODE.ToString()));
+                //}
+                //else
+                //{
+                //row.CreateCell(1).SetCellValue("");
+                //}
+                logger.Debug("getBudget cell style rowid=" + idxRow);
+                idxRow++;
+            }
+            //4.另存新檔至專案所屬目錄 (增加Temp for zip 打包使用
+            string fileLocation = null;
+            fileLocation = outputPath + "\\" + year + "\\" + year + "_預算.xlsx";
+            var file = new FileStream(fileLocation, FileMode.Create);
+            logger.Info("new file name =" + file.Name + ",path=" + file.Position);
+            hssfworkbook.Write(file);
+            file.Close();
+            return fileLocation;
+        }
+        public ExpBudgetFormToExcel()
+        {
+        }
+        public void InitializeWorkbook(string path)
+        {
+            //read the wage file via FileStream, it is suggested to use FileAccess.Read to prevent file lock.
+            //book1.xls is an Excel-2007-generated file, so some new unknown BIFF records are added. 
+            using (FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                logger.Info("Read Excel File:" + path); if (file.Name.EndsWith(".xls"))
+                {
+                    logger.Debug("process excel file for office 2003");
+                    //fileformat = "xls";
+                    hssfworkbook = new HSSFWorkbook(file);
+                }
+                else
+                {
+                    logger.Debug("process excel file for office 2007");
+                    hssfworkbook = new XSSFWorkbook(file);
+                }
+                file.Close();
+            }
+        }
+        #region 公司費用預算資料轉換 
+        /**
+         * 取得公司費用預算Sheet 資料
+         * */
+        public List<FIN_EXPENSE_BUDGET> ConvertDataForExpBudget(int year)
+        {
+            budgetYear = year;
+            //1.依據檔案附檔名使用不同物件讀取Excel 檔案，並開啟預算Sheet
+            if (fileformat == "xls")
+            {
+                logger.Debug("office 2003:" + fileformat + " for Year=" + year + ":公司費用預算");
+                sheet = (HSSFSheet)hssfworkbook.GetSheet("公司費用預算");
+            }
+            else
+            {
+                logger.Debug("office 2007:" + fileformat + " for Year=" + year + ":預算");
+                sheet = (XSSFSheet)hssfworkbook.GetSheet("公司費用預算");
+            }
+            if (null == sheet)
+            {
+                logger.Error("檔案內沒有公司費用預算資料(Sheet)! filename=" + fileformat);
+                throw new Exception("檔案內沒有[公司費用預算]資料");
+            }
+            return ConverData2ExpBudget();
+        }
+        /**
+         * 轉換公司費用預算資料檔:公司費用預算
+         * */
+        protected List<FIN_EXPENSE_BUDGET> ConverData2ExpBudget()
+        {
+            IRow row = null;
+            List<FIN_EXPENSE_BUDGET> lstExpBudget = new List<FIN_EXPENSE_BUDGET>();
+            System.Collections.IEnumerator rows = sheet.GetRowEnumerator();
+            //2.逐行讀取資料
+            int iRowIndex = 0; //0 表 Row 1
+
+            //2.1  忽略不要的行數..(表頭)
+            while (iRowIndex < (4))
+            {
+                rows.MoveNext();
+                iRowIndex++;
+                //row = (IRow)rows.Current;
+                //logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
+            }
+            //循序處理每一筆資料之欄位!!
+            iRowIndex++;
+            while (rows.MoveNext())
+            {
+                row = (IRow)rows.Current;
+                int i = 0;
+                string slog = "";
+                for (i = 0; i < row.Cells.Count; i++)
+                {
+                    slog = slog + "," + row.Cells[i];
+
+                }
+                logger.Debug("Excel Value:" + slog);
+                //將各Row 資料寫入物件內
+                //0.項目代碼 2.1月金額 3.2月金額 4.3月金額 5.4月金額 6.5月金額 7.6月金額 8.7月金額 9.8月金額 10.9月金額 11.10月金額 12.11月金額 13.12月金額
+                if (row.Cells[0].ToString().ToUpper() != "END")
+                {
+                    List<FIN_EXPENSE_BUDGET> lst = convertRow2ExpBudget(row, iRowIndex);
+                    foreach (FIN_EXPENSE_BUDGET it in lst)
+                    {
+                        lstExpBudget.Add(it);
+                    }
+                }
+                else
+                {
+                    logErrorMessage("Step1 ;取得公司費用預算資料:" + subjects.Count + "筆");
+                    logger.Info("Finish convert Job : count=" + subjects.Count);
+                    return lstExpBudget;
+                }
+                iRowIndex++;
+            }
+            logger.Info("Expense_Budget Count:" + iRowIndex);
+            return lstExpBudget;
+        }
+        /**
+         * 將Excel Row 轉換成為對應的資料物件
+         * */
+        private List<FIN_EXPENSE_BUDGET> convertRow2ExpBudget(IRow row, int excelrow)
+        {
+            List<FIN_EXPENSE_BUDGET> lst = new List<FIN_EXPENSE_BUDGET>();
+            String strItemId = row.Cells[1].ToString();
+            if(null != strItemId && strItemId != "")
+            {
+                for (int i = 0; i < 12; i++)
+                {
+                    FIN_EXPENSE_BUDGET item = new FIN_EXPENSE_BUDGET();
+                    item.BUDGET_YEAR = budgetYear;
+                    item.BUDGET_MONTH = i + 1;
+                    item.SUBJECT_ID = row.Cells[1].ToString();
+                    item.CREATE_DATE = System.DateTime.Now;
+                    if (null != row.Cells[i + 2].ToString().Trim() || row.Cells[i + 2].ToString().Trim() != "")
+                    {
+                        try
+                        {
+                            decimal dAmt = decimal.Parse(row.Cells[i + 2].ToString());
+                            logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[i + 2].ToString());
+                            item.AMOUNT = dAmt;
+                        }
+                        catch (Exception e)
+                        {
+                            logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[i+2].value=" + row.Cells[i + 2].ToString());
+                            logger.Error(e);
+                        }
+                    }
+                    lst.Add(item);
+                }
+            }
+            return lst;
+        }
+
+
+        #endregion
+        private void logErrorMessage(string message)
+        {
+            if (errorMessage == null)
+            {
+                errorMessage = message;
+            }
+            else
+            {
+                errorMessage = errorMessage + "<br/>" + message;
+            }
+        }
+    }
+    #endregion
+
 }

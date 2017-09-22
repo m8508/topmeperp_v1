@@ -420,6 +420,9 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\FIN_EXPENSE_BUDGET.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\PurchaseBO.cs" />
     <Compile Include="Models\BOExtentionModels.cs" />
     <Compile Include="Models\BusinessObjectModels.cs" />
@@ -914,6 +917,8 @@
     <Content Include="Views\PurchaseForm\_FormTempList.cshtml" />
     <Content Include="Views\PurchaseForm\_FormTempList4wage.cshtml" />
     <Content Include="Views\PurchaseForm\PendingItems4Wage.cshtml" />
+    <Content Include="Views\CashFlow\ExpenseBudget.cshtml" />
+    <Content Include="Views\CashFlow\_ExpenseBudgetList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

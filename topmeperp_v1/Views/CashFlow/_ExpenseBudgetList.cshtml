@@ -1,0 +1,96 @@
+﻿@model IEnumerable<topmeperp.Models.ExpenseBudgetSummary>
+<table class="table">
+    <tr>
+        <th>
+            項目名稱
+        </th>
+        <th>
+            項目代碼
+        </th>
+        <th>
+            1月
+        </th>
+        <th>
+            2月
+        </th>
+        <th>
+            3月
+        </th>
+        <th>
+            4月
+        </th>
+        <th>
+            5月
+        </th>
+        <th>
+            6月
+        </th>
+        <th>
+            7月
+        </th>
+        <th>
+            8月
+        </th>
+        <th>
+            9月
+        </th>
+        <th>
+            10月
+        </th>
+        <th>
+            11月
+        </th>
+        <th>
+            12月
+        </th>
+        <th>
+            合計
+        </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.JAN)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FEB)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MAR)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.APR)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MAY)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.JUN)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.JUL)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AUG)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SEP)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OCT)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NOV)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DEC)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.HTOTAL)
+            </td>
+        </tr>
+    }
+
+</table>

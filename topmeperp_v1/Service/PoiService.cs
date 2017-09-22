@@ -273,17 +273,17 @@ namespace topmeperp.Service
             if (fileformat == "xls")
             {
                 logger.Debug("office 2003:" + fileformat + " for projectID=" + projId);
-                sheet = (HSSFSheet)hssfworkbook.GetSheet("得標後標單");
+                sheet = (HSSFSheet)hssfworkbook.GetSheet("合約標單");
             }
             else
             {
                 logger.Debug("office 2007:" + fileformat + " for projectID=" + projId);
-                sheet = (XSSFSheet)hssfworkbook.GetSheet("得標後標單");
+                sheet = (XSSFSheet)hssfworkbook.GetSheet("合約標單");
             }
             if (null == sheet)
             {
                 logger.Error("檔案內沒有得標後標單資料(Sheet)! filename=" + fileformat);
-                throw new Exception("檔案內沒有得標後標單資料");
+                throw new Exception("檔案內沒有合約標單資料");
             }
             ConvertExcelToPlanItem();
         }

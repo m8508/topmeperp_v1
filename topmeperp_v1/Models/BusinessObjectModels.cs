@@ -451,4 +451,20 @@ namespace topmeperp.Models
         public Nullable<decimal> BALANCE { get; set; }
         public Nullable<decimal> RUNNING_TOTAL { get; set; }
     }
+    public class ExpenseBudgetSummary
+    {
+        public Nullable<decimal> JAN { get; set; }
+        public Nullable<decimal> FEB { get; set; }
+        public Nullable<decimal> MAR { get; set; }
+        public Nullable<decimal> APR { get; set; }
+        public Nullable<decimal> MAY { get; set; }
+        public Nullable<decimal> JUN { get; set; }
+        public Nullable<decimal> JUL { get; set; }
+        public Nullable<decimal> AUG { get; set; }
+        public Nullable<decimal> SEP { get; set; }
+        public Nullable<decimal> OCT { get; set; }
+        public Nullable<decimal> NOV { get; set; }
+        public Nullable<decimal> DEC { get; set; }
+        public Nullable<decimal> HTOTAL { get; set; }
+    }
 }

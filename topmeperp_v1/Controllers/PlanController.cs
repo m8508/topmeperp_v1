@@ -353,7 +353,7 @@ namespace topmeperp.Controllers
             return View(budget2);
         }
         /// <summary>
-        /// 下載預算寫表
+        /// 下載預算填寫表
         /// </summary>
         public void downLoadBudgetForm()
         {

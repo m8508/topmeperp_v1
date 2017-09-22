@@ -3660,5 +3660,54 @@ namespace topmeperp.Service
             }
             return lstCredit;
         }
+
+        #region 公司費用預算金額
+        //公司費用預算上傳金額 
+        public int refreshExpBudget(List<FIN_EXPENSE_BUDGET> items)
+        {
+            int i = 0;
+            logger.Info("refreshExpBudgetItem = " + items.Count);
+            //2.將Excel 資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (FIN_EXPENSE_BUDGET item in items)
+                {
+                    context.FIN_EXPENSE_BUDGET.Add(item);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("add FIN_EXPENSE_BUDGET count =" + i);
+            return i;
+        }
+        public int delExpBudgetByYear(int year)
+        {
+            logger.Info("remove all expense budget by budget year=" + year);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("delete all FIN_EXPENSE_BUDGET by budget year =" + year);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM FIN_EXPENSE_BUDGET WHERE BUDGET_YEAR=@year", new SqlParameter("@year", year));
+            }
+            logger.Debug("deleteFIN_EXPENSE_BUDGET count=" + i);
+            return i;
+        }
+
+        //取得特定年度公司費用預算
+        public List<ExpenseBudgetSummary> getExpBudgetByYear(int year)
+        {
+            List<ExpenseBudgetSummary> lstExpBudget = new List<ExpenseBudgetSummary>();
+            using (var context = new topmepEntities())
+            {
+                lstExpBudget = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT A.*, SUM(ISNULL(A.JAN,0))+ SUM(ISNULL(A.FEB,0))+ SUM(ISNULL(A.MAR,0)) + SUM(ISNULL(A.APR,0)) + SUM(ISNULL(A.MAY,0)) + SUM(ISNULL(A.JUN,0)) " +
+                   "+ SUM(ISNULL(A.JUL, 0)) + SUM(ISNULL(A.AUG, 0)) + SUM(ISNULL(A.SEP, 0)) + SUM(ISNULL(A.OCT, 0)) + SUM(ISNULL(A.NOV, 0)) + SUM(ISNULL(A.DEC, 0)) AS HTOTAL " +
+                   "FROM (SELECT SUBJECT_ID As '項目代碼', [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
+                   "FROM (SELECT SUBJECT_ID, BUDGET_MONTH, AMOUNT FROM FIN_EXPENSE_BUDGET WHERE BUDGET_YEAR = @year) As STable " +
+                   "PIVOT (SUM(AMOUNT) FOR BUDGET_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)A " +
+                   "GROUP BY A.項目代碼, A.JAN, A.FEB, A.MAR,A.APR, A.MAY, A.JUN, A.JUL, A.AUG, A.SEP, A.OCT, A.NOV, A.DEC ORDER BY A.項目代碼 ; "
+                   , new SqlParameter("year", year)).ToList();
+            }
+            return lstExpBudget;
+        }
+        #endregion
     }
 }
