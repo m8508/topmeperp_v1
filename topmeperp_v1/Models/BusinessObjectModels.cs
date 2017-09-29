@@ -466,5 +466,12 @@ namespace topmeperp.Models
         public Nullable<decimal> NOV { get; set; }
         public Nullable<decimal> DEC { get; set; }
         public Nullable<decimal> HTOTAL { get; set; }
+        public string SUBJECT_ID { get; set; }
+        public string SUBJECT_NAME { get; set; }
+        public string BUDGET_YEAR { get; set; }
+    }
+    public class ExpenseBudgetModel
+    {
+        public IEnumerable<ExpenseBudgetSummary> ExpBudgetItem{ get; set; }
     }
 }

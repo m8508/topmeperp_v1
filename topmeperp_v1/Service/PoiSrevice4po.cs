@@ -806,52 +806,75 @@ namespace topmeperp.Service
     public class ExpBudgetFormToExcel
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        string budgetFile = ContextService.strUploadPath + "\\budget_form.xlsx";
+        string budgetFile = ContextService.strUploadPath + "\\expense_budget_form.xlsx";
         string outputPath = ContextService.strUploadPath;
         IWorkbook hssfworkbook;
         ISheet sheet = null;
         string fileformat = "xlsx";
         //存放公司費用預算資料
-        //CostAnalysisDataService service = new CostAnalysisDataService();
-        public List<FIN_EXPENSE_BUDGET> subjects = null;
+        PurchaseFormService service = new PurchaseFormService();
+        public List<FIN_SUBJECT> subjects = null;
         public string errorMessage = null;
         int budgetYear = 0;
 
         //建立公司費用預算下載表格
-        public string exportExcel(int year)
+        public string exportExcel()
         {
-            //List<DirectCost> typecodeItems = service.getDirectCost4Budget(project.PROJECT_ID);
+            List<FIN_SUBJECT> subjects = service.getExpBudgetSubject();
+            string budgetYear = null;
+            if (DateTime.Now.Month > 6)
+            {
+                budgetYear = (DateTime.Now.Year + 1).ToString();
+            }
+            else
+            {
+                budgetYear = DateTime.Now.Year.ToString();
+            }
+            logger.Debug("budgetYear = " + budgetYear);
             //1.讀取公司費用預算表格檔案
             InitializeWorkbook(budgetFile);
             sheet = (XSSFSheet)hssfworkbook.GetSheet("公司費用預算");
 
             //2.填入表頭資料
             logger.Debug("Table Head_1=" + sheet.GetRow(1).Cells[0].ToString());
-            sheet.GetRow(1).Cells[1].SetCellValue(year);//公司費用預算年度
-                                                        //3.填入資料
+            sheet.GetRow(1).Cells[1].SetCellValue(budgetYear);//公司費用預算年度
+            //3.填入資料
             int idxRow = 4;
-            foreach (FIN_EXPENSE_BUDGET item in subjects)
+            foreach (FIN_SUBJECT item in subjects)
             {
                 IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
                 logger.Info("Row Id=" + idxRow);
                 //項目、項目代碼
                 //項目
-                //row.CreateCell(0).SetCellValue(item.MAINCODE);
+                row.CreateCell(0).SetCellValue(item.SUBJECT_NAME);
                 //項目代碼
-                //if (null != item.SUB_CODE && item.SUB_CODE.ToString().Trim() != "")
-                //{
-                //row.CreateCell(1).SetCellValue(double.Parse(item.SUB_CODE.ToString()));
-                //}
-                //else
-                //{
-                //row.CreateCell(1).SetCellValue("");
-                //}
-                logger.Debug("getBudget cell style rowid=" + idxRow);
+                row.CreateCell(1).SetCellValue(item.FIN_SUBJECT_ID);
+                row.CreateCell(2).SetCellValue("");
+                row.CreateCell(3).SetCellValue("");
+                row.CreateCell(4).SetCellValue("");
+                row.CreateCell(5).SetCellValue("");
+                row.CreateCell(6).SetCellValue("");
+                row.CreateCell(7).SetCellValue("");
+                row.CreateCell(8).SetCellValue("");
+                row.CreateCell(9).SetCellValue("");
+                row.CreateCell(10).SetCellValue("");
+                row.CreateCell(11).SetCellValue("");
+                row.CreateCell(12).SetCellValue("");
+                row.CreateCell(13).SetCellValue("");
+                foreach (ICell c in row.Cells)
+                {
+                    c.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                }
+                ICell cel14 = row.CreateCell(14);
+                cel14.CellFormula = "C" + (idxRow + 1) + "+D" + (idxRow + 1) + "+E" + (idxRow + 1) + "+F" + (idxRow + 1) + "+G" + (idxRow + 1) + "+H" + (idxRow + 1)
+                + "+I" + (idxRow + 1) + "+J" + (idxRow + 1) + "+K" + (idxRow + 1) + "+L" + (idxRow + 1) + "+M" + (idxRow + 1) + "+N" + (idxRow + 1);
+                cel14.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                logger.Debug("getSubject cell style rowid=" + idxRow);
                 idxRow++;
             }
             //4.另存新檔至專案所屬目錄 (增加Temp for zip 打包使用
             string fileLocation = null;
-            fileLocation = outputPath + "\\" + year + "\\" + year + "_預算.xlsx";
+            fileLocation = outputPath + "\\" + budgetYear + "_公司費用預算.xlsx";
             var file = new FileStream(fileLocation, FileMode.Create);
             logger.Info("new file name =" + file.Name + ",path=" + file.Position);
             hssfworkbook.Write(file);

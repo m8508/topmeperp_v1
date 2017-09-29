@@ -22,7 +22,7 @@ namespace topmeperp.Service
         public string message = "";
         TND_PROJECT project = null;
         public TND_PROJECT budgetTable = null;
-
+        
 
         #region 得標標單項目處理
         public TND_PROJECT getProject(string prjid)
@@ -393,6 +393,7 @@ namespace topmeperp.Service
         public List<PLAN_SUP_INQUIRY_ITEM> formInquiryItem = null;
         public Dictionary<string, COMPARASION_DATA_4PLAN> dirSupplierQuo = null;
         public PurchaseFormModel POFormData = null;
+        public List<FIN_SUBJECT> ExpBudgetItem = null;
 
         #region 取得得標標單項目內容
         //取得標單品項資料
@@ -3700,13 +3701,24 @@ namespace topmeperp.Service
             {
                 lstExpBudget = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT A.*, SUM(ISNULL(A.JAN,0))+ SUM(ISNULL(A.FEB,0))+ SUM(ISNULL(A.MAR,0)) + SUM(ISNULL(A.APR,0)) + SUM(ISNULL(A.MAY,0)) + SUM(ISNULL(A.JUN,0)) " +
                    "+ SUM(ISNULL(A.JUL, 0)) + SUM(ISNULL(A.AUG, 0)) + SUM(ISNULL(A.SEP, 0)) + SUM(ISNULL(A.OCT, 0)) + SUM(ISNULL(A.NOV, 0)) + SUM(ISNULL(A.DEC, 0)) AS HTOTAL " +
-                   "FROM (SELECT SUBJECT_ID As '項目代碼', [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
-                   "FROM (SELECT SUBJECT_ID, BUDGET_MONTH, AMOUNT FROM FIN_EXPENSE_BUDGET WHERE BUDGET_YEAR = @year) As STable " +
+                   "FROM (SELECT SUBJECT_NAME, SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
+                   "FROM (SELECT eb.SUBJECT_ID, eb.BUDGET_MONTH, eb.AMOUNT, eb.BUDGET_YEAR, fs.SUBJECT_NAME FROM FIN_EXPENSE_BUDGET eb LEFT JOIN FIN_SUBJECT fs ON eb.SUBJECT_ID = fs.FIN_SUBJECT_ID WHERE BUDGET_YEAR = @year) As STable " +
                    "PIVOT (SUM(AMOUNT) FOR BUDGET_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)A " +
-                   "GROUP BY A.項目代碼, A.JAN, A.FEB, A.MAR,A.APR, A.MAY, A.JUN, A.JUL, A.AUG, A.SEP, A.OCT, A.NOV, A.DEC ORDER BY A.項目代碼 ; "
+                   "GROUP BY A.SUBJECT_NAME, A.SUBJECT_ID, A.JAN, A.FEB, A.MAR,A.APR, A.MAY, A.JUN, A.JUL, A.AUG, A.SEP, A.OCT, A.NOV, A.DEC ORDER BY A.SUBJECT_ID ; "
                    , new SqlParameter("year", year)).ToList();
             }
             return lstExpBudget;
+        }
+
+        //取得公司費用科目代碼與名稱
+        public List<FIN_SUBJECT> getExpBudgetSubject()
+        {
+            List<FIN_SUBJECT> lstSubject = new List<FIN_SUBJECT>();
+            using (var context = new topmepEntities())
+            {
+                lstSubject = context.Database.SqlQuery<FIN_SUBJECT>("SELECT * FROM FIN_SUBJECT WHERE TYPE = 'C' ; ").ToList();
+            }
+            return lstSubject;
         }
         #endregion
     }

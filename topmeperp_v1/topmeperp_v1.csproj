@@ -423,6 +423,9 @@
     <Compile Include="Models\FIN_EXPENSE_BUDGET.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\FIN_SUBJECT.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\PurchaseBO.cs" />
     <Compile Include="Models\BOExtentionModels.cs" />
     <Compile Include="Models\BusinessObjectModels.cs" />

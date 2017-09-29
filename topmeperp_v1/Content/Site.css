@@ -222,4 +222,88 @@ textarea {
     .rwd-table td {
         padding: 1em !important;
     }
+    /*公司費用預算表头固定*/
+.fixed_headers2 thead tr {
+    display: block;
+    position: relative;
+}
+
+.fixed_headers2 tbody {
+    display: block;
+    overflow: auto;
+    height: 500px;
+}
+/* 每列宽度
+//每列宽度*/
+.fixed_headers2 td:nth-child(1),
+.fixed_headers2 th:nth-child(1) {
+    width: 100px; /**項目名稱 */
+}
+
+.fixed_headers2 td:nth-child(2),
+.fixed_headers2 th:nth-child(2) {
+    width: 100px; /**項目代碼 */
+}
+
+.fixed_headers2 td:nth-child(3),
+.fixed_headers2 th:nth-child(3) {
+    width: 100px; /**1月 */
+}
+
+.fixed_headers2 td:nth-child(4),
+.fixed_headers2 th:nth-child(4) {
+    width: 100px; /**2月 */
+}
+
+.fixed_headers2 td:nth-child(5),
+.fixed_headers2 th:nth-child(5) {
+    width: 100px; /**3月 */
+}
+
+.fixed_headers2 td:nth-child(6),
+.fixed_headers2 th:nth-child(6) {
+    width: 100px; /**4月 */
+}
+
+.fixed_headers2 td:nth-child(7),
+.fixed_headers2 th:nth-child(7) {
+    width: 100px; /**5月 */
+}
+
+.fixed_headers2 td:nth-child(8),
+.fixed_headers2 th:nth-child(8) {
+    width: 100px; /**6月 */
+}
+
+.fixed_headers2 td:nth-child(9),
+.fixed_headers2 th:nth-child(9) {
+    width: 100px; /**7月 */
+}
+
+.fixed_headers2 td:nth-child(10),
+.fixed_headers2 th:nth-child(10) {
+    width: 100px; /**8月 */
+}
+
+.fixed_headers2 td:nth-child(11),
+.fixed_headers2 th:nth-child(11) {
+    width: 100px; /**9月*/
+}
+
+.fixed_headers2 td:nth-child(12),
+.fixed_headers2 th:nth-child(12) {
+    width: 100px;   /**10月*/
+}
+.fixed_headers2 td:nth-child(13),
+.fixed_headers2 th:nth-child(13) {
+    width: 100px;   /**11月*/
+}
+.fixed_headers2 td:nth-child(14),
+.fixed_headers2 th:nth-child(14) {
+    width: 100px;   /**12月*/
+}
+.fixed_headers2 td:nth-child(15),
+.fixed_headers2 th:nth-child(15) {
+    width: 80px;   /**合計*/
+}
 }

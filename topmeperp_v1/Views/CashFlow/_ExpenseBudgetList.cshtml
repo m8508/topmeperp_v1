@@ -1,96 +1,271 @@
 ﻿@model IEnumerable<topmeperp.Models.ExpenseBudgetSummary>
-<table class="table">
-    <tr>
-        <th>
-            項目名稱
-        </th>
-        <th>
-            項目代碼
-        </th>
-        <th>
-            1月
-        </th>
-        <th>
-            2月
-        </th>
-        <th>
-            3月
-        </th>
-        <th>
-            4月
-        </th>
-        <th>
-            5月
-        </th>
-        <th>
-            6月
-        </th>
-        <th>
-            7月
-        </th>
-        <th>
-            8月
-        </th>
-        <th>
-            9月
-        </th>
-        <th>
-            10月
-        </th>
-        <th>
-            11月
-        </th>
-        <th>
-            12月
-        </th>
-        <th>
-            合計
-        </th>
-    </tr>
 
-    @foreach (var item in Model)
-    {
+<form id="formExpBudget" name="formExpBudget" action="UpdateExpBudget" method="post">
+    <input type="hidden" name="year" id="year" value="@TempData["budgetYear"]" />
+    <div class="row" style="padding-bottom:10px">
+        <div class="col-md-12" style="padding-top:5px">
+            <div class="col-md-3">
+                <span style="color: blue; font-size: 30px;">預算年度 : @TempData["budgetYear"]</span>
+            </div>
+            <div class="col-md-2">
+                <span font-size 30px;"><input type="button" value="修改" class="btn btn-warning" id="saveForm" /></span>
+            </div>
+        </div>
+    </div>
+    <table class="table fixed_headers2">
+        <thead>
+            <tr>
+                <th>
+                    項目名稱
+                </th>
+                <th>
+                    項目代碼
+                </th>
+                <th>
+                    1  月
+                </th>
+                <th>
+                    2  月
+                </th>
+                <th>
+                    3月
+                </th>
+                <th>
+                    4月
+                </th>
+                <th>
+                    5月
+                </th>
+                <th>
+                    6月
+                </th>
+                <th>
+                    7月
+                </th>
+                <th>
+                    8月
+                </th>
+                <th>
+                    9月
+                </th>
+                <th>
+                    10月
+                </th>
+                <th>
+                    11月
+                </th>
+                <th>
+                    12月
+                </th>
+                <th>
+                    合計
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <span style="color: blue; font-size: 15px;">
+                            <input type="text" style="width:80px" value="@item.SUBJECT_NAME" readonly="readonly" />
+                        </span>
+                    </td>
+                    <td>
+                        <span style="color: blue; font-size: 15px;">
+                            <input type="text" style="width:60px" name="subjctid" id="subjctid" value="@item.SUBJECT_ID" readonly="readonly" />
+                        </span>
+                    </td>
+                    <td>
+                        <input type="text" style="width:70px" name="janAtm" id="janAtm" value="@String.Format("{0:###0.#}", item.JAN)" />
+                    </td>
+                    <td>
+                        <input type="text" style="width:70px" name="febAtm" id="febAtm" value="@String.Format("{0:###0.#}", item.FEB)" />
+                    </td>
+                    <td>
+                        <input type="text" style="width:70px" name="marAtm" id="marAtm" value="@String.Format("{0:###0.#}", item.MAR)" />
+                    </td>
+                    <td>
+                        <input type="text" style="width:70px" name="aprAtm" id="aprAtm" value="@String.Format("{0:###0.#}", item.APR)" />
+                    </td>
+                    <td>
+                        <input type="text" style="width:70px" name="mayAtm" id="mayAtm" value="@String.Format("{0:###0.#}", item.MAY)" />
+                    </td>
+                    <td>
+                        <input type="text" style="width:70px" name="junAtm" id="junAtm" value="@String.Format("{0:###0.#}", item.JUN)" />
+                    </td>
+                    <td>
+                        <input type="text" style="width:70px" name="julAtm" id="julAtm" value="@String.Format("{0:###0.#}", item.JUL)" />
+                    </td>
+                    <td>
+                        <input type="text" style="width:70px" name="augAtm" id="augAtm" value="@String.Format("{0:###0.#}", item.AUG)" />
+                    </td>
+                    <td>
+                        <input type="text" style="width:70px" name="sepAtm" id="sepAtm" value="@String.Format("{0:###0.#}", item.SEP)" />
+                    </td>
+                    <td>
+                        <input type="text" style="width:70px" name="octAtm" id="octAtm" value="@String.Format("{0:###0.#}", item.OCT)" />
+                    </td>
+                    <td>
+                        <input type="text" style="width:70px" name="novAtm" id="novAtm" value="@String.Format("{0:###0.#}", item.NOV)" />
+                    </td>
+                    <td>
+                        <input type="text" style="width:70px" name="decAtm" id="decAtm" value="@String.Format("{0:###0.#}", item.DEC)" />
+                    </td>
+                    <td>
+                        <span style="color: blue; font-size: 15px;">
+                            <input type="text" style="width:80px" name="htotal" id="htotal" value="@String.Format("{0:#,##0.#}", item.HTOTAL)" readonly="readonly" />
+                        </span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <table class="table fixed_headers2">
         <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.JAN)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FEB)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MAR)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.APR)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MAY)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.JUN)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.JUL)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AUG)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SEP)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.OCT)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NOV)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DEC)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.HTOTAL)
-            </td>
+            <th>
+                <span style="color: blue; font-size: 15px;">
+                    <input type="text" style="width:80px" name="" id="" value="合計 :" />
+                </span>
+            </th>
+            <th>
+                <span style="color: blue; font-size: 15px;">
+                    <input type="text" style="width:60px" name="" id="" value="" />
+                </span>
+            </th>
+            <th>
+                <span style="color: blue; font-size: 15px;">
+                    <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                </span>
+            </th>
+            <th>
+                <span style="color: blue; font-size: 15px;">
+                    <input type="text" style="width:70px" name="febVTotal" id="febVTotal" value="" />
+                </span>
+            </th>
+            <th>
+                <span style="color: blue; font-size: 15px;">
+                    <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                </span>
+            </th>
+            <th>
+                <span style="color: blue; font-size: 15px;">
+                    <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                </span>
+            </th>
+            <th>
+                <span style="color: blue; font-size: 15px;">
+                    <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                </span>
+            </th>
+            <th>
+                <span style="color: blue; font-size: 15px;">
+                    <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                </span>
+            </th>
+            <th>
+                <span style="color: blue; font-size: 15px;">
+                    <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                </span>
+            </th>
+            <th>
+                <span style="color: blue; font-size: 15px;">
+                    <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                </span>
+            </th>
+            <th>
+                <span style="color: blue; font-size: 15px;">
+                    <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                </span>
+            </th>
+            <th>
+                <span style="color: blue; font-size: 15px;">
+                    <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                </span>
+            </th>
+            <th>
+                <span style="color: blue; font-size: 15px;">
+                    <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                </span>
+            </th>
+            <th>
+                <span style="color: blue; font-size: 15px;">
+                    <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                </span>
+            </th>
+            <th>
+                <span style="color: blue; font-size: 15px;">
+                    <input type="text" style="width:80px" name="janVTotal" id="janVTotal" value="" />
+                </span>
+            </th>
         </tr>
-    }
+    </table>
+</form>
 
-</table>
+<script>
+    $(document).ready(function () {
+        var total = 0;
+        var sum = 0;
+        $('table > tbody > tr').each(function () {
+            var atm = 0;
+            if ($.trim($(this).find("#janAtm").val()) != "") {
+                atm = parseInt($.trim($(this).find("#janAtm").val()));
+            }
+            if ($.trim($(this).find("#janAtm").val()) != "") {
+                total = atm;
+            }
+            sum += total;
+        });
+        return $("#janVTotal").val(sum);
+
+        var total2 = 0;
+        var sum2 = 0;
+        $('table > tbody > tr').each(function () {
+            var atm2 = 0;
+            if ($.trim($(this).find("#febAtm").val()) != "") {
+                atm2 = parseInt($.trim($(this).find("#febAtm").val()));
+            }
+            if ($.trim($(this).find("#febAtm").val()) != "") {
+                total2 = atm2;
+            }
+            sum2 += total2;
+        });
+        return $("#febVTotal").val(sum2);
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        var total = 0;
+        var sum = 0;
+        $('table > tbody > tr').each(function () {
+            var atm = 0;
+            if ($.trim($(this).find("#janAtm").val()) != "") {
+                atm = parseInt($.trim($(this).find("#janAtm").val()));
+            }
+            if ($.trim($(this).find("#janAtm").val()) != "") {
+                total = atm;
+            }
+            sum += total;
+        });
+        return $("#janVTotal").val(sum);
+
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        var total2 = 0;
+        var sum2 = 0;
+        $('table > tbody > tr').each(function () {
+            var atm2 = 0;
+            if ($.trim($(this).find("#febAtm").val()) != "") {
+                atm2 = parseInt($.trim($(this).find("#febAtm").val()));
+            }
+            if ($.trim($(this).find("#febAtm").val()) != "") {
+                total2 = atm2;
+            }
+            sum2 += total2;
+        });
+        return $("#febVTotal").val(sum2);
+    });
+</script>
+
