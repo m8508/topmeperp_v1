@@ -578,5 +578,23 @@ namespace topmeperp.Controllers
             }
             return msg;
         }
+
+        //會計立帳進入畫面
+        public ActionResult FormForJournal()
+        {
+            logger.Info("Access to Form For Journal !!");
+            //公司需立帳之帳款(即會計審核)
+            int status = 30;
+            List<OperatingExpenseFunction> lstEXP = service.getEXPListByExpId(Request["occurred_date"], Request["subjectname"], Request["expid"], status);
+            return View(lstEXP);
+        }
+
+        public ActionResult SearchForm4Journal()
+        {
+            logger.Info("occurred_date =" + Request["occurred_date"] + ", subjectname =" + Request["subjectname"] + ", expid =" + Request["expid"] + ", status =" + int.Parse(Request["status"]));
+            List<OperatingExpenseFunction> lstEXP = service.getEXPListByExpId(Request["occurred_date"], Request["subjectname"], Request["expid"], int.Parse(Request["status"]));
+            //ViewBag.SearchResult = "共取得" + lstEXP.Count + "筆資料";
+            return View("FormForJournal", lstEXP);
+        }
     }
 }

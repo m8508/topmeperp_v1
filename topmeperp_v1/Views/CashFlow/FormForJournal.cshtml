@@ -1,12 +1,12 @@
 ﻿
 @{
-    ViewBag.Title = "公司營業費用單查詢";
+    ViewBag.Title = "會計稽核作業";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 
 <div class="jumbotron">
     <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
-    <form name="expSearch" id="expSearch" action="SearchEXP" method="Post" class="form-inline">
+    <form name="formSearch" id="formSearch" action="SearchForm4Journal" method="Post" class="form-inline">
         <div class="row">
             <div class='col-md-6 form-group' style="padding-top:10px">
                 <label for="occurred_date">發生年月 : </label>
@@ -22,21 +22,17 @@
                 <label for="subjectname">項目名稱 : </label>
                 <input id="subjectname" name="subjectname" class="form-control" />
             </div>
-            <div class="col-md-6 form-group" style="padding-top:10px">
-                <input type="radio" value="15" id="status" name="status" checked/>公司營業費用單(已送審)
-                <input type="radio" value="20" id="status" name="status" />待主管簽核
-                <input type="radio" value="40" id="status" name="status" />待最後核准
+            <div class="col-md-3 form-group" style="padding-top:10px">
+                <input type="hidden" value="30" id="status" name="status" />
                 <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
             </div>
-        </div>
-        <div class="row">
-        </div>
-            <div class="col-md-6">
+            <div class="col-md-3">
                 <div id="divProcessing">
                     <img src="~/Content/ajax-loader.gif">
                 </div>
             </div>
-</form>
+        </div>
+    </form>
 </div>
 <!--估驗單列表區域-->
 <div class="container-fluid">
@@ -63,4 +59,3 @@
         });
     })
 </script>
-
