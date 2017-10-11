@@ -12,19 +12,13 @@ namespace topmeperp.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class PLAN_ACCOUNT
+    public partial class FIN_EXPENSE_ITEM
     {
-        public long PLAN_ACCOUNT_ID { get; set; }
-        public string PROJECT_ID { get; set; }
-        public string CONTRACT_ID { get; set; }
-        public string ACCOUNT_FORM_ID { get; set; }
-        public Nullable<System.DateTime> PAYMENT_DATE { get; set; }
+        public long EXP_ITEM_ID { get; set; }
+        public string EXP_FORM_ID { get; set; }
+        public string FIN_SUBJECT_ID { get; set; }
         public Nullable<decimal> AMOUNT { get; set; }
-        public string ACCOUNT_TYPE { get; set; }
-        public string ISDEBIT { get; set; }
-        public Nullable<int> STATUS { get; set; }
-        public string CREATE_ID { get; set; }
-        public string MODIFY_ID { get; set; }
+        public string ITEM_REMARK { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
     }
 }

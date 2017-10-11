@@ -8,6 +8,8 @@ using System.Web.Mvc;
 using topmeperp.Models;
 using topmeperp.Service;
 using System.IO;
+using System.Web.Script.Serialization;
+using Newtonsoft.Json;
 
 
 namespace topmeperp.Controllers
@@ -46,9 +48,12 @@ namespace topmeperp.Controllers
         {
             logger.Info("Access to Expense Budget Page !!");
             List<ExpenseBudgetSummary> ExpBudget = null;
+            ExpenseBudgetSummary Amt = null;
             if (null != Request["budgetyear"])
             {
                 ExpBudget = service.getExpBudgetByYear(int.Parse(Request["budgetyear"]));
+                Amt = service.getTotalExpBudgetAmount(int.Parse(Request["budgetyear"]));
+                TempData["TotalAmt"] = Amt.TOTAL_BUDGET;
             }
             TempData["budgetYear"] = Request["budgetyear"];
             return View(ExpBudget);
@@ -57,9 +62,12 @@ namespace topmeperp.Controllers
         public ActionResult Search()
         {
             List<ExpenseBudgetSummary> ExpBudget = null;
+            ExpenseBudgetSummary Amt = null;
             if (null != Request["budgetyear"])
             {
                 ExpBudget = service.getExpBudgetByYear(int.Parse(Request["budgetyear"]));
+                Amt = service.getTotalExpBudgetAmount(int.Parse(Request["budgetyear"]));
+                TempData["TotalAmt"] = String.Format("{0:#,##0.#}", Amt.TOTAL_BUDGET);
             }
             TempData["budgetYear"] = Request["budgetyear"];
             return View("ExpenseBudget", ExpBudget);
@@ -198,5 +206,377 @@ namespace topmeperp.Controllers
             return msg;
         }
 
+        public ActionResult OperatingExpense()
+        {
+            logger.Info("Access to Operating Expense Page !!");
+            List<FIN_SUBJECT> Subject = null;
+            Subject = service.getSubjectOfExpense();
+            ViewData["items"] = JsonConvert.SerializeObject(Subject);
+            return View();
+        }
+
+        public ActionResult SearchSubject()
+        {
+            //取得使用者勾選品項ID
+            logger.Info("item_list:" + Request["subject"]);
+            string[] lstItemId = Request["subject"].ToString().Split(',');
+            logger.Info("select count:" + lstItemId.Count());
+            var i = 0;
+            for (i = 0; i < lstItemId.Count(); i++)
+            {
+                logger.Info("item_list return No.:" + lstItemId[i]);
+            }
+            List<FIN_SUBJECT> SubjectChecked = null;
+            SubjectChecked = service.getSubjectByChkItem(lstItemId);
+            List<FIN_SUBJECT> Subject = null;
+            Subject = service.getSubjectOfExpense();
+            ViewData["items"] = JsonConvert.SerializeObject(Subject);
+            return View("OperatingExpense", SubjectChecked);
+        }
+
+        [HttpPost]
+        public ActionResult AddExpense(FIN_EXPENSE_FORM ef)
+        {
+            string[] lstSubject = Request["subject"].Split(',');
+            string[] lstAmount = Request["expense_amount"].Split(',');
+            string[] lstRemark = Request["item_remark"].Split(',');
+            //建立公司費用單號
+            logger.Info("create new Operating Expense Form");
+            UserService us = new UserService();
+            SYS_USER u = (SYS_USER)Session["user"];
+            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            ef.PAYMENT_DATE = Convert.ToDateTime(Request["paymentdate"]);
+            ef.OCCURRED_YEAR = int.Parse(Request["occurreddate"].Substring(0, 4));
+            ef.OCCURRED_MONTH = int.Parse(Request["occurreddate"].Substring(5, 2));
+            ef.CREATE_DATE = DateTime.Now;
+            ef.CREATE_ID = uInfo.USER_ID;
+            ef.REMARK = Request["remark"];
+            ef.STATUS = 10;
+            string fid = service.newExpenseForm(ef);
+            //建立公司費用單明細
+            List<FIN_EXPENSE_ITEM> lstItem = new List<FIN_EXPENSE_ITEM>();
+            for (int j = 0; j < lstSubject.Count(); j++)
+            {
+                FIN_EXPENSE_ITEM item = new FIN_EXPENSE_ITEM();
+                item.FIN_SUBJECT_ID = lstSubject[j];
+                item.ITEM_REMARK = lstRemark[j];
+                if (lstAmount[j].ToString() == "")
+                {
+                    item.AMOUNT = null;
+                }
+                else
+                {
+                    item.AMOUNT = decimal.Parse(lstAmount[j]);
+                }
+                logger.Info("Operating Expense Subject =" + item.FIN_SUBJECT_ID + "， and Amount = " + item.AMOUNT);
+                item.EXP_FORM_ID = fid;
+                logger.Debug("Item EX form id =" + item.EXP_FORM_ID);
+                lstItem.Add(item);
+            }
+            int i = service.AddExpenseItems(lstItem);
+            logger.Debug("Item Count =" + i);
+            return Redirect("SingleEXPForm?id=" + fid);
+        }
+
+        //顯示單一公司營業費用單功能
+        public ActionResult SingleEXPForm(string id)
+        {
+            logger.Info("http get mehtod:" + id);
+            OperatingExpenseModel singleForm = new OperatingExpenseModel();
+            service.getEXPByExpId(id);
+            singleForm.finEXP = service.formEXP;
+            singleForm.finEXPItem = service.EXPItem;
+            logger.Debug("Operating Expense Year:" + singleForm.finEXP.OCCURRED_YEAR);
+            return View(singleForm);
+        }
+
+        //更新公司營業費用單
+        public String UpdateEXP(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            string msg = "";
+            // 取得公司營業費用單資料
+            FIN_EXPENSE_FORM ef = new FIN_EXPENSE_FORM();
+            ef.OCCURRED_YEAR = int.Parse(form.Get("year").Trim());
+            ef.OCCURRED_MONTH = int.Parse(form.Get("month").Trim());
+            ef.REMARK = form.Get("remark").Trim();
+            ef.CONTRACT_ID = form.Get("createid").Trim();
+            ef.PAYMENT_DATE = Convert.ToDateTime(form.Get("paymentdate"));
+            ef.CREATE_DATE = Convert.ToDateTime(form.Get("createdate"));
+            ef.STATUS = int.Parse(form.Get("status").Trim());
+            ef.MODIFY_DATE = DateTime.Now;
+            ef.EXP_FORM_ID = form.Get("formnumber").Trim();
+            string[] lstSubject = form.Get("subject").Split(',');
+            string[] lstRemark = form.Get("item_remark").Split(',');
+            string[] lstAmount = form.Get("amount").Split(',');
+            string formid = form.Get("formnumber").Trim();
+            List<FIN_EXPENSE_ITEM> lstItem = new List<FIN_EXPENSE_ITEM>();
+            for (int j = 0; j < lstSubject.Count(); j++)
+            {
+                FIN_EXPENSE_ITEM item = new FIN_EXPENSE_ITEM();
+                item.FIN_SUBJECT_ID = lstSubject[j];
+                if (lstRemark[j].ToString() == "")
+                {
+                    item.ITEM_REMARK = null;
+                }
+                else
+                {
+                    item.ITEM_REMARK = lstRemark[j];
+                }
+                if (lstAmount[j].ToString() == "")
+                {
+                    item.AMOUNT = null;
+                }
+                else
+                {
+                    item.AMOUNT = decimal.Parse(lstAmount[j]);
+                }
+                logger.Debug("Subject Id =" + item.FIN_SUBJECT_ID + ", Amount =" + item.AMOUNT);
+                lstItem.Add(item);
+            }
+            int i = service.refreshOperatingEXPForm(formid, ef, lstItem);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "更新公司營業費用單成功";
+            }
+
+            logger.Info("Request: 更新公司營業費用單訊息 = " + msg);
+            return msg;
+        }
+
+        public String UpdateEXPStatusById(FormCollection form)
+        {
+            //取得公司營業費用單編號
+            logger.Info("form:" + form.Count);
+            logger.Info("EXP form Id:" + form["formnumber"]);
+            string msg = "";
+            FIN_EXPENSE_FORM ef = new FIN_EXPENSE_FORM();
+            ef.OCCURRED_YEAR = int.Parse(form.Get("year").Trim());
+            ef.OCCURRED_MONTH = int.Parse(form.Get("month").Trim());
+            ef.REMARK = form.Get("remark").Trim();
+            ef.CONTRACT_ID = form.Get("createid").Trim();
+            ef.PAYMENT_DATE = Convert.ToDateTime(form.Get("paymentdate"));
+            ef.CREATE_DATE = Convert.ToDateTime(form.Get("createdate"));
+            ef.STATUS = int.Parse(form.Get("status").Trim());
+            ef.MODIFY_DATE = DateTime.Now;
+            ef.EXP_FORM_ID = form.Get("formnumber").Trim();
+            string[] lstSubject = form.Get("subject").Split(',');
+            string[] lstRemark = form.Get("item_remark").Split(',');
+            string[] lstAmount = form.Get("amount").Split(',');
+            string formid = form.Get("formnumber").Trim();
+            List<FIN_EXPENSE_ITEM> lstItem = new List<FIN_EXPENSE_ITEM>();
+            for (int j = 0; j < lstSubject.Count(); j++)
+            {
+                FIN_EXPENSE_ITEM item = new FIN_EXPENSE_ITEM();
+                item.FIN_SUBJECT_ID = lstSubject[j];
+                if (lstRemark[j].ToString() == "")
+                {
+                    item.ITEM_REMARK = null;
+                }
+                else
+                {
+                    item.ITEM_REMARK = lstRemark[j];
+                }
+                if (lstAmount[j].ToString() == "")
+                {
+                    item.AMOUNT = null;
+                }
+                else
+                {
+                    item.AMOUNT = decimal.Parse(lstAmount[j]);
+                }
+                logger.Debug("Subject Id =" + item.FIN_SUBJECT_ID + ", Amount =" + item.AMOUNT);
+                lstItem.Add(item);
+            }
+            int i = service.refreshOperatingEXPForm(formid, ef, lstItem);
+            //更新公司營業費用單狀態
+            logger.Info("Update Operating Expense Form Status");
+            //公司營業費用單(已送審) STATUS = 20
+            int k = service.RefreshEXPStatusById(formid);
+            if (k == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "公司營業費用單已送審";
+            }
+            return msg;
+        }
+
+        //公司營業費用單查詢
+        public ActionResult OperatingExpenseForm()
+        {
+            logger.Info("Search For Operating Expense Form !!");
+            //公司營業費用單草稿
+            int status = 20;
+            if (Request["status"] == null || Request["status"] == "")
+            {
+                status = 10;
+            }
+            List<OperatingExpenseFunction> lstEXP = service.getEXPListByExpId(Request["occurred_date"], Request["subjectname"], Request["expid"], status);
+            return View(lstEXP);
+        }
+
+        public ActionResult SearchEXP()
+        {
+            logger.Info("occurred_date =" + Request["occurred_date"] + ", subjectname =" + Request["subjectname"] + ", expid =" + Request["expid"] + ", status =" + int.Parse(Request["status"]));
+            List<OperatingExpenseFunction> lstEXP = service.getEXPListByExpId(Request["occurred_date"], Request["subjectname"], Request["expid"], int.Parse(Request["status"]));
+            ViewBag.SearchResult = "共取得" + lstEXP.Count + "筆資料";
+            return View("OperatingExpenseForm", lstEXP);
+        }
+
+        public String RejectEXPById(FormCollection form)
+        {
+            //取得公司營業費用單編號
+            logger.Info("EXP form Id:" + form["formnumber"]);
+            //更新公司營業費用單狀態
+            logger.Info("Reject Operating Expense Form ");
+            string formid = form.Get("formnumber").Trim();
+            //公司營業費用單(已退件) STATUS = 0
+            string msg = "";
+            int i = service.RejectEXPByExpId(formid);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "公司營業費用單已退回";
+            }
+            return msg;
+        }
+
+        public String PassEXPById(FormCollection form)
+        {
+            //取得公司營業費用單編號
+            logger.Info("EXP form Id:" + form["formnumber"]);
+            //更新公司營業費用單狀態
+            logger.Info("Pass Operating Expense Form ");
+            string formid = form.Get("formnumber").Trim();
+            UserService us = new UserService();
+            SYS_USER u = (SYS_USER)Session["user"];
+            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            string passid = uInfo.USER_ID;
+            //公司營業費用單(主管已通過) STATUS = 30
+            string msg = "";
+            int i = service.PassEXPByExpId(formid, passid);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "公司營業費用單已核可";
+            }
+            return msg;
+        }
+
+        public String JournalById(FormCollection form)
+        {
+            //取得公司營業費用單編號
+            logger.Info("EXP form Id:" + form["formnumber"]);
+            //更新公司營業費用單狀態
+            logger.Info("Journal For Operating Expense Form ");
+            string formid = form.Get("formnumber").Trim();
+            UserService us = new UserService();
+            SYS_USER u = (SYS_USER)Session["user"];
+            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            string journalid = uInfo.USER_ID;
+            //公司營業費用(已立帳) STATUS = 40
+            string msg = "";
+            int i = service.JournalByExpId(formid, journalid);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "公司營業費用單已核可";
+            }
+            return msg;
+        }
+
+        public String ApproveEXPById(FormCollection form)
+        {
+            //取得公司營業費用單編號
+            logger.Info("EXP form Id:" + form["formnumber"]);
+            //更新公司營業費用單狀態
+            logger.Info("Approve Operating Expense Form ");
+            string formid = form.Get("formnumber").Trim();
+            UserService us = new UserService();
+            SYS_USER u = (SYS_USER)Session["user"];
+            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            string approveid = uInfo.USER_ID;
+            //估驗單(已核可) STATUS = 50
+            string msg = "";
+            int i = service.ApproveEXPByExpId(formid, approveid);
+            string k = service.AddAccountByExpId(formid, approveid);
+            logger.Info("Add the Operating Expense Account To Plan Account Record, It's Form Id = " + k);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "公司營業費用單已核可";
+            }
+            return msg;
+        }
+
+        public String UpdateAccountStatus(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            string msg = "";
+            int i = 0;
+            string[] lstForm = form.Get("formid").Split(',');
+            List<PLAN_ACCOUNT> lstItem = new List<PLAN_ACCOUNT>();
+            if (form.Get("status") != null)
+            {
+                string[] lstStatus = form.Get("status").Split(',');
+                for (int j = 0; j < lstForm.Count(); j++)
+                {
+                    PLAN_ACCOUNT item = new PLAN_ACCOUNT();
+                    item.ACCOUNT_FORM_ID = lstForm[j];
+                    item.MODIFY_DATE = DateTime.Now;
+                    if (lstStatus[j].ToString() == "")
+                    {
+                        item.STATUS = 10;
+                    }
+                    else
+                    {
+                        item.STATUS = 0;
+                    }
+                    logger.Debug("Acount Form Id =" + item.ACCOUNT_FORM_ID + ", Status =" + item.STATUS);
+                    lstItem.Add(item);
+                }
+            }
+            else
+            {
+                for (int j = 0; j < lstForm.Count(); j++)
+                {
+                    PLAN_ACCOUNT item = new PLAN_ACCOUNT();
+                    item.ACCOUNT_FORM_ID = lstForm[j];
+                    item.STATUS = 10;
+                    item.MODIFY_DATE = DateTime.Now;
+                    logger.Debug("Acount Form Id =" + item.ACCOUNT_FORM_ID + ", Status =" + item.STATUS);
+                    lstItem.Add(item);
+                }
+            }
+            i = service.refreshAccountStatus(lstItem);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "帳款支付狀態已更新";
+            }
+            return msg;
+        }
     }
 }

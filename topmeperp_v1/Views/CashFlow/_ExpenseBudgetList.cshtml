@@ -1,14 +1,18 @@
 ﻿@model IEnumerable<topmeperp.Models.ExpenseBudgetSummary>
 
 <form id="formExpBudget" name="formExpBudget" action="UpdateExpBudget" method="post">
+   
     <input type="hidden" name="year" id="year" value="@TempData["budgetYear"]" />
     <div class="row" style="padding-bottom:10px">
         <div class="col-md-12" style="padding-top:5px">
             <div class="col-md-3">
-                <span style="color: blue; font-size: 30px;">預算年度 : @TempData["budgetYear"]</span>
+                <span style="color: blue; font-size: 25px;">預算年度 : @TempData["budgetYear"]</span>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-1">
                 <span font-size 30px;"><input type="button" value="修改" class="btn btn-warning" id="saveForm" /></span>
+            </div>
+            <div class="col-md-8 text-right">
+                <span style="color: dodgerblue; font-size: 25px;">總預算金額 : @TempData["TotalAmt"]</span>
             </div>
         </div>
     </div>
@@ -145,12 +149,12 @@
             </th>
             <th>
                 <span style="color: blue; font-size: 15px;">
-                    <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                    <input type="text" style="width:70px" name="marVTotal" id="marVTotal" value="" />
                 </span>
             </th>
             <th>
                 <span style="color: blue; font-size: 15px;">
-                    <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                    <input type="text" style="width:70px" name="aprVTotal" id="aprVTotal" value="" />
                 </span>
             </th>
             <th>
@@ -204,54 +208,36 @@
 
 <script>
     $(document).ready(function () {
-        var total = 0;
-        var sum = 0;
+        var total1 = 0;
+        var sum1 = 0;
+        var total3 = 0;
+        var sum3 = 0;
+        var total4 = 0;
+        var sum4 = 0;
         $('table > tbody > tr').each(function () {
             var atm = 0;
+            var atm3 = 0;
+            var atm4 = 0;
             if ($.trim($(this).find("#janAtm").val()) != "") {
                 atm = parseInt($.trim($(this).find("#janAtm").val()));
             }
-            if ($.trim($(this).find("#janAtm").val()) != "") {
-                total = atm;
+            if ($.trim($(this).find("#marAtm").val()) != "") {
+                atm3 = parseInt($.trim($(this).find("#marAtm").val()));
             }
-            sum += total;
-        });
-        return $("#janVTotal").val(sum);
+            if ($.trim($(this).find("#aprAtm").val()) != "") {
+                atm4 = parseInt($.trim($(this).find("#aprAtm").val()));
+            }
+            total1 = atm;
+            total3 = atm3;
+            total4 = atm4;
 
-        var total2 = 0;
-        var sum2 = 0;
-        $('table > tbody > tr').each(function () {
-            var atm2 = 0;
-            if ($.trim($(this).find("#febAtm").val()) != "") {
-                atm2 = parseInt($.trim($(this).find("#febAtm").val()));
-            }
-            if ($.trim($(this).find("#febAtm").val()) != "") {
-                total2 = atm2;
-            }
-            sum2 += total2;
+            sum1 += total1;
+            sum3 += total3;
+            sum4 += total4;
+            
         });
-        return $("#febVTotal").val(sum2);
+        return $("#janVTotal").val(sum1), $("#marVTotal").val(sum3), $("#aprVTotal").val(sum4);
     });
-</script>
-<script>
-    $(document).ready(function () {
-        var total = 0;
-        var sum = 0;
-        $('table > tbody > tr').each(function () {
-            var atm = 0;
-            if ($.trim($(this).find("#janAtm").val()) != "") {
-                atm = parseInt($.trim($(this).find("#janAtm").val()));
-            }
-            if ($.trim($(this).find("#janAtm").val()) != "") {
-                total = atm;
-            }
-            sum += total;
-        });
-        return $("#janVTotal").val(sum);
-
-    });
-</script>
-<script>
     $(document).ready(function () {
         var total2 = 0;
         var sum2 = 0;
@@ -260,7 +246,7 @@
             if ($.trim($(this).find("#febAtm").val()) != "") {
                 atm2 = parseInt($.trim($(this).find("#febAtm").val()));
             }
-            if ($.trim($(this).find("#febAtm").val()) != "") {
+            if ($.trim($(this).find("#febAtm").val()) != null) {
                 total2 = atm2;
             }
             sum2 += total2;

@@ -423,6 +423,12 @@
     <Compile Include="Models\FIN_EXPENSE_BUDGET.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\FIN_EXPENSE_FORM.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\FIN_EXPENSE_ITEM.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\FIN_SUBJECT.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
@@ -922,6 +928,11 @@
     <Content Include="Views\PurchaseForm\PendingItems4Wage.cshtml" />
     <Content Include="Views\CashFlow\ExpenseBudget.cshtml" />
     <Content Include="Views\CashFlow\_ExpenseBudgetList.cshtml" />
+    <Content Include="Views\CashFlow\OperatingExpense.cshtml" />
+    <Content Include="Views\CashFlow\_SubjectList.cshtml" />
+    <Content Include="Views\CashFlow\SingleExpForm.cshtml" />
+    <Content Include="Views\CashFlow\OperatingExpenseForm.cshtml" />
+    <Content Include="Views\CashFlow\_ExpenseFormList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

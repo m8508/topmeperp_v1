@@ -22,7 +22,7 @@ namespace topmeperp.Service
         public string message = "";
         TND_PROJECT project = null;
         public TND_PROJECT budgetTable = null;
-        
+
 
         #region 得標標單項目處理
         public TND_PROJECT getProject(string prjid)
@@ -780,16 +780,16 @@ namespace topmeperp.Service
             return lst;
         }
         //採發階段發包分項與預算 (材料預算)
-        public PurchaseFormModel getInquiryWithBudget(TND_PROJECT project,string status)
+        public PurchaseFormModel getInquiryWithBudget(TND_PROJECT project, string status)
         {
             POFormData = new PurchaseFormModel();
             getBudgetSummary(project);
-            POFormData.materialTemplateWithBudget = getTemplateRefBudget(project, "N",status);
+            POFormData.materialTemplateWithBudget = getTemplateRefBudget(project, "N", status);
             POFormData.wageTemplateWithBudget = getTemplateRefBudget(project, "Y", status);
             return POFormData;
         }
         //取得詢價單樣本與分項預算
-        public IEnumerable<PURCHASE_ORDER> getTemplateRefBudget(TND_PROJECT project, string iswage,string status)
+        public IEnumerable<PURCHASE_ORDER> getTemplateRefBudget(TND_PROJECT project, string iswage, string status)
         {
             logger.Info("get purchase template by projectid=" + project.PROJECT_ID);
             List<PURCHASE_ORDER> lst = new List<PURCHASE_ORDER>();
@@ -803,7 +803,7 @@ namespace topmeperp.Service
                 if (iswage == "N")
                 {
                     //取得詢價單樣本資訊 - 材料預算-圖算數量*報價標單(Project_item)單價 * 預算折扣比率
-                    sql = "SELECT tmp.*,CountPO, (SELECT SUM(v.QTY * tpi.ITEM_UNIT_PRICE * it.BUDGET_RATIO/100 ) as BudgetAmount FROM PLAN_ITEM it LEFT JOIN vw_MAP_MATERLIALIST v ON it.PLAN_ITEM_ID = v.PROJECT_ITEM_ID  " 
+                    sql = "SELECT tmp.*,CountPO, (SELECT SUM(v.QTY * tpi.ITEM_UNIT_PRICE * it.BUDGET_RATIO/100 ) as BudgetAmount FROM PLAN_ITEM it LEFT JOIN vw_MAP_MATERLIALIST v ON it.PLAN_ITEM_ID = v.PROJECT_ITEM_ID  "
                        + "LEFT JOIN TND_PROJECT_ITEM tpi ON it.PLAN_ITEM_ID = tpi.PROJECT_ITEM_ID "
                        + "WHERE it.PLAN_ITEM_ID in (SELECT  iit.PLAN_ITEM_ID FROM PLAN_SUP_INQUIRY_ITEM iit WHERE iit.INQUIRY_FORM_ID = tmp.INQUIRY_FORM_ID)) AS BudgetAmount "
                        + "FROM(SELECT * FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID is Null AND PROJECT_ID = @projectid AND ISNULL(STATUS,'有效')=@status AND ISNULL(ISWAGE,'N')='N') tmp LEFT OUTER JOIN "
@@ -3719,6 +3719,475 @@ namespace topmeperp.Service
                 lstSubject = context.Database.SqlQuery<FIN_SUBJECT>("SELECT * FROM FIN_SUBJECT WHERE TYPE = 'C' ; ").ToList();
             }
             return lstSubject;
+        }
+
+        //取得特定年度之公司費用總預算金額
+        public ExpenseBudgetSummary getTotalExpBudgetAmount(int year)
+        {
+            ExpenseBudgetSummary lstAmount = null;
+            using (var context = new topmepEntities())
+            {
+                lstAmount = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT  SUM(AMOUNT) AS TOTAL_BUDGET FROM FIN_EXPENSE_BUDGET WHERE BUDGET_YEAR = @year  "
+               , new SqlParameter("year", year)).FirstOrDefault();
+            }
+            return lstAmount;
+        }
+        #endregion
+
+        #region 公司費用
+        public FIN_EXPENSE_FORM formEXP = null;
+        public List<ExpenseBudgetSummary> EXPItem = null;
+        //取得公司費用項目
+        public List<FIN_SUBJECT> getSubjectOfExpense()
+        {
+            List<FIN_SUBJECT> lstSubject = new List<FIN_SUBJECT>();
+            using (var context = new topmepEntities())
+            {
+                lstSubject = context.Database.SqlQuery<FIN_SUBJECT>("SELECT * FROM FIN_SUBJECT WHERE TYPE = 'C' ; ").ToList();
+                logger.Info("Get Subject of Operating Expense Count=" + lstSubject.Count);
+            }
+            return lstSubject;
+        }
+
+        //取得特定公司費用項目
+        public List<FIN_SUBJECT> getSubjectByChkItem(string[] lstItemId)
+        {
+            List<FIN_SUBJECT> lstSubject = new List<FIN_SUBJECT>();
+            string ItemId = "";
+            for (i = 0; i < lstItemId.Count(); i++)
+            {
+                if (i < lstItemId.Count() - 1)
+                {
+                    ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
+                }
+                else
+                {
+                    ItemId = ItemId + "'" + lstItemId[i] + "'";
+                }
+            }
+            using (var context = new topmepEntities())
+            {
+                lstSubject = context.Database.SqlQuery<FIN_SUBJECT>("SELECT * FROM FIN_SUBJECT WHERE FIN_SUBJECT_ID IN (" + ItemId + ") ; ").ToList();
+                logger.Info("Get Subject of Operating Expense Count=" + lstSubject.Count);
+            }
+            return lstSubject;
+        }
+
+        public string newExpenseForm(FIN_EXPENSE_FORM form)
+        {
+            //1.建立公司營業費用單
+            logger.Info("create new operating expense form ");
+            string sno_key = "EXP";
+            SerialKeyService snoservice = new SerialKeyService();
+            form.EXP_FORM_ID = snoservice.getSerialKey(sno_key);
+            logger.Info("new operating expense form =" + form.ToString());
+            using (var context = new topmepEntities())
+            {
+                context.FIN_EXPENSE_FORM.Add(form);
+                int i = context.SaveChanges();
+                logger.Debug("Add form=" + i);
+                logger.Info("expense form id = " + form.EXP_FORM_ID);
+                //if (i > 0) { status = true; };
+            }
+            return form.EXP_FORM_ID;
+        }
+
+        public int AddExpenseItems(List<FIN_EXPENSE_ITEM> lstItem)
+        {
+            //2.新增公司費用項目資料
+            int j = 0;
+            logger.Info("add operating expense items = " + lstItem.Count);
+            using (var context = new topmepEntities())
+            {
+                //3.將公司費用項目資料寫入 
+                foreach (FIN_EXPENSE_ITEM item in lstItem)
+                {
+                    context.FIN_EXPENSE_ITEM.Add(item);
+                }
+
+                j = context.SaveChanges();
+                logger.Info("add operating expense count =" + j);
+            }
+            return j;
+        }
+
+        //取得公司費用單
+        public void getEXPByExpId(string expid)
+        {
+            logger.Info("get form : formid=" + expid);
+            using (var context = new topmepEntities())
+            {
+                //取得公司營業費用單檔頭資訊
+                string sql = "SELECT EXP_FORM_ID, PROJECT_ID, CONTRACT_ID, OCCURRED_YEAR, OCCURRED_MONTH, PAYMENT_DATE, STATUS, CREATE_ID, CREATE_DATE, REMARK, MODIFY_DATE, PASS_CREATE_ID, PASS_CREATE_DATE, APPROVE_CREATE_ID, APPROVE_CREATE_DATE, " +
+                    "JOURNAL_CREATE_ID, JOURNAL_CREATE_DATE FROM FIN_EXPENSE_FORM WHERE EXP_FORM_ID =@expid ";
+                formEXP = context.FIN_EXPENSE_FORM.SqlQuery(sql, new SqlParameter("expid", expid)).First();
+                //取得公司營業費用單明細
+                EXPItem = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT B.*, C.CUM_BUDGET, D.CUM_YEAR_AMOUNT, B.AMOUNT / B.BUDGET_AMOUNT *100 AS MONTH_RATIO, D.CUM_YEAR_AMOUNT / C.CUM_BUDGET *100 AS YEAR_RATIO " +
+                    "FROM (SELECT A.EXP_ITEM_ID, A.EXP_FORM_ID, A.FIN_SUBJECT_ID, A.AMOUNT, A.ITEM_REMARK, A.SUBJECT_NAME, feb.AMOUNT AS BUDGET_AMOUNT FROM " +
+                    "(SELECT fei.*, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH, fef.STATUS, fs.SUBJECT_NAME FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs " +
+                    "ON fei.FIN_SUBJECT_ID = fs.FIN_SUBJECT_ID WHERE fei.EXP_FORM_ID = @expid)A " +
+                    "LEFT JOIN FIN_EXPENSE_BUDGET feb ON A.FIN_SUBJECT_ID = feb.SUBJECT_ID WHERE feb.BUDGET_YEAR = A.OCCURRED_YEAR AND  feb.BUDGET_MONTH = A.OCCURRED_MONTH)B " +
+                    "LEFT JOIN (SELECT SUBJECT_ID, SUM(AMOUNT) AS CUM_BUDGET FROM FIN_EXPENSE_BUDGET WHERE BUDGET_YEAR = " + formEXP.OCCURRED_YEAR + "AND BUDGET_MONTH <= " + formEXP.OCCURRED_MONTH + "GROUP BY SUBJECT_ID) C ON B.FIN_SUBJECT_ID = C.SUBJECT_ID " +
+                    "LEFT JOIN (SELECT fei.FIN_SUBJECT_ID, SUM(AMOUNT) AS CUM_YEAR_AMOUNT FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID " +
+                    "WHERE fef.OCCURRED_YEAR = " + formEXP.OCCURRED_YEAR + "AND fef.OCCURRED_MONTH <= " + formEXP.OCCURRED_MONTH + "GROUP BY fei.FIN_SUBJECT_ID)D ON B.FIN_SUBJECT_ID = D.FIN_SUBJECT_ID ", new SqlParameter("expid", expid)).ToList();
+                logger.Debug("get query year of operating expense:" + formEXP.OCCURRED_YEAR);
+                logger.Debug("get operating expense item count:" + EXPItem.Count);
+            }
+        }
+
+        public int refreshOperatingEXPForm(string formid, FIN_EXPENSE_FORM ef, List<FIN_EXPENSE_ITEM> lstItem)
+        {
+            logger.Info("Update operating expense form id =" + formid);
+            int i = 0;
+            int j = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.Entry(ef).State = EntityState.Modified;
+                    i = context.SaveChanges();
+                    logger.Debug("Update operating expense form =" + i);
+                    logger.Info("operating expense form item = " + lstItem.Count);
+                    //2.將item資料寫入 
+                    foreach (FIN_EXPENSE_ITEM item in lstItem)
+                    {
+                        FIN_EXPENSE_ITEM existItem = null;
+                        logger.Debug("form item id=" + item.EXP_ITEM_ID);
+                        if (item.EXP_ITEM_ID != 0)
+                        {
+                            existItem = context.FIN_EXPENSE_ITEM.Find(item.EXP_ITEM_ID);
+                        }
+                        else
+                        {
+                            var parameters = new List<SqlParameter>();
+                            parameters.Add(new SqlParameter("formid", formid));
+                            parameters.Add(new SqlParameter("itemid", item.FIN_SUBJECT_ID));
+                            string sql = "SELECT * FROM FIN_EXPENSE_ITEM WHERE EXP_FORM_ID=@formid AND FIN_SUBJECT_ID=@itemid";
+                            logger.Info(sql + " ;" + formid + ",fin_subject_id=" + item.FIN_SUBJECT_ID);
+                            FIN_EXPENSE_ITEM excelItem = context.FIN_EXPENSE_ITEM.SqlQuery(sql, parameters.ToArray()).First();
+                            existItem = context.FIN_EXPENSE_ITEM.Find(excelItem.EXP_ITEM_ID);
+
+                        }
+                        logger.Debug("find exist item=" + existItem.FIN_SUBJECT_ID);
+                        existItem.AMOUNT = item.AMOUNT;
+                        existItem.ITEM_REMARK = item.ITEM_REMARK;
+                        context.FIN_EXPENSE_ITEM.AddOrUpdate(existItem);
+                    }
+                    j = context.SaveChanges();
+                    logger.Debug("Update operating expense form item =" + j);
+                    return j;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("update new operating expense form id fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return i;
+        }
+
+        //更新公司營業費用單狀態為送審
+        public int RefreshEXPStatusById(string expid)
+        {
+            int i = 0;
+            logger.Info("update the status of EXP form by expid" + expid);
+            string sql = "UPDATE  FIN_EXPENSE_FORM SET STATUS = 20 WHERE EXP_FORM_ID = @expid ";
+            logger.Debug("batch sql:" + sql);
+            db = new topmepEntities();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("expid", expid));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            logger.Info("Update Record:" + i);
+            db = null;
+            return 1;
+        }
+
+        //取得符合條件之公司營業費用單名單
+        public List<OperatingExpenseFunction> getEXPListByExpId(string occurreddate, string subjectname, string expid, int status)
+        {
+            logger.Info("search operating expense form by " + occurreddate + ", 公司營業費用單編號 =" + expid + ", 項目名稱 =" + subjectname + ", 估驗單狀態 =" + status);
+            List<OperatingExpenseFunction> lstForm = new List<OperatingExpenseFunction>();
+            //處理SQL 預先填入專案代號,設定集合處理參數
+            if (15 == status)//預設狀態(STATUS >10 AND <20, 即狀態為退件或草稿)
+            {
+                string sql = "SELECT B.EXP_FORM_ID, B.PAYMENT_DATE, B.STATUS, left(B.Subjects,len(B.Subjects)-1) AS SUBJECT_NAME, " +
+                    "CONVERT(char(4), B.OCCURRED_YEAR) + '/' + CONVERT(char(2), B.OCCURRED_MONTH) AS OCCURRED_DATE, ROW_NUMBER() OVER(ORDER BY B.EXP_FORM_ID) AS NO " +
+                    "FROM(SELECT ef.*,(SELECT cast( SUBJECT_NAME AS NVARCHAR ) + ',' from (SELECT ef.EXP_FORM_ID, fs.SUBJECT_NAME FROM FIN_EXPENSE_FORM ef " +
+                    "LEFT JOIN FIN_EXPENSE_ITEM ei ON ef.EXP_FORM_ID = ei.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs ON ei.FIN_SUBJECT_ID = fs.FIN_SUBJECT_ID)A " +
+                    "WHERE ef.EXP_FORM_ID = A.EXP_FORM_ID FOR XML PATH('')) as Subjects FROM FIN_EXPENSE_FORM ef)B ";
+
+                sql = sql + "WHERE B.STATUS > 10 ";
+                var parameters = new List<SqlParameter>();
+                // 費用發生年月條件
+                if (null != occurreddate && occurreddate != "")
+                {
+                    sql = sql + "AND CONVERT(char(4), B.OCCURRED_YEAR) + '/' + CONVERT(char(2), B.OCCURRED_MONTH) =@occurreddate ";
+                    parameters.Add(new SqlParameter("occurreddate", occurreddate));
+                }
+                //費用單編號條件
+                if (null != expid && expid != "")
+                {
+                    sql = sql + "AND B.EXP_FORM_ID =@expid ";
+                    parameters.Add(new SqlParameter("expid", expid));
+                }
+                //項目名稱條件
+                if (null != subjectname && subjectname != "")
+                {
+                    sql = sql + "AND Subjects LIKE @subjectname ";
+                    parameters.Add(new SqlParameter("subjectname", '%' + subjectname + '%'));
+                }
+                using (var context = new topmepEntities())
+                {
+                    logger.Debug("get expense form sql=" + sql);
+                    lstForm = context.Database.SqlQuery<OperatingExpenseFunction>(sql, parameters.ToArray()).ToList();
+                }
+                logger.Info("get expense form count=" + lstForm.Count);
+            }
+            else if (20 == status)
+            {
+                string sql = "SELECT B.EXP_FORM_ID, B.PAYMENT_DATE, B.STATUS, left(B.Subjects,len(B.Subjects)-1) AS SUBJECT_NAME, " +
+                    "CONVERT(char(4), B.OCCURRED_YEAR) + '/' + CONVERT(char(2), B.OCCURRED_MONTH) AS OCCURRED_DATE, ROW_NUMBER() OVER(ORDER BY B.EXP_FORM_ID) AS NO " +
+                    "FROM(SELECT ef.*,(SELECT cast( SUBJECT_NAME AS NVARCHAR ) + ',' from (SELECT ef.EXP_FORM_ID, fs.SUBJECT_NAME FROM FIN_EXPENSE_FORM ef " +
+                    "LEFT JOIN FIN_EXPENSE_ITEM ei ON ef.EXP_FORM_ID = ei.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs ON ei.FIN_SUBJECT_ID = fs.FIN_SUBJECT_ID)A " +
+                    "WHERE ef.EXP_FORM_ID = A.EXP_FORM_ID FOR XML PATH('')) as Subjects FROM FIN_EXPENSE_FORM ef)B ";
+
+                sql = sql + "WHERE B.STATUS = 20 ";
+                var parameters = new List<SqlParameter>();
+                // 費用發生年月條件
+                if (null != occurreddate && occurreddate != "")
+                {
+                    sql = sql + "AND CONVERT(char(4), B.OCCURRED_YEAR) + '/' + CONVERT(char(2), B.OCCURRED_MONTH) =@occurreddate ";
+                    parameters.Add(new SqlParameter("occurreddate", occurreddate));
+                }
+                //費用單編號條件
+                if (null != expid && expid != "")
+                {
+                    sql = sql + "AND B.EXP_FORM_ID =@expid ";
+                    parameters.Add(new SqlParameter("expid", expid));
+                }
+                //項目名稱條件
+                if (null != subjectname && subjectname != "")
+                {
+                    sql = sql + "AND Subjects LIKE @subjectname ";
+                    parameters.Add(new SqlParameter("subjectname", '%' + subjectname + '%'));
+                }
+                using (var context = new topmepEntities())
+                {
+                    logger.Debug("get expense form sql=" + sql);
+                    lstForm = context.Database.SqlQuery<OperatingExpenseFunction>(sql, parameters.ToArray()).ToList();
+                }
+                logger.Info("get expense form count=" + lstForm.Count);
+            }
+            else if (30 == status)
+            {
+                string sql = "SELECT B.EXP_FORM_ID, B.PAYMENT_DATE, B.STATUS, left(B.Subjects,len(B.Subjects)-1) AS SUBJECT_NAME, " +
+                    "CONVERT(char(4), B.OCCURRED_YEAR) + '/' + CONVERT(char(2), B.OCCURRED_MONTH) AS OCCURRED_DATE, ROW_NUMBER() OVER(ORDER BY B.EXP_FORM_ID) AS NO " +
+                    "FROM(SELECT ef.*,(SELECT cast( SUBJECT_NAME AS NVARCHAR ) + ',' from (SELECT ef.EXP_FORM_ID, fs.SUBJECT_NAME FROM FIN_EXPENSE_FORM ef " +
+                    "LEFT JOIN FIN_EXPENSE_ITEM ei ON ef.EXP_FORM_ID = ei.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs ON ei.FIN_SUBJECT_ID = fs.FIN_SUBJECT_ID)A " +
+                    "WHERE ef.EXP_FORM_ID = A.EXP_FORM_ID FOR XML PATH('')) as Subjects FROM FIN_EXPENSE_FORM ef)B ";
+
+                sql = sql + "WHERE B.STATUS = 30 ";
+                var parameters = new List<SqlParameter>();
+                // 費用發生年月條件
+                if (null != occurreddate && occurreddate != "")
+                {
+                    sql = sql + "AND CONVERT(char(4), B.OCCURRED_YEAR) + '/' + CONVERT(char(2), B.OCCURRED_MONTH) =@occurreddate ";
+                    parameters.Add(new SqlParameter("occurreddate", occurreddate));
+                }
+                //費用單編號條件
+                if (null != expid && expid != "")
+                {
+                    sql = sql + "AND B.EXP_FORM_ID =@expid ";
+                    parameters.Add(new SqlParameter("expid", expid));
+                }
+                //項目名稱條件
+                if (null != subjectname && subjectname != "")
+                {
+                    sql = sql + "AND Subjects LIKE @subjectname ";
+                    parameters.Add(new SqlParameter("subjectname", '%' + subjectname + '%'));
+                }
+                using (var context = new topmepEntities())
+                {
+                    logger.Debug("get expense form sql=" + sql);
+                    lstForm = context.Database.SqlQuery<OperatingExpenseFunction>(sql, parameters.ToArray()).ToList();
+                }
+                logger.Info("get expense form count=" + lstForm.Count);
+            }
+            else if (40 == status)
+            {
+                string sql = "SELECT B.EXP_FORM_ID, B.PAYMENT_DATE, B.STATUS, left(B.Subjects,len(B.Subjects)-1) AS SUBJECT_NAME, " +
+                    "CONVERT(char(4), B.OCCURRED_YEAR) + '/' + CONVERT(char(2), B.OCCURRED_MONTH) AS OCCURRED_DATE, ROW_NUMBER() OVER(ORDER BY B.EXP_FORM_ID) AS NO " +
+                    "FROM(SELECT ef.*,(SELECT cast( SUBJECT_NAME AS NVARCHAR ) + ',' from (SELECT ef.EXP_FORM_ID, fs.SUBJECT_NAME FROM FIN_EXPENSE_FORM ef " +
+                    "LEFT JOIN FIN_EXPENSE_ITEM ei ON ef.EXP_FORM_ID = ei.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs ON ei.FIN_SUBJECT_ID = fs.FIN_SUBJECT_ID)A " +
+                    "WHERE ef.EXP_FORM_ID = A.EXP_FORM_ID FOR XML PATH('')) as Subjects FROM FIN_EXPENSE_FORM ef)B ";
+
+                sql = sql + "WHERE B.STATUS = 40 ";
+                var parameters = new List<SqlParameter>();
+                // 費用發生年月條件
+                if (null != occurreddate && occurreddate != "")
+                {
+                    sql = sql + "AND CONVERT(char(4), B.OCCURRED_YEAR) + '/' + CONVERT(char(2), B.OCCURRED_MONTH) =@occurreddate ";
+                    parameters.Add(new SqlParameter("occurreddate", occurreddate));
+                }
+                //費用單編號條件
+                if (null != expid && expid != "")
+                {
+                    sql = sql + "AND B.EXP_FORM_ID =@expid ";
+                    parameters.Add(new SqlParameter("expid", expid));
+                }
+                //項目名稱條件
+                if (null != subjectname && subjectname != "")
+                {
+                    sql = sql + "AND Subjects LIKE @subjectname ";
+                    parameters.Add(new SqlParameter("subjectname", '%' + subjectname + '%'));
+                }
+                using (var context = new topmepEntities())
+                {
+                    logger.Debug("get expense form sql=" + sql);
+                    lstForm = context.Database.SqlQuery<OperatingExpenseFunction>(sql, parameters.ToArray()).ToList();
+                }
+                logger.Info("get expense form count=" + lstForm.Count);
+            }
+            else
+            {
+                using (var context = new topmepEntities())
+                {
+                    lstForm = context.Database.SqlQuery<OperatingExpenseFunction>("SELECT B.EXP_FORM_ID, B.PAYMENT_DATE, B.STATUS, left(B.Subjects,len(B.Subjects)-1) AS SUBJECT_NAME, " +
+                    "CONVERT(char(4), B.OCCURRED_YEAR) + '/' + CONVERT(char(2), B.OCCURRED_MONTH) AS OCCURRED_DATE, ROW_NUMBER() OVER(ORDER BY B.EXP_FORM_ID) AS NO " +
+                    "FROM(SELECT ef.*,(SELECT cast( SUBJECT_NAME AS NVARCHAR ) + ',' from (SELECT ef.EXP_FORM_ID, fs.SUBJECT_NAME FROM FIN_EXPENSE_FORM ef " +
+                    "LEFT JOIN FIN_EXPENSE_ITEM ei ON ef.EXP_FORM_ID = ei.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs ON ei.FIN_SUBJECT_ID = fs.FIN_SUBJECT_ID)A " +
+                    "WHERE ef.EXP_FORM_ID = A.EXP_FORM_ID FOR XML PATH('')) as Subjects FROM FIN_EXPENSE_FORM ef)B WHERE B.STATUS < 20 ; ").ToList();
+                }
+                logger.Info("get expense form count=" + lstForm.Count);
+            }
+            return lstForm;
+        }
+
+        //更新公司營業費用單狀態為退件
+        public int RejectEXPByExpId(string expid)
+        {
+            int i = 0;
+            logger.Info("reject EXP form by expid" + expid);
+            string sql = "UPDATE  FIN_EXPENSE_FORM SET STATUS = 0 WHERE EXP_FORM_ID = @expid ";
+            logger.Debug("batch sql:" + sql);
+            db = new topmepEntities();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("expid", expid));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            logger.Info("Update Record:" + i);
+            db = null;
+            return 1;
+        }
+
+        //更新公司營業費用單狀態為主管已通過
+        public int PassEXPByExpId(string expid, string passid)
+        {
+            int i = 0;
+            logger.Info("Pass EXP form by expid" + expid);
+            string sql = "UPDATE  FIN_EXPENSE_FORM SET STATUS = 30, PASS_CREATE_ID = @passid, PASS_CREATE_DATE = GETDATE() WHERE EXP_FORM_ID = @expid ";
+            logger.Debug("batch sql:" + sql);
+            db = new topmepEntities();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("expid", expid));
+            parameters.Add(new SqlParameter("passid", passid));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            logger.Info("Update Record:" + i);
+            db = null;
+            return 1;
+        }
+
+        //更新公司營業費用單狀態為已立帳(即會計已完成稽核)
+        public int JournalByExpId(string expid, string journalid)
+        {
+            int i = 0;
+            logger.Info("Journal For EXP form by expid" + expid);
+            string sql = "UPDATE  FIN_EXPENSE_FORM SET STATUS = 40, JOURNAL_CREATE_ID = @journalid, JOURNAL_CREATE_DATE = GETDATE() WHERE EXP_FORM_ID = @expid ";
+            logger.Debug("batch sql:" + sql);
+            db = new topmepEntities();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("expid", expid));
+            parameters.Add(new SqlParameter("journalid", journalid));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            logger.Info("Update Record:" + i);
+            db = null;
+            return 1;
+        }
+
+        //更新公司營業費用單狀態為已核可
+        public int ApproveEXPByExpId(string expid, string approveid)
+        {
+            int i = 0;
+            logger.Info("Approve EXP form by expid" + expid);
+            string sql = "UPDATE  FIN_EXPENSE_FORM SET STATUS = 50, APPROVE_CREATE_ID = @approveid, APPROVE_CREATE_DATE = GETDATE() WHERE EXP_FORM_ID = @expid ";
+            logger.Debug("batch sql:" + sql);
+            db = new topmepEntities();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("expid", expid));
+            parameters.Add(new SqlParameter("approveid", approveid));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            logger.Info("Update Record:" + i);
+            db = null;
+            return 1;
+        }
+        public string AddAccountByExpId(string formid, string createid)
+        {
+            //寫入現金流支出資料
+            using (var context = new topmepEntities())
+            {
+                List<PLAN_ACCOUNT> lstItem = new List<PLAN_ACCOUNT>();
+
+                string sql = "INSERT INTO PLAN_ACCOUNT (ACCOUNT_FORM_ID, PAYMENT_DATE, AMOUNT, "
+                    + "ACCOUNT_TYPE, ISDEBIT, STATUS, CREATE_ID) "
+                    + "SELECT ef.EXP_FORM_ID AS ACCOUNT_FORM_ID, ef.PAYMENT_DATE, SUM(ei.AMOUNT) AS AMOUNT, 'O' AS ACCOUNT_TYPE, 'N' AS ISDEBIT, 10 AS STATUS, '" + createid + "' AS CREATE_ID "
+                    + "FROM FIN_EXPENSE_FORM ef LEFT JOIN FIN_EXPENSE_ITEM ei ON ef.EXP_FORM_ID = ei.EXP_FORM_ID " +
+                    "WHERE ef.EXP_FORM_ID = '" + formid + "' GROUP BY ef.EXP_FORM_ID, ef.PAYMENT_DATE ";
+                logger.Info("sql =" + sql);
+                var parameters = new List<SqlParameter>();
+                i = context.Database.ExecuteSqlCommand(sql);
+                return formid;
+            }
+        }
+
+        public int refreshAccountStatus(List<PLAN_ACCOUNT> lstItem)
+        {
+            int j = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("plan account item = " + lstItem.Count);
+                //將item資料寫入 
+                foreach (PLAN_ACCOUNT item in lstItem)
+                {
+                    PLAN_ACCOUNT existItem = null;
+                    logger.Debug("form item id=" + item.PLAN_ACCOUNT_ID);
+                    if (item.PLAN_ACCOUNT_ID != 0)
+                    {
+                        existItem = context.PLAN_ACCOUNT.Find(item.PLAN_ACCOUNT_ID);
+                    }
+                    else
+                    {
+                        var parameters = new List<SqlParameter>();
+                        parameters.Add(new SqlParameter("itemid", item.ACCOUNT_FORM_ID));
+                        string sql = "SELECT * FROM PLAN_ACCOUNT WHERE ACCOUNT_FORM_ID=@itemid";
+                        logger.Info(sql + " ;" + item.ACCOUNT_FORM_ID);
+                        PLAN_ACCOUNT excelItem = context.PLAN_ACCOUNT.SqlQuery(sql, parameters.ToArray()).First();
+                        existItem = context.PLAN_ACCOUNT.Find(excelItem.PLAN_ACCOUNT_ID);
+
+                    }
+                    logger.Debug("find exist item=" + existItem.ACCOUNT_FORM_ID);
+                    existItem.STATUS = item.STATUS;
+                    context.PLAN_ACCOUNT.AddOrUpdate(existItem);
+                }
+                j = context.SaveChanges();
+                logger.Debug("Update plan account item =" + j);
+            }
+            return j;
         }
         #endregion
     }

@@ -695,13 +695,19 @@ namespace topmeperp.Controllers
         public String UpdateESTStatusById(FormCollection form)
         {
             //取得估驗單編號
+            logger.Info("form:" + form.Count);
             logger.Info("EST form Id:" + form["estid"]);
+            string msg = "";
+            decimal foreign_payment = decimal.Parse(form.Get("t_foreign").Trim());
+            decimal retention = decimal.Parse(form.Get("t_retention").Trim());
+            decimal tax_amount = decimal.Parse(form.Get("tax_amount").Trim());
+            string remark = form.Get("remark").Trim();
+            int i = service.RefreshESTAmountByEstId(form["estid"], foreign_payment, retention, tax_amount, remark);
             //更新估驗單狀態
             logger.Info("Update Estimation Form Status");
             //估驗單(已送審) STATUS = 20
-            string msg = "";
-            int i = service.RefreshESTStatusById(form["estid"]);
-            if (i == 0)
+            int j = service.RefreshESTStatusById(form["estid"]);
+            if (j == 0)
             {
                 msg = service.message;
             }

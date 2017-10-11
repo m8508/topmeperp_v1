@@ -838,6 +838,7 @@ namespace topmeperp.Service
             //2.填入表頭資料
             logger.Debug("Table Head_1=" + sheet.GetRow(1).Cells[0].ToString());
             sheet.GetRow(1).Cells[1].SetCellValue(budgetYear);//公司費用預算年度
+            sheet.GetRow(1).Cells[13].SetCellValue(DateTime.Now.ToString("yyyy/MM/dd"));//製表日期
             //3.填入資料
             int idxRow = 4;
             foreach (FIN_SUBJECT item in subjects)

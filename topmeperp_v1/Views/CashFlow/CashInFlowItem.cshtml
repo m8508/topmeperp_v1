@@ -27,11 +27,16 @@
         @foreach (var item in Model)
         {
             <tr>
+                @if (item.ACCOUNT_TYPE == "R")
+                {
+                    <td>業內收入</td>
+                }
+                else
+                {
+                    <td>業外收入</td>
+                }
                 <td>
-                    @Html.DisplayFor(modelItem => item.ACCOUNT_TYPE)
-                </td>
-                <td>
-                    <a href="/Estimation/SingleEST?id=@item.EST_FORM_ID" target="_blank">@item.EST_FORM_ID</a>
+                    <a href="/CashFlow/SingleEXPForm?id=@item.ACCOUNT_FORM_ID" target="_blank">@item.ACCOUNT_FORM_ID</a>
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.PAYMENT_DATE)

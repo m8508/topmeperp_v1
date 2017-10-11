@@ -55,34 +55,34 @@
                     </td>
                 }
                 @if (item.BALANCE >= 0)
-                    {
-                        <td>
-                            @String.Format("{0:$#,##0.#; ($#,##0.#);-}", item.BALANCE)
-                        </td>
-                    }
-                    else
-                    {
-                        <td>
-                            <span style="font-weight:bold;color:crimson">
-                                @String.Format("{0:$#,##0.#; ($#,##0.#);-}", item.BALANCE)
-                            </span>
-                        </td>
-                    }
-                    @if (item.RUNNING_TOTAL >= 0)
-                    {
-                        <td>
-                            @String.Format("{0:$#,##0.#; ($#,##0.#);-}", item.RUNNING_TOTAL)
-                        </td>
-                    }
-                    else
-                    {
-                        <td>
-                            <span style="font-weight:bold;color:crimson">
-                                @String.Format("{0:$#,##0.#; ($#,##0.#);-}", item.RUNNING_TOTAL)
-                            </span>
-                        </td>
-                    }
-                </tr>
+                {
+                    <td>
+                        @String.Format("{0:$#,##0.#; ($#,##0.#);-}", item.BALANCE)
+                    </td>
                 }
-            </table>
-        </div>
+                else
+                {
+                    <td>
+                        <span style="font-weight:bold;color:crimson">
+                            @String.Format("{0:$#,##0.#; ($#,##0.#);-}", item.BALANCE)
+                        </span>
+                    </td>
+                }
+                @if (item.RUNNING_TOTAL >= 0)
+                {
+                    <td>
+                        @String.Format("{0:$#,##0.#; ($#,##0.#);-}", item.RUNNING_TOTAL)
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        <span style="font-weight:bold;color:crimson">
+                            @String.Format("{0:$#,##0.#; ($#,##0.#);-}", item.RUNNING_TOTAL)
+                        </span>
+                    </td>
+                }
+            </tr>
+        }
+    </table>
+</div>

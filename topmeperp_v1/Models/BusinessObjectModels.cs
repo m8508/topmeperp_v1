@@ -451,7 +451,7 @@ namespace topmeperp.Models
         public Nullable<decimal> BALANCE { get; set; }
         public Nullable<decimal> RUNNING_TOTAL { get; set; }
     }
-    public class ExpenseBudgetSummary
+    public class ExpenseBudgetSummary : FIN_EXPENSE_ITEM
     {
         public Nullable<decimal> JAN { get; set; }
         public Nullable<decimal> FEB { get; set; }
@@ -469,9 +469,23 @@ namespace topmeperp.Models
         public string SUBJECT_ID { get; set; }
         public string SUBJECT_NAME { get; set; }
         public string BUDGET_YEAR { get; set; }
+        public Nullable<decimal> TOTAL_BUDGET { get; set; }
+        public Nullable<decimal> BUDGET_AMOUNT { get; set; }
+        public Nullable<decimal> MONTH_RATIO { get; set; }
+        public Nullable<decimal> YEAR_RATIO { get; set; }
+        public Nullable<decimal> CUM_YEAR_AMOUNT { get; set; }
+        public Nullable<decimal> CUM_BUDGET { get; set; }
     }
-    public class ExpenseBudgetModel
+    public class OperatingExpenseModel
     {
-        public IEnumerable<ExpenseBudgetSummary> ExpBudgetItem{ get; set; }
+        public FIN_EXPENSE_FORM finEXP { get; set; }
+        public IEnumerable<ExpenseBudgetSummary> finEXPItem { get; set; }
+    }
+    public class OperatingExpenseFunction: FIN_EXPENSE_FORM
+    {
+        public Int64 NO { get; set; }
+        public string SUBJECT_NAME { get; set; }
+        public string OCCURRED_DATE { get; set; }
+        
     }
 }
