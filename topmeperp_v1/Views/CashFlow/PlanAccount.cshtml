@@ -1,0 +1,154 @@
+﻿
+@{
+    ViewBag.Title = "修改帳款支付日期";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+
+<div class="jumbotron">
+    <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
+    <form name="accountSearch" id="accountSearch"  method="Post" class="form-inline">
+        <div class="row">
+            <div class='col-md-6 form-group' style="padding-top:10px">
+                <label for="payment_date">支付日期 : </label>
+                <input id="payment_date" name="payment_date" class="form-control" />
+            </div>
+            <div class='col-md-6 form-group' style="padding-top:10px">
+                <label for="payee">受款人 : </label>
+                <input id="payee" name="payee" class="form-control" />
+            </div>
+        </div>
+        <div class="row">
+            <div class='col-md-6 form-group' style="padding-top:10px">
+                <label for="formname">專案名稱 :</label>
+                <input id="formname" name="formname" type="text" value="" class="form-control" />
+            </div>
+            <div class="col-md-6 form-group" style="padding-top:10px">
+                <input type="radio" value="R" id="account_type" name="account_type" checked />業主帳款
+                <input type="radio" value="P" id="account_type" name="account_type" />廠商帳款
+                <input type="radio" value="E" id="account_type" name="account_type" />工地費用
+                <input type="radio" value="O" id="account_type" name="account_type" />公司營業費用
+                <input id="btnQuery" class="btn btn-info" type="button" onclick="getComparisonData()" value="查詢" />
+            </div>
+        </div>
+        <div class="row">
+        </div>
+        <div class="col-md-6">
+            <div id="divProcessing">
+                <img src="~/Content/ajax-loader.gif">
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="container">
+    <div class="row" id="comparisonData"></div>
+</div>
+<!-- Modal :對話框-->
+<div class="modal fade" id="planAcountItem" role="dialog">
+    <div class="modal-dialog" id="planAcountItemDialog">
+        <!-- Modal content-->
+        @ViewBag.SearchResult
+        @Html.Partial("_PlanAccountItem");
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Hide the "busy" Gif at load:
+        $("#divProcessing").hide();
+        // Attach click handler to the submit button:
+        $('#btnQuery').click(function () {
+            $("#divProcessing").show();
+        });
+    });
+    
+    $(function () {
+        $('#payment_date').datetimepicker({
+            format: 'YYYY/MM/DD'
+        });
+    });
+
+    function getComparisonData() {
+        //Ajax 功能範例:置換部分網頁內容
+        var URLs = "/CashFlow/ShowPlanAccount";
+        $("#divProcessing").show();
+        $.ajax({
+            url: URLs,
+            data: $('#accountSearch').serialize(),
+            type: "POST",
+            dataType: 'html',
+            success: function (result) {
+                $("#comparisonData").html(result);
+                $("#divProcessing").hide();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+                $("#divProcessing").hide();
+            }
+        });
+    }
+
+    //由ID 取得資料填入表單
+    function getPlanAccountItem(itemid) {
+        //alert(userid);
+        $.ajax({
+            url: "/CashFlow/getPlanAccountItem",
+            type: "GET",
+            data: { itemid: itemid },
+            dataType: "JSON",
+            success: function (data) {
+                $('#project_id').val(data.PROJECT_ID);
+                $('#plan_account_id').val(data.PLAN_ACCOUNT_ID);
+                $('#contract_id').val(data.CONTRACT_ID);
+                $('#type').val(data.ACCOUNT_TYPE);
+                $('#isdebit').val(data.ISDEBIT);
+                $('#create_id').val(data.CREATE_ID);
+                $('#account_form_id').val(data.ACCOUNT_FORM_ID);
+                $('#amount').val(data.RECORDED_AMOUNT);
+                $('#date').val(data.RECORDED_DATE);
+                $('#unRecordedFlag').val(data.STATUS);
+                $('#planAcountItem').modal('show'); // show bootstrap modal when complete loaded
+                //$('.modal-title').text('編輯設定資料'); // Set title to Bootstrap modal title
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('Error get data from ajax');
+            }
+        });
+    }
+
+    //更新plan acount item
+    $("#savePlanAccountItem").click(function () {
+        var s = $('#formAccountItem').serialize();
+        var URLs = "/CashFlow/updatePlanAccountItem";
+        $.ajax({
+            url: URLs,
+            data: $('#formAccountItem').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    });
+    // Hide the "busy" Gif at load:
+    $("#divProcessing").hide();
+    // Attach click handler to the submit button:
+    $('#login').click(function () {
+        $("#divProcessing").show();
+    });
+    //隱藏/開啟查詢區域
+    var isShow = true;
+    function switchDivQuery() {
+        if (isShow) {
+            $("#divQuery").hide();
+            isShow = false;
+        } else {
+            $("#divQuery").show();
+            isShow = true;
+        }
+    }
+</script>

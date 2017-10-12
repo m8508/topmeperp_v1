@@ -1,8 +1,12 @@
 ﻿@model IEnumerable<topmeperp.Models.CashFlowFunction>
-
+@{
+    ViewBag.Title = "收支報表";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
 <div class="container">
-    <h2 class="text-center" style="padding-top:50px;">收支報表</h2>
+    <h2 class="text-center" style="padding-top:10px;">收支報表</h2>
 </div>
+<button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PlanAccount", "CashFlow")'; ">修改支付日期</button>
 <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
 <div style="padding-top:30px;">
     <table class="table">

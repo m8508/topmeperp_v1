@@ -934,6 +934,9 @@
     <Content Include="Views\CashFlow\OperatingExpenseForm.cshtml" />
     <Content Include="Views\CashFlow\_ExpenseFormList.cshtml" />
     <Content Include="Views\CashFlow\FormForJournal.cshtml" />
+    <Content Include="Views\CashFlow\PlanAccount.cshtml" />
+    <Content Include="Views\CashFlow\ShowPlanAccount.cshtml" />
+    <Content Include="Views\CashFlow\_PlanAccountItem.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

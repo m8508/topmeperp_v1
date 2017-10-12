@@ -488,4 +488,12 @@ namespace topmeperp.Models
         public string OCCURRED_DATE { get; set; }
         
     }
+    public class PlanAccountFunction : PLAN_ACCOUNT
+    {
+        public string PROJECT_NAME { get; set; }
+        public string PAYEE { get; set; }
+        public string RECORDED_DATE { get; set; }
+        public string RECORDED_AMOUNT { get; set; }
+
+    }
 }

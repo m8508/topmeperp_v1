@@ -4189,6 +4189,82 @@ namespace topmeperp.Service
             }
             return j;
         }
+
+        //取得符合條件之帳款資料
+        public List<PlanAccountFunction> getPlanAccount(string paymentdate, string projectname, string payee, string accounttype)
+        {
+            logger.Info("search plan account by " + paymentdate + ", 受款人 =" + payee + ", 專案名稱 =" + projectname + ", 帳款類型 =" + accounttype);
+            List<PlanAccountFunction> lstForm = new List<PlanAccountFunction>();
+            //處理SQL 預先填入專案代號,設定集合處理參數
+            string sql = "SELECT pa.AMOUNT, pa.ACCOUNT_TYPE, CONVERT(char(10), pa.PAYMENT_DATE, 111) AS RECORDED_DATE, pa.PLAN_ACCOUNT_ID, pa.STATUS, p.PROJECT_NAME, s.COMPANY_NAME AS PAYEE FROM PLAN_ACCOUNT pa LEFT JOIN TND_PROJECT p ON pa.PROJECT_ID = p.PROJECT_ID " +
+                "LEFT JOIN TND_SUPPLIER s ON SUBSTRING(pa.CONTRACT_ID, 7, 7) = s.SUPPLIER_ID WHERE pa.ACCOUNT_TYPE = @accounttype ";
+
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("accounttype", accounttype));
+            logger.Info("sql=" + sql);
+
+            //支付日期條件
+            if (null != paymentdate && paymentdate != "")
+            {
+                sql = sql + "AND CONVERT(char(10), pa.PAYMENT_DATE, 111) =@paymentdate ";
+                parameters.Add(new SqlParameter("paymentdate", paymentdate));
+            }
+            //專案名稱條件
+            if (null != projectname && projectname != "")
+            {
+                sql = sql + "AND p.PROJECT_NAME LIKE @projectname ";
+                parameters.Add(new SqlParameter("projectname", '%' + projectname + '%'));
+            }
+            //受款人條件
+            if (null != payee && payee != "")
+            {
+                sql = sql + "AND s.COMPANY_NAME LIKE @payee ";
+                parameters.Add(new SqlParameter("payee", '%' + payee + '%'));
+            }
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("get plan account sql=" + sql);
+                lstForm = context.Database.SqlQuery<PlanAccountFunction>(sql, parameters.ToArray()).ToList();
+                logger.Info("get plan account count=" + lstForm.Count);
+            }
+            return lstForm;
+        }
+
+        public PlanAccountFunction getPlanAccountItem(string itemid)
+        {
+            logger.Debug("get plan account item by id=" + itemid);
+            PlanAccountFunction aitem = null;
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                aitem = context.Database.SqlQuery<PlanAccountFunction>("SELECT PARSENAME(Convert(varchar,Convert(money,pa.AMOUNT),1),2) AS RECORDED_AMOUNT, pa.ACCOUNT_TYPE, CONVERT(char(10), pa.PAYMENT_DATE, 111) AS RECORDED_DATE, " +
+                    "pa.PLAN_ACCOUNT_ID, pa.CONTRACT_ID, pa.ACCOUNT_TYPE, pa.ACCOUNT_FORM_ID, pa.ISDEBIT, pa.STATUS, pa.CREATE_ID, p.PROJECT_NAME FROM PLAN_ACCOUNT pa LEFT JOIN TND_PROJECT p ON pa.PROJECT_ID = p.PROJECT_ID " +
+                    "WHERE pa.PLAN_ACCOUNT_ID=@itemid ",
+                new SqlParameter("itemid", itemid)).First();
+            }
+            return aitem;
+        }
+
+        public int updatePlanAccountItem(PLAN_ACCOUNT item)
+        {
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.PLAN_ACCOUNT.AddOrUpdate(item);
+                    i = context.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    logger.Error("updatePlanAcountItem  fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+            }
+            return i;
+        }
+
         #endregion
     }
 }

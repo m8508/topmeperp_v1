@@ -596,5 +596,62 @@ namespace topmeperp.Controllers
             //ViewBag.SearchResult = "共取得" + lstEXP.Count + "筆資料";
             return View("FormForJournal", lstEXP);
         }
+
+        //修改帳款支付日期
+        public ActionResult PlanAccount()
+        {
+            logger.Info("Search For Account To Update Its Payment Date !!");
+            return View();
+        }
+
+        public ActionResult ShowPlanAccount()
+        {
+            logger.Info("payment_date =" + Request["payment_date"] + ", projectname =" + Request["projectname"] + ", payee =" + Request["payee"] + ", account_type =" + Request["account_type"]);
+            List<PlanAccountFunction> lstAccount = service.getPlanAccount(Request["payment_date"], Request["projectname"], Request["payee"], Request["account_type"]);
+            ViewBag.SearchResult = "共取得" + lstAccount.Count + "筆資料";
+            return PartialView(lstAccount);
+        }
+
+        public string getPlanAccountItem(string itemid)
+        {
+            logger.Info("get plan account item by id=" + itemid);
+            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            string itemJson = objSerializer.Serialize(service.getPlanAccountItem(itemid));
+            logger.Info("plan account item  info=" + itemJson);
+            return itemJson;
+        }
+
+        public String updatePlanAccountItem(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            string msg = "更新成功!!";
+
+            PLAN_ACCOUNT item = new PLAN_ACCOUNT();
+            item.PROJECT_ID = form["project_id"];
+            item.PLAN_ACCOUNT_ID = int.Parse(form["plan_account_id"]);
+            item.CONTRACT_ID = form["contract_id"];
+            item.ACCOUNT_FORM_ID = form["account_form_id"];
+            item.PAYMENT_DATE = Convert.ToDateTime(form.Get("date"));
+            try
+            {
+                item.AMOUNT = decimal.Parse(form["amount"]);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(item.PLAN_ACCOUNT_ID + " not amount:" + ex.Message);
+            }
+            item.ACCOUNT_TYPE = form["type"];
+            logger.Debug("account type = " + form["type"]);
+            item.ISDEBIT = form["isdebit"];
+            item.STATUS = int.Parse(form["unRecordedFlag"]);
+            item.CREATE_ID = form["create_id"];
+            SYS_USER loginUser = (SYS_USER)Session["user"];
+            item.MODIFY_ID = loginUser.USER_ID;
+            item.MODIFY_DATE = DateTime.Now;
+            int i = 0;
+            i = service.updatePlanAccountItem(item);
+            if (i == 0) { msg = service.message; }
+            return msg;
+        }
     }
 }
