@@ -11,7 +11,7 @@
                 帳款類別
             </th>
             <th>
-                帳款單據編號
+                帳款單據編號(可點選連結)
             </th>
             <th>
                 預計入帳日期
@@ -39,14 +39,23 @@
                     <a href="/CashFlow/SingleEXPForm?id=@item.ACCOUNT_FORM_ID" target="_blank">@item.ACCOUNT_FORM_ID</a>
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.PAYMENT_DATE)
+                    @Html.DisplayFor(modelItem => item.PAYMENT_DATE, "LongDateTime")
                 </td>
                 <td>
                     @String.Format("{0:$#,##0.#}", item.AMOUNT)
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.STATUS)
-                </td>
+                @if (item.STATUS == 10)
+                {
+                    <td>
+                        <input type="checkbox" id="status" name="status" value="0" />
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        <input type="checkbox" id="status" name="status" value="0" checked />
+                    </td>
+                }
             </tr>
         }
     </table>

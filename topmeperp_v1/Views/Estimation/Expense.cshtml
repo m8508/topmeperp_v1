@@ -1,0 +1,74 @@
+﻿
+@{
+    ViewBag.Title = "工地費用新增作業 : ";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0rc1/angular.min.js"></script>
+<div class="jumbotron">
+    <button type="button" class="btn btn-primary" onclick="window.open('@Url.Action("SiteBudget", "Estimation", new { id = @ViewBag.projectid })');">工地費用預算</button>
+     <div class="row">
+    <form name="FormSearchSubject" id="FormSearchSubject" action="/Estimation/SearchSubject" method="Post">
+        <div class="row">
+            <div class="col-md-6 form-group" style="padding-top:10px">
+                <label for="id">專案編號:</label><input id="projectid" name="projectid" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            </div>
+            <div class="col-md-6" style="padding-top:10px">
+                <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            </div>
+        </div>
+        <hr style="border-top: 1px solid #8c8b8b;" />
+        <h3 style="height:10px;line-height:5px">@ViewBag.Title</h3>
+        <div class="row" ng-app="" ng-controller="MyCtrl">
+            <div class="col-md-12" style="padding-bottom:10px">
+                <h4>請勾選要輸入的費用項目名稱 : </h4>
+                <div class="col-md-10" type="horizontal">
+                    <span style="color:cornflowerblue; font-size: 18px;">
+                        <label ng-repeat="key in keys">
+                            <input type="checkbox" id="subject" name="subject" value="{{key.FIN_SUBJECT_ID}}" />{{key.SUBJECT_NAME}}
+                        </label>
+                    </span>
+                </div>
+                <div class="col-md-2">
+                    <div id="divProcessing">
+                        <img src="~/Content/ajax-loader.gif">
+                    </div>
+                    <div class="row" style="padding-top:22px">
+                        <input id="Submit" type="submit" class="btn btn-info" value="確定挑選" />
+                        <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+</div>
+<!--標單項目列表區域-->
+<div class="container-fluid">
+    @if (null != Model)
+            {
+                Html.RenderPartial("_SubjectList");
+            }
+
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Hide the "busy" Gif at load:
+        $("#divProcessing").hide();
+        // Attach click handler to the submit button:
+        $('#Submit1').click(function () {
+            $("#divProcessing").show();
+        });
+    });
+
+    function MyCtrl($scope) {
+        $scope.keys = @Html.Raw(ViewData["items"]);
+    }
+
+    function GetCheckedValue(checkBoxName) {
+        return $('input:checkbox[name=' + checkBoxName + '][checked=true]').map(function () {
+            return $(this).val();
+        })
+          .get().join(',');
+    }
+</script>

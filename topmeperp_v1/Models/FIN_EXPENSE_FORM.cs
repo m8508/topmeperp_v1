@@ -16,7 +16,6 @@ namespace topmeperp.Models
     {
         public string EXP_FORM_ID { get; set; }
         public string PROJECT_ID { get; set; }
-        public string CONTRACT_ID { get; set; }
         public Nullable<int> OCCURRED_YEAR { get; set; }
         public Nullable<int> OCCURRED_MONTH { get; set; }
         public Nullable<System.DateTime> PAYMENT_DATE { get; set; }

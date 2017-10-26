@@ -1,11 +1,11 @@
 ﻿@model IEnumerable<topmeperp.Models.PLAN_ACCOUNT>
 
 @{
-    ViewBag.Title = "收入明細";
+    ViewBag.Title = "支出明細";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <div class="container">
-    <h2 class="text-center" style="padding-top:10px;">收入明細</h2>
+    <h2 class="text-center" style="padding-top:10px;">支出明細</h2>
 </div>
     <div class="col-md-1">
         <input type="button" value="修改" class="btn btn-warning" id="updateForm" />
@@ -48,13 +48,26 @@
                         {
                             <td>工地費用</td>
                         }
+                        else if (item.ACCOUNT_TYPE == "P")
+                        {
+                            <td>廠商帳款</td>
+                        }
                         else
                         {
                             <td>業外費用</td>
                         }
+                        @if (item.ACCOUNT_TYPE != "P")
+                        {
                         <td>
-                            <a href="/CashFlow/SingleEXPForm?id=@item.ACCOUNT_FORM_ID" target="_blank">@Html.TextBox("formid", item.ACCOUNT_FORM_ID, new { style = "width:150px" , @readonly = "readonly" })</a>
+                            <a href="/CashFlow/SingleEXPForm?id=@item.ACCOUNT_FORM_ID" target="_blank">@Html.TextBox("formid", item.ACCOUNT_FORM_ID, new { style = "width:150px", @readonly = "readonly" })</a>
                         </td>
+                        }
+                        else
+                        {
+                            <td>
+                            <a href="/Estimation/SingleEST?id=@item.ACCOUNT_FORM_ID" target="_blank">@Html.TextBox("formid", item.ACCOUNT_FORM_ID, new { style = "width:150px", @readonly = "readonly" })</a>
+                            </td>
+                        }
                         <td>
                             @Html.DisplayFor(modelItem => item.PAYMENT_DATE, "LongDateTime")
                         </td>

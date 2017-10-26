@@ -382,4 +382,59 @@ namespace topmeperp.Service
         }
     }
     #endregion
-}
+    #region 財務科目管理區塊
+    public class SubjectManageService
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        public string message = "";
+        //取得財務科目類別選單
+        public List<string> getCategory()
+        {
+            List<string> lst = new List<string>();
+            using (var context = new topmepEntities())
+            {
+                //取得科目類別
+                lst = context.Database.SqlQuery<string>("SELECT DISTINCT CATEGORY FROM FIN_SUBJECT ;").ToList();
+                logger.Info("Get Subject Category Count=" + lst.Count);
+            }
+            return lst;
+        }
+
+        public FIN_SUBJECT getSubjectItem(string itemid)
+        {
+            logger.Debug("get finacial subject item by id=" + itemid);
+            FIN_SUBJECT sitem = null;
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                sitem = context.FIN_SUBJECT.SqlQuery("SELECT * FROM FIN_SUBJECT WHERE FIN_SUBJECT_ID=@itemid",
+                new SqlParameter("itemid", itemid)).First();
+            }
+            return sitem;
+        }
+
+        //新增財務項目資料
+        public int addNewSubject(FIN_SUBJECT s)
+        {
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.FIN_SUBJECT.AddOrUpdate(s);
+                    i = context.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    logger.Error("add new subject id fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return i;
+        }
+    }
+        #endregion
+
+    }

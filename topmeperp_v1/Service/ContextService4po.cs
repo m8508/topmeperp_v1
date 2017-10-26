@@ -3716,7 +3716,7 @@ namespace topmeperp.Service
             List<FIN_SUBJECT> lstSubject = new List<FIN_SUBJECT>();
             using (var context = new topmepEntities())
             {
-                lstSubject = context.Database.SqlQuery<FIN_SUBJECT>("SELECT * FROM FIN_SUBJECT WHERE TYPE = 'C' ; ").ToList();
+                lstSubject = context.Database.SqlQuery<FIN_SUBJECT>("SELECT * FROM FIN_SUBJECT WHERE CATEGORY = '公司營業費用' ORDER BY FIN_SUBJECT_ID ; ").ToList();
             }
             return lstSubject;
         }
@@ -3743,13 +3743,13 @@ namespace topmeperp.Service
             List<FIN_SUBJECT> lstSubject = new List<FIN_SUBJECT>();
             using (var context = new topmepEntities())
             {
-                lstSubject = context.Database.SqlQuery<FIN_SUBJECT>("SELECT * FROM FIN_SUBJECT WHERE TYPE = 'C' ; ").ToList();
+                lstSubject = context.Database.SqlQuery<FIN_SUBJECT>("SELECT * FROM FIN_SUBJECT WHERE CATEGORY = '公司營業費用' ORDER BY FIN_SUBJECT_ID ; ").ToList();
                 logger.Info("Get Subject of Operating Expense Count=" + lstSubject.Count);
             }
             return lstSubject;
         }
 
-        //取得特定公司費用項目
+        //取得特定費用項目
         public List<FIN_SUBJECT> getSubjectByChkItem(string[] lstItemId)
         {
             List<FIN_SUBJECT> lstSubject = new List<FIN_SUBJECT>();
@@ -3768,7 +3768,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 lstSubject = context.Database.SqlQuery<FIN_SUBJECT>("SELECT * FROM FIN_SUBJECT WHERE FIN_SUBJECT_ID IN (" + ItemId + ") ; ").ToList();
-                logger.Info("Get Subject of Operating Expense Count=" + lstSubject.Count);
+                logger.Info("Get Subject of Expense  Count=" + lstSubject.Count);
             }
             return lstSubject;
         }
@@ -3776,11 +3776,11 @@ namespace topmeperp.Service
         public string newExpenseForm(FIN_EXPENSE_FORM form)
         {
             //1.建立公司營業費用單
-            logger.Info("create new operating expense form ");
+            logger.Info("create new expense form ");
             string sno_key = "EXP";
             SerialKeyService snoservice = new SerialKeyService();
             form.EXP_FORM_ID = snoservice.getSerialKey(sno_key);
-            logger.Info("new operating expense form =" + form.ToString());
+            logger.Info("new expense form =" + form.ToString());
             using (var context = new topmepEntities())
             {
                 context.FIN_EXPENSE_FORM.Add(form);
@@ -3794,19 +3794,19 @@ namespace topmeperp.Service
 
         public int AddExpenseItems(List<FIN_EXPENSE_ITEM> lstItem)
         {
-            //2.新增公司費用項目資料
+            //2.新增費用項目資料
             int j = 0;
-            logger.Info("add operating expense items = " + lstItem.Count);
+            logger.Info("add expense items = " + lstItem.Count);
             using (var context = new topmepEntities())
             {
-                //3.將公司費用項目資料寫入 
+                //3.將費用項目資料寫入 
                 foreach (FIN_EXPENSE_ITEM item in lstItem)
                 {
                     context.FIN_EXPENSE_ITEM.Add(item);
                 }
 
                 j = context.SaveChanges();
-                logger.Info("add operating expense count =" + j);
+                logger.Info("add expense count =" + j);
             }
             return j;
         }
@@ -4221,6 +4221,7 @@ namespace topmeperp.Service
                 sql = sql + "AND s.COMPANY_NAME LIKE @payee ";
                 parameters.Add(new SqlParameter("payee", '%' + payee + '%'));
             }
+            sql = sql + "ORDER BY pa.PAYMENT_DATE DESC ";
             using (var context = new topmepEntities())
             {
                 logger.Debug("get plan account sql=" + sql);
@@ -4263,6 +4264,33 @@ namespace topmeperp.Service
                 }
             }
             return i;
+        }
+
+        #endregion
+
+        #region 工地費用
+
+        //取得工地費用項目
+        public List<FIN_SUBJECT> getSubjectOfExpense4Site()
+        {
+            List<FIN_SUBJECT> lstSubject = new List<FIN_SUBJECT>();
+            using (var context = new topmepEntities())
+            {
+                lstSubject = context.Database.SqlQuery<FIN_SUBJECT>("SELECT * FROM FIN_SUBJECT WHERE CATEGORY = '工地費用' ORDER BY FIN_SUBJECT_ID; ").ToList();
+                logger.Info("Get Subject of Operating Expense Count=" + lstSubject.Count);
+            }
+            return lstSubject;
+        }
+
+        public string getSiteBudgetById(string prjid)
+        {
+            string projectid = null;
+            using (var context = new topmepEntities())
+            {
+                projectid = context.Database.SqlQuery<string>("select DISTINCT PROJECT_ID FROM PLAN_SITE_BUDGET WHERE PROJECT_ID = @pid "
+               , new SqlParameter("pid", prjid)).FirstOrDefault();
+            }
+            return projectid;
         }
 
         #endregion

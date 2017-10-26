@@ -52,10 +52,11 @@
         <EntityTypeShape EntityType="topmepModel.PLAN_BUDGET" Width="1.5" PointX="21.375" PointY="22.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_ITEM" Width="1.5" PointX="8.375" PointY="24.125" />
         <EntityTypeShape EntityType="topmepModel.FIN_EXPENSE_BUDGET" Width="1.5" PointX="23.375" PointY="11.75" />
-        <EntityTypeShape EntityType="topmepModel.FIN_SUBJECT" Width="1.5" PointX="12.375" PointY="24.125" />
         <EntityTypeShape EntityType="topmepModel.FIN_EXPENSE_ITEM" Width="1.5" PointX="23.375" PointY="19.75" />
-        <EntityTypeShape EntityType="topmepModel.FIN_EXPENSE_FORM" Width="1.5" PointX="14.375" PointY="23.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_ACCOUNT" Width="1.5" PointX="23.375" PointY="22.75" />
+        <EntityTypeShape EntityType="topmepModel.FIN_SUBJECT" Width="1.5" PointX="10.375" PointY="23.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_SITE_BUDGET" Width="1.5" PointX="24.375" PointY="6.75" />
+        <EntityTypeShape EntityType="topmepModel.FIN_EXPENSE_FORM" Width="1.5" PointX="12.375" PointY="23.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

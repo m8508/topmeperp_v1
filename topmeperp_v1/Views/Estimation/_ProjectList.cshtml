@@ -51,6 +51,7 @@
                 <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("Revenue", "Estimation", new { id = item.PROJECT_ID })'; ">收入管理</button>
                 <button type="button" class="btn btn-info" @ViewBag.F10005 onclick="location.href='@Url.Action("Valuation", "Estimation", new { id = item.PROJECT_ID })'">廠商估驗計價</button>
                 <button type="button" class="btn btn-info" @ViewBag.F10005 onclick="location.href='@Url.Action("EstimationForm", "Estimation", new { id = item.PROJECT_ID })'">廠商估驗計價單查詢</button>
+                <button type="button" class="btn btn-info" @ViewBag.F10005 onclick="location.href='@Url.Action("Expense", "Estimation", new { id = item.PROJECT_ID })'">工地費用</button>
             </td>
         </tr>
     }

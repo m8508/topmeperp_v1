@@ -1,0 +1,28 @@
+﻿
+@{
+    ViewBag.Title = "工地費用預算作業";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+
+<div class="page-header">
+    <h2 style="padding-bottom:10px;">工地費用預算 : </h2>
+    <div class="row">
+        <div class="col-md-6 form-group" style="padding-top:10px">
+            <label for="id">專案編號:</label><input id="projectid" name="projectid" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+        </div>
+        <div class="col-md-6" style="padding-top:10px">
+            <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+        </div>
+    </div>
+        <div class="row col-md-12" style="padding-top:10px">
+            <label>🎪工地費用預算填寫表連結 : </label>
+            <a href="/Estimation/downLoadSiteBudgetForm?projectid=@ViewBag.projectid" target="_blank">下載</a>
+        </div>
+    <form id="UploadFile" name="UploadFile" action="/Estimation/uploadSiteBudgetTable" method="post" enctype="multipart/form-data">
+        <label for="file">🎪工地費用預算匯入:</label>
+        <input type="file" name="fileBudget" id="fileBudget" />
+        <input type="hidden" name="projectid" id="projectid" value="@ViewBag.projectid" />
+        <input id="btnUploadfile" name="btnUploadfile" type="submit" class="btn-primary" value="匯入檔案" onclick="return Confirm_Form()" />
+    </form>
+</div>
+

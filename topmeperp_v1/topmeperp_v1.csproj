@@ -410,6 +410,7 @@
     <Compile Include="Controllers\ProjectPlanController.cs" />
     <Compile Include="Controllers\PurchaseFormController.cs" />
     <Compile Include="Controllers\RoleManageController.cs" />
+    <Compile Include="Controllers\SubjectManageController.cs" />
     <Compile Include="Controllers\SupplierManageController.cs" />
     <Compile Include="Controllers\TenderController.cs" />
     <Compile Include="Controllers\TypeManageController.cs" />
@@ -430,6 +431,9 @@
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\FIN_SUBJECT.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PLAN_SITE_BUDGET.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\PurchaseBO.cs" />
@@ -937,6 +941,12 @@
     <Content Include="Views\CashFlow\PlanAccount.cshtml" />
     <Content Include="Views\CashFlow\ShowPlanAccount.cshtml" />
     <Content Include="Views\CashFlow\_PlanAccountItem.cshtml" />
+    <Content Include="Views\Estimation\Expense.cshtml" />
+    <Content Include="Views\Estimation\_SubjectList.cshtml" />
+    <Content Include="Views\Estimation\SiteBudget.cshtml" />
+    <Content Include="Views\SubjectManage\Index.cshtml" />
+    <Content Include="Views\SubjectManage\_SubjectList.cshtml" />
+    <Content Include="Views\SubjectManage\_Subject.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -12,10 +12,16 @@ namespace topmeperp.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class FIN_SUBJECT
+    public partial class PLAN_SITE_BUDGET
     {
-        public string FIN_SUBJECT_ID { get; set; }
-        public string SUBJECT_NAME { get; set; }
-        public string CATEGORY { get; set; }
+        public long SITE_BUDGET_ID { get; set; }
+        public Nullable<int> BUDGET_YEAR { get; set; }
+        public Nullable<int> BUDGET_MONTH { get; set; }
+        public string SUBJECT_ID { get; set; }
+        public Nullable<decimal> AMOUNT { get; set; }
+        public string MODIFY_ID { get; set; }
+        public Nullable<System.DateTime> CREATE_DATE { get; set; }
+        public Nullable<System.DateTime> MODIFY_DATE { get; set; }
+        public string PROJECT_ID { get; set; }
     }
 }

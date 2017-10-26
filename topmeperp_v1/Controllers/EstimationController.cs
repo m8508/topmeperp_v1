@@ -1207,6 +1207,139 @@ namespace topmeperp.Controllers
             return UnApproval;
         }
 
-        
+        //工地費用功能
+        #region 工地費用
+        public ActionResult Expense(string id)
+        {
+            logger.Info("Access to Expense Page !!");
+            ViewBag.projectid = id;
+            TND_PROJECT p = service.getProjectById(id);
+            ViewBag.projectName = p.PROJECT_NAME;
+            List<FIN_SUBJECT> Subject = null;
+            Subject = service.getSubjectOfExpense4Site();
+            ViewData["items"] = JsonConvert.SerializeObject(Subject);
+            return View();
+        }
+
+        public ActionResult SearchSubject()
+        {
+            //取得使用者勾選品項ID
+            logger.Info("item_list:" + Request["subject"]);
+            string[] lstItemId = Request["subject"].ToString().Split(',');
+            logger.Info("select count:" + lstItemId.Count());
+            var i = 0;
+            for (i = 0; i < lstItemId.Count(); i++)
+            {
+                logger.Info("item_list return No.:" + lstItemId[i]);
+            }
+            ViewBag.projectid = Request["projectid"];
+            TND_PROJECT p = service.getProjectById(Request["projectid"]);
+            ViewBag.projectName = p.PROJECT_NAME;
+            List<FIN_SUBJECT> SubjectChecked = null;
+            SubjectChecked = service.getSubjectByChkItem(lstItemId);
+            List<FIN_SUBJECT> Subject = null;
+            Subject = service.getSubjectOfExpense4Site();
+            ViewData["items"] = JsonConvert.SerializeObject(Subject);
+            return View("Expense", SubjectChecked);
+        }
+
+        [HttpPost]
+        public ActionResult AddExpense(FIN_EXPENSE_FORM ef)
+        {
+            string[] lstSubject = Request["subject"].Split(',');
+            string[] lstAmount = Request["expense_amount"].Split(',');
+            string[] lstRemark = Request["item_remark"].Split(',');
+            //建立工地費用單號
+            logger.Info("create new Plan Expense Form");
+            UserService us = new UserService();
+            SYS_USER u = (SYS_USER)Session["user"];
+            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            ef.PROJECT_ID = Request["projectid"];
+            ef.PAYMENT_DATE = Convert.ToDateTime(Request["paymentdate"]);
+            ef.OCCURRED_YEAR = int.Parse(Request["occurreddate"].Substring(0, 4));
+            ef.OCCURRED_MONTH = int.Parse(Request["occurreddate"].Substring(5, 2));
+            ef.CREATE_DATE = DateTime.Now;
+            ef.CREATE_ID = uInfo.USER_ID;
+            ef.REMARK = Request["remark"];
+            ef.STATUS = 10;
+            string fid = service.newExpenseForm(ef);
+            //建立工地費用單明細
+            List<FIN_EXPENSE_ITEM> lstItem = new List<FIN_EXPENSE_ITEM>();
+            for (int j = 0; j < lstSubject.Count(); j++)
+            {
+                FIN_EXPENSE_ITEM item = new FIN_EXPENSE_ITEM();
+                item.FIN_SUBJECT_ID = lstSubject[j];
+                item.ITEM_REMARK = lstRemark[j];
+                if (lstAmount[j].ToString() == "")
+                {
+                    item.AMOUNT = null;
+                }
+                else
+                {
+                    item.AMOUNT = decimal.Parse(lstAmount[j]);
+                }
+                logger.Info("Plan Expense Subject =" + item.FIN_SUBJECT_ID + "， and Amount = " + item.AMOUNT);
+                item.EXP_FORM_ID = fid;
+                logger.Debug("Item EX form id =" + item.EXP_FORM_ID);
+                lstItem.Add(item);
+            }
+            int i = service.AddExpenseItems(lstItem);
+            logger.Debug("Item Count =" + i);
+            return Redirect("SingleEXPForm?id=" + fid);
+        }
+
+        //顯示單一工地費用單功能
+        public ActionResult SingleEXPForm(string id)
+        {
+            logger.Info("http get mehtod:" + id);
+            OperatingExpenseModel singleForm = new OperatingExpenseModel();
+            service.getEXPByExpId(id);
+            singleForm.finEXP = service.formEXP;
+            singleForm.finEXPItem = service.EXPItem;
+            logger.Debug("Operating Expense Year:" + singleForm.finEXP.OCCURRED_YEAR);
+            return View(singleForm);
+        }
+
+        public ActionResult SiteBudget(string id)
+        {
+            logger.Info("Access to Site Budget Page, And Project Id = " + id);
+            ViewBag.projectid = id;
+            TND_PROJECT p = service.getProjectById(id);
+            ViewBag.projectName = p.PROJECT_NAME;
+            //取得工地費用預算資料
+            var priId = service.getSiteBudgetById(id);
+            ViewBag.budgetdata = priId;
+            //if (null == priId)
+            //取得已寫入之工地費用預算資料
+            //List<DirectCost> budget = service.getBudget(id);
+            //ViewBag.result = "共有" + budget.Count + "筆資料";
+            return View();
+        }
+
+        /// <summary>
+        /// 下載工地費用預算填寫表
+        /// </summary>
+        public void downLoadSiteBudgetForm()
+        {
+            string projectid = Request["projectid"];
+            PlanService ps = new PlanService();
+            ps.getProjectId(projectid);
+            if (null != ps.budgetTable)
+            {
+                SiteBudgetFormToExcel poi = new SiteBudgetFormToExcel();
+                //檔案位置
+                string fileLocation = poi.exportExcel(ps.budgetTable);
+                //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
+                string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
+                Response.Clear();
+                Response.Charset = "utf-8";
+                Response.ContentType = "text/xls";
+                Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", filename));
+                ///"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx"
+                Response.WriteFile(fileLocation);
+                Response.End();
+            }
+        }
+        #endregion
     }
 }
