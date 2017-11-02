@@ -66,23 +66,108 @@ namespace topmeperp.Controllers
         public ActionResult Application(FormCollection form)
         {
             log.Info("Access to Application page!!");
-            ViewBag.projectid = form["id"];
+            ViewBag.projectid = form["projectid"];
             TnderProject tndservice = new TnderProject();
-            TND_PROJECT p = tndservice.getProjectById(form["id"]);
+            TND_PROJECT p = tndservice.getProjectById(form["projectid"]);
             ViewBag.projectName = p.PROJECT_NAME;
             ViewBag.applyDate = DateTime.Now;
+            string[] deviceItemId = null;
+            string[] fpItemId = null;
+            string[] pepItemId = null;
+            string[] lcpItemId = null;
+            string[] pluItemId = null;
+            string[] fwItemId = null;
+            List<string> AllItemId = new List<string>();
             //取得使用者勾選任務ID
-            log.Info("task_list:" + Request["checkNodeId"]);
-            string[] lstItemId = Request["checkNodeId"].ToString().Split(',');
-            log.Info("select count:" + lstItemId.Count());
-            var i = 0;
-            for (i = 0; i < lstItemId.Count(); i++)
+            if (null != form["map_device"])
             {
-                log.Info("task_list return No.:" + lstItemId[i]);
-                ViewBag.uid = lstItemId[i];
+                log.Info("device task_list:" + Request["map_device"]);
+                deviceItemId = Request["map_device"].ToString().Split(',');
+
+                log.Info("select count:" + deviceItemId.Count());
+                var i = 0;
+                for (i = 0; i < deviceItemId.Count(); i++)
+                {
+                    log.Info("device task_list return No.:" + deviceItemId[i]);
+                    AllItemId.Add(deviceItemId[i]);
+                    //ViewBag.uid = lstItemId[i];
+                }
             }
-            List<PurchaseRequisition> lstPR = service.getPurchaseItemByPrjuid(form["id"], lstItemId);
-            return View(lstPR);
+            if (null != form["map_fp"])
+            {
+                log.Info("fp task_list:" + Request["map_fp"]);
+                fpItemId = Request["map_fp"].ToString().Split(',');
+
+                log.Info("select count:" + fpItemId.Count());
+                var i = 0;
+                for (i = 0; i < fpItemId.Count(); i++)
+                {
+                    log.Info("fp task_list return No.:" + fpItemId[i]);
+                    AllItemId.Add(fpItemId[i]);
+                }
+            }
+            if (null != form["map_pep"])
+            {
+                log.Info("pep task_list:" + Request["map_pep"]);
+                pepItemId = Request["map_pep"].ToString().Split(',');
+
+                log.Info("select count:" + pepItemId.Count());
+                var i = 0;
+                for (i = 0; i < pepItemId.Count(); i++)
+                {
+                    log.Info("pep task_list return No.:" + pepItemId[i]);
+                    AllItemId.Add(pepItemId[i]);
+                }
+            }
+            if (null != form["map_lcp"])
+            {
+                log.Info("pep task_list:" + Request["map_lcp"]);
+                lcpItemId = Request["map_lcp"].ToString().Split(',');
+
+                log.Info("select count:" + lcpItemId.Count());
+                var i = 0;
+                for (i = 0; i < lcpItemId.Count(); i++)
+                {
+                    log.Info("lcp task_list return No.:" + lcpItemId[i]);
+                    AllItemId.Add(lcpItemId[i]);
+                }
+            }
+            if (null != form["map_plu"])
+            {
+                log.Info("plu task_list:" + Request["map_plu"]);
+                pluItemId = Request["map_plu"].ToString().Split(',');
+
+                log.Info("select count:" + pluItemId.Count());
+                var i = 0;
+                for (i = 0; i < pluItemId.Count(); i++)
+                {
+                    log.Info("plu task_list return No.:" + pluItemId[i]);
+                    AllItemId.Add(pluItemId[i]);
+                }
+            }
+            if (null != form["map_fw"])
+            {
+                log.Info("fw task_list:" + Request["map_fw"]);
+                fwItemId = Request["map_fw"].ToString().Split(',');
+
+                log.Info("select count:" + fwItemId.Count());
+                var i = 0;
+                for (i = 0; i < fwItemId.Count(); i++)
+                {
+                    log.Info("fw task_list return No.:" + fwItemId[i]);
+                    AllItemId.Add(fwItemId[i]);
+                }
+            }
+            if(null == form["map_device"] && null == form["map_fp"] && null == form["map_fw"] && null == form["map_pep"] && null == form["map_lcp"] && null == form["map_plu"])
+            {
+                TempData["result"] = "沒有選取要申購的項目名稱，請重新查詢後並勾選物料項目!";
+                return Redirect("PlanTask?id=" + form["projectid"]);
+            }
+            else
+            {
+                List<PurchaseRequisition> lstPR = service.getPurchaseItemByMap(form["projectid"], AllItemId);
+                return View(lstPR);
+            }
         }
 
         //DOM 申購作業功能紐對應不同Action

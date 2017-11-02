@@ -10,7 +10,7 @@
     <div class="row">
         <div class="row">
             <div class="col-md-4 form-group" style="padding-top:10px">
-                <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                <label for="id">專案編號:</label><input id="projectid" name="projectid" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
             </div>
             <div class="col-md-4" style="padding-top:10px">
                 <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
@@ -39,14 +39,19 @@
                         </div>
                         <div class="row">
                             <div class="col-md-12">
-                                <label class="control-label" for="mapType">施作項目:</label>
-                                <input type="checkbox" name="mapType" id="mapType" value="MAP_DEVICE" title="設備" />設備
-                                <input type="checkbox" name="mapType" id="mapType" value="MAP_PEP" title="電器管線" />電器管線
-                                <input type="checkbox" name="mapType" id="mapType" value="MAP_LCP" title="弱電管線" />弱電管線
-                                <input type="checkbox" name="mapType" id="mapType" value="TND_MAP_PLU" title="給排水" />給排水
-                                <input type="checkbox" name="mapType" id="mapType" value="MAP_FP" title="消防電" />消防電
-                                <input type="checkbox" name="mapType" id="mapType" value="MAP_FW" title="消防水" />消防水
-                                <button class="btn btn-info" type="button" onclick="getMapItem4Task()">查詢</button>
+                                <div class="col-md-8">
+                                    <label class="control-label" for="mapType">施作項目:</label>
+                                    <input type="checkbox" name="mapType" id="mapType" value="MAP_DEVICE" title="設備" />設備
+                                    <input type="checkbox" name="mapType" id="mapType" value="MAP_PEP" title="電器管線" />電器管線
+                                    <input type="checkbox" name="mapType" id="mapType" value="MAP_LCP" title="弱電管線" />弱電管線
+                                    <input type="checkbox" name="mapType" id="mapType" value="TND_MAP_PLU" title="給排水" />給排水
+                                    <input type="checkbox" name="mapType" id="mapType" value="MAP_FP" title="消防電" />消防電
+                                    <input type="checkbox" name="mapType" id="mapType" value="MAP_FW" title="消防水" />消防水
+                                    <button class="btn btn-info" type="button" onclick="getMapItem4Task()">查詢</button>
+                                </div>
+                                <div class="col-md-4 alert-info">
+                                    @Html.Raw(TempData["result"])
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -54,14 +59,17 @@
             </div>
         </div>
         <div class="row">
-            <div class="" col-md-12">
-                <form id="formMapItem" name="formMapItem">
-                    <input type="hidden" id="checkNodeId" name="checkNodeId" value="" />
-                    <input type="hidden" id="projectid" name="projectid" value="@ViewBag.projectId" />
-                    <div class="container" id="MapItem" >
-                    </div>
-                </form>
-                <input type="submit" value="申購物料" class="btn btn-default" onclick="return Confirm_Form()" />
+            <div class="col-md-12">
+                @using (Html.BeginForm("Application", "MaterialManage", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <form id="formMapItem" name="formMapItem">
+                        <input type="hidden" id="checkNodeId" name="checkNodeId" value="" />
+                        <input type="hidden" id="projectid" name="projectid" value="@ViewBag.projectid" />
+                        <div class="container" id="MapItem" style="padding : 30px">
+                        </div>
+                        <input type="submit" value="申購物料" class="btn btn-default" />
+                    </form>
+                }
             </div>
         </div>
     </div>
@@ -90,13 +98,6 @@
         }
     });
 
-    function Confirm_Form() {
-        var method1 = $('input[name=checkNodeId]').val();
-        if (method1 == "") { // 注意檢查完全沒有選取的寫法，這行是精華
-            alert("沒有選取要申購物料的任務名稱，請重新勾選任務！");
-            return false;
-        }
-    }
     //讀取圖算資料
     function getMapItem4Task() {
         $.ajax({
@@ -109,18 +110,5 @@
             }
         })
     }
-    ///選擇圖算
-    function choiceMapItem() {
-        var formData = $("#formMapItem").serialize();
-        console.log(formData);
-        $.ajax({
-            url: "choiceMapItem",
-            data: formData,
-            method: "POST",
-            dataType: "text",
-            success: function (result) {
-                alert(result);
-            }
-        })
-    }
+
 </script>
