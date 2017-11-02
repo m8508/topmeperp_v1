@@ -62,8 +62,6 @@ namespace topmeperp.Controllers
             return View();
         }
 
-
-
         //物料申購
         public ActionResult Application(FormCollection form)
         {
