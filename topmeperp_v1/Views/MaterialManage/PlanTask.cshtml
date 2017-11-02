@@ -10,7 +10,7 @@
     <div class="row">
         <div class="row">
             <div class="col-md-4 form-group" style="padding-top:10px">
-                <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                <label for="id">專案編號:</label><input id="projectid" name="projectid" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
             </div>
             <div class="col-md-4" style="padding-top:10px">
                 <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
@@ -48,8 +48,8 @@
                             <div class="col-md-12">
                                 <input type="hidden" name="projectid" id="projectid" value="@ViewBag.projectid" readonly />
                                 <div class="col-md-4">
-                                    <label class="control-label" for="mapno">圖號: </label><input type="text" name="mapno" id="mapno" value="" size="6"/>
-                                    <label class="control-label" for="buildno">區域或棟別: </label><input type="text" name="buildno" id="buildno" value="" size="6"/>
+                                    <label class="control-label" for="mapno">圖號: </label><input type="text" name="mapno" id="mapno" value="" size="6" />
+                                    <label class="control-label" for="buildno">區域或棟別: </label><input type="text" name="buildno" id="buildno" value="" size="6" />
                                 </div>
                                 <div class="col-md-8">
                                     <label class="control-label" for="secondside">設備名稱: </label><input type="text" name="devicename" id="devicename" value="" />
@@ -76,17 +76,27 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="" col-md-12">
-                <form id="formMapItem" name="formMapItem">
-                    <input type="hidden" id="checkNodeId" name="checkNodeId" value="" />
-                    <input type="hidden" id="projectid" name="projectid" value="@ViewBag.projectId" />
-                    <div class="container" id="MapItem">
-                    </div>
-                </form>
-                <input type="submit" value="申購物料" class="btn btn-default" onclick="return Confirm_Form()" />
+        @using (Html.BeginForm("Application", "MaterialManage", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+
+            <div class="row">
+                <div class="col-md-12">
+                    <form id="formMapItem" name="formMapItem">
+                        <input type="hidden" id="checkNodeId" name="checkNodeId" value="" />
+                        <input type="hidden" id="projectid" name="projectid" value="@ViewBag.projectid" />
+                        <div class="container" id="MapItem" style="padding-bottom :30px;">
+                            <div class="col-md-6">
+
+                            </div>
+                            <div class="col-md-5 alert-info">
+                                @Html.Raw(TempData["result"])
+                            </div>
+                        </div>
+                    </form>
+                    <input type="submit" value="申購物料" class="btn btn-default" />
+                </div>
             </div>
-        </div>
+        }
     </div>
 </div>
 
@@ -113,13 +123,6 @@
         }
     });
 
-    function Confirm_Form() {
-        var method1 = $('input[name=checkNodeId]').val();
-        if (method1 == "") { // 注意檢查完全沒有選取的寫法，這行是精華
-            alert("沒有選取要申購物料的任務名稱，請重新勾選任務！");
-            return false;
-        }
-    }
     //讀取圖算資料
     function getMapItem4Task() {
         $.ajax({
@@ -132,18 +135,5 @@
             }
         })
     }
-    ///選擇圖算
-    function choiceMapItem() {
-        var formData = $("#formMapItem").serialize();
-        console.log(formData);
-        $.ajax({
-            url: "choiceMapItem",
-            data: formData,
-            method: "POST",
-            dataType: "text",
-            success: function (result) {
-                alert(result);
-            }
-        })
-    }
+
 </script>

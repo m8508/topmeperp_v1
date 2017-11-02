@@ -1783,10 +1783,10 @@ namespace topmeperp.Service
         public PLAN_PURCHASE_REQUISITION formPR = null;
         public List<PurchaseRequisition> PRItem = null;
 
-        public List<PurchaseRequisition> getPurchaseItemByPrjuid(string projectid, string[] lstItemId)
+        public List<PurchaseRequisition> getPurchaseItemByMap(string projectid, List<string> lstItemId)
         {
             //取得任務採購內容
-            logger.Info("get plan item by prj_uid ");
+            logger.Info("get plan item by map ");
             List<PurchaseRequisition> lstItem = new List<PurchaseRequisition>();
             using (var context = new topmepEntities())
             {
@@ -1803,12 +1803,12 @@ namespace topmeperp.Service
                     }
                 }
 
-                string sql = "SELECT pi.* , md.QTY AS MAP_QTY, B.CUMULATIVE_QTY, C.ALL_RECEIPT_QTY- D.DELIVERY_QTY AS INVENTORY_QTY FROM PLAN_ITEM pi JOIN TND_MAP_DEVICE md ON pi.PLAN_ITEM_ID = md.PROJECT_ITEM_ID  " +
-                    "JOIN PLAN_TASK2MAPITEM pt ON md.DEVIVE_ID = pt.MAP_PK LEFT JOIN (SELECT pri.PLAN_ITEM_ID, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY " +
+                string sql = "SELECT pi.* , map.QTY AS MAP_QTY, B.CUMULATIVE_QTY, C.ALL_RECEIPT_QTY- D.DELIVERY_QTY AS INVENTORY_QTY FROM PLAN_ITEM pi  " +
+                    "JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT JOIN (SELECT pri.PLAN_ITEM_ID, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY " +
                     "FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE PR_ID LIKE 'PPO%' GROUP BY pri.PLAN_ITEM_ID )B ON pi.PLAN_ITEM_ID = B.PLAN_ITEM_ID " +
                     "LEFT JOIN(SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS ALL_RECEIPT_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE PR_ID LIKE 'RP%' GROUP BY " +
                     "pri.PLAN_ITEM_ID)C ON pi.PLAN_ITEM_ID = C.PLAN_ITEM_ID LEFT JOIN (SELECT pid.PLAN_ITEM_ID, SUM(pid.DELIVERY_QTY) AS DELIVERY_QTY FROM PLAN_ITEM_DELIVERY pid " +
-                    "GROUP BY pid.PLAN_ITEM_ID)D ON pi.PLAN_ITEM_ID = D.PLAN_ITEM_ID WHERE pi.PROJECT_ID = @projectid AND pt.PRJ_UID IN (" + ItemId + ") ";
+                    "GROUP BY pid.PLAN_ITEM_ID)D ON pi.PLAN_ITEM_ID = D.PLAN_ITEM_ID WHERE pi.PROJECT_ID = @projectid AND pi.PLAN_ITEM_ID IN (" + ItemId + ") ";
 
                 logger.Info("sql = " + sql);
                 var parameters = new List<SqlParameter>();
