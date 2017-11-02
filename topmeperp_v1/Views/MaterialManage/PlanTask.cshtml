@@ -10,7 +10,7 @@
     <div class="row">
         <div class="row">
             <div class="col-md-4 form-group" style="padding-top:10px">
-                <label for="id">專案編號:</label><input id="projectid" name="projectid" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
             </div>
             <div class="col-md-4" style="padding-top:10px">
                 <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
@@ -21,37 +21,55 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <h2>申購內容查詢</h2>
-                <div class="container">
+                <h3>申購內容查詢</h3>
+                <div class="container form-group">
                     <form name="formQueryForm" id="formQueryForm">
-                        <div class="row panel-heading">
-                            <div class="col-md-12">
-                                <input type="hidden" name="projectid" id="projectid" value="@ViewBag.projectid" readonly />
-                                <label class="control-label" for="mapno">圖號: </label><input type="text" name="mapno" id="mapno" value="" size="5" />
-                                <label class="control-label" for="buildno">區域或棟別: </label><input type="text" name="buildno" id="buildno" value="" size="5" /><br />
-                                <label class="control-label" for="primeside">位置(一次側): </label><input type="text" name="primeside" id="primeside" value="" size="5" />
-                                <label class="control-label" for="secondside">位置(二次側): </label><input type="text" name="secondside" id="secondside" value="" size="5" /><br />
-                                <label class="control-label" for="secondside">設備名稱: </label><input type="text" name="devicename" id="devicename" value="" size="5" />
-                                <label class="control-label" for="secondside">編號: </label>
-                                <input type="text" name="startid" id="startid" value="" size="5" />~
-                                <input type="text" name="endid" id="endid" value="" size="5" />
-                            </div>
-                        </div>
+                        <!--設備主要依據9宮格次九宮格-->
                         <div class="row">
                             <div class="col-md-12">
+                                <label class="control-label" for="typeCode1">九宮格: </label><input type="text" name="typeCode1" id="typeCode1" value="" />
+                                <label class="control-label" for="typeCode2">次九宮格: </label><input type="text" name="typeCode2" id="typeCode2" value="" />
+                                <label class="control-label" for="SystemMain">主系統 </label><input type="text" name="SystemMain" id="SystemMain" value="" />
+                                <label class="control-label" for="systemSub">次系統: </label><input type="text" name="systemSub" id="systemSub" value="" />
+                            </div>
+                        </div>
+                        <!--電器管線主要依據一次側位置、名稱，二次側位置、名稱-->
+                        <!--給排水管線主要依據一次側位置、名稱-->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label class="control-label" for="primeside">(一次側)位置: </label><input type="text" name="primeside" id="primeside" value="" />
+                                <label class="control-label" for="primesideName">名稱: </label><input type="text" name="primesideName" id="primesideName" value="" />
+                                <label class="control-label" for="secondside">(二次側)名稱: </label><input type="text" name="secondside" id="secondside" value="" />
+                                <label class="control-label" for="secondsideName">位置: </label><input type="text" name="secondsideName" id="secondsideName" value="" />
+                            </div>
+                        </div>
+                        <!--其他-->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <input type="hidden" name="projectid" id="projectid" value="@ViewBag.projectid" readonly />
+                                <div class="col-md-4">
+                                    <label class="control-label" for="mapno">圖號: </label><input type="text" name="mapno" id="mapno" value="" size="6"/>
+                                    <label class="control-label" for="buildno">區域或棟別: </label><input type="text" name="buildno" id="buildno" value="" size="6"/>
+                                </div>
                                 <div class="col-md-8">
-                                    <label class="control-label" for="mapType">施作項目:</label>
-                                    <input type="checkbox" name="mapType" id="mapType" value="MAP_DEVICE" title="設備" />設備
-                                    <input type="checkbox" name="mapType" id="mapType" value="MAP_PEP" title="電器管線" />電器管線
-                                    <input type="checkbox" name="mapType" id="mapType" value="MAP_LCP" title="弱電管線" />弱電管線
-                                    <input type="checkbox" name="mapType" id="mapType" value="TND_MAP_PLU" title="給排水" />給排水
-                                    <input type="checkbox" name="mapType" id="mapType" value="MAP_FP" title="消防電" />消防電
-                                    <input type="checkbox" name="mapType" id="mapType" value="MAP_FW" title="消防水" />消防水
-                                    <button class="btn btn-info" type="button" onclick="getMapItem4Task()">查詢</button>
+                                    <label class="control-label" for="secondside">設備名稱: </label><input type="text" name="devicename" id="devicename" value="" />
+                                    <label class="control-label" for="secondside">編號: </label>
+                                    <input type="text" name="startid" id="startid" value="" />~
+                                    <input type="text" name="endid" id="endid" value="" />
                                 </div>
-                                <div class="col-md-4 alert-info">
-                                    @Html.Raw(TempData["result"])
-                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label class="control-label" for="mapType">施作項目:</label>
+                                <input type="checkbox" name="mapType" id="mapType" value="MAP_DEVICE" title="設備" />設備
+                                <input type="checkbox" name="mapType" id="mapType" value="MAP_PEP" title="電器管線" />電器管線
+                                <input type="checkbox" name="mapType" id="mapType" value="MAP_LCP" title="弱電管線" />弱電管線
+                                <input type="checkbox" name="mapType" id="mapType" value="TND_MAP_PLU" title="給排水" />給排水
+                                <input type="checkbox" name="mapType" id="mapType" value="MAP_FP" title="消防電" />消防電
+                                <input type="checkbox" name="mapType" id="mapType" value="MAP_FW" title="消防水" />消防水
+                                <button class="btn btn-info" type="button" onclick="getMapItem4Task()">查詢</button>
                             </div>
                         </div>
                     </form>
@@ -59,17 +77,14 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-12">
-                @using (Html.BeginForm("Application", "MaterialManage", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
-                {
-                    <form id="formMapItem" name="formMapItem">
-                        <input type="hidden" id="checkNodeId" name="checkNodeId" value="" />
-                        <input type="hidden" id="projectid" name="projectid" value="@ViewBag.projectid" />
-                        <div class="container" id="MapItem" style="padding : 30px">
-                        </div>
-                        <input type="submit" value="申購物料" class="btn btn-default" />
-                    </form>
-                }
+            <div class="" col-md-12">
+                <form id="formMapItem" name="formMapItem">
+                    <input type="hidden" id="checkNodeId" name="checkNodeId" value="" />
+                    <input type="hidden" id="projectid" name="projectid" value="@ViewBag.projectId" />
+                    <div class="container" id="MapItem">
+                    </div>
+                </form>
+                <input type="submit" value="申購物料" class="btn btn-default" onclick="return Confirm_Form()" />
             </div>
         </div>
     </div>
@@ -98,6 +113,13 @@
         }
     });
 
+    function Confirm_Form() {
+        var method1 = $('input[name=checkNodeId]').val();
+        if (method1 == "") { // 注意檢查完全沒有選取的寫法，這行是精華
+            alert("沒有選取要申購物料的任務名稱，請重新勾選任務！");
+            return false;
+        }
+    }
     //讀取圖算資料
     function getMapItem4Task() {
         $.ajax({
@@ -110,5 +132,18 @@
             }
         })
     }
-
+    ///選擇圖算
+    function choiceMapItem() {
+        var formData = $("#formMapItem").serialize();
+        console.log(formData);
+        $.ajax({
+            url: "choiceMapItem",
+            data: formData,
+            method: "POST",
+            dataType: "text",
+            success: function (result) {
+                alert(result);
+            }
+        })
+    }
 </script>
