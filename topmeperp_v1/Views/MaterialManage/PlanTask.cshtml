@@ -21,22 +21,45 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <h2>申購內容查詢</h2>
-                <div class="container">
+                <h3>申購內容查詢</h3>
+                <div class="container form-group">
                     <form name="formQueryForm" id="formQueryForm">
-                        <div class="row panel-heading">
+                        <!--設備主要依據9宮格次九宮格-->
+                        <div class="row">
                             <div class="col-md-12">
-                                <input type="hidden" name="projectid" id="projectid" value="@ViewBag.projectid" readonly />
-                                <label class="control-label" for="mapno">圖號: </label><input type="text" name="mapno" id="mapno" value="" size="5" />
-                                <label class="control-label" for="buildno">區域或棟別: </label><input type="text" name="buildno" id="buildno" value="" size="5" /><br />
-                                <label class="control-label" for="primeside">位置(一次側): </label><input type="text" name="primeside" id="primeside" value="" size="5" />
-                                <label class="control-label" for="secondside">位置(二次側): </label><input type="text" name="secondside" id="secondside" value="" size="5" /><br />
-                                <label class="control-label" for="secondside">設備名稱: </label><input type="text" name="devicename" id="devicename" value="" size="5" />
-                                <label class="control-label" for="secondside">編號: </label>
-                                <input type="text" name="startid" id="startid" value="" size="5" />~
-                                <input type="text" name="endid" id="endid" value="" size="5" />
+                                <label class="control-label" for="typeCode1">九宮格: </label><input type="text" name="typeCode1" id="typeCode1" value="" />
+                                <label class="control-label" for="typeCode2">次九宮格: </label><input type="text" name="typeCode2" id="typeCode2" value="" />
+                                <label class="control-label" for="SystemMain">主系統 </label><input type="text" name="SystemMain" id="SystemMain" value="" />
+                                <label class="control-label" for="systemSub">次系統: </label><input type="text" name="systemSub" id="systemSub" value="" />
                             </div>
                         </div>
+                        <!--電器管線主要依據一次側位置、名稱，二次側位置、名稱-->
+                        <!--給排水管線主要依據一次側位置、名稱-->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label class="control-label" for="primeside">(一次側)位置: </label><input type="text" name="primeside" id="primeside" value="" />
+                                <label class="control-label" for="primesideName">名稱: </label><input type="text" name="primesideName" id="primesideName" value="" />
+                                <label class="control-label" for="secondside">(二次側)名稱: </label><input type="text" name="secondside" id="secondside" value="" />
+                                <label class="control-label" for="secondsideName">位置: </label><input type="text" name="secondsideName" id="secondsideName" value="" />
+                            </div>
+                        </div>
+                        <!--其他-->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <input type="hidden" name="projectid" id="projectid" value="@ViewBag.projectid" readonly />
+                                <div class="col-md-4">
+                                    <label class="control-label" for="mapno">圖號: </label><input type="text" name="mapno" id="mapno" value="" size="6"/>
+                                    <label class="control-label" for="buildno">區域或棟別: </label><input type="text" name="buildno" id="buildno" value="" size="6"/>
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="control-label" for="secondside">設備名稱: </label><input type="text" name="devicename" id="devicename" value="" />
+                                    <label class="control-label" for="secondside">編號: </label>
+                                    <input type="text" name="startid" id="startid" value="" />~
+                                    <input type="text" name="endid" id="endid" value="" />
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="row">
                             <div class="col-md-12">
                                 <label class="control-label" for="mapType">施作項目:</label>
@@ -58,7 +81,7 @@
                 <form id="formMapItem" name="formMapItem">
                     <input type="hidden" id="checkNodeId" name="checkNodeId" value="" />
                     <input type="hidden" id="projectid" name="projectid" value="@ViewBag.projectId" />
-                    <div class="container" id="MapItem" >
+                    <div class="container" id="MapItem">
                     </div>
                 </form>
                 <input type="submit" value="申購物料" class="btn btn-default" onclick="return Confirm_Form()" />
