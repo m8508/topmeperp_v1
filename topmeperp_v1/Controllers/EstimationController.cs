@@ -1244,7 +1244,7 @@ namespace topmeperp.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddExpense(FIN_EXPENSE_FORM ef)
+        public ActionResult AddExpense(FIN_EXPENSE_FORM ef)//(尚未完成)
         {
             string[] lstSubject = Request["subject"].Split(',');
             string[] lstAmount = Request["expense_amount"].Split(',');
@@ -1288,7 +1288,7 @@ namespace topmeperp.Controllers
             return Redirect("SingleEXPForm?id=" + fid);
         }
 
-        //顯示單一工地費用單功能
+        //顯示單一工地費用單功能(尚未完成)
         public ActionResult SingleEXPForm(string id)
         {
             logger.Info("http get mehtod:" + id);
@@ -1309,13 +1309,25 @@ namespace topmeperp.Controllers
             //取得工地費用預算資料
             var priId = service.getSiteBudgetById(id);
             ViewBag.budgetdata = priId;
-            //if (null == priId)
-            //取得已寫入之工地費用預算資料
-            //List<DirectCost> budget = service.getBudget(id);
-            //ViewBag.result = "共有" + budget.Count + "筆資料";
-            return View();
+            List<ExpenseBudgetSummary> SiteBudget = null;
+            if (null != priId && priId != "")
+            {
+                //取得已寫入之工地費用預算資料
+                string year = Request["year"];
+                SiteBudget = service.getSiteBudgetByProject(id);
+                ViewBag.budgetYear = service.getYearOfSiteBudgetById(id);
+            }
+            return View(SiteBudget);
         }
 
+        public ActionResult SiteBudgetOperation(string id)
+        {
+            logger.Info("Access to Site Budget Page, And Project Id = " + id);
+            ViewBag.projectid = id;
+            TND_PROJECT p = service.getProjectById(id);
+            ViewBag.projectName = p.PROJECT_NAME;
+            return View();
+        }
         /// <summary>
         /// 下載工地費用預算填寫表
         /// </summary>
@@ -1339,6 +1351,181 @@ namespace topmeperp.Controllers
                 Response.WriteFile(fileLocation);
                 Response.End();
             }
+        }
+
+        //上傳工地費用預算
+        [HttpPost]
+        public ActionResult uploadSiteBudgetTable(HttpPostedFileBase fileBudget1, HttpPostedFileBase fileBudget2, HttpPostedFileBase fileBudget3,
+            HttpPostedFileBase fileBudget4, HttpPostedFileBase fileBudget5)
+        {
+            string projectid = Request["projectid"];
+            string message = "";
+            logger.Info("Upload plan Budget of Site Expenses for projectid=" + projectid);
+            try
+            {
+                //檔案變數名稱需要與前端畫面對應
+                #region 預算第1年度
+                //工地費用:預算第1年度
+                if (null != fileBudget1 && fileBudget1.ContentLength != 0)
+                {
+                    //2.解析Excel
+                    logger.Info("Parser Excel data:" + fileBudget1.FileName);
+                    //2.1 設定Excel 檔案名稱
+                    var fileName = Path.GetFileName(fileBudget1.FileName);
+                    var path = Path.Combine(ContextService.strUploadPath + "/" + projectid, fileName);
+                    logger.Info("save excel file:" + path);
+                    fileBudget1.SaveAs(path);
+                    //2.2 開啟Excel 檔案
+                    logger.Info("Parser Excel File Begin:" + fileBudget1.FileName);
+                    SiteBudgetFormToExcel budgetservice = new SiteBudgetFormToExcel();
+                    budgetservice.InitializeWorkbook(path);
+                    //解析預算數量
+                    List<PLAN_SITE_BUDGET> lstSiteBudget = budgetservice.ConvertDataForSiteBudget1(projectid);
+                    //2.3 記錄錯誤訊息
+                    message = budgetservice.errorMessage;
+                    //2.4
+                    var year = 1.ToString();
+                    logger.Info("Delete PALN_SITE_BUDGET By Project");
+                    service.delSiteBudgetByProject(projectid, year);
+                    message = message + "<br/>舊有資料刪除成功 !!";
+                    //2.5 
+                    logger.Info("Add First Year PALN_SITE_BUDGET to DB");
+                    service.refreshSiteBudget(lstSiteBudget);
+                    message = message + "<br/>資料匯入完成 !!";
+                }
+                #endregion
+                #region 預算第2年度
+                //工地費用:預算第2年度
+               
+                if (null != fileBudget1 && fileBudget1.ContentLength != 0)
+                {
+                    //2.解析Excel
+                    logger.Info("Parser Excel data:" + fileBudget1.FileName);
+                    //2.1 設定Excel 檔案名稱
+                    var fileName = Path.GetFileName(fileBudget1.FileName);
+                    var path = Path.Combine(ContextService.strUploadPath + "/" + projectid, fileName);
+                    logger.Info("save excel file:" + path);
+                    fileBudget1.SaveAs(path);
+                    //2.2 開啟Excel 檔案
+                    logger.Info("Parser Excel File Begin:" + fileBudget1.FileName);
+                    SiteBudgetFormToExcel budgetservice = new SiteBudgetFormToExcel();
+                    budgetservice.InitializeWorkbook(path);
+                    //解析預算數量
+                    List<PLAN_SITE_BUDGET> _2ndSiteBudget = budgetservice.ConvertDataForSiteBudget2(projectid);
+                    //2.3 記錄錯誤訊息
+                    message = budgetservice.errorMessage;
+                    //2.4
+                    var year = 2.ToString();
+                    logger.Info("Delete PALN_SITE_BUDGET By Project");
+                    service.delSiteBudgetByProject(projectid, year);
+                    message = message + "<br/>舊有資料刪除成功 !!";
+                    //2.5 
+                    logger.Info("Add Second Year PALN_SITE_BUDGET to DB");
+                    service.refreshSiteBudget(_2ndSiteBudget);
+                    message = message + "<br/>資料匯入完成 !!";
+                }
+                #endregion
+                #region 預算第3年度
+                //工地費用:預算第3年度
+
+                if (null != fileBudget1 && fileBudget1.ContentLength != 0)
+                {
+                    //2.解析Excel
+                    logger.Info("Parser Excel data:" + fileBudget1.FileName);
+                    //2.1 設定Excel 檔案名稱
+                    var fileName = Path.GetFileName(fileBudget1.FileName);
+                    var path = Path.Combine(ContextService.strUploadPath + "/" + projectid, fileName);
+                    logger.Info("save excel file:" + path);
+                    fileBudget1.SaveAs(path);
+                    //2.2 開啟Excel 檔案
+                    logger.Info("Parser Excel File Begin:" + fileBudget1.FileName);
+                    SiteBudgetFormToExcel budgetservice = new SiteBudgetFormToExcel();
+                    budgetservice.InitializeWorkbook(path);
+                    //解析預算數量
+                    List<PLAN_SITE_BUDGET> _3rdSiteBudget = budgetservice.ConvertDataForSiteBudget2(projectid);
+                    //2.3 記錄錯誤訊息
+                    message = budgetservice.errorMessage;
+                    //2.4
+                    var year = 3.ToString();
+                    logger.Info("Delete PALN_SITE_BUDGET By Project");
+                    service.delSiteBudgetByProject(projectid, year);
+                    message = message + "<br/>舊有資料刪除成功 !!";
+                    //2.5 
+                    logger.Info("Add Second Year PALN_SITE_BUDGET to DB");
+                    service.refreshSiteBudget(_3rdSiteBudget);
+                    message = message + "<br/>資料匯入完成 !!";
+                }
+                #endregion
+                #region 預算第4年度
+                //工地費用:預算第4年度
+
+                if (null != fileBudget1 && fileBudget1.ContentLength != 0)
+                {
+                    //2.解析Excel
+                    logger.Info("Parser Excel data:" + fileBudget1.FileName);
+                    //2.1 設定Excel 檔案名稱
+                    var fileName = Path.GetFileName(fileBudget1.FileName);
+                    var path = Path.Combine(ContextService.strUploadPath + "/" + projectid, fileName);
+                    logger.Info("save excel file:" + path);
+                    fileBudget1.SaveAs(path);
+                    //2.2 開啟Excel 檔案
+                    logger.Info("Parser Excel File Begin:" + fileBudget1.FileName);
+                    SiteBudgetFormToExcel budgetservice = new SiteBudgetFormToExcel();
+                    budgetservice.InitializeWorkbook(path);
+                    //解析預算數量
+                    List<PLAN_SITE_BUDGET> _4thSiteBudget = budgetservice.ConvertDataForSiteBudget2(projectid);
+                    //2.3 記錄錯誤訊息
+                    message = budgetservice.errorMessage;
+                    //2.4
+                    var year = 4.ToString();
+                    logger.Info("Delete PALN_SITE_BUDGET By Project");
+                    service.delSiteBudgetByProject(projectid, year);
+                    message = message + "<br/>舊有資料刪除成功 !!";
+                    //2.5 
+                    logger.Info("Add Second Year PALN_SITE_BUDGET to DB");
+                    service.refreshSiteBudget(_4thSiteBudget);
+                    message = message + "<br/>資料匯入完成 !!";
+                }
+                #endregion
+                #region 預算第5年度
+                //工地費用:預算第5年度
+
+                if (null != fileBudget1 && fileBudget1.ContentLength != 0)
+                {
+                    //2.解析Excel
+                    logger.Info("Parser Excel data:" + fileBudget1.FileName);
+                    //2.1 設定Excel 檔案名稱
+                    var fileName = Path.GetFileName(fileBudget1.FileName);
+                    var path = Path.Combine(ContextService.strUploadPath + "/" + projectid, fileName);
+                    logger.Info("save excel file:" + path);
+                    fileBudget1.SaveAs(path);
+                    //2.2 開啟Excel 檔案
+                    logger.Info("Parser Excel File Begin:" + fileBudget1.FileName);
+                    SiteBudgetFormToExcel budgetservice = new SiteBudgetFormToExcel();
+                    budgetservice.InitializeWorkbook(path);
+                    //解析預算數量
+                    List<PLAN_SITE_BUDGET> _5thSiteBudget = budgetservice.ConvertDataForSiteBudget2(projectid);
+                    //2.3 記錄錯誤訊息
+                    message = budgetservice.errorMessage;
+                    //2.4
+                    var year = 5.ToString();
+                    logger.Info("Delete PALN_SITE_BUDGET By Project");
+                    service.delSiteBudgetByProject(projectid, year);
+                    message = message + "<br/>舊有資料刪除成功 !!";
+                    //2.5 
+                    logger.Info("Add Second Year PALN_SITE_BUDGET to DB");
+                    service.refreshSiteBudget(_5thSiteBudget);
+                    message = message + "<br/>資料匯入完成 !!";
+                }
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex.StackTrace);
+                message = ex.Message;
+            }
+            TempData["result"] = message;
+            return RedirectToAction("SiteBudget/" + projectid);
         }
         #endregion
     }

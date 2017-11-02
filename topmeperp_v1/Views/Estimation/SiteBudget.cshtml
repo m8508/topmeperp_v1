@@ -1,28 +1,84 @@
 ﻿
 @{
-    ViewBag.Title = "工地費用預算作業";
+    ViewBag.Title = "工地費用預算查詢";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 
-<div class="page-header">
-    <h2 style="padding-bottom:10px;">工地費用預算 : </h2>
+<div class="jumbotron">
     <div class="row">
-        <div class="col-md-6 form-group" style="padding-top:10px">
-            <label for="id">專案編號:</label><input id="projectid" name="projectid" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+        <div class="col-md-12">
+            <div class="col-md-8">
+                <h3 style="padding-bottom:10px;">工地費用預算 :</h3>
+            </div>
+            <div class="col-md-4" style="padding-top:15px;"> 
+                <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+            </div>
+            </div>
+        <form name="FormSiteBudgetInfo" id="FormSiteBudgetInfo">
+            <div class="col-md-4 form-group" style="padding-top:10px">
+                <label for="id">專案編號:</label><input id="projectid" name="projectid" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            </div>
+            <div class="col-md-4" style="padding-top:10px">
+                <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            </div>
+        </form>
+        <div class="col-md-4">
+            <div class="col-md-4 alert-info">
+                @Html.Raw(TempData["result"])
+            </div>
         </div>
-        <div class="col-md-6" style="padding-top:10px">
-            <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+        <div id="divProcessing">
+            <img src="~/Content/ajax-loader.gif">
         </div>
     </div>
-        <div class="row col-md-12" style="padding-top:10px">
-            <label>🎪工地費用預算填寫表連結 : </label>
-            <a href="/Estimation/downLoadSiteBudgetForm?projectid=@ViewBag.projectid" target="_blank">下載</a>
-        </div>
-    <form id="UploadFile" name="UploadFile" action="/Estimation/uploadSiteBudgetTable" method="post" enctype="multipart/form-data">
-        <label for="file">🎪工地費用預算匯入:</label>
-        <input type="file" name="fileBudget" id="fileBudget" />
-        <input type="hidden" name="projectid" id="projectid" value="@ViewBag.projectid" />
-        <input id="btnUploadfile" name="btnUploadfile" type="submit" class="btn-primary" value="匯入檔案" onclick="return Confirm_Form()" />
-    </form>
 </div>
 
+<div class="container-fluid">
+    <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#FirstYear">第1年度</a></li>
+        <li><a data-toggle="tab" href="#SecondYear">第2年度</a></li>
+        <li><a data-toggle="tab" href="#ThirdYear">第3年度</a></li>
+        <li><a data-toggle="tab" href="#FourthYear">第4年度</a></li>
+        <li><a data-toggle="tab" href="#FifthYear">第5年度</a></li>
+    </ul>
+
+    <div class="tab-content">
+        <div id="FirstYear" class="tab-pane fade in active">
+            @{
+                Html.RenderPartial("_FirstYearPage");
+            }
+        </div>
+        <div id="SecondYear" class="tab-pane fade">
+            @{
+                Html.RenderPartial("_SecondYearPage");
+            }
+
+        </div>
+        <div id="ThirdYear" class="tab-pane fade">
+            @{
+                Html.RenderPartial("_ThirdYearPage");
+            }
+        </div>
+        <div id="FourthYear" class="tab-pane fade">
+            @{
+                Html.RenderPartial("_FourthYearPage");
+            }
+        </div>
+        <div id="FifthYear" class="tab-pane fade">
+            @{
+                Html.RenderPartial("_FifthYearPage");
+            }
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Hide the "busy" Gif at load:
+        $("#divProcessing").hide();
+        // Attach click handler to the submit button:
+        $('#login').click(function () {
+            $("#divProcessing").show();
+        });
+    });
+</script>

@@ -943,10 +943,16 @@
     <Content Include="Views\CashFlow\_PlanAccountItem.cshtml" />
     <Content Include="Views\Estimation\Expense.cshtml" />
     <Content Include="Views\Estimation\_SubjectList.cshtml" />
-    <Content Include="Views\Estimation\SiteBudget.cshtml" />
+    <Content Include="Views\Estimation\SiteBudgetOperation.cshtml" />
     <Content Include="Views\SubjectManage\Index.cshtml" />
     <Content Include="Views\SubjectManage\_SubjectList.cshtml" />
     <Content Include="Views\SubjectManage\_Subject.cshtml" />
+    <Content Include="Views\Estimation\SiteBudget.cshtml" />
+    <Content Include="Views\Estimation\_FirstYearPage.cshtml" />
+    <Content Include="Views\Estimation\_SecondYearPage.cshtml" />
+    <Content Include="Views\Estimation\_ThirdYearPage.cshtml" />
+    <Content Include="Views\Estimation\_FourthYearPage.cshtml" />
+    <Content Include="Views\Estimation\_FifthYearPage.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -300,7 +300,7 @@ namespace topmeperp.Controllers
             ef.OCCURRED_YEAR = int.Parse(form.Get("year").Trim());
             ef.OCCURRED_MONTH = int.Parse(form.Get("month").Trim());
             ef.REMARK = form.Get("remark").Trim();
-            ef.CONTRACT_ID = form.Get("createid").Trim();
+            ef.CREATE_ID = form.Get("createid").Trim();
             ef.PAYMENT_DATE = Convert.ToDateTime(form.Get("paymentdate"));
             ef.CREATE_DATE = Convert.ToDateTime(form.Get("createdate"));
             ef.STATUS = int.Parse(form.Get("status").Trim());
@@ -358,7 +358,7 @@ namespace topmeperp.Controllers
             ef.OCCURRED_YEAR = int.Parse(form.Get("year").Trim());
             ef.OCCURRED_MONTH = int.Parse(form.Get("month").Trim());
             ef.REMARK = form.Get("remark").Trim();
-            ef.CONTRACT_ID = form.Get("createid").Trim();
+            ef.CREATE_ID = form.Get("createid").Trim();
             ef.PAYMENT_DATE = Convert.ToDateTime(form.Get("paymentdate"));
             ef.CREATE_DATE = Convert.ToDateTime(form.Get("createdate"));
             ef.STATUS = int.Parse(form.Get("status").Trim());

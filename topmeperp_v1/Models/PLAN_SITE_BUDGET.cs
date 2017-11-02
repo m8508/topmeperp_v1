@@ -23,5 +23,6 @@ namespace topmeperp.Models
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
         public string PROJECT_ID { get; set; }
+        public string YEAR_SEQUENCE { get; set; }
     }
 }

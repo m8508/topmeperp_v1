@@ -3818,7 +3818,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 //取得公司營業費用單檔頭資訊
-                string sql = "SELECT EXP_FORM_ID, PROJECT_ID, CONTRACT_ID, OCCURRED_YEAR, OCCURRED_MONTH, PAYMENT_DATE, STATUS, CREATE_ID, CREATE_DATE, REMARK, MODIFY_DATE, PASS_CREATE_ID, PASS_CREATE_DATE, APPROVE_CREATE_ID, APPROVE_CREATE_DATE, " +
+                string sql = "SELECT EXP_FORM_ID, PROJECT_ID, OCCURRED_YEAR, OCCURRED_MONTH, PAYMENT_DATE, STATUS, CREATE_ID, CREATE_DATE, REMARK, MODIFY_DATE, PASS_CREATE_ID, PASS_CREATE_DATE, APPROVE_CREATE_ID, APPROVE_CREATE_DATE, " +
                     "JOURNAL_CREATE_ID, JOURNAL_CREATE_DATE FROM FIN_EXPENSE_FORM WHERE EXP_FORM_ID =@expid ";
                 formEXP = context.FIN_EXPENSE_FORM.SqlQuery(sql, new SqlParameter("expid", expid)).First();
                 //取得公司營業費用單明細
@@ -4287,12 +4287,70 @@ namespace topmeperp.Service
             string projectid = null;
             using (var context = new topmepEntities())
             {
-                projectid = context.Database.SqlQuery<string>("select DISTINCT PROJECT_ID FROM PLAN_SITE_BUDGET WHERE PROJECT_ID = @pid "
+                projectid = context.Database.SqlQuery<string>("SELECT DISTINCT PROJECT_ID FROM PLAN_SITE_BUDGET WHERE PROJECT_ID = @pid "
                , new SqlParameter("pid", prjid)).FirstOrDefault();
             }
             return projectid;
         }
 
+        public int delSiteBudgetByProject(string projectid, string year)
+        {
+            logger.Info("remove all site budget by projectid =" + projectid + "and by year sequence =" + year);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("delete all PLAN_SITE_BUDGET by projectid =" + projectid + "and by year sequence =" + year);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM PLAN_SITE_BUDGET WHERE PROJECT_ID =@projectid AND YEAR_SEQUENCE =@year", new SqlParameter("@projectid", projectid), new SqlParameter("@year", year));
+            }
+            logger.Debug("delete PALN_SITE_BUDGET count=" + i);
+            return i;
+        }
+
+        public int refreshSiteBudget(List<PLAN_SITE_BUDGET> items)
+        {
+            int i = 0;
+            logger.Info("refreshSiteBudgetItem = " + items.Count);
+            //2.將Excel 資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (PLAN_SITE_BUDGET item in items)
+                {
+                    context.PLAN_SITE_BUDGET.Add(item);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("add PLAN_SITE_BUDGET count =" + i);
+            return i;
+        }
+
+        //取得專案工地費用預算
+        public List<ExpenseBudgetSummary> getSiteBudgetByProject(string projectid)
+        {
+            List<ExpenseBudgetSummary> lstSiteBudget = new List<ExpenseBudgetSummary>();
+            using (var context = new topmepEntities())
+            {
+                lstSiteBudget = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT A.*, SUM(ISNULL(A.JAN,0))+ SUM(ISNULL(A.FEB,0))+ SUM(ISNULL(A.MAR,0)) + SUM(ISNULL(A.APR,0)) + SUM(ISNULL(A.MAY,0)) + SUM(ISNULL(A.JUN,0)) " +
+                   "+ SUM(ISNULL(A.JUL, 0)) + SUM(ISNULL(A.AUG, 0)) + SUM(ISNULL(A.SEP, 0)) + SUM(ISNULL(A.OCT, 0)) + SUM(ISNULL(A.NOV, 0)) + SUM(ISNULL(A.DEC, 0)) AS HTOTAL " +
+                   "FROM (SELECT SUBJECT_NAME, SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
+                   "FROM (SELECT eb.SUBJECT_ID, eb.BUDGET_MONTH, eb.AMOUNT, eb.BUDGET_YEAR, fs.SUBJECT_NAME FROM PLAN_SITE_BUDGET eb LEFT JOIN FIN_SUBJECT fs ON eb.SUBJECT_ID = fs.FIN_SUBJECT_ID WHERE PROJECT_ID =@projectid AND YEAR_SEQUENCE = '1') As STable " +
+                   "PIVOT (SUM(AMOUNT) FOR BUDGET_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)A " +
+                   "GROUP BY A.SUBJECT_NAME, A.SUBJECT_ID, A.JAN, A.FEB, A.MAR,A.APR, A.MAY, A.JUN, A.JUL, A.AUG, A.SEP, A.OCT, A.NOV, A.DEC ORDER BY A.SUBJECT_ID ; "
+                   , new SqlParameter("projectid", projectid)).ToList();
+            }
+            return lstSiteBudget;
+        }
+
+        //取得專案工地費用預算之西元年
+        public int getYearOfSiteBudgetById(string prjid)
+        {
+            int year = 0;
+            using (var context = new topmepEntities())
+            {
+                year = context.Database.SqlQuery<int>("SELECT DISTINCT BUDGET_YEAR FROM PLAN_SITE_BUDGET WHERE PROJECT_ID = @pid AND YEAR_SEQUENCE = '1' "
+               , new SqlParameter("pid", prjid)).FirstOrDefault();
+            }
+            return year;
+        }
         #endregion
     }
 }

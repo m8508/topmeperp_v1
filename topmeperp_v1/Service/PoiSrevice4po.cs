@@ -1049,53 +1049,58 @@ namespace topmeperp.Service
         public string errorMessage = null;
         public TND_PROJECT project = null;
         string projId = null;
+        string budgetYear = null;
+        string sequenceYear = null;
         //建立工地費用預算下載表格
         public string exportExcel(TND_PROJECT project)
         {
             List<FIN_SUBJECT> subjects = service.getSubjectOfExpense4Site();
             //1.讀取工地費用預算表格檔案
             InitializeWorkbook(budgetFile);
-            sheet = (XSSFSheet)hssfworkbook.GetSheet("工地費用預算_第一年度");
-
-            //2.填入表頭資料
-            logger.Debug("Table Head_1=" + sheet.GetRow(1).Cells[0].ToString());
-            sheet.GetRow(1).Cells[1].SetCellValue(project.PROJECT_ID);//專案編號
-            logger.Debug("Table Head_2=" + sheet.GetRow(2).Cells[0].ToString());
-            sheet.GetRow(2).Cells[1].SetCellValue(project.PROJECT_NAME);//專案名稱
-            sheet.GetRow(3).Cells[13].SetCellValue(DateTime.Now.ToString("yyyy/MM/dd"));//製表日期
-            //3.填入資料
-            int idxRow = 6;
-            foreach (FIN_SUBJECT item in subjects)
+            for (int i = 1; i < 6; i++)
             {
-                IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
-                logger.Info("Row Id=" + idxRow);
-                //項目、項目代碼
-                //項目
-                row.CreateCell(0).SetCellValue(item.SUBJECT_NAME);
-                //項目代碼
-                row.CreateCell(1).SetCellValue(item.FIN_SUBJECT_ID);
-                row.CreateCell(2).SetCellValue("");
-                row.CreateCell(3).SetCellValue("");
-                row.CreateCell(4).SetCellValue("");
-                row.CreateCell(5).SetCellValue("");
-                row.CreateCell(6).SetCellValue("");
-                row.CreateCell(7).SetCellValue("");
-                row.CreateCell(8).SetCellValue("");
-                row.CreateCell(9).SetCellValue("");
-                row.CreateCell(10).SetCellValue("");
-                row.CreateCell(11).SetCellValue("");
-                row.CreateCell(12).SetCellValue("");
-                row.CreateCell(13).SetCellValue("");
-                foreach (ICell c in row.Cells)
+                sheet = (XSSFSheet)hssfworkbook.GetSheet("工地費用預算_第" + i +"年度");
+
+                //2.填入表頭資料
+                logger.Debug("Table Head_1=" + sheet.GetRow(1).Cells[0].ToString());
+                sheet.GetRow(1).Cells[1].SetCellValue(project.PROJECT_ID);//專案編號
+                logger.Debug("Table Head_2=" + sheet.GetRow(2).Cells[0].ToString());
+                sheet.GetRow(2).Cells[1].SetCellValue(project.PROJECT_NAME);//專案名稱
+                sheet.GetRow(4).Cells[13].SetCellValue(DateTime.Now.ToString("yyyy/MM/dd"));//製表日期
+                                                                                            //3.填入資料
+                int idxRow = 7;
+                foreach (FIN_SUBJECT item in subjects)
                 {
-                    c.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                    IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+                    logger.Info("Row Id=" + idxRow);
+                    //項目、項目代碼
+                    //項目
+                    row.CreateCell(0).SetCellValue(item.SUBJECT_NAME);
+                    //項目代碼
+                    row.CreateCell(1).SetCellValue(item.FIN_SUBJECT_ID);
+                    row.CreateCell(2).SetCellValue("");
+                    row.CreateCell(3).SetCellValue("");
+                    row.CreateCell(4).SetCellValue("");
+                    row.CreateCell(5).SetCellValue("");
+                    row.CreateCell(6).SetCellValue("");
+                    row.CreateCell(7).SetCellValue("");
+                    row.CreateCell(8).SetCellValue("");
+                    row.CreateCell(9).SetCellValue("");
+                    row.CreateCell(10).SetCellValue("");
+                    row.CreateCell(11).SetCellValue("");
+                    row.CreateCell(12).SetCellValue("");
+                    row.CreateCell(13).SetCellValue("");
+                    foreach (ICell c in row.Cells)
+                    {
+                        c.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                    }
+                    ICell cel14 = row.CreateCell(14);
+                    cel14.CellFormula = "C" + (idxRow + 1) + "+D" + (idxRow + 1) + "+E" + (idxRow + 1) + "+F" + (idxRow + 1) + "+G" + (idxRow + 1) + "+H" + (idxRow + 1)
+                    + "+I" + (idxRow + 1) + "+J" + (idxRow + 1) + "+K" + (idxRow + 1) + "+L" + (idxRow + 1) + "+M" + (idxRow + 1) + "+N" + (idxRow + 1);
+                    cel14.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                    logger.Debug("getSubject cell style rowid=" + idxRow);
+                    idxRow++;
                 }
-                ICell cel14 = row.CreateCell(14);
-                cel14.CellFormula = "C" + (idxRow + 1) + "+D" + (idxRow + 1) + "+E" + (idxRow + 1) + "+F" + (idxRow + 1) + "+G" + (idxRow + 1) + "+H" + (idxRow + 1)
-                + "+I" + (idxRow + 1) + "+J" + (idxRow + 1) + "+K" + (idxRow + 1) + "+L" + (idxRow + 1) + "+M" + (idxRow + 1) + "+N" + (idxRow + 1);
-                cel14.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
-                logger.Debug("getSubject cell style rowid=" + idxRow);
-                idxRow++;
             }
             //4.另存新檔至專案所屬目錄 (增加Temp for zip 打包使用
             string fileLocation = null;
@@ -1127,6 +1132,231 @@ namespace topmeperp.Service
                     hssfworkbook = new XSSFWorkbook(file);
                 }
                 file.Close();
+            }
+        }
+
+        #region 工地費用預算資料轉換 
+        /**
+         * 取得工地費用預算Sheet資料
+         * */
+        #region 第1年度
+        public List<PLAN_SITE_BUDGET> ConvertDataForSiteBudget1(string projectId)
+        {
+            projId = projectId; 
+            //1.依據檔案附檔名使用不同物件讀取Excel 檔案，並開啟預算Sheet
+            if (fileformat == "xls")
+            {
+                logger.Debug("office 2003:" + fileformat + " for projectID=" + projId + "工地費用預算_第1年度");
+                sheet = (HSSFSheet)hssfworkbook.GetSheet("工地費用預算_第1年度");
+            }
+            else
+            {
+                logger.Debug("office 2007:" + fileformat + " for projectID=" + projId + "工地費用預算_第1年度");
+                sheet = (XSSFSheet)hssfworkbook.GetSheet("工地費用預算_第1年度");
+            }
+            if (null == sheet)
+            {
+                logger.Error("檔案內沒有:工地費用預算_第1年度(Sheet)! filename=" + fileformat);
+                throw new Exception("檔案內沒有[工地費用預算_第1年度]資料");
+            }
+            return ConverData2SiteBudget();
+        }
+        #endregion
+        #region 第2年度
+        public List<PLAN_SITE_BUDGET> ConvertDataForSiteBudget2(string projectId)
+        {
+            projId = projectId;
+            //1.依據檔案附檔名使用不同物件讀取Excel 檔案，並開啟預算Sheet
+            if (fileformat == "xls")
+            {
+                logger.Debug("office 2003:" + fileformat + " for projectID=" + projId + "工地費用預算_第2年度");
+                sheet = (HSSFSheet)hssfworkbook.GetSheet("工地費用預算_第2年度");
+            }
+            else
+            {
+                logger.Debug("office 2007:" + fileformat + " for projectID=" + projId + "工地費用預算_第2年度");
+                sheet = (XSSFSheet)hssfworkbook.GetSheet("工地費用預算_第2年度");
+            }
+            if (null == sheet)
+            {
+                logger.Error("檔案內沒有:工地費用預算_第2度(Sheet)! filename=" + fileformat);
+                throw new Exception("檔案內沒有[工地費用預算_第2年度]資料");
+            }
+            return ConverData2SiteBudget();
+        }
+        #endregion
+        #region 第3年度
+        public List<PLAN_SITE_BUDGET> ConvertDataForSiteBudget3(string projectId)
+        {
+            projId = projectId;
+            //1.依據檔案附檔名使用不同物件讀取Excel 檔案，並開啟預算Sheet
+            if (fileformat == "xls")
+            {
+                logger.Debug("office 2003:" + fileformat + " for projectID=" + projId + "工地費用預算_第3年度");
+                sheet = (HSSFSheet)hssfworkbook.GetSheet("工地費用預算_第3年度");
+            }
+            else
+            {
+                logger.Debug("office 2007:" + fileformat + " for projectID=" + projId + "工地費用預算_第3年度");
+                sheet = (XSSFSheet)hssfworkbook.GetSheet("工地費用預算_第3年度");
+            }
+            if (null == sheet)
+            {
+                logger.Error("檔案內沒有:工地費用預算_第3年度(Sheet)! filename=" + fileformat);
+                throw new Exception("檔案內沒有[工地費用預算_第3年度]資料");
+            }
+            return ConverData2SiteBudget();
+        }
+        #endregion
+        #region 第4年度
+        public List<PLAN_SITE_BUDGET> ConvertDataForSiteBudget4(string projectId)
+        {
+            projId = projectId;
+            //1.依據檔案附檔名使用不同物件讀取Excel 檔案，並開啟預算Sheet
+            if (fileformat == "xls")
+            {
+                logger.Debug("office 2003:" + fileformat + " for projectID=" + projId + "工地費用預算_第4年度");
+                sheet = (HSSFSheet)hssfworkbook.GetSheet("工地費用預算_第4年度");
+            }
+            else
+            {
+                logger.Debug("office 2007:" + fileformat + " for projectID=" + projId + "工地費用預算_第4年度");
+                sheet = (XSSFSheet)hssfworkbook.GetSheet("工地費用預算_第4年度");
+            }
+            if (null == sheet)
+            {
+                logger.Error("檔案內沒有:工地費用預算_第4年度(Sheet)! filename=" + fileformat);
+                throw new Exception("檔案內沒有[工地費用預算_第4年度]資料");
+            }
+            return ConverData2SiteBudget();
+        }
+        #endregion
+        #region 第5年度
+        public List<PLAN_SITE_BUDGET> ConvertDataForSiteBudget5(string projectId)
+        {
+            projId = projectId;
+            //1.依據檔案附檔名使用不同物件讀取Excel 檔案，並開啟預算Sheet
+            if (fileformat == "xls")
+            {
+                logger.Debug("office 2003:" + fileformat + " for projectID=" + projId + "工地費用預算_第5年度");
+                sheet = (HSSFSheet)hssfworkbook.GetSheet("工地費用預算_第5年度");
+            }
+            else
+            {
+                logger.Debug("office 2007:" + fileformat + " for projectID=" + projId + "工地費用預算_第5年度");
+                sheet = (XSSFSheet)hssfworkbook.GetSheet("工地費用預算_第5年度");
+            }
+            if (null == sheet)
+            {
+                logger.Error("檔案內沒有:工地費用預算_第5年度(Sheet)! filename=" + fileformat);
+                throw new Exception("檔案內沒有[工地費用預算_第5年度]資料");
+            }
+            return ConverData2SiteBudget();
+        }
+        #endregion
+        /**
+         * 轉換工地費用預算資料檔:工地費用預算
+         * */
+        protected List<PLAN_SITE_BUDGET> ConverData2SiteBudget()
+        {
+            IRow row = null;
+            List<PLAN_SITE_BUDGET> lstSiteBudget = new List<PLAN_SITE_BUDGET>();
+            System.Collections.IEnumerator rows = sheet.GetRowEnumerator();
+            //2.逐行讀取資料
+            int iRowIndex = 0; //0 表 Row 1
+
+            //2.1  忽略不要的行數..(表頭)
+            budgetYear = sheet.GetRow(4).Cells[1].ToString();
+            sequenceYear = sheet.GetRow(3).Cells[1].ToString();
+            while (iRowIndex < (6))
+            {
+                rows.MoveNext();
+                iRowIndex++;
+                //row = (IRow)rows.Current;
+                //logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
+            }
+            //循序處理每一筆資料之欄位!!
+            iRowIndex++;
+            while (rows.MoveNext())
+            {
+                row = (IRow)rows.Current;
+                int i = 0;
+                string slog = "";
+                for (i = 0; i < row.Cells.Count; i++)
+                {
+                    slog = slog + "," + row.Cells[i];
+
+                }
+                logger.Debug("Excel Value:" + slog);
+                //將各Row 資料寫入物件內
+                //0.項目代碼 2.1月金額 3.2月金額 4.3月金額 5.4月金額 6.5月金額 7.6月金額 8.7月金額 9.8月金額 10.9月金額 11.10月金額 12.11月金額 13.12月金額
+                if (row.Cells[0].ToString().ToUpper() != "END")
+                {
+                    List<PLAN_SITE_BUDGET> lst = convertRow2SiteBudget(row, iRowIndex);
+                    foreach (PLAN_SITE_BUDGET it in lst)
+                    {
+                        lstSiteBudget.Add(it);
+                    }
+                }
+                else
+                {
+                    logErrorMessage("Step1 ;取得工地費用預算資料:" + subjects.Count + "筆");
+                    logger.Info("Finish convert Job : count=" + subjects.Count);
+                    return lstSiteBudget;
+                }
+                iRowIndex++;
+            }
+            logger.Info("Plan_Site_Budget Count:" + iRowIndex);
+            return lstSiteBudget;
+        }
+        /**
+         * 將Excel Row 轉換成為對應的資料物件
+         * */
+        private List<PLAN_SITE_BUDGET> convertRow2SiteBudget(IRow row, int excelrow)
+        {
+            List<PLAN_SITE_BUDGET> lst = new List<PLAN_SITE_BUDGET>();
+            String strItemId = row.Cells[1].ToString();
+            if (null != strItemId && strItemId != "")
+            {
+                for (int i = 0; i < 12; i++)
+                {
+                    PLAN_SITE_BUDGET item = new PLAN_SITE_BUDGET();
+                    item.PROJECT_ID = projId;
+                    item.BUDGET_YEAR = int.Parse(budgetYear);
+                    item.BUDGET_MONTH = i + 1;
+                    item.SUBJECT_ID = row.Cells[1].ToString();
+                    item.CREATE_DATE = System.DateTime.Now;
+                    item.YEAR_SEQUENCE = sequenceYear;
+                    if (null != row.Cells[i + 2].ToString().Trim() || row.Cells[i + 2].ToString().Trim() != "")
+                    {
+                        try
+                        {
+                            decimal dAmt = decimal.Parse(row.Cells[i + 2].ToString());
+                            logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[i + 2].ToString());
+                            item.AMOUNT = dAmt;
+                        }
+                        catch (Exception e)
+                        {
+                            logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[i+2].value=" + row.Cells[i + 2].ToString());
+                            logger.Error(e);
+                        }
+                    }
+                    lst.Add(item);
+                }
+            }
+            return lst;
+        }
+
+        #endregion
+        private void logErrorMessage(string message)
+        {
+            if (errorMessage == null)
+            {
+                errorMessage = message;
+            }
+            else
+            {
+                errorMessage = errorMessage + "<br/>" + message;
             }
         }
     }

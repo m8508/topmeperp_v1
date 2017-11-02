@@ -1,0 +1,216 @@
+﻿@model IEnumerable<topmeperp.Models.ExpenseBudgetSummary>
+
+<div class="container-fluid">
+    @if (null != Model)
+    {
+        <form id="formExpBudget" name="formExpBudget" action="UpdateExpBudget" method="post">
+
+            <input type="hidden" name="year" id="year" value="1" />
+            <div class="row" style="padding-bottom:10px">
+                <div class="col-md-12" style="padding-top:5px">
+                    <div class="col-md-3">
+                        <span style="color: blue; font-size: 25px;">預算年度 : @ViewBag.budgetYear</span>
+                    </div>
+                    <div class="col-md-1">
+                        <span font-size 30px;"><input type="button" value="修改" class="btn btn-warning" id="saveForm" /></span>
+                    </div>
+                    <div class="col-md-8 text-right">
+                        <span style="color: dodgerblue; font-size: 25px;">總預算金額 : @TempData["TotalAmt"]</span>
+                    </div>
+                </div>
+            </div>
+            <table class="table fixed_headers2">
+                <thead>
+                    <tr>
+                        <th>
+                            項目名稱
+                        </th>
+                        <th>
+                            項目代碼
+                        </th>
+                        <th>
+                            1  月
+                        </th>
+                        <th>
+                            2  月
+                        </th>
+                        <th>
+                            3月
+                        </th>
+                        <th>
+                            4月
+                        </th>
+                        <th>
+                            5月
+                        </th>
+                        <th>
+                            6月
+                        </th>
+                        <th>
+                            7月
+                        </th>
+                        <th>
+                            8月
+                        </th>
+                        <th>
+                            9月
+                        </th>
+                        <th>
+                            10月
+                        </th>
+                        <th>
+                            11月
+                        </th>
+                        <th>
+                            12月
+                        </th>
+                        <th>
+                            合計
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <span style="color: blue; font-size: 15px;">
+                                    <input type="text" style="width:80px" value="@item.SUBJECT_NAME" readonly="readonly" />
+                                </span>
+                            </td>
+                            <td>
+                                <span style="color: blue; font-size: 15px;">
+                                    <input type="text" style="width:60px" name="subjctid" id="subjctid" value="@item.SUBJECT_ID" readonly="readonly" />
+                                </span>
+                            </td>
+                            <td>
+                                <input type="text" style="width:70px" name="janAtm" id="janAtm" value="@String.Format("{0:###0.#}", item.JAN)" />
+                            </td>
+                            <td>
+                                <input type="text" style="width:70px" name="febAtm" id="febAtm" value="@String.Format("{0:###0.#}", item.FEB)" />
+                            </td>
+                            <td>
+                                <input type="text" style="width:70px" name="marAtm" id="marAtm" value="@String.Format("{0:###0.#}", item.MAR)" />
+                            </td>
+                            <td>
+                                <input type="text" style="width:70px" name="aprAtm" id="aprAtm" value="@String.Format("{0:###0.#}", item.APR)" />
+                            </td>
+                            <td>
+                                <input type="text" style="width:70px" name="mayAtm" id="mayAtm" value="@String.Format("{0:###0.#}", item.MAY)" />
+                            </td>
+                            <td>
+                                <input type="text" style="width:70px" name="junAtm" id="junAtm" value="@String.Format("{0:###0.#}", item.JUN)" />
+                            </td>
+                            <td>
+                                <input type="text" style="width:70px" name="julAtm" id="julAtm" value="@String.Format("{0:###0.#}", item.JUL)" />
+                            </td>
+                            <td>
+                                <input type="text" style="width:70px" name="augAtm" id="augAtm" value="@String.Format("{0:###0.#}", item.AUG)" />
+                            </td>
+                            <td>
+                                <input type="text" style="width:70px" name="sepAtm" id="sepAtm" value="@String.Format("{0:###0.#}", item.SEP)" />
+                            </td>
+                            <td>
+                                <input type="text" style="width:70px" name="octAtm" id="octAtm" value="@String.Format("{0:###0.#}", item.OCT)" />
+                            </td>
+                            <td>
+                                <input type="text" style="width:70px" name="novAtm" id="novAtm" value="@String.Format("{0:###0.#}", item.NOV)" />
+                            </td>
+                            <td>
+                                <input type="text" style="width:70px" name="decAtm" id="decAtm" value="@String.Format("{0:###0.#}", item.DEC)" />
+                            </td>
+                            <td>
+                                <span style="color: blue; font-size: 15px;">
+                                    <input type="text" style="width:80px" name="htotal" id="htotal" value="@String.Format("{0:#,##0.#}", item.HTOTAL)" readonly="readonly" />
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <table class="table fixed_headers2">
+                <tr>
+                    <th>
+                        <span style="color: blue; font-size: 15px;">
+                            <input type="text" style="width:80px" name="" id="" value="合計 :" />
+                        </span>
+                    </th>
+                    <th>
+                        <span style="color: blue; font-size: 15px;">
+                            <input type="text" style="width:60px" name="" id="" value="" />
+                        </span>
+                    </th>
+                    <th>
+                        <span style="color: blue; font-size: 15px;">
+                            <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                        </span>
+                    </th>
+                    <th>
+                        <span style="color: blue; font-size: 15px;">
+                            <input type="text" style="width:70px" name="febVTotal" id="febVTotal" value="" />
+                        </span>
+                    </th>
+                    <th>
+                        <span style="color: blue; font-size: 15px;">
+                            <input type="text" style="width:70px" name="marVTotal" id="marVTotal" value="" />
+                        </span>
+                    </th>
+                    <th>
+                        <span style="color: blue; font-size: 15px;">
+                            <input type="text" style="width:70px" name="aprVTotal" id="aprVTotal" value="" />
+                        </span>
+                    </th>
+                    <th>
+                        <span style="color: blue; font-size: 15px;">
+                            <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                        </span>
+                    </th>
+                    <th>
+                        <span style="color: blue; font-size: 15px;">
+                            <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                        </span>
+                    </th>
+                    <th>
+                        <span style="color: blue; font-size: 15px;">
+                            <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                        </span>
+                    </th>
+                    <th>
+                        <span style="color: blue; font-size: 15px;">
+                            <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                        </span>
+                    </th>
+                    <th>
+                        <span style="color: blue; font-size: 15px;">
+                            <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                        </span>
+                    </th>
+                    <th>
+                        <span style="color: blue; font-size: 15px;">
+                            <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                        </span>
+                    </th>
+                    <th>
+                        <span style="color: blue; font-size: 15px;">
+                            <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                        </span>
+                    </th>
+                    <th>
+                        <span style="color: blue; font-size: 15px;">
+                            <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                        </span>
+                    </th>
+                    <th>
+                        <span style="color: blue; font-size: 15px;">
+                            <input type="text" style="width:80px" name="janVTotal" id="janVTotal" value="" />
+                        </span>
+                    </th>
+                </tr>
+            </table>
+        </form>
+    }
+    else
+    {
+        <p></p>
+    }
+</div>
