@@ -38,19 +38,19 @@ namespace topmeperp.Models
     {
         //圖算消防電資料
         public IEnumerable<MAP_FP_VIEW> mapFP { get; set; }
-        public IEnumerable<TND_PROJECT_ITEM> ProjectItemInMapFP { get; set; }
+        public IEnumerable<PLAN_ITEM> ProjectItemInMapFP { get; set; }
         //圖算消防水資料
         public IEnumerable<TND_MAP_FW> mapFW { get; set; }
-        public IEnumerable<TND_PROJECT_ITEM> ProjectItemInMapFW { get; set; }
+        public IEnumerable<PLAN_ITEM> ProjectItemInMapFW { get; set; }
         //圖算給排水資料
         public IEnumerable<TND_MAP_PLU> mapPLU { get; set; }
-        public IEnumerable<TND_PROJECT_ITEM> ProjectItemInMapPLU { get; set; }
+        public IEnumerable<PLAN_ITEM> ProjectItemInMapPLU { get; set; }
         //圖算弱電管線資料
         public IEnumerable<MAP_LCP_VIEW> mapLCP { get; set; }
-        public IEnumerable<TND_PROJECT_ITEM> ProjectItemInMapLCP { get; set; }
+        public IEnumerable<PLAN_ITEM> ProjectItemInMapLCP { get; set; }
         //圖算電氣管線資料
         public IEnumerable<MAP_PEP_VIEW> mapPEP { get; set; }
-        public IEnumerable<TND_PROJECT_ITEM> ProjectItemInMapPEP { get; set; }
+        public IEnumerable<PLAN_ITEM> ProjectItemInMapPEP { get; set; }
         //圖算設備清單資料
         public IEnumerable<TND_MAP_DEVICE> mapDEVICE { get; set; }
     }

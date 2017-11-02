@@ -20,7 +20,7 @@
                     {
                         <tr>
                             <td><input type="checkbox" id="map_device" name="map_device" value="@item.DEVIVE_ID" /></td>
-                            <td>@Html.DisplayFor(modelItem => item.DEVIVE_ID)</td>
+                            <td>@Html.DisplayFor(modelItem => item.PROJECT_ITEM_ID)</td>
                             <td style="">@Html.DisplayFor(modelItem => item.LOC_DESC)</td>
                             <td>@Html.DisplayFor(modelItem => item.QTY)</td>
                         </tr>
@@ -45,8 +45,8 @@
                         @foreach (var item in Model.ProjectItemInMapPEP)
                         {
                         <tr>
-                            <td><input type="checkbox" id="map_pep" name="map_pep" value="@item.PROJECT_ITEM_ID" /></td>
-                            <td>@Html.DisplayFor(modelItem => item.PROJECT_ITEM_ID)</td>
+                            <td><input type="checkbox" id="map_pep" name="map_pep" value="@item.PLAN_ITEM_ID" /></td>
+                            <td>@Html.DisplayFor(modelItem => item.PLAN_ITEM_ID)</td>
                             <td style="">@Html.DisplayFor(modelItem => item.ITEM_DESC)</td>
                             <td>@Html.DisplayFor(modelItem => item.ITEM_QUANTITY)</td>
                         </tr>
@@ -73,8 +73,8 @@
                         @foreach (var item in Model.ProjectItemInMapLCP)
                         {
                             <tr>
-                                <td><input type="checkbox" id="map_lcp" name="map_lcp" value="@item.PROJECT_ITEM_ID" /></td>
-                                <td>@Html.DisplayFor(modelItem => item.PROJECT_ITEM_ID)</td>
+                                <td><input type="checkbox" id="map_lcp" name="map_lcp" value="@item.PLAN_ITEM_ID" /></td>
+                                <td>@Html.DisplayFor(modelItem => item.PLAN_ITEM_ID)</td>
                                 <td style="">@Html.DisplayFor(modelItem => item.ITEM_DESC)</td>
                                 <td>@Html.DisplayFor(modelItem => item.ITEM_QUANTITY)</td>
                             </tr>
@@ -100,8 +100,8 @@
                         @foreach (var item in Model.ProjectItemInMapPLU)
                         {
                             <tr>
-                                <td><input type="checkbox" id="map_plu" name="map_plu" value="@item.PROJECT_ITEM_ID" /></td>
-                                <td>@Html.DisplayFor(modelItem => item.PROJECT_ITEM_ID)</td>
+                                <td><input type="checkbox" id="map_plu" name="map_plu" value="@item.PLAN_ITEM_ID" /></td>
+                                <td>@Html.DisplayFor(modelItem => item.PLAN_ITEM_ID)</td>
                                 <td style="">@Html.DisplayFor(modelItem => item.ITEM_DESC)</td>
                                 <td>@Html.DisplayFor(modelItem => item.ITEM_QUANTITY)</td>
                             </tr>
@@ -126,8 +126,8 @@
                         @foreach (var item in Model.ProjectItemInMapFP)
                         {
                             <tr>
-                                <td><input type="checkbox" id="map_fp" name="map_fp" value="@item.PROJECT_ITEM_ID" /></td>
-                                <td>@Html.DisplayFor(modelItem => item.PROJECT_ITEM_ID)</td>
+                                <td><input type="checkbox" id="map_fp" name="map_fp" value="@item.PLAN_ITEM_ID" /></td>
+                                <td>@Html.DisplayFor(modelItem => item.PLAN_ITEM_ID)</td>
                                 <td style="">@Html.DisplayFor(modelItem => item.ITEM_DESC)</td>
                                 <td>@Html.DisplayFor(modelItem => item.ITEM_QUANTITY)</td>
                             </tr>
@@ -153,8 +153,8 @@
                         @foreach (var item in Model.ProjectItemInMapFW)
                     {
                             <tr>
-                                <td><input type="checkbox" id="map_fw" name="map_fw" value="@item.PROJECT_ITEM_ID" /></td>
-                                <td>@Html.DisplayFor(modelItem => item.PROJECT_ITEM_ID)</td>
+                                <td><input type="checkbox" id="map_fw" name="map_fw" value="@item.PLAN_ITEM_ID" /></td>
+                                <td>@Html.DisplayFor(modelItem => item.PLAN_ITEM_ID)</td>
                                 <td>@Html.DisplayFor(modelItem => item.ITEM_DESC)</td>
                                 <td>@Html.DisplayFor(modelItem => item.ITEM_QUANTITY)</td>
                             </tr>

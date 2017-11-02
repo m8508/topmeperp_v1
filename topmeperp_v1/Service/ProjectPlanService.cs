@@ -133,7 +133,7 @@ namespace topmeperp.Service
             foreach (PLAN_TASK t in lstTask)
             {
                 //將跟節點置入Directory 內
-                if (null==t.PARENT_UID || t.PARENT_UID == 0 || dicTree.Count == 0)
+                if (null == t.PARENT_UID || t.PARENT_UID == 0 || dicTree.Count == 0)
                 {
                     //rootnode.tags.Add("工期:" + t.DURATION);
                     rootnode.tags.Add("完成:" + t.FINISH_DATE.Value.ToString("yyyy/MM/dd"));
@@ -174,13 +174,13 @@ namespace topmeperp.Service
             return viewModel;
         }
         //圖算:設備
-        public void getMapItem(string projectid, string item_name, string startid, string endid)
+        public void getMapItem(string projectid, string item_name, string startid, string endid, string typecode1, string typecode2, string systemmain, string systemsub)
         {
             logger.Info("get map DEVICE info by item_name=" + item_name);
-            string sql = "SELECT DEVIVE_ID,M.PROJECT_ID,P.PROJECT_ITEM_ID,MAP_NO,BUILDING_NO "
+            string sql = "SELECT DEVIVE_ID,M.PROJECT_ID,P.PLAN_ITEM_ID as PROJECT_ITEM_ID,MAP_NO,BUILDING_NO "
                 + ", M.CREATE_DATE,CREATE_ID,QTY,P.ITEM_DESC LOC_DESC "
-                + "FROM TND_MAP_DEVICE M, TND_PROJECT_ITEM P "
-                + " WHERE M.PROJECT_ITEM_ID = P.PROJECT_ITEM_ID "
+                + "FROM TND_MAP_DEVICE M, PLAN_ITEM P "
+                + " WHERE M.PROJECT_ITEM_ID = P.PLAN_ITEM_ID "
                 + " AND P.ITEM_DESC Like @item_name "
                 + " AND M.PROJECT_ID = @projectid ";
             //條件篩選
@@ -189,13 +189,35 @@ namespace topmeperp.Service
             parameters.Add(new SqlParameter("projectid", projectid));
             parameters.Add(new SqlParameter("item_name", "%" + item_name + "%"));
 
+            //增加九宮格、次九宮格、主系統、次系統等條件
+            if (null != typecode1 && "" != typecode1)
+            {
+                sql = sql + " AND P.TYPE_CODE_1=@typecode1 ";
+                parameters.Add(new SqlParameter("typecode1", typecode1));
+            }
+            if (null != typecode2 && "" != typecode2)
+            {
+                sql = sql + " AND P.TYPE_CODE_2=@typecode2 ";
+                parameters.Add(new SqlParameter("typecode2", typecode2));
+            }
+            if (null != systemmain && "" != systemmain)
+            {
+                sql = sql + " AND P.SYSTEM_MAIN=@systemmain ";
+                parameters.Add(new SqlParameter("systemmain", systemmain));
+            }
+            if (null != typecode2 && "" != typecode2)
+            {
+                sql = sql + " AND P.SYSTEM_SUB=@systemsub ";
+                parameters.Add(new SqlParameter("systemsub", systemsub));
+            }
+            //流水號區間
             if (null != startid && "" != startid && null != endid && "" != endid)
             {
                 sql = sql + " AND CAST(SUBSTRING(P.PROJECT_ITEM_ID,8,LEN(P.PROJECT_ITEM_ID)) as INT) BETWEEN @startid AND @endid ";
                 parameters.Add(new SqlParameter("startid", int.Parse(startid)));
                 parameters.Add(new SqlParameter("endid", int.Parse(endid)));
             }
-            sql = sql + "ORDER BY CAST(SUBSTRING(P.PROJECT_ITEM_ID,8,LEN(P.PROJECT_ITEM_ID)) as INT) ";
+            sql = sql + "ORDER BY EXCEL_ROW_ID ";
             List<TND_MAP_DEVICE> lstDEVICE = new List<TND_MAP_DEVICE>();
             using (var context = new topmepEntities())
             {
@@ -207,25 +229,25 @@ namespace topmeperp.Service
             resultMessage = resultMessage + "設備資料筆數:" + lstDEVICE.Count + ",";
         }
         //圖算:消防電
-        public void getMapFP(string projectid, string mapno, string buildno, string primeside, string secondside, string name)
+        public void getMapFP(string projectid, string mapno, string buildno, string primeside, string primesidename, string secondside, string secondsidename, string name)
         {
-            List<TND_PROJECT_ITEM> lstMapFP = null;
-            string sql_pipe = "SELECT PROJECT_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
-                + ",(SELECT SUM(PIPE_TOTAL_LENGTH) FROM TND_MAP_FP FP WHERE FP.PIPE_NAME = P.PROJECT_ITEM_ID) as ITEM_QUANTITY "
+            List<PLAN_ITEM> lstMapFP = null;
+            string sql_pipe = "SELECT PLAN_ITEM_ID as PROJECT_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
+                + ",(SELECT SUM(PIPE_TOTAL_LENGTH) FROM TND_MAP_FP FP WHERE FP.PIPE_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
                 + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
                 + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
                 + ",SHEET_NAME ,EXCEL_ROW_ID,QUO_PRICE,DEL_FLAG "
-                + "FROM TND_PROJECT_ITEM P "
-                + "WHERE P.PROJECT_ID=@projectid AND P.PROJECT_ITEM_ID "
+                + "FROM PLAN_ITEM P "
+                + "WHERE P.PROJECT_ID=@projectid AND P.PLAN_ITEM_ID "
                 + "IN(SELECT PIPE_NAME FROM TND_MAP_FP WHERE TND_MAP_FP.PROJECT_ID=@projectid  ";
 
-            string sql_wire = "SELECT PROJECT_ITEM_ID, PROJECT_ID, ITEM_ID, ITEM_DESC, ITEM_UNIT "
-                + ",(SELECT SUM(WIRE_TOTAL_LENGTH) FROM TND_MAP_FP FP WHERE FP.WIRE_NAME = P.PROJECT_ITEM_ID) as ITEM_QUANTITY "
+            string sql_wire = "SELECT PLAN_ITEM_ID as PROJECT_ITEM_ID, PROJECT_ID, ITEM_ID, ITEM_DESC, ITEM_UNIT "
+                + ",(SELECT SUM(WIRE_TOTAL_LENGTH) FROM TND_MAP_FP FP WHERE FP.WIRE_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
                 + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
                 + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
                 + ",SHEET_NAME ,EXCEL_ROW_ID,QUO_PRICE,DEL_FLAG "
-                + "FROM TND_PROJECT_ITEM P "
-                + "WHERE P.PROJECT_ID=@projectid AND P.PROJECT_ITEM_ID "
+                + "FROM PLAN_ITEM P "
+                + "WHERE P.PROJECT_ID=@projectid AND P.PLAN_ITEM_ID "
                 + "IN(SELECT WIRE_NAME FROM TND_MAP_FP WHERE TND_MAP_FP.PROJECT_ID=@projectid  ";
 
             var parameters = new List<SqlParameter>();
@@ -243,17 +265,29 @@ namespace topmeperp.Service
                 sql_wire = sql_wire + " AND BUILDING_NO LIKE @buildno";
                 parameters.Add(new SqlParameter("buildno", "%" + buildno + "%"));
             }
-            if (null != primeside && primeside != "")//一次側名稱
+            if (null != primeside && primeside != "")//一次側位置
             {
                 sql_pipe = sql_pipe + " AND PRIMARY_SIDE LIKE @primeside";
                 sql_wire = sql_wire + " AND PRIMARY_SIDE LIKE @primeside";
                 parameters.Add(new SqlParameter("primeside", "%" + primeside + "%"));
             }
-            if (null != secondside && secondside != "")//二次側名稱
+            if (null != primesidename && primesidename != "")//一次側名稱
+            {
+                sql_pipe = sql_pipe + " AND PRIMARY_SIDE_NAME LIKE @primesidename";
+                sql_wire = sql_wire + " AND PRIMARY_SIDE_NAME LIKE @primesidename";
+                parameters.Add(new SqlParameter("primesidename", "%" + primesidename + "%"));
+            }
+            if (null != secondside && secondside != "")//二次側位置
             {
                 sql_pipe = sql_pipe + " AND SECONDARY_SIDE LIKE @secondside";
                 sql_wire = sql_wire + " AND SECONDARY_SIDE LIKE @secondside";
                 parameters.Add(new SqlParameter("secondside", "%" + secondside + "%"));
+            }
+            if (null != secondsidename && secondsidename != "")//二次側名稱
+            {
+                sql_pipe = sql_pipe + " AND SECONDARY_SIDE_NAME LIKE @secondsidename";
+                sql_wire = sql_wire + " AND SECONDARY_SIDE_NAME LIKE @secondsidename";
+                parameters.Add(new SqlParameter("secondsidename", "%" + secondsidename + "%"));
             }
             if (null != name && name != "")//品項名稱
             {
@@ -265,23 +299,24 @@ namespace topmeperp.Service
             logger.Debug("PEP SQL=" + sql);
             using (var context = new topmepEntities())
             {
-                lstMapFP = context.TND_PROJECT_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
+                // lstMapFP = context.PLAN_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
+                lstMapFP = context.Database.SqlQuery<PLAN_ITEM>(sql, parameters.ToArray()).ToList();
             }
             viewModel.ProjectItemInMapFP = lstMapFP;
             resultMessage = resultMessage + "消防電資料筆數:" + lstMapFP.Count + ",";
         }
         //消防水
-        public void getMapFW(string projectid, string mapno, string buildno, string primeside, string secondside, string name)
+        public void getMapFW(string projectid, string mapno, string buildno, string primeside, string primesidename, string secondside, string secondsidename, string name)
         {
-            string sql = "SELECT PROJECT_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
+            string sql = "SELECT P.PLAN_ITEM_ID as PROJECT_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
                 + ",(SELECT SUM(PIPE_TOTAL_LENGTH)  FROM TND_MAP_FW PLU WHERE PLU.PIPE_NAME = P.PROJECT_ITEM_ID) as ITEM_QUANTITY "
                 + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
                 + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
                 + ",SHEET_NAME ,EXCEL_ROW_ID,QUO_PRICE,DEL_FLAG "
-                + "FROM TND_PROJECT_ITEM P "
-                + "WHERE P.PROJECT_ID=@projectid AND P.PROJECT_ITEM_ID IN (SELECT PIPE_NAME FROM TND_MAP_FW WHERE TND_MAP_FW.PROJECT_ID=@projectid ";
+                + "FROM PLAN_ITEM P "
+                + "WHERE P.PROJECT_ID=@projectid AND P.PLAN_ITEM_ID IN (SELECT PIPE_NAME FROM TND_MAP_FW WHERE TND_MAP_FW.PROJECT_ID=@projectid ";
 
-            List<TND_PROJECT_ITEM> lstMapFW = null;
+            List<PLAN_ITEM> lstMapFW = null;
             using (var context = new topmepEntities())
             {
                 //條件篩選
@@ -298,15 +333,25 @@ namespace topmeperp.Service
                     sql = sql + " AND BUILDING_NO LIKE @buildno";
                     parameters.Add(new SqlParameter("buildno", "%" + buildno + "%"));
                 }
-                if (null != primeside && primeside != "")//一次側名稱
+                if (null != primeside && primeside != "")//一次側位置
                 {
                     sql = sql + " AND PRIMARY_SIDE LIKE @primeside";
                     parameters.Add(new SqlParameter("primeside", "%" + primeside + "%"));
                 }
-                if (null != secondside && secondside != "")//二次側名稱
+                if (null != primesidename && primesidename != "")//一次側名稱
+                {
+                    sql = sql + " AND PRIMARY_SIDE_NAME LIKE @primesidename";
+                    parameters.Add(new SqlParameter("primesidename", "%" + primesidename + "%"));
+                }
+                if (null != secondside && secondside != "")//二次側位置
                 {
                     sql = sql + " AND SECONDARY_SIDE LIKE @secondside";
                     parameters.Add(new SqlParameter("secondside", "%" + secondside + "%"));
+                }
+                if (null != secondsidename && secondsidename != "")//二次側名稱
+                {
+                    sql = sql + " AND SECONDARY_SIDE_NAME LIKE @secondsidename";
+                    parameters.Add(new SqlParameter("secondsidename", "%" + secondsidename + "%"));
                 }
                 if (null != name && name != "")//品項名稱
                 {
@@ -315,23 +360,25 @@ namespace topmeperp.Service
                 }
                 sql = sql + ") ORDER BY EXCEL_ROW_ID";
                 logger.Info("MapFW:" + sql);
-                lstMapFW = context.TND_PROJECT_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
+                //lstMapFW = context.PLAN_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
+                lstMapFW = context.Database.SqlQuery<PLAN_ITEM>(sql, parameters.ToArray()).ToList();
             }
             viewModel.ProjectItemInMapFW = lstMapFW;
             resultMessage = resultMessage + "消防水資料筆數:" + lstMapFW.Count + ",";
         }
         //給排水
-        public void getMapPLU(string projectid, string mapno, string buildno, string primeside, string secondside, string name)
+        public void getMapPLU(string projectid, string mapno, string buildno, string primeside, string primesidename, string secondside, string secondsidename, string name)
         {
-            string sql = "SELECT PROJECT_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
-                          + ",(SELECT SUM(PIPE_TOTAL_LENGTH) FROM TND_MAP_PLU PLU WHERE PLU.PIPE_NAME = P.PROJECT_ITEM_ID) as ITEM_QUANTITY "
+            string sql = "SELECT PLAN_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
+                          + ",(SELECT SUM(PIPE_TOTAL_LENGTH) FROM TND_MAP_PLU PLU WHERE PLU.PIPE_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
                           + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
                           + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
-                          + ",SHEET_NAME ,EXCEL_ROW_ID,QUO_PRICE,DEL_FLAG "
-                          + "FROM TND_PROJECT_ITEM P "
-                          + "WHERE P.PROJECT_ID=@projectid AND P.PROJECT_ITEM_ID IN (SELECT PIPE_NAME FROM TND_MAP_PLU WHERE TND_MAP_PLU.PROJECT_ID=@projectid ";
+                          + ",EXCEL_ROW_ID,DEL_FLAG "
+                          + ",FORM_NAME,SUPPLIER_ID,BUDGET_RATIO,ITEM_FORM_QUANTITY,ITEM_UNIT_COST,MAN_FORM_NAME,MAN_SUPPLIER_ID,LEAD_TIME,INQUIRY_FORM_ID,MAN_FORM_ID,BUDGET_WAGE_RATIO,TND_RATIO "
+                          + "FROM PLAN_ITEM P "
+                          + "WHERE P.PROJECT_ID=@projectid AND P.PLAN_ITEM_ID IN (SELECT PIPE_NAME FROM TND_MAP_PLU WHERE TND_MAP_PLU.PROJECT_ID=@projectid ";
 
-            List<TND_PROJECT_ITEM> lstMapPlu = null;
+            List<PLAN_ITEM> lstMapPlu = null;
             using (var context = new topmepEntities())
             {
                 //條件篩選
@@ -348,15 +395,25 @@ namespace topmeperp.Service
                     sql = sql + " AND BUILDING_NO LIKE @buildno";
                     parameters.Add(new SqlParameter("buildno", "%" + buildno + "%"));
                 }
-                if (null != primeside && primeside != "")//一次側名稱
+                if (null != primeside && primeside != "")//一次側位置
                 {
                     sql = sql + " AND PRIMARY_SIDE LIKE @primeside";
                     parameters.Add(new SqlParameter("primeside", "%" + primeside + "%"));
                 }
-                if (null != secondside && secondside != "")//二次側名稱
+                if (null != primesidename && primesidename != "")//一次側名稱
+                {
+                    sql = sql + " AND PRIMARY_SIDE_NAME LIKE @primesidename";
+                    parameters.Add(new SqlParameter("primesidename", "%" + primesidename + "%"));
+                }
+                if (null != secondside && secondside != "")//二次側位置
                 {
                     sql = sql + " AND SECONDARY_SIDE LIKE @secondside";
                     parameters.Add(new SqlParameter("secondside", "%" + secondside + "%"));
+                }
+                if (null != secondsidename && secondsidename != "")//二次側名稱
+                {
+                    sql = sql + " AND SECONDARY_SIDE_NAME LIKE @secondsidename";
+                    parameters.Add(new SqlParameter("secondsidename", "%" + secondsidename + "%"));
                 }
                 if (null != name && name != "")//品項名稱
                 {
@@ -365,41 +422,45 @@ namespace topmeperp.Service
                 }
                 sql = sql + ") ORDER BY EXCEL_ROW_ID";
                 logger.Info("getMapPLU:" + sql);
-                lstMapPlu = context.TND_PROJECT_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
+                //lstMapPlu = context.PLAN_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
+                lstMapPlu = context.Database.SqlQuery<PLAN_ITEM>(sql, parameters.ToArray()).ToList();
             }
             viewModel.ProjectItemInMapPLU = lstMapPlu;
             resultMessage = resultMessage + "給排水資料筆數:" + lstMapPlu.Count + ",";
         }
         //電器管線
-        public void getMapPEP(string projectid, string mapno, string buildno, string primeside, string secondside, string name)
+        public void getMapPEP(string projectid, string mapno, string buildno, string primeside, string primesidename, string secondside, string secondsidename, string name)
         {
 
-            List<TND_PROJECT_ITEM> lstMapPEP = null;
-            string sql_pipe = "SELECT PROJECT_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
-                + ",(SELECT SUM(PIPE_TOTAL_LENGTH) FROM TND_MAP_PEP PEP WHERE PEP.PIPE_NAME = P.PROJECT_ITEM_ID) as ITEM_QUANTITY "
+            List<PLAN_ITEM> lstMapPEP = null;
+            string sql_pipe = "SELECT PLAN_ITEM_ID, PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
+                + ",(SELECT SUM(PIPE_TOTAL_LENGTH) FROM TND_MAP_PEP PEP WHERE PEP.PIPE_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
                 + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
                 + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
-                + ",SHEET_NAME ,EXCEL_ROW_ID,QUO_PRICE,DEL_FLAG "
-                + "FROM TND_PROJECT_ITEM P "
-                + "WHERE P.PROJECT_ID=@projectid AND P.PROJECT_ITEM_ID "
+                + ",EXCEL_ROW_ID,DEL_FLAG "
+                + ",FORM_NAME,SUPPLIER_ID,BUDGET_RATIO,ITEM_FORM_QUANTITY,ITEM_UNIT_COST,MAN_FORM_NAME,MAN_SUPPLIER_ID,LEAD_TIME,INQUIRY_FORM_ID,MAN_FORM_ID,BUDGET_WAGE_RATIO,TND_RATIO "
+                + "FROM PLAN_ITEM P "
+                + "WHERE P.PROJECT_ID=@projectid AND P.PLAN_ITEM_ID "
                 + "IN(SELECT PIPE_NAME FROM TND_MAP_PEP WHERE TND_MAP_PEP.PROJECT_ID=@projectid  ";
 
-            string sql_ground = "SELECT PROJECT_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
-                + ",(SELECT SUM(GROUND_WIRE_TOTAL_LENGTH) FROM TND_MAP_PEP PEP WHERE PEP.GROUND_WIRE_NAME = P.PROJECT_ITEM_ID) as ITEM_QUANTITY "
+            string sql_ground = "SELECT PLAN_ITEM_ID ,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
+                + ",(SELECT SUM(GROUND_WIRE_TOTAL_LENGTH) FROM TND_MAP_PEP PEP WHERE PEP.GROUND_WIRE_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
                 + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
                 + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
-                + ",SHEET_NAME ,EXCEL_ROW_ID,QUO_PRICE,DEL_FLAG "
-                + "FROM TND_PROJECT_ITEM P "
-                + "WHERE P.PROJECT_ID=@projectid  AND P.PROJECT_ITEM_ID "
+                + ",EXCEL_ROW_ID,DEL_FLAG "
+                + ",FORM_NAME,SUPPLIER_ID,BUDGET_RATIO,ITEM_FORM_QUANTITY,ITEM_UNIT_COST,MAN_FORM_NAME,MAN_SUPPLIER_ID,LEAD_TIME,INQUIRY_FORM_ID,MAN_FORM_ID,BUDGET_WAGE_RATIO,TND_RATIO "
+                + "FROM PLAN_ITEM P "
+                + "WHERE P.PROJECT_ID=@projectid  AND P.PLAN_ITEM_ID "
                 + "IN(SELECT GROUND_WIRE_NAME FROM TND_MAP_PEP WHERE TND_MAP_PEP.PROJECT_ID=@projectid ";
 
-            string sql_wire = "SELECT PROJECT_ITEM_ID, PROJECT_ID, ITEM_ID, ITEM_DESC, ITEM_UNIT "
-                + ",(SELECT SUM(WIRE_TOTAL_LENGTH) FROM TND_MAP_PEP PEP WHERE PEP.WIRE_NAME = P.PROJECT_ITEM_ID) as ITEM_QUANTITY "
+            string sql_wire = "SELECT PLAN_ITEM_ID , PROJECT_ID, ITEM_ID, ITEM_DESC, ITEM_UNIT "
+                + ",(SELECT SUM(WIRE_TOTAL_LENGTH) FROM TND_MAP_PEP PEP WHERE PEP.WIRE_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
                 + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
                 + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
-                + ",SHEET_NAME ,EXCEL_ROW_ID,QUO_PRICE,DEL_FLAG "
-                + "FROM TND_PROJECT_ITEM P "
-                + "WHERE P.PROJECT_ID=@projectid AND P.PROJECT_ITEM_ID "
+                + ",EXCEL_ROW_ID,DEL_FLAG "
+                + ",FORM_NAME,SUPPLIER_ID,BUDGET_RATIO,ITEM_FORM_QUANTITY,ITEM_UNIT_COST,MAN_FORM_NAME,MAN_SUPPLIER_ID,LEAD_TIME,INQUIRY_FORM_ID,MAN_FORM_ID,BUDGET_WAGE_RATIO,TND_RATIO "
+                + "FROM PLAN_ITEM P "
+                + "WHERE P.PROJECT_ID=@projectid AND P.PLAN_ITEM_ID "
                 + "IN(SELECT WIRE_NAME FROM TND_MAP_PEP WHERE TND_MAP_PEP.PROJECT_ID=@projectid  ";
 
 
@@ -420,19 +481,33 @@ namespace topmeperp.Service
                 sql_wire = sql_wire + " AND BUILDING_NO LIKE @buildno";
                 parameters.Add(new SqlParameter("buildno", "%" + buildno + "%"));
             }
-            if (null != primeside && primeside != "")//一次側名稱
+            if (null != primeside && primeside != "")//一次側位置
             {
                 sql_pipe = sql_pipe + " AND PRIMARY_SIDE LIKE @primeside";
                 sql_ground = sql_ground + " AND PRIMARY_SIDE LIKE @primeside";
                 sql_wire = sql_wire + " AND PRIMARY_SIDE LIKE @primeside";
                 parameters.Add(new SqlParameter("primeside", "%" + primeside + "%"));
             }
-            if (null != secondside && secondside != "")//二次側名稱
+            if (null != primesidename && primesidename != "")//一次側名稱
+            {
+                sql_pipe = sql_pipe + " AND PRIMARY_SIDE_NAME LIKE @primesidename";
+                sql_ground = sql_ground + " AND PRIMARY_SIDE_NAME LIKE @primesidename";
+                sql_wire = sql_wire + " AND PRIMARY_SIDE_NAME LIKE @primesidename";
+                parameters.Add(new SqlParameter("primesidename", "%" + primesidename + "%"));
+            }
+            if (null != secondside && secondside != "")//二次側位置
             {
                 sql_pipe = sql_pipe + " AND SECONDARY_SIDE LIKE @secondside";
                 sql_ground = sql_ground + " AND SECONDARY_SIDE LIKE @secondside";
                 sql_wire = sql_wire + " AND SECONDARY_SIDE LIKE @secondside";
                 parameters.Add(new SqlParameter("secondside", "%" + secondside + "%"));
+            }
+            if (null != secondsidename && secondsidename != "")//二次側名稱
+            {
+                sql_pipe = sql_pipe + " AND SECONDARY_SIDE_NAME LIKE @secondsidename";
+                sql_ground = sql_ground + " AND SECONDARY_SIDE_NAME LIKE @secondsidename";
+                sql_wire = sql_wire + " AND SECONDARY_SIDE_NAME LIKE @secondsidename";
+                parameters.Add(new SqlParameter("secondsidename", "%" + secondsidename + "%"));
             }
             if (null != name && name != "")//品項名稱
             {
@@ -445,50 +520,55 @@ namespace topmeperp.Service
             logger.Debug("PEP SQL=" + sql);
             using (var context = new topmepEntities())
             {
-                lstMapPEP = context.TND_PROJECT_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
+                //lstMapPEP = context.PLAN_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
+                lstMapPEP = context.Database.SqlQuery<PLAN_ITEM>(sql, parameters.ToArray()).ToList();
             }
             viewModel.ProjectItemInMapPEP = lstMapPEP;
             resultMessage = resultMessage + "電器資料筆數:" + lstMapPEP.Count + ",";
         }
         //弱電
-        public void getMapLCP(string projectid, string mapno, string buildno, string primeside, string secondside, string name)
+        public void getMapLCP(string projectid, string mapno, string buildno, string primeside, string primesidename, string secondside, string secondsidename, string name)
         {
             //主鍵值+ _p1 & _p2 區隔資料
-            List<TND_PROJECT_ITEM> lstMapLCP = null;
-            string sql_pipe1 = "SELECT PROJECT_ITEM_ID +'_p1' PROJECT_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
-                + ",(SELECT SUM(PIPE_1_TOTAL_LEN) FROM TND_MAP_LCP LCP WHERE LCP.PIPE_1_NAME = P.PROJECT_ITEM_ID) as ITEM_QUANTITY "
+            List<PLAN_ITEM> lstMapLCP = null;
+            string sql_pipe1 = "SELECT PLAN_ITEM_ID +'_p1' PLAN_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
+                + ",(SELECT SUM(PIPE_1_TOTAL_LEN) FROM TND_MAP_LCP LCP WHERE LCP.PIPE_1_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
                 + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
                 + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
-                + ",SHEET_NAME ,EXCEL_ROW_ID,QUO_PRICE,DEL_FLAG "
-                + "FROM TND_PROJECT_ITEM P "
-                + "WHERE P.PROJECT_ID=@projectid AND P.PROJECT_ITEM_ID "
+                + ",EXCEL_ROW_ID,DEL_FLAG "
+                + ",FORM_NAME,SUPPLIER_ID,BUDGET_RATIO,ITEM_FORM_QUANTITY,ITEM_UNIT_COST,MAN_FORM_NAME,MAN_SUPPLIER_ID,LEAD_TIME,INQUIRY_FORM_ID,MAN_FORM_ID,BUDGET_WAGE_RATIO,TND_RATIO "
+                + "FROM PLAN_ITEM P "
+                + "WHERE P.PROJECT_ID=@projectid AND P.PLAN_ITEM_ID "
                 + "IN (SELECT PIPE_1_NAME FROM TND_MAP_LCP WHERE TND_MAP_LCP.PROJECT_ID=@projectid ";
 
-            string sql_pipe2 = "SELECT PROJECT_ITEM_ID+'_p2' PROJECT_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
-                + ",(SELECT SUM(PIPE_2_TOTAL_LEN) FROM TND_MAP_LCP LCP WHERE LCP.PIPE_2_NAME = P.PROJECT_ITEM_ID) as ITEM_QUANTITY "
+            string sql_pipe2 = "SELECT PLAN_ITEM_ID+'_p2' PLAN_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
+                + ",(SELECT SUM(PIPE_2_TOTAL_LEN) FROM TND_MAP_LCP LCP WHERE LCP.PIPE_2_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
                 + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
                 + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
-                + ",SHEET_NAME ,EXCEL_ROW_ID,QUO_PRICE,DEL_FLAG "
-                + "FROM TND_PROJECT_ITEM P "
-                + "WHERE P.PROJECT_ID=@projectid AND P.PROJECT_ITEM_ID "
+                + ",EXCEL_ROW_ID,DEL_FLAG "
+                + ",FORM_NAME,SUPPLIER_ID,BUDGET_RATIO,ITEM_FORM_QUANTITY,ITEM_UNIT_COST,MAN_FORM_NAME,MAN_SUPPLIER_ID,LEAD_TIME,INQUIRY_FORM_ID,MAN_FORM_ID,BUDGET_WAGE_RATIO,TND_RATIO "
+                + "FROM PLAN_ITEM P "
+                + "WHERE P.PROJECT_ID=@projectid AND P.PLAN_ITEM_ID "
                 + "IN (SELECT PIPE_2_NAME FROM TND_MAP_LCP WHERE TND_MAP_LCP.PROJECT_ID=@projectid  ";
 
-            string sql_ground = "SELECT PROJECT_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
-                + ",(SELECT SUM(GROUND_WIRE_TOTAL_LENGTH) FROM TND_MAP_LCP LCP WHERE LCP.GROUND_WIRE_NAME = P.PROJECT_ITEM_ID) as ITEM_QUANTITY "
+            string sql_ground = "SELECT PLAN_ITEM_ID as PLAN_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
+                + ",(SELECT SUM(GROUND_WIRE_TOTAL_LENGTH) FROM TND_MAP_LCP LCP WHERE LCP.GROUND_WIRE_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
                 + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
                 + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
-                + ",SHEET_NAME ,EXCEL_ROW_ID,QUO_PRICE,DEL_FLAG "
-                + "FROM TND_PROJECT_ITEM P "
-                + "WHERE P.PROJECT_ID=@projectid  AND P.PROJECT_ITEM_ID "
+                + ",EXCEL_ROW_ID,DEL_FLAG "
+                + ",FORM_NAME,SUPPLIER_ID,BUDGET_RATIO,ITEM_FORM_QUANTITY,ITEM_UNIT_COST,MAN_FORM_NAME,MAN_SUPPLIER_ID,LEAD_TIME,INQUIRY_FORM_ID,MAN_FORM_ID,BUDGET_WAGE_RATIO,TND_RATIO "
+                + "FROM PLAN_ITEM P "
+                + "WHERE P.PROJECT_ID=@projectid  AND P.PLAN_ITEM_ID "
                 + "IN(SELECT GROUND_WIRE_NAME FROM TND_MAP_LCP WHERE TND_MAP_LCP.PROJECT_ID=@projectid ";
 
-            string sql_wire = "SELECT PROJECT_ITEM_ID, PROJECT_ID, ITEM_ID, ITEM_DESC, ITEM_UNIT "
-                + ",(SELECT SUM(WIRE_TOTAL_LENGTH) FROM TND_MAP_LCP LCP WHERE LCP.WIRE_NAME = P.PROJECT_ITEM_ID) as ITEM_QUANTITY "
+            string sql_wire = "SELECT PLAN_ITEM_ID as PLAN_ITEM_ID, PROJECT_ID, ITEM_ID, ITEM_DESC, ITEM_UNIT "
+                + ",(SELECT SUM(WIRE_TOTAL_LENGTH) FROM TND_MAP_LCP LCP WHERE LCP.WIRE_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
                 + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
                 + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
-                + ",SHEET_NAME ,EXCEL_ROW_ID,QUO_PRICE,DEL_FLAG "
-                + "FROM TND_PROJECT_ITEM P "
-                + "WHERE P.PROJECT_ID=@projectid AND P.PROJECT_ITEM_ID "
+                + ",EXCEL_ROW_ID,DEL_FLAG "
+                + ",FORM_NAME,SUPPLIER_ID,BUDGET_RATIO,ITEM_FORM_QUANTITY,ITEM_UNIT_COST,MAN_FORM_NAME,MAN_SUPPLIER_ID,LEAD_TIME,INQUIRY_FORM_ID,MAN_FORM_ID,BUDGET_WAGE_RATIO,TND_RATIO "
+                + "FROM PLAN_ITEM P "
+                + "WHERE P.PROJECT_ID=@projectid AND P.PLAN_ITEM_ID "
                 + "IN(SELECT WIRE_NAME FROM TND_MAP_LCP WHERE TND_MAP_LCP.PROJECT_ID=@projectid  ";
 
 
@@ -511,7 +591,7 @@ namespace topmeperp.Service
                 sql_wire = sql_wire + " AND BUILDING_NO LIKE @buildno";
                 parameters.Add(new SqlParameter("buildno", "%" + buildno + "%"));
             }
-            if (null != primeside && primeside != "")//一次側名稱
+            if (null != primeside && primeside != "")//一次側位置
             {
                 sql_pipe1 = sql_pipe1 + " AND PRIMARY_SIDE LIKE @primeside";
                 sql_pipe2 = sql_pipe2 + " AND PRIMARY_SIDE LIKE @primeside";
@@ -519,13 +599,29 @@ namespace topmeperp.Service
                 sql_wire = sql_wire + " AND PRIMARY_SIDE LIKE @primeside";
                 parameters.Add(new SqlParameter("primeside", "%" + primeside + "%"));
             }
-            if (null != secondside && secondside != "")//二次側名稱
+            if (null != primesidename && primesidename != "")//一次側名稱
+            {
+                sql_pipe1 = sql_pipe1 + " AND PRIMARY_SIDE_NAME LIKE @primesidename";
+                sql_pipe2 = sql_pipe2 + " AND PRIMARY_SIDE_NAME LIKE @primesidename";
+                sql_ground = sql_ground + " AND PRIMARY_SIDE_NAME LIKE @primesidename";
+                sql_wire = sql_wire + " AND PRIMARY_SIDE_NAME LIKE @primesidename";
+                parameters.Add(new SqlParameter("primesidename", "%" + primesidename + "%"));
+            }
+            if (null != secondside && secondside != "")//二次側位置
             {
                 sql_pipe1 = sql_pipe1 + " AND SECONDARY_SIDE LIKE @secondside";
                 sql_pipe2 = sql_pipe2 + " AND SECONDARY_SIDE LIKE @secondside";
                 sql_ground = sql_ground + " AND SECONDARY_SIDE LIKE @secondside";
                 sql_wire = sql_wire + " AND SECONDARY_SIDE LIKE @secondside";
                 parameters.Add(new SqlParameter("secondside", "%" + secondside + "%"));
+            }
+            if (null != secondsidename && secondsidename != "")//二次側名稱
+            {
+                sql_pipe1 = sql_pipe1 + " AND SECONDARY_SIDE_NAME LIKE @secondsidename";
+                sql_pipe2 = sql_pipe2 + " AND SECONDARY_SIDE_NAME LIKE @secondsidename";
+                sql_ground = sql_ground + " AND SECONDARY_SIDE_NAME LIKE @secondsidename";
+                sql_wire = sql_wire + " AND SECONDARY_SIDE_NAME LIKE @secondsidename";
+                parameters.Add(new SqlParameter("secondsidename", "%" + secondsidename + "%"));
             }
             if (null != name && name != "")//品項名稱
             {
@@ -539,7 +635,8 @@ namespace topmeperp.Service
             logger.Debug("LCP SQL=" + sql);
             using (var context = new topmepEntities())
             {
-                lstMapLCP = context.TND_PROJECT_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
+                //lstMapLCP = context.PLAN_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
+                lstMapLCP = context.Database.SqlQuery<PLAN_ITEM>(sql, parameters.ToArray()).ToList();
             }
             for (int i = 0; i < lstMapLCP.Count; i++)
             {
@@ -780,8 +877,8 @@ namespace topmeperp.Service
             //建立料件資料
             newDailyRpt.lstDailyRptItem4Show = getItem(projectid, prjuid);
             //新報告上無Report ID 用假資料
-            newDailyRpt.lstDailyRptWokerType4Show = getDailyReportRecord4Worker(projectid,"000", "Worker"); //SystemParameter.getSystemPara("ProjectPlanService", "Worker");
-            newDailyRpt.lstDailyRptMachine4Show = getDailyReportRecord4Worker(projectid,"000", "Machine"); //SystemParameter.getSystemPara("ProjectPlanService", "Machine");
+            newDailyRpt.lstDailyRptWokerType4Show = getDailyReportRecord4Worker(projectid, "000", "Worker"); //SystemParameter.getSystemPara("ProjectPlanService", "Worker");
+            newDailyRpt.lstDailyRptMachine4Show = getDailyReportRecord4Worker(projectid, "000", "Machine"); //SystemParameter.getSystemPara("ProjectPlanService", "Machine");
             return newDailyRpt;
         }
         public DailyReport getDailyReport(string reportId)
@@ -800,7 +897,7 @@ namespace topmeperp.Service
                 //取得重要事件
                 sql = "SELECT * FROM PLAN_DR_NOTE WHERE REPORT_ID=@reportId";
                 logger.Debug("get notes ,sql=" + sql + ",reportId=" + reportId);
-                drDailyRpt.lstRptNote = context.PLAN_DR_NOTE.SqlQuery(sql, new SqlParameter("reportId", reportId)).ToList() ;
+                drDailyRpt.lstRptNote = context.PLAN_DR_NOTE.SqlQuery(sql, new SqlParameter("reportId", reportId)).ToList();
             }
             return drDailyRpt;
         }
@@ -814,7 +911,7 @@ namespace topmeperp.Service
                 {
                     //1.將日報相關資料刪除
                     string sql = "DELETE FROM PLAN_DR_ITEM WHERE REPORT_ID=@reportId;DELETE FROM PLAN_DR_NOTE WHERE REPORT_ID = @reportId;DELETE FROM PLAN_DR_WORKER WHERE REPORT_ID = @reportId;DELETE FROM PLAN_DR_TASK WHERE REPORT_ID = @reportId;";
-                    logger.Info("remove daily Report:" + sql + ",reportid="+ dr.dailyRpt.REPORT_ID);
+                    logger.Info("remove daily Report:" + sql + ",reportid=" + dr.dailyRpt.REPORT_ID);
                     int i = db.Database.ExecuteSqlCommand(sql, new SqlParameter("reportId", dr.dailyRpt.REPORT_ID));
                     logger.Debug("remove daily Report:" + i);
                     //2.
@@ -848,7 +945,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 logger.Debug("sql=" + sql + ",projectid=" + projectid + ",prjuid=" + prjuid);
-                lstDailyRptItem = context.Database.SqlQuery<DailyReportItem>(sql, new SqlParameter("projectid", projectid), new SqlParameter("prjuid",prjuid)).ToList();
+                lstDailyRptItem = context.Database.SqlQuery<DailyReportItem>(sql, new SqlParameter("projectid", projectid), new SqlParameter("prjuid", prjuid)).ToList();
                 logger.Debug("lstDailyRptItem count=" + lstDailyRptItem.Count);
             }
             return lstDailyRptItem;
@@ -862,14 +959,14 @@ namespace topmeperp.Service
                 + "FROM PLAN_DR_ITEM i,vw_MAP_MATERLIALIST_DETAIL Map WHERE REPORT_ID = @reportId AND Map.PROJECT_ITEM_ID=i.PLAN_ITEM_ID; ";
             using (var context = new topmepEntities())
             {
-                logger.Debug("sql=" + sql + ",reportId=" + reportId );
+                logger.Debug("sql=" + sql + ",reportId=" + reportId);
                 lstDailyRptItem = context.Database.SqlQuery<DailyReportItem>(sql, new SqlParameter("reportId", reportId)).ToList();
                 logger.Debug("lstDailyRptItem count=" + lstDailyRptItem.Count);
             }
             return lstDailyRptItem;
         }
         //取得人工/機具使用數量
-        public List<DailyReportRecord4Worker> getDailyReportRecord4Worker(string projectid,string reportid, string type)
+        public List<DailyReportRecord4Worker> getDailyReportRecord4Worker(string projectid, string reportid, string type)
         {
             //string sql = "SELECT PA.FUNCTION_ID,PA.KEY_FIELD,PA.VALUE_FIELD,"
             //    + "(SELECT SUM(ISNULL(WORKER_QTY, 0)) AS LAST_QTY FROM PLAN_DR_WORKER WHERE REPORT_ID = @ReportID AND PARA_KEY_ID = RPT.PARA_KEY_ID) AS LAST_QTY,"
@@ -893,7 +990,7 @@ namespace topmeperp.Service
             List<DailyReportRecord4Worker> lst = new List<DailyReportRecord4Worker>();
             using (var context = new topmepEntities())
             {
-                logger.Info("get DailyReportRecord4Worker sql:" + sql +",type=" + type);
+                logger.Info("get DailyReportRecord4Worker sql:" + sql + ",type=" + type);
                 lst = context.Database.SqlQuery<DailyReportRecord4Worker>(sql, parameters.ToArray()).ToList();
             }
             return lst;
@@ -956,11 +1053,11 @@ namespace topmeperp.Service
             List<SummaryDailyReport> lst = null;
             string sql = "SELECT i.PROJECT_ID, i.PROJECT_ITEM_ID,i.ITEM_ID,i.ITEM_DESC,i.ITEM_UNIT,i.ITEM_QUANTITY,i.TYPE_CODE_1,i.TYPE_CODE_2,"
                 + "i.SYSTEM_MAIN,i.SYSTEM_SUB,MAP.QTY,sumDailyRpt.ACCUMULATE_QTY,i.EXCEL_ROW_ID "
-                +"FROM TND_PROJECT_ITEM i, vw_MAP_MATERLIALIST_DETAIL MAP LEFT OUTER JOIN "
-                +"(SELECT SUM(FINISH_QTY) AS ACCUMULATE_QTY, PLAN_ITEM_ID "
-                +"FROM PLAN_DALIY_REPORT rpt, PLAN_DR_ITEM rptItem WHERE rpt.REPORT_ID = rptItem.REPORT_ID "
-                +"GROUP BY PLAN_ITEM_ID) sumDailyRpt ON sumDailyRpt.PLAN_ITEM_ID = MAP.PROJECT_ITEM_ID "
-                +"WHERE i.PROJECT_ITEM_ID = MAP.PROJECT_ITEM_ID "
+                + "FROM TND_PROJECT_ITEM i, vw_MAP_MATERLIALIST_DETAIL MAP LEFT OUTER JOIN "
+                + "(SELECT SUM(FINISH_QTY) AS ACCUMULATE_QTY, PLAN_ITEM_ID "
+                + "FROM PLAN_DALIY_REPORT rpt, PLAN_DR_ITEM rptItem WHERE rpt.REPORT_ID = rptItem.REPORT_ID "
+                + "GROUP BY PLAN_ITEM_ID) sumDailyRpt ON sumDailyRpt.PLAN_ITEM_ID = MAP.PROJECT_ITEM_ID "
+                + "WHERE i.PROJECT_ITEM_ID = MAP.PROJECT_ITEM_ID "
                 + "AND i.PROJECT_ID=@projectid ORDER BY EXCEL_ROW_ID;";
             var parameters = new List<SqlParameter>();
             //設定專案名編號資料

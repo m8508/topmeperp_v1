@@ -125,18 +125,32 @@ namespace topmeperp.Controllers
         //查詢圖算資訊
         public ActionResult getMapItem4Task(FormCollection f)
         {
-            string projectid = f["projectid"];
+            string projectid = f["projectid"].Trim();
             log.Debug("projectid" + f["projectid"]);
+            string typeCode1 = f["typeCode1"].Trim();
+            string typeCode2 = f["typeCode2"].Trim(); 
+            string systemMain = f["systemMain"].Trim(); 
+            string systemSub = f["systemSub"].Trim();
+            log.Debug("typeCode1=" + typeCode1 +",typeCode2="+ typeCode2+ ",systemMain="+ systemMain + "systemSub="+ systemSub);
+
+            string primeside = f["primeside"];
+            log.Debug("primeside" + f["primeside"]);
+            string primesideName = f["primesideName"];
+            log.Debug("primesideName" + primesideName);
+
+            string secondside = f["secondside"];
+            log.Debug("secondside" + f["secondside"]);
+            string secondsideName = f["secondsideName"];
+            log.Debug("secondsideName" + secondsideName);
+
+
             string mapno = f["mapno"];
             log.Debug("mapno" + f["mapno"]);
             string buildno = f["buildno"];
             log.Debug("buildno" + f["buildno"]);
-            string primeside = f["primeside"];
-            log.Debug("primeside" + f["primeside"]);
-            string secondside = f["secondside"];
-            log.Debug("secondside" + f["secondside"]);
             string devicename = f["devicename"];
             log.Debug("devicename" + f["devicename"]);
+
             string mapType = f["mapType"];
             log.Debug("mapType" + f["mapType"]);
             string strart_id = f["startid"];
@@ -153,26 +167,28 @@ namespace topmeperp.Controllers
                 {
                     case "MAP_DEVICE"://設備
                         log.Debug("MapType: MAP_DEVICE(設備)");
-                        planService.getMapItem(projectid, devicename, strart_id, end_id);
+                        //增加九宮格、次九宮格、主系統、次系統等條件
+                        planService.getMapItem(projectid, devicename, strart_id, end_id, typeCode1, typeCode2, systemMain, systemSub);
                         break;
                     case "MAP_PEP"://電器管線
                         log.Debug("MapType: MAP_PEP(電器管線)");
-                        planService.getMapPEP(projectid, mapno, buildno, primeside, secondside, devicename);
+                        //增加一次側名稱、二次側名稱
+                        planService.getMapPEP(projectid, mapno, buildno, primeside, primesideName, secondside, secondsideName, devicename);
                         break;
                     case "MAP_LCP"://弱電管線
                         log.Debug("MapType: MAP_LCP(弱電管線)");
-                        planService.getMapLCP(projectid, mapno, buildno, primeside, secondside, devicename);
+                        planService.getMapLCP(projectid, mapno, buildno, primeside, primesideName, secondside, secondsideName, devicename);
                         break;
                     case "TND_MAP_PLU"://給排水
                         log.Debug("MapType: TND_MAP_PLU(給排水)");
-                        planService.getMapPLU(projectid, mapno, buildno, primeside, secondside, devicename);
+                        planService.getMapPLU(projectid, mapno, buildno, primeside, primesideName, secondside, secondsideName, devicename);
                         break;
                     case "MAP_FP"://消防電
                         log.Debug("MapType: MAP_FP(消防電)");
-                        planService.getMapFP(projectid, mapno, buildno, primeside, secondside, devicename);
+                        planService.getMapFP(projectid, mapno, buildno, primeside, primesideName, secondside, secondsideName, devicename);
                         break;
                     case "MAP_FW"://消防水
-                        planService.getMapFW(projectid, mapno, buildno, primeside, secondside, devicename);
+                        planService.getMapFW(projectid, mapno, buildno, primeside, primesideName, secondside, secondsideName, devicename);
                         log.Debug("MapType: MAP_FW(消防水)");
                         break;
                     default:
