@@ -119,9 +119,8 @@ namespace topmeperp.Service
                         parameters.Add(new SqlParameter("projectid", projectid));
                         parameters.Add(new SqlParameter("code1", item.TYPE_CODE_1));
                         parameters.Add(new SqlParameter("code2", item.TYPE_CODE_2));
-                        parameters.Add(new SqlParameter("systemmain", item.SYSTEM_MAIN));
-                        parameters.Add(new SqlParameter("systemsub", item.SYSTEM_SUB));
-                        string sql = "SELECT * FROM PLAN_BUDGET WHERE PROJECT_ID = @projectid and ISNULL(TYPE_CODE_1, '') + ISNULL(TYPE_CODE_2, '') + ISNULL(SYSTEM_MAIN, '') + ISNULL(SYSTEM_SUB, '') = @code1 + @code2 + @systemmain + @systemsub";
+
+                        string sql = "SELECT * FROM PLAN_BUDGET WHERE PROJECT_ID = @projectid and ISNULL(TYPE_CODE_1, '') + ISNULL(TYPE_CODE_2, '') = @code1 + @code2";
                         logger.Info(sql + " ;" + item.PROJECT_ID + item.TYPE_CODE_1 + item.TYPE_CODE_2 + item.SYSTEM_MAIN + item.SYSTEM_SUB);
                         PLAN_BUDGET excelItem = context.PLAN_BUDGET.SqlQuery(sql, parameters.ToArray()).First();
                         existItem = context.PLAN_BUDGET.Find(excelItem.PLAN_BUDGET_ID);
