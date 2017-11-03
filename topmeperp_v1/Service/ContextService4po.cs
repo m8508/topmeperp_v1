@@ -2069,7 +2069,7 @@ namespace topmeperp.Service
                     "JOIN PLAN_ITEM pi ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID =@projectid " +
                     "AND pr.SUPPLIER_ID IS NULL AND pr.STATUS > 0 )A WHERE A.PR_ID + A.SUPPLIER_ID NOT IN (SELECT DISTINCT(pr.PARENT_PR_ID + pr.SUPPLIER_ID) AS ORDER_RECORD " +
                     "FROM PLAN_PURCHASE_REQUISITION pr WHERE pr.PARENT_PR_ID + pr.SUPPLIER_ID IS NOT NULL))B GROUP BY B.KEYNAME, CONVERT(char(10), B.CREATE_DATE, 111), " +
-                    "B.PR_ID, B.SUPPLIER_ID, B.NEED_DATE, B.PROJECT_ID ORDER BY NEED_DATE ";
+                    "B.PR_ID, B.SUPPLIER_ID, B.PROJECT_ID ORDER BY NEED_DATE ";
 
                 logger.Info("sql = " + sql);
                 var parameters = new List<SqlParameter>();
