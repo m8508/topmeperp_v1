@@ -149,7 +149,7 @@
             need = parseInt($.trim($(this).find("#need_qty").val())); //抓取每筆記錄申購數量的值
             contract = parseInt($.trim($(this).find("#contract_qty").val())); //抓取每筆記錄合約數量的值
             cumulative_order = parseInt($.trim($(this).find("#cumulative_qty").val())); //抓取每筆記錄總採購數量的值
-            alert(parseInt(cumulative_order) + parseInt(order));
+            /***alert(parseInt(cumulative_order) + parseInt(order));***/
             if (parseInt(need) != parseInt(order)) {
                 boolunequal = true;
             }

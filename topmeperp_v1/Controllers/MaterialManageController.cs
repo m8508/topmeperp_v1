@@ -511,7 +511,7 @@ namespace topmeperp.Controllers
             ViewBag.recipient = singleForm.planPR.RECIPIENT;
             ViewBag.location = singleForm.planPR.LOCATION;
             ViewBag.caution = singleForm.planPR.REMARK;
-            List<PurchaseRequisition> lstPR = service.getPurchaseItemBySupplier(ViewBag.parentPrId);
+            List<PurchaseRequisition> lstPR = service.getPurchaseItemBySupplier(String.Join("-", ViewBag.parentPrId, ViewBag.supplier));
             return View(lstPR);
         }
         //新增採購單
