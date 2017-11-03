@@ -360,7 +360,7 @@ namespace topmeperp.Service
             {
                 IRow row = sheet.GetRow(idxRow);
                 //項次 項目說明    單位 數量  單價 複價  備註
-                row.Cells[0].SetCellValue(idxRow - 8);///項次
+                row.Cells[0].SetCellValue(item.ITEM_ID);///項次
                 logger.Debug("Inquiry :ITEM DESC=" + item.ITEM_DESC);
                 row.Cells[1].SetCellValue(item.ITEM_DESC);//項目說明
                 row.Cells[2].SetCellValue(item.ITEM_UNIT);// 單位
@@ -425,7 +425,7 @@ namespace topmeperp.Service
                 IRow row = sheet.CreateRow(idxRow);
                 //項次 項目說明    單位 數量  材料單價 材料複價  工資單價 工資複價 備註
                 row.CreateCell(0);
-                row.Cells[0].SetCellValue(idxRow - 8);///項次
+                row.Cells[0].SetCellValue(item.ITEM_ID);///項次
                 row.Cells[0].CellStyle = style;
                 logger.Debug("Inquiry :ITEM DESC=" + item.ITEM_DESC);
                 row.CreateCell(1);
