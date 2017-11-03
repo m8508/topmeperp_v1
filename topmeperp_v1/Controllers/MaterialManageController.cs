@@ -158,7 +158,7 @@ namespace topmeperp.Controllers
                     AllItemId.Add(fwItemId[i]);
                 }
             }
-            if(null == form["map_device"] && null == form["map_fp"] && null == form["map_fw"] && null == form["map_pep"] && null == form["map_lcp"] && null == form["map_plu"])
+            if (null == form["map_device"] && null == form["map_fp"] && null == form["map_fw"] && null == form["map_pep"] && null == form["map_lcp"] && null == form["map_plu"])
             {
                 TempData["result"] = "沒有選取要申購的項目名稱，請重新查詢後並勾選物料項目!";
                 return Redirect("PlanTask?id=" + form["projectid"]);
@@ -221,7 +221,6 @@ namespace topmeperp.Controllers
             pr.LOCATION = Request["location"];
             pr.REMARK = Request["caution"];
             pr.STATUS = 10; //表示申購單已送出
-            pr.PRJ_UID = int.Parse(Request["prj_uid"]);
             PLAN_PURCHASE_REQUISITION_ITEM item = new PLAN_PURCHASE_REQUISITION_ITEM();
             string prid = service.newPR(Request["id"], pr, lstItemId);
             List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem = new List<PLAN_PURCHASE_REQUISITION_ITEM>();
@@ -328,7 +327,7 @@ namespace topmeperp.Controllers
             int status = 10;
             if (Request["status"] == null || Request["status"] == "")
             {
-              status = 0;
+                status = 0;
             }
             List<PRFunction> lstPR = service.getPRByPrjId(id, Request["create_date"], Request["taskname"], Request["prid"], status);
             return View(lstPR);
@@ -497,20 +496,22 @@ namespace topmeperp.Controllers
         public ActionResult PurchaseOperation(string id, FormCollection form)
         {
             log.Info("Access to Purchase Operation page!!");
+
             ViewBag.projectid = id.Substring(0, 6).Trim();
+            string[] allKey = id.Split('-');
             TnderProject tndservice = new TnderProject();
-            TND_PROJECT p = tndservice.getProjectById(id.Substring(0, 6).Trim());
+            TND_PROJECT p = tndservice.getProjectById(allKey[0]);
             ViewBag.projectName = p.PROJECT_NAME;
-            ViewBag.supplier = id.Substring(17).Trim();
-            ViewBag.parentPrId = id.Substring(7, 9).Trim();
+            ViewBag.supplier = allKey[2];
+            ViewBag.parentPrId = allKey[1];
             ViewBag.OrderDate = DateTime.Now;
             PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
-            service.getPRByPrId(id.Substring(7, 9).Trim());
+            service.getPRByPrId(ViewBag.parentPrId);
             singleForm.planPR = service.formPR;
             ViewBag.recipient = singleForm.planPR.RECIPIENT;
             ViewBag.location = singleForm.planPR.LOCATION;
             ViewBag.caution = singleForm.planPR.REMARK;
-            List<PurchaseRequisition> lstPR = service.getPurchaseItemBySupplier(id.Substring(6).Trim());
+            List<PurchaseRequisition> lstPR = service.getPurchaseItemBySupplier(ViewBag.parentPrId);
             return View(lstPR);
         }
         //新增採購單
@@ -821,14 +822,14 @@ namespace topmeperp.Controllers
             ViewBag.projectName = p.PROJECT_NAME;
             SYS_USER u = (SYS_USER)Session["user"];
             ViewBag.createid = u.USER_ID;
-            List<PurchaseRequisition> lstItem = service.getInventoryByPrjId(id, Request["item"], Request["systemMain"]); 
+            List<PurchaseRequisition> lstItem = service.getInventoryByPrjId(id, Request["item"], Request["systemMain"]);
             return View(lstItem);
         }
-        
+
         public ActionResult SearchInventory()
         {
             log.Info("projectid=" + Request["id"] + ", planitemname =" + Request["item"] + ", systemMain =" + Request["systemMain"]);
-            List<PurchaseRequisition> lstItem = service.getInventoryByPrjId(Request["id"], Request["item"], Request["systemMain"]); 
+            List<PurchaseRequisition> lstItem = service.getInventoryByPrjId(Request["id"], Request["item"], Request["systemMain"]);
             ViewBag.SearchResult = "共取得" + lstItem.Count + "筆資料";
             ViewBag.projectId = Request["id"];
             ViewBag.projectName = Request["projectName"];
@@ -917,7 +918,7 @@ namespace topmeperp.Controllers
             }
             else
             {
-                msg = "更新領料紀錄成功" ;
+                msg = "更新領料紀錄成功";
             }
 
             log.Info("Request: 更新紀錄訊息 = " + msg);

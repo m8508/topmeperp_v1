@@ -19,7 +19,7 @@
                     @foreach (var item in Model.mapDEVICE)
                     {
                         <tr>
-                            <td><input type="checkbox" id="map_device" name="map_device" value="@item.DEVIVE_ID" /></td>
+                            <td><input type="checkbox" id="map_device" name="map_device" value="@item.PROJECT_ITEM_ID" /></td>
                             <td>@Html.DisplayFor(modelItem => item.PROJECT_ITEM_ID)</td>
                             <td style="">@Html.DisplayFor(modelItem => item.LOC_DESC)</td>
                             <td>@Html.DisplayFor(modelItem => item.QTY)</td>

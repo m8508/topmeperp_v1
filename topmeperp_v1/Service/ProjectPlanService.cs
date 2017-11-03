@@ -232,20 +232,22 @@ namespace topmeperp.Service
         public void getMapFP(string projectid, string mapno, string buildno, string primeside, string primesidename, string secondside, string secondsidename, string name)
         {
             List<PLAN_ITEM> lstMapFP = null;
-            string sql_pipe = "SELECT PLAN_ITEM_ID as PROJECT_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
+            string sql_pipe = "SELECT PLAN_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
                 + ",(SELECT SUM(PIPE_TOTAL_LENGTH) FROM TND_MAP_FP FP WHERE FP.PIPE_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
                 + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
                 + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
-                + ",SHEET_NAME ,EXCEL_ROW_ID,QUO_PRICE,DEL_FLAG "
+                + ",EXCEL_ROW_ID,DEL_FLAG "
+                + ",FORM_NAME,SUPPLIER_ID,BUDGET_RATIO,ITEM_FORM_QUANTITY,ITEM_UNIT_COST,MAN_FORM_NAME,MAN_SUPPLIER_ID,LEAD_TIME,INQUIRY_FORM_ID,MAN_FORM_ID,BUDGET_WAGE_RATIO,TND_RATIO "
                 + "FROM PLAN_ITEM P "
                 + "WHERE P.PROJECT_ID=@projectid AND P.PLAN_ITEM_ID "
                 + "IN(SELECT PIPE_NAME FROM TND_MAP_FP WHERE TND_MAP_FP.PROJECT_ID=@projectid  ";
 
-            string sql_wire = "SELECT PLAN_ITEM_ID as PROJECT_ITEM_ID, PROJECT_ID, ITEM_ID, ITEM_DESC, ITEM_UNIT "
+            string sql_wire = "SELECT PLAN_ITEM_ID, PROJECT_ID, ITEM_ID, ITEM_DESC, ITEM_UNIT "
                 + ",(SELECT SUM(WIRE_TOTAL_LENGTH) FROM TND_MAP_FP FP WHERE FP.WIRE_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
                 + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
                 + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
-                + ",SHEET_NAME ,EXCEL_ROW_ID,QUO_PRICE,DEL_FLAG "
+                + ",EXCEL_ROW_ID,DEL_FLAG "
+                + ",FORM_NAME,SUPPLIER_ID,BUDGET_RATIO,ITEM_FORM_QUANTITY,ITEM_UNIT_COST,MAN_FORM_NAME,MAN_SUPPLIER_ID,LEAD_TIME,INQUIRY_FORM_ID,MAN_FORM_ID,BUDGET_WAGE_RATIO,TND_RATIO "
                 + "FROM PLAN_ITEM P "
                 + "WHERE P.PROJECT_ID=@projectid AND P.PLAN_ITEM_ID "
                 + "IN(SELECT WIRE_NAME FROM TND_MAP_FP WHERE TND_MAP_FP.PROJECT_ID=@projectid  ";
@@ -308,11 +310,12 @@ namespace topmeperp.Service
         //消防水
         public void getMapFW(string projectid, string mapno, string buildno, string primeside, string primesidename, string secondside, string secondsidename, string name)
         {
-            string sql = "SELECT P.PLAN_ITEM_ID as PROJECT_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
-                + ",(SELECT SUM(PIPE_TOTAL_LENGTH)  FROM TND_MAP_FW PLU WHERE PLU.PIPE_NAME = P.PROJECT_ITEM_ID) as ITEM_QUANTITY "
+            string sql = "SELECT P.PLAN_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
+                + ",(SELECT SUM(PIPE_TOTAL_LENGTH)  FROM TND_MAP_FW PLU WHERE PLU.PIPE_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
                 + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
                 + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
-                + ",SHEET_NAME ,EXCEL_ROW_ID,QUO_PRICE,DEL_FLAG "
+                + ",EXCEL_ROW_ID,DEL_FLAG "
+                + ",FORM_NAME,SUPPLIER_ID,BUDGET_RATIO,ITEM_FORM_QUANTITY,ITEM_UNIT_COST,MAN_FORM_NAME,MAN_SUPPLIER_ID,LEAD_TIME,INQUIRY_FORM_ID,MAN_FORM_ID,BUDGET_WAGE_RATIO,TND_RATIO "
                 + "FROM PLAN_ITEM P "
                 + "WHERE P.PROJECT_ID=@projectid AND P.PLAN_ITEM_ID IN (SELECT PIPE_NAME FROM TND_MAP_FW WHERE TND_MAP_FW.PROJECT_ID=@projectid ";
 

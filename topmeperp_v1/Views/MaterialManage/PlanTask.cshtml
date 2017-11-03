@@ -81,18 +81,14 @@
 
             <div class="row">
                 <div class="col-md-12">
-                    <form id="formMapItem" name="formMapItem">
-                        <input type="hidden" id="checkNodeId" name="checkNodeId" value="" />
-                        <input type="hidden" id="projectid" name="projectid" value="@ViewBag.projectid" />
-                        <div class="container" id="MapItem" style="padding-bottom :30px;">
-                            <div class="col-md-6">
-
-                            </div>
-                            <div class="col-md-5 alert-info">
-                                @Html.Raw(TempData["result"])
-                            </div>
+                    <input type="hidden" id="projectid" name="projectid" value="@ViewBag.projectid" />
+                    <div class="container" id="MapItem" style="padding-bottom :30px;">
+                        <div class="col-md-6">
                         </div>
-                    </form>
+                        <div class="col-md-5 alert-info">
+                            @Html.Raw(TempData["result"])
+                        </div>
+                    </div>
                     <input type="submit" value="申購物料" class="btn btn-default" />
                 </div>
             </div>
