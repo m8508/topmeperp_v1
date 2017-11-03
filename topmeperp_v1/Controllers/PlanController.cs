@@ -427,8 +427,8 @@ namespace topmeperp.Controllers
             string msg = "";
             string[] lsttypecode = form.Get("code1").Split(',');
             string[] lsttypesub = form.Get("code2").Split(',');
-            string[] lstsystemmain = form.Get("systemmain").Split(',');
-            string[] lstsystemsub = form.Get("systemsub").Split(',');
+            //string[] lstsystemmain = form.Get("systemmain").Split(',');
+            //string[] lstsystemsub = form.Get("systemsub").Split(',');
             //string[] lstCost = form.Get("inputtndratio").Split(',');
             string[] lstPrice = form.Get("inputbudget").Split(',');
             string[] lstWagePrice = form.Get("inputbudget4wage").Split(',');
@@ -464,8 +464,8 @@ namespace topmeperp.Controllers
                 logger.Info("Budget ratio =" + item.BUDGET_RATIO);
                 item.TYPE_CODE_1 = lsttypecode[j];
                 item.TYPE_CODE_2 = lsttypesub[j];
-                item.SYSTEM_MAIN = lstsystemmain[j];
-                item.SYSTEM_SUB = lstsystemsub[j];
+                //item.SYSTEM_MAIN = lstsystemmain[j];
+                //item.SYSTEM_SUB = lstsystemsub[j];
                 item.CREATE_ID = u.USER_ID;
                 logger.Debug("Item Project id =" + item.PROJECT_ID + "且九宮格組合為" + item.TYPE_CODE_1 + item.TYPE_CODE_2 + item.SYSTEM_MAIN + item.SYSTEM_SUB);
                 lstItem.Add(item);
@@ -494,8 +494,6 @@ namespace topmeperp.Controllers
             string msg = "";
             string[] lsttypecode = form.Get("code1").Split(',');
             string[] lsttypesub = form.Get("code2").Split(',');
-            string[] lstsystemmain = form.Get("systemmain").Split(',');
-            string[] lstsystemsub = form.Get("systemsub").Split(',');
             string[] lstPrice = form.Get("inputbudget").Split(',');
             string[] lstWagePrice = form.Get("inputbudget4wage").Split(',');
             List<PLAN_BUDGET> lstItem = new List<PLAN_BUDGET>();
@@ -535,22 +533,6 @@ namespace topmeperp.Controllers
                 else
                 {
                     item.TYPE_CODE_2 = lsttypesub[j];
-                }
-                if (lstsystemmain[j].ToString() == "")
-                {
-                    item.SYSTEM_MAIN = "";
-                }
-                else
-                {
-                    item.SYSTEM_MAIN = lstsystemmain[j];
-                }
-                if (lstsystemsub[j].ToString() == "")
-                {
-                    item.SYSTEM_SUB = "";
-                }
-                else
-                {
-                    item.SYSTEM_SUB = lstsystemsub[j];
                 }
                 item.MODIFY_ID = u.USER_ID;
                 logger.Debug("Item Project id =" + item.PROJECT_ID + "且九宮格組合為" + item.TYPE_CODE_1 + item.TYPE_CODE_2 + item.SYSTEM_MAIN + item.SYSTEM_SUB);

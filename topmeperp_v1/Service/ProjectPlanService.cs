@@ -205,7 +205,7 @@ namespace topmeperp.Service
                 sql = sql + " AND P.SYSTEM_MAIN=@systemmain ";
                 parameters.Add(new SqlParameter("systemmain", systemmain));
             }
-            if (null != typecode2 && "" != typecode2)
+            if (null != systemsub && "" != systemsub)
             {
                 sql = sql + " AND P.SYSTEM_SUB=@systemsub ";
                 parameters.Add(new SqlParameter("systemsub", systemsub));
