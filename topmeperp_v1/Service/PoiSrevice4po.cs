@@ -394,7 +394,7 @@ namespace topmeperp.Service
             {
                 if (isReal)
                 {
-                    fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.INQUIRY_FORM_ID + ".xlsx";
+                    fileLocation = outputPath + "\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_NAME + ".xlsx";
                 }
                 else
                 {

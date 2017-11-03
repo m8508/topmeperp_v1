@@ -953,6 +953,7 @@
     <Content Include="Views\Estimation\_ThirdYearPage.cshtml" />
     <Content Include="Views\Estimation\_FourthYearPage.cshtml" />
     <Content Include="Views\Estimation\_FifthYearPage.cshtml" />
+    <Content Include="Views\UserManage\UserProfile.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
