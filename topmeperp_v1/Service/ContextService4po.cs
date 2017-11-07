@@ -711,7 +711,7 @@ namespace topmeperp.Service
                     +" , i.[ITEM_QTY],i.[ITEM_UNIT_PRICE], i.[ITEM_QTY_ORG] , i.[ITEM_UNITPRICE_ORG], i.ITEM_REMARK "
                     +" , i.[MODIFY_ID], i.[MODIFY_DATE], i.[WAGE_PRICE]  "
                     +"FROM PLAN_SUP_INQUIRY_ITEM i LEFT OUTER JOIN  PLAN_ITEM pi on i.PLAN_ITEM_ID = pi.PLAN_ITEM_ID "
-                    +"WHERE i.INQUIRY_FORM_ID=@formid", new SqlParameter("formid", formid)).ToList();
+                    + "WHERE i.INQUIRY_FORM_ID=@formid ORDER BY pi.EXCEL_ROW_ID", new SqlParameter("formid", formid)).ToList();
                 logger.Debug("get form item count:" + formInquiryItem.Count);
             }
         }

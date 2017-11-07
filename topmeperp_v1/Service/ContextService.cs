@@ -344,7 +344,12 @@ namespace topmeperp.Service
                     item.PROJECT_ID = project.PROJECT_ID;
                     context.TND_PROJECT_ITEM.Add(item);
                 }
+                try { 
                 i = context.SaveChanges();
+                }catch(Exception ex)
+                {
+                    logger.Error(ex.StackTrace);
+                }
             }
             logger.Info("add project item count =" + i);
             return i;
