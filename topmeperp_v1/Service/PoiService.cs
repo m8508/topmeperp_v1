@@ -3013,7 +3013,7 @@ namespace topmeperp.Service
             if (null == sheet)
             {
                 logger.Error("檔案內沒有標單品項(Sheet)! filename=" + fileformat);
-                throw new Exception("標單品項");
+                throw new Exception("檔案內沒有標單品項(Sheet)");
             }
             ConvertExcelToTndProjectItem(5);
         }

@@ -145,6 +145,7 @@ namespace topmeperp.Service
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public TND_PROJECT project = null;
         string sno_key = "PROJ";
+        public string strMessage = null;
         public TnderProject()
         {
         }
@@ -226,7 +227,7 @@ namespace topmeperp.Service
                 foreach (PLAN_ITEM item in planItem)
                 {
                     item.PROJECT_ID = project.PROJECT_ID;
-                    //string strJson = JsonConvert.SerializeObject(item, Formatting.Indented);
+                    //string strJson = JsonConvert.SerializeObject(item);
                     //logger.Debug(strJson);
                     context.PLAN_ITEM.Add(item);
                 }
@@ -343,12 +344,17 @@ namespace topmeperp.Service
                 {
                     item.PROJECT_ID = project.PROJECT_ID;
                     context.TND_PROJECT_ITEM.Add(item);
+                    string strJson = JsonConvert.SerializeObject(item);
+                    logger.Debug(strJson);
                 }
-                try { 
-                i = context.SaveChanges();
-                }catch(Exception ex)
+                try
+                {
+                    i = context.SaveChanges();
+                }
+                catch (Exception ex)
                 {
                     logger.Error(ex.StackTrace);
+                    strMessage = "匯入失敗(" + ex.Message + ")";
                 }
             }
             logger.Info("add project item count =" + i);

@@ -17,6 +17,7 @@ namespace topmeperp.Models
         public long PEP_ID { get; set; }
         public string PROJECT_ID { get; set; }
         public string PROJECT_ITEM_ID { get; set; }
+        public string EXCEL_ITEM { get; set; }
         public string MAP_NO { get; set; }
         public string BUILDING_NO { get; set; }
         public string PRIMARY_SIDE { get; set; }
@@ -37,6 +38,5 @@ namespace topmeperp.Models
         public Nullable<decimal> PIPE_TOTAL_LENGTH { get; set; }
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public string CREATE_ID { get; set; }
-        public string EXCEL_ITEM { get; set; }
     }
 }

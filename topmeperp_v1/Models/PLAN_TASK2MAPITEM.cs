@@ -14,7 +14,7 @@ namespace topmeperp.Models
     
     public partial class PLAN_TASK2MAPITEM
     {
-        public int TASKUID { get; set; }
+        public long TASKUID { get; set; }
         public string PROJECT_ID { get; set; }
         public Nullable<int> PRJ_UID { get; set; }
         public string MAP_TYPE { get; set; }

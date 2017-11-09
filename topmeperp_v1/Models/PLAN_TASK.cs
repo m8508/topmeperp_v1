@@ -23,10 +23,10 @@ namespace topmeperp.Models
         public Nullable<System.DateTime> FINISH_DATE { get; set; }
         public Nullable<int> PARENT_UID { get; set; }
         public string DURATION { get; set; }
+        public string ROOT_TAG { get; set; }
         public string CREATE_ID { get; set; }
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public string MODIFY_ID { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
-        public string ROOT_TAG { get; set; }
     }
 }
