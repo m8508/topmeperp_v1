@@ -127,11 +127,30 @@ namespace topmeperp.Controllers
         {
             string projectid = f["projectid"].Trim();
             log.Debug("projectid" + f["projectid"]);
-            string typeCode1 = f["typeCode1"].Trim();
-            string typeCode2 = f["typeCode2"].Trim(); 
-            string systemMain = f["systemMain"].Trim(); 
-            string systemSub = f["systemSub"].Trim();
-            log.Debug("typeCode1=" + typeCode1 +",typeCode2="+ typeCode2+ ",systemMain="+ systemMain + "systemSub="+ systemSub);
+
+            string typeCode1 = null;
+            if (null != f["TypeCodeL2"])
+            {
+                typeCode1 = f["TypeCodeL2"].Trim();
+            }
+
+            string typeCode2 = null;
+            if (null != f["TypeSub"])
+            {
+                typeCode2 = f["TypeSub"].Trim();
+            }
+            string systemMain = null;
+            if (null != f["systemMain"])
+            {
+                systemMain = f["systemMain"].Trim();
+            }
+            string systemSub = null;
+            if (null != f["systemSub"])
+            {
+                 systemSub = f["systemSub"].Trim();
+            }
+
+            log.Debug("typeCode1=" + typeCode1 + ",typeCode2=" + typeCode2 + ",systemMain=" + systemMain + "systemSub=" + systemSub);
 
             string primeside = f["primeside"];
             log.Debug("primeside" + f["primeside"]);
@@ -518,7 +537,7 @@ namespace topmeperp.Controllers
         }
         public ActionResult summaryReport()
         {
-            List<SummaryDailyReport> lst= null;
+            List<SummaryDailyReport> lst = null;
             string projectid = Request["projectid"];
             log.Debug("summary report projectid=" + projectid);
             lst = planService.getSummaryReport(projectid);

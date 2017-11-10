@@ -59,9 +59,112 @@ namespace topmeperp.Controllers
             TND_PROJECT p = tndservice.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
             ViewBag.TreeString = planService.getProjectTask4Tree(id);
+
+            //SelectListItem empty = new SelectListItem();
+            //empty.Value = "";
+            //empty.Text = "";
+            //取得主系統資料
+            List<SelectListItem> selectMain = new List<SelectListItem>();
+            foreach (string itm in service.getSystemMain(id))
+            {
+                log.Debug("Main System=" + itm);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = itm;
+                selectI.Text = itm;
+                if (null != itm && "" != itm)
+                {
+                    selectMain.Add(selectI);
+                }
+            }
+            // selectMain.Add(empty);
+            ViewBag.SystemMain = selectMain;
+            //取得次系統資料
+            List<SelectListItem> selectSub = new List<SelectListItem>();
+            foreach (string itm in service.getSystemSub(id))
+            {
+                log.Debug("Sub System=" + itm);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = itm;
+                selectI.Text = itm;
+                if (null != itm && "" != itm)
+                {
+                    selectSub.Add(selectI);
+                }
+            }
+            //selectSub.Add(empty);
+            ViewBag.SystemSub = selectSub;
+
+            TypeManageService typeService = new TypeManageService();
+            List<REF_TYPE_MAIN> lstType1 = typeService.getTypeMainL1();
+
+            //取得九宮格
+            List<SelectListItem> selectType1 = new List<SelectListItem>();
+            for (int idx = 0; idx < lstType1.Count; idx++)
+            {
+                log.Debug("REF_TYPE_MAIN=" + idx + "," + lstType1[idx].CODE_1_DESC);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = lstType1[idx].TYPE_CODE_1;
+                selectI.Text = lstType1[idx].CODE_1_DESC;
+                selectType1.Add(selectI);
+            }
+            ViewBag.TypeCodeL1 = selectType1;
+
             return View();
         }
+        public string getTypeCodeL2()
+        {
+            string typecode1 = Request["typecode1"];
+            log.Debug("get type code1=" + typecode1);
+            TypeManageService typeService = new TypeManageService();
+            List<REF_TYPE_MAIN> lstType1 = typeService.getTypeMainL2(typecode1);
+            string strOpt = "{";
 
+            for (int idx = 0; idx < lstType1.Count; idx++)
+            {
+                REF_TYPE_MAIN itm = lstType1[idx];
+                log.Debug("REF_TYPE_MAIN=" + idx + "," + lstType1[idx].TYPE_DESC);
+                if (idx == lstType1.Count - 1)
+                {
+                    strOpt = strOpt +"\""+ itm.TYPE_CODE_1 + itm.TYPE_CODE_2 + "\":\"" + itm.TYPE_DESC + "\"}";
+                }
+                else
+                {
+                    strOpt = strOpt + "\"" + itm.TYPE_CODE_1 + itm.TYPE_CODE_2 + "\":\"" + itm.TYPE_DESC + "\",";
+                }
+            }
+
+            // System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            // string itemJson = objSerializer.Serialize("");
+            log.Debug("REF_TYPE_MAIN=" + strOpt);
+            return strOpt;
+        }
+        public string getSubType()
+        {
+            string typecode = Request["typecode"];
+            log.Debug("get type code=" + typecode);
+            TypeManageService typeService = new TypeManageService();
+            List<REF_TYPE_SUB> lstType = typeService.getSubType(typecode);
+            string strOpt = "{";
+
+            for (int idx = 0; idx < lstType.Count; idx++)
+            {
+                REF_TYPE_SUB itm = lstType[idx];
+                log.Debug("REF_TYPE_SUB=" + idx + "," + lstType[idx].TYPE_DESC);
+                if (idx == lstType.Count - 1)
+                {
+                    strOpt = strOpt + "\"" + itm.SUB_TYPE_CODE + "\":\"" + itm.TYPE_DESC + "\"}";
+                }
+                else
+                {
+                    strOpt = strOpt + "\"" + itm.SUB_TYPE_CODE + "\":\"" + itm.TYPE_DESC + "\",";
+                }
+            }
+
+            // System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            // string itemJson = objSerializer.Serialize("");
+            log.Debug("REF_TYPE_SUB=" + strOpt);
+            return strOpt;
+        }
         //物料申購
         public ActionResult Application(FormCollection form)
         {

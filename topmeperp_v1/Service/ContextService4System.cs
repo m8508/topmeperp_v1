@@ -363,6 +363,31 @@ namespace topmeperp.Service
                 logger.Debug("Modify MainSub :" + i);
             }
         }
+        public List<REF_TYPE_MAIN> getTypeMainL1()
+        {
+            List<REF_TYPE_MAIN> lst = new List<REF_TYPE_MAIN>();
+            using (var context = new topmepEntities())
+            {
+                string sql = "SELECT DISTINCT TYPE_CODE_1,CODE_1_DESC,TYPE_CODE_1 as TYPE_CODE_ID, '' as type_code_2, '' as type_desc, null as create_date FROM REF_TYPE_MAIN ORDER BY TYPE_CODE_1";
+                logger.Debug("sql=" + sql);
+                lst = context.REF_TYPE_MAIN.SqlQuery(sql).ToList();
+            }
+            return lst;
+        }
+        public List<REF_TYPE_MAIN> getTypeMainL2(string typecode1)
+        {
+            List<REF_TYPE_MAIN> lst = new List<REF_TYPE_MAIN>();
+            using (var context = new topmepEntities())
+            {
+                var parameters = new List<SqlParameter>();
+                string sql = "SELECT * FROM REF_TYPE_MAIN WHERE TYPE_CODE_1=@typecode1  ORDER BY TYPE_CODE_1 ,TYPE_CODE_2;";
+                parameters.Add(new SqlParameter("typecode1", typecode1));
+                //lstMainType = context.REF_TYPE_MAIN.SqlQuery(sql, parameters.ToArray()).ToList();
+                lst = context.REF_TYPE_MAIN.SqlQuery(sql, parameters.ToArray()).ToList();
+                logger.Debug("get Main Type Count:" + lst.Count);
+            }
+            return lst;
+        }
     }
     #endregion
     #region 參數參考主檔
