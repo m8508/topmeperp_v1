@@ -478,8 +478,9 @@ namespace topmeperp.Models
     }
     public class OperatingExpenseModel
     {
-        public FIN_EXPENSE_FORM finEXP { get; set; }
+        public ExpenseFormFunction finEXP { get; set; }
         public IEnumerable<ExpenseBudgetSummary> finEXPItem { get; set; }
+        public IEnumerable<ExpenseBudgetSummary> planEXPItem { get; set; }
     }
     public class OperatingExpenseFunction: FIN_EXPENSE_FORM
     {
@@ -510,4 +511,8 @@ namespace topmeperp.Models
         public IEnumerable<ExpenseBudgetSummary> fifthYear { get; set; }
     }
 
+    public class ExpenseFormFunction : FIN_EXPENSE_FORM
+    {
+        public string PROJECT_NAME { get; set; }
+    }
     }

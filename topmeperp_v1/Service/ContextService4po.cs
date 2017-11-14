@@ -3739,8 +3739,9 @@ namespace topmeperp.Service
         #endregion
 
         #region 公司費用
-        public FIN_EXPENSE_FORM formEXP = null;
+        public ExpenseFormFunction formEXP = null;
         public List<ExpenseBudgetSummary> EXPItem = null;
+        public List<ExpenseBudgetSummary> siteEXPItem = null;
         //取得公司費用項目
         public List<FIN_SUBJECT> getSubjectOfExpense()
         {
@@ -3815,16 +3816,16 @@ namespace topmeperp.Service
             return j;
         }
 
-        //取得公司費用單
+        //取得公司費用單/工地費用單
         public void getEXPByExpId(string expid)
         {
             logger.Info("get form : formid=" + expid);
             using (var context = new topmepEntities())
             {
-                //取得公司營業費用單檔頭資訊
-                string sql = "SELECT EXP_FORM_ID, PROJECT_ID, OCCURRED_YEAR, OCCURRED_MONTH, PAYMENT_DATE, STATUS, CREATE_ID, CREATE_DATE, REMARK, MODIFY_DATE, PASS_CREATE_ID, PASS_CREATE_DATE, APPROVE_CREATE_ID, APPROVE_CREATE_DATE, " +
-                    "JOURNAL_CREATE_ID, JOURNAL_CREATE_DATE FROM FIN_EXPENSE_FORM WHERE EXP_FORM_ID =@expid ";
-                formEXP = context.FIN_EXPENSE_FORM.SqlQuery(sql, new SqlParameter("expid", expid)).First();
+                //取得費用單檔頭資訊
+                string sql = "SELECT fef.EXP_FORM_ID, fef.PROJECT_ID, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH, fef.PAYMENT_DATE, fef.STATUS, fef.CREATE_ID, fef.CREATE_DATE, fef.REMARK, fef.MODIFY_DATE, fef.PASS_CREATE_ID, fef.PASS_CREATE_DATE, fef.APPROVE_CREATE_ID, fef.APPROVE_CREATE_DATE, " +
+                    "fef.JOURNAL_CREATE_ID, fef.JOURNAL_CREATE_DATE, p.PROJECT_NAME FROM FIN_EXPENSE_FORM fef LEFT JOIN TND_PROJECT p ON fef.PROJECT_ID = p.PROJECT_ID WHERE fef.EXP_FORM_ID =@expid ";
+                formEXP = context.Database.SqlQuery<ExpenseFormFunction >(sql, new SqlParameter("expid", expid)).First();
                 //取得公司營業費用單明細
                 EXPItem = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT B.*, C.CUM_BUDGET, D.CUM_YEAR_AMOUNT, B.AMOUNT / B.BUDGET_AMOUNT *100 AS MONTH_RATIO, D.CUM_YEAR_AMOUNT / C.CUM_BUDGET *100 AS YEAR_RATIO " +
                     "FROM (SELECT A.EXP_ITEM_ID, A.EXP_FORM_ID, A.FIN_SUBJECT_ID, A.AMOUNT, A.ITEM_REMARK, A.SUBJECT_NAME, feb.AMOUNT AS BUDGET_AMOUNT FROM " +
@@ -3836,6 +3837,17 @@ namespace topmeperp.Service
                     "WHERE fef.OCCURRED_YEAR = " + formEXP.OCCURRED_YEAR + "AND fef.OCCURRED_MONTH <= " + formEXP.OCCURRED_MONTH + "GROUP BY fei.FIN_SUBJECT_ID)D ON B.FIN_SUBJECT_ID = D.FIN_SUBJECT_ID ", new SqlParameter("expid", expid)).ToList();
                 logger.Debug("get query year of operating expense:" + formEXP.OCCURRED_YEAR);
                 logger.Debug("get operating expense item count:" + EXPItem.Count);
+                //取得工地費用單明細
+                siteEXPItem = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT B.*, C.CUM_BUDGET, D.CUM_YEAR_AMOUNT, B.AMOUNT / B.BUDGET_AMOUNT *100 AS MONTH_RATIO, D.CUM_YEAR_AMOUNT / C.CUM_BUDGET *100 AS YEAR_RATIO " +
+                    "FROM (SELECT A.EXP_ITEM_ID, A.EXP_FORM_ID, A.FIN_SUBJECT_ID, A.AMOUNT, A.ITEM_REMARK, A.SUBJECT_NAME, psb.AMOUNT AS BUDGET_AMOUNT FROM " +
+                    "(SELECT fei.*, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH, fef.STATUS, fs.SUBJECT_NAME FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs " +
+                    "ON fei.FIN_SUBJECT_ID = fs.FIN_SUBJECT_ID WHERE fei.EXP_FORM_ID = @expid)A " +
+                    "LEFT JOIN PLAN_SITE_BUDGET psb ON A.FIN_SUBJECT_ID = psb.SUBJECT_ID WHERE psb.BUDGET_YEAR = A.OCCURRED_YEAR AND psb.BUDGET_MONTH = A.OCCURRED_MONTH)B " +
+                    "LEFT JOIN (SELECT SUBJECT_ID, SUM(AMOUNT) AS CUM_BUDGET FROM PLAN_SITE_BUDGET WHERE BUDGET_YEAR = " + formEXP.OCCURRED_YEAR + "AND BUDGET_MONTH <= " + formEXP.OCCURRED_MONTH + "GROUP BY SUBJECT_ID) C ON B.FIN_SUBJECT_ID = C.SUBJECT_ID " +
+                    "LEFT JOIN (SELECT fei.FIN_SUBJECT_ID, SUM(AMOUNT) AS CUM_YEAR_AMOUNT FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID " +
+                    "WHERE fef.OCCURRED_YEAR = " + formEXP.OCCURRED_YEAR + "AND fef.OCCURRED_MONTH <= " + formEXP.OCCURRED_MONTH + "GROUP BY fei.FIN_SUBJECT_ID)D ON B.FIN_SUBJECT_ID = D.FIN_SUBJECT_ID ", new SqlParameter("expid", expid)).ToList();
+                logger.Debug("get query year of plan site expense:" + formEXP.OCCURRED_YEAR);
+                logger.Debug("get plan site expense item count:" + siteEXPItem.Count);
             }
         }
 
@@ -3892,7 +3904,7 @@ namespace topmeperp.Service
             return i;
         }
 
-        //更新公司營業費用單狀態為送審
+        //更新費用單狀態為送審
         public int RefreshEXPStatusById(string expid)
         {
             int i = 0;

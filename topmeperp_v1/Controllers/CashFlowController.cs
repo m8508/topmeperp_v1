@@ -278,7 +278,7 @@ namespace topmeperp.Controllers
             return Redirect("SingleEXPForm?id=" + fid);
         }
 
-        //顯示單一公司營業費用單功能
+        //顯示單一公司營業費用單/工地費用單功能
         public ActionResult SingleEXPForm(string id)
         {
             logger.Info("http get mehtod:" + id);
@@ -286,7 +286,8 @@ namespace topmeperp.Controllers
             service.getEXPByExpId(id);
             singleForm.finEXP = service.formEXP;
             singleForm.finEXPItem = service.EXPItem;
-            logger.Debug("Operating Expense Year:" + singleForm.finEXP.OCCURRED_YEAR);
+            singleForm.planEXPItem = service.siteEXPItem;
+            logger.Debug("Expense Year:" + singleForm.finEXP.OCCURRED_YEAR);
             return View(singleForm);
         }
 

@@ -1,6 +1,6 @@
 ﻿@model topmeperp.Models.OperatingExpenseModel
 @{
-    ViewBag.Title = "財務管理-公司營業費用";
+    ViewBag.Title = "財務管理-公司營業費用/工地費用";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 
@@ -8,33 +8,42 @@
 <div class="page-header">
     <form id="formExpense" name="formExpense" action="" method="post">
         <div class="row">
-            <div class="col-md-10"><h3 class="text-center">協成水電工程事業有限公司-公司營業費用</h3></div>
-                <div class="col-md-2 alert-warning">
-                    @if (Model.finEXP.STATUS == 0)
-                    {
-                        <h5 class="text-right">狀態: 退件</h5>
-                    }
-                    else if (Model.finEXP.STATUS == 10)
-                    {
-                        <h5 class="text-right">狀態: 草稿</h5>
-                    }
-                    else if (Model.finEXP.STATUS == 20)
-                    {
-                        <h5 class="text-right">狀態: 已送審</h5>
-                    }
-                    else if (Model.finEXP.STATUS == 30)
-                    {
-                        <h5 class="text-right">狀態: 主管已通過</h5>
-                    }
-                    else if (Model.finEXP.STATUS == 40)
-                    {
-                        <h5 class="text-right">狀態: 已立帳</h5>
-                    }
-                    else
-                    {
-                        <h5 class="text-right">狀態: 已核可</h5>
-                    }
-                </div>
+            <div class="col-md-10">
+                @if (null == Model.finEXP.PROJECT_ID || Model.finEXP.PROJECT_ID == "")
+                {
+                    <h3 class="text-center">協成水電工程事業有限公司-公司營業費用</h3>
+                }
+                else
+                {
+                    <h3 class="text-center">協成水電工程事業有限公司-工地費用</h3>
+                }
+            </div>
+            <div class="col-md-2 alert-warning">
+                @if (Model.finEXP.STATUS == 0)
+                {
+                    <h5 class="text-right">狀態: 退件</h5>
+                }
+                else if (Model.finEXP.STATUS == 10)
+                {
+                    <h5 class="text-right">狀態: 草稿</h5>
+                }
+                else if (Model.finEXP.STATUS == 20)
+                {
+                    <h5 class="text-right">狀態: 已送審</h5>
+                }
+                else if (Model.finEXP.STATUS == 30)
+                {
+                    <h5 class="text-right">狀態: 主管已通過</h5>
+                }
+                else if (Model.finEXP.STATUS == 40)
+                {
+                    <h5 class="text-right">狀態: 已立帳</h5>
+                }
+                else
+                {
+                    <h5 class="text-right">狀態: 已核可</h5>
+                }
+            </div>
         </div>
         <!-- Reg-Form new { enctype = "multipart/form-data" } -->
 
@@ -44,7 +53,7 @@
                 <div class="col-md-4">
                     <input type="text" class="form-control" name="year" id="year" value="@Model.finEXP.OCCURRED_YEAR">
                 </div>
-            
+
                 <label for="month" class="col-md-2 control-label">費用發生月份</label>
                 <div class="col-md-4">
                     <input type="text" class="form-control" name="month" id="month" value="@Model.finEXP.OCCURRED_MONTH">
@@ -57,7 +66,7 @@
                 <div class="col-md-4">
                     <input type="text" class="form-control" name="paymentdate" id="paymentdate" value="@Model.finEXP.PAYMENT_DATE">
                 </div>
-            
+
                 <label for="formnumber" class="col-md-2 control-label">公司費用單編號</label>
                 <div class="col-md-4">
                     <input type="text" class="form-control" name="formnumber" id="formnumber" value="@Model.finEXP.EXP_FORM_ID" readonly="readonly">
@@ -70,6 +79,13 @@
                 <div class="col-md-4">
                     <input type="text" class="form-control" name="remark" id="remark" value="@Model.finEXP.REMARK">
                 </div>
+                @if (Model.finEXP.PROJECT_ID != null && Model.finEXP.PROJECT_ID != "")
+                {
+                <label for="projectName" class="col-md-2 control-label">專案名稱</label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="projectName" id="projectName" value="@Model.finEXP.PROJECT_NAME">
+                </div>
+                }
                 <input type="hidden" name="createid" id="createid" value="@Model.finEXP.CREATE_ID" />
                 <input type="hidden" name="createdate" id="createdate" value="@Model.finEXP.CREATE_DATE" />
                 <input type="hidden" name="status" id="status" value="@Model.finEXP.STATUS" />
@@ -108,65 +124,133 @@
                     </th>
                     <th></th>
                 </tr>
-                @foreach (var item in Model.finEXPItem)
+                @if (null == Model.finEXP.PROJECT_ID || Model.finEXP.PROJECT_ID == "")
                 {
+                    foreach (var item in Model.finEXPItem)
+                    {
 
-                    <tr>
-                        <td>
-                            @item.SUBJECT_NAME
-                        </td>
-                        <td>
-                            @Html.TextBox("subject", @item.FIN_SUBJECT_ID, new { style = "width:60px", @readonly = "readonly" })
-                        </td>
-                        <td>
-                            @Html.TextBox("amount", @item.AMOUNT, new { style = "width:80px" })
-                        </td>
-                        <td>
-                            @Html.TextBox("item_remark", @item.ITEM_REMARK, new { style = "width:200px" })
-                        </td>
-                        <td>
-                            @String.Format("{0:#,##0.#}", item.BUDGET_AMOUNT)
-                        </td>
-                        @if (item.MONTH_RATIO > 100)
-                        {
+                        <tr>
                             <td>
-                                <span style="color: orangered; font-size: 15px;">
-                                    @String.Format("{0:###0.#}", item.MONTH_RATIO)
-                                </span>
+                                @item.SUBJECT_NAME
                             </td>
-                        }
-                        else
-                        {
                             <td>
-                                <span style="color: cornflowerblue; font-size: 15px;">
-                                    @String.Format("{0:###0.#}", item.MONTH_RATIO)
-                                </span>
+                                @Html.TextBox("subject", @item.FIN_SUBJECT_ID, new { style = "width:60px", @readonly = "readonly" })
                             </td>
-                        }
-                        <td>
-                            @String.Format("{0:#,##0.#}", item.CUM_YEAR_AMOUNT)
-                        </td>
-                        <td>
-                            @String.Format("{0:#,##0.#}", item.CUM_BUDGET)
-                        </td>
-                        @if (item.YEAR_RATIO > 100)
-                        {
                             <td>
-                                <span style="color: orangered; font-size: 15px;">
-                                    @String.Format("{0:###0.#}", item.YEAR_RATIO)
-                                </span>
+                                @Html.TextBox("amount", @item.AMOUNT, new { style = "width:80px" })
                             </td>
-                        }
-                        else
-                        {
                             <td>
-                                <span style="color: cornflowerblue; font-size: 15px;">
-                                    @String.Format("{0:###0.#}", item.YEAR_RATIO)
-                                </span>
+                                @Html.TextBox("item_remark", @item.ITEM_REMARK, new { style = "width:200px" })
                             </td>
-                        }
-                        <td><input type="hidden" name="exp_item_id" id="exp_item_id" value="@item.EXP_ITEM_ID"></td>
-                    </tr>
+                            <td>
+                                @String.Format("{0:#,##0.#}", item.BUDGET_AMOUNT)
+                            </td>
+                            @if (item.MONTH_RATIO > 100)
+                            {
+                                <td>
+                                    <span style="color: orangered; font-size: 15px;">
+                                        @String.Format("{0:###0.#}", item.MONTH_RATIO)
+                                    </span>
+                                </td>
+                            }
+                            else
+                            {
+                                <td>
+                                    <span style="color: cornflowerblue; font-size: 15px;">
+                                        @String.Format("{0:###0.#}", item.MONTH_RATIO)
+                                    </span>
+                                </td>
+                            }
+                            <td>
+                                @String.Format("{0:#,##0.#}", item.CUM_YEAR_AMOUNT)
+                            </td>
+                            <td>
+                                @String.Format("{0:#,##0.#}", item.CUM_BUDGET)
+                            </td>
+                            @if (item.YEAR_RATIO > 100)
+                            {
+                                <td>
+                                    <span style="color: orangered; font-size: 15px;">
+                                        @String.Format("{0:###0.#}", item.YEAR_RATIO)
+                                    </span>
+                                </td>
+                            }
+                            else
+                            {
+                                <td>
+                                    <span style="color: cornflowerblue; font-size: 15px;">
+                                        @String.Format("{0:###0.#}", item.YEAR_RATIO)
+                                    </span>
+                                </td>
+                            }
+                            
+                            <td><input type="hidden" name="exp_item_id" id="exp_item_id" value="@item.EXP_ITEM_ID"></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    foreach (var item in Model.planEXPItem)
+                    {
+
+                        <tr>
+                            <td>
+                                @item.SUBJECT_NAME
+                            </td>
+                            <td>
+                                @Html.TextBox("subject", @item.FIN_SUBJECT_ID, new { style = "width:60px", @readonly = "readonly" })
+                            </td>
+                            <td>
+                                @Html.TextBox("amount", @item.AMOUNT, new { style = "width:80px" })
+                            </td>
+                            <td>
+                                @Html.TextBox("item_remark", @item.ITEM_REMARK, new { style = "width:200px" })
+                            </td>
+                            <td>
+                                @String.Format("{0:#,##0.#}", item.BUDGET_AMOUNT)
+                            </td>
+                            @if (item.MONTH_RATIO > 100)
+                            {
+                                <td>
+                                    <span style="color: orangered; font-size: 15px;">
+                                        @String.Format("{0:###0.#}", item.MONTH_RATIO)
+                                    </span>
+                                </td>
+                            }
+                            else
+                            {
+                                <td>
+                                    <span style="color: cornflowerblue; font-size: 15px;">
+                                        @String.Format("{0:###0.#}", item.MONTH_RATIO)
+                                    </span>
+                                </td>
+                            }
+                            <td>
+                                @String.Format("{0:#,##0.#}", item.CUM_YEAR_AMOUNT)
+                            </td>
+                            <td>
+                                @String.Format("{0:#,##0.#}", item.CUM_BUDGET)
+                            </td>
+                            @if (item.YEAR_RATIO > 100)
+                            {
+                                <td>
+                                    <span style="color: orangered; font-size: 15px;">
+                                        @String.Format("{0:###0.#}", item.YEAR_RATIO)
+                                    </span>
+                                </td>
+                            }
+                            else
+                            {
+                                <td>
+                                    <span style="color: cornflowerblue; font-size: 15px;">
+                                        @String.Format("{0:###0.#}", item.YEAR_RATIO)
+                                    </span>
+                                </td>
+                            }
+
+                            <td><input type="hidden" name="exp_item_id" id="exp_item_id" value="@item.EXP_ITEM_ID"></td>
+                        </tr>
+                    }
                 }
             </table>
         </div>
