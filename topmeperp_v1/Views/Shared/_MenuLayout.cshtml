@@ -1,5 +1,7 @@
 ﻿@{ IEnumerable<topmeperp.Models.SYS_FUNCTION> model = (IEnumerable<topmeperp.Models.SYS_FUNCTION>)HttpContext.Current.Session["functions"]; }
-@{ topmeperp.Models.SYS_USER u = (topmeperp.Models.SYS_USER)HttpContext.Current.Session["user"]; }
+@{ topmeperp.Models.SYS_USER u = (topmeperp.Models.SYS_USER)HttpContext.Current.Session["user"];
+    ViewBag.Version = AppInfo.Version;
+ }
 <!DOCTYPE html>
 <html>
 <head>
@@ -25,7 +27,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a href="#" class="navbar-brand">協成水電-工務管理系統</a>
+            <a href="#" class="navbar-brand">協成水電-工務管理系統(V.@ViewBag.Version)</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->

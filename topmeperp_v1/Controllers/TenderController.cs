@@ -644,6 +644,12 @@ namespace topmeperp.Controllers
             logger.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"]);
             logger.Debug("Exception check=" + Request["chkEx"]);
             List<TND_PROJECT_ITEM> lstItems = service.getProjectItem(Request["chkEx"], Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["selDelFlag"]);
+            //logger.Debug("TEST:使用壓力:≥7kg/c㎡G");
+            //foreach (var p in lstItems)
+            //{
+            //    logger.Debug("PK=" + p.PROJECT_ITEM_ID + ",ITEM_DESC=" + p.ITEM_DESC + ",excel row=" + p.EXCEL_ROW_ID);
+            //}
+
             ViewBag.Result = "共幾" + lstItems.Count + "筆資料";
             return PartialView(lstItems);
         }
@@ -818,7 +824,7 @@ namespace topmeperp.Controllers
             }
             TempData["result"] = message;//Plan/ManagePlanItem/P00023
             //return RedirectToAction()
-            return RedirectToAction("ManagePlanItem/"+ projectid, "Plan");
+            return RedirectToAction("ManagePlanItem/" + projectid, "Plan");
         }
 
         /// <summary>
@@ -844,39 +850,53 @@ namespace topmeperp.Controllers
         /// <summary>
         /// 上載現有標單資料
         /// </summary>
-        public string uploadProjectItem (HttpPostedFileBase file1)
-        {      
+        public string uploadProjectItem(HttpPostedFileBase file1)
+        {
             string projectid = Request["id"];
-            logger.Debug("ProjectID=" + projectid +",Upload ProjectItem=" + file1.FileName);
-            string message = "匯入成功!!";
+            logger.Debug("ProjectID=" + projectid + ",Upload ProjectItem=" + file1.FileName);
             TnderProject service = new TnderProject();
             service.getProjectById(projectid);
             SYS_USER u = (SYS_USER)Session["user"];
 
             if (null != file1 && file1.ContentLength != 0)
             {
-                //2.解析Excel
-                logger.Info("Parser Excel data:" + file1.FileName);
-                //2.1 將上傳檔案存檔
-                var fileName = Path.GetFileName(file1.FileName);
-                var path = Path.Combine(ContextService.strUploadPath + "/" + projectid, fileName);
-                logger.Info("save excel file:" + path);
-                file1.SaveAs(path);
-                //2.2 解析Excel 檔案
-                //poiservice.ConvertDataForTenderProject(prj.PROJECT_ID, (int)prj.START_ROW_NO);
-                ProjectItem2Excel poiservice = new ProjectItem2Excel();
-                poiservice.InitializeWorkbook(path);
-                poiservice.ConvertDataForTenderProject(projectid);
-                //2.3 記錄錯誤訊息
-                //        < button type = "button" class="btn btn-primary" onclick="location.href='@Url.Action("ManagePlanItem","Plan", new { id = @Model.tndProject.PROJECT_ID})'; ">標單明細</button>
-                //2.4
-                logger.Info("Delete Project_Item  By Project ID");
-                service.delAllItemByProject();
-                //2.5
-                logger.Info("Add All Project_ITEM to DB");
-                service.refreshProjectItem(poiservice.lstProjectItem);
+                try
+                {
+                    //2.解析Excel
+                    logger.Info("Parser Excel data:" + file1.FileName);
+                    //2.1 將上傳檔案存檔
+                    var fileName = Path.GetFileName(file1.FileName);
+                    var path = Path.Combine(ContextService.strUploadPath + "/" + projectid, fileName);
+                    logger.Info("save excel file:" + path);
+                    file1.SaveAs(path);
+                    //2.2 解析Excel 檔案
+                    //poiservice.ConvertDataForTenderProject(prj.PROJECT_ID, (int)prj.START_ROW_NO);
+                    ProjectItem2Excel poiservice = new ProjectItem2Excel();
+                    poiservice.InitializeWorkbook(path);
+                    poiservice.ConvertDataForTenderProject(projectid);
+                    //2.3 記錄錯誤訊息
+                    //        < button type = "button" class="btn btn-primary" onclick="location.href='@Url.Action("ManagePlanItem","Plan", new { id = @Model.tndProject.PROJECT_ID})'; ">標單明細</button>
+                    //2.4
+                    logger.Info("Delete Project_Item  By Project ID");
+                    service.delAllItemByProject();
+                    //2.5
+                    logger.Info("Add All Project_ITEM to DB");
+                    service.refreshProjectItem(poiservice.lstProjectItem);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.StackTrace);
+                    return ex.Message;
+                }
             }
-            return message;
+            if (service.strMessage != null)
+            {
+                return service.strMessage;
+            }
+            else
+            {
+                return "匯入成功!!";
+            }
         }
 
     }

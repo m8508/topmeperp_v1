@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@{ 
+    ViewBag.Version = AppInfo.Version;
+}
+<!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -31,7 +34,7 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; @DateTime.Now.Year - 協成-工務管理系統 (V.0.55)</p>
+            <p>&copy; @DateTime.Now.Year - 協成-工務管理系統 (@ViewBag.Version)</p>
         </footer>
     </div>
 

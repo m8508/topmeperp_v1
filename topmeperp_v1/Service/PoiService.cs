@@ -198,71 +198,71 @@ namespace topmeperp.Service
             return projectItem;
         }
         //更新標單次序
-        private TND_PROJECT_ITEM convertRow2TndProjectItem4Refresh(int id, IRow row, int excelrow)
-        {
-            TND_PROJECT_ITEM projectItem = new TND_PROJECT_ITEM();
-            projectItem.PROJECT_ID = projId;
+        //private TND_PROJECT_ITEM c_onvertRow2TndProjectItem4Refresh(int id, IRow row, int excelrow)
+        //{
+        //    TND_PROJECT_ITEM projectItem = new TND_PROJECT_ITEM();
+        //    projectItem.PROJECT_ID = projId;
 
-            if (row.Cells[0].ToString().Trim() != "")//PK
-            {
-                projectItem.PROJECT_ITEM_ID = row.Cells[0].ToString();
-            }
-            if (row.Cells[1].ToString().Trim() != "")//項次
-            {
-                projectItem.ITEM_ID = row.Cells[1].ToString();
-            }
-            if (row.Cells[2].ToString().Trim() != "")//名稱
-            {
-                projectItem.ITEM_DESC = row.Cells[2].ToString();
-            }
+        //    if (row.Cells[0].ToString().Trim() != "")//PK
+        //    {
+        //        projectItem.PROJECT_ITEM_ID = row.Cells[0].ToString();
+        //    }
+        //    if (row.Cells[1].ToString().Trim() != "")//項次
+        //    {
+        //        projectItem.ITEM_ID = row.Cells[1].ToString();
+        //    }
+        //    if (row.Cells[2].ToString().Trim() != "")//名稱
+        //    {
+        //        projectItem.ITEM_DESC = row.Cells[2].ToString();
+        //    }
 
-            if (row.Cells[3].ToString().Trim() != "")//單位
-            {
-                projectItem.ITEM_UNIT = row.Cells[3].ToString();
-            }
-            if (row.Cells[4].ToString().Trim() != "")//數量
-            {
-                try
-                {
-                    decimal dQty = decimal.Parse(row.Cells[4].ToString());
-                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[4].ToString());
-                    projectItem.ITEM_QUANTITY = dQty;
-                }
-                catch (Exception e)
-                {
-                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",value=" + row.Cells[4].ToString());
-                    logger.Error(e.Message);
-                }
+        //    if (row.Cells[3].ToString().Trim() != "")//單位
+        //    {
+        //        projectItem.ITEM_UNIT = row.Cells[3].ToString();
+        //    }
+        //    if (row.Cells[4].ToString().Trim() != "")//數量
+        //    {
+        //        try
+        //        {
+        //            decimal dQty = decimal.Parse(row.Cells[4].ToString());
+        //            logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[4].ToString());
+        //            projectItem.ITEM_QUANTITY = dQty;
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",value=" + row.Cells[4].ToString());
+        //            logger.Error(e.Message);
+        //        }
 
-            }
-            if (row.Cells[6].ToString().Trim() != "")//備註
-            {
-                projectItem.ITEM_REMARK = row.Cells[6].ToString();
-            }
+        //    }
+        //    if (row.Cells[6].ToString().Trim() != "")//備註
+        //    {
+        //        projectItem.ITEM_REMARK = row.Cells[6].ToString();
+        //    }
 
-            if (row.Cells[7].ToString().Trim() != "")//九宮格
-            {
-                projectItem.TYPE_CODE_1 = row.Cells[7].ToString();
-            }
-            if (row.Cells[8].ToString().Trim() != "")//次九宮格
-            {
-                projectItem.TYPE_CODE_2 = row.Cells[8].ToString();
-            }
-            if (row.Cells[9].ToString().Trim() != "")//主系統
-            {
-                projectItem.SYSTEM_MAIN = row.Cells[9].ToString();
-            }
-            if (row.Cells[10].ToString().Trim() != "")//次系統
-            {
-                projectItem.SYSTEM_SUB = row.Cells[10].ToString();
-            }
-            projectItem.PROJECT_ITEM_ID = projId + "-" + id;
-            projectItem.EXCEL_ROW_ID = excelrow;
-            projectItem.CREATE_DATE = System.DateTime.Now;
+        //    if (row.Cells[7].ToString().Trim() != "")//九宮格
+        //    {
+        //        projectItem.TYPE_CODE_1 = row.Cells[7].ToString();
+        //    }
+        //    if (row.Cells[8].ToString().Trim() != "")//次九宮格
+        //    {
+        //        projectItem.TYPE_CODE_2 = row.Cells[8].ToString();
+        //    }
+        //    if (row.Cells[9].ToString().Trim() != "")//主系統
+        //    {
+        //        projectItem.SYSTEM_MAIN = row.Cells[9].ToString();
+        //    }
+        //    if (row.Cells[10].ToString().Trim() != "")//次系統
+        //    {
+        //        projectItem.SYSTEM_SUB = row.Cells[10].ToString();
+        //    }
+        //    projectItem.PROJECT_ITEM_ID = projId + "-" + id;
+        //    projectItem.EXCEL_ROW_ID = excelrow;
+        //    projectItem.CREATE_DATE = System.DateTime.Now;
 
-            logger.Info("TndprojectItem=" + projectItem.ToString());
-            return projectItem;
-        }
+        //    logger.Info("TndprojectItem=" + projectItem.ToString());
+        //    return projectItem;
+        //}
 
         #region 處理得標標單項目內容
         //處理得標後標單..
@@ -3013,7 +3013,7 @@ namespace topmeperp.Service
             if (null == sheet)
             {
                 logger.Error("檔案內沒有標單品項(Sheet)! filename=" + fileformat);
-                throw new Exception("標單品項");
+                throw new Exception("檔案內沒有標單品項(Sheet)");
             }
             ConvertExcelToTndProjectItem(5);
         }
@@ -3045,7 +3045,11 @@ namespace topmeperp.Service
                 //項次,名稱,單位,數量,單價,複價,備註,九宮格,次九宮格,主系統,次系統
                 if (row.Cells[0].ToString().ToUpper() != "END")
                 {
-                    lstProjectItem.Add(convertRow2TndProjectItem4Refresh(itemId, row, iRowIndex));
+                    TND_PROJECT_ITEM projectItem = convertRow2TndProjectItem4Refresh(itemId, row, iRowIndex);
+                    if (null != projectItem)
+                    {
+                        lstProjectItem.Add(projectItem);
+                    }
                 }
                 else
                 {
@@ -3061,10 +3065,30 @@ namespace topmeperp.Service
         {
             TND_PROJECT_ITEM projectItem = new TND_PROJECT_ITEM();
             projectItem.PROJECT_ID = projId;
-
+            logger.Info("excelrow=" + excelrow + ",row count=" + row.Cells.Count + ",phyColumn=" + row.PhysicalNumberOfCells);
+            string strVal = "";
+            int i = 0;
+            foreach (var c in row.Cells)
+            {
+                strVal = strVal + "[" + i + "]=" + c.ToString();
+                i++;
+            }
+            logger.Debug("Excel Row=" + excelrow + ",value=" + strVal);
+            //至少需要兩個Column
             if (row.Cells[0].ToString().Trim() != "")//PK 0
             {
                 projectItem.PROJECT_ITEM_ID = row.Cells[0].ToString();
+                projectItem.EXCEL_ROW_ID = long.Parse(row.Cells[row.Cells.Count - 1].ToString());
+                projectItem.CREATE_DATE = System.DateTime.Now;
+            }
+            else
+            {
+                return null;
+            }
+            //假設僅作為排版
+            if (row.PhysicalNumberOfCells == 2)
+            {
+                return projectItem;
             }
             if (row.Cells[1].ToString().Trim() != "")//項次 1
             {
@@ -3084,7 +3108,6 @@ namespace topmeperp.Service
                 try
                 {
                     decimal dQty = decimal.Parse(row.Cells[4].ToString());
-                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[4].ToString());
                     projectItem.ITEM_QUANTITY = dQty;
                 }
                 catch (Exception e)
@@ -3097,7 +3120,12 @@ namespace topmeperp.Service
             if (row.Cells[5].ToString().Trim() != "")//圖算數量 5
             {
             }
-
+            //欄位不足跳脫處理
+            if (row.Cells.Count < 7)
+            {
+                logErrorMessage("data format Error on ExcelRow=" + excelrow + " column not enough");
+                return projectItem;
+            }
             if (row.Cells[6].ToString().Trim() != "")//單價  6
             {
                 try
@@ -3109,10 +3137,11 @@ namespace topmeperp.Service
                 catch (Exception e)
                 {
                     logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",value=" + row.Cells[6].ToString());
-                    logger.Error(e.Message);
+                    logger.Error(e.StackTrace);
                 }
 
             }
+
             if (row.Cells[7].ToString().Trim() != "")//複價 7
             {
 
@@ -3122,34 +3151,49 @@ namespace topmeperp.Service
             {
                 projectItem.ITEM_REMARK = row.Cells[8].ToString();
             }
-
-            if (row.Cells[9].ToString().Trim() != "")//九宮格 9
+            if (row.PhysicalNumberOfCells > 13)
             {
-                projectItem.TYPE_CODE_1 = row.Cells[9].ToString();
+                if (row.Cells[9].ToString().Trim() != "")//九宮格 9
+                {
+                    projectItem.TYPE_CODE_1 = row.Cells[9].ToString();
+                }
+                if (row.Cells[10].ToString().Trim() != "")//次九宮格 10
+                {
+                    projectItem.TYPE_CODE_2 = row.Cells[10].ToString();
+                }
+                if (row.Cells[11].ToString().Trim() != "")//主系統 11
+                {
+                    projectItem.SYSTEM_MAIN = row.Cells[11].ToString();
+                }
+                if (row.Cells[12].ToString().Trim() != "")//次系統 12
+                {
+                    projectItem.SYSTEM_SUB = row.Cells[12].ToString();
+                }
             }
-            if (row.Cells[10].ToString().Trim() != "")//次九宮格 10
+            else
             {
-                projectItem.TYPE_CODE_2 = row.Cells[10].ToString();
+                int cellNo = row.Cells.Count;
+                if (row.Cells[cellNo - 5].ToString().Trim() != "")//九宮格 9
+                {
+                    projectItem.TYPE_CODE_1 = row.Cells[cellNo - 5].ToString();
+                }
+                if (row.Cells[cellNo - 4].ToString().Trim() != "")//次九宮格 10
+                {
+                    projectItem.TYPE_CODE_2 = row.Cells[cellNo - 4].ToString();
+                }
+                if (row.Cells[cellNo - 2-3].ToString().Trim() != "")//主系統 11
+                {
+                    projectItem.SYSTEM_MAIN = row.Cells[cellNo - 3].ToString();
+                }
+                if (row.Cells[cellNo - 2].ToString().Trim() != "")//次系統 12
+                {
+                    projectItem.SYSTEM_SUB = row.Cells[cellNo - 2].ToString();
+                }
+                logger.Debug("excel row:"+ excelrow+ ",type_code1="+ projectItem.TYPE_CODE_1 + ",type_code2=" + projectItem.TYPE_CODE_2 + ",system_main=" + projectItem.SYSTEM_MAIN+ ",system_sub=" + projectItem.SYSTEM_SUB );
             }
-            if (row.Cells[11].ToString().Trim() != "")//主系統 11
-            {
-                projectItem.SYSTEM_MAIN = row.Cells[11].ToString();
-            }
-            if (row.Cells[12].ToString().Trim() != "")//次系統 12
-            {
-                projectItem.SYSTEM_SUB = row.Cells[12].ToString();
-            }
-            if (row.Cells[13].ToString().Trim() != "")//Excel 13
-            {
-                projectItem.EXCEL_ROW_ID = long.Parse(row.Cells[13].ToString());
-            }
-
-            projectItem.CREATE_DATE = System.DateTime.Now;
             logger.Info("TndprojectItem=" + projectItem.ToString());
             return projectItem;
         }
-
-
     }
     #endregion
 }

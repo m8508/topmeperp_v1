@@ -682,9 +682,9 @@ namespace topmeperp.Service
                 }
 
                 string sql = "INSERT INTO PLAN_SUP_INQUIRY_ITEM (INQUIRY_FORM_ID, PLAN_ITEM_ID, TYPE_CODE, "
-                    + "SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_QTY, ITEM_UNIT_PRICE, ITEM_REMARK) "
+                    + "SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, ITEM_QTY, ITEM_UNIT_PRICE, ITEM_REMARK,ITEM_ID) "
                     + "SELECT '" + form.INQUIRY_FORM_ID + "' as INQUIRY_FORM_ID, PLAN_ITEM_ID, TYPE_CODE_1 AS TYPE_CODE, "
-                    + "TYPE_CODE_2 AS SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, map.QTY, ITEM_UNIT_COST, ITEM_REMARK "
+                    + "TYPE_CODE_2 AS SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT, map.QTY, ITEM_UNIT_COST, ITEM_REMARK,pi.ITEM_ID ITEM_ID "
                     + "FROM PLAN_ITEM pi LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID where PLAN_ITEM_ID IN (" + ItemId + ")";
                 logger.Info("sql =" + sql);
                 var parameters = new List<SqlParameter>();
@@ -706,7 +706,12 @@ namespace topmeperp.Service
                     + "FROM PLAN_SUP_INQUIRY WHERE INQUIRY_FORM_ID = @formid";
                 formInquiry = context.PLAN_SUP_INQUIRY.SqlQuery(sql, new SqlParameter("formid", formid)).First();
                 //取得詢價單明細
-                formInquiryItem = context.PLAN_SUP_INQUIRY_ITEM.SqlQuery("SELECT * FROM PLAN_SUP_INQUIRY_ITEM WHERE INQUIRY_FORM_ID=@formid", new SqlParameter("formid", formid)).ToList();
+                formInquiryItem = context.PLAN_SUP_INQUIRY_ITEM.SqlQuery("SELECT i.[INQUIRY_ITEM_ID],i.[INQUIRY_FORM_ID]"+
+                    ", i.[PLAN_ITEM_ID], i.[TYPE_CODE], i.[SUB_TYPE_CODE], pi.[ITEM_ID], i.[ITEM_DESC], i.[ITEM_UNIT] "
+                    +" , i.[ITEM_QTY],i.[ITEM_UNIT_PRICE], i.[ITEM_QTY_ORG] , i.[ITEM_UNITPRICE_ORG], i.ITEM_REMARK "
+                    +" , i.[MODIFY_ID], i.[MODIFY_DATE], i.[WAGE_PRICE]  "
+                    +"FROM PLAN_SUP_INQUIRY_ITEM i LEFT OUTER JOIN  PLAN_ITEM pi on i.PLAN_ITEM_ID = pi.PLAN_ITEM_ID "
+                    + "WHERE i.INQUIRY_FORM_ID=@formid ORDER BY pi.EXCEL_ROW_ID", new SqlParameter("formid", formid)).ToList();
                 logger.Debug("get form item count:" + formInquiryItem.Count);
             }
         }

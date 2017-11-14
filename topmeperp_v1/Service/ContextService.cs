@@ -117,7 +117,7 @@ namespace topmeperp.Service
                     + "and p.FUNCTION_ID = f.FUNCTION_ID "
                     + "and u.USER_ID = @userid "
                     + "and u.PASSWORD = @passwd "
-                    + "Order by MODULE_NAME Desc;", new SqlParameter("userid", userid), new SqlParameter("passwd", passwd)).ToList();
+                    + "Order by FUNCTION_ID;", new SqlParameter("userid", userid), new SqlParameter("passwd", passwd)).ToList();
             }
             logger.Info("get functions count=" + userPrivilege.Count);
         }
@@ -145,6 +145,7 @@ namespace topmeperp.Service
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public TND_PROJECT project = null;
         string sno_key = "PROJ";
+        public string strMessage = null;
         public TnderProject()
         {
         }
@@ -226,7 +227,7 @@ namespace topmeperp.Service
                 foreach (PLAN_ITEM item in planItem)
                 {
                     item.PROJECT_ID = project.PROJECT_ID;
-                    //string strJson = JsonConvert.SerializeObject(item, Formatting.Indented);
+                    //string strJson = JsonConvert.SerializeObject(item);
                     //logger.Debug(strJson);
                     context.PLAN_ITEM.Add(item);
                 }
@@ -343,8 +344,18 @@ namespace topmeperp.Service
                 {
                     item.PROJECT_ID = project.PROJECT_ID;
                     context.TND_PROJECT_ITEM.Add(item);
+                    string strJson = JsonConvert.SerializeObject(item);
+                    logger.Debug(strJson);
                 }
-                i = context.SaveChanges();
+                try
+                {
+                    i = context.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.StackTrace);
+                    strMessage = "匯入失敗(" + ex.Message + ")";
+                }
             }
             logger.Info("add project item count =" + i);
             return i;
