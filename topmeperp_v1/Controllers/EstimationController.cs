@@ -1244,7 +1244,7 @@ namespace topmeperp.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddExpense(FIN_EXPENSE_FORM ef)//(尚未完成)
+        public ActionResult AddExpense(FIN_EXPENSE_FORM ef)
         {
             string[] lstSubject = Request["subject"].Split(',');
             string[] lstAmount = Request["expense_amount"].Split(',');
@@ -1285,19 +1285,7 @@ namespace topmeperp.Controllers
             }
             int i = service.AddExpenseItems(lstItem);
             logger.Debug("Item Count =" + i);
-            return Redirect("SingleEXPForm?id=" + fid);
-        }
-
-        //顯示單一工地費用單功能(尚未完成)
-        public ActionResult SingleEXPForm(string id)
-        {
-            logger.Info("http get mehtod:" + id);
-            OperatingExpenseModel singleForm = new OperatingExpenseModel();
-            service.getEXPByExpId(id);
-            singleForm.finEXP = service.formEXP;
-            singleForm.finEXPItem = service.EXPItem;
-            logger.Debug("Operating Expense Year:" + singleForm.finEXP.OCCURRED_YEAR);
-            return View(singleForm);
+            return RedirectToAction("SingleEXPForm", "CashFlow", new { id = fid });
         }
 
         public ActionResult SiteBudget(string id)
@@ -1309,17 +1297,446 @@ namespace topmeperp.Controllers
             //取得工地費用預算資料
             var priId = service.getSiteBudgetById(id);
             ViewBag.budgetdata = priId;
-            List<ExpenseBudgetSummary> SiteBudget = null;
+            List<ExpenseBudgetSummary> FirstYearBudget = null;
+            List<ExpenseBudgetSummary> SecondYearBudget = null;
+            List<ExpenseBudgetSummary> ThirdYearBudget = null;
+            List<ExpenseBudgetSummary> FourthYearBudget = null;
+            List<ExpenseBudgetSummary> FifthYearBudget = null;
+            ExpenseBudgetSummary Amt = null;
             if (null != priId && priId != "")
             {
                 //取得已寫入之工地費用預算資料
-                string year = Request["year"];
-                SiteBudget = service.getSiteBudgetByProject(id);
-                ViewBag.budgetYear = service.getYearOfSiteBudgetById(id);
+                FirstYearBudget = service.getFirstYearBudgetByProject(id);
+                SecondYearBudget = service.getSecondYearBudgetByProject(id);
+                ThirdYearBudget = service.getThirdYearBudgetByProject(id);
+                FourthYearBudget = service.getFourthYearBudgetByProject(id);
+                FifthYearBudget = service.getFifthYearBudgetByProject(id);
+                ViewBag.FirstYear = service.getFirstYearOfSiteBudgetById(id);
+                ViewBag.SecondYear = service.getSecondYearOfSiteBudgetById(id);
+                ViewBag.ThirdYear = service.getThirdYearOfSiteBudgetById(id);
+                ViewBag.FourthYear = service.getFourthYearOfSiteBudgetById(id);
+                ViewBag.FifthYear = service.getFifthYearOfSiteBudgetById(id);
+                Amt = service.getTotalSiteBudgetAmount(id);
+                TempData["TotalAmt"] = Amt.TOTAL_BUDGET;
+                SiteBudgetModels viewModel = new SiteBudgetModels();
+                viewModel.firstYear = FirstYearBudget;
+                viewModel.secondYear = SecondYearBudget;
+                viewModel.thirdYear = ThirdYearBudget;
+                viewModel.fourthYear = FourthYearBudget;
+                viewModel.fifthYear = FifthYearBudget;
+                return View(viewModel);
             }
-            return View(SiteBudget);
+            return RedirectToAction("SiteBudget/" + id);
         }
 
+        //更新工地費用預算
+        #region 第1年度
+        public String UpdateSiteBudgetOfFirstYear(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            // 先刪除原先資料
+            logger.Info("Site Expense Budget's Project Id =" + form["projectId"]);
+            logger.Info("Delete PLAN_SITE_BUDGET By PROJECT_ID and YEAR_SEQUENCE");
+            var year = 1.ToString();
+            service.delSiteBudgetByProject(form["projectId"], year);
+            string msg = "";
+            string[] lstsubjctid = form.Get("subjctid").Split(',');
+            string[] lst1 = form.Get("janAmt1").Split(',');
+            string[] lst2 = form.Get("febAmt1").Split(',');
+            string[] lst3 = form.Get("marAmt1").Split(',');
+            string[] lst4 = form.Get("aprAmt1").Split(',');
+            string[] lst5 = form.Get("mayAmt1").Split(',');
+            string[] lst6 = form.Get("junAmt1").Split(',');
+            string[] lst7 = form.Get("julAmt1").Split(',');
+            string[] lst8 = form.Get("augAmt1").Split(',');
+            string[] lst9 = form.Get("sepAmt1").Split(',');
+            string[] lst10 = form.Get("octAmt1").Split(',');
+            string[] lst11 = form.Get("novAmt1").Split(',');
+            string[] lst12 = form.Get("decAmt1").Split(',');
+            List<string[]> Atm = new List<string[]>();
+            Atm.Add(lst1);
+            Atm.Add(lst2);
+            Atm.Add(lst3);
+            Atm.Add(lst4);
+            Atm.Add(lst5);
+            Atm.Add(lst6);
+            Atm.Add(lst7);
+            Atm.Add(lst8);
+            Atm.Add(lst9);
+            Atm.Add(lst10);
+            Atm.Add(lst11);
+            Atm.Add(lst12);
+            UserService us = new UserService();
+            SYS_USER u = (SYS_USER)Session["user"];
+            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            List<PLAN_SITE_BUDGET> lst = new List<PLAN_SITE_BUDGET>();
+            for (int j = 0; j < lstsubjctid.Count(); j++)
+            {
+                List<PLAN_SITE_BUDGET> lstItem = new List<PLAN_SITE_BUDGET>();
+                for (int i = 0; i < 12; i++)
+                {
+                    PLAN_SITE_BUDGET item = new PLAN_SITE_BUDGET();
+                    item.BUDGET_YEAR = int.Parse(form["firstYear"]);
+                    item.PROJECT_ID = form["projectId"];
+                    item.YEAR_SEQUENCE = year;
+                    item.SUBJECT_ID = lstsubjctid[j];
+                    item.MODIFY_ID = u.USER_ID;
+                    if (Atm[i][j].ToString() == "" && null != Atm[i][j].ToString())
+                    {
+                        item.AMOUNT = null;
+                        item.BUDGET_MONTH = i + 1;
+                    }
+                    else
+                    {
+                        item.AMOUNT = decimal.Parse(Atm[i][j]);
+                        item.BUDGET_MONTH = i + 1;
+                    }
+                    item.MODIFY_DATE = DateTime.Now;
+                    logger.Info("費用項目代碼 =" + item.SUBJECT_ID + "，and Budget Month = " + item.BUDGET_MONTH + "，and Atm = " + Atm[i][j]);
+                    lstItem.Add(item);
+                }
+                lst.AddRange(lstItem);
+            }
+            int k = service.refreshSiteBudget(lst);
+            if (k == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "更新工地預算費用成功，預算年度為 " + form["firstYear"];
+            }
+
+            logger.Info("Request:BUDGET_YEAR =" + form["firstYear"]);
+            return msg;
+        }
+        #endregion
+        #region 第2年度
+        public String UpdateSiteBudgetOfSecondYear(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            // 先刪除原先資料
+            logger.Info("Site Expense Budget's Project Id =" + form["projectId"]);
+            logger.Info("Delete PLAN_SITE_BUDGET By PROJECT_ID and YEAR_SEQUENCE");
+            var year = 2.ToString();
+            service.delSiteBudgetByProject(form["projectId"], year);
+            string msg = "";
+            string[] lstsubjctid = form.Get("subjctid").Split(',');
+            string[] lst1 = form.Get("janAmt2").Split(',');
+            string[] lst2 = form.Get("febAmt2").Split(',');
+            string[] lst3 = form.Get("marAmt2").Split(',');
+            string[] lst4 = form.Get("aprAmt2").Split(',');
+            string[] lst5 = form.Get("mayAmt2").Split(',');
+            string[] lst6 = form.Get("junAmt2").Split(',');
+            string[] lst7 = form.Get("julAmt2").Split(',');
+            string[] lst8 = form.Get("augAmt2").Split(',');
+            string[] lst9 = form.Get("sepAmt2").Split(',');
+            string[] lst10 = form.Get("octAmt2").Split(',');
+            string[] lst11 = form.Get("novAmt2").Split(',');
+            string[] lst12 = form.Get("decAmt2").Split(',');
+            List<string[]> Atm = new List<string[]>();
+            Atm.Add(lst1);
+            Atm.Add(lst2);
+            Atm.Add(lst3);
+            Atm.Add(lst4);
+            Atm.Add(lst5);
+            Atm.Add(lst6);
+            Atm.Add(lst7);
+            Atm.Add(lst8);
+            Atm.Add(lst9);
+            Atm.Add(lst10);
+            Atm.Add(lst11);
+            Atm.Add(lst12);
+            UserService us = new UserService();
+            SYS_USER u = (SYS_USER)Session["user"];
+            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            List<PLAN_SITE_BUDGET> lst = new List<PLAN_SITE_BUDGET>();
+            for (int j = 0; j < lstsubjctid.Count(); j++)
+            {
+                List<PLAN_SITE_BUDGET> lstItem = new List<PLAN_SITE_BUDGET>();
+                for (int i = 0; i < 12; i++)
+                {
+                    PLAN_SITE_BUDGET item = new PLAN_SITE_BUDGET();
+                    item.BUDGET_YEAR = int.Parse(form["secondYear"]);
+                    item.PROJECT_ID = form["projectId"];
+                    item.YEAR_SEQUENCE = year;
+                    item.SUBJECT_ID = lstsubjctid[j];
+                    item.MODIFY_ID = u.USER_ID;
+                    if (Atm[i][j].ToString() == "" && null != Atm[i][j].ToString())
+                    {
+                        item.AMOUNT = null;
+                        item.BUDGET_MONTH = i + 1;
+                    }
+                    else
+                    {
+                        item.AMOUNT = decimal.Parse(Atm[i][j]);
+                        item.BUDGET_MONTH = i + 1;
+                    }
+                    item.MODIFY_DATE = DateTime.Now;
+                    logger.Info("費用項目代碼 =" + item.SUBJECT_ID + "，and Budget Month = " + item.BUDGET_MONTH + "，and Atm = " + Atm[i][j]);
+                    lstItem.Add(item);
+                }
+                lst.AddRange(lstItem);
+            }
+            int k = service.refreshSiteBudget(lst);
+            if (k == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "更新工地預算費用成功，預算年度為 " + form["secondYear"];
+            }
+
+            logger.Info("Request:BUDGET_YEAR =" + form["secondYear"]);
+            return msg;
+        }
+        #endregion
+        #region 第3年度
+        public String UpdateSiteBudgetOfThirdYear(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            // 先刪除原先資料
+            logger.Info("Site Expense Budget's Project Id =" + form["projectId"]);
+            logger.Info("Delete PLAN_SITE_BUDGET By PROJECT_ID and YEAR_SEQUENCE");
+            var year = 3.ToString();
+            service.delSiteBudgetByProject(form["projectId"], year);
+            string msg = "";
+            string[] lstsubjctid = form.Get("subjctid").Split(',');
+            string[] lst1 = form.Get("janAmt3").Split(',');
+            string[] lst2 = form.Get("febAmt3").Split(',');
+            string[] lst3 = form.Get("marAmt3").Split(',');
+            string[] lst4 = form.Get("aprAmt3").Split(',');
+            string[] lst5 = form.Get("mayAmt3").Split(',');
+            string[] lst6 = form.Get("junAmt3").Split(',');
+            string[] lst7 = form.Get("julAmt3").Split(',');
+            string[] lst8 = form.Get("augAmt3").Split(',');
+            string[] lst9 = form.Get("sepAmt3").Split(',');
+            string[] lst10 = form.Get("octAmt3").Split(',');
+            string[] lst11 = form.Get("novAmt3").Split(',');
+            string[] lst12 = form.Get("decAmt3").Split(',');
+            List<string[]> Atm = new List<string[]>();
+            Atm.Add(lst1);
+            Atm.Add(lst2);
+            Atm.Add(lst3);
+            Atm.Add(lst4);
+            Atm.Add(lst5);
+            Atm.Add(lst6);
+            Atm.Add(lst7);
+            Atm.Add(lst8);
+            Atm.Add(lst9);
+            Atm.Add(lst10);
+            Atm.Add(lst11);
+            Atm.Add(lst12);
+            UserService us = new UserService();
+            SYS_USER u = (SYS_USER)Session["user"];
+            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            List<PLAN_SITE_BUDGET> lst = new List<PLAN_SITE_BUDGET>();
+            for (int j = 0; j < lstsubjctid.Count(); j++)
+            {
+                List<PLAN_SITE_BUDGET> lstItem = new List<PLAN_SITE_BUDGET>();
+                for (int i = 0; i < 12; i++)
+                {
+                    PLAN_SITE_BUDGET item = new PLAN_SITE_BUDGET();
+                    item.BUDGET_YEAR = int.Parse(form["thirdYear"]);
+                    item.PROJECT_ID = form["projectId"];
+                    item.YEAR_SEQUENCE = year;
+                    item.SUBJECT_ID = lstsubjctid[j];
+                    item.MODIFY_ID = u.USER_ID;
+                    if (Atm[i][j].ToString() == "" && null != Atm[i][j].ToString())
+                    {
+                        item.AMOUNT = null;
+                        item.BUDGET_MONTH = i + 1;
+                    }
+                    else
+                    {
+                        item.AMOUNT = decimal.Parse(Atm[i][j]);
+                        item.BUDGET_MONTH = i + 1;
+                    }
+                    item.MODIFY_DATE = DateTime.Now;
+                    logger.Info("費用項目代碼 =" + item.SUBJECT_ID + "，and Budget Month = " + item.BUDGET_MONTH + "，and Atm = " + Atm[i][j]);
+                    lstItem.Add(item);
+                }
+                lst.AddRange(lstItem);
+            }
+            int k = service.refreshSiteBudget(lst);
+            if (k == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "更新工地預算費用成功，預算年度為 " + form["thirdYear"];
+            }
+
+            logger.Info("Request:BUDGET_YEAR =" + form["thirdYear"]);
+            return msg;
+        }
+        #endregion
+        #region 第4年度
+        public String UpdateSiteBudgetOfFourthYear(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            // 先刪除原先資料
+            logger.Info("Site Expense Budget's Project Id =" + form["projectId"]);
+            logger.Info("Delete PLAN_SITE_BUDGET By PROJECT_ID and YEAR_SEQUENCE");
+            var year = 4.ToString();
+            service.delSiteBudgetByProject(form["projectId"], year);
+            string msg = "";
+            string[] lstsubjctid = form.Get("subjctid").Split(',');
+            string[] lst1 = form.Get("janAmt4").Split(',');
+            string[] lst2 = form.Get("febAmt4").Split(',');
+            string[] lst3 = form.Get("marAmt4").Split(',');
+            string[] lst4 = form.Get("aprAmt4").Split(',');
+            string[] lst5 = form.Get("mayAmt4").Split(',');
+            string[] lst6 = form.Get("junAmt4").Split(',');
+            string[] lst7 = form.Get("julAmt4").Split(',');
+            string[] lst8 = form.Get("augAmt4").Split(',');
+            string[] lst9 = form.Get("sepAmt4").Split(',');
+            string[] lst10 = form.Get("octAmt4").Split(',');
+            string[] lst11 = form.Get("novAmt4").Split(',');
+            string[] lst12 = form.Get("decAmt4").Split(',');
+            List<string[]> Atm = new List<string[]>();
+            Atm.Add(lst1);
+            Atm.Add(lst2);
+            Atm.Add(lst3);
+            Atm.Add(lst4);
+            Atm.Add(lst5);
+            Atm.Add(lst6);
+            Atm.Add(lst7);
+            Atm.Add(lst8);
+            Atm.Add(lst9);
+            Atm.Add(lst10);
+            Atm.Add(lst11);
+            Atm.Add(lst12);
+            UserService us = new UserService();
+            SYS_USER u = (SYS_USER)Session["user"];
+            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            List<PLAN_SITE_BUDGET> lst = new List<PLAN_SITE_BUDGET>();
+            for (int j = 0; j < lstsubjctid.Count(); j++)
+            {
+                List<PLAN_SITE_BUDGET> lstItem = new List<PLAN_SITE_BUDGET>();
+                for (int i = 0; i < 12; i++)
+                {
+                    PLAN_SITE_BUDGET item = new PLAN_SITE_BUDGET();
+                    item.BUDGET_YEAR = int.Parse(form["fourthYear"]);
+                    item.PROJECT_ID = form["projectId"];
+                    item.YEAR_SEQUENCE = year;
+                    item.SUBJECT_ID = lstsubjctid[j];
+                    item.MODIFY_ID = u.USER_ID;
+                    if (Atm[i][j].ToString() == "" && null != Atm[i][j].ToString())
+                    {
+                        item.AMOUNT = null;
+                        item.BUDGET_MONTH = i + 1;
+                    }
+                    else
+                    {
+                        item.AMOUNT = decimal.Parse(Atm[i][j]);
+                        item.BUDGET_MONTH = i + 1;
+                    }
+                    item.MODIFY_DATE = DateTime.Now;
+                    logger.Info("費用項目代碼 =" + item.SUBJECT_ID + "，and Budget Month = " + item.BUDGET_MONTH + "，and Atm = " + Atm[i][j]);
+                    lstItem.Add(item);
+                }
+                lst.AddRange(lstItem);
+            }
+            int k = service.refreshSiteBudget(lst);
+            if (k == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "更新工地預算費用成功，預算年度為 " + form["fourthYear"];
+            }
+
+            logger.Info("Request:BUDGET_YEAR =" + form["fourthYear"]);
+            return msg;
+        }
+        #endregion
+        #region 第5年度
+        public String UpdateSiteBudgetOfFifthYear(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            // 先刪除原先資料
+            logger.Info("Site Expense Budget's Project Id =" + form["projectId"]);
+            logger.Info("Delete PLAN_SITE_BUDGET By PROJECT_ID and YEAR_SEQUENCE");
+            var year = 4.ToString();
+            service.delSiteBudgetByProject(form["projectId"], year);
+            string msg = "";
+            string[] lstsubjctid = form.Get("subjctid").Split(',');
+            string[] lst1 = form.Get("janAmt5").Split(',');
+            string[] lst2 = form.Get("febAmt5").Split(',');
+            string[] lst3 = form.Get("marAmt5").Split(',');
+            string[] lst4 = form.Get("aprAmt5").Split(',');
+            string[] lst5 = form.Get("mayAmt5").Split(',');
+            string[] lst6 = form.Get("junAmt5").Split(',');
+            string[] lst7 = form.Get("julAmt5").Split(',');
+            string[] lst8 = form.Get("augAmt5").Split(',');
+            string[] lst9 = form.Get("sepAmt5").Split(',');
+            string[] lst10 = form.Get("octAmt5").Split(',');
+            string[] lst11 = form.Get("novAmt5").Split(',');
+            string[] lst12 = form.Get("decAmt5").Split(',');
+            List<string[]> Atm = new List<string[]>();
+            Atm.Add(lst1);
+            Atm.Add(lst2);
+            Atm.Add(lst3);
+            Atm.Add(lst4);
+            Atm.Add(lst5);
+            Atm.Add(lst6);
+            Atm.Add(lst7);
+            Atm.Add(lst8);
+            Atm.Add(lst9);
+            Atm.Add(lst10);
+            Atm.Add(lst11);
+            Atm.Add(lst12);
+            UserService us = new UserService();
+            SYS_USER u = (SYS_USER)Session["user"];
+            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            List<PLAN_SITE_BUDGET> lst = new List<PLAN_SITE_BUDGET>();
+            for (int j = 0; j < lstsubjctid.Count(); j++)
+            {
+                List<PLAN_SITE_BUDGET> lstItem = new List<PLAN_SITE_BUDGET>();
+                for (int i = 0; i < 12; i++)
+                {
+                    PLAN_SITE_BUDGET item = new PLAN_SITE_BUDGET();
+                    item.BUDGET_YEAR = int.Parse(form["fourthYear"]);
+                    item.PROJECT_ID = form["projectId"];
+                    item.YEAR_SEQUENCE = year;
+                    item.SUBJECT_ID = lstsubjctid[j];
+                    item.MODIFY_ID = u.USER_ID;
+                    if (Atm[i][j].ToString() == "" && null != Atm[i][j].ToString())
+                    {
+                        item.AMOUNT = null;
+                        item.BUDGET_MONTH = i + 1;
+                    }
+                    else
+                    {
+                        item.AMOUNT = decimal.Parse(Atm[i][j]);
+                        item.BUDGET_MONTH = i + 1;
+                    }
+                    item.MODIFY_DATE = DateTime.Now;
+                    logger.Info("費用項目代碼 =" + item.SUBJECT_ID + "，and Budget Month = " + item.BUDGET_MONTH + "，and Atm = " + Atm[i][j]);
+                    lstItem.Add(item);
+                }
+                lst.AddRange(lstItem);
+            }
+            int k = service.refreshSiteBudget(lst);
+            if (k == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "更新工地預算費用成功，預算年度為 " + form["fifthYear"];
+            }
+
+            logger.Info("Request:BUDGET_YEAR =" + form["fifthYear"]);
+            return msg;
+        }
+        #endregion
+
+        //工地費用下載與上傳操作頁面
         public ActionResult SiteBudgetOperation(string id)
         {
             logger.Info("Access to Site Budget Page, And Project Id = " + id);
@@ -1396,8 +1813,8 @@ namespace topmeperp.Controllers
                 #endregion
                 #region 預算第2年度
                 //工地費用:預算第2年度
-               
-                if (null != fileBudget1 && fileBudget1.ContentLength != 0)
+
+                if (null != fileBudget2 && fileBudget2.ContentLength != 0)
                 {
                     //2.解析Excel
                     logger.Info("Parser Excel data:" + fileBudget1.FileName);
@@ -1428,7 +1845,7 @@ namespace topmeperp.Controllers
                 #region 預算第3年度
                 //工地費用:預算第3年度
 
-                if (null != fileBudget1 && fileBudget1.ContentLength != 0)
+                if (null != fileBudget3 && fileBudget3.ContentLength != 0)
                 {
                     //2.解析Excel
                     logger.Info("Parser Excel data:" + fileBudget1.FileName);
@@ -1442,7 +1859,7 @@ namespace topmeperp.Controllers
                     SiteBudgetFormToExcel budgetservice = new SiteBudgetFormToExcel();
                     budgetservice.InitializeWorkbook(path);
                     //解析預算數量
-                    List<PLAN_SITE_BUDGET> _3rdSiteBudget = budgetservice.ConvertDataForSiteBudget2(projectid);
+                    List<PLAN_SITE_BUDGET> _3rdSiteBudget = budgetservice.ConvertDataForSiteBudget3(projectid);
                     //2.3 記錄錯誤訊息
                     message = budgetservice.errorMessage;
                     //2.4
@@ -1459,7 +1876,7 @@ namespace topmeperp.Controllers
                 #region 預算第4年度
                 //工地費用:預算第4年度
 
-                if (null != fileBudget1 && fileBudget1.ContentLength != 0)
+                if (null != fileBudget4 && fileBudget4.ContentLength != 0)
                 {
                     //2.解析Excel
                     logger.Info("Parser Excel data:" + fileBudget1.FileName);
@@ -1473,7 +1890,7 @@ namespace topmeperp.Controllers
                     SiteBudgetFormToExcel budgetservice = new SiteBudgetFormToExcel();
                     budgetservice.InitializeWorkbook(path);
                     //解析預算數量
-                    List<PLAN_SITE_BUDGET> _4thSiteBudget = budgetservice.ConvertDataForSiteBudget2(projectid);
+                    List<PLAN_SITE_BUDGET> _4thSiteBudget = budgetservice.ConvertDataForSiteBudget3(projectid);
                     //2.3 記錄錯誤訊息
                     message = budgetservice.errorMessage;
                     //2.4
@@ -1490,7 +1907,7 @@ namespace topmeperp.Controllers
                 #region 預算第5年度
                 //工地費用:預算第5年度
 
-                if (null != fileBudget1 && fileBudget1.ContentLength != 0)
+                if (null != fileBudget5 && fileBudget5.ContentLength != 0)
                 {
                     //2.解析Excel
                     logger.Info("Parser Excel data:" + fileBudget1.FileName);
@@ -1504,12 +1921,12 @@ namespace topmeperp.Controllers
                     SiteBudgetFormToExcel budgetservice = new SiteBudgetFormToExcel();
                     budgetservice.InitializeWorkbook(path);
                     //解析預算數量
-                    List<PLAN_SITE_BUDGET> _5thSiteBudget = budgetservice.ConvertDataForSiteBudget2(projectid);
+                    List<PLAN_SITE_BUDGET> _5thSiteBudget = budgetservice.ConvertDataForSiteBudget5(projectid);
                     //2.3 記錄錯誤訊息
                     message = budgetservice.errorMessage;
                     //2.4
                     var year = 5.ToString();
-                    logger.Info("Delete PALN_SITE_BUDGET By Project");
+                    logger.Info("Delete PLAN_SITE_BUDGET By Project");
                     service.delSiteBudgetByProject(projectid, year);
                     message = message + "<br/>舊有資料刪除成功 !!";
                     //2.5 

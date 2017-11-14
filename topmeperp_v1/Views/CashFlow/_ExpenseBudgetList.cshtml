@@ -12,7 +12,7 @@
                 <span font-size 30px;"><input type="button" value="修改" class="btn btn-warning" id="saveForm" /></span>
             </div>
             <div class="col-md-8 text-right">
-                <span style="color: dodgerblue; font-size: 25px;">總預算金額 : @TempData["TotalAmt"]</span>
+                <span style="color: dodgerblue; font-size: 25px;">總預算金額 : @String.Format("{0:#,##0.#}", TempData["TotalAmt"])</span>
             </div>
         </div>
     </div>
@@ -26,10 +26,10 @@
                     項目代碼
                 </th>
                 <th>
-                    1  月
+                    1月
                 </th>
                 <th>
-                    2  月
+                    2月
                 </th>
                 <th>
                     3月
@@ -81,40 +81,40 @@
                         </span>
                     </td>
                     <td>
-                        <input type="text" style="width:70px" name="janAtm" id="janAtm" value="@String.Format("{0:###0.#}", item.JAN)" />
+                        <input type="text" style="width:70px" name="janAmt" id="janAmt" value="@String.Format("{0:###0.#}", item.JAN)" />
                     </td>
                     <td>
-                        <input type="text" style="width:70px" name="febAtm" id="febAtm" value="@String.Format("{0:###0.#}", item.FEB)" />
+                        <input type="text" style="width:70px" name="febAmt" id="febAmt" value="@String.Format("{0:###0.#}", item.FEB)" />
                     </td>
                     <td>
-                        <input type="text" style="width:70px" name="marAtm" id="marAtm" value="@String.Format("{0:###0.#}", item.MAR)" />
+                        <input type="text" style="width:70px" name="marAmt" id="marAmt" value="@String.Format("{0:###0.#}", item.MAR)" />
                     </td>
                     <td>
-                        <input type="text" style="width:70px" name="aprAtm" id="aprAtm" value="@String.Format("{0:###0.#}", item.APR)" />
+                        <input type="text" style="width:70px" name="aprAmt" id="aprAmt" value="@String.Format("{0:###0.#}", item.APR)" />
                     </td>
                     <td>
-                        <input type="text" style="width:70px" name="mayAtm" id="mayAtm" value="@String.Format("{0:###0.#}", item.MAY)" />
+                        <input type="text" style="width:70px" name="mayAmt" id="mayAmt" value="@String.Format("{0:###0.#}", item.MAY)" />
                     </td>
                     <td>
-                        <input type="text" style="width:70px" name="junAtm" id="junAtm" value="@String.Format("{0:###0.#}", item.JUN)" />
+                        <input type="text" style="width:70px" name="junAmt" id="junAmt" value="@String.Format("{0:###0.#}", item.JUN)" />
                     </td>
                     <td>
-                        <input type="text" style="width:70px" name="julAtm" id="julAtm" value="@String.Format("{0:###0.#}", item.JUL)" />
+                        <input type="text" style="width:70px" name="julAmt" id="julAmt" value="@String.Format("{0:###0.#}", item.JUL)" />
                     </td>
                     <td>
-                        <input type="text" style="width:70px" name="augAtm" id="augAtm" value="@String.Format("{0:###0.#}", item.AUG)" />
+                        <input type="text" style="width:70px" name="augAmt" id="augAmt" value="@String.Format("{0:###0.#}", item.AUG)" />
                     </td>
                     <td>
-                        <input type="text" style="width:70px" name="sepAtm" id="sepAtm" value="@String.Format("{0:###0.#}", item.SEP)" />
+                        <input type="text" style="width:70px" name="sepAmt" id="sepAmt" value="@String.Format("{0:###0.#}", item.SEP)" />
                     </td>
                     <td>
-                        <input type="text" style="width:70px" name="octAtm" id="octAtm" value="@String.Format("{0:###0.#}", item.OCT)" />
+                        <input type="text" style="width:70px" name="octAmt" id="octAmt" value="@String.Format("{0:###0.#}", item.OCT)" />
                     </td>
                     <td>
-                        <input type="text" style="width:70px" name="novAtm" id="novAtm" value="@String.Format("{0:###0.#}", item.NOV)" />
+                        <input type="text" style="width:70px" name="novAmt" id="novAmt" value="@String.Format("{0:###0.#}", item.NOV)" />
                     </td>
                     <td>
-                        <input type="text" style="width:70px" name="decAtm" id="decAtm" value="@String.Format("{0:###0.#}", item.DEC)" />
+                        <input type="text" style="width:70px" name="decAmt" id="decAmt" value="@String.Format("{0:###0.#}", item.DEC)" />
                     </td>
                     <td>
                         <span style="color: blue; font-size: 15px;">
@@ -159,47 +159,47 @@
             </th>
             <th>
                 <span style="color: blue; font-size: 15px;">
-                    <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                    <input type="text" style="width:70px" name="mayVTotal" id="mayVTotal" value="" />
                 </span>
             </th>
             <th>
                 <span style="color: blue; font-size: 15px;">
-                    <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                    <input type="text" style="width:70px" name="junVTotal" id="junVTotal" value="" />
                 </span>
             </th>
             <th>
                 <span style="color: blue; font-size: 15px;">
-                    <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                    <input type="text" style="width:70px" name="julVTotal" id="julVTotal" value="" />
                 </span>
             </th>
             <th>
                 <span style="color: blue; font-size: 15px;">
-                    <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                    <input type="text" style="width:70px" name="augVTotal" id="augVTotal" value="" />
                 </span>
             </th>
             <th>
                 <span style="color: blue; font-size: 15px;">
-                    <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                    <input type="text" style="width:70px" name="sepVTotal" id="sepVTotal" value="" />
                 </span>
             </th>
             <th>
                 <span style="color: blue; font-size: 15px;">
-                    <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                    <input type="text" style="width:70px" name="octVTotal" id="octVTotal" value="" />
                 </span>
             </th>
             <th>
                 <span style="color: blue; font-size: 15px;">
-                    <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                    <input type="text" style="width:70px" name="novVTotal" id="novVTotal" value="" />
                 </span>
             </th>
             <th>
                 <span style="color: blue; font-size: 15px;">
-                    <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+                    <input type="text" style="width:70px" name="decVTotal" id="decVTotal" value="" />
                 </span>
             </th>
             <th>
                 <span style="color: blue; font-size: 15px;">
-                    <input type="text" style="width:80px" name="janVTotal" id="janVTotal" value="" />
+                    <input type="text" style="width:80px" name="VTotal" id="VTotal" value="" />
                 </span>
             </th>
         </tr>
@@ -208,50 +208,91 @@
 
 <script>
     $(document).ready(function () {
-        var total1 = 0;
+        var total1 = 0; 
         var sum1 = 0;
+        var total2 = 0;
+        var sum2 = 0;
         var total3 = 0;
         var sum3 = 0;
         var total4 = 0;
         var sum4 = 0;
+        var total5 = 0;
+        var sum5 = 0;
+        var total6 = 0;
+        var sum6 = 0;
+        var total7 = 0;
+        var sum7 = 0;
+        var total8 = 0;
+        var sum8 = 0;
+        var total9 = 0;
+        var sum9 = 0;
+        var total0 = 0;
+        var sum10 = 0;
+        var total11 = 0;
+        var sum11 = 0;
+        var total12 = 0;
+        var sum12 = 0;
+        var sum13 = 0;
         $('table > tbody > tr').each(function () {
-            var atm = 0;
-            var atm3 = 0;
-            var atm4 = 0;
-            if ($.trim($(this).find("#janAtm").val()) != "") {
-                atm = parseInt($.trim($(this).find("#janAtm").val()));
-            }
-            if ($.trim($(this).find("#marAtm").val()) != "") {
-                atm3 = parseInt($.trim($(this).find("#marAtm").val()));
-            }
-            if ($.trim($(this).find("#aprAtm").val()) != "") {
-                atm4 = parseInt($.trim($(this).find("#aprAtm").val()));
-            }
-            total1 = atm;
-            total3 = atm3;
-            total4 = atm4;
+            var atm1 = 0; var atm2 = 0; var atm3 = 0;
+            var atm4 = 0; var atm5 = 0; var atm6 = 0;
+            var atm7 = 0; var atm8 = 0; var atm9 = 0;
+            var atm10 = 0; var atm11 = 0; var atm12 = 0;
 
-            sum1 += total1;
-            sum3 += total3;
-            sum4 += total4;
+            if ($.trim($(this).find("#janAmt").val()) != "") {
+                atm1 = parseInt($.trim($(this).find("#janAmt").val()));
+            }
+            if ($.trim($(this).find("#febAmt").val()) != "") {
+                atm2 = parseInt($.trim($(this).find("#febAmt").val()));
+            }
+            if ($.trim($(this).find("#marAmt").val()) != "") {
+                atm3 = parseInt($.trim($(this).find("#marAmt").val()));
+            }
+            if ($.trim($(this).find("#aprAmt").val()) != "") {
+                atm4 = parseInt($.trim($(this).find("#aprAmt").val()));
+            }
+            if ($.trim($(this).find("#mayAmt").val()) != "") {
+                atm5 = parseInt($.trim($(this).find("#mayAmt").val()));
+            }
+            if ($.trim($(this).find("#junAmt").val()) != "") {
+                atm6 = parseInt($.trim($(this).find("#junAmt").val()));
+            }
+            if ($.trim($(this).find("#julAmt").val()) != "") {
+                atm7 = parseInt($.trim($(this).find("#julAmt").val()));
+            }
+            if ($.trim($(this).find("#augAmt").val()) != "") {
+                atm8 = parseInt($.trim($(this).find("#augAmt").val()));
+            }
+            if ($.trim($(this).find("#sepAmt").val()) != "") {
+                atm9 = parseInt($.trim($(this).find("#sepAmt").val()));
+            }
+            if ($.trim($(this).find("#octAmt").val()) != "") {
+                atm10 = parseInt($.trim($(this).find("#octAmt").val()));
+            }
+            if ($.trim($(this).find("#novAmt").val()) != "") {
+                atm11 = parseInt($.trim($(this).find("#novAmt").val()));
+            }
+            if ($.trim($(this).find("#decAmt").val()) != "") {
+                atm12 = parseInt($.trim($(this).find("#decAmt").val()));
+            }
+            
+            total1 = atm1; total2 = atm2; total3 = atm3;
+            total4 = atm4; total5 = atm5; total6 = atm6;
+            total7 = atm7; total8 = atm8; total9 = atm9;
+            total10 = atm10; total11 = atm11; total12 = atm12;
+
+            sum1 += total1; sum2 += total2; sum3 += total3;
+            sum4 += total4; sum5 += total5; sum6 += total6;
+            sum7 += total7; sum8 += total8; sum9 += total9;
+            sum10 += total10; sum11 += total11; sum12 += total12;
+            sum13 += total1 + total2 + total3 + total4 + total5 + total6 + total7 + total8 + total9 + total10 + total11 + total12;
             
         });
-        return $("#janVTotal").val(sum1), $("#marVTotal").val(sum3), $("#aprVTotal").val(sum4);
+        return $("#janVTotal").val(sum1), $("#febVTotal").val(sum2), $("#marVTotal").val(sum3), $("#aprVTotal").val(sum4),
+        $("#mayVTotal").val(sum5), $("#junVTotal").val(sum6), $("#julVTotal").val(sum7), $("#augVTotal").val(sum8),
+        $("#sepVTotal").val(sum9), $("#octVTotal").val(sum10), $("#novVTotal").val(sum11), $("#decVTotal").val(sum12),
+        $("#VTotal").val(sum13)
     });
-    $(document).ready(function () {
-        var total2 = 0;
-        var sum2 = 0;
-        $('table > tbody > tr').each(function () {
-            var atm2 = 0;
-            if ($.trim($(this).find("#febAtm").val()) != "") {
-                atm2 = parseInt($.trim($(this).find("#febAtm").val()));
-            }
-            if ($.trim($(this).find("#febAtm").val()) != null) {
-                total2 = atm2;
-            }
-            sum2 += total2;
-        });
-        return $("#febVTotal").val(sum2);
-    });
+    
 </script>
 

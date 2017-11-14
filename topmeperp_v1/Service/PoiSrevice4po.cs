@@ -1259,55 +1259,55 @@ namespace topmeperp.Service
          * */
         protected List<PLAN_SITE_BUDGET> ConverData2SiteBudget()
         {
-            IRow row = null;
-            List<PLAN_SITE_BUDGET> lstSiteBudget = new List<PLAN_SITE_BUDGET>();
-            System.Collections.IEnumerator rows = sheet.GetRowEnumerator();
-            //2.逐行讀取資料
-            int iRowIndex = 0; //0 表 Row 1
+                IRow row = null;
+                List<PLAN_SITE_BUDGET> lstSiteBudget = new List<PLAN_SITE_BUDGET>();
+                System.Collections.IEnumerator rows = sheet.GetRowEnumerator();
+                //2.逐行讀取資料
+                int iRowIndex = 0; //0 表 Row 1
 
-            //2.1  忽略不要的行數..(表頭)
-            budgetYear = sheet.GetRow(4).Cells[1].ToString();
-            sequenceYear = sheet.GetRow(3).Cells[1].ToString();
-            while (iRowIndex < (6))
-            {
-                rows.MoveNext();
-                iRowIndex++;
-                //row = (IRow)rows.Current;
-                //logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
-            }
-            //循序處理每一筆資料之欄位!!
-            iRowIndex++;
-            while (rows.MoveNext())
-            {
-                row = (IRow)rows.Current;
-                int i = 0;
-                string slog = "";
-                for (i = 0; i < row.Cells.Count; i++)
+                //2.1  忽略不要的行數..(表頭)
+                budgetYear = sheet.GetRow(4).Cells[1].ToString();
+                sequenceYear = sheet.GetRow(3).Cells[1].ToString();
+                while (iRowIndex < (6))
                 {
-                    slog = slog + "," + row.Cells[i];
-
+                    rows.MoveNext();
+                    iRowIndex++;
+                    //row = (IRow)rows.Current;
+                    //logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
                 }
-                logger.Debug("Excel Value:" + slog);
-                //將各Row 資料寫入物件內
-                //0.項目代碼 2.1月金額 3.2月金額 4.3月金額 5.4月金額 6.5月金額 7.6月金額 8.7月金額 9.8月金額 10.9月金額 11.10月金額 12.11月金額 13.12月金額
-                if (row.Cells[0].ToString().ToUpper() != "END")
+                //循序處理每一筆資料之欄位!!
+                iRowIndex++;
+                while (rows.MoveNext())
                 {
-                    List<PLAN_SITE_BUDGET> lst = convertRow2SiteBudget(row, iRowIndex);
-                    foreach (PLAN_SITE_BUDGET it in lst)
+                    row = (IRow)rows.Current;
+                    int i = 0;
+                    string slog = "";
+                    for (i = 0; i < row.Cells.Count; i++)
                     {
-                        lstSiteBudget.Add(it);
+                        slog = slog + "," + row.Cells[i];
+
                     }
+                    logger.Debug("Excel Value:" + slog);
+                    //將各Row 資料寫入物件內
+                    //0.項目代碼 2.1月金額 3.2月金額 4.3月金額 5.4月金額 6.5月金額 7.6月金額 8.7月金額 9.8月金額 10.9月金額 11.10月金額 12.11月金額 13.12月金額
+                    if (row.Cells[0].ToString().ToUpper() != "END")
+                    {
+                        List<PLAN_SITE_BUDGET> lst = convertRow2SiteBudget(row, iRowIndex);
+                        foreach (PLAN_SITE_BUDGET it in lst)
+                        {
+                            lstSiteBudget.Add(it);
+                        }
+                    }
+                    else
+                    {
+                        logErrorMessage("Step1 ;取得工地費用預算資料:" + subjects.Count + "筆");
+                        logger.Info("Finish convert Job : count=" + subjects.Count);
+                        return lstSiteBudget;
+                    }
+                    iRowIndex++;
                 }
-                else
-                {
-                    logErrorMessage("Step1 ;取得工地費用預算資料:" + subjects.Count + "筆");
-                    logger.Info("Finish convert Job : count=" + subjects.Count);
-                    return lstSiteBudget;
-                }
-                iRowIndex++;
-            }
-            logger.Info("Plan_Site_Budget Count:" + iRowIndex);
-            return lstSiteBudget;
+                logger.Info("Plan_Site_Budget Count:" + iRowIndex);
+                return lstSiteBudget;
         }
         /**
          * 將Excel Row 轉換成為對應的資料物件

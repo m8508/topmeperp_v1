@@ -496,4 +496,18 @@ namespace topmeperp.Models
         public string RECORDED_AMOUNT { get; set; }
 
     }
-}
+    public class SiteBudgetModels
+    {
+        //第1年度工地費用預算資料
+        public IEnumerable<ExpenseBudgetSummary> firstYear { get; set; }
+        //第2年度工地費用預算資料
+        public IEnumerable<ExpenseBudgetSummary> secondYear { get; set; }
+        //第3年度工地費用預算資料
+        public IEnumerable<ExpenseBudgetSummary> thirdYear { get; set; }
+        //第4年度工地費用預算資料
+        public IEnumerable<ExpenseBudgetSummary> fourthYear { get; set; }
+        //第5年度工地費用預算資料
+        public IEnumerable<ExpenseBudgetSummary> fifthYear { get; set; }
+    }
+
+    }

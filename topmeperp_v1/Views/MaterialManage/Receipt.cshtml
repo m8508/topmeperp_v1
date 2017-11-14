@@ -139,6 +139,15 @@
 </div>
 
 <script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        $("#CheckAll").click(function () {
+            if ($("#CheckAll").prop("checked")) {
+                $("input[name='chkItem']").prop("checked", true);
+            } else
+                $("input[name='chkItem']").prop("checked", false);
+        });
+    });
+
     function Confirm_Form() {
         var method1 = $('input[name=chkItem]:checkbox:checked').val();
         if (typeof (method1) == "undefined") { // 注意檢查完全沒有選取的寫法，這行是精華

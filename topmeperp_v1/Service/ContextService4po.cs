@@ -3661,8 +3661,8 @@ namespace topmeperp.Service
             return lstCredit;
         }
 
-        #region 公司費用預算金額
-        //公司費用預算上傳金額 
+        #region 公司費用預算
+        //公司費用預算上傳 
         public int refreshExpBudget(List<FIN_EXPENSE_BUDGET> items)
         {
             int i = 0;
@@ -3774,7 +3774,7 @@ namespace topmeperp.Service
 
         public string newExpenseForm(FIN_EXPENSE_FORM form)
         {
-            //1.建立公司營業費用單
+            //1.建立公司營業費用單/工地費用單
             logger.Info("create new expense form ");
             string sno_key = "EXP";
             SerialKeyService snoservice = new SerialKeyService();
@@ -4323,7 +4323,8 @@ namespace topmeperp.Service
         }
 
         //取得專案工地費用預算
-        public List<ExpenseBudgetSummary> getSiteBudgetByProject(string projectid)
+        #region 第1年度
+        public List<ExpenseBudgetSummary> getFirstYearBudgetByProject(string projectid)
         {
             List<ExpenseBudgetSummary> lstSiteBudget = new List<ExpenseBudgetSummary>();
             using (var context = new topmepEntities())
@@ -4338,9 +4339,79 @@ namespace topmeperp.Service
             }
             return lstSiteBudget;
         }
+        #endregion
+        #region 第2年度
+        public List<ExpenseBudgetSummary> getSecondYearBudgetByProject(string projectid)
+        {
+            List<ExpenseBudgetSummary> lstSiteBudget = new List<ExpenseBudgetSummary>();
+            using (var context = new topmepEntities())
+            {
+                lstSiteBudget = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT A.*, SUM(ISNULL(A.JAN,0))+ SUM(ISNULL(A.FEB,0))+ SUM(ISNULL(A.MAR,0)) + SUM(ISNULL(A.APR,0)) + SUM(ISNULL(A.MAY,0)) + SUM(ISNULL(A.JUN,0)) " +
+                   "+ SUM(ISNULL(A.JUL, 0)) + SUM(ISNULL(A.AUG, 0)) + SUM(ISNULL(A.SEP, 0)) + SUM(ISNULL(A.OCT, 0)) + SUM(ISNULL(A.NOV, 0)) + SUM(ISNULL(A.DEC, 0)) AS HTOTAL " +
+                   "FROM (SELECT SUBJECT_NAME, SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
+                   "FROM (SELECT eb.SUBJECT_ID, eb.BUDGET_MONTH, eb.AMOUNT, eb.BUDGET_YEAR, fs.SUBJECT_NAME FROM PLAN_SITE_BUDGET eb LEFT JOIN FIN_SUBJECT fs ON eb.SUBJECT_ID = fs.FIN_SUBJECT_ID WHERE PROJECT_ID =@projectid AND YEAR_SEQUENCE = '2') As STable " +
+                   "PIVOT (SUM(AMOUNT) FOR BUDGET_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)A " +
+                   "GROUP BY A.SUBJECT_NAME, A.SUBJECT_ID, A.JAN, A.FEB, A.MAR,A.APR, A.MAY, A.JUN, A.JUL, A.AUG, A.SEP, A.OCT, A.NOV, A.DEC ORDER BY A.SUBJECT_ID ; "
+                   , new SqlParameter("projectid", projectid)).ToList();
+            }
+            return lstSiteBudget;
+        }
+        #endregion
+        #region 第3年度
+        public List<ExpenseBudgetSummary> getThirdYearBudgetByProject(string projectid)
+        {
+            List<ExpenseBudgetSummary> lstSiteBudget = new List<ExpenseBudgetSummary>();
+            using (var context = new topmepEntities())
+            {
+                lstSiteBudget = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT A.*, SUM(ISNULL(A.JAN,0))+ SUM(ISNULL(A.FEB,0))+ SUM(ISNULL(A.MAR,0)) + SUM(ISNULL(A.APR,0)) + SUM(ISNULL(A.MAY,0)) + SUM(ISNULL(A.JUN,0)) " +
+                   "+ SUM(ISNULL(A.JUL, 0)) + SUM(ISNULL(A.AUG, 0)) + SUM(ISNULL(A.SEP, 0)) + SUM(ISNULL(A.OCT, 0)) + SUM(ISNULL(A.NOV, 0)) + SUM(ISNULL(A.DEC, 0)) AS HTOTAL " +
+                   "FROM (SELECT SUBJECT_NAME, SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
+                   "FROM (SELECT eb.SUBJECT_ID, eb.BUDGET_MONTH, eb.AMOUNT, eb.BUDGET_YEAR, fs.SUBJECT_NAME FROM PLAN_SITE_BUDGET eb LEFT JOIN FIN_SUBJECT fs ON eb.SUBJECT_ID = fs.FIN_SUBJECT_ID WHERE PROJECT_ID =@projectid AND YEAR_SEQUENCE = '3') As STable " +
+                   "PIVOT (SUM(AMOUNT) FOR BUDGET_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)A " +
+                   "GROUP BY A.SUBJECT_NAME, A.SUBJECT_ID, A.JAN, A.FEB, A.MAR,A.APR, A.MAY, A.JUN, A.JUL, A.AUG, A.SEP, A.OCT, A.NOV, A.DEC ORDER BY A.SUBJECT_ID ; "
+                   , new SqlParameter("projectid", projectid)).ToList();
+            }
+            return lstSiteBudget;
+        }
+        #endregion
+        #region 第4年度
+        public List<ExpenseBudgetSummary> getFourthYearBudgetByProject(string projectid)
+        {
+            List<ExpenseBudgetSummary> lstSiteBudget = new List<ExpenseBudgetSummary>();
+            using (var context = new topmepEntities())
+            {
+                lstSiteBudget = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT A.*, SUM(ISNULL(A.JAN,0))+ SUM(ISNULL(A.FEB,0))+ SUM(ISNULL(A.MAR,0)) + SUM(ISNULL(A.APR,0)) + SUM(ISNULL(A.MAY,0)) + SUM(ISNULL(A.JUN,0)) " +
+                   "+ SUM(ISNULL(A.JUL, 0)) + SUM(ISNULL(A.AUG, 0)) + SUM(ISNULL(A.SEP, 0)) + SUM(ISNULL(A.OCT, 0)) + SUM(ISNULL(A.NOV, 0)) + SUM(ISNULL(A.DEC, 0)) AS HTOTAL " +
+                   "FROM (SELECT SUBJECT_NAME, SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
+                   "FROM (SELECT eb.SUBJECT_ID, eb.BUDGET_MONTH, eb.AMOUNT, eb.BUDGET_YEAR, fs.SUBJECT_NAME FROM PLAN_SITE_BUDGET eb LEFT JOIN FIN_SUBJECT fs ON eb.SUBJECT_ID = fs.FIN_SUBJECT_ID WHERE PROJECT_ID =@projectid AND YEAR_SEQUENCE = '4') As STable " +
+                   "PIVOT (SUM(AMOUNT) FOR BUDGET_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)A " +
+                   "GROUP BY A.SUBJECT_NAME, A.SUBJECT_ID, A.JAN, A.FEB, A.MAR,A.APR, A.MAY, A.JUN, A.JUL, A.AUG, A.SEP, A.OCT, A.NOV, A.DEC ORDER BY A.SUBJECT_ID ; "
+                   , new SqlParameter("projectid", projectid)).ToList();
+            }
+            return lstSiteBudget;
+        }
+        #endregion
+        #region 第5年度
+        public List<ExpenseBudgetSummary> getFifthYearBudgetByProject(string projectid)
+        {
+            List<ExpenseBudgetSummary> lstSiteBudget = new List<ExpenseBudgetSummary>();
+            using (var context = new topmepEntities())
+            {
+                lstSiteBudget = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT A.*, SUM(ISNULL(A.JAN,0))+ SUM(ISNULL(A.FEB,0))+ SUM(ISNULL(A.MAR,0)) + SUM(ISNULL(A.APR,0)) + SUM(ISNULL(A.MAY,0)) + SUM(ISNULL(A.JUN,0)) " +
+                   "+ SUM(ISNULL(A.JUL, 0)) + SUM(ISNULL(A.AUG, 0)) + SUM(ISNULL(A.SEP, 0)) + SUM(ISNULL(A.OCT, 0)) + SUM(ISNULL(A.NOV, 0)) + SUM(ISNULL(A.DEC, 0)) AS HTOTAL " +
+                   "FROM (SELECT SUBJECT_NAME, SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
+                   "FROM (SELECT eb.SUBJECT_ID, eb.BUDGET_MONTH, eb.AMOUNT, eb.BUDGET_YEAR, fs.SUBJECT_NAME FROM PLAN_SITE_BUDGET eb LEFT JOIN FIN_SUBJECT fs ON eb.SUBJECT_ID = fs.FIN_SUBJECT_ID WHERE PROJECT_ID =@projectid AND YEAR_SEQUENCE = '5') As STable " +
+                   "PIVOT (SUM(AMOUNT) FOR BUDGET_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)A " +
+                   "GROUP BY A.SUBJECT_NAME, A.SUBJECT_ID, A.JAN, A.FEB, A.MAR,A.APR, A.MAY, A.JUN, A.JUL, A.AUG, A.SEP, A.OCT, A.NOV, A.DEC ORDER BY A.SUBJECT_ID ; "
+                   , new SqlParameter("projectid", projectid)).ToList();
+            }
+            return lstSiteBudget;
+        }
+        #endregion
 
         //取得專案工地費用預算之西元年
-        public int getYearOfSiteBudgetById(string prjid)
+        #region 第1年度
+        public int getFirstYearOfSiteBudgetById(string prjid)
         {
             int year = 0;
             using (var context = new topmepEntities())
@@ -4349,6 +4420,66 @@ namespace topmeperp.Service
                , new SqlParameter("pid", prjid)).FirstOrDefault();
             }
             return year;
+        }
+        #endregion
+        #region 第2年度
+        public int getSecondYearOfSiteBudgetById(string prjid)
+        {
+            int year = 0;
+            using (var context = new topmepEntities())
+            {
+                year = context.Database.SqlQuery<int>("SELECT DISTINCT BUDGET_YEAR FROM PLAN_SITE_BUDGET WHERE PROJECT_ID = @pid AND YEAR_SEQUENCE = '2' "
+               , new SqlParameter("pid", prjid)).FirstOrDefault();
+            }
+            return year;
+        }
+        #endregion
+        #region 第3年度
+        public int getThirdYearOfSiteBudgetById(string prjid)
+        {
+            int year = 0;
+            using (var context = new topmepEntities())
+            {
+                year = context.Database.SqlQuery<int>("SELECT DISTINCT BUDGET_YEAR FROM PLAN_SITE_BUDGET WHERE PROJECT_ID = @pid AND YEAR_SEQUENCE = '3' "
+               , new SqlParameter("pid", prjid)).FirstOrDefault();
+            }
+            return year;
+        }
+        #endregion
+        #region 第4年度
+        public int getFourthYearOfSiteBudgetById(string prjid)
+        {
+            int year = 0;
+            using (var context = new topmepEntities())
+            {
+                year = context.Database.SqlQuery<int>("SELECT DISTINCT BUDGET_YEAR FROM PLAN_SITE_BUDGET WHERE PROJECT_ID = @pid AND YEAR_SEQUENCE = '4' "
+               , new SqlParameter("pid", prjid)).FirstOrDefault();
+            }
+            return year;
+        }
+        #endregion
+        #region 第5年度
+        public int getFifthYearOfSiteBudgetById(string prjid)
+        {
+            int year = 0;
+            using (var context = new topmepEntities())
+            {
+                year = context.Database.SqlQuery<int>("SELECT DISTINCT BUDGET_YEAR FROM PLAN_SITE_BUDGET WHERE PROJECT_ID = @pid AND YEAR_SEQUENCE = '5' "
+               , new SqlParameter("pid", prjid)).FirstOrDefault();
+            }
+            return year;
+        }
+        #endregion
+        //取得特定專案之工地費用總預算金額
+        public ExpenseBudgetSummary getTotalSiteBudgetAmount(string projectid)
+        {
+            ExpenseBudgetSummary lstAmount = null;
+            using (var context = new topmepEntities())
+            {
+                lstAmount = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT  SUM(AMOUNT) AS TOTAL_BUDGET FROM PLAN_SITE_BUDGET WHERE PROJECT_ID = @projectid  "
+               , new SqlParameter("projectid", projectid)).FirstOrDefault();
+            }
+            return lstAmount;
         }
         #endregion
     }
