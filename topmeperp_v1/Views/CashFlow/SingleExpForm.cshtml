@@ -67,7 +67,7 @@
                     <input type="text" class="form-control" name="paymentdate" id="paymentdate" value="@Model.finEXP.PAYMENT_DATE">
                 </div>
 
-                <label for="formnumber" class="col-md-2 control-label">公司費用單編號</label>
+                <label for="formnumber" class="col-md-2 control-label">費用單編號</label>
                 <div class="col-md-4">
                     <input type="text" class="form-control" name="formnumber" id="formnumber" value="@Model.finEXP.EXP_FORM_ID" readonly="readonly">
                 </div>
@@ -89,6 +89,7 @@
                 <input type="hidden" name="createid" id="createid" value="@Model.finEXP.CREATE_ID" />
                 <input type="hidden" name="createdate" id="createdate" value="@Model.finEXP.CREATE_DATE" />
                 <input type="hidden" name="status" id="status" value="@Model.finEXP.STATUS" />
+                <input type="hidden" name="projectid" id="projectid" value="@Model.finEXP.PROJECT_ID" />
             </div>
         </div>
         <br /><br />

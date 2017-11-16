@@ -291,12 +291,12 @@ namespace topmeperp.Controllers
             return View(singleForm);
         }
 
-        //更新公司營業費用單
+        //更新費用單
         public String UpdateEXP(FormCollection form)
         {
             logger.Info("form:" + form.Count);
             string msg = "";
-            // 取得公司營業費用單資料
+            // 取得費用單資料
             FIN_EXPENSE_FORM ef = new FIN_EXPENSE_FORM();
             ef.OCCURRED_YEAR = int.Parse(form.Get("year").Trim());
             ef.OCCURRED_MONTH = int.Parse(form.Get("month").Trim());
@@ -307,6 +307,7 @@ namespace topmeperp.Controllers
             ef.STATUS = int.Parse(form.Get("status").Trim());
             ef.MODIFY_DATE = DateTime.Now;
             ef.EXP_FORM_ID = form.Get("formnumber").Trim();
+            ef.PROJECT_ID = form.Get("projectid").Trim(); 
             string[] lstSubject = form.Get("subject").Split(',');
             string[] lstRemark = form.Get("item_remark").Split(',');
             string[] lstAmount = form.Get("amount").Split(',');
@@ -335,23 +336,26 @@ namespace topmeperp.Controllers
                 logger.Debug("Subject Id =" + item.FIN_SUBJECT_ID + ", Amount =" + item.AMOUNT);
                 lstItem.Add(item);
             }
-            int i = service.refreshOperatingEXPForm(formid, ef, lstItem);
+            int i = service.refreshEXPForm(formid, ef, lstItem);
             if (i == 0)
             {
                 msg = service.message;
+            }
+            else if(form["projectid"] != null && form["projectid"] != "")
+            {
+                msg = "更新工地費用單成功";
             }
             else
             {
                 msg = "更新公司營業費用單成功";
             }
-
-            logger.Info("Request: 更新公司營業費用單訊息 = " + msg);
+            logger.Info("Request: 更新公司營業費用/工地費用單訊息 = " + msg);
             return msg;
         }
 
         public String UpdateEXPStatusById(FormCollection form)
         {
-            //取得公司營業費用單編號
+            //取得費用單編號
             logger.Info("form:" + form.Count);
             logger.Info("EXP form Id:" + form["formnumber"]);
             string msg = "";
@@ -365,6 +369,7 @@ namespace topmeperp.Controllers
             ef.STATUS = int.Parse(form.Get("status").Trim());
             ef.MODIFY_DATE = DateTime.Now;
             ef.EXP_FORM_ID = form.Get("formnumber").Trim();
+            ef.PROJECT_ID = form.Get("projectid").Trim();
             string[] lstSubject = form.Get("subject").Split(',');
             string[] lstRemark = form.Get("item_remark").Split(',');
             string[] lstAmount = form.Get("amount").Split(',');
@@ -393,14 +398,18 @@ namespace topmeperp.Controllers
                 logger.Debug("Subject Id =" + item.FIN_SUBJECT_ID + ", Amount =" + item.AMOUNT);
                 lstItem.Add(item);
             }
-            int i = service.refreshOperatingEXPForm(formid, ef, lstItem);
-            //更新公司營業費用單狀態
-            logger.Info("Update Operating Expense Form Status");
-            //公司營業費用單(已送審) STATUS = 20
+            int i = service.refreshEXPForm(formid, ef, lstItem);
+            //更新費用單狀態
+            logger.Info("Update Expense Form Status");
+            //費用單(已送審) STATUS = 20
             int k = service.RefreshEXPStatusById(formid);
             if (k == 0)
             {
                 msg = service.message;
+            }
+            else if(form["projectid"] != null && form["projectid"] != "")
+            {
+                msg = "工地費用單已送審";
             }
             else
             {
@@ -409,7 +418,7 @@ namespace topmeperp.Controllers
             return msg;
         }
 
-        //公司營業費用單查詢
+        //公司營業費用單查詢(以下尚未修改完成)
         public ActionResult OperatingExpenseForm()
         {
             logger.Info("Search For Operating Expense Form !!");

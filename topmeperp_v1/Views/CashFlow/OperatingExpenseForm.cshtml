@@ -1,6 +1,6 @@
 ﻿
 @{
-    ViewBag.Title = "公司營業費用單查詢";
+    ViewBag.Title = "公司營業費用查詢";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 
@@ -13,7 +13,7 @@
                 <input id="occurred_date" name="occurred_date" class="form-control" />
             </div>
             <div class='col-md-6 form-group' style="padding-top:10px">
-                <label for="expid">公司營業費用單編號 :</label>
+                <label for="expid">費用單編號 :</label>
                 <input id="expid" name="expid" type="text" value="" class="form-control" />
             </div>
         </div>
@@ -23,7 +23,7 @@
                 <input id="subjectname" name="subjectname" class="form-control" />
             </div>
             <div class="col-md-6 form-group" style="padding-top:10px">
-                <input type="radio" value="15" id="status" name="status" checked/>公司營業費用單(已送審)
+                <input type="radio" value="15" id="status" name="status" checked/>已送審
                 <input type="radio" value="20" id="status" name="status" />待主管簽核
                 <input type="radio" value="40" id="status" name="status" />待最後核准
                 <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
