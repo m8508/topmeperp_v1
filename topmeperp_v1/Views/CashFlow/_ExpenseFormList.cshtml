@@ -6,6 +6,10 @@
             <thead>
                 <tr>
                     <th>項次</th>
+                    @if (ViewBag.forJournal == "會計立帳")
+                    {
+                        <th>專案名稱</th>
+                    }
                     <th>費用發生年月</th>
                     <th>編號</th>
                     <th>費用項目名稱</th>
@@ -20,6 +24,17 @@
             {
                     <tr>
                         <td>@item.NO</td>
+                        @if (ViewBag.forJournal == "會計立帳")
+                        {
+                            if (item.PROJECT_ID != "")
+                            {
+                            <td>@item.PROJECT_NAME</td>
+                            }
+                            else
+                            {
+                                <td>公司營業費用</td>
+                            }
+                        }
                         <td>@item.OCCURRED_DATE</td>
                         <td><a href="/CashFlow/SingleEXPForm/@item.EXP_FORM_ID" target="_blank">@item.EXP_FORM_ID</a></td>
                         <td>@item.SUBJECT_NAME</td>
@@ -57,4 +72,3 @@
         </table>
     </div>
 </div>
-

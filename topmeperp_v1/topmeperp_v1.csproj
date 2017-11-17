@@ -937,7 +937,7 @@
     <Content Include="Views\CashFlow\OperatingExpense.cshtml" />
     <Content Include="Views\CashFlow\_SubjectList.cshtml" />
     <Content Include="Views\CashFlow\SingleExpForm.cshtml" />
-    <Content Include="Views\CashFlow\OperatingExpenseForm.cshtml" />
+    <Content Include="Views\CashFlow\ExpenseForm.cshtml" />
     <Content Include="Views\CashFlow\_ExpenseFormList.cshtml" />
     <Content Include="Views\CashFlow\FormForJournal.cshtml" />
     <Content Include="Views\CashFlow\PlanAccount.cshtml" />

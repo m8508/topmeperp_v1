@@ -3922,21 +3922,22 @@ namespace topmeperp.Service
         }
 
         //取得符合條件之公司營業費用單名單
-        public List<OperatingExpenseFunction> getEXPListByExpId(string occurreddate, string subjectname, string expid, int status)
+        public List<OperatingExpenseFunction> getEXPListByExpId(string occurreddate, string subjectname, string expid, int status, string projectid)
         {
-            logger.Info("search operating expense form by " + occurreddate + ", 公司營業費用單編號 =" + expid + ", 項目名稱 =" + subjectname + ", 估驗單狀態 =" + status);
+            logger.Info("search expense form by " + occurreddate + ", 費用單編號 =" + expid + ", 項目名稱 =" + subjectname + ", 估驗單狀態 =" + status + ", 專案編號 =" + projectid);
             List<OperatingExpenseFunction> lstForm = new List<OperatingExpenseFunction>();
             //處理SQL 預先填入專案代號,設定集合處理參數
             if (15 == status)//預設狀態(STATUS >10 AND <20, 即狀態為退件或草稿)
             {
                 string sql = "SELECT B.EXP_FORM_ID, B.PAYMENT_DATE, B.STATUS, left(B.Subjects,len(B.Subjects)-1) AS SUBJECT_NAME, " +
                     "CONVERT(char(4), B.OCCURRED_YEAR) + '/' + CONVERT(char(2), B.OCCURRED_MONTH) AS OCCURRED_DATE, ROW_NUMBER() OVER(ORDER BY B.EXP_FORM_ID) AS NO " +
-                    "FROM(SELECT ef.*,(SELECT cast( SUBJECT_NAME AS NVARCHAR ) + ',' from (SELECT ef.EXP_FORM_ID, fs.SUBJECT_NAME FROM FIN_EXPENSE_FORM ef " +
+                    "FROM(SELECT ef.*, (SELECT cast( SUBJECT_NAME AS NVARCHAR ) + ',' from (SELECT ef.EXP_FORM_ID, fs.SUBJECT_NAME FROM FIN_EXPENSE_FORM ef " +
                     "LEFT JOIN FIN_EXPENSE_ITEM ei ON ef.EXP_FORM_ID = ei.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs ON ei.FIN_SUBJECT_ID = fs.FIN_SUBJECT_ID)A " +
                     "WHERE ef.EXP_FORM_ID = A.EXP_FORM_ID FOR XML PATH('')) as Subjects FROM FIN_EXPENSE_FORM ef)B ";
 
-                sql = sql + "WHERE B.STATUS > 10 ";
+                sql = sql + "WHERE B.STATUS > 10 AND ISNULL(B.PROJECT_ID, '') =@id ";
                 var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("id", projectid));
                 // 費用發生年月條件
                 if (null != occurreddate && occurreddate != "")
                 {
@@ -3970,8 +3971,9 @@ namespace topmeperp.Service
                     "LEFT JOIN FIN_EXPENSE_ITEM ei ON ef.EXP_FORM_ID = ei.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs ON ei.FIN_SUBJECT_ID = fs.FIN_SUBJECT_ID)A " +
                     "WHERE ef.EXP_FORM_ID = A.EXP_FORM_ID FOR XML PATH('')) as Subjects FROM FIN_EXPENSE_FORM ef)B ";
 
-                sql = sql + "WHERE B.STATUS = 20 ";
+                sql = sql + "WHERE B.STATUS = 20 AND ISNULL(B.PROJECT_ID, '') =@id ";
                 var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("id", projectid));
                 // 費用發生年月條件
                 if (null != occurreddate && occurreddate != "")
                 {
@@ -3999,11 +4001,11 @@ namespace topmeperp.Service
             }
             else if (30 == status)
             {
-                string sql = "SELECT B.EXP_FORM_ID, B.PAYMENT_DATE, B.STATUS, left(B.Subjects,len(B.Subjects)-1) AS SUBJECT_NAME, " +
+                string sql = "SELECT ISNULL(B.PROJECT_ID,'公司營業費用') AS PROJECT_ID, B.PROJECT_NAME, B.EXP_FORM_ID, B.PAYMENT_DATE, B.STATUS, left(B.Subjects,len(B.Subjects)-1) AS SUBJECT_NAME, " +
                     "CONVERT(char(4), B.OCCURRED_YEAR) + '/' + CONVERT(char(2), B.OCCURRED_MONTH) AS OCCURRED_DATE, ROW_NUMBER() OVER(ORDER BY B.EXP_FORM_ID) AS NO " +
-                    "FROM(SELECT ef.*,(SELECT cast( SUBJECT_NAME AS NVARCHAR ) + ',' from (SELECT ef.EXP_FORM_ID, fs.SUBJECT_NAME FROM FIN_EXPENSE_FORM ef " +
+                    "FROM(SELECT ef.*, p.PROJECT_NAME, (SELECT cast( SUBJECT_NAME AS NVARCHAR ) + ',' from (SELECT ef.EXP_FORM_ID, fs.SUBJECT_NAME FROM FIN_EXPENSE_FORM ef " +
                     "LEFT JOIN FIN_EXPENSE_ITEM ei ON ef.EXP_FORM_ID = ei.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs ON ei.FIN_SUBJECT_ID = fs.FIN_SUBJECT_ID)A " +
-                    "WHERE ef.EXP_FORM_ID = A.EXP_FORM_ID FOR XML PATH('')) as Subjects FROM FIN_EXPENSE_FORM ef)B ";
+                    "WHERE ef.EXP_FORM_ID = A.EXP_FORM_ID FOR XML PATH('')) as Subjects FROM FIN_EXPENSE_FORM ef LEFT JOIN TND_PROJECT p ON ef.PROJECT_ID = p.PROJECT_ID)B ";
 
                 sql = sql + "WHERE B.STATUS = 30 ";
                 var parameters = new List<SqlParameter>();
@@ -4040,8 +4042,9 @@ namespace topmeperp.Service
                     "LEFT JOIN FIN_EXPENSE_ITEM ei ON ef.EXP_FORM_ID = ei.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs ON ei.FIN_SUBJECT_ID = fs.FIN_SUBJECT_ID)A " +
                     "WHERE ef.EXP_FORM_ID = A.EXP_FORM_ID FOR XML PATH('')) as Subjects FROM FIN_EXPENSE_FORM ef)B ";
 
-                sql = sql + "WHERE B.STATUS = 40 ";
+                sql = sql + "WHERE B.STATUS = 40 AND ISNULL(B.PROJECT_ID, '') =@id ";
                 var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("id", projectid));
                 // 費用發生年月條件
                 if (null != occurreddate && occurreddate != "")
                 {
@@ -4075,7 +4078,7 @@ namespace topmeperp.Service
                     "CONVERT(char(4), B.OCCURRED_YEAR) + '/' + CONVERT(char(2), B.OCCURRED_MONTH) AS OCCURRED_DATE, ROW_NUMBER() OVER(ORDER BY B.EXP_FORM_ID) AS NO " +
                     "FROM(SELECT ef.*,(SELECT cast( SUBJECT_NAME AS NVARCHAR ) + ',' from (SELECT ef.EXP_FORM_ID, fs.SUBJECT_NAME FROM FIN_EXPENSE_FORM ef " +
                     "LEFT JOIN FIN_EXPENSE_ITEM ei ON ef.EXP_FORM_ID = ei.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs ON ei.FIN_SUBJECT_ID = fs.FIN_SUBJECT_ID)A " +
-                    "WHERE ef.EXP_FORM_ID = A.EXP_FORM_ID FOR XML PATH('')) as Subjects FROM FIN_EXPENSE_FORM ef)B WHERE B.STATUS < 20 ; ").ToList();
+                    "WHERE ef.EXP_FORM_ID = A.EXP_FORM_ID FOR XML PATH('')) as Subjects FROM FIN_EXPENSE_FORM ef)B WHERE B.STATUS < 20 AND ISNULL(B.PROJECT_ID, '') =@id ", new SqlParameter("id", projectid)).ToList();
                 }
                 logger.Info("get expense form count=" + lstForm.Count);
             }

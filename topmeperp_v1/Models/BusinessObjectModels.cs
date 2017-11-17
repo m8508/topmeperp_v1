@@ -487,7 +487,8 @@ namespace topmeperp.Models
         public Int64 NO { get; set; }
         public string SUBJECT_NAME { get; set; }
         public string OCCURRED_DATE { get; set; }
-        
+        public string PROJECT_NAME { get; set; }
+
     }
     public class PlanAccountFunction : PLAN_ACCOUNT
     {

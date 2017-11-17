@@ -418,36 +418,53 @@ namespace topmeperp.Controllers
             return msg;
         }
 
-        //公司營業費用單查詢(以下尚未修改完成)
-        public ActionResult OperatingExpenseForm()
+        //費用單查詢
+        public ActionResult ExpenseForm(string id)
         {
-            logger.Info("Search For Operating Expense Form !!");
-            //公司營業費用單草稿
+            logger.Info("Search For Expense Form !!");
+            //費用單草稿
             int status = 20;
             if (Request["status"] == null || Request["status"] == "")
             {
                 status = 10;
             }
-            List<OperatingExpenseFunction> lstEXP = service.getEXPListByExpId(Request["occurred_date"], Request["subjectname"], Request["expid"], status);
+            if (id != null && id != "")
+            {
+                TND_PROJECT p = service.getProjectById(id);
+                ViewBag.projectName = p.PROJECT_NAME;
+                ViewBag.projectid = id;
+            }
+            else
+            {
+                id = "";
+                ViewBag.projectid = "";
+            }
+            List<OperatingExpenseFunction> lstEXP = service.getEXPListByExpId(Request["occurred_date"], Request["subjectname"], Request["expid"], status, id);
             return View(lstEXP);
         }
 
         public ActionResult SearchEXP()
         {
-            logger.Info("occurred_date =" + Request["occurred_date"] + ", subjectname =" + Request["subjectname"] + ", expid =" + Request["expid"] + ", status =" + int.Parse(Request["status"]));
-            List<OperatingExpenseFunction> lstEXP = service.getEXPListByExpId(Request["occurred_date"], Request["subjectname"], Request["expid"], int.Parse(Request["status"]));
+            //logger.Info("occurred_date =" + Request["occurred_date"] + "subjectname =" + Request["subjectname"] + ", expid =" + Request["expid"] + ", status =" + int.Parse(Request["status"] + ", projectid =" + Request["id"]));
+            List<OperatingExpenseFunction> lstEXP = service.getEXPListByExpId(Request["occurred_date"], Request["subjectname"], Request["expid"], int.Parse(Request["status"]), Request["id"]);
             ViewBag.SearchResult = "共取得" + lstEXP.Count + "筆資料";
-            return View("OperatingExpenseForm", lstEXP);
+            if (Request["id"] != null && Request["id"] != "")
+            {
+                TND_PROJECT p = service.getProjectById(Request["id"]);
+                ViewBag.projectName = p.PROJECT_NAME;
+                ViewBag.projectid = Request["id"];
+            }
+            return View("ExpenseForm", lstEXP);
         }
 
-        public String RejectEXPById(FormCollection form)
+        public String RejectEXPById(FormCollection form)//須設定角色來鎖定每個button的權限(目前還未處理)
         {
-            //取得公司營業費用單編號
+            //取得費用單編號
             logger.Info("EXP form Id:" + form["formnumber"]);
-            //更新公司營業費用單狀態
-            logger.Info("Reject Operating Expense Form ");
+            //更新費用單狀態
+            logger.Info("Reject Expense Form ");
             string formid = form.Get("formnumber").Trim();
-            //公司營業費用單(已退件) STATUS = 0
+            //費用單(已退件) STATUS = 0
             string msg = "";
             int i = service.RejectEXPByExpId(formid);
             if (i == 0)
@@ -456,23 +473,23 @@ namespace topmeperp.Controllers
             }
             else
             {
-                msg = "公司營業費用單已退回";
+                msg = "費用單已退回";
             }
             return msg;
         }
 
         public String PassEXPById(FormCollection form)
         {
-            //取得公司營業費用單編號
+            //取得費用單編號
             logger.Info("EXP form Id:" + form["formnumber"]);
-            //更新公司營業費用單狀態
-            logger.Info("Pass Operating Expense Form ");
+            //更新費用單狀態
+            logger.Info("Pass Expense Form ");
             string formid = form.Get("formnumber").Trim();
             UserService us = new UserService();
             SYS_USER u = (SYS_USER)Session["user"];
             SYS_USER uInfo = us.getUserInfo(u.USER_ID);
             string passid = uInfo.USER_ID;
-            //公司營業費用單(主管已通過) STATUS = 30
+            //費用單(主管已通過) STATUS = 30
             string msg = "";
             int i = service.PassEXPByExpId(formid, passid);
             if (i == 0)
@@ -481,23 +498,23 @@ namespace topmeperp.Controllers
             }
             else
             {
-                msg = "公司營業費用單已核可";
+                msg = "費用單已核可";
             }
             return msg;
         }
 
         public String JournalById(FormCollection form)
         {
-            //取得公司營業費用單編號
+            //取得費用單編號
             logger.Info("EXP form Id:" + form["formnumber"]);
-            //更新公司營業費用單狀態
+            //更新費用單狀態
             logger.Info("Journal For Operating Expense Form ");
             string formid = form.Get("formnumber").Trim();
             UserService us = new UserService();
             SYS_USER u = (SYS_USER)Session["user"];
             SYS_USER uInfo = us.getUserInfo(u.USER_ID);
             string journalid = uInfo.USER_ID;
-            //公司營業費用(已立帳) STATUS = 40
+            //費用(已立帳) STATUS = 40
             string msg = "";
             int i = service.JournalByExpId(formid, journalid);
             if (i == 0)
@@ -506,23 +523,23 @@ namespace topmeperp.Controllers
             }
             else
             {
-                msg = "公司營業費用單已核可";
+                msg = "費用單已核可";
             }
             return msg;
         }
 
         public String ApproveEXPById(FormCollection form)
         {
-            //取得公司營業費用單編號
+            //取得費用單編號
             logger.Info("EXP form Id:" + form["formnumber"]);
-            //更新公司營業費用單狀態
+            //更新費用單狀態
             logger.Info("Approve Operating Expense Form ");
             string formid = form.Get("formnumber").Trim();
             UserService us = new UserService();
             SYS_USER u = (SYS_USER)Session["user"];
             SYS_USER uInfo = us.getUserInfo(u.USER_ID);
             string approveid = uInfo.USER_ID;
-            //估驗單(已核可) STATUS = 50
+            //費用單(已核可) STATUS = 50
             string msg = "";
             int i = service.ApproveEXPByExpId(formid, approveid);
             string k = service.AddAccountByExpId(formid, approveid);
@@ -533,7 +550,7 @@ namespace topmeperp.Controllers
             }
             else
             {
-                msg = "公司營業費用單已核可";
+                msg = "費用單已核可";
             }
             return msg;
         }
@@ -595,14 +612,15 @@ namespace topmeperp.Controllers
             logger.Info("Access to Form For Journal !!");
             //公司需立帳之帳款(即會計審核)
             int status = 30;
-            List<OperatingExpenseFunction> lstEXP = service.getEXPListByExpId(Request["occurred_date"], Request["subjectname"], Request["expid"], status);
+            ViewBag.forJournal = "會計立帳"; 
+            List<OperatingExpenseFunction> lstEXP = service.getEXPListByExpId(Request["occurred_date"], Request["subjectname"], Request["expid"], status, Request["id"]);
             return View(lstEXP);
         }
 
         public ActionResult SearchForm4Journal()
         {
-            logger.Info("occurred_date =" + Request["occurred_date"] + ", subjectname =" + Request["subjectname"] + ", expid =" + Request["expid"] + ", status =" + int.Parse(Request["status"]));
-            List<OperatingExpenseFunction> lstEXP = service.getEXPListByExpId(Request["occurred_date"], Request["subjectname"], Request["expid"], int.Parse(Request["status"]));
+            logger.Info("occurred_date =" + Request["occurred_date"] + ", subjectname =" + Request["subjectname"] + ", expid =" + Request["expid"] + ", status =" + int.Parse(Request["status"]) + ", projectid =" + Request["id"]);
+            List<OperatingExpenseFunction> lstEXP = service.getEXPListByExpId(Request["occurred_date"], Request["subjectname"], Request["expid"], int.Parse(Request["status"]), Request["id"]);
             //ViewBag.SearchResult = "共取得" + lstEXP.Count + "筆資料";
             return View("FormForJournal", lstEXP);
         }

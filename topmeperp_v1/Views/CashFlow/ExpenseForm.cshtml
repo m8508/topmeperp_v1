@@ -1,12 +1,29 @@
 ﻿
 @{
-    ViewBag.Title = "公司營業費用查詢";
+    ViewBag.Title = "費用查詢";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 
 <div class="jumbotron">
-    <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
-    <form name="expSearch" id="expSearch" action="SearchEXP" method="Post" class="form-inline">
+    <form name="expSearch" id="expSearch" action="/CashFlow/SearchEXP" method="Post" class="form-inline">
+        @if (null != ViewBag.projectid && ViewBag.projectid != "")
+        {
+            <h3 style="height:20px;line-height:10px">工地費用查詢</h3>
+            <div class="row">
+                <div class="col-md-6 form-group" style="padding-top:10px">
+                    <label for="id">專案編號 :</label>
+                    <input id="projectid" name="projectid" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                </div>
+                <div class="col-md-6" style="padding-top:10px">
+                    <label for="projectName">專案名稱 :</label>
+                    <input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                </div>
+            </div>
+        }
+        else
+        {
+            <h3 style="height:20px;line-height:10px">公司營業費用查詢</h3>
+        }
         <div class="row">
             <div class='col-md-6 form-group' style="padding-top:10px">
                 <label for="occurred_date">發生年月 : </label>
@@ -23,20 +40,21 @@
                 <input id="subjectname" name="subjectname" class="form-control" />
             </div>
             <div class="col-md-6 form-group" style="padding-top:10px">
-                <input type="radio" value="15" id="status" name="status" checked/>已送審
+                <input type="radio" value="15" id="status" name="status" checked />已送審
                 <input type="radio" value="20" id="status" name="status" />待主管簽核
                 <input type="radio" value="40" id="status" name="status" />待最後核准
                 <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
             </div>
+            <input type="hidden" id="id" name="id" value="@ViewBag.projectid" />
         </div>
         <div class="row">
         </div>
-            <div class="col-md-6">
-                <div id="divProcessing">
-                    <img src="~/Content/ajax-loader.gif">
-                </div>
+        <div class="col-md-6">
+            <div id="divProcessing">
+                <img src="~/Content/ajax-loader.gif">
             </div>
-</form>
+        </div>
+    </form>
 </div>
 <!--估驗單列表區域-->
 <div class="container-fluid">
