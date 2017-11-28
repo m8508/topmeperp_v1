@@ -87,7 +87,6 @@
         </div>
         @using (Html.BeginForm("Application", "MaterialManage", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
         {
-
             <div class="row">
                 <div class="col-md-12">
                     <input type="hidden" id="projectid" name="projectid" value="@ViewBag.projectid" />
@@ -142,7 +141,6 @@
             method: "POST",
             dataType: "JSON",
             success: function (result) {
-                alert(result);
                 //更換typecode2 option
                 var $el = $('#TypeSub');
                 $el.html(' ');
