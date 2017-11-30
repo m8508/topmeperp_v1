@@ -1,4 +1,4 @@
-﻿@model IEnumerable<topmeperp.Models.PLAN_ITEM>
+﻿@model IEnumerable<topmeperp.Models.PlanItem4Map>
 
    
     <form id="formLeadTime" name="formLeadTime" action="AddLeadTime" method="post">
@@ -24,7 +24,7 @@
                     單位
                 </th>
                 <th>
-                    數量
+                    圖算數量
                 </th>
                 <th>
                     九宮格
@@ -59,7 +59,7 @@
                         @Html.DisplayFor(modelItem => item.ITEM_UNIT)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.ITEM_FORM_QUANTITY)
+                        @Html.DisplayFor(modelItem => item.MAP_QTY)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.TYPE_CODE_1)

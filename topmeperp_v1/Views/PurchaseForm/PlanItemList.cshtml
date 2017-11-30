@@ -1,4 +1,4 @@
-﻿@model IEnumerable<topmeperp.Models.PLAN_ITEM>
+﻿@model IEnumerable<topmeperp.Models.PlanItem4Map>
 @using (Html.BeginForm("Create", "PurchaseForm", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     <!--不好的方式但檔著先屆時設為Hidden-->
@@ -20,7 +20,7 @@
                 單位
             </th>
             <th>
-                數量
+                圖算數量
             </th>
             <th>
                 單價
@@ -64,7 +64,7 @@
                     @Html.DisplayFor(modelItem => item.ITEM_UNIT)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.ITEM_QUANTITY)
+                    @Html.DisplayFor(modelItem => item.MAP_QTY)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.ITEM_UNIT_PRICE)

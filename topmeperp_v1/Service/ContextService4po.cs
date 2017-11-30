@@ -396,13 +396,13 @@ namespace topmeperp.Service
 
         #region 取得得標標單項目內容
         //取得標單品項資料
-        public List<PLAN_ITEM> getPlanItem(string checkEx, string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub, string formName, string supplier, string delFlg)
+        public List<PlanItem4Map> getPlanItem(string checkEx, string projectid, string typeCode1, string typeCode2, string systemMain, string systemSub, string formName, string supplier, string delFlg)
         {
 
             logger.Info("search plan item by 九宮格 =" + typeCode1 + "search plan item by 次九宮格 =" + typeCode2 + "search plan item by 主系統 =" + systemMain + "search plan item by 次系統 =" + systemSub + "search plan item by 採購項目 =" + formName + "search plan item by 材料供應商 =" + supplier);
-            List<topmeperp.Models.PLAN_ITEM> lstItem = new List<PLAN_ITEM>();
+            List<topmeperp.Models.PlanItem4Map> lstItem = new List<PlanItem4Map>();
             //處理SQL 預先填入專案代號,設定集合處理參數
-            string sql = "SELECT * FROM PLAN_ITEM pi ";
+            string sql = "SELECT pi.*, map.QTY AS MAP_QTY FROM PLAN_ITEM pi LEFT JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID ";
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("projectid", projectid));
 
@@ -459,7 +459,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 logger.Debug("get plan item sql=" + sql);
-                lstItem = context.PLAN_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
+                lstItem = context.Database.SqlQuery<PlanItem4Map>(sql, parameters.ToArray()).ToList();
             }
             logger.Info("get plan item count=" + lstItem.Count);
             return lstItem;

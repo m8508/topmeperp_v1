@@ -151,7 +151,7 @@ namespace topmeperp.Controllers
             PurchaseFormService service = new PurchaseFormService();
             logger.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"]);
             logger.Debug("Exception check=" + Request["chkEx"]);
-            List<PLAN_ITEM> lstItems = service.getPlanItem(Request["chkEx"], Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"], Request["supplier"], Request["selDelFlag"]);
+            List<PlanItem4Map> lstItems = service.getPlanItem(Request["chkEx"], Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"], Request["supplier"], Request["selDelFlag"]);
             ViewBag.Result = "共" + lstItems.Count + "筆資料";
             //畫面上權限管理控制
             //頁面上使用ViewBag 定義開關\@ViewBag.F10005
@@ -565,7 +565,7 @@ namespace topmeperp.Controllers
 
             logger.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"] + ",formName=" + Request["formName"]);
             PurchaseFormService service = new PurchaseFormService();
-            List<topmeperp.Models.PLAN_ITEM> lstProject = service.getPlanItem(Request["chkEx"], Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"], "N");
+            List<topmeperp.Models.PlanItem4Map> lstProject = service.getPlanItem(Request["chkEx"], Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"], "N");
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             ViewBag.projectId = Request["projectid"];
             ViewBag.textCode1 = Request["textCode1"];

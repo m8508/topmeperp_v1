@@ -516,4 +516,9 @@ namespace topmeperp.Models
     {
         public string PROJECT_NAME { get; set; }
     }
+
+    public class PlanItem4Map : PLAN_ITEM
+    {
+        public Nullable<decimal> MAP_QTY { get; set; }
     }
+}
