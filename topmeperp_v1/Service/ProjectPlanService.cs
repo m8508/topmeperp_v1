@@ -213,7 +213,7 @@ namespace topmeperp.Service
             //流水號區間
             if (null != startid && "" != startid && null != endid && "" != endid)
             {
-                sql = sql + " AND CAST(SUBSTRING(P.PROJECT_ITEM_ID,8,LEN(P.PROJECT_ITEM_ID)) as INT) BETWEEN @startid AND @endid ";
+                sql = sql + " AND CAST(SUBSTRING(P.PLAN_ITEM_ID,8,LEN(P.PLAN_ITEM_ID)) as INT) BETWEEN @startid AND @endid ";
                 parameters.Add(new SqlParameter("startid", int.Parse(startid)));
                 parameters.Add(new SqlParameter("endid", int.Parse(endid)));
             }
@@ -809,18 +809,18 @@ namespace topmeperp.Service
             return i;
         }
         #endregion
-        public List<TND_PROJECT_ITEM> getItemInTask(string projectid, string prjuid)
+        public List<PLAN_ITEM> getItemInTask(string projectid, string prjuid)
         {
             logger.Info("get ItemTask Project_id=" + projectid + ",prjuid=" + prjuid);
-            List<TND_PROJECT_ITEM> lstProjectItem = new List<TND_PROJECT_ITEM>();
+            List<PLAN_ITEM> lstProjectItem = new List<PLAN_ITEM>();
             using (var context = new topmepEntities())
             {
                 try
                 {
-                    string sql = "SELECT * FROM TND_PROJECT_ITEM WHERE PROJECT_ITEM_ID IN (SELECT PROJECT_ITEM_ID FROM PLAN_TASK2MAPITEM "
+                    string sql = "SELECT * FROM TND_PLAN_ITEM WHERE PLAN_ITEM_ID IN (SELECT PROJECT_ITEM_ID FROM PLAN_TASK2MAPITEM "
                         + "WHERE PROJECT_ID=@projectid AND PRJ_UID=@prjuid);";
                     logger.Debug("sql=" + sql);
-                    lstProjectItem = context.TND_PROJECT_ITEM.SqlQuery(sql, new SqlParameter("projectid", projectid), new SqlParameter("prjuid", int.Parse(prjuid))).ToList();
+                    lstProjectItem = context.PLAN_ITEM.SqlQuery(sql, new SqlParameter("projectid", projectid), new SqlParameter("prjuid", int.Parse(prjuid))).ToList();
                 }
                 catch (Exception ex)
                 {

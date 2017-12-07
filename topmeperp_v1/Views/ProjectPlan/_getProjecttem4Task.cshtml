@@ -1,4 +1,4 @@
-﻿@model IEnumerable<topmeperp.Models.TND_PROJECT_ITEM>
+﻿@model IEnumerable<topmeperp.Models.PLAN_ITEM>
 <div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;padding-top:5px;">
     <label id="Message" class="alert-danger">@ViewBag.Message</label>
     @if (Model != null)
@@ -15,7 +15,7 @@
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td>@item.PROJECT_ITEM_ID</td>
+                        <td>@item.PLAN_ITEM_ID</td>
                         <td>@item.ITEM_ID </td>
                         <td>@Html.DisplayFor(modelItem => item.ITEM_DESC)</td>
                     </tr>

@@ -115,6 +115,11 @@
     }
     //更新TypeCodeL2
     function getTypeCode2() {
+        if ("" == $('#TypeCodeL1').val()) {
+            $('#TypeCodeL2 option').remove();
+            $('#TypeSub option').remove();
+            return;
+        }
         $.ajax({
             url: "/MaterialManage/getTypeCodeL2",
             data: { typecode1: $('#TypeCodeL1').val() },

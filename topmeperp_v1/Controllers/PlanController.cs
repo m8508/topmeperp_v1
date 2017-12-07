@@ -16,14 +16,13 @@ namespace topmeperp.Controllers
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         PlanService service = new PlanService();
 
-
         // GET: Plan
         [topmeperp.Filter.AuthFilter]
         public ActionResult Index()
         {
             List<topmeperp.Models.TND_PROJECT> lstProject = SearchProjectByName("", "專案執行");
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
-            
+
             return View(lstProject);
         }
 
@@ -307,7 +306,7 @@ namespace topmeperp.Controllers
             ViewBag.projectName = p.PROJECT_NAME;
             //取得業主合約金額
             PlanRevenue contractAmount = service.getPlanRevenueById(id);
-            ViewBag.Amount = (null == contractAmount.PLAN_REVENUE ? 0 : contractAmount.PLAN_REVENUE) ;
+            ViewBag.Amount = (null == contractAmount.PLAN_REVENUE ? 0 : contractAmount.PLAN_REVENUE);
             ViewBag.contractid = contractAmount.CONTRACT_ID;
             int i = service.addContractId4Owner(id);
             return View();
@@ -344,11 +343,11 @@ namespace topmeperp.Controllers
             BudgetDataService bs = new BudgetDataService();
             List<DirectCost> budget2 = bs.getBudget(id);
             DirectCost totalinfo = bs.getTotalCost(id);
-            ViewBag.budget = (null==totalinfo.MATERIAL_BUDGET?0: totalinfo.MATERIAL_BUDGET);
+            ViewBag.budget = (null == totalinfo.MATERIAL_BUDGET ? 0 : totalinfo.MATERIAL_BUDGET);
             ViewBag.wagebudget = (null == totalinfo.WAGE_BUDGET ? 0 : totalinfo.WAGE_BUDGET);
             ViewBag.totalbudget = (null == totalinfo.TOTAL_BUDGET ? 0 : totalinfo.TOTAL_BUDGET);
-            ViewBag.cost = (null == totalinfo.TOTAL_COST ? 0 : totalinfo.TOTAL_COST) ;
-            ViewBag.p_cost = (null == totalinfo.TOTAL_P_COST ? 0 : totalinfo.TOTAL_P_COST); 
+            ViewBag.cost = (null == totalinfo.TOTAL_COST ? 0 : totalinfo.TOTAL_COST);
+            ViewBag.p_cost = (null == totalinfo.TOTAL_P_COST ? 0 : totalinfo.TOTAL_P_COST);
             ViewBag.result = "共有" + budget2.Count + "筆資料";
             return View(budget2);
         }
@@ -576,7 +575,7 @@ namespace topmeperp.Controllers
             DirectCost totalinfo = bs.getTotalCost(Request["projectid"]);
             DirectCost iteminfo = bs.getItemBudget(Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"]);
 
-          
+
             ViewBag.budget = (null == totalinfo.MATERIAL_BUDGET ? 0 : totalinfo.MATERIAL_BUDGET);
             ViewBag.wagebudget = (null == totalinfo.WAGE_BUDGET ? 0 : totalinfo.WAGE_BUDGET);
             ViewBag.totalbudget = (null == totalinfo.TOTAL_BUDGET ? 0 : totalinfo.TOTAL_BUDGET);
@@ -627,7 +626,259 @@ namespace topmeperp.Controllers
             logger.Info("Request:PROJECT_ID =" + Request["projectId"]);
             return msg;
         }
+        //異動單管理資料
+        public ActionResult PlanItemChange()
+        {
+            string projectId = Request["projectid"];
+            TND_PROJECT p = service.getProject(projectId);
+            logger.Info("projectid=" + projectId);
+            ViewBag.projectId = p.PROJECT_ID;
+            ViewBag.projectName = p.PROJECT_NAME;
+            CostChangeService cs = new CostChangeService();
+            List<PLAN_COSTCHANGE_FORM> lstForms = cs.getChangeOrders(projectId, null);
+            return View(lstForms);
+        }
+        //建立異動單-標單品項選擇畫面
+        public ActionResult createChangeForm()
+        {
+            logger.Debug("Action:" + Request["action"]);
+            string id = Request["projectId"];
+            ViewBag.projectId = id;
+            //取得主系統資料
+            List<SelectListItem> selectMain = new List<SelectListItem>();
+            PurchaseFormService service = new PurchaseFormService();
+            foreach (string itm in service.getSystemMain(id))
+            {
+                logger.Debug("Main System=" + itm);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = itm;
+                selectI.Text = itm;
+                if (null != itm && "" != itm)
+                {
+                    selectMain.Add(selectI);
+                }
+            }
+            // selectMain.Add(empty);
+            ViewBag.SystemMain = selectMain;
+            //取得次系統資料
+            List<SelectListItem> selectSub = new List<SelectListItem>();
+            foreach (string itm in service.getSystemSub(id))
+            {
+                logger.Debug("Sub System=" + itm);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = itm;
+                selectI.Text = itm;
+                if (null != itm && "" != itm)
+                {
+                    selectSub.Add(selectI);
+                }
+            }
+            //selectSub.Add(empty);
+            ViewBag.SystemSub = selectSub;
 
-        
+            TypeManageService typeService = new TypeManageService();
+            List<REF_TYPE_MAIN> lstType1 = typeService.getTypeMainL1();
+
+            //取得九宮格
+            List<SelectListItem> selectType1 = new List<SelectListItem>();
+            for (int idx = 0; idx < lstType1.Count; idx++)
+            {
+                logger.Debug("REF_TYPE_MAIN=" + idx + "," + lstType1[idx].CODE_1_DESC);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = lstType1[idx].TYPE_CODE_1;
+                selectI.Text = lstType1[idx].CODE_1_DESC;
+                selectType1.Add(selectI);
+            }
+            ViewBag.TypeCodeL1 = selectType1;
+            return View();
+        }
+        //取得異動單相關品項選項
+        public ActionResult getMapItem4ChangeForm(FormCollection f)
+        {
+            string projectid, typeCode1, typeCode2, systemMain, systemSub, primeside, primesideName, secondside, secondsideName, mapno, buildno, devicename, mapType, strart_id, end_id;
+            ProjectPlanService planService = new ProjectPlanService();
+            ProjectPlanController.getMapItem(f, out projectid, out typeCode1, out typeCode2, out systemMain, out systemSub, out primeside, out primesideName, out secondside, out secondsideName, out mapno, out buildno, out devicename, out mapType, out strart_id, out end_id);
+            if (null == f["mapType"] || "" == f["mapType"])
+            {
+                ViewBag.Message = "至少需選擇一項施作項目!!";
+                return PartialView("_getMapItem4ChangeForm", null);
+            }
+            string[] mapTypes = mapType.Split(',');
+            for (int i = 0; i < mapTypes.Length; i++)
+            {
+                switch (mapTypes[i])
+                {
+                    case "MAP_DEVICE"://設備
+                        logger.Debug("MapType: MAP_DEVICE(設備)");
+                        //增加九宮格、次九宮格、主系統、次系統等條件
+                        planService.getMapItem(projectid, devicename, strart_id, end_id, typeCode1, typeCode2, systemMain, systemSub);
+                        break;
+                    case "MAP_PEP"://電器管線
+                        logger.Debug("MapType: MAP_PEP(電器管線)");
+                        //增加一次側名稱、二次側名稱
+                        planService.getMapPEP(projectid, mapno, buildno, primeside, primesideName, secondside, secondsideName, devicename);
+                        break;
+                    case "MAP_LCP"://弱電管線
+                        logger.Debug("MapType: MAP_LCP(弱電管線)");
+                        planService.getMapLCP(projectid, mapno, buildno, primeside, primesideName, secondside, secondsideName, devicename);
+                        break;
+                    case "TND_MAP_PLU"://給排水
+                        logger.Debug("MapType: TND_MAP_PLU(給排水)");
+                        planService.getMapPLU(projectid, mapno, buildno, primeside, primesideName, secondside, secondsideName, devicename);
+                        break;
+                    case "MAP_FP"://消防電
+                        logger.Debug("MapType: MAP_FP(消防電)");
+                        planService.getMapFP(projectid, mapno, buildno, primeside, primesideName, secondside, secondsideName, devicename);
+                        break;
+                    case "MAP_FW"://消防水
+                        planService.getMapFW(projectid, mapno, buildno, primeside, primesideName, secondside, secondsideName, devicename);
+                        logger.Debug("MapType: MAP_FW(消防水)");
+                        break;
+                    default:
+                        logger.Debug("MapType nothing!!");
+                        break;
+                }
+            }
+            ViewBag.Message = planService.resultMessage;
+            return PartialView("_getMapItem4ChangeForm", planService.viewModel);
+        }
+        //成本異動單表單
+        public ActionResult costChangeForm(string id)
+        {
+            string formId = id;
+            logger.Debug("formId=" + formId);
+            //fm3
+            CostChangeService cs = new CostChangeService();
+            cs.getChangeOrderForm(formId);
+            ViewBag.FormId = formId;
+            ViewBag.Remark = cs.form.REMARK;
+            ViewBag.projectId = cs.project.PROJECT_ID;
+            ViewBag.projectName = cs.project.PROJECT_NAME;
+            ViewBag.formStatus = cs.form.STATUS;
+            return View(cs.lstItem);
+        }
+        //建立與修改異動單
+        public string creatOrModifyChangeForm(FormCollection f)
+        {
+            SYS_USER u = (SYS_USER)Session["user"];
+            string formId = f["txtFormId"].Trim();
+            string remark = f["remark"].Trim();
+            string projectId = f["projectId"].Trim();
+            logger.Debug("projectId=" + projectId + ",formID=" + formId + ",remak=" + remark);
+            string reurnMsg = "";
+
+            PLAN_COSTCHANGE_FORM formCostChange = new PLAN_COSTCHANGE_FORM();
+            List<PLAN_COSTCHANGE_ITEM> lstItemId = new List<PLAN_COSTCHANGE_ITEM>();
+
+            if (formId != "")
+            {
+                logger.Debug("Modify Change Order:" + formId);
+                formCostChange.FORM_ID = formId;
+                formCostChange.REMARK = remark;
+                formCostChange.STATUS = f["status"];
+                formCostChange.MODIFY_DATE = DateTime.Now;
+                formCostChange.MODIFY_USER_ID = u.USER_ID;
+                logger.Debug("Item Id=" + f["uid"] + "," + f["itemdesc"]);
+                string[] itemId = f["uid"].Split(',');
+                string[] itemdesc = f["itemdesc"].Split(',');
+                string[] itemunit = f["itemunit"].Split(',');
+                string[] itemUnitPrice = f["itemUnitPrice"].Split(',');
+                string[] itemQty = f["itemQty"].Split(',');
+                string[] itemRemark = f["itemRemark"].Split(',');
+
+                for (int i = 0; i < itemId.Length; i++)
+                {
+                    PLAN_COSTCHANGE_ITEM it = new PLAN_COSTCHANGE_ITEM();
+                    it.ITEM_UID = long.Parse(itemId[i]);
+                    it.ITEM_DESC = itemdesc[i];
+                    it.ITEM_UNIT = itemunit[i];
+                    if (itemUnitPrice[i] != "")
+                    {
+                        it.ITEM_UNIT_PRICE = decimal.Parse(itemUnitPrice[i]);
+                    }
+                    if (itemQty[i] != "")
+                    {
+                        it.ITEM_QUANTITY = decimal.Parse(itemQty[i]);
+                    }
+                    it.ITEM_REMARK = itemRemark[i];
+                    if (null != f["transFlg." + itemId[i]])
+                    {
+                        it.TRANSFLAG = f["transFlg." + itemId[i]];
+                    }else
+                    {
+                        it.TRANSFLAG = "0";
+                    }
+                    logger.Debug(it.ITEM_UID + "," + it.ITEM_DESC + "," + it.ITEM_UNIT_PRICE + "," + it.ITEM_QUANTITY + "," + it.ITEM_REMARK + "," + it.TRANSFLAG);
+                    it.MODIFY_DATE = DateTime.Now;
+                    it.MODIFY_USER_ID = u.USER_ID;
+                    lstItemId.Add(it);
+                }
+                CostChangeService s = new CostChangeService();
+                reurnMsg = s.updateChangeOrder(formCostChange, lstItemId);
+            }
+            else
+            {
+                //新增異動單
+                formCostChange.PROJECT_ID = projectId;
+                formCostChange.REMARK = remark;
+                formCostChange.CREATE_DATE = DateTime.Now;
+                formCostChange.CREATE_USER_ID = u.USER_ID;
+                //設備
+                logger.Debug("MapType: MAP_DEVICE(設備):" + f["map_device"]);
+                if (null != f["map_device"])
+                {
+                    lstItemId.AddRange(getItem("map_device.", f["map_device"].Trim().Split(',')));
+                }
+                //電器管線
+                logger.Debug("MapType: MAP_PEP(電器管線):" + f["map_pep"]);
+                if (null != f["map_pep"])
+                {
+                    lstItemId.AddRange(getItem("map_pep.", f["map_pep"].Trim().Split(',')));
+                }
+                //弱電管線
+                logger.Debug("MapType: MAP_LCP(弱電管線)+" + f["map_lcp"]);
+                if (null != f["map_lcp"])
+                {
+                    lstItemId.AddRange(getItem("map_lcp.", f["map_lcp"].Trim().Split(',')));
+                }
+                //給排水
+                logger.Debug("MapType: TND_MAP_PLU(給排水):" + f["map_plu"]);
+                if (null != f["map_plu"])
+                {
+                    lstItemId.AddRange(getItem("map_plu.", f["map_plu"].Trim().Split(',')));
+                }
+                //消防電
+                logger.Debug("MapType: MAP_FP(消防電):" + f["map_fp"]);
+                if (null != f["map_fp"])
+                {
+                    lstItemId.AddRange(getItem("map_fp.", f["map_fp"].Trim().Split(',')));
+                }
+                //消防水
+                logger.Debug("MapType: MAP_FW(消防水):" + f["map_fw"]);
+                if (null != f["map_fw"])
+                {
+                    lstItemId.AddRange(getItem("map_fw.", f["map_fw"].Trim().Split(',')));
+                }
+                CostChangeService s = new CostChangeService();
+                reurnMsg = "異動單已建立!(" + s.createChangeOrder(formCostChange, lstItemId) + ")";
+            }
+            return reurnMsg;
+        }
+        //資料轉換
+        private IEnumerable<PLAN_COSTCHANGE_ITEM> getItem(string prefix, string[] aryPlanItemIds)
+        {
+            List<PLAN_COSTCHANGE_ITEM> lstItemId = new List<PLAN_COSTCHANGE_ITEM>();
+            for (int i = 0; i < aryPlanItemIds.Length; i++)
+            {
+                PLAN_COSTCHANGE_ITEM item = new PLAN_COSTCHANGE_ITEM();
+                item.PLAN_ITEM_ID = aryPlanItemIds[i];
+                logger.Debug(item.ITEM_ID + " Qty = " + Request[prefix + item.ITEM_ID]);
+                item.ITEM_QUANTITY = int.Parse(Request[prefix + item.PLAN_ITEM_ID]);
+                logger.Debug("Item_ID=" + item.ITEM_ID + ",Change Qty=" + item.ITEM_QUANTITY);
+                lstItemId.Add(item);
+            }
+            return lstItemId;
+        }
+
     }
 }

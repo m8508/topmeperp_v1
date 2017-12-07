@@ -125,55 +125,8 @@ namespace topmeperp.Controllers
         //查詢圖算資訊
         public ActionResult getMapItem4Task(FormCollection f)
         {
-            string projectid = f["projectid"].Trim();
-            log.Debug("projectid" + f["projectid"]);
-
-            string typeCode1 = null;
-            if (null != f["TypeCodeL2"])
-            {
-                typeCode1 = f["TypeCodeL2"].Trim();
-            }
-
-            string typeCode2 = null;
-            if (null != f["TypeSub"])
-            {
-                typeCode2 = f["TypeSub"].Trim();
-            }
-            string systemMain = null;
-            if (null != f["systemMain"])
-            {
-                systemMain = f["systemMain"].Trim();
-            }
-            string systemSub = null;
-            if (null != f["systemSub"])
-            {
-                 systemSub = f["systemSub"].Trim();
-            }
-
-            log.Debug("typeCode1=" + typeCode1 + ",typeCode2=" + typeCode2 + ",systemMain=" + systemMain + "systemSub=" + systemSub);
-
-            string primeside = f["primeside"];
-            log.Debug("primeside" + f["primeside"]);
-            string primesideName = f["primesideName"];
-            log.Debug("primesideName" + primesideName);
-
-            string secondside = f["secondside"];
-            log.Debug("secondside" + f["secondside"]);
-            string secondsideName = f["secondsideName"];
-            log.Debug("secondsideName" + secondsideName);
-
-
-            string mapno = f["mapno"];
-            log.Debug("mapno" + f["mapno"]);
-            string buildno = f["buildno"];
-            log.Debug("buildno" + f["buildno"]);
-            string devicename = f["devicename"];
-            log.Debug("devicename" + f["devicename"]);
-
-            string mapType = f["mapType"];
-            log.Debug("mapType" + f["mapType"]);
-            string strart_id = f["startid"];
-            string end_id = f["endid"];
+            string projectid, typeCode1, typeCode2, systemMain, systemSub, primeside, primesideName, secondside, secondsideName, mapno, buildno, devicename, mapType, strart_id, end_id;
+            getMapItem(f, out projectid, out typeCode1, out typeCode2, out systemMain, out systemSub, out primeside, out primesideName, out secondside, out secondsideName, out mapno, out buildno, out devicename, out mapType, out strart_id, out end_id);
             if (null == f["mapType"] || "" == f["mapType"])
             {
                 ViewBag.Message = "至少需選擇一項施作項目!!";
@@ -218,6 +171,60 @@ namespace topmeperp.Controllers
             ViewBag.Message = planService.resultMessage;
             return PartialView("_getMapItem4Task", planService.viewModel);
         }
+
+        public static void getMapItem(FormCollection f, out string projectid, out string typeCode1, out string typeCode2, out string systemMain, out string systemSub, out string primeside, out string primesideName, out string secondside, out string secondsideName, out string mapno, out string buildno, out string devicename, out string mapType, out string strart_id, out string end_id)
+        {
+            projectid = f["projectid"].Trim();
+            log.Debug("projectid" + f["projectid"]);
+
+            typeCode1 = null;
+            if (null != f["TypeCodeL2"])
+            {
+                typeCode1 = f["TypeCodeL2"].Trim();
+            }
+
+            typeCode2 = null;
+            if (null != f["TypeSub"])
+            {
+                typeCode2 = f["TypeSub"].Trim();
+            }
+            systemMain = null;
+            if (null != f["systemMain"])
+            {
+                systemMain = f["systemMain"].Trim();
+            }
+            systemSub = null;
+            if (null != f["systemSub"])
+            {
+                systemSub = f["systemSub"].Trim();
+            }
+
+            log.Debug("typeCode1=" + typeCode1 + ",typeCode2=" + typeCode2 + ",systemMain=" + systemMain + "systemSub=" + systemSub);
+
+            primeside = f["primeside"];
+            log.Debug("primeside" + f["primeside"]);
+            primesideName = f["primesideName"];
+            log.Debug("primesideName" + primesideName);
+
+            secondside = f["secondside"];
+            log.Debug("secondside" + f["secondside"]);
+            secondsideName = f["secondsideName"];
+            log.Debug("secondsideName" + secondsideName);
+
+
+            mapno = f["mapno"];
+            log.Debug("mapno" + f["mapno"]);
+            buildno = f["buildno"];
+            log.Debug("buildno" + f["buildno"]);
+            devicename = f["devicename"];
+            log.Debug("devicename" + f["devicename"]);
+
+            mapType = f["mapType"];
+            log.Debug("mapType" + f["mapType"]);
+            strart_id = f["startid"];
+            end_id = f["endid"];
+        }
+
         //設定任務圖算
         public string choiceMapItem(FormCollection f)
         {

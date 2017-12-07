@@ -57,6 +57,9 @@
         <AssociationConnector Association="topmepModel.FK_SYS_PRIVILEGE_SYS_ROLE" />
         <AssociationConnector Association="topmepModel.FK_SYS_USER_SYS_ROLE" />
         <EntityTypeShape EntityType="topmepModel.PLAN_ACCOUNT" Width="1.5" PointX="22.375" PointY="15.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_COSTCHANGE_FORM" Width="1.5" PointX="22.375" PointY="20.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_COSTCHANGE_ITEM" Width="1.5" PointX="24.625" PointY="20" />
+        <AssociationConnector Association="topmepModel.FK_PLAN_COS_REFERENCE_PLAN_COS" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
