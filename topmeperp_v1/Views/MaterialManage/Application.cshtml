@@ -30,10 +30,10 @@
         <input style="width: 200px" type="text" class="form-control" name="recipient" id="recipient" value="">
     </div>
     <label class="col-md-2 control-label">送貨地址 : </label>
-        <div class="col-md-10" style="padding-bottom:10px">
-            <input style="width: 2000px" type="text" class="form-control" name="location" id="location" value="">
-        </div>
-        <label class="col-md-2 control-label">注意事項 : </label>
+    <div class="col-md-10" style="padding-bottom:10px">
+        <input style="width: 2000px" type="text" class="form-control" name="location" id="location" value="">
+    </div>
+    <label class="col-md-2 control-label">注意事項 : </label>
         <div class="col-md-10" style="padding-bottom:10px">
             <input style="width: 2000px" type="text" class="form-control" name="caution" id="caution" value="">
         </div>
@@ -141,33 +141,61 @@
             return false;
         }
         var boolOver = false;
-       
+        var boolLost = false;
+        var method2 = $("input[name='chkItem']:checked").length;
+        var i = 0;
+
         $('table > tbody > tr').each(function () {
             var map = 0;
             var need = 0;
             var cumulative = 0;
             map = parseInt($.trim($(this).find("#map_qty").val())); //抓取每筆記錄圖算數量的值
             need = parseInt($.trim($(this).find("#need_qty").val()));//抓取每筆記錄申購數量的值
+            if (need >= 0)
+            { i = i + 1 }
             cumulative_qty = parseInt($.trim($(this).find("#cumulative_qty").val()));//抓取每筆記錄累計採購數量的值
-                
             if (parseInt(need) + parseInt(cumulative) > parseInt(map)) {
                 boolOver = true;
             }
-            
         });
+        if (i != method2) {
+            boolLost = true;
+        }
+
+        if (boolLost == true) {
+            alert("勾選的項目沒有填寫申購數量，請重新確認後再進行申購!");
+            return false;
+        }
+
         if (boolOver == true) {
             var r = confirm("總申購量大於圖算數量，請確認您要申購的數量，送出後申購單就無法再修改！");
             if (r != true) return false;
         }
+
     }
 
     function Confirm_Form2() {
         var method1 = $('input[name=chkItem]:checkbox:checked').val();
-        var map = $('input[name=map_qty]').val();
-        var need = $("#need_qty").val();
-        var cumulative = $('input[name=cumulative_qty]').val();
+        var method2 = $("input[name='chkItem']:checked").length;
+
         if (typeof (method1) == "undefined") { // 注意檢查完全沒有選取的寫法，這行是精華
             alert("沒有選取要申購的物料，請勾選並檢查數量是否正確！");
+            return false;
+        }
+        var boolLost = false;
+        var i = 0;
+
+        $('table > tbody > tr').each(function () {
+            need = parseInt($.trim($(this).find("#need_qty").val()));//抓取每筆記錄申購數量的值
+            if (need >= 0)
+            { i = i + 1 }
+        });
+        if (i != method2) {
+            boolLost = true;
+        }
+
+        if (boolLost == true) {
+            alert("勾選的項目沒有填寫申購數量，請重新確認後再進行申購!");
             return false;
         }
     }

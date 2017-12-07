@@ -29,7 +29,7 @@
         </div>
     </div>
 </div>
-<!--供應商基本資料區域-->
+<!--財務科目基本資料區域-->
 <div class="container-fluid">
     @ViewBag.SearchResult
     @if (null != Model)
@@ -90,6 +90,7 @@
                 $('#formSubject #categorys').val(data.CATEGORY);
                 $('#subjectItem').modal('show'); // show bootstrap modal when complete loaded
                 $('#subjectid4new').hide();
+                $('#subjectid4now').show();
                 //$('.modal-title').text('編輯設定資料'); // Set title to Bootstrap modal title
             },
             error: function (jqXHR, textStatus, errorThrown) {

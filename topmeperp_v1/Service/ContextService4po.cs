@@ -1972,13 +1972,13 @@ namespace topmeperp.Service
         }
 
         //取得申購單
-        public void getPRByPrId(string prid)
+        public void getPRByPrId(string prid, string parentId)
         {
             logger.Info("get form : formid=" + prid);
             using (var context = new topmepEntities())
             {
                 //取得申購單檔頭資訊
-                string sql = "SELECT PR_ID, PROJECT_ID, RECIPIENT, LOCATION, PRJ_UID, CREATE_USER_ID, CREATE_DATE, REMARK, SUPPLIER_ID, MODIFY_DATE, PARENT_PR_ID, STATUS FROM " +
+                string sql = "SELECT PR_ID, PROJECT_ID, RECIPIENT, LOCATION, PRJ_UID, CREATE_USER_ID, CREATE_DATE, REMARK, SUPPLIER_ID, MODIFY_DATE, PARENT_PR_ID, STATUS, MEMO, MESSAGE FROM " +
                     "PLAN_PURCHASE_REQUISITION WHERE PR_ID =@prid ";
                 formPR = context.PLAN_PURCHASE_REQUISITION.SqlQuery(sql, new SqlParameter("prid", prid)).First();
                 //取得申購單明細
@@ -1986,9 +1986,10 @@ namespace topmeperp.Service
                     "B.CUMULATIVE_QTY, C.ALL_RECEIPT_QTY, C.ALL_RECEIPT_QTY - D.DELIVERY_QTY AS INVENTORY_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_ITEM pi ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN TND_MAP_DEVICE md " +
                     "ON pi.PLAN_ITEM_ID = md.PROJECT_ITEM_ID LEFT JOIN (SELECT pri.PLAN_ITEM_ID, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY " +
                     "FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE PR_ID LIKE 'PPO%' GROUP BY pri.PLAN_ITEM_ID)B ON pri.PLAN_ITEM_ID = B.PLAN_ITEM_ID " +
-                    "LEFT JOIN(SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS ALL_RECEIPT_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE PR_ID LIKE 'RP%' GROUP BY " +
+                    "LEFT JOIN(SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS ALL_RECEIPT_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION ppr " +
+                    "ON pri.PR_ID = ppr.PR_ID WHERE ppr.PARENT_PR_ID =@parentId GROUP BY " +
                     "pri.PLAN_ITEM_ID)C ON pri.PLAN_ITEM_ID = C.PLAN_ITEM_ID LEFT JOIN (SELECT pid.PLAN_ITEM_ID, SUM(pid.DELIVERY_QTY) AS DELIVERY_QTY FROM PLAN_ITEM_DELIVERY pid " +
-                    "GROUP BY pid.PLAN_ITEM_ID)D ON pri.PLAN_ITEM_ID = D.PLAN_ITEM_ID WHERE PR_ID =@prid", new SqlParameter("prid", prid)).ToList();
+                    "GROUP BY pid.PLAN_ITEM_ID)D ON pri.PLAN_ITEM_ID = D.PLAN_ITEM_ID WHERE PR_ID =@prid", new SqlParameter("prid", prid), new SqlParameter("parentId", parentId)).ToList();
 
                 logger.Debug("get purchase requisition item count:" + PRItem.Count);
             }
@@ -2106,7 +2107,7 @@ namespace topmeperp.Service
         }
 
         // 寫入採購內容
-        public string newPO(string projectid, PLAN_PURCHASE_REQUISITION form, string[] lstItemId)
+        public string newPO(string projectid, PLAN_PURCHASE_REQUISITION form, string[] lstItemId, string parentid)
         {
             //1.建立採購單
             logger.Info("create new purchase order ");
@@ -2137,7 +2138,7 @@ namespace topmeperp.Service
 
                 string sql = "INSERT INTO PLAN_PURCHASE_REQUISITION_ITEM (PR_ID, PLAN_ITEM_ID, NEED_QTY, NEED_DATE, REMARK) "
                 + "SELECT '" + form.PR_ID + "' as PR_ID, A.PLAN_ITEM_ID as PLAN_ITEM_ID, A.NEED_QTY as NEED_QTY, A.NEED_DATE as NEED_DATE, A.REMARK as REMARK  "
-                + "FROM (SELECT pri.* FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE pri.PR_ITEM_ID IN (" + ItemId + "))A ";
+                + "FROM (SELECT pri.* FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE pri.PR_ID = '" + parentid + "' AND pri.PLAN_ITEM_ID IN (" + ItemId + "))A ";
                 logger.Info("sql =" + sql);
                 var parameters = new List<SqlParameter>();
                 i = context.Database.ExecuteSqlCommand(sql);
@@ -2282,9 +2283,25 @@ namespace topmeperp.Service
             }
             return i;
         }
-
+        //更新採購單memo
+        public int changeMemo(string formid, string memo)
+        {
+            int i = 0;
+            logger.Info("Update PO memo, it's formid=" + formid + ", memo =" + memo);
+            db = new topmepEntities();
+            string sql = "UPDATE PLAN_PURCHASE_REQUISITION SET MEMO=@memo, MODIFY_DATE =@datetime  WHERE PR_ID=@formid ";
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("memo", memo));
+            parameters.Add(new SqlParameter("formid", formid));
+            parameters.Add(new SqlParameter("datetime", DateTime.Now));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            db = null;
+            logger.Debug("Update PO memo :" + i);
+            return i;
+        }
         // 寫入驗收內容
-        public string newRP(string projectid, PLAN_PURCHASE_REQUISITION form, string[] lstItemId)
+        public string newRP(string projectid, PLAN_PURCHASE_REQUISITION form, string[] lstItemId, string parentid)
         {
             //1.建立驗收資料
             logger.Info("create new receipt ");
@@ -2315,7 +2332,7 @@ namespace topmeperp.Service
 
                 string sql = "INSERT INTO PLAN_PURCHASE_REQUISITION_ITEM (PR_ID, PLAN_ITEM_ID, NEED_QTY, NEED_DATE, REMARK, ORDER_QTY) "
                 + "SELECT '" + form.PR_ID + "' as PR_ID, A.PLAN_ITEM_ID as PLAN_ITEM_ID, A.NEED_QTY as NEED_QTY, A.NEED_DATE as NEED_DATE, A.REMARK as REMARK, A.ORDER_QTY as ORDER_QTY  "
-                + "FROM (SELECT pri.* FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE pri.PR_ITEM_ID IN (" + ItemId + "))A ";
+                + "FROM (SELECT pri.* FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE pri.PR_ID = '" + parentid + "' AND pri.PLAN_ITEM_ID IN (" + ItemId + "))A ";
                 logger.Info("sql =" + sql);
                 var parameters = new List<SqlParameter>();
                 i = context.Database.ExecuteSqlCommand(sql);
@@ -2428,7 +2445,7 @@ namespace topmeperp.Service
             logger.Info("search purchase receipt by 採購單編號 =" + prid);
             List<PRFunction> lstForm = new List<PRFunction>();
             //處理SQL 預先填入專案代號,設定集合處理參數
-            string sql = "SELECT CONVERT(char(10), CREATE_DATE, 111) AS CREATE_DATE, PR_ID, SUPPLIER_ID, PARENT_PR_ID, ROW_NUMBER() OVER(ORDER BY PR_ID) AS NO " +
+            string sql = "SELECT CONVERT(char(10), CREATE_DATE, 111) AS CREATE_DATE, PR_ID, SUPPLIER_ID, PR_ID + '-' + PARENT_PR_ID AS ALL_KEY, ROW_NUMBER() OVER(ORDER BY PR_ID) AS NO " +
                 "FROM PLAN_PURCHASE_REQUISITION WHERE SUPPLIER_ID IS NOT NULL AND PARENT_PR_ID =@prid AND PR_ID LIKE 'RP%' ";
 
             var parameters = new List<SqlParameter>();

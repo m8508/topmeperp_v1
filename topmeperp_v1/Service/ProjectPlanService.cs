@@ -213,7 +213,7 @@ namespace topmeperp.Service
             //流水號區間
             if (null != startid && "" != startid && null != endid && "" != endid)
             {
-                sql = sql + " AND CAST(SUBSTRING(P.PROJECT_ITEM_ID,8,LEN(P.PROJECT_ITEM_ID)) as INT) BETWEEN @startid AND @endid ";
+                sql = sql + " AND CAST(SUBSTRING(P.PLAN_ITEM_ID,8,LEN(P.PLAN_ITEM_ID)) as INT) BETWEEN @startid AND @endid ";
                 parameters.Add(new SqlParameter("startid", int.Parse(startid)));
                 parameters.Add(new SqlParameter("endid", int.Parse(endid)));
             }

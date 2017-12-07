@@ -26,5 +26,7 @@ namespace topmeperp.Models
         public string PARENT_PR_ID { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
         public Nullable<int> STATUS { get; set; }
+        public string MEMO { get; set; }
+        public string MESSAGE { get; set; }
     }
 }

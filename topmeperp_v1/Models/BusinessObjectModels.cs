@@ -321,6 +321,8 @@ namespace topmeperp.Models
         public string PR_ID { get; set; }
         public string SUPPLIER_ID { get; set; }
         public Int32 STATUS { get; set; }
+        public string ALL_KEY { get; set; }
+        
     }
     public class PurchaseRequisitionDetail
     {

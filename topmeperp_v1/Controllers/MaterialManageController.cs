@@ -125,7 +125,7 @@ namespace topmeperp.Controllers
                 log.Debug("REF_TYPE_MAIN=" + idx + "," + lstType1[idx].TYPE_DESC);
                 if (idx == lstType1.Count - 1)
                 {
-                    strOpt = strOpt +"\""+ itm.TYPE_CODE_1 + itm.TYPE_CODE_2 + "\":\"" + itm.TYPE_DESC + "\"}";
+                    strOpt = strOpt + "\"" + itm.TYPE_CODE_1 + itm.TYPE_CODE_2 + "\":\"" + itm.TYPE_DESC + "\"}";
                 }
                 else
                 {
@@ -309,9 +309,29 @@ namespace topmeperp.Controllers
             {
                 log.Info("item_list return No.:" + lstItemId[i]);
             }
-            string[] lstQty = Request["need_qty"].Split(',');
-            string[] lstDate = Request["Date_${index}"].Split(',');
-            string[] lstRemark = Request["remark"].Split(',');
+            string[] Qty = Request["need_qty"].Split(',');
+            string[] Date = Request["Date_${index}"].Split(',');
+            string[] Remark = Request["remark"].Split(',');
+            List<string> lstQty = new List<string>();
+            List<string> lstDate = new List<string>();
+            List<string> lstRemark = new List<string>();
+            var m = 0;
+            for (m = 0; m < Qty.Count(); m++)
+            {
+                if (Qty[m] != "" && null != Qty[m])
+                {
+                    lstQty.Add(Qty[m]);
+                }
+                if (Qty[m] != "" && null != Qty[m])
+                {
+                    lstDate.Add(Date[m]);
+                }
+                if (Qty[m] != "" && null != Qty[m])
+                {
+                    lstRemark.Add(Remark[m]);
+                }
+            }
+
             //建立申購單
             log.Info("create new Purchase Requisition");
             UserService us = new UserService();
@@ -331,14 +351,7 @@ namespace topmeperp.Controllers
             {
                 PLAN_PURCHASE_REQUISITION_ITEM items = new PLAN_PURCHASE_REQUISITION_ITEM();
                 items.PLAN_ITEM_ID = lstItemId[j];
-                if (lstQty[j].ToString() == "")
-                {
-                    items.NEED_QTY = null;
-                }
-                else
-                {
-                    items.NEED_QTY = decimal.Parse(lstQty[j]);
-                }
+                items.NEED_QTY = decimal.Parse(lstQty[j]);
                 try
                 {
                     items.NEED_DATE = Convert.ToDateTime(lstDate[j]);
@@ -372,9 +385,28 @@ namespace topmeperp.Controllers
             {
                 log.Info("item_list return No.:" + lstItemId[i]);
             }
-            string[] lstQty = Request["need_qty"].Split(',');
-            string[] lstDate = Request["Date_${index}"].Split(',');
-            string[] lstRemark = Request["remark"].Split(',');
+            string[] Qty = Request["need_qty"].Split(',');
+            string[] Date = Request["Date_${index}"].Split(',');
+            string[] Remark = Request["remark"].Split(',');
+            List<string> lstQty = new List<string>();
+            List<string> lstDate = new List<string>();
+            List<string> lstRemark = new List<string>();
+            var m = 0;
+            for (m = 0; m < Qty.Count(); m++)
+            {
+                if (Qty[m] != "" && null != Qty[m])
+                {
+                    lstQty.Add(Qty[m]);
+                }
+                if (Qty[m] != "" && null != Qty[m])
+                {
+                    lstDate.Add(Date[m]);
+                }
+                if (Qty[m] != "" && null != Qty[m])
+                {
+                    lstRemark.Add(Remark[m]);
+                }
+            }
             //建立申購單
             log.Info("create new Purchase Requisition");
             UserService us = new UserService();
@@ -387,7 +419,7 @@ namespace topmeperp.Controllers
             pr.LOCATION = Request["location"];
             pr.REMARK = Request["caution"];
             pr.STATUS = 0; //表示申購單未送出，只是存檔而已
-            pr.PRJ_UID = int.Parse(Request["prj_uid"]);
+            //pr.PRJ_UID = int.Parse(Request["prj_uid"]);
             PLAN_PURCHASE_REQUISITION_ITEM item = new PLAN_PURCHASE_REQUISITION_ITEM();
             string prid = service.newPR(Request["id"], pr, lstItemId);
             List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem = new List<PLAN_PURCHASE_REQUISITION_ITEM>();
@@ -395,14 +427,7 @@ namespace topmeperp.Controllers
             {
                 PLAN_PURCHASE_REQUISITION_ITEM items = new PLAN_PURCHASE_REQUISITION_ITEM();
                 items.PLAN_ITEM_ID = lstItemId[j];
-                if (lstQty[j].ToString() == "")
-                {
-                    items.NEED_QTY = null;
-                }
-                else
-                {
-                    items.NEED_QTY = decimal.Parse(lstQty[j]);
-                }
+                items.NEED_QTY = decimal.Parse(lstQty[j]);
                 try
                 {
                     items.NEED_DATE = Convert.ToDateTime(lstDate[j]);
@@ -451,7 +476,8 @@ namespace topmeperp.Controllers
         {
             log.Info("http get mehtod:" + id);
             PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
-            service.getPRByPrId(id);
+            string parentId = ""; 
+            service.getPRByPrId(id, parentId);
             singleForm.planPR = service.formPR;
             singleForm.planPRItem = service.PRItem;
             singleForm.prj = service.getProjectById(singleForm.planPR.PROJECT_ID);
@@ -468,7 +494,7 @@ namespace topmeperp.Controllers
             PLAN_PURCHASE_REQUISITION pr = new PLAN_PURCHASE_REQUISITION();
             SYS_USER loginUser = (SYS_USER)Session["user"];
             pr.PROJECT_ID = form.Get("projectid").Trim();
-            pr.PRJ_UID = int.Parse(form.Get("prjuid").Trim());
+            //pr.PRJ_UID = int.Parse(form.Get("prjuid").Trim());
             pr.STATUS = int.Parse(form.Get("status").Trim());
             pr.PR_ID = form.Get("pr_id").Trim();
             pr.RECIPIENT = form.Get("recipient").Trim();
@@ -530,7 +556,7 @@ namespace topmeperp.Controllers
             PLAN_PURCHASE_REQUISITION pr = new PLAN_PURCHASE_REQUISITION();
             SYS_USER loginUser = (SYS_USER)Session["user"];
             pr.PROJECT_ID = form.Get("projectid").Trim();
-            pr.PRJ_UID = int.Parse(form.Get("prjuid").Trim());
+            //pr.PRJ_UID = int.Parse(form.Get("prjuid").Trim());
             pr.STATUS = 10;
             pr.PR_ID = form.Get("pr_id").Trim();
             pr.RECIPIENT = form.Get("recipient").Trim();
@@ -609,7 +635,7 @@ namespace topmeperp.Controllers
             ViewBag.parentPrId = allKey[1];
             ViewBag.OrderDate = DateTime.Now;
             PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
-            service.getPRByPrId(ViewBag.parentPrId);
+            service.getPRByPrId(ViewBag.parentPrId, ViewBag.parentPrId);
             singleForm.planPR = service.formPR;
             ViewBag.recipient = singleForm.planPR.RECIPIENT;
             ViewBag.location = singleForm.planPR.LOCATION;
@@ -633,8 +659,22 @@ namespace topmeperp.Controllers
             {
                 log.Info("item_list return No.:" + lstItemId[i]);
             }
-            string[] lstQty = Request["order_qty"].Split(',');
-            string[] lstPlanItemId = Request["planitemid"].Split(',');
+            string[] Qty = Request["order_qty"].Split(',');
+            //string[] PlanItemId = Request["planitemid"].Split(',');
+            List<string> lstQty = new List<string>();
+            //List<string> lstPlanItemId = new List<string>();
+            var m = 0;
+            for (m = 0; m < Qty.Count(); m++)
+            {
+                if (Qty[m] != "" && null != Qty[m])
+                {
+                    lstQty.Add(Qty[m]);
+                }
+                //if (Qty[m] != "" && null != Qty[m])
+                //{
+                    //lstPlanItemId.Add(PlanItemId[m]);
+                //}
+            }
             //建立採購單
             log.Info("create new Purchase Order");
             UserService us = new UserService();
@@ -649,21 +689,16 @@ namespace topmeperp.Controllers
             pr.SUPPLIER_ID = Request["supplier"];
             pr.PARENT_PR_ID = Request["parent_pr_id"];
             pr.STATUS = 20;
+            pr.MEMO = Request["memo"];
+            pr.MESSAGE = Request["message"];
             PLAN_PURCHASE_REQUISITION_ITEM item = new PLAN_PURCHASE_REQUISITION_ITEM();
-            string prid = service.newPO(Request["id"], pr, lstItemId);
+            string prid = service.newPO(Request["id"], pr, lstItemId, Request["parent_pr_id"]);
             List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem = new List<PLAN_PURCHASE_REQUISITION_ITEM>();
             for (int j = 0; j < lstItemId.Count(); j++)
             {
                 PLAN_PURCHASE_REQUISITION_ITEM items = new PLAN_PURCHASE_REQUISITION_ITEM();
-                items.PLAN_ITEM_ID = lstPlanItemId[j];
-                if (lstQty[j].ToString() == "")
-                {
-                    items.ORDER_QTY = null;
-                }
-                else
-                {
-                    items.ORDER_QTY = decimal.Parse(lstQty[j]);
-                }
+                items.PLAN_ITEM_ID = lstItemId[j];
+                items.ORDER_QTY = decimal.Parse(lstQty[j]);
                 log.Debug("Item No=" + items.PLAN_ITEM_ID + ", Qty =" + items.ORDER_QTY);
                 lstItem.Add(items);
             }
@@ -698,7 +733,8 @@ namespace topmeperp.Controllers
         {
             log.Info("http get mehtod:" + id);
             PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
-            service.getPRByPrId(id);
+            string parentId = "";
+            service.getPRByPrId(id, parentId);
             singleForm.planPR = service.formPR;
             singleForm.planPRItem = service.PRItem;
             ViewBag.orderDate = singleForm.planPR.CREATE_DATE.Value.ToString("yyyy/MM/dd");
@@ -726,6 +762,8 @@ namespace topmeperp.Controllers
             pr.STATUS = int.Parse(form.Get("status").Trim());
             pr.CREATE_USER_ID = loginUser.USER_ID;
             pr.MODIFY_DATE = DateTime.Now;
+            pr.MEMO = form.Get("memo").Trim();
+            pr.MESSAGE = form.Get("message").Trim();
             try
             {
                 pr.CREATE_DATE = Convert.ToDateTime(form.Get("order_date"));
@@ -767,12 +805,20 @@ namespace topmeperp.Controllers
             log.Info("Request: PR_ID = " + formid + " 供應商名稱=" + form["supplier"]);
             return msg;
         }
+
+        //更新採購單備忘錄
+        public string RefreshMemo(FormCollection form)
+        {
+            log.Info("formid=" + form["pr_id"]);
+            int i = service.changeMemo(form["pr_id"], form["memo"]);
+            return "更新成功!!";
+        }
         //驗收作業
         public ActionResult Receipt(string id)
         {
             log.Info("http get mehtod:" + id);
             PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
-            service.getPRByPrId(id);
+            service.getPRByPrId(id, id);
             singleForm.planPR = service.formPR;
             singleForm.planPRItem = service.PRItem;
             ViewBag.receiptDate = DateTime.Now.ToString("yyyy/MM/dd");
@@ -796,8 +842,22 @@ namespace topmeperp.Controllers
             {
                 log.Info("item_list return No.:" + lstItemId[i]);
             }
-            string[] lstQty = Request["receipt_qty"].Split(',');
-            string[] lstPlanItemId = Request["planitemid"].Split(',');
+            string[] Qty = Request["receipt_qty"].Split(',');
+            //string[] PlanItemId = Request["planitemid"].Split(',');
+            List<string> lstQty = new List<string>();
+            //List<string> lstPlanItemId = new List<string>();
+            var m = 0;
+            for (m = 0; m < Qty.Count(); m++)
+            {
+                if (Qty[m] != "" && null != Qty[m])
+                {
+                    lstQty.Add(Qty[m]);
+                }
+                //if (Qty[m] != "" && null != Qty[m])
+                //{
+                    //lstPlanItemId.Add(PlanItemId[m]);
+                //}
+            }
             //建立驗收單
             log.Info("create new Receipt");
             UserService us = new UserService();
@@ -812,34 +872,33 @@ namespace topmeperp.Controllers
             pr.SUPPLIER_ID = Request["supplier"];
             pr.PARENT_PR_ID = Request["pr_id"];
             pr.STATUS = 30;
+            pr.MEMO = Request["memo"];
+            pr.MESSAGE = Request["message"];
             PLAN_PURCHASE_REQUISITION_ITEM item = new PLAN_PURCHASE_REQUISITION_ITEM();
-            string prid = service.newRP(Request["projectid"], pr, lstItemId);
+            string prid = service.newRP(Request["projectid"], pr, lstItemId, Request["pr_id"]);
+            string allKey = prid + '-' + Request["pr_id"];
             List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem = new List<PLAN_PURCHASE_REQUISITION_ITEM>();
             for (int j = 0; j < lstItemId.Count(); j++)
             {
                 PLAN_PURCHASE_REQUISITION_ITEM items = new PLAN_PURCHASE_REQUISITION_ITEM();
-                items.PLAN_ITEM_ID = lstPlanItemId[j];
-                if (lstQty[j].ToString() == "")
-                {
-                    items.RECEIPT_QTY = null;
-                }
-                else
-                {
-                    items.RECEIPT_QTY = decimal.Parse(lstQty[j]);
-                }
+                items.PLAN_ITEM_ID = lstItemId[j];
+                items.RECEIPT_QTY = decimal.Parse(lstQty[j]);
                 log.Debug("Item No=" + items.PLAN_ITEM_ID + ", Qty =" + items.RECEIPT_QTY);
                 lstItem.Add(items);
             }
             int k = service.refreshRP(prid, pr, lstItem);
-            return Redirect("SingleRP?id=" + prid);
+            return Redirect("SingleRP?id=" + allKey);
         }
 
         //顯示單一驗收單功能
         public ActionResult SingleRP(string id)
         {
             log.Info("http get mehtod:" + id);
+            string[] allKey = id.Split('-');
+            string parentId = allKey[1];
+            string prId = allKey[0];
             PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
-            service.getPRByPrId(id);
+            service.getPRByPrId(prId, parentId);
             singleForm.planPR = service.formPR;
             singleForm.planPRItem = service.PRItem;
             ViewBag.receiptDate = singleForm.planPR.CREATE_DATE.Value.ToString("yyyy/MM/dd");
@@ -865,6 +924,7 @@ namespace topmeperp.Controllers
             pr.STATUS = int.Parse(form.Get("status").Trim());
             pr.CREATE_USER_ID = loginUser.USER_ID;
             pr.MODIFY_DATE = DateTime.Now;
+            pr.MEMO = form.Get("memo").Trim();
             try
             {
                 pr.CREATE_DATE = Convert.ToDateTime(form.Get("receipt_date"));

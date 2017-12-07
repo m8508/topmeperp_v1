@@ -5,7 +5,7 @@
 }
 
 <div class="page-header">
-    <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "MaterialManage")'" value="回上一頁">
+    <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "PurchaseForm")'" value="回上一頁">
     <form id="formPO" name="formPO" action="RefreshPO" method="post">
         <div class="row">
             <div class="col-md-8"><h3 style="height:30px;line-height:20px" class="text-center">協成水電工程事業有限公司-採購單</h3></div>
@@ -118,18 +118,31 @@
                         </tr>
                     }
                 </tbody>
-</table>
+            </table>
+        </div>
+        <div class="col-md-12" style="padding-bottom:30px;">
+            <div class="col-md-6">
+                其他需求:<textarea class="form-control" rows="5" id="message" name="message">@Model.planPR.MESSAGE</textarea>
+            </div>
+            <div class="col-md-6">
+                備忘錄:<textarea class="form-control" rows="5" id="memo" name="memo" style="color: red; font-size: 15px; background-color:Highlight">@Model.planPR.MEMO</textarea>
+            </div>
         </div>
     </form>
+
 </div>
+
 <div class="row">
     <div class="" col-md-12">
-       
+
         @if (@ViewBag.prId == null || @ViewBag.prId == "")
         {
             <input type="button" value="修改" class="btn btn-default" id="updatePO" />
         }
-       
+        else
+        {
+            <input type="button" value="更新備忘錄" class="btn btn-default" id="updateMemo" />
+        }
     </div>
 </div>
 
@@ -145,7 +158,7 @@
             if (parseInt(need) != parseInt(order)) {
                 boolOver = true;
             }
-            
+
         });
         if (boolOver == true) {
             var r = confirm("採購量不等於申購數量，請再次確認您要採購的數量！");
@@ -166,6 +179,21 @@
         });
     });
 
-</script>
+    $("#updateMemo").click(function () {
+        $.ajax({
+            url: '@Url.Action("RefreshMemo", "MaterialManage")',
+            data: $('#formPO').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (result) {
+                alert(result);
+                window.location.reload()
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    });
 
+</script>
 

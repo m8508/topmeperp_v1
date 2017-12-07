@@ -1,0 +1,92 @@
+﻿@model topmeperp.Models.PurchaseRequisitionDetail
+@{
+    ViewBag.Title = "專案執行-領料單 ";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+
+<div class="page-header">
+    <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "MaterialManage")'" value="回上一頁">
+    <form id="formDO" name="formDO" action="RefreshDO" method="post">
+        <div class="row">
+            <div class="col-md-8"><h3 style="height:30px;line-height:20px" class="text-center">協成水電工程事業有限公司-領料單</h3></div>
+        </div>
+        <!-- Reg-Form new { enctype = "multipart/form-data" } -->
+        <div class="row">
+            <div class="col-md-6" style="padding-bottom:10px">
+                <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@Model.prj.PROJECT_NAME" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            </div>
+            <div class="col-md-6" style="padding-bottom:30px">
+                <label for="receipt_date">領收日期:</label><input id="receipt_date" name="receipt_date" type="text" value="@ViewBag.receiptDate" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            </div>
+
+            <div class="col-md-6" style="padding-bottom:30px">
+                <label for="pr_id">領料單號:</label><input id="pr_id" name="pr_id" type="text" value="@Model.planPR.PR_ID" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            </div>
+            <div class="col-md-6" style="padding-bottom:30px">
+                <label for="recipient">領收人:</label><input id="recipient" name="recipient" type="text" value="" class="form-control" />
+            </div>
+
+            <input type="hidden" name="projectid" id="projectid" value="@Model.planPR.PROJECT_ID">
+            <input type="hidden" name="parent_pr_id" id="parent_pr_id" value="@Model.planPR.PARENT_PR_ID">
+            <input type="hidden" name="status" id="status" value="@Model.planPR.STATUS">
+        </div>
+
+        <div class="contailer" style="page-break-before: always">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            No.
+                        </th>
+                        <th>
+                            項次
+                        </th>
+                        <th>
+                            項目說明
+                        </th>
+                        <th>
+                            單位
+                        </th>
+                        <th>
+                            領收數量
+                        </th>
+                        <th> </th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.planPRItem)
+                    {
+
+                        <tr>
+                            <td>
+                                @Html.TextBox("pr_item_id", @item.PR_ITEM_ID, new { @class = "form-control", style = "width:90px", @readonly = "readonly" })
+                            </td>
+                            <td>
+                                @item.ITEM_ID
+                            </td>
+                            <td>
+                                @item.ITEM_DESC
+                            </td>
+                            <td>
+                                @item.ITEM_UNIT
+                            </td>
+                            <td>
+                                @Html.TextBox("receipt_qty", item.RECEIPT_QTY, new { @class = "form-control", style = "width:120px" })
+                            </td>
+                            <td><input type="hidden" name="original_receipt_qty" id="original_receipt_qty" value="@item.RECEIPT_QTY"></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-12" style="padding-bottom:30px;">
+            <textarea class="form-control" rows="10" id="memo" name="memo">@Model.planPR.MEMO</textarea>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="" col-md-12">
+        <input type="button" value="修改" class="btn btn-default" id="updateRP" />
+    </div>
+</div>

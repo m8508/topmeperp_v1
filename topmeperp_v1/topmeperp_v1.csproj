@@ -956,6 +956,7 @@
     <Content Include="Views\Estimation\_FourthYearPage.cshtml" />
     <Content Include="Views\Estimation\_FifthYearPage.cshtml" />
     <Content Include="Views\UserManage\UserProfile.cshtml" />
+    <Content Include="Views\MaterialManage\SingleDO.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
