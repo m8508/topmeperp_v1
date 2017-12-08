@@ -476,7 +476,7 @@ namespace topmeperp.Controllers
         {
             log.Info("http get mehtod:" + id);
             PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
-            string parentId = ""; 
+            string parentId = "";
             service.getPRByPrId(id, parentId);
             singleForm.planPR = service.formPR;
             singleForm.planPRItem = service.PRItem;
@@ -672,7 +672,7 @@ namespace topmeperp.Controllers
                 }
                 //if (Qty[m] != "" && null != Qty[m])
                 //{
-                    //lstPlanItemId.Add(PlanItemId[m]);
+                //lstPlanItemId.Add(PlanItemId[m]);
                 //}
             }
             //建立採購單
@@ -855,7 +855,7 @@ namespace topmeperp.Controllers
                 }
                 //if (Qty[m] != "" && null != Qty[m])
                 //{
-                    //lstPlanItemId.Add(PlanItemId[m]);
+                //lstPlanItemId.Add(PlanItemId[m]);
                 //}
             }
             //建立驗收單
@@ -971,7 +971,7 @@ namespace topmeperp.Controllers
         public ActionResult ReceiptList(string id)
         {
             log.Info("Access to Receipt List !!");
-            List<PRFunction> lstRP = service.getRPByPrjId(id);
+            List<PRFunction> lstRP = service.getRPByPrId(id);
             return View(lstRP);
         }
 
@@ -985,14 +985,62 @@ namespace topmeperp.Controllers
             ViewBag.projectName = p.PROJECT_NAME;
             SYS_USER u = (SYS_USER)Session["user"];
             ViewBag.createid = u.USER_ID;
-            List<PurchaseRequisition> lstItem = service.getInventoryByPrjId(id, Request["item"], Request["systemMain"]);
+            //SelectListItem empty = new SelectListItem();
+            //empty.Value = "";
+            //empty.Text = "";
+            //取得主系統資料
+            List<SelectListItem> selectMain = new List<SelectListItem>();
+            foreach (string itm in service.getSystemMain(id))
+            {
+                log.Debug("Main System=" + itm);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = itm;
+                selectI.Text = itm;
+                if (null != itm && "" != itm)
+                {
+                    selectMain.Add(selectI);
+                }
+            }
+            // selectMain.Add(empty);
+            ViewBag.SystemMain = selectMain;
+            //取得次系統資料
+            List<SelectListItem> selectSub = new List<SelectListItem>();
+            foreach (string itm in service.getSystemSub(id))
+            {
+                log.Debug("Sub System=" + itm);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = itm;
+                selectI.Text = itm;
+                if (null != itm && "" != itm)
+                {
+                    selectSub.Add(selectI);
+                }
+            }
+            //selectSub.Add(empty);
+            ViewBag.SystemSub = selectSub;
+
+            TypeManageService typeService = new TypeManageService();
+            List<REF_TYPE_MAIN> lstType1 = typeService.getTypeMainL1();
+
+            //取得九宮格
+            List<SelectListItem> selectType1 = new List<SelectListItem>();
+            for (int idx = 0; idx < lstType1.Count; idx++)
+            {
+                log.Debug("REF_TYPE_MAIN=" + idx + "," + lstType1[idx].CODE_1_DESC);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = lstType1[idx].TYPE_CODE_1;
+                selectI.Text = lstType1[idx].CODE_1_DESC;
+                selectType1.Add(selectI);
+            }
+            ViewBag.TypeCodeL1 = selectType1;
+            List<PurchaseRequisition> lstItem = service.getInventoryByPrjId(id, Request["item"], Request["TypeCodeL2"], Request["TypeSub"], Request["systemMain"], Request["systemSub"]);
             return View(lstItem);
         }
 
         public ActionResult SearchInventory()
         {
-            log.Info("projectid=" + Request["id"] + ", planitemname =" + Request["item"] + ", systemMain =" + Request["systemMain"]);
-            List<PurchaseRequisition> lstItem = service.getInventoryByPrjId(Request["id"], Request["item"], Request["systemMain"]);
+            log.Info("projectid=" + Request["id"] + ", planitemname =" + Request["item"] + ", TypeCodeL1 =" + Request["TypeCodeL1"] + ", TypeCodeL2 =" + Request["TypeCodeL2"] + ", TypeSub =" + Request["TypeSub"] + ", systemMain =" + Request["systemMain"] + ", systemSub =" + Request["systemSub"]);
+            List<PurchaseRequisition> lstItem = service.getInventoryByPrjId(Request["id"], Request["item"], Request["TypeCodeL2"], Request["TypeSub"], Request["systemMain"], Request["systemSub"]);
             ViewBag.SearchResult = "共取得" + lstItem.Count + "筆資料";
             ViewBag.projectId = Request["id"];
             ViewBag.projectName = Request["projectName"];
@@ -1000,7 +1048,7 @@ namespace topmeperp.Controllers
         }
 
         //新增物料提領資料
-        public ActionResult AddDelivery()
+        public ActionResult AddDelivery(FormCollection form)
         {
             //取得專案編號
             log.Info("Project Id:" + Request["prjId"]);
@@ -1015,32 +1063,43 @@ namespace topmeperp.Controllers
             {
                 log.Info("item_list return No.:" + lstItemId[i]);
             }
-            string[] lstQty = Request["delivery_qty"].Split(',');
-            string[] lstPlanItemId = Request["planitemid"].Split(',');
+            string[] Qty = Request["delivery_qty"].Split(',');
+            //string[] lstPlanItemId = Request["planitemid"].Split(',');
+            List<string> lstQty = new List<string>();
+            var m = 0;
+            for (m = 0; m < Qty.Count(); m++)
+            {
+                if (Qty[m] != "" && null != Qty[m])
+                {
+                    lstQty.Add(Qty[m]);
+                }
+            }
+            PLAN_PURCHASE_REQUISITION pr = new PLAN_PURCHASE_REQUISITION();
+            SYS_USER loginUser = (SYS_USER)Session["user"];
+            pr.PROJECT_ID = form.Get("prjId").Trim();
+            //pr.PRJ_UID = int.Parse(form.Get("prjuid").Trim());
+            pr.STATUS = 40;
+            pr.CREATE_USER_ID = loginUser.USER_ID;
+            pr.CREATE_DATE = DateTime.Now;
+            pr.CAUTION = form.Get("caution").Trim();
+            pr.RECIPIENT = form.Get("recipient").Trim();
             PLAN_ITEM_DELIVERY item = new PLAN_ITEM_DELIVERY();
-            string deliveryorderid = service.newDelivery(Request["prjId"], lstItemId, Request["createid"]);
+            string deliveryorderid = service.newDelivery(Request["prjId"], pr, lstItemId, loginUser.USER_ID);
             List<PLAN_ITEM_DELIVERY> lstItem = new List<PLAN_ITEM_DELIVERY>();
             for (int j = 0; j < lstItemId.Count(); j++)
             {
                 PLAN_ITEM_DELIVERY items = new PLAN_ITEM_DELIVERY();
-                items.PLAN_ITEM_ID = lstPlanItemId[j];
-                if (lstQty[j].ToString() == "")
-                {
-                    items.DELIVERY_QTY = null;
-                }
-                else
-                {
-                    items.DELIVERY_QTY = decimal.Parse(lstQty[j]);
-                }
+                items.PLAN_ITEM_ID = lstItemId[j];
+                items.DELIVERY_QTY = decimal.Parse(lstQty[j]);
                 log.Debug("Item No=" + items.PLAN_ITEM_ID + ", Qty =" + items.DELIVERY_QTY);
                 lstItem.Add(items);
             }
             int k = service.refreshDelivery(deliveryorderid, lstItem);
-            return Redirect("InventoryIndex?id=" + Request["prjId"]);
+            return Redirect("SingleDO?id=" + deliveryorderid);
         }
 
         //領料明細
-        public ActionResult DeliveryList(string id)
+        public ActionResult DeliveryItem(string id)
         {
             log.Info("Access to Delivery List !!");
             List<PurchaseRequisition> lstItem = service.getDeliveryByItemId(id);
@@ -1087,5 +1146,111 @@ namespace topmeperp.Controllers
             log.Info("Request: 更新紀錄訊息 = " + msg);
             return msg;
         }
+
+        //驗收單查詢
+        public ActionResult ReceiptSearch(string id)
+        {
+            log.Info("Search For Receipt !!");
+            ViewBag.projectid = id;
+            TnderProject tndservice = new TnderProject();
+            TND_PROJECT p = tndservice.getProjectById(id);
+            ViewBag.projectName = p.PROJECT_NAME;
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult ReceiptSearch(FormCollection f)
+        {
+            log.Info("projectid=" + Request["id"] + ", keyword =" + Request["keyword"]);
+            List<PRFunction> lstRP = service.getRP4Delivery(Request["id"], Request["keyword"]);
+            ViewBag.SearchResult = "共取得" + lstRP.Count + "筆資料";
+            ViewBag.projectId = Request["id"];
+            ViewBag.projectName = Request["projectName"];
+            return View("ReceiptSearch", lstRP);
+        }
+
+        //從驗收單傳換至領料單功能
+        public ActionResult ChangeToDelivery(string id, DateTime createDate)
+        {
+            log.Info("http get mehtod:" + id);
+            ViewBag.createDate = createDate;
+            PLAN_PURCHASE_REQUISITION form = service.getNewDeliveryOrderId(id, createDate);
+            if (form != null)
+            {
+                ViewBag.formid = form.PR_ID;
+                ViewBag.caution = form.CAUTION;
+            }
+            PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
+            string parentId = "";
+            service.getPRByPrId(id, parentId);
+            singleForm.planPR = service.formPR;
+            singleForm.planPRItem = service.PRItem;
+            singleForm.prj = service.getProjectById(singleForm.planPR.PROJECT_ID);
+            log.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
+            return View(singleForm);
+        }
+
+        //新增領料單For無標單品項的物料
+        public String AddDOFromRP(FormCollection form)
+        {
+            log.Info("form:" + form.Count);
+            string msg = "";
+            // 取得領料單資料
+            PLAN_PURCHASE_REQUISITION pr = new PLAN_PURCHASE_REQUISITION();
+            SYS_USER loginUser = (SYS_USER)Session["user"];
+            pr.PROJECT_ID = form.Get("projectid").Trim();
+            //pr.PRJ_UID = int.Parse(form.Get("prjuid").Trim());
+            pr.STATUS = 40;
+            pr.PARENT_PR_ID = form.Get("pr_id").Trim();
+            pr.CREATE_USER_ID = loginUser.USER_ID;
+            pr.CREATE_DATE = Convert.ToDateTime(form.Get("create_date").Trim());
+            pr.CAUTION = form.Get("caution").Trim();
+            string[] lstItemId = form.Get("pr_item_id").Split(',');
+            log.Info("get item count:" + lstItemId.Count());
+            var i = 0;
+            for (i = 0; i < lstItemId.Count(); i++)
+            {
+                log.Info("item_list return No.:" + lstItemId[i]);
+            }
+            string prid = service.newDO(Request["projectid"], pr, lstItemId);
+            if (prid != "" && null != prid)
+            {
+                msg = "新增領料單成功，PR_ID =" + prid;
+            }
+            else
+            {
+                msg = service.message;
+            }
+
+            log.Info("Request: PR_ID = " + prid + "Task Id =" + form["prjuid"]);
+            return msg;
+        }
+
+        //顯示單一領料單功能
+        public ActionResult SingleDO(string id)
+        {
+            log.Info("http get mehtod:" + id);
+            PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
+            string parentId = "";
+            service.getPRByPrId(id, parentId);
+            singleForm.planPR = service.formPR;
+            singleForm.planPRItem = service.PRItem;
+            singleForm.planDOItem = service.DOItem;
+            singleForm.prj = service.getProjectById(singleForm.planPR.PROJECT_ID);
+            log.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
+            //ViewBag.prId = service.getParentPrIdByPrId(id);
+            return View(singleForm);
+        }
+        //領料單查詢
+        public ActionResult DeliverySearch(string id)
+        {
+            log.Info("Search For Delivery !!");
+            ViewBag.projectid = id;
+            TnderProject tndservice = new TnderProject();
+            TND_PROJECT p = tndservice.getProjectById(id);
+            ViewBag.projectName = p.PROJECT_NAME;
+            return View();
+        }
+
     }
 }

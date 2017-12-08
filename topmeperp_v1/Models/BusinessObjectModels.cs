@@ -322,13 +322,18 @@ namespace topmeperp.Models
         public string SUPPLIER_ID { get; set; }
         public Int32 STATUS { get; set; }
         public string ALL_KEY { get; set; }
-        
+        public string MESSAGE { get; set; }
+        public string MEMO { get; set; }
+        public string REMARK { get; set; }
+        public string RECIPIENT { get; set; }
+
     }
     public class PurchaseRequisitionDetail
     {
         public TND_PROJECT prj { get; set; }
         public PLAN_PURCHASE_REQUISITION planPR { get; set; }
         public IEnumerable<PurchaseRequisition> planPRItem { get; set; }
+        public IEnumerable<PurchaseRequisition> planDOItem { get; set; }
     }
 
     public class PurchaseOrderFunction

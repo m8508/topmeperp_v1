@@ -345,6 +345,7 @@
           <Property Name="STATUS" Type="int" />
           <Property Name="MEMO" Type="varchar" MaxLength="1000" />
           <Property Name="MESSAGE" Type="varchar" MaxLength="1000" />
+          <Property Name="CAUTION" Type="varchar" MaxLength="1000" />
         </EntityType>
         <EntityType Name="PLAN_PURCHASE_REQUISITION_ITEM">
           <Key>
@@ -1940,6 +1941,7 @@
           <Property Name="STATUS" Type="Int32" />
           <Property Name="MEMO" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
           <Property Name="MESSAGE" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="CAUTION" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -2843,6 +2845,7 @@
           <EntitySetMapping Name="PLAN_PURCHASE_REQUISITION">
             <EntityTypeMapping TypeName="topmepModel.PLAN_PURCHASE_REQUISITION">
               <MappingFragment StoreEntitySet="PLAN_PURCHASE_REQUISITION">
+                <ScalarProperty Name="CAUTION" ColumnName="CAUTION" />
                 <ScalarProperty Name="MESSAGE" ColumnName="MESSAGE" />
                 <ScalarProperty Name="MEMO" ColumnName="MEMO" />
                 <ScalarProperty Name="STATUS" ColumnName="STATUS" />

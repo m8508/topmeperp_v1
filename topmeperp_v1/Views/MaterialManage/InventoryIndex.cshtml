@@ -16,21 +16,35 @@
             </div>
         </div>
         <hr style="border-top: 1px solid #8c8b8b;" />
+        <!--設備主要依據9宮格次九宮格-->
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-12">
+                <label class="control-label" for="typeCode1">類型: </label>
+                @Html.DropDownList("TypeCodeL1", (IEnumerable<SelectListItem>)ViewBag.TypeCodeL1, String.Empty, new { @class = "selectpicker", onchange = "getTypeCode2()" })
+                <select id="TypeCodeL2" name="TypeCodeL2" class="selectpicker" onchange="getSubType()"></select>
+
+                <select id="TypeSub" name="TypeSub" class="selectpicker"></select>
+                <label for="systemMain">主系統:</label>
+                @Html.DropDownList("SystemMain", (IEnumerable<SelectListItem>)ViewBag.SystemMain, String.Empty, new { @class = "selectpicker" })
+                <label for="systemSub">次系統:</label>
+                @Html.DropDownList("systemSub", (IEnumerable<SelectListItem>)ViewBag.SystemSub, String.Empty, new { @class = "selectpicker" })
+            </div>
+        </div>
+        <div class="row" style="padding-top:10px">
+            <div class="col-md-6">
                 <label for="item">物料名稱:</label><input id="item" name="item" type="text" value="" class="form-control" />
             </div>
             <div class="col-md-4">
-                <label for="systemMain">主系統:</label><input id="systemMain" name="systemMain" type="text" value="" class="form-control" />
-            </div>
-            <div class="col-md-2">
                 <div id="divProcessing">
                     <img src="~/Content/ajax-loader.gif">
                 </div>
                 <input id="Submit4" type="submit" class="btn btn-info" value="查詢" />
                 <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "Plan")'" value="回上一頁">
             </div>
-        </div>
+            <div class="col-md-2">
+                <input type="button" class="btn btn-primary" onclick="javascript:window.location='@Url.Action("ReceiptSearch", "MaterialManage", new { id = @ViewBag.projectid })'" value="使用驗收單搜尋">
+            </div>
+            </div>
     </form>
 </div>
 
@@ -53,4 +67,47 @@
             $("#divProcessing").show();
         });
     });
+
+
+    //更新TypeCodeL2
+    function getTypeCode2() {
+        $.ajax({
+            url: "/MaterialManage/getTypeCodeL2",
+            data: { typecode1: $('#TypeCodeL1').val() },
+            method: "POST",
+            dataType: "JSON",
+            success: function (result) {
+                //更換typecode2 option
+                var $el = $('#TypeCodeL2');
+                $el.html(' ');
+                $.each(result, function (key, value) {
+                    $el.append($("<option></option>").attr("value", key).text(value));
+                });
+            },
+            error: function (xhr) {
+                alert('Ajax request 發生錯誤');
+            }
+        })
+    }
+    //更新Sub Type
+    function getSubType() {
+        $.ajax({
+            url: "/MaterialManage/getSubType",
+            data: { typecode: $('#TypeCodeL2').val() },
+            method: "POST",
+            dataType: "JSON",
+            success: function (result) {
+                //更換typecode2 option
+                var $el = $('#TypeSub');
+                $el.html(' ');
+                $.each(result, function (key, value) {
+                    $el.append($("<option></option>").attr("value", key).text(value));
+                });
+            },
+            error: function (xhr) {
+                alert('Ajax request 發生錯誤');
+            }
+        })
+    }
+
 </script>

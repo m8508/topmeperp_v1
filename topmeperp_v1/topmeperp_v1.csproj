@@ -892,7 +892,7 @@
     <Content Include="Views\MaterialManage\ReceiptList.cshtml" />
     <Content Include="Views\MaterialManage\InventoryIndex.cshtml" />
     <Content Include="Views\MaterialManage\_InventoryList.cshtml" />
-    <Content Include="Views\MaterialManage\DeliveryList.cshtml" />
+    <Content Include="Views\MaterialManage\DeliveryItem.cshtml" />
     <Content Include="Views\Estimation\Index.cshtml" />
     <Content Include="Views\Estimation\Valuation.cshtml" />
     <Content Include="Views\Estimation\_ProjectList.cshtml" />
@@ -957,6 +957,11 @@
     <Content Include="Views\Estimation\_FifthYearPage.cshtml" />
     <Content Include="Views\UserManage\UserProfile.cshtml" />
     <Content Include="Views\MaterialManage\SingleDO.cshtml" />
+    <Content Include="Views\MaterialManage\ReceiptSearch.cshtml" />
+    <Content Include="Views\MaterialManage\_ReceiptList4Dilivery.cshtml" />
+    <Content Include="Views\MaterialManage\ChangeToDelivery.cshtml" />
+    <Content Include="Views\MaterialManage\DeliverySearch.cshtml" />
+    <Content Include="Views\MaterialManage\_DeliveryList.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

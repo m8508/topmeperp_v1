@@ -4,8 +4,6 @@
     <!--不好的方式但檔著先屆時設為Hidden-->
     <input type="hidden" id="prjId" name="prjId" value="@ViewBag.projectid" />
     <input type="hidden" id="prjName" name="prjName" value="@ViewBag.projectName" />
-    <input type="hidden" id="createid" name="createid" value="@ViewBag.createid" />
-  
     <table class="table">
         <thead>
             <tr>
@@ -20,6 +18,9 @@
                 </th>
                 <th>
                     單位
+                </th>
+                <th>
+                    主系統
                 </th>
                 <th>
                     庫存數量
@@ -51,6 +52,9 @@
                         @item.ITEM_UNIT
                     </td>
                     <td>
+                        @item.SYSTEM_MAIN
+                    </td>
+                    <td>
                         @Html.TextBox("inventory_qty", item.INVENTORY_QTY, new { @class = "form-control", style = "width:90px", Name = "inventory_qty", @readonly = "readonly" })
                     </td>
                     <td>
@@ -59,12 +63,20 @@
                     <td>
                         @Html.TextBox("delivery_qty", item.DELIVERY_QTY, new { @class = "form-control", style = "width:90px", Name = "delivery_qty" })
                     </td>
-                    <td><a href="/MaterialManage/DeliveryList/@item.PLAN_ITEM_ID" target="_blank">檢視/修改</a></td>
+                    <td><a href="/MaterialManage/DeliveryItem/@item.PLAN_ITEM_ID" target="_blank">檢視/修改</a></td>
                 </tr>
             }
         </tbody>
 </table>
-
+<div class="col-md-12" style="padding-bottom:20px;">
+    <div class="col-md-6">
+        領料人所屬單位/公司:<input style="width: 300px" type="text" class="form-control" name="recipient" id="recipient" value="">
+    </div>
+    
+    <div class="col-md-6">
+        領料說明:<textarea class="form-control" rows="5" id="caution" name="caution" style="font-size: 15px;"></textarea>
+    </div>
+</div>
     <input id="Submit1" type="submit" value="提領" class="btn btn-warning" onclick="return Confirm_Form()"/>
 }
 
@@ -87,16 +99,29 @@
         }
         
         var boolOver = false;
+        var boolLost = false;
+        var method2 = $("input[name='chkItem']:checked").length;
+        var i = 0;
         $('table > tbody > tr').each(function () {
             var inventory = 0;
             var delivery = 0;
             inventory = parseInt($.trim($(this).find("#inventory_qty").val())); //抓取每筆記錄庫存數量的值
             delivery = parseInt($.trim($(this).find("#delivery_qty").val())); //抓取每筆記錄總領收數量的值
+            if (delivery >= 0)
+            { i = i + 1 }
             if (parseInt(delivery) > parseInt(inventory)) {
                 boolOver = true;
             }
 
         });
+        if (i != method2) {
+            boolLost = true;
+        }
+
+        if (boolLost == true) {
+            alert("勾選的項目沒有填寫提領數量，請重新確認後再進行提領!");
+            return false;
+        }
         if (boolOver == true) {
             alert("提領數量大於庫存數量！");
             return false;

@@ -706,11 +706,11 @@ namespace topmeperp.Service
                     + "FROM PLAN_SUP_INQUIRY WHERE INQUIRY_FORM_ID = @formid";
                 formInquiry = context.PLAN_SUP_INQUIRY.SqlQuery(sql, new SqlParameter("formid", formid)).First();
                 //取得詢價單明細
-                formInquiryItem = context.PLAN_SUP_INQUIRY_ITEM.SqlQuery("SELECT i.[INQUIRY_ITEM_ID],i.[INQUIRY_FORM_ID]"+
+                formInquiryItem = context.PLAN_SUP_INQUIRY_ITEM.SqlQuery("SELECT i.[INQUIRY_ITEM_ID],i.[INQUIRY_FORM_ID]" +
                     ", i.[PLAN_ITEM_ID], i.[TYPE_CODE], i.[SUB_TYPE_CODE], pi.[ITEM_ID], i.[ITEM_DESC], i.[ITEM_UNIT] "
-                    +" , i.[ITEM_QTY],i.[ITEM_UNIT_PRICE], i.[ITEM_QTY_ORG] , i.[ITEM_UNITPRICE_ORG], i.ITEM_REMARK "
-                    +" , i.[MODIFY_ID], i.[MODIFY_DATE], i.[WAGE_PRICE]  "
-                    +"FROM PLAN_SUP_INQUIRY_ITEM i LEFT OUTER JOIN  PLAN_ITEM pi on i.PLAN_ITEM_ID = pi.PLAN_ITEM_ID "
+                    + " , i.[ITEM_QTY],i.[ITEM_UNIT_PRICE], i.[ITEM_QTY_ORG] , i.[ITEM_UNITPRICE_ORG], i.ITEM_REMARK "
+                    + " , i.[MODIFY_ID], i.[MODIFY_DATE], i.[WAGE_PRICE]  "
+                    + "FROM PLAN_SUP_INQUIRY_ITEM i LEFT OUTER JOIN  PLAN_ITEM pi on i.PLAN_ITEM_ID = pi.PLAN_ITEM_ID "
                     + "WHERE i.INQUIRY_FORM_ID=@formid ORDER BY pi.EXCEL_ROW_ID", new SqlParameter("formid", formid)).ToList();
                 logger.Debug("get form item count:" + formInquiryItem.Count);
             }
@@ -1786,6 +1786,7 @@ namespace topmeperp.Service
         #region 物料管理之進銷存
         public PLAN_PURCHASE_REQUISITION formPR = null;
         public List<PurchaseRequisition> PRItem = null;
+        public List<PurchaseRequisition> DOItem = null;
 
         public List<PurchaseRequisition> getPurchaseItemByMap(string projectid, List<string> lstItemId)
         {
@@ -1978,11 +1979,11 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 //取得申購單檔頭資訊
-                string sql = "SELECT PR_ID, PROJECT_ID, RECIPIENT, LOCATION, PRJ_UID, CREATE_USER_ID, CREATE_DATE, REMARK, SUPPLIER_ID, MODIFY_DATE, PARENT_PR_ID, STATUS, MEMO, MESSAGE FROM " +
+                string sql = "SELECT PR_ID, PROJECT_ID, RECIPIENT, LOCATION, PRJ_UID, CREATE_USER_ID, CREATE_DATE, REMARK, SUPPLIER_ID, MODIFY_DATE, PARENT_PR_ID, STATUS, MEMO, MESSAGE, CAUTION FROM " +
                     "PLAN_PURCHASE_REQUISITION WHERE PR_ID =@prid ";
                 formPR = context.PLAN_PURCHASE_REQUISITION.SqlQuery(sql, new SqlParameter("prid", prid)).First();
                 //取得申購單明細
-                PRItem = context.Database.SqlQuery<PurchaseRequisition>("SELECT pri.NEED_QTY, CONVERT(char(10), pri.NEED_DATE, 111) AS NEED_DATE, pri.REMARK, pri.PR_ITEM_ID, pri.ORDER_QTY, pri.PLAN_ITEM_ID, pri.RECEIPT_QTY, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.ITEM_FORM_QUANTITY, md.QTY AS MAP_QTY,  " +
+                PRItem = context.Database.SqlQuery<PurchaseRequisition>("SELECT pri.NEED_QTY, CONVERT(char(10), pri.NEED_DATE, 111) AS NEED_DATE, pri.REMARK, pri.PR_ITEM_ID, pri.ORDER_QTY, pri.PLAN_ITEM_ID, pri.RECEIPT_QTY, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.ITEM_FORM_QUANTITY, pi.SYSTEM_MAIN, md.QTY AS MAP_QTY,  " +
                     "B.CUMULATIVE_QTY, C.ALL_RECEIPT_QTY, C.ALL_RECEIPT_QTY - D.DELIVERY_QTY AS INVENTORY_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_ITEM pi ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN TND_MAP_DEVICE md " +
                     "ON pi.PLAN_ITEM_ID = md.PROJECT_ITEM_ID LEFT JOIN (SELECT pri.PLAN_ITEM_ID, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY " +
                     "FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE PR_ID LIKE 'PPO%' GROUP BY pri.PLAN_ITEM_ID)B ON pri.PLAN_ITEM_ID = B.PLAN_ITEM_ID " +
@@ -1992,6 +1993,11 @@ namespace topmeperp.Service
                     "GROUP BY pid.PLAN_ITEM_ID)D ON pri.PLAN_ITEM_ID = D.PLAN_ITEM_ID WHERE PR_ID =@prid", new SqlParameter("prid", prid), new SqlParameter("parentId", parentId)).ToList();
 
                 logger.Debug("get purchase requisition item count:" + PRItem.Count);
+                //取得領料明細
+                DOItem = context.Database.SqlQuery<PurchaseRequisition>("SELECT pid.PLAN_ITEM_ID, pid.DELIVERY_QTY, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.SYSTEM_MAIN " +
+                    "FROM PLAN_ITEM_DELIVERY pid LEFT JOIN PLAN_ITEM pi ON pid.PLAN_ITEM_ID = pi.PLAN_ITEM_ID WHERE pid.DELIVERY_ORDER_ID =@prid", new SqlParameter("prid", prid)).ToList();
+
+                logger.Debug("get delivery item count:" + DOItem.Count);
             }
         }
 
@@ -2439,7 +2445,7 @@ namespace topmeperp.Service
         }
 
         //取得驗收單資料
-        public List<PRFunction> getRPByPrjId(string prid)
+        public List<PRFunction> getRPByPrId(string prid)
         {
 
             logger.Info("search purchase receipt by 採購單編號 =" + prid);
@@ -2459,18 +2465,46 @@ namespace topmeperp.Service
             logger.Info("get purchase receipt count=" + lstForm.Count);
             return lstForm;
         }
-        //取得物料庫存數量
-        public List<PurchaseRequisition> getInventoryByPrjId(string prjid, string itemName, string systemMain)
+
+        //取得驗收單資料以供領料使用
+        public List<PRFunction> getRP4Delivery(string prjid, string keyword)
         {
 
-            logger.Info("search inventory by 專案編號 =" + prjid + ", 物料名稱 =" + itemName + ", 主系統 =" + systemMain);
+            logger.Info("search receipt for delivery by 專案編號 =" + prjid + ", 關鍵字名稱 =" + keyword);
+            List<PRFunction> lstForm = new List<PRFunction>();
+            //處理SQL 預先填入專案代號,設定集合處理參數
+            string sql = "SELECT CONVERT(char(10), CREATE_DATE, 111) AS CREATE_DATE, PR_ID, SUPPLIER_ID, REMARK, MEMO, MESSAGE, ROW_NUMBER() OVER(ORDER BY PR_ID) AS NO " +
+                "FROM PLAN_PURCHASE_REQUISITION WHERE PROJECT_ID =@prjid AND PR_ID LIKE 'RP%' ";
+
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("prjid", prjid));
+
+            //關鍵字條件
+            if (null != keyword && keyword != "")
+            {
+                sql = sql + "AND MEMO LIKE @keyword OR PROJECT_ID =@prjid AND PR_ID LIKE 'RP%' AND MESSAGE LIKE @keyword OR PROJECT_ID =@prjid AND PR_ID LIKE 'RP%' AND REMARK LIKE @keyword ";
+                parameters.Add(new SqlParameter("keyword", '%' + keyword + '%'));
+            }
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("get receipt for delivery sql=" + sql);
+                lstForm = context.Database.SqlQuery<PRFunction>(sql, parameters.ToArray()).ToList();
+            }
+            logger.Info("get receipt for delivery count=" + lstForm.Count);
+            return lstForm;
+        }
+        //取得物料庫存數量
+        public List<PurchaseRequisition> getInventoryByPrjId(string prjid, string itemName, string typeMain, string typeSub, string systemMain, string systemSub)
+        {
+
+            logger.Info("search inventory by 專案編號 =" + prjid + ", 物料名稱 =" + itemName + ", 九宮格 =" + typeMain + ", 次九宮格 =" + typeSub + ", 主系統 =" + systemMain + ", 次系統 =" + systemSub);
             List<PurchaseRequisition> lstItem = new List<PurchaseRequisition>();
             //處理SQL 預先填入專案代號,設定集合處理參數
             string sql = "SELECT pri.PLAN_ITEM_ID, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.SYSTEM_MAIN, SUM(pri.RECEIPT_QTY) - ISNULL(A.DELIVERY_QTY, 0) AS INVENTORY_QTY " +
                 "FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_ITEM pi ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID " +
                 "LEFT JOIN (SELECT pid.PLAN_ITEM_ID, SUM(pid.DELIVERY_QTY) AS DELIVERY_QTY FROM PLAN_ITEM_DELIVERY pid " +
                 "GROUP BY pid.PLAN_ITEM_ID)A ON pri.PLAN_ITEM_ID = A.PLAN_ITEM_ID GROUP BY pri.PLAN_ITEM_ID, A.DELIVERY_QTY, " +
-                "pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.SYSTEM_MAIN HAVING pri.PLAN_ITEM_ID IN (SELECT pi.PLAN_ITEM_ID FROM PLAN_ITEM pi WHERE pi.PROJECT_ID =@prjid) ";
+                "pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.TYPE_CODE_1, pi.TYPE_CODE_2, pi.SYSTEM_MAIN, pi.SYSTEM_SUB, pi.EXCEL_ROW_ID HAVING pri.PLAN_ITEM_ID IN (SELECT pi.PLAN_ITEM_ID FROM PLAN_ITEM pi WHERE pi.PROJECT_ID =@prjid) ";
 
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("prjid", prjid));
@@ -2481,13 +2515,31 @@ namespace topmeperp.Service
                 sql = sql + "AND pi.ITEM_DESC LIKE @itemName ";
                 parameters.Add(new SqlParameter("itemName", '%' + itemName + '%'));
             }
+            //九宮格條件
+            if (null != typeMain && typeMain != "")
+            {
+                sql = sql + "AND pi.TYPE_CODE_1 =@typeMain ";
+                parameters.Add(new SqlParameter("typeMain", typeMain));
+            }
+            //次九宮格條件
+            if (null != typeSub && typeSub != "")
+            {
+                sql = sql + "AND pi.TYPE_CODE_2 =@typeSub ";
+                parameters.Add(new SqlParameter("typeSub", typeSub));
+            }
             //主系統條件
             if (null != systemMain && systemMain != "")
             {
-                sql = sql + "AND pi.SYSTEM_MAIN LIKE @systemMain ";
-                parameters.Add(new SqlParameter("systemMain", '%' + systemMain + '%'));
+                sql = sql + "AND REPLACE(pi.SYSTEM_MAIN,' ','') =@systemMain ";
+                parameters.Add(new SqlParameter("systemMain", systemMain));
             }
-            sql = sql + "ORDER BY pri.PLAN_ITEM_ID DESC ";
+            //次系統條件
+            if (null != systemSub && systemSub != "")
+            {
+                sql = sql + "AND REPLACE(pi.SYSTEM_SUB,' ','') =@systemSub ";
+                parameters.Add(new SqlParameter("systemSub", systemSub));
+            }
+            sql = sql + "ORDER BY pi.EXCEL_ROW_ID ASC ";
             using (var context = new topmepEntities())
             {
                 logger.Debug("get inventory sql=" + sql);
@@ -2498,15 +2550,21 @@ namespace topmeperp.Service
         }
 
         // 寫入領料內容
-        public string newDelivery(string projectid, string[] lstItemId, string createid)
+        public string newDelivery(string projectid, PLAN_PURCHASE_REQUISITION form, string[] lstItemId, string createid)
         {
             //1.新增領料品項
             logger.Info("create new delivery item ");
             string sno_key = "DO";
             SerialKeyService snoservice = new SerialKeyService();
-            string DELIVERY_ORDER_ID = snoservice.getSerialKey(sno_key);
+            form.PR_ID = snoservice.getSerialKey(sno_key);
+            logger.Info("new delivery form =" + form.ToString());
             using (var context = new topmepEntities())
             {
+                context.PLAN_PURCHASE_REQUISITION.Add(form);
+                int i = context.SaveChanges();
+                logger.Debug("Add Delivery Form=" + i);
+                logger.Info("plan delivery form id = " + form.PR_ID);
+                //if (i > 0) { status = true; };
                 List<topmeperp.Models.PLAN_ITEM_DELIVERY> lstItem = new List<PLAN_ITEM_DELIVERY>();
                 string ItemId = "";
                 for (i = 0; i < lstItemId.Count(); i++)
@@ -2522,12 +2580,12 @@ namespace topmeperp.Service
                 }
 
                 string sql = "INSERT INTO PLAN_ITEM_DELIVERY (DELIVERY_ORDER_ID, PLAN_ITEM_ID, PROJECT_ID, CREATE_USER_ID) "
-                + "SELECT '" + DELIVERY_ORDER_ID + "' as DELIVERY_ORDER_ID, A.PLAN_ITEM_ID as PLAN_ITEM_ID, '" + projectid + "' as PROJECT_ID, '" + createid + "' as CREATE_USER_ID  "
+                + "SELECT '" + form.PR_ID + "' as DELIVERY_ORDER_ID, A.PLAN_ITEM_ID as PLAN_ITEM_ID, '" + projectid + "' as PROJECT_ID, '" + createid + "' as CREATE_USER_ID  "
                 + "FROM (SELECT pi.PLAN_ITEM_ID FROM PLAN_ITEM pi WHERE pi.PLAN_ITEM_ID IN (" + ItemId + "))A ";
                 logger.Info("sql =" + sql);
                 var parameters = new List<SqlParameter>();
                 i = context.Database.ExecuteSqlCommand(sql);
-                return DELIVERY_ORDER_ID;
+                return form.PR_ID;
             }
         }
         //新增領料數量
@@ -2622,6 +2680,60 @@ namespace topmeperp.Service
             }
             return j;
         }
+
+        //寫入領料內容
+        public string newDO(string projectid, PLAN_PURCHASE_REQUISITION form, string[] lstItemId)
+        {
+            //1.建立領料單
+            logger.Info("create new delivery form ");
+            string sno_key = "DF";
+            SerialKeyService snoservice = new SerialKeyService();
+            form.PR_ID = snoservice.getSerialKey(sno_key);
+            logger.Info("new delivery form =" + form.ToString());
+            using (var context = new topmepEntities())
+            {
+                context.PLAN_PURCHASE_REQUISITION.Add(form);
+                int i = context.SaveChanges();
+                logger.Debug("Add delivery form=" + i);
+                logger.Info("plan delivery form id = " + form.PR_ID);
+                //if (i > 0) { status = true; };
+                List<topmeperp.Models.PLAN_PURCHASE_REQUISITION_ITEM> lstItem = new List<PLAN_PURCHASE_REQUISITION_ITEM>();
+                string ItemId = "";
+                for (i = 0; i < lstItemId.Count(); i++)
+                {
+                    if (i < lstItemId.Count() - 1)
+                    {
+                        ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
+                    }
+                    else
+                    {
+                        ItemId = ItemId + "'" + lstItemId[i] + "'";
+                    }
+                }
+
+                string sql = "INSERT INTO PLAN_PURCHASE_REQUISITION_ITEM (PR_ID, PLAN_ITEM_ID, RECEIPT_QTY, NEED_DATE, REMARK, ORDER_QTY) "
+                + "SELECT '" + form.PR_ID + "' as PR_ID, A.PLAN_ITEM_ID as PLAN_ITEM_ID, A.RECEIPT_QTY as RECEIPT_QTY, A.NEED_DATE as NEED_DATE, A.REMARK as REMARK, A.ORDER_QTY as ORDER_QTY  "
+                + "FROM (SELECT pri.* FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE pri.PR_ITEM_ID IN (" + ItemId + "))A ";
+                logger.Info("sql =" + sql);
+                var parameters = new List<SqlParameter>();
+                i = context.Database.ExecuteSqlCommand(sql);
+                return form.PR_ID;
+            }
+        }
+
+        PLAN_PURCHASE_REQUISITION PRform = null;
+        //取得新增的領料單號
+        public PLAN_PURCHASE_REQUISITION getNewDeliveryOrderId(string prid, DateTime createDate)
+        {
+            using (var context = new topmepEntities())
+            {
+                PRform = context.PLAN_PURCHASE_REQUISITION.SqlQuery("SELECT * FROM PLAN_PURCHASE_REQUISITION pr WHERE pr.PARENT_PR_ID =@prid " +
+                    "AND pr.PR_ID LIKE 'DF%' AND pr.CREATE_DATE = @createDate "
+                   , new SqlParameter("prid", prid), new SqlParameter("createDate", createDate)).FirstOrDefault();
+            }
+            return PRform;
+        }
+
         //取得個別物料的庫存數量
         public PurchaseRequisition getInventoryByItemId(string itemid)
         {
@@ -3842,7 +3954,7 @@ namespace topmeperp.Service
                 //取得費用單檔頭資訊
                 string sql = "SELECT fef.EXP_FORM_ID, fef.PROJECT_ID, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH, fef.PAYMENT_DATE, fef.STATUS, fef.CREATE_ID, fef.CREATE_DATE, fef.REMARK, fef.MODIFY_DATE, fef.PASS_CREATE_ID, fef.PASS_CREATE_DATE, fef.APPROVE_CREATE_ID, fef.APPROVE_CREATE_DATE, " +
                     "fef.JOURNAL_CREATE_ID, fef.JOURNAL_CREATE_DATE, p.PROJECT_NAME FROM FIN_EXPENSE_FORM fef LEFT JOIN TND_PROJECT p ON fef.PROJECT_ID = p.PROJECT_ID WHERE fef.EXP_FORM_ID =@expid ";
-                formEXP = context.Database.SqlQuery<ExpenseFormFunction >(sql, new SqlParameter("expid", expid)).First();
+                formEXP = context.Database.SqlQuery<ExpenseFormFunction>(sql, new SqlParameter("expid", expid)).First();
                 //取得公司營業費用單明細
                 EXPItem = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT G.*, C.CUM_BUDGET, D.CUM_YEAR_AMOUNT, G.AMOUNT / G.BUDGET_AMOUNT *100 AS MONTH_RATIO, D.CUM_YEAR_AMOUNT / C.CUM_BUDGET *100 AS YEAR_RATIO " +
                     "FROM (SELECT A.*, B.AMOUNT AS BUDGET_AMOUNT FROM (SELECT fei.*, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH, fef.STATUS, fs.SUBJECT_NAME FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs " +

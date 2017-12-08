@@ -28,5 +28,6 @@ namespace topmeperp.Models
         public Nullable<int> STATUS { get; set; }
         public string MEMO { get; set; }
         public string MESSAGE { get; set; }
+        public string CAUTION { get; set; }
     }
 }
