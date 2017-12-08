@@ -605,6 +605,7 @@
     <Compile Include="Service\PoiService.cs" />
     <Compile Include="Service\PoiSrevice4po.cs" />
     <Compile Include="Service\ReportContextService.cs" />
+    <Compile Include="Service\UIComponetService.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>

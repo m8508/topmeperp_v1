@@ -663,64 +663,11 @@ namespace topmeperp.Controllers
             string id = Request["projectId"];
             ViewBag.projectId = id;
             //取得主系統資料
-            Dictionary<string, object> sec = getMapItemQueryCriteria(id);
+            Dictionary<string, object> sec = TypeSelectComponet.getMapItemQueryCriteria(id);
             ViewBag.SystemMain = sec["SystemMain"];
             ViewBag.SystemSub = sec["SystemSub"];
             ViewBag.TypeCodeL1 = sec["TypeCodeL1"];
             return View();
-        }
-
-        public static Dictionary<string, object> getMapItemQueryCriteria(string id)
-        {
-            Dictionary<string, object> selectComponent = new Dictionary<string, object>();
-            List<SelectListItem> selectMain = new List<SelectListItem>();
-            PurchaseFormService service = new PurchaseFormService();
-            foreach (string itm in service.getSystemMain(id))
-            {
-                logger.Debug("Main System=" + itm);
-                SelectListItem selectI = new SelectListItem();
-                selectI.Value = itm;
-                selectI.Text = itm;
-                if (null != itm && "" != itm)
-                {
-                    selectMain.Add(selectI);
-                }
-            }
-            // selectMain.Add(empty);
-            selectComponent.Add("SystemMain", selectMain);
-
-            //取得次系統資料
-            List<SelectListItem> selectSub = new List<SelectListItem>();
-            foreach (string itm in service.getSystemSub(id))
-            {
-                logger.Debug("Sub System=" + itm);
-                SelectListItem selectI = new SelectListItem();
-                selectI.Value = itm;
-                selectI.Text = itm;
-                if (null != itm && "" != itm)
-                {
-                    selectSub.Add(selectI);
-                }
-            }
-            //selectSub.Add(empty);
-            selectComponent.Add("SystemSub", selectSub);
-
-
-            TypeManageService typeService = new TypeManageService();
-            List<REF_TYPE_MAIN> lstType1 = typeService.getTypeMainL1();
-
-            //取得九宮格
-            List<SelectListItem> selectType1 = new List<SelectListItem>();
-            for (int idx = 0; idx < lstType1.Count; idx++)
-            {
-                logger.Debug("REF_TYPE_MAIN=" + idx + "," + lstType1[idx].CODE_1_DESC);
-                SelectListItem selectI = new SelectListItem();
-                selectI.Value = lstType1[idx].TYPE_CODE_1;
-                selectI.Text = lstType1[idx].CODE_1_DESC;
-                selectType1.Add(selectI);
-            }
-            selectComponent.Add("TypeCodeL1", selectType1);
-            return selectComponent;
         }
 
         //取得異動單相關品項選項
@@ -728,7 +675,7 @@ namespace topmeperp.Controllers
         {
             string projectid, typeCode1, typeCode2, systemMain, systemSub, primeside, primesideName, secondside, secondsideName, mapno, buildno, devicename, mapType, strart_id, end_id;
             ProjectPlanService planService = new ProjectPlanService();
-            ProjectPlanController.getMapItem(f, out projectid, out typeCode1, out typeCode2, out systemMain, out systemSub, out primeside, out primesideName, out secondside, out secondsideName, out mapno, out buildno, out devicename, out mapType, out strart_id, out end_id);
+            TypeSelectComponet.getMapItem(f, out projectid, out typeCode1, out typeCode2, out systemMain, out systemSub, out primeside, out primesideName, out secondside, out secondsideName, out mapno, out buildno, out devicename, out mapType, out strart_id, out end_id);
             if (null == f["mapType"] || "" == f["mapType"])
             {
                 ViewBag.Message = "至少需選擇一項施作項目!!";
