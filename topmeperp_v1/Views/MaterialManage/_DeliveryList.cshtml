@@ -8,7 +8,7 @@
                     <th>領料日期</th>
                     <th>編號</th>
                     <th>領收人所屬單位/公司</th>
-                    <th>選項連結</th>
+                    <th>領料說明</th>
                 </tr>
             </thead>
             <tbody>
@@ -20,7 +20,7 @@
                         <td>@item.CREATE_DATE</td>
                         <td><a href="/MaterialManage/SingleDO/@item.PR_ID" target="_blank">@item.PR_ID</a></td>
                         <td>@item.RECIPIENT</td>
-                        <td><a href='@("../../UploadFile/" + ViewBag.projectid + "/Materials/" + item.PR_ID + ".xlsx")'>下載</a></td>
+                        <td>@item.CAUTION</td>
                     </tr>
                 }
             </tbody>

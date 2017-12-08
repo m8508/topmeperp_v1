@@ -1109,44 +1109,7 @@ namespace topmeperp.Controllers
             return View(lstItem);
         }
 
-        //更新領料數量
-        public String RefreshDelivery(FormCollection form)
-        {
-            log.Info("form:" + form.Count);
-            string msg = "";
-            string[] lstItemId = form.Get("delivery_id").Split(',');
-            string[] lstQty = form.Get("delivery_qty").Split(',');
-
-            List<PLAN_ITEM_DELIVERY> lstItem = new List<PLAN_ITEM_DELIVERY>();
-            for (int j = 0; j < lstItemId.Count(); j++)
-            {
-                PLAN_ITEM_DELIVERY item = new PLAN_ITEM_DELIVERY();
-                item.DELIVERY_ID = int.Parse(lstItemId[j]);
-                if (lstQty[j].ToString() == "")
-                {
-                    item.DELIVERY_QTY = null;
-                }
-                else
-                {
-                    item.DELIVERY_QTY = decimal.Parse(lstQty[j]);
-                }
-                log.Debug("Item No=" + item.DELIVERY_ID + ", Delivery Qty =" + item.DELIVERY_QTY);
-                lstItem.Add(item);
-            }
-            int i = service.updateDelivery(lstItem);
-            if (i == 0)
-            {
-                msg = service.message;
-            }
-            else
-            {
-                msg = "更新領料紀錄成功";
-            }
-
-            log.Info("Request: 更新紀錄訊息 = " + msg);
-            return msg;
-        }
-
+        
         //驗收單查詢
         public ActionResult ReceiptSearch(string id)
         {
@@ -1252,5 +1215,15 @@ namespace topmeperp.Controllers
             return View();
         }
 
+        [HttpPost]
+        public ActionResult DeliverySearch(FormCollection f)
+        {
+            log.Info("projectid=" + Request["id"] + ", recipient =" + Request["recipient"] + ", prid =" + Request["prid"] + ", caution =" + Request["caution"]);
+            List<PRFunction> lstDO = service.getDOByPrjId(Request["id"], Request["recipient"], Request["prid"], Request["caution"]);
+            ViewBag.SearchResult = "共取得" + lstDO.Count + "筆資料";
+            ViewBag.projectId = Request["id"];
+            ViewBag.projectName = Request["projectName"];
+            return View("DeliverySearch", lstDO);
+        }
     }
 }

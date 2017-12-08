@@ -1,6 +1,6 @@
-﻿ @{
-     ViewBag.Title = "領料單查詢";
-     Layout = "~/Views/Shared/_MenuLayout.cshtml";
+﻿@{
+    ViewBag.Title = "領料單查詢";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <div class="jumbotron">
     <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
@@ -15,15 +15,23 @@
         </div>
         <hr style="border-top: 1px solid #8c8b8b;" />
         <div class="row">
-            <div class='col-md-6 date form-group' style="padding-top:10px">
-                <label for="keyword">關鍵字 : </label>
-                <input id="keyword" name="keyword" class="form-control" />
+            <div class='col-md-6 form-group' style="padding-top:10px">
+                <label for="caution">領料說明 : </label>
+                <input id="caution" name="caution" class="form-control" />
+                <div class="col-md-6 form-group" style="padding-top:10px">
+                    <label for="recipient">領收人 :</label>
+                    <input id="recipient" name="recipient" type="text" value="" class="form-control" />
+                </div>
             </div>
-            <div class="col-md-6 form-group" style="padding-top:10px">
-                <input id="Submit6" type="submit" class="btn btn-info" value="查詢" />
-                <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "MaterialManage")'" value="回上一頁">
+            <div class='col-md-6 form-group' style="padding-top:10px">
+                <label for="caution">領料單編號 : </label>
+                <input id="prid" name="prid" type="text" value="" class="form-control" />
+                <div class="col-md-6 form-group" style="padding-top:30px">
+                    <input id="Submit2" type="submit" class="btn btn-info" value="查詢" />
+                    <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "Plan")'" value="回上一頁">
+                </div>
             </div>
-        </div>
+            </div>
         <div class="col-md-6">
             <div id="divProcessing">
                 <img src="~/Content/ajax-loader.gif">

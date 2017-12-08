@@ -326,6 +326,7 @@ namespace topmeperp.Models
         public string MEMO { get; set; }
         public string REMARK { get; set; }
         public string RECIPIENT { get; set; }
+        public string CAUTION { get; set; }
 
     }
     public class PurchaseRequisitionDetail

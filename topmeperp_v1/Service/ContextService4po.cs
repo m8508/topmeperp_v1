@@ -2648,39 +2648,6 @@ namespace topmeperp.Service
             return lstItem;
         }
 
-        //更新領料數量
-        public int updateDelivery(List<PLAN_ITEM_DELIVERY> lstItem)
-        {
-            int j = 0;
-            using (var context = new topmepEntities())
-            {
-                try
-                {
-                    //將item資料寫入 
-                    foreach (PLAN_ITEM_DELIVERY item in lstItem)
-                    {
-                        PLAN_ITEM_DELIVERY existItem = null;
-                        logger.Debug("delivery item id=" + item.DELIVERY_ID);
-                        existItem = context.PLAN_ITEM_DELIVERY.Find(item.DELIVERY_ID);
-                        logger.Debug("find exist item=" + existItem.PLAN_ITEM_ID);
-                        existItem.DELIVERY_QTY = item.DELIVERY_QTY;
-                        context.PLAN_ITEM_DELIVERY.AddOrUpdate(existItem);
-                    }
-                    j = context.SaveChanges();
-                    logger.Debug("Update delivery item =" + j);
-                    return j;
-                }
-                catch (Exception e)
-                {
-                    logger.Error("update delivey record id fail:" + e.ToString());
-                    logger.Error(e.StackTrace);
-                    message = e.Message;
-                }
-
-            }
-            return j;
-        }
-
         //寫入領料內容
         public string newDO(string projectid, PLAN_PURCHASE_REQUISITION form, string[] lstItemId)
         {
@@ -2732,6 +2699,45 @@ namespace topmeperp.Service
                    , new SqlParameter("prid", prid), new SqlParameter("createDate", createDate)).FirstOrDefault();
             }
             return PRform;
+        }
+
+        //取得領料單資料
+        public List<PRFunction> getDOByPrjId(string projectid, string recipient, string prid, string caution)
+        {
+
+            logger.Info("search delivery form by 領料說明 =" + caution + ", 領料單編號 =" + prid + ", 領料人所屬單位 =" + recipient);
+            List<PRFunction> lstForm = new List<PRFunction>();
+            //處理SQL 預先填入專案代號,設定集合處理參數
+            string sql = "SELECT CONVERT(char(10), CREATE_DATE, 111) AS CREATE_DATE, PR_ID, RECIPIENT, CAUTION, ROW_NUMBER() OVER(ORDER BY PR_ID) AS NO " +
+                "FROM PLAN_PURCHASE_REQUISITION WHERE PROJECT_ID =@projectid AND PR_ID LIKE 'D%' ";
+
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("projectid", projectid));
+            //領料說明查詢條件
+            if (null != caution && caution != "")
+            {
+                sql = sql + "AND CAUTION LIKE @caution ";
+                parameters.Add(new SqlParameter("caution", '%' + caution + '%'));
+            }
+            //領料單編號條件
+            if (null != prid && prid != "")
+            {
+                sql = sql + "AND PR_ID =@prid ";
+                parameters.Add(new SqlParameter("prid", prid));
+            }
+            //領料人條件
+            if (null != recipient && recipient != "")
+            {
+                sql = sql + "AND RECIPIENT LIKE @recipient ";
+                parameters.Add(new SqlParameter("recipient", '%' + recipient + '%'));
+            }
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("get delivery form sql=" + sql);
+                lstForm = context.Database.SqlQuery<PRFunction>(sql, parameters.ToArray()).ToList();
+            }
+            logger.Info("get delivery form count=" + lstForm.Count);
+            return lstForm;
         }
 
         //取得個別物料的庫存數量
