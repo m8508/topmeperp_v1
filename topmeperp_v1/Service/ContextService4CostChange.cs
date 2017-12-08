@@ -61,7 +61,7 @@ namespace topmeperp.Service
             return form.FORM_ID;
         }
         //查詢異動單
-        public List<PLAN_COSTCHANGE_FORM> getChangeOrders(string projectId, string remark)
+        public List<PLAN_COSTCHANGE_FORM> getChangeOrders(string projectId, string remark,string status)
         {
             List<PLAN_COSTCHANGE_FORM> lstForms = new List<PLAN_COSTCHANGE_FORM>();
             //2.將預算資料寫入 
@@ -73,8 +73,13 @@ namespace topmeperp.Service
                 parameters.Add(new SqlParameter("projectId", projectId));
                 if (null != remark && remark != "")
                 {
-                    sql = sql + " AND REMARK Like @remark;";
-                    parameters.Add(new SqlParameter("remark", "'%" + remark + "%'"));
+                    sql = sql + " AND REMARK Like @remark";
+                    parameters.Add(new SqlParameter("remark", "%" + remark + "%"));
+                }
+                if (null != status && status != "")
+                {
+                    sql = sql + " AND STATUS =@status";
+                    parameters.Add(new SqlParameter("status", status));
                 }
                 logger.Debug("SQL:" + sql);
                 lstForms = context.PLAN_COSTCHANGE_FORM.SqlQuery(sql, parameters.ToArray()).ToList();
@@ -201,6 +206,37 @@ namespace topmeperp.Service
                 }
             }
             return i;
+        }
+        public string updateChangeOrderStatus(PLAN_COSTCHANGE_FORM form)
+        {
+            int i = 0;
+            string sqlForm = "UPDATE PLAN_COSTCHANGE_FORM SET REMARK=REMARK + @remark,STATUS=@status,MODIFY_USER_ID=@userId,MODIFY_DATE=@modifyDate WHERE FORM_ID=@formId;";
+            //2.將資料寫入 
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    //更新表頭
+                    context.Database.BeginTransaction();
+                    var parameters = new List<SqlParameter>();
+                    parameters.Add(new SqlParameter("remark", form.REMARK));
+                    parameters.Add(new SqlParameter("status", form.STATUS));
+                    parameters.Add(new SqlParameter("userId", form.MODIFY_USER_ID));
+                    parameters.Add(new SqlParameter("modifyDate", form.MODIFY_DATE));
+                    parameters.Add(new SqlParameter("formId", form.FORM_ID));
+                    i = context.Database.ExecuteSqlCommand(sqlForm, parameters.ToArray());
+                    logger.Debug("create COSTCHANGE_FORM:" + sqlForm);
+                    context.Database.CurrentTransaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    context.Database.CurrentTransaction.Rollback();
+                    logger.Error(ex.Message + ":" + ex.StackTrace);
+                    return "資料更新失敗!!(" + ex.Message + ")";
+                }
+            }
+
+            return "資料更新成功!(" + i + ")";
         }
     }
 }

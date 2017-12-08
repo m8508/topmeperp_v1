@@ -626,16 +626,34 @@ namespace topmeperp.Controllers
             logger.Info("Request:PROJECT_ID =" + Request["projectId"]);
             return msg;
         }
+        /// <summary>
+        /// 異動單控制區塊
+        /// </summary>
+        /// <returns></returns>
         //異動單管理資料
         public ActionResult PlanItemChange()
         {
             string projectId = Request["projectid"];
-            TND_PROJECT p = service.getProject(projectId);
             logger.Info("projectid=" + projectId);
+            TND_PROJECT p = service.getProject(projectId);
             ViewBag.projectId = p.PROJECT_ID;
             ViewBag.projectName = p.PROJECT_NAME;
+            string status = null;
+            string remark = null;
+            //查詢條件
+            if (null != Request["status"] && "*" != Request["status"])
+            {
+                logger.Debug("status=" + Request["status"]);
+                status = Request["status"];
+            }
+            if (null != Request["remark"])
+            {
+                logger.Debug("remark=" + Request["remark"]);
+                remark = Request["remark"];
+            }
+
             CostChangeService cs = new CostChangeService();
-            List<PLAN_COSTCHANGE_FORM> lstForms = cs.getChangeOrders(projectId, null);
+            List<PLAN_COSTCHANGE_FORM> lstForms = cs.getChangeOrders(projectId, remark, status);
             return View(lstForms);
         }
         //建立異動單-標單品項選擇畫面
@@ -804,7 +822,8 @@ namespace topmeperp.Controllers
                     if (null != f["transFlg." + itemId[i]])
                     {
                         it.TRANSFLAG = f["transFlg." + itemId[i]];
-                    }else
+                    }
+                    else
                     {
                         it.TRANSFLAG = "0";
                     }
@@ -920,7 +939,7 @@ namespace topmeperp.Controllers
             int i = cs.addChangeOrderItem(item);
 
             //  if (i == 0) { msg = service.message; }
-            return msg +"(" + i +")";
+            return msg + "(" + i + ")";
         }
         //刪除單一品項資料
         public String delChangeOrderItem()
@@ -930,7 +949,29 @@ namespace topmeperp.Controllers
             logger.Info(loginUser.USER_ID + " remove data:change_order_item uid=" + itemUid);
             CostChangeService cs = new CostChangeService();
             int i = cs.delChangeOrderItem(itemUid);
-            return "資料已刪除("+ i+ ")";
+            return "資料已刪除(" + i + ")";
+        }
+        //將異動單送審
+        public string send2Audit()
+        {
+            string strFormID = null;
+            string returnMsg = null;
+            SYS_USER loginUser = (SYS_USER)Session["user"];
+            if (null != Request["formId"])
+            {
+                strFormID = Request["formId"];
+                logger.Info(loginUser.USER_ID + " set form to audit:" + strFormID);
+
+                PLAN_COSTCHANGE_FORM formCostChange = new PLAN_COSTCHANGE_FORM();
+                formCostChange.FORM_ID = strFormID;
+                formCostChange.REMARK = ""; //如果需要可透過Remark 補充資料
+                formCostChange.STATUS = "送審";
+                formCostChange.MODIFY_DATE = DateTime.Now;
+                formCostChange.MODIFY_USER_ID = loginUser.USER_ID;
+                CostChangeService cs = new CostChangeService();
+                returnMsg = cs.updateChangeOrderStatus(formCostChange);
+            }
+            return returnMsg;
         }
     }
 }

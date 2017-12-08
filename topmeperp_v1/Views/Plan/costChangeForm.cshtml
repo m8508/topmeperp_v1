@@ -23,7 +23,10 @@
                 </div>
                 <div class="col-sm-3">
                     <a class="btn btn-link" href="#">下載</a>
-                    <button class="btn btn-link" data-toggle="modal" data-target="#formUploadItem" type="button">上傳</button>
+                    @if (ViewBag.formStatus == "新建立")
+                    {
+                        <button class="btn btn-link" data-toggle="modal" data-target="#formUploadItem" type="button">上傳</button>
+                    }
                 </div>
             </div>
             <div class="row form-group">
@@ -32,17 +35,23 @@
                     <textarea class="form-control" rows="3" id="remark" name="remark">@ViewBag.Remark</textarea>
                 </div>
                 <div class="col-sm-2">
-                    <button id="btnSave" class="btn btn-default" type="submit">儲存</button>
-                    <button id="btnSent" class="btn btn-info" type="button">送審</button>
+                    @if (ViewBag.formStatus == "新建立")
+                    {
+                        <button id="btnSave" class="btn btn-default" type="submit">儲存</button>
+                        <button id="btnSent" class="btn btn-info" type="button" onclick="sent2Audit()">送審</button>
+                    }
                 </div>
             </div>
 
             <div class="row body-content">
-                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#changeOrderItem" onclick="addChangeOrderItem()">新增</button>
+                @if (ViewBag.formStatus == "新建立")
+                {
+                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#changeOrderItem" onclick="addChangeOrderItem()">新增</button>
+                }
                 @if (null != Model)
-            {
-                Html.RenderPartial("_ChangeOrderItemList");
-            }
+                {
+                    Html.RenderPartial("_ChangeOrderItemList");
+                }
             </div>
         </form>
     </div>
@@ -214,10 +223,29 @@
     //將ProjectItem 註記刪除
     function delChangeOrderItem(itemid) {
         // alert(itemid);
+        if ($("#status") !== "新建立") {
+            alert("此異動單不可再調整內容!!");
+            return;
+        }
         $.ajax({
             url: "/Plan/delChangeOrderItem",
             type: "POST",
             data: { itemid: itemid },
+            dataType: "text",
+            success: function (data) {
+                alert(data);
+                location.reload();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('Error del data by ajax');
+            }
+        });
+    }
+    function sent2Audit() {
+        $.ajax({
+            url: "/Plan/send2Audit",
+            type: "POST",
+            data: { formId: $("#txtFormId").val() },
             dataType: "text",
             success: function (data) {
                 alert(data);
