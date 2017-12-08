@@ -161,5 +161,46 @@ namespace topmeperp.Service
 
             return "資料更新成功!(" + i + ")";
         }
+        //新增異動單品項
+        public int addChangeOrderItem(PLAN_COSTCHANGE_ITEM item)
+        {
+            int i = 0;
+            //2.將資料寫入 
+            using (var context = new topmepEntities())
+            {
+                try { 
+                logger.Debug("create COSTCHANGE_FORM:" + item.FORM_ID);
+                context.PLAN_COSTCHANGE_ITEM.Add(item);
+                i = context.SaveChanges();
+                }catch (Exception ex)
+                {
+                    logger.Error(ex.Message + ":" + ex.StackTrace);
+                }
+            }
+            return i;
+        }
+        //移除異動單品項
+        public int delChangeOrderItem(long itemid)
+        {
+            int i = 0;
+            //2.將品項資料刪除
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    string sql = "DELETE FROM PLAN_COSTCHANGE_ITEM WHERE ITEM_UID=@itemUid;";
+                    var parameters = new List<SqlParameter>();
+                    parameters.Add(new SqlParameter("itemUid", itemid));
+                    logger.Debug("Delete COSTCHANGE_ITEM:" + itemid);
+                    context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+                    i = context.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.Message + ":" + ex.StackTrace);
+                }
+            }
+            return i;
+        }
     }
 }

@@ -31,6 +31,9 @@
     {
         <tr>
             <td data-th="編號">
+                <button type="button" class="btn btn-default btn-xs" onclick="delChangeOrderItem('@item.ITEM_UID')">
+                    <span class="glyphicon glyphicon-remove" aria-hidden="true" style="color:red"></span>
+                </button>
                 <input type="hidden" id="uid" name="uid"  size="3" value="@item.ITEM_UID" />@item.PLAN_ITEM_ID
             </td>
             <td data-th="標單項次">

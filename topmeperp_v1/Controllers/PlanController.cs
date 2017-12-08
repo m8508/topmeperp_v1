@@ -860,7 +860,7 @@ namespace topmeperp.Controllers
                     lstItemId.AddRange(getItem("map_fw.", f["map_fw"].Trim().Split(',')));
                 }
                 CostChangeService s = new CostChangeService();
-                reurnMsg = "異動單已建立!(" + s.createChangeOrder(formCostChange, lstItemId) + ")";
+                reurnMsg = s.createChangeOrder(formCostChange, lstItemId);
             }
             return reurnMsg;
         }
@@ -879,6 +879,58 @@ namespace topmeperp.Controllers
             }
             return lstItemId;
         }
+        //新增異動單品項
+        public String addChangeOrderItem(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            string msg = "更新成功!!";
 
+            PLAN_COSTCHANGE_ITEM item = new PLAN_COSTCHANGE_ITEM();
+            item.FORM_ID = form["dia_form_id"];
+            item.PLAN_ITEM_ID = form["dia_plan_item_id"];
+            item.ITEM_ID = form["item_id"];
+            item.ITEM_DESC = form["dia_item_desc"];
+            item.ITEM_UNIT = form["dia_item_unit"];
+            try
+            {
+                item.ITEM_QUANTITY = decimal.Parse(form["dia_item_quantity"]);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(item.PLAN_ITEM_ID + " not quattity:" + ex.Message);
+            }
+            try
+            {
+                item.ITEM_UNIT_PRICE = decimal.Parse(form["dia_item_unit_price"]);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(item.PLAN_ITEM_ID + " not unit price:" + ex.Message);
+            }
+            item.ITEM_REMARK = form["dia_item_remark"];
+
+            item.TRANSFLAG = form["dia_transFlag"];
+
+            SYS_USER loginUser = (SYS_USER)Session["user"];
+            item.CREATE_USER_ID = loginUser.USER_ID;
+            item.CREATE_DATE = DateTime.Now;
+            // InquiryFormService service = new InquiryFormService();
+
+            CostChangeService cs = new CostChangeService();
+            int i = cs.addChangeOrderItem(item);
+
+            //  if (i == 0) { msg = service.message; }
+            return msg +"(" + i +")";
+        }
+        //刪除單一品項資料
+        public String delChangeOrderItem()
+        {
+            long itemUid = long.Parse(Request["itemid"]);
+            SYS_USER loginUser = (SYS_USER)Session["user"];
+            logger.Info(loginUser.USER_ID + " remove data:change_order_item uid=" + itemUid);
+            CostChangeService cs = new CostChangeService();
+            int i = cs.delChangeOrderItem(itemUid);
+            return "資料已刪除("+ i+ ")";
+        }
     }
 }

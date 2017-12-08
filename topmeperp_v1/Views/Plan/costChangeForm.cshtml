@@ -14,7 +14,7 @@
                 </div>
                 <label class="col-sm-1 control-label">專案名稱:</label>
                 <label class="col-sm-6 info">@ViewBag.projectName</label>
-                <label class="col-sm-2 alert-warning">狀態:<input type="text" id="status" name="status" value="@ViewBag.formStatus" readonly size="3" /></label>
+                <label class="col-sm-2 alert-warning">狀態:<input type="text" id="status" name="status" value="@ViewBag.formStatus" readonly size="2" /></label>
             </div>
             <div class="row form-group">
                 <label class="col-sm-1 control-label">單號:</label>
@@ -38,12 +38,85 @@
             </div>
 
             <div class="row body-content">
+                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#changeOrderItem" onclick="addChangeOrderItem()">新增</button>
                 @if (null != Model)
             {
                 Html.RenderPartial("_ChangeOrderItemList");
             }
             </div>
         </form>
+    </div>
+</div>
+<!--新增品項對話框-->
+<div class="modal fade" id="changeOrderItem" role="dialog">
+    <div class="modal-dialog" id="changeOrderItem">
+        <div class="modal-content">
+            <form id="formChangeOrderItem" name="formChangeOrderItem" action="/Plan/addChangeOrderItem" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">品項資料</h4>
+                </div>
+                <div class="modal-body form-group">
+                    <!--異動品項基本屬性-->
+                    <input type="hidden" id="dia_form_id" name="dia_form_id" value="@ViewBag.FormId" />
+                    <div class="row form-group">
+                        <div class="col-md-4">編號</div>
+                        <div class="col-md-8">
+                            <input type="text" id="dia_plan_item_id" name="dia_plan_item_id" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4">項次</div>
+                        <div class="col-md-8">
+                            <input type="text" id="dia_item_id" name="dia_item_id" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm-4">品項名稱</div>
+                        <div class="col-md-8">
+                            <input type="text" id="dia_item_desc" name="dia_item_desc" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4">單位</div>
+                        <div class="col-md-8">
+                            <input type="text" id="dia_item_unit" name="dia_item_unit" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4">數量</div>
+                        <div class="col-md-8">
+                            <input type="text" id="dia_item_quantity" name="dia_item_quantity" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4">單價</div>
+                        <div class="col-md-8">
+                            <input type="text" id="dia_item_unit_price" name="dia_item_unit_price" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4">備註</div>
+                        <div class="col-md-8">
+                            <input type="text" id="dia_item_remark" name="dia_item_remark" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-4">轉入標單</div>
+                        <div class="col-md-8">
+                            <select id="dia_transFlag" name="dia_transFlag">
+                                <option value="0" selected>否</option>
+                                <option value="1">是</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">關閉</button>
+                    <button type="submit" class="btn btn-default" data-dismiss="modal" id="saveChangeOrderItem">儲存</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -68,7 +141,6 @@
         </div>
     </div>
 </div>
-
 
 <script type="text/javascript">
     $(document).ready(function () {
@@ -109,5 +181,51 @@
             e.unbind();
         });
         $("#formFileUpload").submit(); //Submit the form
+    }
+    //開啟對話框時清空欄位
+    function addChangeOrderItem() {
+        $('#dia_plan_item_id').val("");
+        $('#dia_item_id').val("");
+        $('#dia_item_desc').val("");
+        $('#dia_item_unit').val("");
+        $('#dia_item_quantity').val("");
+        $('#dia_item_unit_price').val("");
+        $('#dia_item_remark').val("");
+        $('#dia_transFlag').val("0");
+    }
+    //將對話框Form 送出
+    $("#saveChangeOrderItem").click(function () {
+        var s = $('#formChangeOrderItem').serialize();
+        var URLs = "/Plan/addChangeOrderItem";
+        $.ajax({
+            url: URLs,
+            data: $('#formChangeOrderItem').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+                location.reload();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    });
+    //將ProjectItem 註記刪除
+    function delChangeOrderItem(itemid) {
+        // alert(itemid);
+        $.ajax({
+            url: "/Plan/delChangeOrderItem",
+            type: "POST",
+            data: { itemid: itemid },
+            dataType: "text",
+            success: function (data) {
+                alert(data);
+                location.reload();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('Error del data by ajax');
+            }
+        });
     }
 </script>
