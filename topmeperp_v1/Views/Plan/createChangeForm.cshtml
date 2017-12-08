@@ -76,7 +76,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <button class="btn btn-info" type="button" onclick="getMapItem4Task()">查詢</button>
+                            <button class="btn btn-info" type="button" onclick="getMapItem4ChangeOrder()">查詢</button>
                         </div>
                     </div>
                 </form>
@@ -153,7 +153,7 @@
         }
 
         //讀取圖算資料
-        function getMapItem4Task() {
+        function getMapItem4ChangeOrder() {
             $.ajax({
                 url: "/Plan/getMapItem4ChangeForm",
                 data: $("#formQueryForm").serialize(),
@@ -164,51 +164,7 @@
                 }
             })
         }
-        //更新TypeCodeL2
-        function getTypeCode2() {
-            if ("" == $('#TypeCodeL1').val()) {
-                $('#TypeCodeL2 option').remove();
-                $('#TypeSub option').remove();
-                return;
-            }
-            $.ajax({
-                url: "/MaterialManage/getTypeCodeL2",
-                data: { typecode1: $('#TypeCodeL1').val() },
-                method: "POST",
-                dataType: "JSON",
-                success: function (result) {
-                    //更換typecode2 option
-                    var $el = $('#TypeCodeL2');
-                    $el.html(' ');
-                    $.each(result, function (key, value) {
-                        $el.append($("<option></option>").attr("value", key).text(value));
-                    });
-                },
-                error: function (xhr) {
-                    alert('Ajax request 發生錯誤');
-                }
-            })
-        }
-        //更新Sub Type
-        function getSubType() {
-            $.ajax({
-                url: "/MaterialManage/getSubType",
-                data: { typecode: $('#TypeCodeL2').val() },
-                method: "POST",
-                dataType: "JSON",
-                success: function (result) {
-                    //更換typecode2 option
-                    var $el = $('#TypeSub');
-                    $el.html(' ');
-                    $.each(result, function (key, value) {
-                        $el.append($("<option></option>").attr("value", key).text(value));
-                    });
-                },
-                error: function (xhr) {
-                    alert('Ajax request 發生錯誤');
-                }
-            })
-        }
+
         function choiceMapItem() {
             var formData = "projectId=" + $("#projectid").val() + "&txtFormId=" + $("#txtFormId").val() + "&" + $("#formChangeForm").serialize();
             console.log(formData);
@@ -223,3 +179,5 @@
             })
         }
     </script>
+    <!--//更新TypeCodeL2、更新Sub Type-->
+    <script src="~/Scripts/topmep_selecComp.js"></script>

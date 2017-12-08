@@ -663,6 +663,16 @@ namespace topmeperp.Controllers
             string id = Request["projectId"];
             ViewBag.projectId = id;
             //取得主系統資料
+            Dictionary<string, object> sec = getMapItemQueryCriteria(id);
+            ViewBag.SystemMain = sec["SystemMain"];
+            ViewBag.SystemSub = sec["SystemSub"];
+            ViewBag.TypeCodeL1 = sec["TypeCodeL1"];
+            return View();
+        }
+
+        public static Dictionary<string, object> getMapItemQueryCriteria(string id)
+        {
+            Dictionary<string, object> selectComponent = new Dictionary<string, object>();
             List<SelectListItem> selectMain = new List<SelectListItem>();
             PurchaseFormService service = new PurchaseFormService();
             foreach (string itm in service.getSystemMain(id))
@@ -677,7 +687,8 @@ namespace topmeperp.Controllers
                 }
             }
             // selectMain.Add(empty);
-            ViewBag.SystemMain = selectMain;
+            selectComponent.Add("SystemMain", selectMain);
+
             //取得次系統資料
             List<SelectListItem> selectSub = new List<SelectListItem>();
             foreach (string itm in service.getSystemSub(id))
@@ -692,7 +703,8 @@ namespace topmeperp.Controllers
                 }
             }
             //selectSub.Add(empty);
-            ViewBag.SystemSub = selectSub;
+            selectComponent.Add("SystemSub", selectSub);
+
 
             TypeManageService typeService = new TypeManageService();
             List<REF_TYPE_MAIN> lstType1 = typeService.getTypeMainL1();
@@ -707,9 +719,10 @@ namespace topmeperp.Controllers
                 selectI.Text = lstType1[idx].CODE_1_DESC;
                 selectType1.Add(selectI);
             }
-            ViewBag.TypeCodeL1 = selectType1;
-            return View();
+            selectComponent.Add("TypeCodeL1", selectType1);
+            return selectComponent;
         }
+
         //取得異動單相關品項選項
         public ActionResult getMapItem4ChangeForm(FormCollection f)
         {

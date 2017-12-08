@@ -119,7 +119,12 @@ namespace topmeperp.Controllers
             log.Debug("show sreen for task manage");
             string projectid = Request["projectid"];
             ViewBag.projectId = projectid;
-            ViewBag.TreeString = planService.getProjectTask4Tree(projectid); ;
+            ViewBag.TreeString = planService.getProjectTask4Tree(projectid);
+            Dictionary<string, object> sec = PlanController.getMapItemQueryCriteria(projectid);
+            ViewBag.SystemMain = sec["SystemMain"];
+            ViewBag.SystemSub = sec["SystemSub"];
+            ViewBag.TypeCodeL1 = sec["TypeCodeL1"];
+
             return View();
         }
         //查詢圖算資訊
