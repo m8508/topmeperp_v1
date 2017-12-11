@@ -310,8 +310,9 @@ namespace topmeperp.Models
         public Nullable<decimal> ALL_RECEIPT_QTY { get; set; }
         public Nullable<decimal> DELIVERY_QTY { get; set; }
         public Int64 NO { get; set; }
-        public Int64 DELIVERY_ID { get; set; }
-
+        public string DELIVERY_ORDER_ID { get; set; }
+        public string PARENT_PR_ID { get; set; }
+        
     }
     public class PRFunction
     {

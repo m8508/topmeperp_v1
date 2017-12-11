@@ -2628,23 +2628,26 @@ namespace topmeperp.Service
             return j;
         }
 
-        //取得領料紀錄
+        //取得物料進出紀錄
         public List<PurchaseRequisition> getDeliveryByItemId(string itemid)
         {
 
-            logger.Info(" get delivery record by 物料編號 =" + itemid);
+            logger.Info(" get receipt record and delivery record by 物料編號 =" + itemid);
             List<PurchaseRequisition> lstItem = new List<PurchaseRequisition>();
             //處理SQL 預先填入專案代號,設定集合處理參數
-            string sql = "SELECT *, ROW_NUMBER() OVER(ORDER BY CREATE_DATE DESC) AS NO FROM PLAN_ITEM_DELIVERY WHERE PLAN_ITEM_ID =@itemid ";
+            string sql = "SELECT A.* FROM (SELECT pid.DELIVERY_ORDER_ID, pid.CREATE_DATE, pid.DELIVERY_QTY, pr.PARENT_PR_ID, ROW_NUMBER() OVER(ORDER BY pid.CREATE_DATE ASC) AS NO " +
+                "FROM PLAN_ITEM_DELIVERY pid LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pid.DELIVERY_ORDER_ID = pr.PR_ID WHERE pid.PLAN_ITEM_ID =@itemid " +
+                "UNION SELECT pri.PR_ID, pr.CREATE_DATE, pri.RECEIPT_QTY, pr.PARENT_PR_ID, ROW_NUMBER() OVER(ORDER BY pr.CREATE_DATE ASC) AS NO FROM PLAN_PURCHASE_REQUISITION_ITEM pri " +
+                "LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID WHERE pr.PR_ID LIKE 'RP%' AND pri.PLAN_ITEM_ID =@itemid)A ORDER BY A.CREATE_DATE ";
 
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("itemid", itemid));
             using (var context = new topmepEntities())
             {
-                logger.Debug("get delivery sql=" + sql);
+                logger.Debug("get receipt and delivery sql=" + sql);
                 lstItem = context.Database.SqlQuery<PurchaseRequisition>(sql, parameters.ToArray()).ToList();
             }
-            logger.Info("get delivery record count=" + lstItem.Count);
+            logger.Info("get receipt record and delivery record count=" + lstItem.Count);
             return lstItem;
         }
 

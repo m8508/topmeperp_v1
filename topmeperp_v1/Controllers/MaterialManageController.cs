@@ -1098,14 +1098,12 @@ namespace topmeperp.Controllers
             return Redirect("SingleDO?id=" + deliveryorderid);
         }
 
-        //領料明細
+        //物料進出明細
         public ActionResult DeliveryItem(string id)
         {
-            log.Info("Access to Delivery List !!");
+            log.Info("Access to Delivery Item !!");
             List<PurchaseRequisition> lstItem = service.getDeliveryByItemId(id);
-            PurchaseRequisition lstInventory = service.getInventoryByItemId(id);
-            ViewBag.allReceipt = lstInventory.ALL_RECEIPT_QTY;
-            log.Debug("plan_item_id = " + id + "其總驗收數量為" + ViewBag.allReceipt);
+            log.Debug("plan_item_id = " + id);
             return View(lstItem);
         }
 
