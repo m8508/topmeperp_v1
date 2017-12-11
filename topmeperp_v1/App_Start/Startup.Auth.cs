@@ -1,11 +1,7 @@
-﻿using System;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
+﻿using Microsoft.AspNet.Identity;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
-using Microsoft.Owin.Security.Google;
 using Owin;
-using topmeperp.Models;
 using log4net;
 
 namespace topmeperp
@@ -28,6 +24,6 @@ namespace topmeperp
     }
     public class AppInfo
     {
-        public static string Version="1.0.3";
+        public static string Version="1.0.4";
     }
 }

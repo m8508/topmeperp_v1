@@ -8,6 +8,7 @@
 
 <div class="container">
     <div class="row">
+        <!--樹狀圖區塊與任務清單-->
         <div class="col-md-6">
             <h2 id="task">專案任務</h2><a href="#ItemInfo">施作項目</a>
             <div id="treeview" style="height:500px;overflow-x:auto;"></div>
@@ -16,23 +17,12 @@
                 <div class="container" id="item4task"></div>               
             </div>
         </div>
+        <!--圖算區塊查詢條件-->
         <div class="col-md-6">
             <h2>施作內容</h2>
             <div class="container">
                 <form name="formQueryForm" id="formQueryForm">
-                    <div class="row panel-heading">
-                        <div class="col-md-12">
-                            <input type="hidden" name="projectid" id="projectid" value="@ViewBag.projectId" readonly />
-                            <label class="control-label" for="mapno">圖號: </label><input type="text" name="mapno" id="mapno" value="" size="5" />
-                            <label class="control-label" for="buildno">區域或棟別: </label><input type="text" name="buildno" id="buildno" value="" size="5" /><br />
-                            <label class="control-label" for="primeside">位置(一次側): </label><input type="text" name="primeside" id="primeside" value="" size="5" />
-                            <label class="control-label" for="secondside">位置(二次側): </label><input type="text" name="secondside" id="secondside" value="" size="5" /><br/>
-                            <label class="control-label" for="secondside">設備名稱: </label><input type="text" name="devicename" id="devicename" value="" size="5" />
-                            <label class="control-label" for="secondside">編號: </label>
-                            <input type="text" name="startid" id="startid" value="" size="5" />~
-                            <input type="text" name="endid" id="endid" value="" size="5" />
-                        </div>
-                    </div>
+                    <!--施作項目-->
                     <div class="row">
                         <div class="col-md-12">
                             <label class="control-label" for="mapType">施作項目:</label>
@@ -42,9 +32,52 @@
                             <input type="checkbox" name="mapType" id="mapType" value="TND_MAP_PLU" title="給排水" />給排水
                             <input type="checkbox" name="mapType" id="mapType" value="MAP_FP" title="消防電" />消防電
                             <input type="checkbox" name="mapType" id="mapType" value="MAP_FW" title="消防水" />消防水
+                        </div>
+                    </div>
+                    <!--設備主要依據9宮格次九宮格-->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="control-label" for="typeCode1">類型: </label>
+                            @Html.DropDownList("TypeCodeL1", (IEnumerable<SelectListItem>)ViewBag.TypeCodeL1, String.Empty, new { @class = "selectpicker", onchange = "getTypeCode2()" })
+                            <select id="TypeCodeL2" name="TypeCodeL2" class="selectpicker" onchange="getSubType()"></select>
+
+                            <select id="TypeSub" name="TypeSub" class="selectpicker"></select>
+                            <label for="systemMain">主系統:</label>
+                            @Html.DropDownList("SystemMain", (IEnumerable<SelectListItem>)ViewBag.SystemMain, String.Empty, new { @class = "selectpicker" })
+                            <label for="systemSub">次系統:</label>
+                            @Html.DropDownList("systemSub", (IEnumerable<SelectListItem>)ViewBag.SystemSub, String.Empty, new { @class = "selectpicker" })
+                        </div>
+                    </div>
+                    <!--電器管線主要依據一次側位置、名稱，二次側位置、名稱-->
+                    <!--給排水管線主要依據一次側位置、名稱-->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="control-label" for="primeside">(一次側)位置: </label><input type="text" name="primeside" id="primeside" value="" />
+                            <label class="control-label" for="primesideName">名稱: </label><input type="text" name="primesideName" id="primesideName" value="" />
+                            <label class="control-label" for="secondside">(二次側)名稱: </label><input type="text" name="secondside" id="secondside" value="" />
+                            <label class="control-label" for="secondsideName">位置: </label><input type="text" name="secondsideName" id="secondsideName" value="" />
+                        </div>
+                    </div>
+                    <!--其他-->
+                    <div class="row panel-body">
+                        <div class="col-md-12">
+                            <input type="hidden" name="projectid" id="projectid" value="@ViewBag.projectid" readonly />
+                            <div class="col-md-4">
+                                <label class="control-label" for="mapno">圖號: </label><input type="text" name="mapno" id="mapno" value="" size="6" />
+                                <label class="control-label" for="buildno">區域或棟別: </label><input type="text" name="buildno" id="buildno" value="" size="6" />
+                            </div>
+                            <div class="col-md-8">
+                                <label class="control-label" for="secondside">設備名稱: </label><input type="text" name="devicename" id="devicename" value="" />
+                                <label class="control-label" for="secondside">編號: </label>
+                                <input type="text" name="startid" id="startid" value="" />~
+                                <input type="text" name="endid" id="endid" value="" />
+                            </div>
+                        </div>
+                        <div class="row">
                             <button class="btn btn-info" type="button" onclick="getMapItem4Task()">查詢</button>
                         </div>
                     </div>
+
                 </form>
             </div>
             <form  id="formMapItem" name="formMapItem">
@@ -81,7 +114,7 @@
             $('#checkNodeId').val("");
         }
     });
-    //讀去任務施作項目
+    //讀取任務施作項目
     function getProjectItem4Task() {
         $.ajax({
             url: "getActionItem4Task",
@@ -93,18 +126,7 @@
             }
         })
     }
-    //讀取圖算資料
-    function getMapItem4Task() {
-        $.ajax({
-            url: "getMapItem4Task",
-            data: $("#formQueryForm").serialize(),
-            method: "POST",
-            dataType: "html",
-            success: function (result) {
-                $("#MapItem").html(result);
-            }
-        })
-    }
+
     ///選擇圖算
     function choiceMapItem() {
         var formData = $("#formMapItem").serialize();
@@ -120,3 +142,4 @@
         })
     }
 </script>
+<script src="~/Scripts/topmep_selecComp.js"></script>

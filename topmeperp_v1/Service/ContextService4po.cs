@@ -20,7 +20,7 @@ namespace topmeperp.Service
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public string message = "";
-        TND_PROJECT project = null;
+        public TND_PROJECT project = null;
         public TND_PROJECT budgetTable = null;
 
 
