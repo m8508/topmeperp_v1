@@ -690,7 +690,9 @@ namespace topmeperp.Controllers
             pr.PARENT_PR_ID = Request["parent_pr_id"];
             pr.STATUS = 20;
             pr.MEMO = Request["memo"];
+            log.Debug("meme = " + Request["memo"]);
             pr.MESSAGE = Request["message"];
+            log.Debug("message = " + Request["message"]);
             PLAN_PURCHASE_REQUISITION_ITEM item = new PLAN_PURCHASE_REQUISITION_ITEM();
             string prid = service.newPO(Request["id"], pr, lstItemId, Request["parent_pr_id"]);
             List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem = new List<PLAN_PURCHASE_REQUISITION_ITEM>();

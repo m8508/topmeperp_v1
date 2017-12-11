@@ -16,6 +16,7 @@
             </div>
         </div>
         <hr style="border-top: 1px solid #8c8b8b;" />
+        
         <!--設備主要依據9宮格次九宮格-->
         <div class="row">
             <div class="col-md-12">
@@ -68,46 +69,5 @@
         });
     });
 
-
-    //更新TypeCodeL2
-    function getTypeCode2() {
-        $.ajax({
-            url: "/MaterialManage/getTypeCodeL2",
-            data: { typecode1: $('#TypeCodeL1').val() },
-            method: "POST",
-            dataType: "JSON",
-            success: function (result) {
-                //更換typecode2 option
-                var $el = $('#TypeCodeL2');
-                $el.html(' ');
-                $.each(result, function (key, value) {
-                    $el.append($("<option></option>").attr("value", key).text(value));
-                });
-            },
-            error: function (xhr) {
-                alert('Ajax request 發生錯誤');
-            }
-        })
-    }
-    //更新Sub Type
-    function getSubType() {
-        $.ajax({
-            url: "/MaterialManage/getSubType",
-            data: { typecode: $('#TypeCodeL2').val() },
-            method: "POST",
-            dataType: "JSON",
-            success: function (result) {
-                //更換typecode2 option
-                var $el = $('#TypeSub');
-                $el.html(' ');
-                $.each(result, function (key, value) {
-                    $el.append($("<option></option>").attr("value", key).text(value));
-                });
-            },
-            error: function (xhr) {
-                alert('Ajax request 發生錯誤');
-            }
-        })
-    }
-
 </script>
+<script src="~/Scripts/topmep_selecComp.js"></script>

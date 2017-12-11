@@ -1923,7 +1923,7 @@ namespace topmeperp.Service
 
                 var parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("projectid", projectid));
-                sql = sql + "WHERE A.STATUS > 0 ";
+                sql = sql + "WHERE A.STATUS = 10 ";
 
                 //申購日期查詢條件
                 if (null != date && date != "")
@@ -2078,7 +2078,7 @@ namespace topmeperp.Service
                     "A.PROJECT_ID + '-' + PR_ID + '-' + ISNULL(SUPPLIER_ID,'') AS KEYNAME, CONVERT(char(10), A.CREATE_DATE, 111) AS CREATE_DATE, A.PR_ID, A.SUPPLIER_ID, A.PROJECT_ID, " +
                     "A.NEED_DATE FROM (SELECT pri.*, pi.ITEM_ID, pi.ITEM_DESC, pi.SUPPLIER_ID, pr.CREATE_DATE, pr.PROJECT_ID FROM PLAN_PURCHASE_REQUISITION_ITEM pri " +
                     "JOIN PLAN_ITEM pi ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID =@projectid " +
-                    "AND pr.SUPPLIER_ID IS NULL AND pr.STATUS > 0 )A WHERE A.PR_ID + A.SUPPLIER_ID NOT IN (SELECT DISTINCT(pr.PARENT_PR_ID + pr.SUPPLIER_ID) AS ORDER_RECORD " +
+                    "AND pr.SUPPLIER_ID IS NULL AND pr.STATUS > 0 AND pr.PR_ID LIKE 'PR%' )A WHERE A.PR_ID + A.SUPPLIER_ID NOT IN (SELECT DISTINCT(pr.PARENT_PR_ID + pr.SUPPLIER_ID) AS ORDER_RECORD " +
                     "FROM PLAN_PURCHASE_REQUISITION pr WHERE pr.PARENT_PR_ID + pr.SUPPLIER_ID IS NOT NULL))B GROUP BY B.KEYNAME, CONVERT(char(10), B.CREATE_DATE, 111), " +
                     "B.PR_ID, B.SUPPLIER_ID, B.PROJECT_ID ORDER BY NEED_DATE ";
 

@@ -971,6 +971,13 @@
     <Content Include="Views\Plan\_getMapItem4ChangeForm.cshtml" />
     <Content Include="Views\Plan\costChangeForm.cshtml" />
     <Content Include="Views\Plan\_ChangeOrderItemList.cshtml" />
+    <Content Include="Views\MaterialManage\_DeliveryList.cshtml" />
+    <Content Include="Views\MaterialManage\_ReceiptList4Dilivery.cshtml" />
+    <Content Include="Views\MaterialManage\ChangeToDelivery.cshtml" />
+    <Content Include="Views\MaterialManage\DeliveryItem.cshtml" />
+    <Content Include="Views\MaterialManage\DeliverySearch.cshtml" />
+    <Content Include="Views\MaterialManage\ReceiptSearch.cshtml" />
+    <Content Include="Views\MaterialManage\SingleDO.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

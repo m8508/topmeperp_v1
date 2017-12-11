@@ -22,7 +22,7 @@
                         <td>@item.PR_ID</td>
                         <td>@item.SUPPLIER_ID</td>
                         <td>
-                            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("SinglePO","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PR_ID)})'; ">修改採購單</button>
+                            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("SinglePO","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PR_ID)})'; ">檢視/修改採購單</button>
                             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Receipt","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PR_ID)})'; ">驗收</button>
                             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("ReceiptList","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PR_ID)})'; ">驗收明細</button>
                         </td>
