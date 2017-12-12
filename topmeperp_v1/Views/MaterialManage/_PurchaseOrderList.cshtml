@@ -5,8 +5,9 @@
             <thead>
                 <tr>
                     <th>項次</th>
+                    <th>申購單編號</th>
                     <th>採購日期</th>
-                    <th>編號</th>
+                    <th>採購單編號</th>
                     <th>供應商</th>
                     <th>功能</th>
                     <th>選項連結</th>
@@ -18,8 +19,11 @@
             {
                     <tr>
                         <td>@item.NO</td>
+                        <td>@item.PARENT_PR_ID</td>
                         <td>@item.CREATE_DATE</td>
-                        <td>@item.PR_ID</td>
+                        <td>
+                            <span style="font-weight:bold;color:dodgerblue">@item.PR_ID</span>
+                        </td>
                         <td>@item.SUPPLIER_ID</td>
                         <td>
                             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("SinglePO","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PR_ID)})'; ">檢視/修改採購單</button>

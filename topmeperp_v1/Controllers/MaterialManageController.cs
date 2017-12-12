@@ -722,8 +722,8 @@ namespace topmeperp.Controllers
         [HttpPost]
         public ActionResult PurchaseOrderIndex(FormCollection f)
         {
-            log.Info("projectid=" + Request["id"] + ", supplier =" + Request["supplier"] + ", prid =" + Request["prid"] + ", create_id =" + Request["create_date"]);
-            List<PRFunction> lstPO = service.getPOByPrjId(Request["id"], Request["create_date"], Request["supplier"], Request["prid"]);
+            log.Info("projectid=" + Request["id"] + ", supplier =" + Request["supplier"] + ", prid =" + Request["prid"] + ", create_id =" + Request["create_date"] + ", parent_prid =" + Request["parent_prid"]);
+            List<PRFunction> lstPO = service.getPOByPrjId(Request["id"], Request["create_date"], Request["supplier"], Request["prid"], Request["parent_prid"]);
             ViewBag.SearchResult = "共取得" + lstPO.Count + "筆資料";
             ViewBag.projectId = Request["id"];
             ViewBag.projectName = Request["projectName"];
@@ -1109,7 +1109,7 @@ namespace topmeperp.Controllers
             return View(lstItem);
         }
 
-        
+
         //驗收單查詢
         public ActionResult ReceiptSearch(string id)
         {
@@ -1224,6 +1224,19 @@ namespace topmeperp.Controllers
             ViewBag.projectId = Request["id"];
             ViewBag.projectName = Request["projectName"];
             return View("DeliverySearch", lstDO);
+        }
+
+        //3天內須驗收的物料品項
+        public ActionResult CheckForReceipt(string id)
+        {
+            log.Info("Access to CheckForReceip Page !!");
+            ViewBag.projectid = id;
+            TnderProject tndservice = new TnderProject();
+            TND_PROJECT p = tndservice.getProjectById(id);
+            ViewBag.projectName = p.PROJECT_NAME;
+            List<PurchaseRequisition> lstItem = service.getPlanItemByNeedDate(id);
+            ViewBag.SearchResult = "共取得" + lstItem.Count + "筆資料";
+            return View(lstItem);
         }
     }
 }

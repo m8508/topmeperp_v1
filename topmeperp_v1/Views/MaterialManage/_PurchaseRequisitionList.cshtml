@@ -22,14 +22,20 @@
                         <td>@item.CREATE_DATE</td>
                         <td><a href="/MaterialManage/SinglePR/@item.PR_ID" target="_blank">@item.PR_ID</a></td>
                         <td>@item.TASK_NAME</td>
-                        @if (item.STATUS == 0)
-                        {
-                            <td>草稿</td>
-                        }
-                        else
-                        {
-                            <td>已送審</td>
-                        }
+                        <td>
+                            @if (item.STATUS == 0)
+                            {
+                                <span>草稿</span>
+                            }
+                            else if (null != item.CHILD_PR_ID && item.CHILD_PR_ID != "")
+                            {
+                                <span style="font-weight:bold;color:dodgerblue">已採購</span>
+                            }
+                            else
+                            {
+                                <span>已送審</span>
+                            }
+                        </td>
                         <td><a href='@("../../UploadFile/" + ViewBag.projectid + "/Materials/" + item.PR_ID + ".xlsx")'>下載</a></td>
                     </tr>
                 }
@@ -37,4 +43,3 @@
         </table>
     </div>
 </div>
-

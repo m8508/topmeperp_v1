@@ -17,23 +17,26 @@
         <hr style="border-top: 1px solid #8c8b8b;" />
 
         <div class="row">
-            <div class='col-md-6 date form-group' style="padding-top:10px">
+            <div class='col-md-4 date form-group' style="padding-top:10px">
                 <label for="create_date">採購日期 : </label>
                 <input id="create_date" name="create_date" class="form-control" />
-                <div class="col-md-6 form-group" style="padding-top:10px">
-                    <label for="supplier">供應商名稱 :</label>
+                <div class="col-md-4 form-group" style="padding-top:10px">
+                    <label for="parent_prid">申購單編號</label>
+                    <input id="parent_prid" name="parent_prid" type="text" value="" class="form-control" />
+                </div>
+            </div>
+            <div class='col-md-4 form-group' style="padding-top:10px">
+                <label for="prid">採購單編號 :</label>
+                <input id="prid" name="prid" type="text" value="" class="form-control" />
+                <div class="col-md-4 form-group" style="padding-top:10px">
+                    <label for="supplier">供應商名稱</label>
                     <input id="supplier" name="supplier" type="text" value="" class="form-control" />
                 </div>
             </div>
-            <div class='col-md-6 form-group' style="padding-top:10px">
-                <label for="prid">採購單編號 :</label>
-                <input id="prid" name="prid" type="text" value="" class="form-control" />
-                <div class="col-md-6 form-group" style="padding-top:10px">
-                    <input id="Submit2" type="submit" class="btn btn-info" value="查詢" />
-                    <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "Plan")'" value="回上一頁">
-                </div>
+            <div class='col-md-4 form-group' style="padding-top:10px">
+                <input id="Submit2" type="submit" class="btn btn-info" value="查詢" />
+                <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "PurchaseForm")'" value="回上一頁">
             </div>
-
         </div>
         <div class="col-md-6">
             <div id="divProcessing">

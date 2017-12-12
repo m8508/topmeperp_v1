@@ -1917,9 +1917,9 @@ namespace topmeperp.Service
             //處理SQL 預先填入專案代號,設定集合處理參數
             if (10 == status)
             {
-                string sql = "SELECT CONVERT(char(10), A.CREATE_DATE, 111) AS CREATE_DATE, A.PR_ID, A.STATUS, A.TASK_NAME, ROW_NUMBER() OVER(ORDER BY A.PR_ID) AS NO " +
+                string sql = "SELECT CONVERT(char(10), A.CREATE_DATE, 111) AS CREATE_DATE, A.PR_ID, A.STATUS, A.TASK_NAME, B.PR_ID AS CHILD_PR_ID, ROW_NUMBER() OVER(ORDER BY A.PR_ID) AS NO " +
                     "FROM (SELECT pr.CREATE_DATE, pr.PR_ID, pr.PRJ_UID, pt.TASK_NAME, pr.STATUS FROM PLAN_PURCHASE_REQUISITION pr LEFT OUTER JOIN PLAN_TASK pt " +
-                    "ON pr.PRJ_UID = pt.PRJ_UID WHERE pr.PROJECT_ID=@projectid AND pr.SUPPLIER_ID IS NULL)A ";
+                    "ON pr.PRJ_UID = pt.PRJ_UID WHERE pr.PROJECT_ID=@projectid AND pr.SUPPLIER_ID IS NULL)A LEFT JOIN (SELECT * FROM PLAN_PURCHASE_REQUISITION pr WHERE pr.PR_ID LIKE 'PPO%')B ON A.PR_ID = B.PARENT_PR_ID ";
 
                 var parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("projectid", projectid));
@@ -2196,13 +2196,13 @@ namespace topmeperp.Service
         }
 
         //取得採購單資料
-        public List<PRFunction> getPOByPrjId(string projectid, string date, string supplier, string prid)
+        public List<PRFunction> getPOByPrjId(string projectid, string date, string supplier, string prid, string parentPrid)
         {
 
-            logger.Info("search purchase order by 採購日期 =" + date + ", 採購單編號 =" + prid + ", 供應商名稱 =" + supplier);
+            logger.Info("search purchase order by 採購日期 =" + date + ", 採購單編號 =" + prid + ", 供應商名稱 =" + supplier + ", 申購單編號 =" + parentPrid);
             List<PRFunction> lstForm = new List<PRFunction>();
             //處理SQL 預先填入專案代號,設定集合處理參數
-            string sql = "SELECT CONVERT(char(10), CREATE_DATE, 111) AS CREATE_DATE, PR_ID, SUPPLIER_ID, ROW_NUMBER() OVER(ORDER BY PR_ID) AS NO " +
+            string sql = "SELECT CONVERT(char(10), CREATE_DATE, 111) AS CREATE_DATE, PR_ID, SUPPLIER_ID, PARENT_PR_ID, ROW_NUMBER() OVER(ORDER BY PR_ID) AS NO " +
                 "FROM PLAN_PURCHASE_REQUISITION WHERE PROJECT_ID =@projectid AND SUPPLIER_ID IS NOT NULL AND PR_ID NOT LIKE 'RP%' ";
 
             var parameters = new List<SqlParameter>();
@@ -2226,6 +2226,12 @@ namespace topmeperp.Service
             {
                 sql = sql + "AND SUPPLIER_ID LIKE @supplier ";
                 parameters.Add(new SqlParameter("supplier", '%' + supplier + '%'));
+            }
+            //申購單編號條件
+            if (null != parentPrid && parentPrid != "")
+            {
+                sql = sql + "AND PARENT_PR_ID =@parentPrid ";
+                parameters.Add(new SqlParameter("parentPrid", parentPrid));
             }
             using (var context = new topmepEntities())
             {
@@ -2760,6 +2766,29 @@ namespace topmeperp.Service
             , new SqlParameter("itemid", itemid)).First();
             }
 
+            return lstItem;
+        }
+
+        //取得3天內須驗收的物料品項
+        public List<PurchaseRequisition>getPlanItemByNeedDate(string prjid)
+        {
+
+            logger.Info(" get materials ready to receive in 3 days by 專案編號 =" + prjid);
+            List<PurchaseRequisition> lstItem = new List<PurchaseRequisition>();
+            //處理SQL 預先填入專案代號,設定集合處理參數
+            string sql = "SELECT pri.NEED_QTY, CONVERT(char(10), pri.NEED_DATE, 111) AS NEED_DATE, pri.REMARK, pri.PR_ID, " +
+                "pi.PLAN_ITEM_ID, pi.ITEM_DESC, pi.ITEM_ID, pi.ITEM_UNIT FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_ITEM pi " +
+                "ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID WHERE pri.PR_ID LIKE 'PR%' AND pi.PROJECT_ID =@prjid " +
+                "AND pri.NEED_DATE BETWEEN GETDATE() AND GETDATE()-3 ORDER BY pri.PR_ID ";
+
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("prjid", prjid));
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("get materials ready to receive in 3 days sql=" + sql);
+                lstItem = context.Database.SqlQuery<PurchaseRequisition>(sql, parameters.ToArray()).ToList();
+            }
+            logger.Info("get material's item count ready to receive in 3 days =" + lstItem.Count);
             return lstItem;
         }
 

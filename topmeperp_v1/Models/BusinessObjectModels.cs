@@ -312,7 +312,8 @@ namespace topmeperp.Models
         public Int64 NO { get; set; }
         public string DELIVERY_ORDER_ID { get; set; }
         public string PARENT_PR_ID { get; set; }
-        
+        public string PR_ID { get; set; }
+
     }
     public class PRFunction
     {
@@ -328,6 +329,8 @@ namespace topmeperp.Models
         public string REMARK { get; set; }
         public string RECIPIENT { get; set; }
         public string CAUTION { get; set; }
+        public string CHILD_PR_ID { get; set; }
+        public string PARENT_PR_ID { get; set; }
 
     }
     public class PurchaseRequisitionDetail

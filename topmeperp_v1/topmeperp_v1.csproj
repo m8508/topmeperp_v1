@@ -978,6 +978,7 @@
     <Content Include="Views\MaterialManage\DeliverySearch.cshtml" />
     <Content Include="Views\MaterialManage\ReceiptSearch.cshtml" />
     <Content Include="Views\MaterialManage\SingleDO.cshtml" />
+    <Content Include="Views\MaterialManage\CheckForReceipt.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
