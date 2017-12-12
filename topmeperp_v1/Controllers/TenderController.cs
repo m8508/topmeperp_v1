@@ -39,8 +39,8 @@ namespace topmeperp.Controllers
             {
                 TnderProject service = new TnderProject();
                 p = service.getProjectById(id);
+                ViewBag.projectId = p.PROJECT_ID;
             }
-            ViewBag.projectId = p.PROJECT_ID;
             return View(p);
         }
         [HttpPost]
