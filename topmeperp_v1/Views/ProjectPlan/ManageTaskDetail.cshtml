@@ -85,6 +85,7 @@
                 <input type="hidden" id="projectid" name="projectid" value="@ViewBag.projectId" />
                 <div class="container" id="MapItem" style="width:600px;">
                 </div>
+                <div class="row"><button class="btn btn-warning" style="padding-top:1pt" type="button" onclick="choiceMapItem()">確認工作項目</button></div>
             </form>
         </div>
     </div>
@@ -106,8 +107,6 @@
             // chkNodeId = node.href;
             $('#checkNodeId').val(node.href);
             getProjectItem4Task();
-            
-            //alert(node.nodeId);
         },
         onNodeUnchecked: function (event, node) {
             $('#checkable-output').prepend('<p>' + node.text + ' was unchecked</p>');

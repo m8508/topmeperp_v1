@@ -15,7 +15,7 @@
                     <label class="col-md-2 control-label">專案編號 : </label>
                     <div class="col-md-10">
                         <label class="input">
-                            @Html.TextBoxFor(m => m.PROJECT_ID, new { @class = "form-control background - color:#cccccc;", @readonly = "readonly" })
+                            <input type="text" id="PROJECT_ID" name="PROJECT_ID" class="form-control background-color:#cccccc;" value="@ViewBag.projectId" readonly />
                         </label>
                     </div>
 

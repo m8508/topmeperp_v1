@@ -659,10 +659,11 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 //清除原來任務之工作項目，再將設備資料寫入Task2MapItem
+                mapdeviceIds = mapdeviceIds.Replace(",", "','");
                 string sql = "DELETE PLAN_TASK2MAPITEM WHERE PROJECT_ID=@projectId AND PRJ_UID=@prjuid AND　MAP_TYPE='TND_MAP_DEVICE';"
                     + "INSERT INTO PLAN_TASK2MAPITEM (PROJECT_ID,PRJ_UID,MAP_TYPE,MAP_PK,PROJECT_ITEM_ID) "
                     + " SELECT @projectId AS PROJECT_ID,@prjuid AS PRJ_UID,'TND_MAP_DEVICE' AS MAP_TYPE, DEVIVE_ID AS MAP_PK, PROJECT_ITEM_ID  FROM TND_MAP_DEVICE "
-                    + " WHERE DEVIVE_ID in (" + @mapdeviceIds + ");";
+                    + " WHERE PROJECT_ITEM_ID in ('" + mapdeviceIds + "');";
                 logger.Debug(sql);
                 var parameters = new List<SqlParameter>();
                 //設定專案名編號資料
@@ -817,7 +818,7 @@ namespace topmeperp.Service
             {
                 try
                 {
-                    string sql = "SELECT * FROM TND_PLAN_ITEM WHERE PLAN_ITEM_ID IN (SELECT PROJECT_ITEM_ID FROM PLAN_TASK2MAPITEM "
+                    string sql = "SELECT * FROM PLAN_ITEM WHERE PLAN_ITEM_ID IN (SELECT PROJECT_ITEM_ID FROM PLAN_TASK2MAPITEM "
                         + "WHERE PROJECT_ID=@projectid AND PRJ_UID=@prjuid);";
                     logger.Debug("sql=" + sql);
                     lstProjectItem = context.PLAN_ITEM.SqlQuery(sql, new SqlParameter("projectid", projectid), new SqlParameter("prjuid", int.Parse(prjuid))).ToList();
