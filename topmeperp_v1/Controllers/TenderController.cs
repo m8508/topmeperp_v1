@@ -39,6 +39,7 @@ namespace topmeperp.Controllers
             {
                 TnderProject service = new TnderProject();
                 p = service.getProjectById(id);
+                ViewBag.projectId = p.PROJECT_ID;
             }
             return View(p);
         }
@@ -58,7 +59,7 @@ namespace topmeperp.Controllers
                 prj.OWNER_USER_ID = u.USER_ID;
                 prj.CREATE_DATE = DateTime.Now;
                 service.newProject(prj);
-                message = "建立專案:" + prj.PROJECT_ID + "<br/>";
+                message = "建立專案:" + service.project.PROJECT_ID + "<br/>";
             }
             else
             {
@@ -104,8 +105,9 @@ namespace topmeperp.Controllers
                     message = ex.Message;
                 }
             }
+            ViewBag.projectId = service.project.PROJECT_ID;
             ViewBag.result = message;
-            return View(prj);
+            return View(service.project);
         }
 
         public ActionResult Task(string id)
