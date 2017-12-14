@@ -128,7 +128,7 @@ namespace topmeperp.Controllers
                 }
                 else
                 {
-                    ViewBag.type = 'M'; // 材料合約(含設備)
+                    ViewBag.type = 'M'; // 設備合約
                 }
                 ViewBag.estCount = service.getEstCountById(lstContract.CONTRACT_ID);
                 ViewBag.paymentTerms = service.getTermsByContractId(lstContract.CONTRACT_ID);
@@ -174,7 +174,7 @@ namespace topmeperp.Controllers
             return View("ContractItems", contract);
         }
 
-        //DOM 申購作業功能紐對應不同Action
+        //DOM 估驗作業功能紐對應不同Action
         public class MultiButtonAttribute : ActionNameSelectorAttribute
         {
             public string Name { get; set; }
@@ -1326,7 +1326,7 @@ namespace topmeperp.Controllers
                 viewModel.fifthYear = FifthYearBudget;
                 return View(viewModel);
             }
-            return RedirectToAction("SiteBudget/" + id);
+            return View();
         }
 
         //更新工地費用預算

@@ -395,13 +395,14 @@ namespace topmeperp.Models
     }
     public class EstimationForm : PLAN_ITEM
     {
-        public Nullable<decimal> CUM_QTY { get; set; }
+        public Nullable<decimal> CUM_EST_QTY { get; set; }
         public Nullable<decimal> EST_QTY { get; set; }
         public string REMARK { get; set; }
         public Int64 EST_ITEM_ID { get; set; }
         public Nullable<decimal> EST_RATIO { get; set; }
         public Int64 NO { get; set; }
-        public Nullable<decimal> CUM_RECEIPT_QTY { get; set; }
+        public Nullable<decimal> CUM_RECPT_QTY { get; set; }
+        public Nullable<decimal> mapQty { get; set; }
     }
     
     public class AdvancePaymentFunction 

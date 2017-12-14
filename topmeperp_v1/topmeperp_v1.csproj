@@ -901,7 +901,6 @@
     <Content Include="Views\MaterialManage\ReceiptList.cshtml" />
     <Content Include="Views\MaterialManage\InventoryIndex.cshtml" />
     <Content Include="Views\MaterialManage\_InventoryList.cshtml" />
-    <Content Include="Views\MaterialManage\DeliveryList.cshtml" />
     <Content Include="Views\Estimation\Index.cshtml" />
     <Content Include="Views\Estimation\Valuation.cshtml" />
     <Content Include="Views\Estimation\_ProjectList.cshtml" />

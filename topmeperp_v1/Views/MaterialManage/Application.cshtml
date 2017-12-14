@@ -154,7 +154,7 @@
             if (need >= 0)
             { i = i + 1 }
             cumulative_qty = parseInt($.trim($(this).find("#cumulative_qty").val()));//抓取每筆記錄累計採購數量的值
-            if (parseInt(need) + parseInt(cumulative) > parseInt(map)) {
+            if (parseInt(need) + parseInt(cumulative_qty) > parseInt(map)) {
                 boolOver = true;
             }
         });
