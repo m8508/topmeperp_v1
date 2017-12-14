@@ -70,7 +70,6 @@ namespace topmeperp.Service
             ConvertExcelToTndProjectItem(startrow);
         }
         //轉換標單內容物件
-        //轉換標單內容物件
         public void ConvertExcelToTndProjectItem(int startrow)
         {
             IRow row = null;
@@ -197,72 +196,6 @@ namespace topmeperp.Service
             logger.Info("TndprojectItem=" + projectItem.ToString());
             return projectItem;
         }
-        //更新標單次序
-        //private TND_PROJECT_ITEM c_onvertRow2TndProjectItem4Refresh(int id, IRow row, int excelrow)
-        //{
-        //    TND_PROJECT_ITEM projectItem = new TND_PROJECT_ITEM();
-        //    projectItem.PROJECT_ID = projId;
-
-        //    if (row.Cells[0].ToString().Trim() != "")//PK
-        //    {
-        //        projectItem.PROJECT_ITEM_ID = row.Cells[0].ToString();
-        //    }
-        //    if (row.Cells[1].ToString().Trim() != "")//項次
-        //    {
-        //        projectItem.ITEM_ID = row.Cells[1].ToString();
-        //    }
-        //    if (row.Cells[2].ToString().Trim() != "")//名稱
-        //    {
-        //        projectItem.ITEM_DESC = row.Cells[2].ToString();
-        //    }
-
-        //    if (row.Cells[3].ToString().Trim() != "")//單位
-        //    {
-        //        projectItem.ITEM_UNIT = row.Cells[3].ToString();
-        //    }
-        //    if (row.Cells[4].ToString().Trim() != "")//數量
-        //    {
-        //        try
-        //        {
-        //            decimal dQty = decimal.Parse(row.Cells[4].ToString());
-        //            logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[4].ToString());
-        //            projectItem.ITEM_QUANTITY = dQty;
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",value=" + row.Cells[4].ToString());
-        //            logger.Error(e.Message);
-        //        }
-
-        //    }
-        //    if (row.Cells[6].ToString().Trim() != "")//備註
-        //    {
-        //        projectItem.ITEM_REMARK = row.Cells[6].ToString();
-        //    }
-
-        //    if (row.Cells[7].ToString().Trim() != "")//九宮格
-        //    {
-        //        projectItem.TYPE_CODE_1 = row.Cells[7].ToString();
-        //    }
-        //    if (row.Cells[8].ToString().Trim() != "")//次九宮格
-        //    {
-        //        projectItem.TYPE_CODE_2 = row.Cells[8].ToString();
-        //    }
-        //    if (row.Cells[9].ToString().Trim() != "")//主系統
-        //    {
-        //        projectItem.SYSTEM_MAIN = row.Cells[9].ToString();
-        //    }
-        //    if (row.Cells[10].ToString().Trim() != "")//次系統
-        //    {
-        //        projectItem.SYSTEM_SUB = row.Cells[10].ToString();
-        //    }
-        //    projectItem.PROJECT_ITEM_ID = projId + "-" + id;
-        //    projectItem.EXCEL_ROW_ID = excelrow;
-        //    projectItem.CREATE_DATE = System.DateTime.Now;
-
-        //    logger.Info("TndprojectItem=" + projectItem.ToString());
-        //    return projectItem;
-        //}
 
         #region 處理得標標單項目內容
         //處理得標後標單..

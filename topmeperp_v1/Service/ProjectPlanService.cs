@@ -1073,6 +1073,34 @@ namespace topmeperp.Service
             }
             return lst;
         }
+        //批次建立任務與圖算資料
+        public int createTask2Map(List<PLAN_TASK2MAPITEM> lstTask2Map)
+        {
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                foreach (PLAN_TASK2MAPITEM item in lstTask2Map)
+                {
+                    if ((item.PROJECT_ITEM_ID != null || item.PROJECT_ITEM_ID != "") && (item.PRJ_UID != 0))
+                    {
+                        //清除原來任務之工作項目，再將設備資料寫入Task2MapItem
+                        string sql = "DELETE PLAN_TASK2MAPITEM WHERE PROJECT_ID=@projectId AND PRJ_UID=@prjuid AND　MAP_TYPE=@maptype AND PROJECT_ITEM_ID=@ItemId;"
+                            + "INSERT INTO PLAN_TASK2MAPITEM (PROJECT_ID,PRJ_UID,MAP_TYPE,MAP_PK,PROJECT_ITEM_ID) "
+                            + " values( @projectId ,@prjuid ,@maptype, 0 ,@ItemId);";
+                        logger.Debug(sql + "projectId=" + item.PROJECT_ID + ",prjuid=" + item.PRJ_UID + ",maptyp=" + item.MAP_TYPE + ",projectitem_Id=" + item.PROJECT_ITEM_ID);
+                        var parameters = new List<SqlParameter>();
+                        //設定專案名編號資料
+                        parameters.Add(new SqlParameter("projectid", item.PROJECT_ID));
+                        parameters.Add(new SqlParameter("prjuid", item.PRJ_UID));
+                        parameters.Add(new SqlParameter("maptype", item.MAP_TYPE));
+                        parameters.Add(new SqlParameter("ItemId", item.PROJECT_ITEM_ID));
+                        i = i + context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+                    }
+                }
+            }
+            return i;
+        }
     }
     #endregion
+
 }
