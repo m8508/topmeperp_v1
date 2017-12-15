@@ -90,8 +90,6 @@ namespace topmeperp.Service
             {
                 rows.MoveNext();
                 iRowIndex++;
-                //row = (IRow)rows.Current;
-                //logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
             }
             //循序處理每一筆資料之欄位!!
             iRowIndex++;
@@ -103,7 +101,7 @@ namespace topmeperp.Service
                 //0.項次	1.圖號	2.棟別	3.一次側位置	4.一次側名稱	5.二次側名稱	6.二次側位置	7.管材名稱	8管數/組	9管組數	10管長度/組數	11管總長
                 if (row.Cells.Count != 0 && row.Cells[0].ToString().ToUpper() != "END")
                 {
-                    lstTask2MapFw.Add(convertRow2TndMapFW(row, iRowIndex));
+                    lstTask2MapFw.AddRange(convertRow2TndMapFW(row, iRowIndex));
                 }
                 else
                 {
@@ -113,51 +111,38 @@ namespace topmeperp.Service
                 }
                 iRowIndex++;
             }
-            logger.Info("MAP_FW Count:" + iRowIndex);
-            return lstTask2Map;
+            logger.Info("MAP_FW Count:" + lstTask2MapFw.Count);
+            return lstTask2MapFw;
         }
         /**
          * 將Excel Row 轉換成為對應的資料物件(消防水)
          * */
-        private PLAN_TASK2MAPITEM convertRow2TndMapFW(IRow row, int excelrow)
+        private List<PLAN_TASK2MAPITEM> convertRow2TndMapFW(IRow row, int excelrow)
         {
-            PLAN_TASK2MAPITEM item = new PLAN_TASK2MAPITEM();
-            item.PROJECT_ID = projId;
-            if (row.Cells[0].ToString().Trim() != "")//0.專案認識識別碼
+            List<PLAN_TASK2MAPITEM> lstAllTask = new List<PLAN_TASK2MAPITEM>();
+               
+            if (row.Cells[7].ToString().Trim() != "" && row.Cells[8].ToString().Trim() != "")//0.專案認識識別碼
             {
-                item.PRJ_UID = int.Parse(row.Cells[0].ToString());
-            }
-            ////if (row.Cells[1].ToString().Trim() != "")//1.棟別
-            ////{
-            ////    logger.Debug("cell[1]" + row.Cells[1].ToString());
-            ////}
-            ////if (row.Cells[2].ToString().Trim() != "")//2.一次側位置
-            ////{
-            ////    logger.Debug("cell[2]" + row.Cells[2].ToString());
-            ////}
-
-            ////if (row.Cells[3].ToString().Trim() != "")//3.一次側名稱
-            ////{
-            ////    logger.Debug("cell[3]" + row.Cells[3].ToString());
-            ////}
-            ////if (row.Cells[4].ToString().Trim() != "")//4.二次側名稱
-            ////{
-            ////    logger.Debug("cell[4]" + row.Cells[4].ToString());
-            ////}
-
-            ////if (row.Cells[5].ToString().Trim() != "")//5.二次側位置
-            ////{
-            ////    logger.Debug("cell[5]" + row.Cells[5].ToString());
-            ////}
-            if (row.Cells[8].ToString().Trim() != "")//8.二次側位置
+                logger.Debug("create task map =" + row.Cells[7].ToString());
+                string projectItemId = row.Cells[8].ToString().Trim();
+                string[] strPrjUid = row.Cells[7].ToString().Split(',');
+                for (int i = 0; i < strPrjUid.Length; i++)
+                {
+                    PLAN_TASK2MAPITEM item = new PLAN_TASK2MAPITEM();
+                    item.PROJECT_ID = projId;
+                    item.PRJ_UID = int.Parse(strPrjUid[i]);
+                    logger.Debug("create task map =" + item.PRJ_UID);
+                    item.PROJECT_ITEM_ID = projectItemId;
+                    item.MAP_TYPE = "TND_MAP_FW";
+                    item.MAP_PK = 0;
+                    lstAllTask.Add(item);
+                }
+            }else
             {
-                item.PROJECT_ITEM_ID = row.Cells[8].ToString();
+                logger.Warn("Data format maybe have error(TND_MAP_FW):" + excelrow);
             }
-            item.MAP_TYPE = "TND_MAP_FW";
-            item.MAP_PK = 0;
-            //7 以後忽略
-            logger.Info("PLAN_TASK2MAPITEM : TND_MAP_FW=" + item.ToString());
-            return item;
+            logger.Debug(excelrow + " had TND_MAP_FW Count:" + lstAllTask.Count);
+            return lstAllTask;
         }
         #endregion
         #region 消防電資料轉換 
@@ -186,7 +171,7 @@ namespace topmeperp.Service
             return ConverData2MapFP();
         }
         /**
-         * 轉換圖算數量:消防水
+         * 轉換圖算數量:消防電
          * */
         protected new List<PLAN_TASK2MAPITEM> ConverData2MapFP()
         {
@@ -221,7 +206,7 @@ namespace topmeperp.Service
                 }
                 iRowIndex++;
             }
-            logger.Info("MAP_FP Count:" + iRowIndex);
+            logger.Info("MAP_FP Count:" + lstTask2MapFp.Count);
             return lstTask2MapFp;
         }
         /**
@@ -231,41 +216,49 @@ namespace topmeperp.Service
         {
             //消防電含有一筆管、一筆線資料
             List<PLAN_TASK2MAPITEM> lstItem = new List<PLAN_TASK2MAPITEM>();
-            PLAN_TASK2MAPITEM itemLine = new PLAN_TASK2MAPITEM();
-            PLAN_TASK2MAPITEM itemPipe = new PLAN_TASK2MAPITEM();
-            itemLine.PROJECT_ID = projId;
-            itemPipe.PROJECT_ID = projId;
-            if (row.Cells[0].ToString().Trim() != "")//0.專案認識識別碼
+
+            //消防電/線材
+            if (row.Cells[7].ToString().Trim() != "" && row.Cells[8].ToString().Trim() != "")//0.專案認識識別碼
             {
-                itemLine.PRJ_UID = int.Parse(row.Cells[0].ToString());
-                itemPipe.PRJ_UID = int.Parse(row.Cells[0].ToString());
+                logger.Debug("crate task map =" + row.Cells[7].ToString());
+                string[] strPrjUid = row.Cells[7].ToString().Split(',');
+                for (int i = 0; i < strPrjUid.Length; i++)
+                {
+                    PLAN_TASK2MAPITEM item = new PLAN_TASK2MAPITEM();
+                    item.PROJECT_ID = projId;
+                    item.PRJ_UID = int.Parse(strPrjUid[i]);
+                    item.PROJECT_ITEM_ID = row.Cells[8].ToString();
+                    item.MAP_TYPE = "TND_MAP_FP";
+                    item.MAP_PK = 0;
+                    lstItem.Add(item);
+                }
+            }
+            else
+            {
+                logger.Warn("Data format maybe have error(TND_MAP_FP):" + excelrow);
             }
 
-            if (row.Cells[8].ToString().Trim() != "")//8
+            //消防電/管
+            if (row.Cells[13].ToString().Trim() != "" && row.Cells[14].ToString().Trim() != "")//0.專案認識識別碼
             {
-                itemLine.PROJECT_ITEM_ID = row.Cells[8].ToString();
-                logger.Info("PLAN_TASK2MAPITEM : TND_MAP_FP_Line=" + itemLine.PROJECT_ITEM_ID);
+                logger.Debug("crate task map =" + row.Cells[13].ToString());
+                string[] strPrjUid = row.Cells[13].ToString().Split(',');
+                for (int i = 0; i < strPrjUid.Length; i++)
+                {
+                    PLAN_TASK2MAPITEM item = new PLAN_TASK2MAPITEM();
+                    item.PROJECT_ID = projId;
+                    item.PRJ_UID = int.Parse(strPrjUid[i]);
+                    item.PROJECT_ITEM_ID = row.Cells[14].ToString();
+                    item.MAP_TYPE = "TND_MAP_FP";
+                    item.MAP_PK = 0;
+                    lstItem.Add(item);
+                }
             }
-            if (row.Cells[13].ToString().Trim() != "")//8
+            else
             {
-                itemPipe.PROJECT_ITEM_ID = row.Cells[13].ToString();
-                logger.Info("PLAN_TASK2MAPITEM : TND_MAP_FP_PIPE=" + itemPipe.PROJECT_ITEM_ID);
+                logger.Warn("Data format maybe have error(TND_MAP_FP):" + excelrow);
             }
-            itemLine.MAP_TYPE = "TND_MAP_FP";
-            itemPipe.MAP_TYPE = "TND_MAP_FP";
-            itemLine.MAP_PK = 0;
-            itemPipe.MAP_PK = 0;
-            if (null!=itemLine.PROJECT_ITEM_ID && itemLine.PROJECT_ITEM_ID.Trim() != "")
-            {
-                logger.Warn("itemLine lost");
-                lstItem.Add(itemLine);
-            }
-            if (null != itemPipe.PROJECT_ITEM_ID && itemPipe.PROJECT_ITEM_ID.Trim() != "")
-            {
-                logger.Warn("itemPipe lost");
-                lstItem.Add(itemPipe);
-            }
-
+            logger.Debug(excelrow + " had TND_MAP_FP Count:" + lstItem.Count);
             return lstItem;
         }
         #endregion

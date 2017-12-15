@@ -133,7 +133,7 @@
 <div class="modal fade" id="formUploadItem" role="dialog">
     <div class="modal-dialog" id="formUploadItem">
         <div class="modal-content">
-            <form id="formFileUpload" name="formFileUpload" action="/Tender/uploadProjectItem" method="post" enctype="multipart/form-data">
+            <form id="formFileUpload" name="formFileUpload" action="/Plan/uploadProjectItem" method="post" enctype="multipart/form-data">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                     <h4 class="modal-title">上傳異動明細資料</h4>
@@ -162,8 +162,6 @@
     });
 
     function uploadPlanItem() {
-        alert("Upload");
-        return;
         $("#divProcessing").show();
         $("#formFileUpload").submit(function (e) {
             var formObj = $(this);
