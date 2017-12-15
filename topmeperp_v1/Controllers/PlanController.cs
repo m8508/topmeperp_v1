@@ -933,5 +933,25 @@ namespace topmeperp.Controllers
             }
             return returnMsg;
         }
+        //下載異動單
+        public void downloadCostChangeForm()
+        {
+            string formid = Request["formId"];
+            logger.Debug("Download costchange form=" + formid);
+            CostChangeService chService = new CostChangeService();
+            chService.getChangeOrderForm(formid);
+            poi4CostChangeService poiservice = new poi4CostChangeService();
+            poiservice.createExcel(chService.project, chService.form, chService.lstItem);
+            string fileLocation = poiservice.outputFile;
+
+            //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
+            string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
+            Response.Clear();
+            Response.Charset = "utf-8";
+            Response.ContentType = "text/xls";
+            Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", filename));
+            Response.WriteFile(fileLocation);
+            Response.End();
+        }
     }
 }

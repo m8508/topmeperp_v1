@@ -10,6 +10,9 @@ using topmeperp.Models;
 
 namespace topmeperp.Service
 {
+    /// <summary>
+    /// 解析專案任務與圖算匯入
+    /// </summary>
     public class ProjectTask2MapService : ProjectItemFromExcel
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -24,6 +27,7 @@ namespace topmeperp.Service
             lstTask2Map = new List<PLAN_TASK2MAPITEM>();
             try
             {
+                logger.Debug("Process MapFW");
                 lstTask2Map.AddRange(ConvertDataForMapFW(projectId));
                 errorMessage = "消防水-匯入成功";
             }
@@ -35,6 +39,7 @@ namespace topmeperp.Service
             //消防電
             try
             {
+                logger.Debug("Process MapFP");
                 lstTask2Map.AddRange(ConvertDataForMapFP(projectId));            
                 errorMessage = errorMessage + ",消防電-匯入成功";
             }

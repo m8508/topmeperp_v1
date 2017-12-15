@@ -596,6 +596,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service\ContextService4CostChange.cs" />
     <Compile Include="Service\EMailService.cs" />
+    <Compile Include="Service\poi4CostChangeService.cs" />
     <Compile Include="Service\PoiService4ProjectTask.cs" />
     <Compile Include="Service\ProjectPlanService.cs" />
     <Compile Include="Service\ContextService.cs" />
@@ -607,6 +608,7 @@
     <Compile Include="Service\PoiSrevice4po.cs" />
     <Compile Include="Service\ReportContextService.cs" />
     <Compile Include="Service\UIComponetService.cs" />
+    <Compile Include="Service\UtilService.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
