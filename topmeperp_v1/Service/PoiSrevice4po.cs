@@ -822,13 +822,13 @@ namespace topmeperp.Service
         {
             List<FIN_SUBJECT> subjects = service.getExpBudgetSubject();
             string budgetYear = null;
-            if (DateTime.Now.Month > 6)
+            if (DateTime.Now.Month > 3)
             {
-                budgetYear = (DateTime.Now.Year + 1).ToString();
+                budgetYear = DateTime.Now.Year.ToString();
             }
             else
             {
-                budgetYear = DateTime.Now.Year.ToString();
+                budgetYear = (DateTime.Now.Year - 1).ToString();
             }
             logger.Debug("budgetYear = " + budgetYear);
             //1.讀取公司費用預算表格檔案
@@ -992,11 +992,37 @@ namespace topmeperp.Service
             String strItemId = row.Cells[1].ToString();
             if (null != strItemId && strItemId != "")
             {
-                for (int i = 0; i < 12; i++)
+                for (int i = 0; i < 6; i++)
                 {
                     FIN_EXPENSE_BUDGET item = new FIN_EXPENSE_BUDGET();
                     item.BUDGET_YEAR = budgetYear;
-                    item.BUDGET_MONTH = i + 1;
+                    item.CURRENT_YEAR = budgetYear;
+                    item.BUDGET_MONTH = i + 7;
+                    item.SUBJECT_ID = row.Cells[1].ToString();
+                    item.CREATE_DATE = System.DateTime.Now;
+                    if (null != row.Cells[i + 2].ToString().Trim() || row.Cells[i + 2].ToString().Trim() != "")
+                    {
+                        try
+                        {
+                            decimal dAmt = decimal.Parse(row.Cells[i + 2].ToString());
+                            logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[i + 2].ToString());
+                            item.AMOUNT = dAmt;
+                        }
+                        catch (Exception e)
+                        {
+                            logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[i+2].value=" + row.Cells[i + 2].ToString());
+                            logger.Error(e);
+                        }
+                    }
+                    lst.Add(item);
+                }
+
+                for (int i = 6; i < 12; i++)
+                {
+                    FIN_EXPENSE_BUDGET item = new FIN_EXPENSE_BUDGET();
+                    item.BUDGET_YEAR = budgetYear;
+                    item.CURRENT_YEAR = budgetYear + 1;
+                    item.BUDGET_MONTH = i - 5;
                     item.SUBJECT_ID = row.Cells[1].ToString();
                     item.CREATE_DATE = System.DateTime.Now;
                     if (null != row.Cells[i + 2].ToString().Trim() || row.Cells[i + 2].ToString().Trim() != "")

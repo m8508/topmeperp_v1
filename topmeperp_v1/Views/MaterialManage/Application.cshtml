@@ -148,7 +148,7 @@
         $('table > tbody > tr').each(function () {
             var map = 0;
             var need = 0;
-            var cumulative = 0;
+            var cumulative_qty = 0;
             map = parseInt($.trim($(this).find("#map_qty").val())); //抓取每筆記錄圖算數量的值
             need = parseInt($.trim($(this).find("#need_qty").val()));//抓取每筆記錄申購數量的值
             if (need >= 0)

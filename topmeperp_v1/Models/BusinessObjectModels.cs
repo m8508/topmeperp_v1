@@ -403,6 +403,8 @@ namespace topmeperp.Models
         public Int64 NO { get; set; }
         public Nullable<decimal> CUM_RECPT_QTY { get; set; }
         public Nullable<decimal> mapQty { get; set; }
+        public Nullable<decimal> Quota { get; set; }
+        
     }
     
     public class AdvancePaymentFunction 
@@ -488,6 +490,10 @@ namespace topmeperp.Models
         public Nullable<decimal> YEAR_RATIO { get; set; }
         public Nullable<decimal> CUM_YEAR_AMOUNT { get; set; }
         public Nullable<decimal> CUM_BUDGET { get; set; }
+        public Int64 NO { get; set; }
+        public Int64 SUB_NO { get; set; }
+        public Nullable<decimal> TOTAL_OPERATION_EXP { get; set; }
+        
     }
     public class OperatingExpenseModel
     {

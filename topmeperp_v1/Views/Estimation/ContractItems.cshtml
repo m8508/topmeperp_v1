@@ -106,7 +106,7 @@
                         <th>
                             本期數量
                         </th>
-
+                       
                         <th>
                             本期金額
                         </th>
@@ -156,6 +156,7 @@
                         <td>
                             <input style="width:80px" type="text" class="form-control" ng-model="row.evaluated_qty" id="evaluated_qty" ng-init="row.evaluated_qty =''" name="evaluated_qty">
                         </td>
+                        
                         <td>
                             @if (ViewBag.wage == "")
                             {
@@ -215,7 +216,7 @@
             </div>
         </div>
         <hr />
-        <input type="submit" value="計算" id="saveForm" name="saveForm" class="btn btn-success" onclick="count();" />
+        <input type="submit" value="計算" id="saveForm" name="saveForm" class="btn btn-success"/>
         <div class="row" style="padding-top:10px;">
             @{
                 Html.RenderPartial("PaymentDetails");
@@ -404,9 +405,9 @@
 
         var boolOver = false;
         $('table > tbody > tr').each(function () {
-            var map = 0;
-            var need = 0;
-            var cumulative = 0;
+            var est_qty = 0;
+            var cumulative_est_qty = 0;
+            var cumulative_recpt_qty = 0;
             est_qty = parseInt($.trim($(this).find("#evaluated_qty").val())); //抓取每筆記錄估驗數量的值
             cumulative_est_qty = parseInt($.trim($(this).find("#cum_est_qty").val()));//抓取每筆記錄累計估驗數量的值
 
@@ -470,12 +471,5 @@
         });
     });
 
-    var t = 0;
-    function count() {
-        t++;
-        alert("你按下第" + t + "次")
-        if (t >= 1) {
-            return $("#count_value").val('Y');
-        }
-    }
+
 </script>

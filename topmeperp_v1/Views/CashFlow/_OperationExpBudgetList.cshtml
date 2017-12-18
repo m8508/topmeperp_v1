@@ -1,0 +1,596 @@
+﻿@model IEnumerable<topmeperp.Models.ExpenseBudgetSummary>
+
+<div class="row" style="padding-bottom:10px">
+    <div class="col-md-12" style="padding-top:5px">
+        <div class="col-md-3">
+            <span style="color: blue; font-size: 25px;">預算年度 : @TempData["budgetYear"]</span>
+        </div>
+        <div class="col-md-9 text-right">
+            <span style="color:darkgreen; font-size: 25px;">總預算金額 : @String.Format("{0:#,##0.#}", TempData["TotalAmt"])</span>
+        </div>
+    </div>
+    <div class="col-md-12" style="padding-bottom:15px">
+        <div class="col-md-3">
+        </div>
+        <div class="col-md-9 text-right">
+            <span style="color: blue; font-size: 25px;">總執行金額 : @String.Format("{0:#,##0.#}", TempData["TotalExpAmt"])</span>
+        </div>
+    </div>
+</div>
+<table class="table fixed_headers3">
+    <thead>
+        <tr>
+            <th>
+                項目名稱
+            </th>
+            <th>
+                項目代碼
+            </th>
+            <th>
+                預算/實際
+            </th>
+            <th>
+                7月
+            </th>
+            <th>
+                8月
+            </th>
+            <th>
+                9月
+            </th>
+            <th>
+                10月
+            </th>
+            <th>
+                11月
+            </th>
+            <th>
+                12月
+            </th>
+            <th>
+                1月
+            </th>
+            <th>
+                2月
+            </th>
+            <th>
+                3月
+            </th>
+            <th>
+                4月
+            </th>
+            <th>
+                5月
+            </th>
+            <th>
+                6月
+            </th>
+            <th>
+                合計
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+            {
+            <tr>
+                <td>
+                    @if (item.NO % 2 != 0)
+                    {
+
+                        <span style="font-size: 15px;">
+                            <input type="text" style="width:80px" value="@item.SUBJECT_NAME" readonly="readonly" />
+                        </span>
+                    }
+                    else
+                    {
+                        <span style="color: blue; font-size: 15px;">
+                            <input type="text" style="width:80px" value="@item.SUBJECT_NAME" readonly="readonly" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
+                    {
+                        <span style="font-size: 15px;">
+                            <input type="text" style="width:60px" name="subjectid" id="subjectid" value="@item.SUBJECT_ID" readonly="readonly" />
+                        </span>
+                    }
+                    else
+                    {
+                        <span style="color: blue; font-size: 15px;">
+                            <input type="text" style="width:60px" name="subjectid" id="subjectid" value="@item.SUBJECT_ID" readonly="readonly" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
+                    {
+                        <span style="font-size: 15px;"><input type="text" style="width:70px" value="預算數" readonly="readonly" /></span>
+
+                    }
+                    else
+                    {
+                        <span style="color: blue; font-size: 15px;"><input type="text" style="width:70px" value="實際數" readonly="readonly" /></span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
+                    {
+                        <input type="text" style="width:70px" name="julAmt" id="julAmt" value="@String.Format("{0:###0.#}", item.JUL)" />
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="julExp" id="julExp" value="@String.Format("{0:###0.#}", item.JUL)" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
+                    {
+                        <input type="text" style="width:70px" name="augAmt" id="augAmt" value="@String.Format("{0:###0.#}", item.AUG)" />
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="augExp" id="augExp" value="@String.Format("{0:###0.#}", item.AUG)" />
+                        </span>
+
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
+                    {
+                        <input type="text" style="width:70px" name="sepAmt" id="sepAmt" value="@String.Format("{0:###0.#}", item.SEP)" />
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="sepExp" id="sepExp" value="@String.Format("{0:###0.#}", item.SEP)" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
+                    {
+                        <input type="text" style="width:70px" name="octAmt" id="octAmt" value="@String.Format("{0:###0.#}", item.OCT)" />
+
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="octExp" id="octExp" value="@String.Format("{0:###0.#}", item.OCT)" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
+                    {
+                        <input type="text" style="width:70px" name="novAmt" id="novAmt" value="@String.Format("{0:###0.#}", item.NOV)" />
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="novExp" id="novExp" value="@String.Format("{0:###0.#}", item.NOV)" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
+                    {
+                        <input type="text" style="width:70px" name="decAmt" id="decAmt" value="@String.Format("{0:###0.#}", item.DEC)" />
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="decExp" id="decExp" value="@String.Format("{0:###0.#}", item.DEC)" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
+                    {
+                        <input type="text" style="width:70px" name="janAmt" id="janAmt" value="@String.Format("{0:###0.#}", item.JAN)" />
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="janExp" id="janExp" value="@String.Format("{0:###0.#}", item.JAN)" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
+                    {
+                        <input type="text" style="width:70px" name="febAmt" id="febAmt" value="@String.Format("{0:###0.#}", item.FEB)" />
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="febExp" id="febExp" value="@String.Format("{0:###0.#}", item.FEB)" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
+                    {
+                        <input type="text" style="width:70px" name="marAmt" id="marAmt" value="@String.Format("{0:###0.#}", item.MAR)" />
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="marExp" id="marExp" value="@String.Format("{0:###0.#}", item.MAR)" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
+                    {
+                        <input type="text" style="width:70px" name="aprAmt" id="aprAmt" value="@String.Format("{0:###0.#}", item.APR)" />
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="aprExp" id="aprExp" value="@String.Format("{0:###0.#}", item.APR)" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
+                    {
+                        <input type="text" style="width:70px" name="mayAmt" id="mayAmt" value="@String.Format("{0:###0.#}", item.MAY)" />
+
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="mayExp" id="mayExp" value="@String.Format("{0:###0.#}", item.MAY)" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
+                    {
+                        <input type="text" style="width:70px" name="junAmt" id="junAmt" value="@String.Format("{0:###0.#}", item.JUN)" />
+
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="junExp" id="junExp" value="@String.Format("{0:###0.#}", item.JUN)" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
+                    {
+                        <span style="font-size: 15px;">
+                            <input type="text" style="width:80px" name="htotal" id="htotal" value="@String.Format("{0:#,##0.#}", item.HTOTAL)" readonly="readonly" />
+                        </span>
+                    }
+                    else
+                    {
+                        <span style="color :blue; font-size: 15px;">
+                            <input type="text" style="width:80px" name="htotal_Exp" id="htotal_Exp" value="@String.Format("{0:#,##0.#}", item.HTOTAL)" readonly="readonly" />
+                        </span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<table class="table fixed_headers2">
+    <tr>
+        <th>
+            <span style="font-size: 15px;">
+                <input type="text" style="width:80px" name="" id="" value="合計 :" />
+            </span>
+        </th>
+        <th>
+            <span style="font-size: 15px;">
+                <input type="text" style="width:60px" name="" id="" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="font-size: 15px;">
+                <input type="text" style="width:70px" name="" id="" value="預算數" />
+            </span>
+        </th>
+        <th>
+            <span style="font-size: 15px;">
+                <input type="text" style="width:70px" name="julVTotal" id="julVTotal" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="font-size: 15px;">
+                <input type="text" style="width:70px" name="augVTotal" id="augVTotal" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="font-size: 15px;">
+                <input type="text" style="width:70px" name="sepVTotal" id="sepVTotal" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="font-size: 15px;">
+                <input type="text" style="width:70px" name="octVTotal" id="octVTotal" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="font-size: 15px;">
+                <input type="text" style="width:70px" name="novVTotal" id="novVTotal" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="font-size: 15px;">
+                <input type="text" style="width:70px" name="decVTotal" id="decVTotal" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="font-size: 15px;">
+                <input type="text" style="width:70px" name="janVTotal" id="janVTotal" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="font-size: 15px;">
+                <input type="text" style="width:70px" name="febVTotal" id="febVTotal" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="font-size: 15px;">
+                <input type="text" style="width:70px" name="marVTotal" id="marVTotal" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="font-size: 15px;">
+                <input type="text" style="width:70px" name="aprVTotal" id="aprVTotal" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="font-size: 15px;">
+                <input type="text" style="width:70px" name="mayVTotal" id="mayVTotal" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="font-size: 15px;">
+                <input type="text" style="width:70px" name="junVTotal" id="junVTotal" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="font-size: 15px;">
+                <input type="text" style="width:80px" name="VTotal" id="VTotal" value="" />
+            </span>
+        </th>
+    </tr>
+    <tr>
+        <th>
+            <span style="color: blue; font-size: 15px;">
+                <input type="text" style="width:80px" name="" id="" value="合計 :" />
+            </span>
+        </th>
+        <th>
+            <span style="color: blue; font-size: 15px;">
+                <input type="text" style="width:60px" name="" id="" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="color: blue; font-size: 15px;">
+                <input type="text" style="width:70px" name="" id="" value="實際數" />
+            </span>
+        </th>
+        <th>
+            <span style="color: blue; font-size: 15px;">
+                <input type="text" style="width:70px" name="julVTotal_Exp" id="julVTotal_Exp" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="color: blue; font-size: 15px;">
+                <input type="text" style="width:70px" name="augVTotal_Exp" id="augVTotal_Exp" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="color: blue; font-size: 15px;">
+                <input type="text" style="width:70px" name="sepVTotal_Exp" id="sepVTotal_Exp" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="color: blue; font-size: 15px;">
+                <input type="text" style="width:70px" name="octVTotal_Exp" id="octVTotal_Exp" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="color: blue; font-size: 15px;">
+                <input type="text" style="width:70px" name="novVTotal_Exp" id="novVTotal_Exp" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="color: blue; font-size: 15px;">
+                <input type="text" style="width:70px" name="decVTotal_Exp" id="decVTotal_Exp" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="color: blue; font-size: 15px;">
+                <input type="text" style="width:70px" name="janVTotal_Exp" id="janVTotal_Exp" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="color: blue; font-size: 15px;">
+                <input type="text" style="width:70px" name="febVTotal_Exp" id="febVTotal_Exp" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="color: blue; font-size: 15px;">
+                <input type="text" style="width:70px" name="marVTotal_Exp" id="marVTotal_Exp" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="color: blue; font-size: 15px;">
+                <input type="text" style="width:70px" name="aprVTotal_Exp" id="aprVTotal_Exp" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="color: blue; font-size: 15px;">
+                <input type="text" style="width:70px" name="mayVTotal_Exp" id="mayVTotal_Exp" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="color: blue; font-size: 15px;">
+                <input type="text" style="width:70px" name="junVTotal_Exp" id="junVTotal_Exp" value="" />
+            </span>
+        </th>
+        <th>
+            <span style="color: blue; font-size: 15px;">
+                <input type="text" style="width:80px" name="VTotal_Exp" id="VTotal_Exp" value="" />
+            </span>
+        </th>
+    </tr>
+</table>
+
+<script>
+    $(document).ready(function () {
+        var total1 = 0; var total1_Exp = 0;
+        var sum1 = 0;   var sum1_Exp = 0;
+        var total2 = 0; var total2_Exp = 0;
+        var sum2 = 0;   var sum2_Exp = 0;
+        var total3 = 0; var total3_Exp = 0;
+        var sum3 = 0;   var sum3_Exp = 0;
+        var total4 = 0; var total4_Exp = 0;
+        var sum4 = 0;   var sum4_Exp = 0;
+        var total5 = 0; var total5_Exp = 0;
+        var sum5 = 0;   var sum5_Exp = 0;
+        var total6 = 0; var total6_Exp = 0;
+        var sum6 = 0;   var sum6_Exp = 0;
+        var total7 = 0; var total7_Exp = 0;
+        var sum7 = 0;   var sum7_Exp = 0;
+        var total8 = 0; var total8_Exp = 0;
+        var sum8 = 0;   var sum8_Exp = 0;
+        var total9 = 0; var total9_Exp = 0;
+        var sum9 = 0;   var sum9_Exp = 0;
+        var total0 = 0; var total0_Exp = 0;
+        var sum10 = 0;  var sum10_Exp = 0;
+        var total11 = 0;var total11_Exp = 0;
+        var sum11 = 0;  var sum11_Exp = 0;
+        var total12 = 0;var total12_Exp = 0;
+        var sum12 = 0;  var sum12_Exp = 0;
+        var sum13 = 0; var sum13_Exp = 0;
+
+        $('table > tbody > tr').each(function () {
+            var atm1 = 0; var atm2 = 0; var atm3 = 0;
+            var atm4 = 0; var atm5 = 0; var atm6 = 0;
+            var atm7 = 0; var atm8 = 0; var atm9 = 0;
+            var atm10 = 0; var atm11 = 0; var atm12 = 0;
+
+            var atm1_Exp = 0; var atm2_Exp = 0; var atm3_Exp = 0;
+            var atm4_Exp = 0; var atm5_Exp = 0; var atm6_Exp = 0;
+            var atm7_Exp = 0; var atm8_Exp = 0; var atm9_Exp = 0;
+            var atm10_Exp = 0; var atm11_Exp = 0; var atm12_Exp = 0;
+
+            if ($.trim($(this).find("#janAmt").val()) != "") {
+                atm1 = parseInt($.trim($(this).find("#janAmt").val()));
+            }
+            if ($.trim($(this).find("#febAmt").val()) != "") {
+                atm2 = parseInt($.trim($(this).find("#febAmt").val()));
+            }
+            if ($.trim($(this).find("#marAmt").val()) != "") {
+                atm3 = parseInt($.trim($(this).find("#marAmt").val()));
+            }
+            if ($.trim($(this).find("#aprAmt").val()) != "") {
+                atm4 = parseInt($.trim($(this).find("#aprAmt").val()));
+            }
+            if ($.trim($(this).find("#mayAmt").val()) != "") {
+                atm5 = parseInt($.trim($(this).find("#mayAmt").val()));
+            }
+            if ($.trim($(this).find("#junAmt").val()) != "") {
+                atm6 = parseInt($.trim($(this).find("#junAmt").val()));
+            }
+            if ($.trim($(this).find("#julAmt").val()) != "") {
+                atm7 = parseInt($.trim($(this).find("#julAmt").val()));
+            }
+            if ($.trim($(this).find("#augAmt").val()) != "") {
+                atm8 = parseInt($.trim($(this).find("#augAmt").val()));
+            }
+            if ($.trim($(this).find("#sepAmt").val()) != "") {
+                atm9 = parseInt($.trim($(this).find("#sepAmt").val()));
+            }
+            if ($.trim($(this).find("#octAmt").val()) != "") {
+                atm10 = parseInt($.trim($(this).find("#octAmt").val()));
+            }
+            if ($.trim($(this).find("#novAmt").val()) != "") {
+                atm11 = parseInt($.trim($(this).find("#novAmt").val()));
+            }
+            if ($.trim($(this).find("#decAmt").val()) != "") {
+                atm12 = parseInt($.trim($(this).find("#decAmt").val()));
+            }
+
+
+            if ($.trim($(this).find("#janExp").val()) != "") {
+                atm1_Exp = parseInt($.trim($(this).find("#janExp").val()));
+            }
+            if ($.trim($(this).find("#febExp").val()) != "") {
+                atm2_Exp = parseInt($.trim($(this).find("#febExp").val()));
+            }
+            if ($.trim($(this).find("#marExp").val()) != "") {
+                atm3_Exp = parseInt($.trim($(this).find("#marExp").val()));
+            }
+            if ($.trim($(this).find("#aprExp").val()) != "") {
+                atm4_Exp = parseInt($.trim($(this).find("#aprExp").val()));
+            }
+            if ($.trim($(this).find("#mayExp").val()) != "") {
+                atm5_Exp = parseInt($.trim($(this).find("#mayExp").val()));
+            }
+            if ($.trim($(this).find("#junExp").val()) != "") {
+                atm6_Exp = parseInt($.trim($(this).find("#junExp").val()));
+            }
+            if ($.trim($(this).find("#julExp").val()) != "") {
+                atm7_Exp = parseInt($.trim($(this).find("#julExp").val()));
+            }
+            if ($.trim($(this).find("#augExp").val()) != "") {
+                atm8_Exp = parseInt($.trim($(this).find("#augExp").val()));
+            }
+            if ($.trim($(this).find("#sepExp").val()) != "") {
+                atm9_Exp = parseInt($.trim($(this).find("#sepExp").val()));
+            }
+            if ($.trim($(this).find("#octExp").val()) != "") {
+                atm10_Exp = parseInt($.trim($(this).find("#octExp").val()));
+            }
+            if ($.trim($(this).find("#novExp").val()) != "") {
+                atm11_Exp = parseInt($.trim($(this).find("#novExp").val()));
+            }
+            if ($.trim($(this).find("#decExp").val()) != "") {
+                atm12_Exp = parseInt($.trim($(this).find("#decExp").val()));
+            }
+
+            total1 = atm1; total2 = atm2; total3 = atm3;
+            total4 = atm4; total5 = atm5; total6 = atm6;
+            total7 = atm7; total8 = atm8; total9 = atm9;
+            total10 = atm10; total11 = atm11; total12 = atm12;
+
+            total1_Exp = atm1_Exp; total2_Exp = atm2_Exp; total3_Exp = atm3_Exp;
+            total4_Exp = atm4_Exp; total5_Exp = atm5_Exp; total6_Exp = atm6_Exp;
+            total7_Exp = atm7_Exp; total8_Exp = atm8_Exp; total9_Exp = atm9_Exp;
+            total10_Exp = atm10_Exp; total11_Exp = atm11_Exp; total12_Exp = atm12_Exp;
+
+            sum1 += total1; sum2 += total2; sum3 += total3;
+            sum4 += total4; sum5 += total5; sum6 += total6;
+            sum7 += total7; sum8 += total8; sum9 += total9;
+            sum10 += total10; sum11 += total11; sum12 += total12;
+            sum13 += total1 + total2 + total3 + total4 + total5 + total6 + total7 + total8 + total9 + total10 + total11 + total12;
+
+            sum1_Exp += total1_Exp; sum2_Exp += total2_Exp; sum3_Exp += total3_Exp;
+            sum4_Exp += total4_Exp; sum5_Exp += total5_Exp; sum6_Exp += total6_Exp;
+            sum7_Exp += total7_Exp; sum8_Exp += total8_Exp; sum9_Exp += total9_Exp;
+            sum10_Exp += total10_Exp; sum11_Exp += total11_Exp; sum12_Exp += total12_Exp;
+            sum13_Exp += total1_Exp + total2_Exp + total3_Exp + total4_Exp + total5_Exp + total6_Exp + total7_Exp + total8_Exp + total9_Exp + total10_Exp + total11_Exp + total12_Exp;
+        });
+        return $("#janVTotal").val(sum1), $("#febVTotal").val(sum2), $("#marVTotal").val(sum3), $("#aprVTotal").val(sum4),
+        $("#mayVTotal").val(sum5), $("#junVTotal").val(sum6), $("#julVTotal").val(sum7), $("#augVTotal").val(sum8),
+        $("#sepVTotal").val(sum9), $("#octVTotal").val(sum10), $("#novVTotal").val(sum11), $("#decVTotal").val(sum12),
+        $("#VTotal").val(sum13),
+        $("#janVTotal_Exp").val(sum1_Exp), $("#febVTotal_Exp").val(sum2_Exp), $("#marVTotal_Exp").val(sum3_Exp), $("#aprVTotal_Exp").val(sum4_Exp),
+        $("#mayVTotal_Exp").val(sum5_Exp), $("#junVTotal_Exp").val(sum6_Exp), $("#julVTotal_Exp").val(sum7_Exp), $("#augVTotal_Exp").val(sum8_Exp),
+        $("#sepVTotal_Exp").val(sum9_Exp), $("#octVTotal_Exp").val(sum10_Exp), $("#novVTotal_Exp").val(sum11_Exp), $("#decVTotal_Exp").val(sum12_Exp),
+        $("#VTotal_Exp").val(sum13_Exp)
+    });
+
+</script>

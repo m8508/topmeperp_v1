@@ -22,5 +22,6 @@ namespace topmeperp.Models
         public string MODIFY_ID { get; set; }
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
+        public Nullable<int> CURRENT_YEAR { get; set; }
     }
 }

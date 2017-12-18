@@ -137,7 +137,7 @@ namespace topmeperp.Controllers
             logger.Info("Delete FIN_EXPENSE_BUDGET By BUDGET_YEAR");
             service.delExpBudgetByYear(int.Parse(form["year"]));
             string msg = "";
-            string[] lstsubjctid = form.Get("subjctid").Split(',');
+            string[] lstsubjectid = form.Get("subjectid").Split(',');
             string[] lst1 = form.Get("janAmt").Split(',');
             string[] lst2 = form.Get("febAmt").Split(',');
             string[] lst3 = form.Get("marAmt").Split(',');
@@ -151,40 +151,62 @@ namespace topmeperp.Controllers
             string[] lst11 = form.Get("novAmt").Split(',');
             string[] lst12 = form.Get("decAmt").Split(',');
             List<string[]> Atm = new List<string[]>();
-            Atm.Add(lst1);
-            Atm.Add(lst2);
-            Atm.Add(lst3);
-            Atm.Add(lst4);
-            Atm.Add(lst5);
-            Atm.Add(lst6);
             Atm.Add(lst7);
             Atm.Add(lst8);
             Atm.Add(lst9);
             Atm.Add(lst10);
             Atm.Add(lst11);
             Atm.Add(lst12);
+            Atm.Add(lst1);
+            Atm.Add(lst2);
+            Atm.Add(lst3);
+            Atm.Add(lst4);
+            Atm.Add(lst5);
+            Atm.Add(lst6);
             UserService us = new UserService();
             SYS_USER u = (SYS_USER)Session["user"];
             SYS_USER uInfo = us.getUserInfo(u.USER_ID);
             List<FIN_EXPENSE_BUDGET> lst = new List<FIN_EXPENSE_BUDGET>();
-            for (int j = 0; j < lstsubjctid.Count(); j++)
+            for (int j = 0; j < lstsubjectid.Count(); j++)
             {
                 List<FIN_EXPENSE_BUDGET> lstItem = new List<FIN_EXPENSE_BUDGET>();
-                for (int i = 0; i < 12; i++)
+                for (int i = 0; i < 6; i++)
                 {
                     FIN_EXPENSE_BUDGET item = new FIN_EXPENSE_BUDGET();
                     item.BUDGET_YEAR = int.Parse(form["year"]);
-                    item.SUBJECT_ID = lstsubjctid[j];
+                    item.SUBJECT_ID = lstsubjectid[j];
                     item.MODIFY_ID = u.USER_ID;
-                    if (Atm[i][j].ToString() == "" && null != Atm[i][j].ToString())
+                    item.CURRENT_YEAR = int.Parse(form["year"]);
+                    if (Atm[i][j].ToString() == "" || null == Atm[i][j].ToString())
                     {
                         item.AMOUNT = null;
-                        item.BUDGET_MONTH = i + 1;
+                        item.BUDGET_MONTH = i + 7;
                     }
                     else
                     {
                         item.AMOUNT = decimal.Parse(Atm[i][j]);
-                        item.BUDGET_MONTH = i + 1;
+                        item.BUDGET_MONTH = i + 7;
+                    }
+                    item.MODIFY_DATE = DateTime.Now;
+                    logger.Info("費用項目代碼 =" + item.SUBJECT_ID + "，and Budget Month = " + item.BUDGET_MONTH + "，and Atm = " + Atm[i][j]);
+                    lstItem.Add(item);
+                }
+                for (int i = 6; i < 12; i++)
+                {
+                    FIN_EXPENSE_BUDGET item = new FIN_EXPENSE_BUDGET();
+                    item.BUDGET_YEAR = int.Parse(form["year"]);
+                    item.SUBJECT_ID = lstsubjectid[j];
+                    item.MODIFY_ID = u.USER_ID;
+                    item.CURRENT_YEAR = int.Parse(form["year"]) + 1;
+                    if (Atm[i][j].ToString() == "" || null == Atm[i][j].ToString())
+                    {
+                        item.AMOUNT = null;
+                        item.BUDGET_MONTH = i - 5;
+                    }
+                    else
+                    {
+                        item.AMOUNT = decimal.Parse(Atm[i][j]);
+                        item.BUDGET_MONTH = i - 5;
                     }
                     item.MODIFY_DATE = DateTime.Now;
                     logger.Info("費用項目代碼 =" + item.SUBJECT_ID + "，and Budget Month = " + item.BUDGET_MONTH + "，and Atm = " + Atm[i][j]);
@@ -680,6 +702,41 @@ namespace topmeperp.Controllers
             i = service.updatePlanAccountItem(item);
             if (i == 0) { msg = service.message; }
             return msg;
+        }
+
+        public ActionResult OperationExpSummary()
+        {
+            logger.Info("Access to Expense and Budget Summary Page !!");
+            List<ExpenseBudgetSummary> ExpBudget = null;
+            ExpenseBudgetSummary Amt = null;
+            ExpenseBudgetSummary ExpAmt = null;
+            if (null != Request["budgetyear"])
+            {
+                ExpBudget = service.getExpBudgetSummaryByYear(int.Parse(Request["budgetyear"]));
+                Amt = service.getTotalExpBudgetAmount(int.Parse(Request["budgetyear"]));
+                ExpAmt = service.getTotalOperationExpAmount(int.Parse(Request["budgetyear"]));
+                TempData["TotalAmt"] = Amt.TOTAL_BUDGET;
+                TempData["TotalExpAmt"] = ExpAmt.TOTAL_OPERATION_EXP;
+            }
+            TempData["budgetYear"] = Request["budgetyear"];
+            return View(ExpBudget);
+        }
+
+        public ActionResult SearchExpSummary()
+        {
+            List<ExpenseBudgetSummary> ExpBudget = null;
+            ExpenseBudgetSummary Amt = null;
+            ExpenseBudgetSummary ExpAmt = null;
+            if (null != Request["budgetyear"])
+            {
+                ExpBudget = service.getExpBudgetSummaryByYear(int.Parse(Request["budgetyear"]));
+                Amt = service.getTotalExpBudgetAmount(int.Parse(Request["budgetyear"]));
+                ExpAmt = service.getTotalOperationExpAmount(int.Parse(Request["budgetyear"]));
+                TempData["TotalAmt"] = String.Format("{0:#,##0.#}", Amt.TOTAL_BUDGET);
+                TempData["TotalExpAmt"] = String.Format("{0:#,##0.#}", ExpAmt.TOTAL_OPERATION_EXP); 
+            }
+            TempData["budgetYear"] = Request["budgetyear"];
+            return View("OperationExpSummary", ExpBudget);
         }
     }
 }
