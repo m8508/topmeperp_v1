@@ -4,61 +4,75 @@
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0rc1/angular.min.js"></script>
-<div class="jumbotron">
-    <h3 style="height:10px;line-height:5px">@ViewBag.Title</h3>
-    <div class="row" ng-app="" ng-controller="MyCtrl">
-        <form name="FormSearchSubject" id="FormSearchSubject" action="SearchSubject" method="Post">
-            <div class="row" style="padding-top:20px">
-                <div class="col-md-12">
-                    <h4>請勾選要輸入的費用項目名稱 : </h4>
-                </div>
-                <div class="col-md-10" type="horizontal">
-                    <span style="color:cornflowerblue; font-size: 18px;">
-                        <label ng-repeat="key in keys">
-                            <input type="checkbox" id="subject" name="subject" value="{{key.FIN_SUBJECT_ID}}" />{{key.SUBJECT_NAME}}
-                        </label>
-                    </span>
-                </div>
-                <div class="col-md-2">
-                    <div id="divProcessing">
-                        <img src="~/Content/ajax-loader.gif">
+
+<div class="page-header">
+    <h3 style="height:10px;line-height:5px">@ViewBag.Title</h3><br />
+    <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+    <div style="padding-top:30px">
+        @using (Html.BeginForm("AddExpense", "CashFlow", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+
+            <label class="col-md-2 control-label">費用發生年月: </label>
+            <div class='col-md-10'>
+                <input style="width:200px" type="text" class="form-control" name="occurreddate" id="occurreddate" value="">
+            </div>
+            <label class="col-md-2 control-label">費用支付日期: </label>
+            <div class='col-md-10'>
+                <input style="width:200px" type="date" class="form-control" name="paymentdate" id="paymentdate" value="">
+            </div>
+            <label class="col-md-2 control-label">說明事項: </label>
+            <div class='col-md-10' style="padding-bottom:20px">
+                <input style="width:300px" type="text" class="form-control" name="remark" id="remark" value="">
+            </div>
+            <div ng-app="" ng-controller="MyCtrl">
+                <div class="row" ng-submit="submit()">
+                    <h4 style="padding-bottom:10px; color:blue">公司費用項目內容，請按"新增"鈕來新增資料</h4>
+                    <div style="padding-bottom : 20px">
+                        <input type="submit" value="新增" ng-click="addKey()" class="btn btn-warning" />
                     </div>
-                    <div class="row" style="padding-top:22px">
-                        <input id="Submit1" type="submit" class="btn btn-info" value="確定挑選" />
-                        <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
-                    </div>
+                    <ng-form ng-repeat="m in model">
+                        <span class="btn btn-info">
+                            <button type="button" class="close" ng-click="remove($index)">&times;</button>
+                        </span>
+                        項目名稱：
+                        <select id="subjectid" name="subjectid" ng-model="m.SUBJECT" ng-options="(key.FIN_SUBJECT_ID + ' - ' + key.SUBJECT_NAME) for key in keys" required>
+                            <option value="" required>-- 請選擇 --</option>
+                        </select>
+                        金額：
+                        <input type="text" id="input_amount" name="input_amount" ng-model="m.AMOUNT" required>
+                        備註：
+                        <input type="text" style="width:500px" id="item_remark" name="item_remark" ng-model="m.REMARK">
+
+                        <br />
+                    </ng-form>
+                    <ng-form ng-repeat="key in keys">
+                        <input type="hidden" id="subjectlist" name="subjectlist" value="{{key.FIN_SUBJECT_ID}}">
+                    </ng-form>
                 </div>
             </div>
-        </form>
+            <div class="row" style="padding-top :50px">
+                <input id="Submit1" type="submit" value="送出" class="btn btn-default" />
+            </div>
+        }
     </div>
 </div>
-<!--標單項目列表區域-->
-<div class="container-fluid">
-    @if (null != Model)
-    {
-        Html.RenderPartial("_SubjectList");
-    }
-
-</div>
-
 <script type="text/javascript">
     $(document).ready(function () {
-        // Hide the "busy" Gif at load:
-        $("#divProcessing").hide();
-        // Attach click handler to the submit button:
-        $('#Submit1').click(function () {
-            $("#divProcessing").show();
+        $(function () {
+            $('#occurreddate').datetimepicker({
+                format: 'YYYY/MM'
+            });
         });
     });
 
     function MyCtrl($scope) {
         $scope.keys = @Html.Raw(ViewData["items"]);
-    }
-
-    function GetCheckedValue(checkBoxName) {
-        return $('input:checkbox[name=' + checkBoxName + '][checked=true]').map(function () {
-            return $(this).val();
-        })
-          .get().join(',');
+        $scope.model =[];
+        $scope.addKey = function () {
+            $scope.model.push({ amount: null, remark: '' });
+        };
+        $scope.remove = function (index) {
+            $scope.model.splice(index, 1);
+        };
     }
 </script>

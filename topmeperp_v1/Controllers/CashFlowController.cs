@@ -257,11 +257,14 @@ namespace topmeperp.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddExpense(FIN_EXPENSE_FORM ef)
+        public ActionResult AddExpense(FIN_EXPENSE_FORM ef, FormCollection form)
         {
-            string[] lstSubject = Request["subject"].Split(',');
-            string[] lstAmount = Request["expense_amount"].Split(',');
-            string[] lstRemark = Request["item_remark"].Split(',');
+            logger.Info("form:" + form.Count);
+            string[] lstSubject = form.Get("subjectid").Split(',');
+            string[] lstAmount = form.Get("input_amount").Split(','); 
+            string[] lstRemark = form.Get("item_remark").Split(',');
+            string[] SubjectList = form.Get("subjectlist").Split(',');
+            logger.Debug("SubjectList = " + SubjectList);
             //建立公司費用單號
             logger.Info("create new Operating Expense Form");
             UserService us = new UserService();
@@ -280,7 +283,7 @@ namespace topmeperp.Controllers
             for (int j = 0; j < lstSubject.Count(); j++)
             {
                 FIN_EXPENSE_ITEM item = new FIN_EXPENSE_ITEM();
-                item.FIN_SUBJECT_ID = lstSubject[j];
+                item.FIN_SUBJECT_ID = SubjectList[int.Parse(lstSubject[j])];
                 item.ITEM_REMARK = lstRemark[j];
                 if (lstAmount[j].ToString() == "")
                 {
