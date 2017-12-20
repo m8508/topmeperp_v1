@@ -123,15 +123,9 @@ namespace topmeperp.Service
                 logger.Debug("Excel Value:" + row.Cells[0].ToString() + row.Cells[1] + row.Cells[2]);
                 //將各Row 資料寫入物件內
                 //0.項次	1.圖號	2.棟別	3.一次側位置	4.一次側名稱	5.二次側名稱	6.二次側位置	7.管材名稱	8管數/組	9管組數	10管長度/組數	11管總長
-                if (row.Cells.Count != 0 && row.Cells[0].ToString().ToUpper() != "END")
+                if (row.Cells.Count <10 && row.Cells[0].ToString().ToUpper() != "END")
                 {
                     lstTask2MapFw.AddRange(convertRow2TndMapFW(row, iRowIndex));
-                }
-                else
-                {
-                    logErrorMessage("Step1 ;取得專案任務之消防水品項:" + lstTask2Map.Count + "筆");
-                    logger.Info("Finish convert Job : count=" + lstTask2Map.Count);
-                    return lstTask2MapFw;
                 }
                 iRowIndex++;
             }
@@ -217,16 +211,10 @@ namespace topmeperp.Service
             {
                 row = (IRow)rows.Current;
                 logger.Debug("Excel Value:" + row.Cells[0].ToString() + row.Cells[1] + row.Cells[2]);
-                if (row.Cells.Count != 0 && row.Cells[0].ToString().ToUpper() != "END")
+                if (row.Cells.Count <10 && row.Cells[0].ToString().ToUpper() != "END")
                 {
                     logger.Debug("FP iRows=" + iRowIndex);
                     lstTask2MapFp.AddRange(convertRow2TndMapFP(row, iRowIndex));
-                }
-                else
-                {
-                    logErrorMessage("Step1 ;取得專案任務之消防電品項:" + lstTask2Map.Count + "筆");
-                    logger.Info("Finish convert Job : count=" + lstTask2Map.Count);
-                    return lstTask2MapFp;
                 }
                 iRowIndex++;
             }
