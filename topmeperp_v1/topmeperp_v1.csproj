@@ -983,6 +983,9 @@
     <Content Include="Views\MaterialManage\CheckForReceipt.cshtml" />
     <Content Include="Views\CashFlow\OperationExpSummary.cshtml" />
     <Content Include="Views\CashFlow\_OperationExpBudgetList.cshtml" />
+    <Content Include="UploadFile\CostChange_Template_v1.xlsx" />
+    <Content Include="UploadFile\expense_budget_form.xlsx" />
+    <Content Include="UploadFile\site_budget_form.xlsx" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
