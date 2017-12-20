@@ -34,10 +34,10 @@
                 <button type="button" class="btn btn-default btn-xs" onclick="delChangeOrderItem('@item.ITEM_UID')">
                     <span class="glyphicon glyphicon-remove" aria-hidden="true" style="color:red"></span>
                 </button>
-                <input type="hidden" id="uid" name="uid"  size="3" value="@item.ITEM_UID" />@item.PLAN_ITEM_ID
+                <input type="hidden" id="uid" name="uid" size="3" value="@item.ITEM_UID" />@item.PLAN_ITEM_ID
             </td>
             <td data-th="標單項次">
-                @Html.DisplayFor(modelItem => item.ITEM_ID )
+                @Html.DisplayFor(modelItem => item.ITEM_ID)
             </td>
             <td data-th="品項名稱">
                 <textarea id="itemdesc" name="itemdesc" cols="30">@item.ITEM_DESC</textarea>
@@ -56,8 +56,17 @@
                 <input type="text" id="itemRemark" name="itemRemark" size="20" value="@item.ITEM_REMARK" />
             </td>
             <td data-th="追加減">
-                <input type="checkbox" id='transFlg.@item.ITEM_UID'  name='transFlg.@item.ITEM_UID' value="1" />
+                @if (item.TRANSFLAG == "1")
+                {
+                    <input type="checkbox" id='transFlg.@item.ITEM_UID' name='transFlg.@item.ITEM_UID' value="1" checked="@item.TRANSFLAG" />
+                }
+                else
+                {
+                    <input type="checkbox" id='transFlg.@item.ITEM_UID' name='transFlg.@item.ITEM_UID' value="1" />
+                }
             </td>
+
+
         </tr>
     }
 </table>
