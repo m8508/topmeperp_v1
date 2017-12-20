@@ -48,29 +48,42 @@ namespace topmeperp.Controllers
         {
             logger.Info("Access to Expense Budget Page !!");
             List<ExpenseBudgetSummary> ExpBudget = null;
+            List<ExpenseBudgetByMonth> BudgetByMonth = null;
+            ExpenseBudgetModel viewModel = new ExpenseBudgetModel();
             ExpenseBudgetSummary Amt = null;
             if (null != Request["budgetyear"])
             {
                 ExpBudget = service.getExpBudgetByYear(int.Parse(Request["budgetyear"]));
+                BudgetByMonth = service.getExpBudgetOfMonthByYear(int.Parse(Request["budgetyear"]));
                 Amt = service.getTotalExpBudgetAmount(int.Parse(Request["budgetyear"]));
+                viewModel.summary = ExpBudget;
+                viewModel.budget = BudgetByMonth;
                 TempData["TotalAmt"] = Amt.TOTAL_BUDGET;
+                return View(viewModel);
             }
             TempData["budgetYear"] = Request["budgetyear"];
-            return View(ExpBudget);
+            return View();
         }
 
         public ActionResult Search()
         {
             List<ExpenseBudgetSummary> ExpBudget = null;
+            List<ExpenseBudgetByMonth> BudgetByMonth = null;
+            ExpenseBudgetModel viewModel = new ExpenseBudgetModel();
             ExpenseBudgetSummary Amt = null;
             if (null != Request["budgetyear"])
             {
                 ExpBudget = service.getExpBudgetByYear(int.Parse(Request["budgetyear"]));
+                BudgetByMonth = service.getExpBudgetOfMonthByYear(int.Parse(Request["budgetyear"]));
                 Amt = service.getTotalExpBudgetAmount(int.Parse(Request["budgetyear"]));
-                TempData["TotalAmt"] = String.Format("{0:#,##0.#}", Amt.TOTAL_BUDGET);
+                viewModel.summary = ExpBudget;
+                viewModel.budget = BudgetByMonth;
+                TempData["TotalAmt"] = Amt.TOTAL_BUDGET;
+                TempData["budgetYear"] = Request["budgetyear"];
+                return View("ExpenseBudget", viewModel);
             }
             TempData["budgetYear"] = Request["budgetyear"];
-            return View("ExpenseBudget", ExpBudget);
+            return View("ExpenseBudget");
         }
         /// <summary>
         /// 下載公司費用預算填寫表
@@ -138,18 +151,90 @@ namespace topmeperp.Controllers
             service.delExpBudgetByYear(int.Parse(form["year"]));
             string msg = "";
             string[] lstsubjectid = form.Get("subjectid").Split(',');
-            string[] lst1 = form.Get("janAmt").Split(',');
-            string[] lst2 = form.Get("febAmt").Split(',');
-            string[] lst3 = form.Get("marAmt").Split(',');
-            string[] lst4 = form.Get("aprAmt").Split(',');
-            string[] lst5 = form.Get("mayAmt").Split(',');
-            string[] lst6 = form.Get("junAmt").Split(',');
-            string[] lst7 = form.Get("julAmt").Split(',');
-            string[] lst8 = form.Get("augAmt").Split(',');
-            string[] lst9 = form.Get("sepAmt").Split(',');
-            string[] lst10 = form.Get("octAmt").Split(',');
-            string[] lst11 = form.Get("novAmt").Split(',');
-            string[] lst12 = form.Get("decAmt").Split(',');
+            string[] lst7 = new string[lstsubjectid.Length];
+            for(int i=0;i< lstsubjectid.Length; i++)
+            {
+                lst7[i] = form.Get("julAmt" + lstsubjectid[i]).Replace(",", "");
+                logger.Debug("get budget jul=" + lst7[i]);
+            }
+            string[] lst8 = new string[lstsubjectid.Length];
+            for (int i = 0; i < lstsubjectid.Length; i++)
+            {
+                lst8[i] = form.Get("augAmt" + lstsubjectid[i]).Replace(",", "");
+                logger.Debug("get budget aug=" + lst8[i]);
+            }
+            string[] lst9 = new string[lstsubjectid.Length];
+            for (int i = 0; i < lstsubjectid.Length; i++)
+            {
+                lst9[i] = form.Get("sepAmt" + lstsubjectid[i]).Replace(",", "");
+                logger.Debug("get budget sep=" + lst9[i]);
+            }
+            string[] lst10 = new string[lstsubjectid.Length];
+            for (int i = 0; i < lstsubjectid.Length; i++)
+            {
+                lst10[i] = form.Get("octAmt" + lstsubjectid[i]).Replace(",", "");
+                logger.Debug("get budget oct=" + lst10[i]);
+            }
+            string[] lst11 = new string[lstsubjectid.Length];
+            for (int i = 0; i < lstsubjectid.Length; i++)
+            {
+                lst11[i] = form.Get("novAmt" + lstsubjectid[i]).Replace(",", "");
+                logger.Debug("get budget nov=" + lst11[i]);
+            }
+            string[] lst12 = new string[lstsubjectid.Length];
+            for (int i = 0; i < lstsubjectid.Length; i++)
+            {
+                lst12[i] = form.Get("decAmt" + lstsubjectid[i]).Replace(",", "");
+                logger.Debug("get budget dec=" + lst12[i]);
+            }
+            string[] lst1 = new string[lstsubjectid.Length];
+            for (int i = 0; i < lstsubjectid.Length; i++)
+            {
+                lst1[i] = form.Get("janAmt" + lstsubjectid[i]).Replace(",", "");
+                logger.Debug("get budget jan=" + lst1[i]);
+            }
+            string[] lst2 = new string[lstsubjectid.Length];
+            for (int i = 0; i < lstsubjectid.Length; i++)
+            {
+                lst2[i] = form.Get("febAmt" + lstsubjectid[i]).Replace(",", "");
+                logger.Debug("get budget feb=" + lst2[i]);
+            }
+            string[] lst3 = new string[lstsubjectid.Length];
+            for (int i = 0; i < lstsubjectid.Length; i++)
+            {
+                lst3[i] = form.Get("marAmt" + lstsubjectid[i]).Replace(",", "");
+                logger.Debug("get budget mar=" + lst3[i]);
+            }
+            string[] lst4 = new string[lstsubjectid.Length];
+            for (int i = 0; i < lstsubjectid.Length; i++)
+            {
+                lst4[i] = form.Get("aprAmt" + lstsubjectid[i]).Replace(",", "");
+                logger.Debug("get budget apr=" + lst4[i]);
+            }
+            string[] lst5 = new string[lstsubjectid.Length];
+            for (int i = 0; i < lstsubjectid.Length; i++)
+            {
+                lst5[i] = form.Get("mayAmt" + lstsubjectid[i]).Replace(",", "");
+                logger.Debug("get budget may=" + lst5[i]);
+            }
+            string[] lst6 = new string[lstsubjectid.Length];
+            for (int i = 0; i < lstsubjectid.Length; i++)
+            {
+                lst6[i] = form.Get("junAmt" + lstsubjectid[i]).Replace(",", "");
+                logger.Debug("get budget jun=" + lst6[i]);
+            }
+            // string[] lst1 = form.Get("janAmt").Split(',');
+            //string[] lst2 = form.Get("febAmt").Split(',');
+            //string[] lst3 = form.Get("marAmt").Split(',');
+            //string[] lst4 = form.Get("aprAmt").Split(',');
+            //string[] lst5 = form.Get("mayAmt").Split(',');
+            //string[] lst6 = form.Get("junAmt").Split(',');
+            //string[] lst7 = form.Get("julAmt").Split(',');
+            //string[] lst8 = form.Get("augAmt").Split(',');
+            //string[] lst9 = form.Get("sepAmt").Split(',');
+            //string[] lst10 = form.Get("octAmt").Split(',');
+            //string[] lst11 = form.Get("novAmt").Split(',');
+            //string[] lst12 = form.Get("decAmt").Split(',');
             List<string[]> Atm = new List<string[]>();
             Atm.Add(lst7);
             Atm.Add(lst8);
@@ -711,35 +796,55 @@ namespace topmeperp.Controllers
         {
             logger.Info("Access to Expense and Budget Summary Page !!");
             List<ExpenseBudgetSummary> ExpBudget = null;
+            List<ExpenseBudgetByMonth> BudgetByMonth = null;
+            List<ExpensetFromOPByMonth>ExpenseByMonth = null;
             ExpenseBudgetSummary Amt = null;
             ExpenseBudgetSummary ExpAmt = null;
+            ExpenseBudgetModel viewModel = new ExpenseBudgetModel();
             if (null != Request["budgetyear"])
             {
                 ExpBudget = service.getExpBudgetSummaryByYear(int.Parse(Request["budgetyear"]));
+                BudgetByMonth = service.getExpBudgetOfMonthByYear(int.Parse(Request["budgetyear"]));
+                ExpenseByMonth = service.getExpensetOfMonthByYear(int.Parse(Request["budgetyear"]));
                 Amt = service.getTotalExpBudgetAmount(int.Parse(Request["budgetyear"]));
                 ExpAmt = service.getTotalOperationExpAmount(int.Parse(Request["budgetyear"]));
+                viewModel.summary = ExpBudget;
+                viewModel.budget = BudgetByMonth;
+                viewModel.expense = ExpenseByMonth;
                 TempData["TotalAmt"] = Amt.TOTAL_BUDGET;
                 TempData["TotalExpAmt"] = ExpAmt.TOTAL_OPERATION_EXP;
+                TempData["budgetYear"] = Request["budgetyear"];
+                return View(viewModel);
             }
             TempData["budgetYear"] = Request["budgetyear"];
-            return View(ExpBudget);
+            return View();
         }
 
         public ActionResult SearchExpSummary()
         {
             List<ExpenseBudgetSummary> ExpBudget = null;
+            List<ExpenseBudgetByMonth> BudgetByMonth = null;
+            List<ExpensetFromOPByMonth> ExpenseByMonth = null;
             ExpenseBudgetSummary Amt = null;
             ExpenseBudgetSummary ExpAmt = null;
+            ExpenseBudgetModel viewModel = new ExpenseBudgetModel();
             if (null != Request["budgetyear"])
             {
                 ExpBudget = service.getExpBudgetSummaryByYear(int.Parse(Request["budgetyear"]));
-                Amt = service.getTotalExpBudgetAmount(int.Parse(Request["budgetyear"]));
+                BudgetByMonth = service.getExpBudgetOfMonthByYear(int.Parse(Request["budgetyear"]));
+                ExpenseByMonth = service.getExpensetOfMonthByYear(int.Parse(Request["budgetyear"]));
                 ExpAmt = service.getTotalOperationExpAmount(int.Parse(Request["budgetyear"]));
+                Amt = service.getTotalExpBudgetAmount(int.Parse(Request["budgetyear"]));
+                viewModel.summary = ExpBudget;
+                viewModel.budget = BudgetByMonth;
+                viewModel.expense = ExpenseByMonth;
                 TempData["TotalAmt"] = String.Format("{0:#,##0.#}", Amt.TOTAL_BUDGET);
-                TempData["TotalExpAmt"] = String.Format("{0:#,##0.#}", ExpAmt.TOTAL_OPERATION_EXP); 
+                TempData["TotalExpAmt"] = String.Format("{0:#,##0.#}", ExpAmt.TOTAL_OPERATION_EXP);
+                TempData["budgetYear"] = Request["budgetyear"];
+                return View("OperationExpSummary", viewModel);
             }
             TempData["budgetYear"] = Request["budgetyear"];
-            return View("OperationExpSummary", ExpBudget);
+            return View("OperationExpSummary");
         }
     }
 }
