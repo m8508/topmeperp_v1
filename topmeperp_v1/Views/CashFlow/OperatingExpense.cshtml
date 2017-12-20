@@ -35,7 +35,7 @@
                             <button type="button" class="close" ng-click="remove($index)">&times;</button>
                         </span>
                         項目名稱：
-                        <select id="subjectid" name="subjectid" ng-model="m.SUBJECT" ng-options="(key.FIN_SUBJECT_ID + ' - ' + key.SUBJECT_NAME) for key in keys" required>
+                        <select id="subjectid" name="subjectid" style="height:27px" ng-model="m.SUBJECT" ng-options="(key.FIN_SUBJECT_ID + ' - ' + key.SUBJECT_NAME) for key in keys" required>
                             <option value="" required>-- 請選擇 --</option>
                         </select>
                         金額：
@@ -51,7 +51,7 @@
                 </div>
             </div>
             <div class="row" style="padding-top :50px">
-                <input id="Submit1" type="submit" value="送出" class="btn btn-default" />
+                <input id="Submit1" type="submit" value="送出" class="btn btn-default" onclick="return Confirm_Form()" />
             </div>
         }
     </div>
@@ -74,5 +74,18 @@
         $scope.remove = function (index) {
             $scope.model.splice(index, 1);
         };
+    }
+
+    function Confirm_Form() {
+        var paymentdate = $('input[name=paymentdate]').val();
+        var occurreddate = $('input[name=occurreddate]').val();
+        if (null == paymentdate  || paymentdate == "") {
+            alert("沒有輸入費用支付日期，請填寫完整後再送出！");
+            return false;
+        }
+        if (null == occurreddate  || occurreddate == "") {
+            alert("沒有輸入費用發生年月，請填寫完整後再送出！");
+            return false;
+        }
     }
 </script>

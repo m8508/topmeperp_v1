@@ -540,4 +540,42 @@ namespace topmeperp.Models
     {
         public Nullable<decimal> MAP_QTY { get; set; }
     }
-}
+    public class ExpenseBudgetByMonth 
+    {
+        public Nullable<decimal> JAN { get; set; }
+        public Nullable<decimal> FEB { get; set; }
+        public Nullable<decimal> MAR { get; set; }
+        public Nullable<decimal> APR { get; set; }
+        public Nullable<decimal> MAY { get; set; }
+        public Nullable<decimal> JUN { get; set; }
+        public Nullable<decimal> JUL { get; set; }
+        public Nullable<decimal> AUG { get; set; }
+        public Nullable<decimal> SEP { get; set; }
+        public Nullable<decimal> OCT { get; set; }
+        public Nullable<decimal> NOV { get; set; }
+        public Nullable<decimal> DEC { get; set; }
+        public Nullable<decimal> HTOTAL { get; set; }
+    }
+    public class ExpensetFromOPByMonth
+    {
+        public Nullable<decimal> JAN { get; set; }
+        public Nullable<decimal> FEB { get; set; }
+        public Nullable<decimal> MAR { get; set; }
+        public Nullable<decimal> APR { get; set; }
+        public Nullable<decimal> MAY { get; set; }
+        public Nullable<decimal> JUN { get; set; }
+        public Nullable<decimal> JUL { get; set; }
+        public Nullable<decimal> AUG { get; set; }
+        public Nullable<decimal> SEP { get; set; }
+        public Nullable<decimal> OCT { get; set; }
+        public Nullable<decimal> NOV { get; set; }
+        public Nullable<decimal> DEC { get; set; }
+        public Nullable<decimal> HTOTAL { get; set; }
+    }
+    public class ExpenseBudgetModel
+    {
+        public IEnumerable<ExpenseBudgetSummary> summary { get; set; }
+        public IEnumerable<ExpenseBudgetByMonth> budget{ get; set; }
+        public IEnumerable<ExpensetFromOPByMonth> expense { get; set; }
+    }
+    }
