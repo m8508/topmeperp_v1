@@ -130,7 +130,8 @@
     $(function () {
         var date = { index: new Date().getTime() };
         $('#Date_${index}').datetimepicker({
-            format: 'YYYY/MM/DD'
+            format: 'YYYY/MM/DD',
+            locale: 'zh-tw'
         });
     });
 
@@ -199,5 +200,4 @@
             return false;
         }
     }
-
 </script>
