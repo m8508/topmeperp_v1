@@ -176,6 +176,51 @@ namespace topmeperp.Controllers
             ViewBag.Message = planService.resultMessage;
             return PartialView("_getMapItem4Task", planService.viewModel);
         }
+        //上傳任務與圖算資料
+        public string uploadTaskAndItem(HttpPostedFileBase file1)
+        {
+            string projectid = Request["id"];
+            log.Debug("ProjectID=" + projectid + ",Upload ProjectItem=" + file1.FileName);
+            TnderProject service = new TnderProject();
+            service.getProjectById(projectid);
+            SYS_USER u = (SYS_USER)Session["user"];
+            if (null != file1 && file1.ContentLength != 0)
+            {
+                try
+                {
+                    //2.解析Excel
+                    log.Info("Parser Excel data:" + file1.FileName);
+                    //2.1 將上傳檔案存檔
+                    var fileName = Path.GetFileName(file1.FileName);
+                    var path = Path.Combine(ContextService.strUploadPath + "/" + projectid, fileName);
+                    log.Info("save excel file:" + path);
+                    file1.SaveAs(path);
+                    //2.2 解析Excel 檔案
+                    //poiservice.ConvertDataForTenderProject(prj.PROJECT_ID, (int)prj.START_ROW_NO);
+                    ProjectTask2MapService poiservice = new ProjectTask2MapService();
+                    poiservice.InitializeWorkbook(path);
+                    poiservice.transAllSheet(projectid); 
+                    //List<PLAN_TASK2MAPITEM> lstTask2Map = poiservice.ConvertDataForMapFW(projectid);
+                    int i =planService.createTask2Map(poiservice.lstTask2Map);
+                    service.strMessage = poiservice.errorMessage;
+                    //log.Debug("add PLAN_TASK2MAPITEM =" + i);
+                    // service.refreshProjectItem(poiservice.lstProjectItem);
+                }
+                catch (Exception ex)
+                {
+                    log.Error(ex.StackTrace);
+                    return ex.Message;
+                }
+            }
+            if (service.strMessage != null)
+            {
+                return service.strMessage;
+            }
+            else
+            {
+                return "匯入成功!!";
+            }
+        }
 
         //設定任務圖算
         public string choiceMapItem(FormCollection f)
@@ -494,6 +539,7 @@ namespace topmeperp.Controllers
 
             return View(dailyRpt);
         }
+        //彙總報表
         public ActionResult summaryReport()
         {
             List<SummaryDailyReport> lst = null;

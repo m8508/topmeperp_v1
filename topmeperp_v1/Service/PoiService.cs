@@ -4,6 +4,7 @@ using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -12,6 +13,131 @@ using topmeperp.Models;
 
 namespace topmeperp.Service
 {
+    //提供Excle 樣板檔案基本做法
+    public class ExcelBase
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        public IWorkbook hssfworkbook=null;
+        public static string strUploadPath = ConfigurationManager.AppSettings["UploadFolder"];
+        public ISheet sheet = null;
+        public string fileformat = "xlsx";
+        //定義樣板檔案名稱
+        public string templateFile = null;
+        //定義輸出檔案名稱
+        public string outputFile = null;
+        public string errMessage = null;
+        public XSSFCellStyle style = null;
+        public XSSFCellStyle styleNumber = null;
+
+        public ExcelBase()
+        {
+
+        }
+
+        public void DataTableToExcelFile(DataTable dt,int startRowIndex = 0)
+        {
+            //建立Excel 2003檔案
+            hssfworkbook = new HSSFWorkbook();
+
+            ////建立Excel 2007檔案
+            //hssfworkbook = new XSSFWorkbook();
+            SetDataTabletoSheet(dt, startRowIndex);
+
+            FileStream file = new FileStream(outputFile, FileMode.Create);//產生檔案
+            hssfworkbook.Write(file);
+            file.Close();
+        }
+        protected void SetDataTabletoSheet(DataTable dt, int startRowIndex)
+        {
+            if (dt.TableName != string.Empty)
+            {
+                sheet = hssfworkbook.CreateSheet(dt.TableName);
+            }
+            else
+            {
+                sheet = hssfworkbook.CreateSheet("Sheet1");
+            }
+
+            sheet.CreateRow(startRowIndex);//第一行為欄位名稱
+            for (int i = startRowIndex; i < dt.Columns.Count; i++)
+            {
+                sheet.GetRow(startRowIndex).CreateCell(i).SetCellValue(dt.Columns[i].ColumnName);
+            }
+
+            for (int i = startRowIndex; i < dt.Rows.Count; i++)
+            {
+                sheet.CreateRow(i + 1);
+                for (int j = 0; j < dt.Columns.Count; j++)
+                {
+                    sheet.GetRow(i + 1).CreateCell(j).SetCellValue(dt.Rows[i][j].ToString());
+                }
+            }
+        }
+        public byte[] DataTableToExcelFileByResponse(DataTable dt, int startRowIndex = 0)
+        {
+            ////建立Excel 2007檔案
+            hssfworkbook = new XSSFWorkbook();
+            SetDataTabletoSheet(dt, startRowIndex);
+            MemoryStream ms = new MemoryStream();
+            hssfworkbook.Write(ms);
+            byte[] msByte = ms.ToArray();
+            ms.Close();
+            ms.Dispose();
+            return msByte;
+        }
+        /*讀取Excel 樣板檔案!!!*/
+        public void InitializeWorkbook()
+        {
+            //read the template via FileStream, it is suggested to use FileAccess.Read to prevent file lock.
+            //book1.xls is an Excel-2007-generated file, so some new unknown BIFF records are added. 
+            using (FileStream file = new FileStream(templateFile, FileMode.Open, FileAccess.Read))
+            {
+                logger.Info("Read Excel File:" + templateFile);
+                if (file.Name.EndsWith(".xls"))
+                {
+                    logger.Debug("process excel file for office 2003");
+                    fileformat = "xls";
+                    hssfworkbook = new HSSFWorkbook(file);
+                }
+                else
+                {
+                    logger.Debug("process excel file for office 2007");
+                    hssfworkbook = new XSSFWorkbook(file);
+                }
+                file.Close();
+            }
+            style = ExcelStyle.getContentStyle(hssfworkbook);
+            styleNumber = ExcelStyle.getNumberStyle(hssfworkbook);
+        }
+        //Initial Sheet
+        public void SetOpSheet(string sheetName)
+        {
+            //1.依據檔案附檔名使用不同物件讀取Excel 檔案，並開啟整理後標單Sheet
+            if (fileformat == "xls")
+            {
+                logger.Debug("office 2003:" + fileformat);
+                sheet = (HSSFSheet)hssfworkbook.GetSheet(sheetName);
+            }
+            else
+            {
+                logger.Debug("office 2007:" + fileformat);
+                sheet = (XSSFSheet)hssfworkbook.GetSheet(sheetName);
+            }
+            if (null == sheet)
+            {
+                logger.Error("檔案內沒有Sheet="+ sheetName + "! filename=" + fileformat);
+                throw new Exception("檔案內沒有Sheet:"+ sheetName);
+            }
+        }
+        //轉換物件
+        public virtual void ConvertExcelToObject(int startrow)
+        {
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public class ProjectItemFromExcel
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -69,7 +195,6 @@ namespace topmeperp.Service
             }
             ConvertExcelToTndProjectItem(startrow);
         }
-        //轉換標單內容物件
         //轉換標單內容物件
         public void ConvertExcelToTndProjectItem(int startrow)
         {
@@ -197,72 +322,6 @@ namespace topmeperp.Service
             logger.Info("TndprojectItem=" + projectItem.ToString());
             return projectItem;
         }
-        //更新標單次序
-        //private TND_PROJECT_ITEM c_onvertRow2TndProjectItem4Refresh(int id, IRow row, int excelrow)
-        //{
-        //    TND_PROJECT_ITEM projectItem = new TND_PROJECT_ITEM();
-        //    projectItem.PROJECT_ID = projId;
-
-        //    if (row.Cells[0].ToString().Trim() != "")//PK
-        //    {
-        //        projectItem.PROJECT_ITEM_ID = row.Cells[0].ToString();
-        //    }
-        //    if (row.Cells[1].ToString().Trim() != "")//項次
-        //    {
-        //        projectItem.ITEM_ID = row.Cells[1].ToString();
-        //    }
-        //    if (row.Cells[2].ToString().Trim() != "")//名稱
-        //    {
-        //        projectItem.ITEM_DESC = row.Cells[2].ToString();
-        //    }
-
-        //    if (row.Cells[3].ToString().Trim() != "")//單位
-        //    {
-        //        projectItem.ITEM_UNIT = row.Cells[3].ToString();
-        //    }
-        //    if (row.Cells[4].ToString().Trim() != "")//數量
-        //    {
-        //        try
-        //        {
-        //            decimal dQty = decimal.Parse(row.Cells[4].ToString());
-        //            logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[4].ToString());
-        //            projectItem.ITEM_QUANTITY = dQty;
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",value=" + row.Cells[4].ToString());
-        //            logger.Error(e.Message);
-        //        }
-
-        //    }
-        //    if (row.Cells[6].ToString().Trim() != "")//備註
-        //    {
-        //        projectItem.ITEM_REMARK = row.Cells[6].ToString();
-        //    }
-
-        //    if (row.Cells[7].ToString().Trim() != "")//九宮格
-        //    {
-        //        projectItem.TYPE_CODE_1 = row.Cells[7].ToString();
-        //    }
-        //    if (row.Cells[8].ToString().Trim() != "")//次九宮格
-        //    {
-        //        projectItem.TYPE_CODE_2 = row.Cells[8].ToString();
-        //    }
-        //    if (row.Cells[9].ToString().Trim() != "")//主系統
-        //    {
-        //        projectItem.SYSTEM_MAIN = row.Cells[9].ToString();
-        //    }
-        //    if (row.Cells[10].ToString().Trim() != "")//次系統
-        //    {
-        //        projectItem.SYSTEM_SUB = row.Cells[10].ToString();
-        //    }
-        //    projectItem.PROJECT_ITEM_ID = projId + "-" + id;
-        //    projectItem.EXCEL_ROW_ID = excelrow;
-        //    projectItem.CREATE_DATE = System.DateTime.Now;
-
-        //    logger.Info("TndprojectItem=" + projectItem.ToString());
-        //    return projectItem;
-        //}
 
         #region 處理得標標單項目內容
         //處理得標後標單..

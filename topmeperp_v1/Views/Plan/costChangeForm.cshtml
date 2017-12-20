@@ -22,7 +22,7 @@
                     <input class="form-control" type="text" id="txtFormId" name="txtFormId" value="@ViewBag.FormId" readonly />
                 </div>
                 <div class="col-sm-3">
-                    <a class="btn btn-link" href="#">下載</a>
+                    <a class="btn btn-link" href="/Plan/downloadCostChangeForm?formId=@ViewBag.FormId" target="_blank">下載</a>
                     @if (ViewBag.formStatus == "新建立")
                     {
                         <button class="btn btn-link" data-toggle="modal" data-target="#formUploadItem" type="button">上傳</button>
@@ -111,7 +111,7 @@
                         </div>
                     </div>
                     <div class="row form-group">
-                        <div class="col-md-4">轉入標單</div>
+                        <div class="col-md-4">追加減</div>
                         <div class="col-md-8">
                             <select id="dia_transFlag" name="dia_transFlag">
                                 <option value="0" selected>否</option>
@@ -133,7 +133,7 @@
 <div class="modal fade" id="formUploadItem" role="dialog">
     <div class="modal-dialog" id="formUploadItem">
         <div class="modal-content">
-            <form id="formFileUpload" name="formFileUpload" action="/Tender/uploadProjectItem" method="post" enctype="multipart/form-data">
+            <form id="formFileUpload" name="formFileUpload" action="/Plan/uploadProjectItem" method="post" enctype="multipart/form-data">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                     <h4 class="modal-title">上傳異動明細資料</h4>
@@ -162,8 +162,6 @@
     });
 
     function uploadPlanItem() {
-        alert("Upload");
-        return;
         $("#divProcessing").show();
         $("#formFileUpload").submit(function (e) {
             var formObj = $(this);
@@ -222,8 +220,7 @@
     });
     //將ProjectItem 註記刪除
     function delChangeOrderItem(itemid) {
-        // alert(itemid);
-        if ($("#status") !== "新建立") {
+        if ($("#status").val() != "新建立") {
             alert("此異動單不可再調整內容!!");
             return;
         }

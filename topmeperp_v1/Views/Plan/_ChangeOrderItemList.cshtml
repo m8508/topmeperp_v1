@@ -24,7 +24,7 @@
             備註說明
         </th>
         <th>
-            轉入標單
+            追加減
         </th>
     </tr>
     @foreach (var item in Model)
@@ -55,7 +55,7 @@
             <td data-th="備註說明">
                 <input type="text" id="itemRemark" name="itemRemark" size="20" value="@item.ITEM_REMARK" />
             </td>
-            <td data-th="轉入標單">
+            <td data-th="追加減">
                 <input type="checkbox" id='transFlg.@item.ITEM_UID'  name='transFlg.@item.ITEM_UID' value="1" />
             </td>
         </tr>
