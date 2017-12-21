@@ -14,6 +14,12 @@ namespace topmeperp.Models
     
     public partial class TND_PROJECT
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public TND_PROJECT()
+        {
+            this.PLAN_INDIRECT_COST = new HashSet<PLAN_INDIRECT_COST>();
+        }
+    
         public string PROJECT_ID { get; set; }
         public string PROJECT_NAME { get; set; }
         public string ENG_NAME { get; set; }
@@ -35,5 +41,8 @@ namespace topmeperp.Models
         public string CREATE_USER_ID { get; set; }
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public Nullable<decimal> WAGE_MULTIPLIER { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<PLAN_INDIRECT_COST> PLAN_INDIRECT_COST { get; set; }
     }
 }

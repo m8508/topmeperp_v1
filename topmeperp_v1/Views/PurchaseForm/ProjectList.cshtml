@@ -1,5 +1,5 @@
 ﻿@model IEnumerable<topmeperp.Models.TND_PROJECT>
-<table class="table">
+<table class="rwd-table">
     <tr>
         <th>
             專案名稱
@@ -10,44 +10,37 @@
         <th>
             專案狀態
         </th>
-        <th>
-            業主管理
-        </th>
-        <th>
-            詢價與議約發包管理
-        </th>
-        <th>
-            供應商採購管理
-        </th>
     </tr>
 
     @foreach (var item in Model)
     {
         <tr>
-            <td>
+            <td data-th="專案名稱">
                 @Html.DisplayFor(modelItem => item.PROJECT_NAME)
             </td>
-            <td>
+            <td data-th="業主名稱">
                 @Html.DisplayFor(modelItem => item.OWNER_NAME)
             </td>
-            <td>
+            <td data-th="專案狀態">
                 @Html.DisplayFor(modelItem => item.STATUS)
             </td>
+        </tr>
+        <tr>
             <td>
-                <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("ContractForOwner", "Plan", new { id = item.PROJECT_ID })'; ">業主合約</button>
+                <button type="button" class="btn btn-info" @ViewBag.F10005 onclick="location.href='@Url.Action("Budget", "Plan", new { id = item.PROJECT_ID })'">預算作業</button>
+                <button type="button" class="btn btn-info" onclick="location.href='@Url.Action("ContractForOwner", "Plan", new { id = item.PROJECT_ID })'; ">業主合約</button>
                 <button type="button" class="btn btn-info" onclick="location.href='@Url.Action("ManagePlanItem", "Plan", new { id = item.PROJECT_ID })'; ">標單上傳與查詢</button>
+                <button type="button" class="btn btn-info" onclick="location.href='@Url.Action("costControllerIndex", "Plan", new { id = item.PROJECT_ID })'; ">成本預算管制表</button>
             </td>
             <td>
-                <button type="button" class="btn btn-warning" @ViewBag.F10005 onclick="location.href='@Url.Action("Budget", "Plan", new { id = item.PROJECT_ID })'">預算作業</button>
                 <button type="button" class="btn btn-warning" @ViewBag.F10005 onclick="location.href='@Url.Action("FormTemplateMgr", "PurchaseForm", new { id = item.PROJECT_ID })'">空白詢價單</button>
                 <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("FormMainPage","PurchaseForm", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">廠商詢價單</button>
-                <button type="button" class="btn btn-info" onclick="location.href='@Url.Action("PurchaseMain", "PurchaseForm", new { id = item.PROJECT_ID })'; ">議約發包</button>
-                <button type="button" class="btn btn-info" onclick="location.href='@Url.Action("LeadTimeMainPage", "PurchaseForm", new { id = item.PROJECT_ID })'; ">設備前置時間</button>
-               
+                <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("PurchaseMain", "PurchaseForm", new { id = item.PROJECT_ID })'; ">議約發包</button>
             </td>
             <td>
-                <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("PurchaseOrder","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">採購作業</button>
-                <button type="button" class="btn btn-info" onclick="location.href='@Url.Action("PurchaseOrderIndex","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">採購單查詢</button>
+                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("LeadTimeMainPage", "PurchaseForm", new { id = item.PROJECT_ID })'; ">設備前置時間</button>
+                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PurchaseOrder","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">採購作業</button>
+                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PurchaseOrderIndex","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">採購單查詢</button>
             </td>
         </tr>
     }

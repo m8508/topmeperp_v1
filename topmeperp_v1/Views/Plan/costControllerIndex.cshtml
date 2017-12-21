@@ -1,0 +1,162 @@
+﻿@model topmeperp.Models.CostControlInfo
+@{
+    ViewBag.Title = "成本預算管制表";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+<h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
+<div class="container">
+    <!--業主合約與追加減說明-->
+    <div class="row form-group">
+        <label class="col-sm-1 control-label">專案編號:</label>
+        <div class="col-sm-2">
+            <input class="form-control" type="text" id="projectId" name="projectId" value="@Model.Project.PROJECT_ID" readonly />
+        </div>
+        <label class="col-sm-1 control-label">專案名稱:</label>
+        <label class="col-sm-6 info"> @Model.Project.PROJECT_NAME </label>
+    </div>
+    <div class="row">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <td colspan="2">原合約金額</td>
+                    <td style="text-align:right">@String.Format("{0:n0}", Model.Revenue.PLAN_REVENUE)</td>
+                    <td>目前合約金額(尚未加上異動成本)</td>
+                    <td colspan="2" style="text-align:right">@String.Format("{0:n0}", Model.Revenue.PLAN_REVENUE) </td>
+                    <td colspan="2">執行成本(A)+(B)</td>
+                </tr>
+                <tr>
+                    <th>預算編號</th>
+                    <th>業主</th>
+                    <th>工程項目</th>
+                    <th>原額約金額</th>
+                    <th>合約金額</th>
+                    <th>追加</th>
+                    <th>追減</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th></th>
+                    <th> @Model.Project.OWNER_NAME </th>
+                    <th> @Model.Project.CONTRUCTION_NAME  </th>
+                    <th style="text-align:right">@String.Format("{0:n0}", Model.Revenue.PLAN_REVENUE)</th>
+                    <th>...</th>
+                    <th>...</th>
+                    <th>...</th>
+                    <th>...</th>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th>合計(未稅)</th>
+                    <th style="text-align:right">@String.Format("{0:n0}", 123456789)</th>
+                    <th style="text-align:right">@String.Format("{0:n0}", 123456789)</th>
+                    <th></th>
+                    <th></th>
+                    <th style="text-align:right">@String.Format("{0:n0}", 123456789)</th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<div class="container">
+    <label class="col-sm-12 control-label">(A)直接成本</label>
+    <!--直接成本:發包廠商與金額-->
+    <div class="row">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>預算編號</th>
+                    <th>廠商名稱</th>
+                    <th>工程項目</th>
+                    <th>預定採購目標</th>
+                    <th>合約金額</th>
+                    <th>追加</th>
+                    <th>追減</th>
+                    <th>備註</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var directCost in Model.lstDirectCostItem)
+                {
+                    <tr>
+                        <td> @directCost.INQUIRY_FORM_ID </td>
+                        <td> @directCost.SUPPLIER_ID</td>
+                        <td> @directCost.FORM_NAME</td>
+                        <td> 缺預算 </td>
+                        <td style="text-align:right"> @String.Format("{0:n0}", directCost.TAmount)</td>
+                        <td> 缺 </td>
+                        <td> 缺 </td>
+                        <td> 缺</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>合計(未稅)</td>
+                    <td>000,000</td>
+                    <td>000,000</td>
+                    <td>000,000</td>
+                    <td>000,000</td>
+                    <td>000,000</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<div class="container">
+    <!--間接成本-->
+    <label class="col-sm-12 control-label">(B)間接成本<button type="button" class="btn btn-warning" onclick="createIndirectCost()">建立間接成本</button></label>
+    <div class="row">
+        <table class="table table-bordered">
+            <thead></thead>
+            <tbody>
+                @foreach (var indirectCost in Model.lstIndirectCostItem)
+                {
+                    <tr>
+                        <td> </td>
+                        <td> @indirectCost.FIELD_ID </td>
+                        <td> @indirectCost.FIELD_DESC </td>
+                        <td style="text-align:right"> @String.Format("{0:n0}", indirectCost.COST)</td>
+                        <td style="text-align:right"> @String.Format("{0:n0}", indirectCost.COST)</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>合計(未稅)</td>
+                    <td>000,000</td>
+                    <td>000,000</td>
+                    <td>000,000</td>
+                    <td>000,000</td>
+                    <td>000,000</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script language="javascript" type="text/javascript">
+    function createIndirectCost() {
+        alert('建立間接成本' + $("#projectId").val());
+        $.ajax({
+            url: "/Plan/createIndirectCost",
+            data: { projectId: $("#projectId").val() },
+            method: "POST",
+            dataType: "text",
+            success: function (result) {
+                alert(result);
+            }
+        })
+    }
+</script>
+

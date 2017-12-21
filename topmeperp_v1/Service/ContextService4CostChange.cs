@@ -8,6 +8,82 @@ using topmeperp.Models;
 
 namespace topmeperp.Service
 {
+    //成本預算管制表Service Layer
+    public class ContextService4PlanCost : PlanService
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        public CostControlInfo CostInfo = new CostControlInfo();
+        public ContextService4PlanCost()
+        {
+
+        }
+        public void getCostControlInfo(string projectId)
+        {
+            logger.Debug("get Cost Controll Info By ProjectId=" + projectId);
+            //專案基本資料
+            CostInfo.Project = getProject(projectId);
+            //1.合約金額與追加減項目
+            CostInfo.Revenue = getPlanRevenueById(projectId);
+            ///缺異動單
+            //2.直接成本:材料與工資
+            PurchaseFormService pfservice = new PurchaseFormService();
+            CostInfo.lstDirectCostItem = pfservice.getPurchaseForm4Offer(projectId, null, null);
+            CostInfo.lstDirectCostItem.AddRange(pfservice.getPurchaseForm4Offer(projectId, null, "Y"));
+            //3.間接成本
+            CostInfo.lstIndirectCostItem = getIndirectCost();
+        }
+        //建立間接成本資料
+        public void createIndirectCost(string projectId, string userid)
+        {
+            List<SYS_PARA> lstItem = SystemParameter.getSystemPara("IndirectCostItem");
+            List<PLAN_INDIRECT_COST> lstIndirectCostItem = new List<PLAN_INDIRECT_COST>();
+            //取得合約金額
+            CostInfo.Revenue = getPlanRevenueById(projectId);
+            //取得間接成本項目
+            foreach (SYS_PARA p in lstItem)
+            {
+                PLAN_INDIRECT_COST it = new PLAN_INDIRECT_COST();
+                it.PROJECT_ID = projectId;
+                it.FIELD_ID = p.FIELD_ID;
+                it.FIELD_DESC = p.VALUE_FIELD;
+                it.PERCENTAGE = decimal.Parse(p.KEY_FIELD);
+                it.MODIFY_ID = userid;
+                it.MODIFY_DATE = DateTime.Now;
+                // System.Convert.ToDoublSystem.Math.Round(1.235, 2, MidpointRounding.AwayFromZero)
+                it.COST = Convert.ToDecimal(Math.Round(Convert.ToDouble(CostInfo.Revenue.PLAN_REVENUE * decimal.Parse(p.KEY_FIELD)), 0, MidpointRounding.AwayFromZero));
+                logger.Debug(p.VALUE_FIELD + " Indirect Cost=" + it.COST + ",per=" + p.KEY_FIELD);
+                lstIndirectCostItem.Add(it);
+            }
+            using (var context = new topmepEntities())
+            {
+                ///刪除現有資料
+                string sql = "DELETE FROM PLAN_INDIRECT_COST WHERE PROJECT_ID=@projectId";
+                logger.Debug("sql=" + sql + ",projectid=" + projectId);
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("projectId", projectId));
+                context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+                logger.Debug("sql=" + sql + ",projectid=" + projectId);
+                ///將新資料存入
+                context.PLAN_INDIRECT_COST.AddRange(lstIndirectCostItem);
+                context.SaveChanges();
+            }
+        }
+        //
+        private List<PLAN_INDIRECT_COST> getIndirectCost()
+        {
+            List<PLAN_INDIRECT_COST> lst = null;
+            using (var context = new topmepEntities())
+            {
+                string sql = "SELECT * FROM PLAN_INDIRECT_COST WHERE PROJECT_ID=@projectId ORDER BY FIELD_ID";
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("projectId", CostInfo.Project.PROJECT_ID));
+                logger.Debug("SQL:" + sql + ",projectId=" + CostInfo.Project.PROJECT_ID);
+                lst = context.PLAN_INDIRECT_COST.SqlQuery(sql, parameters.ToArray()).ToList();
+            }
+            return lst;
+        }
+    }
+    //成本異動Service Layer
     public class CostChangeService : PlanService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -61,7 +137,7 @@ namespace topmeperp.Service
             return form.FORM_ID;
         }
         //查詢異動單
-        public List<PLAN_COSTCHANGE_FORM> getChangeOrders(string projectId, string remark,string status)
+        public List<PLAN_COSTCHANGE_FORM> getChangeOrders(string projectId, string remark, string status)
         {
             List<PLAN_COSTCHANGE_FORM> lstForms = new List<PLAN_COSTCHANGE_FORM>();
             //2.將預算資料寫入 
@@ -173,11 +249,13 @@ namespace topmeperp.Service
             //2.將資料寫入 
             using (var context = new topmepEntities())
             {
-                try { 
-                logger.Debug("create COSTCHANGE_FORM:" + item.FORM_ID);
-                context.PLAN_COSTCHANGE_ITEM.Add(item);
-                i = context.SaveChanges();
-                }catch (Exception ex)
+                try
+                {
+                    logger.Debug("create COSTCHANGE_FORM:" + item.FORM_ID);
+                    context.PLAN_COSTCHANGE_ITEM.Add(item);
+                    i = context.SaveChanges();
+                }
+                catch (Exception ex)
                 {
                     logger.Error(ex.Message + ":" + ex.StackTrace);
                 }

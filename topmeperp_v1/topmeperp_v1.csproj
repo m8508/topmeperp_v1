@@ -439,6 +439,9 @@
     <Compile Include="Models\PLAN_COSTCHANGE_ITEM.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\PLAN_INDIRECT_COST.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\PLAN_SITE_BUDGET.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
@@ -986,6 +989,7 @@
     <Content Include="UploadFile\CostChange_Template_v1.xlsx" />
     <Content Include="UploadFile\expense_budget_form.xlsx" />
     <Content Include="UploadFile\site_budget_form.xlsx" />
+    <Content Include="Views\Plan\costControllerIndex.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

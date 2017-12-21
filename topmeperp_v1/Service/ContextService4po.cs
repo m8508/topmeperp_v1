@@ -250,7 +250,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 plan = context.Database.SqlQuery<PlanRevenue>("SELECT p.PROJECT_ID AS CONTRACT_ID, " +
-                    "(SELECT SUM(ITEM_UNIT_COST*ITEM_QUANTITY) FROM PLAN_ITEM pi WHERE pi.PROJECT_ID = @pid) AS PLAN_REVENUE " +
+                    "(SELECT SUM(ITEM_UNIT_PRICE*ITEM_QUANTITY) FROM PLAN_ITEM pi WHERE pi.PROJECT_ID = @pid) AS PLAN_REVENUE " +
                      "FROM TND_PROJECT p WHERE p.PROJECT_ID = @pid "
                    , new SqlParameter("pid", prjid)).First();
             }

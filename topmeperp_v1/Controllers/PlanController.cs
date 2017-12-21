@@ -953,5 +953,23 @@ namespace topmeperp.Controllers
             Response.WriteFile(fileLocation);
             Response.End();
         }
+        //成本預算管制表
+        public ActionResult costControllerIndex(string id)
+        {
+            string projectId = id;// Request["id"];
+            ContextService4PlanCost costService = new ContextService4PlanCost();
+            //成本預算管制表物件
+            costService.getCostControlInfo(projectId);
+            return View(costService.CostInfo);
+        }
+        public string createIndirectCost()
+        {
+            string projectId = Request["projectId"];
+            SYS_USER u = (SYS_USER)Session["user"];
+            ContextService4PlanCost s = new ContextService4PlanCost();
+            s.createIndirectCost(projectId, u.USER_ID);
+            logger.Debug("create indirect cost by projectid=" + projectId);
+            return "建立成功";
+        }
     }
 }
