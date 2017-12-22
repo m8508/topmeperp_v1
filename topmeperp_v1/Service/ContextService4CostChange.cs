@@ -82,6 +82,31 @@ namespace topmeperp.Service
             }
             return lst;
         }
+        //建立間接成本資料
+        public void modifyIndirectCost(string projectId, List<PLAN_INDIRECT_COST> items)
+        {
+            using (var context = new topmepEntities())
+            {
+                ///逐筆更新資料
+                string sql = "UPDATE PLAN_INDIRECT_COST SET COST = @cost, MODIFY_ID = @modifyId, MODIFY_DATE = @modifyDate, NOTE = ISNULL(Note,'') + @Note  WHERE PROJECT_ID = @projectId AND FIELD_ID = @fieldId";
+                logger.Debug("sql=" + sql + ",projectid=" + projectId);
+                foreach (PLAN_INDIRECT_COST it in items)
+                {
+                    var parameters = new List<SqlParameter>();
+                    parameters.Add(new SqlParameter("projectId", projectId));
+                    parameters.Add(new SqlParameter("fieldId", it.FIELD_ID));
+                    parameters.Add(new SqlParameter("cost", it.COST));
+                    parameters.Add(new SqlParameter("modifyId", it.MODIFY_ID));
+                    parameters.Add(new SqlParameter("modifyDate", DateTime.Now));
+                    parameters.Add(new SqlParameter("Note", it.NOTE));
+                    context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+                    logger.Debug("sql=" + sql + ",projectid=" + projectId);
+                }
+                ///將新資料存入
+                context.SaveChanges();
+            }
+        }
+
     }
     //成本異動Service Layer
     public class CostChangeService : PlanService

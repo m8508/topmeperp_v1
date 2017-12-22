@@ -962,6 +962,7 @@ namespace topmeperp.Controllers
             costService.getCostControlInfo(projectId);
             return View(costService.CostInfo);
         }
+        //建立間接成本
         public string createIndirectCost()
         {
             string projectId = Request["projectId"];
@@ -970,6 +971,33 @@ namespace topmeperp.Controllers
             s.createIndirectCost(projectId, u.USER_ID);
             logger.Debug("create indirect cost by projectid=" + projectId);
             return "建立成功";
+        }
+        //更新間接成本\
+        public string modifyIndirectCost()
+        {
+            string projectId = Request["projectId"];
+            string[] fieldIds = Request["fieldId"].Split(',');
+            string[] costs = Request["cost"].Split(',');
+            string[] notes = Request["note"].Split(',');
+            logger.Debug("Field Count=" + fieldIds.Count()+",Cost Count=" + costs.Count());
+            SYS_USER u = (SYS_USER)Session["user"];
+            ContextService4PlanCost s = new ContextService4PlanCost();
+            List<PLAN_INDIRECT_COST> items = new List<PLAN_INDIRECT_COST>();
+            for (int i=0;i< fieldIds.Count(); i++)
+            {
+                PLAN_INDIRECT_COST it = new PLAN_INDIRECT_COST();
+                it.FIELD_ID = fieldIds[i];
+                it.COST = decimal.Parse(costs[i]);
+                it.NOTE = notes[i];
+                it.MODIFY_ID = u.USER_ID;
+                items.Add(it);
+            }
+            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            string itemJson = objSerializer.Serialize(items);
+            logger.Debug("item  info=" + itemJson);
+             s.modifyIndirectCost(projectId, items);
+            //logger.Debug("create indirect cost by projectid=" + projectId);
+            return "修改成功";
         }
     }
 }
