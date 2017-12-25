@@ -6,6 +6,12 @@
 
 
 <div class="page-header">
+@if (Model.finEXP.STATUS >= 20)
+{
+    <div class="col-sm-3">
+        <a class="btn btn-link" href="/CashFlow/downLoadExpenseForm?formid=@Model.finEXP.EXP_FORM_ID" target="_blank">下載費用表</a>
+    </div>
+}
     <form id="formExpense" name="formExpense" action="" method="post">
         <div class="row">
             <div class="col-md-10">
@@ -97,6 +103,9 @@
             <table class="table">
                 <tr>
                     <th>
+                        No.
+                    </th>
+                    <th>
                         項目名稱
                     </th>
                     <th>
@@ -131,6 +140,9 @@
                     {
 
                         <tr>
+                            <td>
+                                @item.NO
+                            </td>
                             <td>
                                 @item.SUBJECT_NAME
                             </td>

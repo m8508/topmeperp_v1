@@ -1,6 +1,9 @@
 ﻿@model topmeperp.Models.ExpenseBudgetModel
 
 <div class="row" style="padding-bottom:10px">
+    <div class="col-md-12">
+        <a class="btn btn-link" href="/CashFlow/downLoadOPExpenseSummary?budgetyear=@TempData["budgetYear"]" target="_blank">下載彙整表</a>
+    </div>
     <div class="col-md-12" style="padding-top:5px">
         <div class="col-md-3">
             <span style="color: blue; font-size: 25px;">預算年度 : @TempData["budgetYear"]</span>

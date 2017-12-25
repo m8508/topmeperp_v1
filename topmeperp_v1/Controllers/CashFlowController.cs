@@ -152,7 +152,7 @@ namespace topmeperp.Controllers
             string msg = "";
             string[] lstsubjectid = form.Get("subjectid").Split(',');
             string[] lst7 = new string[lstsubjectid.Length];
-            for(int i=0;i< lstsubjectid.Length; i++)
+            for (int i = 0; i < lstsubjectid.Length; i++)
             {
                 lst7[i] = form.Get("julAmt" + lstsubjectid[i]).Replace(",", "");
                 logger.Debug("get budget jul=" + lst7[i]);
@@ -346,7 +346,7 @@ namespace topmeperp.Controllers
         {
             logger.Info("form:" + form.Count);
             string[] lstSubject = form.Get("subjectid").Split(',');
-            string[] lstAmount = form.Get("input_amount").Split(','); 
+            string[] lstAmount = form.Get("input_amount").Split(',');
             string[] lstRemark = form.Get("item_remark").Split(',');
             string[] SubjectList = form.Get("subjectlist").Split(',');
             logger.Debug("SubjectList = " + SubjectList);
@@ -417,7 +417,7 @@ namespace topmeperp.Controllers
             ef.STATUS = int.Parse(form.Get("status").Trim());
             ef.MODIFY_DATE = DateTime.Now;
             ef.EXP_FORM_ID = form.Get("formnumber").Trim();
-            ef.PROJECT_ID = form.Get("projectid").Trim(); 
+            ef.PROJECT_ID = form.Get("projectid").Trim();
             string[] lstSubject = form.Get("subject").Split(',');
             string[] lstRemark = form.Get("item_remark").Split(',');
             string[] lstAmount = form.Get("amount").Split(',');
@@ -451,7 +451,7 @@ namespace topmeperp.Controllers
             {
                 msg = service.message;
             }
-            else if(form["projectid"] != null && form["projectid"] != "")
+            else if (form["projectid"] != null && form["projectid"] != "")
             {
                 msg = "更新工地費用單成功";
             }
@@ -517,7 +517,7 @@ namespace topmeperp.Controllers
             {
                 msg = service.message;
             }
-            else if(form["projectid"] != null && form["projectid"] != "")
+            else if (form["projectid"] != null && form["projectid"] != "")
             {
                 msg = "工地費用單已送審";
             }
@@ -722,7 +722,7 @@ namespace topmeperp.Controllers
             logger.Info("Access to Form For Journal !!");
             //公司需立帳之帳款(即會計審核)
             int status = 30;
-            ViewBag.forJournal = "會計立帳"; 
+            ViewBag.forJournal = "會計立帳";
             List<OperatingExpenseFunction> lstEXP = service.getEXPListByExpId(Request["occurred_date"], Request["subjectname"], Request["expid"], status, Request["id"]);
             return View(lstEXP);
         }
@@ -797,7 +797,7 @@ namespace topmeperp.Controllers
             logger.Info("Access to Expense and Budget Summary Page !!");
             List<ExpenseBudgetSummary> ExpBudget = null;
             List<ExpenseBudgetByMonth> BudgetByMonth = null;
-            List<ExpensetFromOPByMonth>ExpenseByMonth = null;
+            List<ExpensetFromOPByMonth> ExpenseByMonth = null;
             ExpenseBudgetSummary Amt = null;
             ExpenseBudgetSummary ExpAmt = null;
             ExpenseBudgetModel viewModel = new ExpenseBudgetModel();
@@ -845,6 +845,50 @@ namespace topmeperp.Controllers
             }
             TempData["budgetYear"] = Request["budgetyear"];
             return View("OperationExpSummary");
+        }
+
+        /// <summary>
+        /// 下載費用表
+        /// </summary>
+        public void downLoadExpenseForm()
+        {
+            string formid = Request["formid"];
+            service.getEXPByExpId(formid);
+            if (null != service.formEXP)
+            {
+                ExpenseFormToExcel poi = new ExpenseFormToExcel();
+                //檔案位置
+                string fileLocation = poi.exportExcel(service.formEXP, service.EXPItem, service.siteEXPItem);
+                //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
+                string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
+                Response.Clear();
+                Response.Charset = "utf-8";
+                Response.ContentType = "text/xls";
+                Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", filename));
+                ///"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx"
+                Response.WriteFile(fileLocation);
+                Response.End();
+            }
+        }
+
+        /// <summary>
+        /// 公司費用預算執行彙整表
+        /// </summary>
+        public void downLoadOPExpenseSummary()
+        {
+            int budgetYear = int.Parse(Request["budgetyear"]);
+            ExpBudgetSummaryToExcel poi = new ExpBudgetSummaryToExcel();
+            //檔案位置
+            string fileLocation = poi.exportExcel(budgetYear);
+            //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
+            string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
+            Response.Clear();
+            Response.Charset = "utf-8";
+            Response.ContentType = "text/xls";
+            Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", filename));
+            ///"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx"
+            Response.WriteFile(fileLocation);
+            Response.End();
         }
     }
 }

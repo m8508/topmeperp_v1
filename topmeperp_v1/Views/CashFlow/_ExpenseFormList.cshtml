@@ -28,7 +28,7 @@
                         {
                             if (item.PROJECT_ID != "")
                             {
-                            <td>@item.PROJECT_NAME</td>
+                                <td>@item.PROJECT_NAME</td>
                             }
                             else
                             {
@@ -65,7 +65,14 @@
                         {
                             <td><span style="color: red; font-size: 15px;">已核可</span></td>
                         }
-                        <td><a href='@("../../UploadFile/CashFlow/" + item.EXP_FORM_ID + ".xlsx")'>下載</a></td>
+                        @if (item.STATUS >= 20)
+                        {
+                            <td><a class="btn btn-link" href="/CashFlow/downLoadExpenseForm?formid=@item.EXP_FORM_ID" target="_blank">下載</a></td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
                     </tr>
                 }
             </tbody>

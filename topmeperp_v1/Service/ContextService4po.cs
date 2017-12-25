@@ -3901,7 +3901,7 @@ namespace topmeperp.Service
             ExpenseBudgetSummary lstAmount = null;
             using (var context = new topmepEntities())
             {
-                lstAmount = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT  SUM(AMOUNT) AS TOTAL_BUDGET FROM FIN_EXPENSE_BUDGET WHERE BUDGET_YEAR = @year  "
+                lstAmount = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT SUM(AMOUNT) AS TOTAL_BUDGET FROM FIN_EXPENSE_BUDGET WHERE BUDGET_YEAR = @year  "
                , new SqlParameter("year", year)).FirstOrDefault();
             }
             return lstAmount;
@@ -4057,7 +4057,7 @@ namespace topmeperp.Service
                     "fef.JOURNAL_CREATE_ID, fef.JOURNAL_CREATE_DATE, p.PROJECT_NAME FROM FIN_EXPENSE_FORM fef LEFT JOIN TND_PROJECT p ON fef.PROJECT_ID = p.PROJECT_ID WHERE fef.EXP_FORM_ID =@expid ";
                 formEXP = context.Database.SqlQuery<ExpenseFormFunction>(sql, new SqlParameter("expid", expid)).First();
                 //取得公司營業費用單明細
-                EXPItem = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT G.*, C.CUM_BUDGET, D.CUM_YEAR_AMOUNT, G.AMOUNT / G.BUDGET_AMOUNT *100 AS MONTH_RATIO, D.CUM_YEAR_AMOUNT / C.CUM_BUDGET *100 AS YEAR_RATIO " +
+                EXPItem = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT G.*, C.CUM_BUDGET, D.CUM_YEAR_AMOUNT, G.AMOUNT / G.BUDGET_AMOUNT *100 AS MONTH_RATIO, D.CUM_YEAR_AMOUNT / C.CUM_BUDGET *100 AS YEAR_RATIO, ROW_NUMBER() OVER(ORDER BY G.EXP_ITEM_ID) AS NO " +
                     "FROM (SELECT A.*, B.AMOUNT AS BUDGET_AMOUNT FROM (SELECT fei.*, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH, fef.STATUS, fs.SUBJECT_NAME FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs " +
                     "ON fei.FIN_SUBJECT_ID = fs.FIN_SUBJECT_ID WHERE fei.EXP_FORM_ID = @expid)A " +
                     "LEFT JOIN (SELECT F.*, feb.AMOUNT FROM (SELECT fei.FIN_SUBJECT_ID, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs  " +
@@ -4068,7 +4068,7 @@ namespace topmeperp.Service
                 logger.Debug("get query year of operating expense:" + formEXP.OCCURRED_YEAR);
                 logger.Debug("get operating expense item count:" + EXPItem.Count);
                 //取得工地費用單明細
-                siteEXPItem = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT G.*, C.CUM_BUDGET, D.CUM_YEAR_AMOUNT, G.AMOUNT / G.BUDGET_AMOUNT *100 AS MONTH_RATIO, D.CUM_YEAR_AMOUNT / C.CUM_BUDGET *100 AS YEAR_RATIO " +
+                siteEXPItem = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT G.*, C.CUM_BUDGET, D.CUM_YEAR_AMOUNT, G.AMOUNT / G.BUDGET_AMOUNT *100 AS MONTH_RATIO, D.CUM_YEAR_AMOUNT / C.CUM_BUDGET *100 AS YEAR_RATIO, ROW_NUMBER() OVER(ORDER BY G.EXP_ITEM_ID) AS NO " +
                     "FROM (SELECT A.*, B.AMOUNT AS BUDGET_AMOUNT FROM (SELECT fei.*, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH, fef.STATUS, fs.SUBJECT_NAME FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs " +
                     "ON fei.FIN_SUBJECT_ID = fs.FIN_SUBJECT_ID WHERE fei.EXP_FORM_ID = @expid)A " +
                     "LEFT JOIN (SELECT F.*, sb.AMOUNT FROM (SELECT fei.FIN_SUBJECT_ID, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs  " +
