@@ -27,8 +27,8 @@ namespace topmeperp.Service
             ///缺異動單
             //2.直接成本:材料與工資
             PurchaseFormService pfservice = new PurchaseFormService();
-            CostInfo.lstDirectCostItem = pfservice.getPurchaseForm4Offer(projectId, null, null);
-            CostInfo.lstDirectCostItem.AddRange(pfservice.getPurchaseForm4Offer(projectId, null, "Y"));
+            CostInfo.lstDirectCostItem = pfservice.getPlanContract(projectId);
+            CostInfo.lstDirectCostItem.AddRange(pfservice.getPlanContract4Wage(projectId));
             //3.間接成本
             CostInfo.lstIndirectCostItem = getIndirectCost();
         }

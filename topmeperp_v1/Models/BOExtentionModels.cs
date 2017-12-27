@@ -59,7 +59,7 @@ namespace topmeperp.Models
     {
         public TND_PROJECT Project;
         public PlanRevenue Revenue;
-        public  List<purchasesummary> lstDirectCostItem;
+        public  List<plansummary> lstDirectCostItem;
         public List<PLAN_INDIRECT_COST > lstIndirectCostItem;
     }
 }

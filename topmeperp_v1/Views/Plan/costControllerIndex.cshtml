@@ -91,17 +91,17 @@
                 @foreach (var directCost in Model.lstDirectCostItem)
                 {
                     <tr>
-                        <td> @directCost.INQUIRY_FORM_ID </td>
+                        <td><a href='/PurchaseForm/SinglePrjForm/@directCost.INQUIRY_FORM_ID' target="_blank">@directCost.INQUIRY_FORM_ID</a></td>
                         <td> @directCost.SUPPLIER_ID</td>
                         <td> @directCost.FORM_NAME</td>
-                        <td style="text-align:right"> @String.Format("{0:n0}", directCost.Budget)</td>
-                        <td style="text-align:right"> @String.Format("{0:n0}", directCost.TAmount)</td>
+                        <td style="text-align:right"> @String.Format("{0:n0}", directCost.BUDGET)</td>
+                        <td style="text-align:right"> @String.Format("{0:n0}", directCost.COST)</td>
                         <td> 缺 </td>
                         <td> 缺 </td>
                         <td> 缺</td>
                     </tr>
-                    sum = sum + directCost.TAmount;
-                    sumBudget = sumBudget + directCost.Budget;
+                    sum = sum + directCost.COST;
+                    sumBudget = sumBudget + directCost.BUDGET;
                 }
             </tbody>
             <tfoot>

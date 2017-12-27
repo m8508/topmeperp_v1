@@ -1176,11 +1176,11 @@ namespace topmeperp.Service
                     "SUM(A.ITEM_QUANTITY * ISNULL(A.ITEM_UNIT_PRICE, 0)) REVENUE, SUM(A.MapQty * A.TndFormPrice * ISNULL(A.BUDGET_RATIO, 100) / 100) BUDGET, " +
                     "(SUM(A.MapQty * A.ITEM_UNIT_COST) + SUM(A.MapQty * ISNULL(A.MAN_PRICE, 0))) COST, (SUM(A.ITEM_QUANTITY * ISNULL(A.ITEM_UNIT_PRICE, 0)) - " +
                     "SUM(A.MapQty * A.ITEM_UNIT_COST) - SUM(A.MapQty * ISNULL(A.MAN_PRICE, 0))) PROFIT, " +
-                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.SUPPLIER_ID) AS NO FROM(SELECT pi.*, s.SUPPLIER_ID AS ID, map.QTY AS MapQty, " +
+                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.SUPPLIER_ID) AS NO, A.INQUIRY_FORM_ID FROM(SELECT pi.*, s.SUPPLIER_ID AS ID, map.QTY AS MapQty, " +
                     "tpi.ITEM_UNIT_PRICE AS TndFormPrice FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON " +
                     "pi.SUPPLIER_ID = s.COMPANY_NAME LEFT JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT JOIN TND_PROJECT_ITEM tpi ON pi.PLAN_ITEM_ID = tpi.PROJECT_ITEM_ID  " +
                     ")A WHERE A.PROJECT_ID = @projectid AND A.ITEM_UNIT_COST IS NOT NULL " +
-                    "GROUP BY A.PROJECT_ID, A.ID, A.FORM_NAME, A.SUPPLIER_ID ; "
+                    "GROUP BY A.PROJECT_ID, A.ID, A.FORM_NAME, A.SUPPLIER_ID ,A.INQUIRY_FORM_ID; "
                    , new SqlParameter("projectid", projectid)).ToList();
             }
             return lst;
@@ -1193,11 +1193,11 @@ namespace topmeperp.Service
             {
                 lst = context.Database.SqlQuery<plansummary>("SELECT  A.PROJECT_ID + A.ID + A.MAN_FORM_NAME AS CONTRACT_ID, A.MAN_SUPPLIER_ID, A.MAN_FORM_NAME, " +
                     "SUM(A.MapQty * ISNULL(A.MAN_PRICE, 0)) WAGE_COST, SUM(A.MapQty * A.Ratio * A.WAGE_MULTIPLIER * ISNULL(A.BUDGET_WAGE_RATIO, 100) / 100) AS WAGE_BUDGET, " +
-                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.MAN_SUPPLIER_ID) AS NO FROM(SELECT pi.*, map.QTY AS MapQty, w.RATIO AS Ratio, p.WAGE_MULTIPLIER, " +
+                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.MAN_SUPPLIER_ID) AS NO,A.INQUIRY_FORM_ID FROM(SELECT pi.*, map.QTY AS MapQty, w.RATIO AS Ratio, p.WAGE_MULTIPLIER, " +
                     "s.SUPPLIER_ID AS ID FROM PLAN_ITEM pi LEFT JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT OUTER JOIN TND_WAGE w ON pi.PLAN_ITEM_ID = w.PROJECT_ITEM_ID " +
                     "LEFT JOIN TND_PROJECT p ON pi.PROJECT_ID = p.PROJECT_ID LEFT JOIN TND_SUPPLIER s ON " +
                     "pi.MAN_SUPPLIER_ID = s.COMPANY_NAME)A WHERE A.PROJECT_ID = 'P00023' and A.MAN_PRICE IS NOT NULL " +
-                    "GROUP BY A.PROJECT_ID, A.MAN_SUPPLIER_ID, A.MAN_FORM_NAME, A.ID  ; "
+                    "GROUP BY A.PROJECT_ID, A.MAN_SUPPLIER_ID, A.MAN_FORM_NAME, A.ID,A.INQUIRY_FORM_ID  ; "
                    , new SqlParameter("projectid", projectid)).ToList();
             }
             return lst;

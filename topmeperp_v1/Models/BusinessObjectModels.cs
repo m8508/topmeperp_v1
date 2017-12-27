@@ -250,6 +250,7 @@ namespace topmeperp.Models
         public string CONTRACT_NAME { get; set; }
         public string TYPE { get; set; }
         public Nullable<decimal> WAGE_BUDGET { get; set; }
+        public string INQUIRY_FORM_ID { get; set; }
     }
     public class ContractModels
     {
