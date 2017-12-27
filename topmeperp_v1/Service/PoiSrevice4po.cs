@@ -566,12 +566,26 @@ namespace topmeperp.Service
                             item.ITEM_DESC = row.Cells[1].ToString();
                             item.ITEM_UNIT = row.Cells[2].ToString();
                             //標單數量
-                            decimal dQty = decimal.Parse(row.Cells[3].ToString());
-                            item.ITEM_QTY = dQty;
+                            try
+                            {
+                                decimal dQty = decimal.Parse(row.Cells[3].ToString());
+                                item.ITEM_QTY = dQty;
+                            }
+                            catch (Exception ex)
+                            {
+                                logger.Warn("RowId=" + iRowIndex + " not have Qty!!" + ex.StackTrace);
+                            }
 
                             //報價單單價
-                            decimal dUnitPrice = decimal.Parse(row.Cells[4].ToString());
-                            item.ITEM_UNIT_PRICE = dUnitPrice;
+                            try
+                            {
+                                decimal dUnitPrice = decimal.Parse(row.Cells[4].ToString());
+                                item.ITEM_UNIT_PRICE = dUnitPrice;
+                            }
+                            catch (Exception ex)
+                            {
+                                logger.Warn("RowId=" + iRowIndex + " not have Unit price!!" + ex.StackTrace);
+                            }
 
                             item.ITEM_REMARK = row.Cells[6].ToString();
                             logger.Info("Plan ITEM ID=" + row.Cells[row.Cells.Count - 1].ToString());
@@ -1889,7 +1903,7 @@ namespace topmeperp.Service
             sheet.GetRow(6).Cells[2].SetCellValue(tablePR.LOCATION);//送貨地址
             logger.Debug("Table Head_6=" + sheet.GetRow(7).Cells[0].ToString());
             sheet.GetRow(7).Cells[2].SetCellValue(tablePR.REMARK);//注意事項
-            
+
             //3.填入資料
             int idxRow = 10;
             foreach (PurchaseRequisition item in orderItem)
