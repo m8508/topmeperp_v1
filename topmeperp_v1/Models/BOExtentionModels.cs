@@ -52,4 +52,14 @@ namespace topmeperp.Models
         public string REMARK { get; set; }
         public string REPORT_ID { get; set; }
     }
+    /// <summary>
+    /// 成本預算管制表相關物件(缺追加減、成本異動資料
+    /// </summary>
+    public class CostControlInfo
+    {
+        public TND_PROJECT Project;
+        public PlanRevenue Revenue;
+        public  List<purchasesummary> lstDirectCostItem;
+        public List<PLAN_INDIRECT_COST > lstIndirectCostItem;
+    }
 }

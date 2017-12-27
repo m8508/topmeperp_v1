@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
@@ -224,6 +225,7 @@ namespace topmeperp.Models
         public string SUPPLIER_ID { get; set; }
         public Nullable<int> TOTALROWS { get; set; }
         public Nullable<decimal> TAmount { get; set; }
+        public Nullable<decimal> Budget { get; set; }
         public string STATUS { get; set; }
     }
     public class plansummary

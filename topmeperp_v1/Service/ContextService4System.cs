@@ -405,6 +405,17 @@ namespace topmeperp.Service
             }
             return lst;
         }
+        public static List<SYS_PARA> getSystemPara(string functionid)
+        {
+            List<SYS_PARA> lst = new List<SYS_PARA>();
+            using (var context = new topmepEntities())
+            {
+                lst = context.SYS_PARA.SqlQuery("SELECT * FROM SYS_PARA WHERE FUNCTION_ID=@functionid  ORDER BY KEY_FIELD;"
+                    , new SqlParameter("functionid", functionid)).ToList();
+                logger.Debug("get SYS_PARA Count" + lst.Count + ",functionid=" + functionid);
+            }
+            return lst;
+        }
     }
     #endregion
     #region 財務科目管理區塊
@@ -460,6 +471,6 @@ namespace topmeperp.Service
             return i;
         }
     }
-        #endregion
+    #endregion
 
-    }
+}
