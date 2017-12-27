@@ -6,6 +6,7 @@
 
 <div class="page-header">
     <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "Plan")'" value="回上一頁">
+    <a class="btn btn-link" href="/MaterialManage/downLoadMaterialForm?key=@Model.planPR.PROJECT_ID-@Model.planPR.PR_ID-@Model.planPR.PARENT_PR_ID" target="_blank">下載彙整表</a>
     <form id="formDO" name="formDO" action="" method="post">
         <div class="row" id="printarea">
             <div class="row">
@@ -150,34 +151,13 @@
                     <div class="col-md-6">
                         領料說明:<textarea class="form-control" rows="5" id="caution" name="caution">@Model.planPR.CAUTION</textarea>
                     </div>
-                    <div class="col-md-6">
-                        <span id="JustPrint" style="color: blue; font-size: 20px;">領收人簽名 : </span>
-                    </div>
                 </div>
             </div>
         </div>
     </form>
 </div>
 
-<div class="row">
-    <div class="col-md-12">
-        <input id="btnPrint" type="button" class="btn btn-info" value="列印" onclick="javascript: printpage('printarea')" />
-    </div>
-</div>
-
 <script language="javascript" type="text/javascript">
-
-    function printpage(printarea) {
-
-        //var newstr = document.all.item(printarea).innerHTML;
-        var newstr = document.getElementById(printarea).innerHTML;
-        var oldstr = document.body.innerHTML;
-        document.body.innerHTML = newstr;
-        window.print();
-        document.body.innerHTML = oldstr;
-        return false;
-    }
-
 
     $("#updateDO").click(function () {
         var boolOver = false;

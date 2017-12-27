@@ -9,6 +9,7 @@
                     <th>編號</th>
                     <th>領收人所屬單位/公司</th>
                     <th>領料說明</th>
+                    <th>選項連結</th>
                 </tr>
             </thead>
             <tbody>
@@ -21,6 +22,7 @@
                         <td><a href="/MaterialManage/SingleDO/@item.PR_ID" target="_blank">@item.PR_ID</a></td>
                         <td>@item.RECIPIENT</td>
                         <td>@item.CAUTION</td>
+                        <td><a class="btn btn-link" href="/MaterialManage/downLoadMaterialForm?key=@item.PROJECT_ID-@item.PR_ID-@item.PARENT_PR_ID" target="_blank">下載</a></td>
                     </tr>
                 }
             </tbody>

@@ -10,7 +10,6 @@
                     <th>驗收日期</th>
                     <th>編號</th>
                     <th>供應商</th>
-                    <th>選項連結</th>
                 </tr>
             </thead>
             <tbody>
@@ -22,7 +21,6 @@
                         <td>@item.CREATE_DATE</td>
                         <td><a href="/MaterialManage/SingleRP/@item.ALL_KEY" target="_blank">@item.PR_ID</a></td>
                         <td>@item.SUPPLIER_ID</td>
-                        <td><a href='@("../../UploadFile/" + ViewBag.projectid + "/Materials/" + item.PR_ID + ".xlsx")'>下載</a></td>
                     </tr>
                 }
             </tbody>
