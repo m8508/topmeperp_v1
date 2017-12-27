@@ -1330,9 +1330,9 @@ namespace topmeperp.Service
         //建立公司費用預算執行彙整下載表格
         public string exportExcel(int year)
         {
-            List<ExpenseBudgetSummary>ExpBudget = service.getExpBudgetSummaryByYear(year);
-            List<ExpenseBudgetByMonth>BudgetByMonth = service.getExpBudgetOfMonthByYear(year);
-            List<ExpensetFromOPByMonth>ExpenseByMonth = service.getExpensetOfMonthByYear(year);
+            List<ExpenseBudgetSummary> ExpBudget = service.getExpBudgetSummaryByYear(year);
+            List<ExpenseBudgetByMonth> BudgetByMonth = service.getExpBudgetOfMonthByYear(year);
+            List<ExpensetFromOPByMonth> ExpenseByMonth = service.getExpensetOfMonthByYear(year);
             Amt = service.getTotalExpBudgetAmount(year);
             totalBudget = String.Format("{0:#,##0.#}", Amt.TOTAL_BUDGET);
             ExpAmt = service.getTotalOperationExpAmount(year);
@@ -1368,7 +1368,7 @@ namespace topmeperp.Service
                 ICell cel3 = row.CreateCell(3);//設公式
                 cel3.CellFormula = "IF(ISBLANK(C" + (idxRow + 1) + "),\"\",IF(MOD(C" + (idxRow + 1) + ",2)=0,\"實際數\",\"預算數\"))";
                 cel3.CellStyle = style;
-                
+
                 row.CreateCell(4);//7月
                 if (null != item.JUL && item.JUL.ToString().Trim() != "")
                 {
@@ -1804,7 +1804,7 @@ namespace topmeperp.Service
             }
             //4.另存新檔至專案所屬目錄 (增加Temp for zip 打包使用
             string fileLocation = null;
-            fileLocation = outputPath + "\\"  +  year + "_公司費用預算執行彙整表.xlsx";
+            fileLocation = outputPath + "\\" + year + "_公司費用預算執行彙整表.xlsx";
             var file = new FileStream(fileLocation, FileMode.Create);
             logger.Info("new file name =" + file.Name + ",path=" + file.Position);
             hssfworkbook.Write(file);
@@ -1812,6 +1812,147 @@ namespace topmeperp.Service
             return fileLocation;
         }
         public ExpBudgetSummaryToExcel()
+        {
+        }
+        public void InitializeWorkbook(string path)
+        {
+            //read the wage file via FileStream, it is suggested to use FileAccess.Read to prevent file lock.
+            //book1.xls is an Excel-2007-generated file, so some new unknown BIFF records are added. 
+            using (FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                logger.Info("Read Excel File:" + path); if (file.Name.EndsWith(".xls"))
+                {
+                    logger.Debug("process excel file for office 2003");
+                    //fileformat = "xls";
+                    hssfworkbook = new HSSFWorkbook(file);
+                }
+                else
+                {
+                    logger.Debug("process excel file for office 2007");
+                    hssfworkbook = new XSSFWorkbook(file);
+                }
+                file.Close();
+            }
+        }
+        private void logErrorMessage(string message)
+        {
+            if (errorMessage == null)
+            {
+                errorMessage = message;
+            }
+            else
+            {
+                errorMessage = errorMessage + "<br/>" + message;
+            }
+        }
+    }
+    #endregion
+
+    #region 物料採購單與領料單下載表格格式處理區段
+    public class MaterialFormToExcel
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        string orderFile = ContextService.strUploadPath + "\\MaterialOrder_form.xlsx";
+        string outputPath = ContextService.strUploadPath;
+        IWorkbook hssfworkbook;
+        ISheet sheet = null;
+        XSSFCellStyle style = null;
+        XSSFCellStyle styleNumber = null;
+        string fileformat = "xlsx";
+        //存放物料單資料
+        public TND_PROJECT project = null;
+        public PLAN_PURCHASE_REQUISITION tablePR = null;
+        public List<PurchaseRequisition> orderItem = null;
+        public List<PurchaseRequisition> deliveryItem = null;
+        public string errorMessage = null;
+
+
+        //建立物料單下載表格
+        public string exportExcel(TND_PROJECT project, PLAN_PURCHASE_REQUISITION tablePR, List<PurchaseRequisition> orderItem)
+        {
+            //1.讀取預算表格檔案
+            InitializeWorkbook(orderFile);
+            style = ExcelStyle.getContentStyle(hssfworkbook);
+            styleNumber = ExcelStyle.getNumberStyle(hssfworkbook);
+            sheet = (XSSFSheet)hssfworkbook.GetSheet("採購單");
+
+            //2.填入表頭資料
+            logger.Debug("Table Head_1=" + sheet.GetRow(1).Cells[0].ToString());
+            sheet.GetRow(1).Cells[2].SetCellValue(project.PROJECT_NAME);//專案名稱
+            logger.Debug("Table Head_2=" + sheet.GetRow(2).Cells[0].ToString());
+            sheet.GetRow(2).Cells[2].SetCellValue(tablePR.SUPPLIER_ID);//供應商名稱
+            logger.Debug("Table Head_3=" + sheet.GetRow(3).Cells[0].ToString());
+            sheet.GetRow(3).Cells[2].SetCellValue(tablePR.PR_ID);//採購單號
+            logger.Debug("Table Head_4=" + sheet.GetRow(5).Cells[0].ToString());
+            sheet.GetRow(5).Cells[2].SetCellValue(tablePR.RECIPIENT);//收件人
+            logger.Debug("Table Head_5=" + sheet.GetRow(6).Cells[0].ToString());
+            sheet.GetRow(6).Cells[2].SetCellValue(tablePR.LOCATION);//送貨地址
+            logger.Debug("Table Head_6=" + sheet.GetRow(7).Cells[0].ToString());
+            sheet.GetRow(7).Cells[2].SetCellValue(tablePR.REMARK);//注意事項
+            
+            //3.填入資料
+            int idxRow = 10;
+            foreach (PurchaseRequisition item in orderItem)
+            {
+                IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+                logger.Info("Row Id=" + idxRow);
+                //No.、項次、、項目說明、單位、合約數量、採購數量、需求日期、備註
+                row.CreateCell(0);
+                row.Cells[0].SetCellValue(item.NO);//No.
+                row.Cells[0].CellStyle = style;
+                row.CreateCell(1);
+                row.Cells[1].SetCellValue(item.ITEM_ID);//項次
+                row.Cells[1].CellStyle = style;
+                logger.Debug("ITEM DESC=" + item.ITEM_DESC);
+                row.CreateCell(2);
+                row.Cells[2].SetCellValue(item.ITEM_DESC);//項目說明
+                row.Cells[2].CellStyle = style;
+                row.CreateCell(3);
+                row.Cells[3].SetCellValue(item.ITEM_UNIT);// 單位
+                row.Cells[3].CellStyle = style;
+                row.CreateCell(4);
+                if (null != item.MAP_QTY && item.MAP_QTY.ToString().Trim() != "")
+                {
+                    row.Cells[4].SetCellValue(double.Parse(item.MAP_QTY.ToString())); //合約數量
+                }
+                row.Cells[4].CellStyle = style;
+                row.CreateCell(5);
+                if (null != item.ORDER_QTY && item.ORDER_QTY.ToString().Trim() != "")
+                {
+                    row.Cells[5].SetCellValue(double.Parse(item.ORDER_QTY.ToString())); //採購數量
+                }
+                row.Cells[5].CellStyle = style;
+                row.CreateCell(6);
+                if (null != item.NEED_DATE && item.NEED_DATE.ToString().Trim() != "")
+                {
+                    row.Cells[6].SetCellValue(Convert.ToDateTime(item.NEED_DATE).ToString("yyyy/MM/dd")); //需求日期
+                }
+                row.Cells[6].CellStyle = style;
+                row.CreateCell(7);
+                row.Cells[7].SetCellValue(item.ITEM_REMARK);//備註
+                row.Cells[7].CellStyle = style;
+                logger.Debug("get Material Form cell style rowid=" + idxRow);
+                idxRow++;
+            }
+            idxRow++;
+            IRow nextRow = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+            logger.Info("Row Id=" + idxRow);
+            nextRow.CreateCell(0);
+            nextRow.Cells[0].SetCellValue("特殊需求");
+            idxRow++;
+            nextRow.CreateCell(0);
+            nextRow.Cells[0].SetCellValue(tablePR.MESSAGE);//特殊需求
+            nextRow.Cells[0].CellStyle = style;
+            //4.另存新檔至專案所屬目錄 (增加Temp for zip 打包使用
+            string fileLocation = null;
+            fileLocation = outputPath + "\\" + project.PROJECT_ID + "\\" + tablePR.PR_ID + "_採購單.xlsx";
+            var file = new FileStream(fileLocation, FileMode.Create);
+            logger.Info("new file name =" + file.Name + ",path=" + file.Position);
+            hssfworkbook.Write(file);
+            file.Close();
+            return fileLocation;
+        }
+        public MaterialFormToExcel()
         {
         }
         public void InitializeWorkbook(string path)

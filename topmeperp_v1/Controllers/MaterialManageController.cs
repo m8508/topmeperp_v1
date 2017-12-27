@@ -1238,5 +1238,34 @@ namespace topmeperp.Controllers
             ViewBag.SearchResult = "共取得" + lstItem.Count + "筆資料";
             return View(lstItem);
         }
+
+        /// <summary>
+        /// 物料採購單
+        /// </summary>
+        public void downLoadMaterialForm()
+        {
+            string[] key = Request["key"].Split('-');
+            string projectid = key[0].Trim();
+            string formid = key[1].Trim();
+            string parentId = key[2].Trim();
+            PlanService pservice = new PlanService();
+            pservice.getProject(projectid);
+            service.getPRByPrId(formid, parentId);
+            if (null != pservice.project)
+            {
+                MaterialFormToExcel poi = new MaterialFormToExcel();
+                //檔案位置
+                string fileLocation = poi.exportExcel(pservice.project, service.formPR, service.PRItem);
+                //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
+                string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
+                Response.Clear();
+                Response.Charset = "utf-8";
+                Response.ContentType = "text/xls";
+                Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", filename));
+                ///"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx"
+                Response.WriteFile(fileLocation);
+                Response.End();
+            }
+        }
     }
 }

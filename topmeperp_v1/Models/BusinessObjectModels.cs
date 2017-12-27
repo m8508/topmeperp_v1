@@ -331,6 +331,7 @@ namespace topmeperp.Models
         public string CAUTION { get; set; }
         public string CHILD_PR_ID { get; set; }
         public string PARENT_PR_ID { get; set; }
+        public string PROJECT_ID { get; set; }
 
     }
     public class PurchaseRequisitionDetail

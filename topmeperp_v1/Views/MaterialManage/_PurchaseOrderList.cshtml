@@ -30,7 +30,7 @@
                             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Receipt","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PR_ID)})'; ">驗收</button>
                             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("ReceiptList","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PR_ID)})'; ">驗收明細</button>
                         </td>
-                        <td><a href='@("../../UploadFile/" + ViewBag.projectid + "/Materials/" + item.PR_ID + ".xlsx")'>下載</a></td>
+                        <td><a class="btn btn-link" href="/MaterialManage/downLoadMaterialForm?key=@item.PROJECT_ID-@item.PR_ID-@item.PARENT_PR_ID" target="_blank">下載</a></td>
                     </tr>
                 }
             </tbody>
