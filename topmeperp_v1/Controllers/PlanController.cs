@@ -178,7 +178,6 @@ namespace topmeperp.Controllers
             logger.Info("plan item  info=" + itemJson);
             return itemJson;
         }
-
         public String addPlanItem(FormCollection form)
         {
             logger.Info("form:" + form.Count);
@@ -271,7 +270,6 @@ namespace topmeperp.Controllers
             if (i == 0) { msg = service.message; }
             return msg;
         }
-
         /// <summary>
         /// Project_item 註記刪除
         /// </summary>
