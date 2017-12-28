@@ -731,9 +731,10 @@ namespace topmeperp.Controllers
             ViewBag.projectId = cs.project.PROJECT_ID;
             ViewBag.projectName = cs.project.PROJECT_NAME;
             ViewBag.formStatus = cs.form.STATUS;
+            ViewBag.settlementDate = cs.form.SETTLEMENT_DATE;
             return View(cs.lstItem);
         }
-        //建立與修改異動單
+        //建立與修改異動單--加入審核功能
         public string creatOrModifyChangeForm(FormCollection f)
         {
             SYS_USER u = (SYS_USER)Session["user"];
@@ -752,6 +753,12 @@ namespace topmeperp.Controllers
                 formCostChange.FORM_ID = formId;
                 formCostChange.REMARK = remark;
                 formCostChange.STATUS = f["status"];
+                if (null != f["status_next"])
+                {
+                    //審核通過或刪除
+                    formCostChange.STATUS = f["status_next"];
+                    formCostChange.SETTLEMENT_DATE = DateTime.Parse(f["settlementDate"]);
+                }
                 formCostChange.MODIFY_DATE = DateTime.Now;
                 formCostChange.MODIFY_USER_ID = u.USER_ID;
                 logger.Debug("Item Id=" + f["uid"] + "," + f["itemdesc"]);

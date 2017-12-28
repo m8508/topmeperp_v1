@@ -59,7 +59,19 @@ namespace topmeperp.Models
     {
         public TND_PROJECT Project;
         public PlanRevenue Revenue;
-        public  List<plansummary> lstDirectCostItem;
+        public List<CostChangeEvent> lstCostChangeEvent;
+        public List<plansummary> lstDirectCostItem;
         public List<PLAN_INDIRECT_COST > lstIndirectCostItem;
+    }
+    //每份成本異動單的彙整資料
+    public class CostChangeEvent
+    {
+        public string FORM_ID { get; set; }
+        public string REMARK { get; set; }
+        public Nullable<System.DateTime> SETTLEMENT_DATE { get; set; }
+        public Nullable<decimal> TotalAmt { get; set; }
+        public Nullable<decimal> RecognizeAmt { get; set; }
+        public Nullable<decimal> AddAmt { get; set; }
+        public Nullable<decimal> CutAmt { get; set; }
     }
 }

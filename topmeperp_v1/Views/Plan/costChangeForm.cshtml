@@ -34,11 +34,27 @@
                 <div class="col-sm-4">
                     <textarea class="form-control" rows="3" id="remark" name="remark">@ViewBag.Remark</textarea>
                 </div>
-                <div class="col-sm-2">
+                <div class="col-sm-6">
                     @if (ViewBag.formStatus == "新建立")
                     {
                         <button id="btnSave" class="btn btn-default" type="submit">儲存</button>
                         <button id="btnSent" class="btn btn-info" type="button" onclick="sent2Audit()">送審</button>
+                    }
+                    else if (ViewBag.formStatus == "送審")
+                    {
+                        <div class="col-sm-4">
+                            <select id="status" name="status_next" class="form-control">
+                                <option value="進行採購">進行採購</option>
+                                <option value="刪除">刪除</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            <input name="settlementDate" class="form-control" id="settlementDate" type="text" value="@ViewBag.settlementDate"  placeholder="結算日期">
+                        </div>
+                            <div class="col-sm-4">
+                                <button id="btnSave" class="btn btn-primary" type="submit">儲存</button>
+                                <button id="btnSave" class="btn btn-default" type="button" onclick="cancelTrans()">取消</button>
+                            </div>
                     }
                 </div>
             </div>
@@ -159,6 +175,12 @@
         $('#btnQuery').click(function () {
             $("#divProcessing").show();
         });
+        $(function () {
+            $('#settlementDate').datetimepicker({
+                format: 'YYYY/MM/DD',
+                locale: 'zh-tw'
+            });
+        });
     });
 
     function uploadPlanItem() {
@@ -246,11 +268,17 @@
             dataType: "text",
             success: function (data) {
                 alert(data);
-                location.reload();
+                window.opener.location.reload(false);
+                window.opener = null;
+                window.close();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert('Error del data by ajax');
             }
         });
+    }
+    function cancelTrans() {
+        window.opener = null;
+        window.close();
     }
 </script>

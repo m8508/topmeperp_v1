@@ -24,7 +24,8 @@ namespace topmeperp.Service
             CostInfo.Project = getProject(projectId);
             //1.合約金額與追加減項目
             CostInfo.Revenue = getPlanRevenueById(projectId);
-            ///缺異動單
+            //1.1 異動單彙整資料
+            CostInfo.lstCostChangeEvent = getCostChangeEvnet(projectId);
             //2.直接成本:材料與工資
             PurchaseFormService pfservice = new PurchaseFormService();
             CostInfo.lstDirectCostItem = pfservice.getPlanContract(projectId);
@@ -68,7 +69,7 @@ namespace topmeperp.Service
                 context.SaveChanges();
             }
         }
-        //
+        //取得間接成本資料
         private List<PLAN_INDIRECT_COST> getIndirectCost()
         {
             List<PLAN_INDIRECT_COST> lst = null;
@@ -82,7 +83,7 @@ namespace topmeperp.Service
             }
             return lst;
         }
-        //建立間接成本資料
+        //修正間接成本資料
         public void modifyIndirectCost(string projectId, List<PLAN_INDIRECT_COST> items)
         {
             using (var context = new topmepEntities())
@@ -107,6 +108,28 @@ namespace topmeperp.Service
             }
         }
 
+        ///成本異動彙整資料(對業主)
+        public List<CostChangeEvent> getCostChangeEvnet(string projectId)
+        {
+            List<CostChangeEvent> lstForms = new List<CostChangeEvent>();
+            //2.取得異動單彙整資料
+            using (var context = new topmepEntities())
+            {
+                //僅針對追加減部分列入 TRANSFLAG='1'
+                logger.Debug("query by project and remark:" + projectId);
+                string sql = @"SELECT FORM_ID,REMARK,SETTLEMENT_DATE,
+                            (SELECT SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) FROM PLAN_COSTCHANGE_ITEM WHERE FORM_ID = f.FORM_ID ) TotalAmt,
+                            (SELECT SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) FROM PLAN_COSTCHANGE_ITEM WHERE FORM_ID = f.FORM_ID AND TRANSFLAG='1') RecognizeAmt,
+                            (SELECT SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) FROM[PLAN_COSTCHANGE_ITEM] WHERE FORM_ID = f.FORM_ID AND ITEM_QUANTITY> 0 AND TRANSFLAG='1') AddAmt,
+                            (SELECT SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) FROM[PLAN_COSTCHANGE_ITEM] WHERE FORM_ID = f.FORM_ID AND ITEM_QUANTITY< 0 AND TRANSFLAG='1') CutAmt
+                            FROM PLAN_COSTCHANGE_FORM f WHERE PROJECT_ID=@projectId AND STATUS IN ('進行採購'); ";
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("projectId", projectId));
+                logger.Debug("SQL:" + sql);
+                lstForms = context.Database.SqlQuery<CostChangeEvent>(sql, parameters.ToArray()).ToList();
+            }
+            return lstForms;
+        }
     }
     //成本異動Service Layer
     public class CostChangeService : PlanService
@@ -208,7 +231,7 @@ namespace topmeperp.Service
         public string updateChangeOrder(PLAN_COSTCHANGE_FORM form, List<PLAN_COSTCHANGE_ITEM> lstItem)
         {
             int i = 0;
-            string sqlForm = "UPDATE PLAN_COSTCHANGE_FORM SET REMARK=@remark,STATUS=@status,MODIFY_USER_ID=@userId,MODIFY_DATE=@modifyDate WHERE FORM_ID=@formId;";
+            string sqlForm = "UPDATE PLAN_COSTCHANGE_FORM SET REMARK=@remark,SETTLEMENT_DATE=@settlementDate,STATUS=@status,MODIFY_USER_ID=@userId,MODIFY_DATE=@modifyDate WHERE FORM_ID=@formId;";
             string sqlItem = @"UPDATE PLAN_COSTCHANGE_ITEM SET ITEM_DESC=@itemdesc,ITEM_UNIT=@unit,ITEM_UNIT_PRICE=@unitPrice,
                               ITEM_QUANTITY=@Qty,ITEM_REMARK=@remark,TRANSFLAG=@transFlag,MODIFY_USER_ID=@userId,MODIFY_DATE=@modifyDate WHERE ITEM_UID=@uid";
             //2.將資料寫入 
@@ -221,6 +244,14 @@ namespace topmeperp.Service
                     context.Database.BeginTransaction();
                     var parameters = new List<SqlParameter>();
                     parameters.Add(new SqlParameter("remark", form.REMARK));
+                    if (null != form.SETTLEMENT_DATE)
+                    {
+                        parameters.Add(new SqlParameter("settlementDate", form.SETTLEMENT_DATE));
+                    }
+                    else
+                    {
+                        parameters.Add(new SqlParameter("settlementDate", DBNull.Value));
+                    }
                     parameters.Add(new SqlParameter("status", form.STATUS));
                     parameters.Add(new SqlParameter("userId", form.MODIFY_USER_ID));
                     parameters.Add(new SqlParameter("modifyDate", form.MODIFY_DATE));
@@ -341,5 +372,6 @@ namespace topmeperp.Service
 
             return "資料更新成功!(" + i + ")";
         }
+
     }
 }

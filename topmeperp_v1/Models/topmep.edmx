@@ -101,6 +101,7 @@
           <Property Name="FORM_ID" Type="varchar" MaxLength="20" Nullable="false" />
           <Property Name="PROJECT_ID" Type="varchar" MaxLength="20" />
           <Property Name="REMARK" Type="varchar" MaxLength="1000" />
+          <Property Name="SETTLEMENT_DATE" Type="datetime" />
           <Property Name="MODIFY_USER_ID" Type="varchar" MaxLength="30" />
           <Property Name="MODIFY_DATE" Type="datetime" />
           <Property Name="CREATE_USER_ID" Type="varchar" MaxLength="30" />
@@ -2053,6 +2054,7 @@
           <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
           <Property Name="STATUS" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="PLAN_COSTCHANGE_ITEM" Relationship="topmepModel.FK_PLAN_COS_REFERENCE_PLAN_COS" FromRole="PLAN_COSTCHANGE_FORM" ToRole="PLAN_COSTCHANGE_ITEM" />
+          <Property Name="SETTLEMENT_DATE" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="PLAN_COSTCHANGE_ITEM">
           <Key>
@@ -3039,6 +3041,7 @@
           <EntitySetMapping Name="PLAN_COSTCHANGE_FORM">
             <EntityTypeMapping TypeName="topmepModel.PLAN_COSTCHANGE_FORM">
               <MappingFragment StoreEntitySet="PLAN_COSTCHANGE_FORM">
+                <ScalarProperty Name="SETTLEMENT_DATE" ColumnName="SETTLEMENT_DATE" />
                 <ScalarProperty Name="STATUS" ColumnName="STATUS" />
                 <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
                 <ScalarProperty Name="CREATE_USER_ID" ColumnName="CREATE_USER_ID" />
