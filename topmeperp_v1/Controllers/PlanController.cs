@@ -754,6 +754,7 @@ namespace topmeperp.Controllers
 
             if (formId != "")
             {
+                //直接新增時使用者尚未建立明細
                 logger.Debug("Modify Change Order:" + formId);
                 formCostChange.FORM_ID = formId;
                 formCostChange.REMARK = remark;
@@ -767,43 +768,46 @@ namespace topmeperp.Controllers
                 formCostChange.MODIFY_DATE = DateTime.Now;
                 formCostChange.MODIFY_USER_ID = u.USER_ID;
                 logger.Debug("Item Id=" + f["uid"] + "," + f["itemdesc"]);
-                string[] itemId = f["uid"].Split(',');
-                string[] itemdesc = f["itemdesc"].Split(',');
-                string[] itemunit = f["itemunit"].Split(',');
-                string[] itemUnitPrice = f["itemUnitPrice"].Split(',');
-                string[] itemQty = f["itemQty"].Split(',');
-                string[] itemRemark = f["itemRemark"].Split(',');
-
-                for (int i = 0; i < itemId.Length; i++)
+                if (null != f["uid"])
                 {
-                    PLAN_COSTCHANGE_ITEM it = new PLAN_COSTCHANGE_ITEM();
-                    it.ITEM_UID = long.Parse(itemId[i]);
-                    it.ITEM_DESC = itemdesc[i];
-                    it.ITEM_UNIT = itemunit[i];
-                    if (itemUnitPrice[i] != "")
+                    string[] itemId = f["uid"].Split(',');
+                    string[] itemdesc = f["itemdesc"].Split(',');
+                    string[] itemunit = f["itemunit"].Split(',');
+                    string[] itemUnitPrice = f["itemUnitPrice"].Split(',');
+                    string[] itemQty = f["itemQty"].Split(',');
+                    string[] itemRemark = f["itemRemark"].Split(',');
+
+                    for (int i = 0; i < itemId.Length; i++)
                     {
-                        it.ITEM_UNIT_PRICE = decimal.Parse(itemUnitPrice[i]);
+                        PLAN_COSTCHANGE_ITEM it = new PLAN_COSTCHANGE_ITEM();
+                        it.ITEM_UID = long.Parse(itemId[i]);
+                        it.ITEM_DESC = itemdesc[i];
+                        it.ITEM_UNIT = itemunit[i];
+                        if (itemUnitPrice[i] != "")
+                        {
+                            it.ITEM_UNIT_PRICE = decimal.Parse(itemUnitPrice[i]);
+                        }
+                        if (itemQty[i] != "")
+                        {
+                            it.ITEM_QUANTITY = decimal.Parse(itemQty[i]);
+                        }
+                        it.ITEM_REMARK = itemRemark[i];
+                        if (null != f["transFlg." + itemId[i]])
+                        {
+                            it.TRANSFLAG = f["transFlg." + itemId[i]];
+                        }
+                        else
+                        {
+                            it.TRANSFLAG = "0";
+                        }
+                        logger.Debug(it.ITEM_UID + "," + it.ITEM_DESC + "," + it.ITEM_UNIT_PRICE + "," + it.ITEM_QUANTITY + "," + it.ITEM_REMARK + "," + it.TRANSFLAG);
+                        it.MODIFY_DATE = DateTime.Now;
+                        it.MODIFY_USER_ID = u.USER_ID;
+                        lstItemId.Add(it);
                     }
-                    if (itemQty[i] != "")
-                    {
-                        it.ITEM_QUANTITY = decimal.Parse(itemQty[i]);
-                    }
-                    it.ITEM_REMARK = itemRemark[i];
-                    if (null != f["transFlg." + itemId[i]])
-                    {
-                        it.TRANSFLAG = f["transFlg." + itemId[i]];
-                    }
-                    else
-                    {
-                        it.TRANSFLAG = "0";
-                    }
-                    logger.Debug(it.ITEM_UID + "," + it.ITEM_DESC + "," + it.ITEM_UNIT_PRICE + "," + it.ITEM_QUANTITY + "," + it.ITEM_REMARK + "," + it.TRANSFLAG);
-                    it.MODIFY_DATE = DateTime.Now;
-                    it.MODIFY_USER_ID = u.USER_ID;
-                    lstItemId.Add(it);
                 }
                 CostChangeService s = new CostChangeService();
-                reurnMsg = s.updateChangeOrder(formCostChange, lstItemId);
+                reurnMsg = s.updateChangeOrder(formCostChange, lstItemId) + " <a href='/Plan/costChangeForm/" + formId + "'>返回</a>";
             }
             else
             {
@@ -851,7 +855,7 @@ namespace topmeperp.Controllers
                 CostChangeService s = new CostChangeService();
                 reurnMsg = s.createChangeOrder(formCostChange, lstItemId);
             }
-            return reurnMsg;
+            return reurnMsg ;
         }
         //資料轉換
         private IEnumerable<PLAN_COSTCHANGE_ITEM> getItem(string prefix, string[] aryPlanItemIds)

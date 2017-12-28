@@ -296,7 +296,7 @@ namespace topmeperp.Service
                 }
             }
 
-            return "資料更新成功!(" + i + ")";
+            return "資料更新成功(" + i + ")!";
         }
         //新增異動單品項
         public int addChangeOrderItem(PLAN_COSTCHANGE_ITEM item)

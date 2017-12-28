@@ -46,10 +46,10 @@
                 <input type="text" id="itemunit" name="itemunit" size="2" value="@item.ITEM_UNIT" />
             </td>
             <td data-th="單價">
-                <input type="text" id="itemUnitPrice" name="itemUnitPrice" size="5" value="@item.ITEM_UNIT_PRICE" />
+                <input type="text" id="itemUnitPrice" name="itemUnitPrice" size="5" value="@String.Format("{0:0}",item.ITEM_UNIT_PRICE)" />
             </td>
             <td data-th="異動數量">
-                <input type="text" id="itemQty" name="itemQty" size="2" value="@item.ITEM_QUANTITY" />
+                <input type="text" id="itemQty" name="itemQty" size="2" value="@String.Format("{0:n0}",item.ITEM_QUANTITY)" />
 
             </td>
             <td data-th="備註說明">

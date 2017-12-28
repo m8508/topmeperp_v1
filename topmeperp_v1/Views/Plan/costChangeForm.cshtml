@@ -14,7 +14,7 @@
                 </div>
                 <label class="col-sm-1 control-label">專案名稱:</label>
                 <label class="col-sm-6 info">@ViewBag.projectName</label>
-                <label class="col-sm-2 alert-warning">狀態:<input type="text" id="status" name="status" value="@ViewBag.formStatus" readonly size="2" /></label>
+                <label class="col-sm-2 alert-warning">狀態:<input type="text" id="status" name="status" value="@ViewBag.formStatus" readonly size="5" /></label>
             </div>
             <div class="row form-group">
                 <label class="col-sm-1 control-label">單號:</label>
@@ -35,6 +35,7 @@
                     <textarea class="form-control" rows="3" id="remark" name="remark">@ViewBag.Remark</textarea>
                 </div>
                 <div class="col-sm-6">
+                    <!--依據狀態設定不同權限，需要再細化-->
                     @if (ViewBag.formStatus == "新建立")
                     {
                         <button id="btnSave" class="btn btn-default" type="submit">儲存</button>
@@ -130,8 +131,8 @@
                         <div class="col-md-4">追加減</div>
                         <div class="col-md-8">
                             <select id="dia_transFlag" name="dia_transFlag">
-                                <option value="0" selected>否</option>
-                                <option value="1">是</option>
+                                <option value="0" >否</option>
+                                <option value="1" selected>是</option>
                             </select>
                         </div>
                     </div>
