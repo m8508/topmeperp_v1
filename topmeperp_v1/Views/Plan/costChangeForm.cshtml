@@ -150,13 +150,14 @@
 <div class="modal fade" id="formUploadItem" role="dialog">
     <div class="modal-dialog" id="formUploadItem">
         <div class="modal-content">
-            <form id="formFileUpload" name="formFileUpload" action="/Plan/uploadProjectItem" method="post" enctype="multipart/form-data">
+            <form id="formFileUpload" name="formFileUpload" action="/Plan/uploadCostChangeForm" method="post" enctype="multipart/form-data">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                     <h4 class="modal-title">上傳異動明細資料</h4>
                 </div>
                 <div class="modal-body form-group">
-                    <input id="id" name="id" type="text" value="@ViewBag.id" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                    <input id="projectid" name="projectid" type="hidden" value="@ViewBag.projectId" /><br />
+                    <input id="formid" name="formid" type="text" value="@ViewBag.FormId" class="form-control" style="background-color:#cccccc;" readonly="readonly" /><br />
                     <input type="file" name="file1" />
                 </div>
                 <div class="modal-footer">

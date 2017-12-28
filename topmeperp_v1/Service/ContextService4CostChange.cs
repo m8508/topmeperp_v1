@@ -154,23 +154,27 @@ namespace topmeperp.Service
                 logger.Debug("create COSTCHANGE_FORM:" + form.FORM_ID);
                 foreach (PLAN_COSTCHANGE_ITEM item in lstItem)
                 {
-                    pi = context.PLAN_ITEM.SqlQuery("SELECT * FROM PLAN_ITEM WHERE PLAN_ITEM_ID=@itemId", new SqlParameter("itemId", item.PLAN_ITEM_ID)).First();
-                    //補足標單品項欄位
-                    if (pi != null && item.ITEM_ID == null)
+                    if (null == item.PLAN_ITEM_ID && "" == item.PLAN_ITEM_ID)
                     {
-                        item.ITEM_ID = pi.ITEM_ID;
-                    }
-                    if (pi != null && item.ITEM_DESC == null)
-                    {
-                        item.ITEM_DESC = pi.ITEM_DESC;
-                    }
-                    if (pi != null && item.ITEM_UNIT == null)
-                    {
-                        item.ITEM_UNIT = pi.ITEM_UNIT;
-                    }
-                    if (pi != null && item.ITEM_UNIT_PRICE == null)
-                    {
-                        item.ITEM_UNIT_PRICE = pi.ITEM_UNIT_PRICE;
+                        logger.Debug("Object in contract :" + item.PLAN_ITEM_ID);
+                        pi = context.PLAN_ITEM.SqlQuery("SELECT * FROM PLAN_ITEM WHERE PLAN_ITEM_ID=@itemId", new SqlParameter("itemId", item.PLAN_ITEM_ID)).First();
+                        //補足標單品項欄位
+                        if (pi != null && item.ITEM_ID == null)
+                        {
+                            item.ITEM_ID = pi.ITEM_ID;
+                        }
+                        if (pi != null && item.ITEM_DESC == null)
+                        {
+                            item.ITEM_DESC = pi.ITEM_DESC;
+                        }
+                        if (pi != null && item.ITEM_UNIT == null)
+                        {
+                            item.ITEM_UNIT = pi.ITEM_UNIT;
+                        }
+                        if (pi != null && item.ITEM_UNIT_PRICE == null)
+                        {
+                            item.ITEM_UNIT_PRICE = pi.ITEM_UNIT_PRICE;
+                        }
                     }
                     item.FORM_ID = form.FORM_ID;
                     item.PROJECT_ID = form.PROJECT_ID;

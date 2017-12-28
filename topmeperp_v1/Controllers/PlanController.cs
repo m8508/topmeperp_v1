@@ -855,7 +855,7 @@ namespace topmeperp.Controllers
                 CostChangeService s = new CostChangeService();
                 reurnMsg = s.createChangeOrder(formCostChange, lstItemId);
             }
-            return reurnMsg ;
+            return reurnMsg;
         }
         //資料轉換
         private IEnumerable<PLAN_COSTCHANGE_ITEM> getItem(string prefix, string[] aryPlanItemIds)
@@ -1013,5 +1013,61 @@ namespace topmeperp.Controllers
             //logger.Debug("create indirect cost by projectid=" + projectId);
             return "修改成功";
         }
+        //上傳異動單
+        public string uploadCostChangeForm(HttpPostedFileBase file1)
+        {
+            string projectid = Request["projectid"];
+            string fromid= Request["formid"];
+            logger.Debug("ProjectID=" + projectid + ",Upload ProjectItem=" + file1.FileName);
+            SYS_USER u = (SYS_USER)Session["user"];
+
+            if (null != file1 && file1.ContentLength != 0)
+            {
+                try
+                {
+                    //2.解析Excel
+                    logger.Info("Parser Excel data:" + file1.FileName);
+                    //2.1 檢查目錄
+                    var fileName = Path.GetFileName(file1.FileName);
+                    string folder = ContextService.strUploadPath + "/" + projectid + "/CostChangeForm";
+                    ZipFileCreator.CreateDirectory(folder);
+                    logger.Debug("costchange form folder");
+                    //2.1 將上傳檔案存檔
+                    var path = Path.Combine(folder, fileName);
+                    logger.Info("save excel file:" + path);
+                    file1.SaveAs(path);
+                    //2.2 解析Excel 檔案
+                    poi4CostChangeService poiService = new poi4CostChangeService();
+                    poiService.setUser(u);
+                    poiService.getDataFromExcel(path);
+                    //System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+                    //string itemJson = objSerializer.Serialize(poiService.project);
+                    //logger.Info("project info=" + itemJson);
+                    //itemJson = objSerializer.Serialize(poiService.costChangeForm);
+                    //logger.Info("form info=" + itemJson);
+                    //itemJson = objSerializer.Serialize(poiService.lstItem);
+                    //logger.Info("item info=" + itemJson);
+                    //2.3 寫入資料
+                    CostChangeService s = new CostChangeService();
+                    if (poiService.costChangeForm.FORM_ID == "")
+                    {
+                        s.createChangeOrder(poiService.costChangeForm, poiService.lstItem);
+                    }
+                    else
+                    {
+                        s.updateChangeOrder(poiService.costChangeForm, poiService.lstItem);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.StackTrace);
+                    return ex.Message;
+                }
+            }
+            return "匯入成功!!";
+
+        }
     }
 }
+
