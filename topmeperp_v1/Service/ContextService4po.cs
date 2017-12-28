@@ -1027,6 +1027,9 @@ namespace topmeperp.Service
                         if (item.INQUIRY_ITEM_ID != 0)
                         {
                             existItem = context.PLAN_SUP_INQUIRY_ITEM.Find(item.INQUIRY_ITEM_ID);
+                            existItem.ITEM_UNIT_PRICE = item.ITEM_UNIT_PRICE;
+                            existItem.ITEM_REMARK = item.ITEM_REMARK;
+                            context.PLAN_SUP_INQUIRY_ITEM.AddOrUpdate(existItem);
                         }
                         else
                         {
@@ -1062,7 +1065,7 @@ namespace topmeperp.Service
                 }
                 catch (Exception e)
                 {
-                    logger.Error("update new plan supplier form id fail:" + e.Message));
+                    logger.Error("update new plan supplier form id fail:" + e.Message);
                     logger.Error(e.StackTrace);
                     message = e.Message;
                 }
