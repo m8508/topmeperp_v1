@@ -59,6 +59,7 @@
                         <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PlanItemChange", "Plan", new { projectid = item.PROJECT_ID})'">成本異動作業</button>
                     </div>
                     <div class="col-md-3">
+                        <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("CheckForReceipt","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">3日內物料需求清單</button>
                     </div>
                     <div class="col-md-3">
                         <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("InventoryIndex","MaterialManage", new { id = @Html.DisplayFor(modelItem => item.PROJECT_ID)})'; ">庫存查詢/領料</button>

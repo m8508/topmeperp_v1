@@ -5,7 +5,8 @@
 }
 
 <div class="page-header">
-    <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "Plan")'" value="回上一頁">
+    <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "PurchaseForm")'" value="回上一頁">
+    <a class="btn btn-link" href="/MaterialManage/downLoadMaterialForm?key=@Model.planPR.PROJECT_ID-@Model.planPR.PR_ID-@Model.planPR.PARENT_PR_ID" target="_blank">下載彙整表</a>
     <form id="formPO" name="formPO" action="RefreshPO" method="post">
         <div class="row">
             <div class="col-md-8"><h3 style="height:30px;line-height:20px" class="text-center">協成水電工程事業有限公司-採購單</h3></div>
@@ -122,7 +123,7 @@
         </div>
         <div class="col-md-12" style="padding-bottom:30px;">
             <div class="col-md-6">
-                其他需求:<textarea class="form-control" rows="5" id="message" name="message">@Model.planPR.MESSAGE</textarea>
+                其他需求:<textarea class="form-control" rows="5" id="message" name="message" readonly>@Model.planPR.MESSAGE</textarea>
             </div>
             <div class="col-md-6">
                 備忘錄:<textarea class="form-control" rows="5" id="memo" name="memo" style="color: red; font-size: 15px; background-color:Highlight">@Model.planPR.MEMO</textarea>

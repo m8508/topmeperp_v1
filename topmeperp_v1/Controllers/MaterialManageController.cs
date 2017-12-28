@@ -1248,14 +1248,24 @@ namespace topmeperp.Controllers
             string projectid = key[0].Trim();
             string formid = key[1].Trim();
             string parentId = key[2].Trim();
+            bool isOrder = false;
+            bool isDO = false;
             PlanService pservice = new PlanService();
             pservice.getProject(projectid);
             service.getPRByPrId(formid, parentId);
+            if (formid.Substring(0,1) != "D")
+            {
+                isOrder = true;
+            }
+            if (formid.Substring(0, 2) == "DO")
+            {
+                isDO = true;
+            }
             if (null != pservice.project)
             {
                 MaterialFormToExcel poi = new MaterialFormToExcel();
                 //檔案位置
-                string fileLocation = poi.exportExcel(pservice.project, service.formPR, service.PRItem);
+                string fileLocation = poi.exportExcel(pservice.project, service.formPR, service.PRItem, service.DOItem, isOrder, isDO);
                 //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
                 string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
                 Response.Clear();

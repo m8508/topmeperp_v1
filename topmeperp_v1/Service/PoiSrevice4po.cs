@@ -1867,11 +1867,13 @@ namespace topmeperp.Service
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         string orderFile = ContextService.strUploadPath + "\\MaterialOrder_form.xlsx";
+        string deliveryFile = ContextService.strUploadPath + "\\MaterialDelivery_form.xlsx";
         string outputPath = ContextService.strUploadPath;
         IWorkbook hssfworkbook;
         ISheet sheet = null;
         XSSFCellStyle style = null;
         XSSFCellStyle styleNumber = null;
+        
         string fileformat = "xlsx";
         //存放物料單資料
         public TND_PROJECT project = null;
@@ -1882,84 +1884,237 @@ namespace topmeperp.Service
 
 
         //建立物料單下載表格
-        public string exportExcel(TND_PROJECT project, PLAN_PURCHASE_REQUISITION tablePR, List<PurchaseRequisition> orderItem)
+        public string exportExcel(TND_PROJECT project, PLAN_PURCHASE_REQUISITION tablePR, List<PurchaseRequisition> orderItem, List<PurchaseRequisition> deliveryItem, bool isOrder, bool isDO)
         {
             //1.讀取預算表格檔案
-            InitializeWorkbook(orderFile);
+            if (isOrder)
+            {
+                InitializeWorkbook(orderFile);
+                sheet = (XSSFSheet)hssfworkbook.GetSheet("採購單");
+            }
+            else
+            {
+                InitializeWorkbook(deliveryFile);
+                sheet = (XSSFSheet)hssfworkbook.GetSheet("領料單");
+            }
             style = ExcelStyle.getContentStyle(hssfworkbook);
             styleNumber = ExcelStyle.getNumberStyle(hssfworkbook);
-            sheet = (XSSFSheet)hssfworkbook.GetSheet("採購單");
-
             //2.填入表頭資料
-            logger.Debug("Table Head_1=" + sheet.GetRow(1).Cells[0].ToString());
-            sheet.GetRow(1).Cells[2].SetCellValue(project.PROJECT_NAME);//專案名稱
-            logger.Debug("Table Head_2=" + sheet.GetRow(2).Cells[0].ToString());
-            sheet.GetRow(2).Cells[2].SetCellValue(tablePR.SUPPLIER_ID);//供應商名稱
-            logger.Debug("Table Head_3=" + sheet.GetRow(3).Cells[0].ToString());
-            sheet.GetRow(3).Cells[2].SetCellValue(tablePR.PR_ID);//採購單號
-            logger.Debug("Table Head_4=" + sheet.GetRow(5).Cells[0].ToString());
-            sheet.GetRow(5).Cells[2].SetCellValue(tablePR.RECIPIENT);//收件人
-            logger.Debug("Table Head_5=" + sheet.GetRow(6).Cells[0].ToString());
-            sheet.GetRow(6).Cells[2].SetCellValue(tablePR.LOCATION);//送貨地址
-            logger.Debug("Table Head_6=" + sheet.GetRow(7).Cells[0].ToString());
-            sheet.GetRow(7).Cells[2].SetCellValue(tablePR.REMARK);//注意事項
-
-            //3.填入資料
-            int idxRow = 10;
-            foreach (PurchaseRequisition item in orderItem)
+            if (isOrder)
             {
-                IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
-                logger.Info("Row Id=" + idxRow);
-                //No.、項次、、項目說明、單位、合約數量、採購數量、需求日期、備註
-                row.CreateCell(0);
-                row.Cells[0].SetCellValue(item.NO);//No.
-                row.Cells[0].CellStyle = style;
-                row.CreateCell(1);
-                row.Cells[1].SetCellValue(item.ITEM_ID);//項次
-                row.Cells[1].CellStyle = style;
-                logger.Debug("ITEM DESC=" + item.ITEM_DESC);
-                row.CreateCell(2);
-                row.Cells[2].SetCellValue(item.ITEM_DESC);//項目說明
-                row.Cells[2].CellStyle = style;
-                row.CreateCell(3);
-                row.Cells[3].SetCellValue(item.ITEM_UNIT);// 單位
-                row.Cells[3].CellStyle = style;
-                row.CreateCell(4);
-                if (null != item.MAP_QTY && item.MAP_QTY.ToString().Trim() != "")
-                {
-                    row.Cells[4].SetCellValue(double.Parse(item.MAP_QTY.ToString())); //合約數量
-                }
-                row.Cells[4].CellStyle = style;
-                row.CreateCell(5);
-                if (null != item.ORDER_QTY && item.ORDER_QTY.ToString().Trim() != "")
-                {
-                    row.Cells[5].SetCellValue(double.Parse(item.ORDER_QTY.ToString())); //採購數量
-                }
-                row.Cells[5].CellStyle = style;
-                row.CreateCell(6);
-                if (null != item.NEED_DATE && item.NEED_DATE.ToString().Trim() != "")
-                {
-                    row.Cells[6].SetCellValue(Convert.ToDateTime(item.NEED_DATE).ToString("yyyy/MM/dd")); //需求日期
-                }
-                row.Cells[6].CellStyle = style;
-                row.CreateCell(7);
-                row.Cells[7].SetCellValue(item.ITEM_REMARK);//備註
-                row.Cells[7].CellStyle = style;
-                logger.Debug("get Material Form cell style rowid=" + idxRow);
-                idxRow++;
+                logger.Debug("Table Head_1=" + sheet.GetRow(1).Cells[0].ToString());
+                sheet.GetRow(1).Cells[2].SetCellValue(project.PROJECT_NAME);//專案名稱
+                logger.Debug("Table Head_2=" + sheet.GetRow(2).Cells[0].ToString());
+                sheet.GetRow(2).Cells[2].SetCellValue(tablePR.SUPPLIER_ID);//供應商名稱
+                logger.Debug("Table Head_3=" + sheet.GetRow(3).Cells[0].ToString());
+                sheet.GetRow(3).Cells[2].SetCellValue(tablePR.PR_ID);//採購單號
+                logger.Debug("Table Head_4=" + sheet.GetRow(5).Cells[0].ToString());
+                sheet.GetRow(5).Cells[2].SetCellValue(tablePR.RECIPIENT);//收件人
+                logger.Debug("Table Head_5=" + sheet.GetRow(6).Cells[0].ToString());
+                sheet.GetRow(6).Cells[2].SetCellValue(tablePR.LOCATION);//送貨地址
+                logger.Debug("Table Head_6=" + sheet.GetRow(7).Cells[0].ToString());
+                sheet.GetRow(7).Cells[2].SetCellValue(tablePR.REMARK);//注意事項
             }
-            idxRow++;
-            IRow nextRow = sheet.CreateRow(idxRow);//.GetRow(idxRow);
-            logger.Info("Row Id=" + idxRow);
-            nextRow.CreateCell(0);
-            nextRow.Cells[0].SetCellValue("特殊需求");
-            idxRow++;
-            nextRow.CreateCell(0);
-            nextRow.Cells[0].SetCellValue(tablePR.MESSAGE);//特殊需求
-            nextRow.Cells[0].CellStyle = style;
+            else
+            {
+                logger.Debug("Table Head_1=" + sheet.GetRow(1).Cells[0].ToString());
+                sheet.GetRow(1).Cells[2].SetCellValue(project.PROJECT_NAME);//專案名稱
+                logger.Debug("Table Head_2=" + sheet.GetRow(2).Cells[0].ToString());
+                sheet.GetRow(2).Cells[2].SetCellValue(Convert.ToDateTime(tablePR.CREATE_DATE).ToString("yyyy/MM/dd"));//領收日期
+                logger.Debug("Table Head_3=" + sheet.GetRow(3).Cells[0].ToString());
+                sheet.GetRow(3).Cells[2].SetCellValue(tablePR.PR_ID);//領料單號
+                logger.Debug("Table Head_4=" + sheet.GetRow(4).Cells[0].ToString());
+                sheet.GetRow(4).Cells[2].SetCellValue(tablePR.RECIPIENT);//領收人所屬單位/公司
+                if (isDO)
+                {
+                    //var title = sheet.CreateRow(0);
+                    //title.CreateCell(0);
+                    //title.Cells[0].SetCellValue("領料單");
+                    //title.Cells[0].CellStyle.Alignment = HorizontalAlignment.Center; //水平置中;
+                    logger.Debug("Table Head_0=" + sheet.GetRow(0).Cells[2].ToString());
+                    sheet.GetRow(0).Cells[3].SetCellValue("領料單");
+                    logger.Debug("Table Head_5=" + sheet.GetRow(6).Cells[4].ToString());
+                    sheet.GetRow(6).Cells[5].SetCellValue("領收數量");
+                }
+                else
+                {
+                    logger.Debug("Table Head_0=" + sheet.GetRow(0).Cells[2].ToString());
+                    sheet.GetRow(0).Cells[3].SetCellValue("領料單(無標單品項)");
+                    logger.Debug("Table Head_5=" + sheet.GetRow(6).Cells[4].ToString());
+                    sheet.GetRow(6).Cells[5].SetCellValue("驗收數量");
+                }
+            }
+            //3.填入資料
+            if (isOrder)
+            {
+                int idxRow = 10;
+                foreach (PurchaseRequisition item in orderItem)
+                {
+                    IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+                    logger.Info("Row Id=" + idxRow);
+                    //No.、項次、、項目說明、單位、合約數量、採購數量、需求日期、備註
+                    row.CreateCell(0);
+                    row.Cells[0].SetCellValue(item.NO);//No.
+                    row.Cells[0].CellStyle = style;
+                    row.CreateCell(1);
+                    row.Cells[1].SetCellValue(item.ITEM_ID);//項次
+                    row.Cells[1].CellStyle = style;
+                    logger.Debug("ITEM DESC=" + item.ITEM_DESC);
+                    row.CreateCell(2);
+                    row.Cells[2].SetCellValue(item.ITEM_DESC);//項目說明
+                    row.Cells[2].CellStyle = style;
+                    row.CreateCell(3);
+                    row.Cells[3].SetCellValue(item.ITEM_UNIT);// 單位
+                    row.Cells[3].CellStyle = style;
+                    row.CreateCell(4);
+                    if (null != item.MAP_QTY && item.MAP_QTY.ToString().Trim() != "")
+                    {
+                        row.Cells[4].SetCellValue(double.Parse(item.MAP_QTY.ToString())); //合約數量
+                    }
+                    row.Cells[4].CellStyle = style;
+                    row.CreateCell(5);
+                    if (null != item.ORDER_QTY && item.ORDER_QTY.ToString().Trim() != "")
+                    {
+                        row.Cells[5].SetCellValue(double.Parse(item.ORDER_QTY.ToString())); //採購數量
+                    }
+                    row.Cells[5].CellStyle = style;
+                    row.CreateCell(6);
+                    if (null != item.NEED_DATE && item.NEED_DATE.ToString().Trim() != "")
+                    {
+                        row.Cells[6].SetCellValue(Convert.ToDateTime(item.NEED_DATE).ToString("yyyy/MM/dd")); //需求日期
+                    }
+                    row.Cells[6].CellStyle = style;
+                    row.CreateCell(7);
+                    row.Cells[7].SetCellValue(item.ITEM_REMARK);//備註
+                    row.Cells[7].CellStyle = style;
+                    logger.Debug("get Material Order Form cell style rowid=" + idxRow);
+                    idxRow++;
+                }
+                idxRow++;
+                IRow nextRow = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+                logger.Info("Next Row Id=" + idxRow);
+                nextRow.CreateCell(0);
+                nextRow.Cells[0].SetCellValue("特殊需求 :");
+                idxRow++;
+                IRow lastRow = sheet.CreateRow(idxRow);
+                lastRow.CreateCell(0);
+                lastRow.Cells[0].SetCellValue(tablePR.MESSAGE);//特殊需求
+            }
+            else if(isDO)
+            {
+                int idxRow = 7;
+                foreach (PurchaseRequisition item in deliveryItem)
+                {
+                    IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+                    logger.Info("Row Id=" + idxRow);
+                    //No.、項次、、項目說明、單位、主系統、領收數量
+                    row.CreateCell(0);
+                    row.Cells[0].SetCellValue(item.NO);//No.
+                    row.Cells[0].CellStyle = style;
+                    row.CreateCell(1);
+                    row.Cells[1].SetCellValue(item.ITEM_ID);//項次
+                    row.Cells[1].CellStyle = style;
+                    logger.Debug("ITEM DESC=" + item.ITEM_DESC);
+                    row.CreateCell(2);
+                    row.Cells[2].SetCellValue(item.ITEM_DESC);//項目說明
+                    row.Cells[2].CellStyle = style;
+                    row.CreateCell(3);
+                    row.Cells[3].SetCellValue(item.ITEM_UNIT);// 單位
+                    row.Cells[3].CellStyle = style;
+                    row.CreateCell(4);
+                    row.Cells[4].SetCellValue(item.SYSTEM_MAIN);// 主系統
+                    row.Cells[4].CellStyle = style;
+                    row.CreateCell(5);
+                    if (null != item.DELIVERY_QTY && item.DELIVERY_QTY.ToString().Trim() != "")
+                    {
+                        row.Cells[5].SetCellValue(double.Parse(item.DELIVERY_QTY.ToString())); //領收數量
+                    }
+                    row.Cells[5].CellStyle = style;
+                    logger.Debug("get Material DO Form cell style rowid=" + idxRow);
+                    idxRow++;
+                }
+                idxRow++;
+                IRow newRow = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+                logger.Info("New Row Id=" + idxRow);
+                newRow.CreateCell(0);
+                newRow.Cells[0].SetCellValue("領料說明 :");
+                idxRow++;
+                IRow nextRow = sheet.CreateRow(idxRow);
+                logger.Info("Next Row Id=" + idxRow);
+                nextRow.CreateCell(0);
+                nextRow.Cells[0].SetCellValue(tablePR.CAUTION);//領料說明
+                idxRow = idxRow + 2;
+                IRow lastRow = sheet.CreateRow(idxRow);
+                lastRow.CreateCell(0);
+                lastRow.CreateCell(1);
+                lastRow.CreateCell(2);
+                lastRow.CreateCell(3);
+                lastRow.CreateCell(4);
+                lastRow.Cells[4].SetCellValue("領收人簽名 :");//領收人簽名
+            }
+            else
+            {
+                int idxRow = 7;
+                foreach (PurchaseRequisition item in orderItem)
+                {
+                    IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+                    logger.Info("Row Id=" + idxRow);
+                    //No.、項次、、項目說明、單位、主系統、領收數量
+                    row.CreateCell(0);
+                    row.Cells[0].SetCellValue(item.NO);//No.
+                    row.Cells[0].CellStyle = style;
+                    row.CreateCell(1);
+                    row.Cells[1].SetCellValue(item.ITEM_ID);//項次
+                    row.Cells[1].CellStyle = style;
+                    logger.Debug("ITEM DESC=" + item.ITEM_DESC);
+                    row.CreateCell(2);
+                    row.Cells[2].SetCellValue(item.ITEM_DESC);//項目說明
+                    row.Cells[2].CellStyle = style;
+                    row.CreateCell(3);
+                    row.Cells[3].SetCellValue(item.ITEM_UNIT);// 單位
+                    row.Cells[3].CellStyle = style;
+                    row.CreateCell(4);
+                    row.Cells[4].SetCellValue(item.SYSTEM_MAIN);// 主系統
+                    row.Cells[4].CellStyle = style;
+                    row.CreateCell(5);
+                    if (null != item.RECEIPT_QTY && item.RECEIPT_QTY.ToString().Trim() != "")
+                    {
+                        row.Cells[5].SetCellValue(double.Parse(item.RECEIPT_QTY.ToString())); //驗收數量
+                    }
+                    row.Cells[5].CellStyle = style;
+                    logger.Debug("get Material DF Form cell style rowid=" + idxRow);
+                    idxRow++;
+                }
+                idxRow++;
+                IRow newRow = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+                logger.Info("New Row Id=" + idxRow);
+                newRow.CreateCell(0);
+                newRow.Cells[0].SetCellValue("領料說明 :");
+                idxRow++;
+                IRow nextRow = sheet.CreateRow(idxRow);
+                logger.Info("Next Row Id=" + idxRow);
+                nextRow.CreateCell(0);
+                nextRow.Cells[0].SetCellValue(tablePR.CAUTION);//領料說明
+                idxRow = idxRow + 2;
+                IRow lastRow = sheet.CreateRow(idxRow);
+                lastRow.CreateCell(0);
+                lastRow.CreateCell(1);
+                lastRow.CreateCell(2);
+                lastRow.CreateCell(3);
+                lastRow.CreateCell(4);
+                lastRow.Cells[4].SetCellValue("領收人簽名 :");//領收人簽名
+            }
+            //lastRow.Cells[0].CellStyle = style;
             //4.另存新檔至專案所屬目錄 (增加Temp for zip 打包使用
             string fileLocation = null;
-            fileLocation = outputPath + "\\" + project.PROJECT_ID + "\\" + tablePR.PR_ID + "_採購單.xlsx";
+            if (isOrder)
+            {
+                fileLocation = outputPath + "\\" + project.PROJECT_ID + "\\" + tablePR.PR_ID + "_採購單.xlsx";
+            }
+            else
+            {
+                fileLocation = outputPath + "\\" + project.PROJECT_ID + "\\" + tablePR.PR_ID + "_領料單.xlsx";
+            }
             var file = new FileStream(fileLocation, FileMode.Create);
             logger.Info("new file name =" + file.Name + ",path=" + file.Position);
             hssfworkbook.Write(file);

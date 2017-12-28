@@ -2010,7 +2010,7 @@ namespace topmeperp.Service
 
                 logger.Debug("get purchase requisition item count:" + PRItem.Count);
                 //取得領料明細
-                DOItem = context.Database.SqlQuery<PurchaseRequisition>("SELECT pid.PLAN_ITEM_ID, pid.DELIVERY_QTY, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.SYSTEM_MAIN " +
+                DOItem = context.Database.SqlQuery<PurchaseRequisition>("SELECT pid.PLAN_ITEM_ID, pid.DELIVERY_QTY, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.SYSTEM_MAIN, ROW_NUMBER() OVER(ORDER BY pi.EXCEL_ROW_ID) AS NO " +
                     "FROM PLAN_ITEM_DELIVERY pid LEFT JOIN PLAN_ITEM pi ON pid.PLAN_ITEM_ID = pi.PLAN_ITEM_ID WHERE pid.DELIVERY_ORDER_ID =@prid", new SqlParameter("prid", prid)).ToList();
 
                 logger.Debug("get delivery item count:" + DOItem.Count);
@@ -2733,7 +2733,7 @@ namespace topmeperp.Service
             logger.Info("search delivery form by 領料說明 =" + caution + ", 領料單編號 =" + prid + ", 領料人所屬單位 =" + recipient);
             List<PRFunction> lstForm = new List<PRFunction>();
             //處理SQL 預先填入專案代號,設定集合處理參數
-            string sql = "SELECT CONVERT(char(10), CREATE_DATE, 111) AS CREATE_DATE, PR_ID, RECIPIENT, CAUTION, ROW_NUMBER() OVER(ORDER BY PR_ID) AS NO " +
+            string sql = "SELECT CONVERT(char(10), CREATE_DATE, 111) AS CREATE_DATE, PR_ID, RECIPIENT, CAUTION, PROJECT_ID, ROW_NUMBER() OVER(ORDER BY PR_ID) AS NO " +
                 "FROM PLAN_PURCHASE_REQUISITION WHERE PROJECT_ID =@projectid AND PR_ID LIKE 'D%' ";
 
             var parameters = new List<SqlParameter>();
