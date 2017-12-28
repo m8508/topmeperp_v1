@@ -115,7 +115,7 @@
           <Property Name="ITEM_UID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="FORM_ID" Type="varchar" MaxLength="20" />
           <Property Name="PLAN_ITEM_ID" Type="varchar" MaxLength="50" />
-          <Property Name="PROJECT_ID" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="PROJECT_ID" Type="varchar" MaxLength="20" />
           <Property Name="ITEM_ID" Type="varchar" MaxLength="50" />
           <Property Name="ITEM_DESC" Type="varchar" MaxLength="1000" />
           <Property Name="ITEM_UNIT" Type="varchar" MaxLength="10" />
@@ -2063,7 +2063,7 @@
           <Property Name="ITEM_UID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="FORM_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="PLAN_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="ITEM_DESC" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
           <Property Name="ITEM_UNIT" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />

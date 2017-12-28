@@ -739,8 +739,13 @@ namespace topmeperp.Controllers
         {
             SYS_USER u = (SYS_USER)Session["user"];
             string formId = f["txtFormId"].Trim();
-            string remark = f["remark"].Trim();
             string projectId = f["projectId"].Trim();
+            string remark = null;
+            if (null != f["remark"])
+            {
+                remark = f["remark"].Trim();
+            }
+
             logger.Debug("projectId=" + projectId + ",formID=" + formId + ",remak=" + remark);
             string reurnMsg = "";
 
@@ -984,11 +989,11 @@ namespace topmeperp.Controllers
             string[] fieldIds = Request["fieldId"].Split(',');
             string[] costs = Request["cost"].Split(',');
             string[] notes = Request["note"].Split(',');
-            logger.Debug("Field Count=" + fieldIds.Count()+",Cost Count=" + costs.Count());
+            logger.Debug("Field Count=" + fieldIds.Count() + ",Cost Count=" + costs.Count());
             SYS_USER u = (SYS_USER)Session["user"];
             ContextService4PlanCost s = new ContextService4PlanCost();
             List<PLAN_INDIRECT_COST> items = new List<PLAN_INDIRECT_COST>();
-            for (int i=0;i< fieldIds.Count(); i++)
+            for (int i = 0; i < fieldIds.Count(); i++)
             {
                 PLAN_INDIRECT_COST it = new PLAN_INDIRECT_COST();
                 it.FIELD_ID = fieldIds[i];
@@ -1000,7 +1005,7 @@ namespace topmeperp.Controllers
             System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
             string itemJson = objSerializer.Serialize(items);
             logger.Debug("item  info=" + itemJson);
-             s.modifyIndirectCost(projectId, items);
+            s.modifyIndirectCost(projectId, items);
             //logger.Debug("create indirect cost by projectid=" + projectId);
             return "修改成功";
         }
