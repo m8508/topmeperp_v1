@@ -154,7 +154,7 @@ namespace topmeperp.Service
                 logger.Debug("create COSTCHANGE_FORM:" + form.FORM_ID);
                 foreach (PLAN_COSTCHANGE_ITEM item in lstItem)
                 {
-                    if (null == item.PLAN_ITEM_ID && "" == item.PLAN_ITEM_ID)
+                    if (null != item.PLAN_ITEM_ID && "" != item.PLAN_ITEM_ID)
                     {
                         logger.Debug("Object in contract :" + item.PLAN_ITEM_ID);
                         pi = context.PLAN_ITEM.SqlQuery("SELECT * FROM PLAN_ITEM WHERE PLAN_ITEM_ID=@itemId", new SqlParameter("itemId", item.PLAN_ITEM_ID)).First();
@@ -285,8 +285,8 @@ namespace topmeperp.Service
                         }
                         parameters.Add(new SqlParameter("transFlag", item.TRANSFLAG));
                         parameters.Add(new SqlParameter("remark", item.ITEM_REMARK));
-                        parameters.Add(new SqlParameter("userId", item.MODIFY_USER_ID));
-                        parameters.Add(new SqlParameter("modifyDate", item.MODIFY_DATE));
+                        parameters.Add(new SqlParameter("userId", form.MODIFY_USER_ID));
+                        parameters.Add(new SqlParameter("modifyDate", form.MODIFY_DATE));
                         parameters.Add(new SqlParameter("uid", item.ITEM_UID));
                         i = i + context.Database.ExecuteSqlCommand(sqlItem, parameters.ToArray());
                     }

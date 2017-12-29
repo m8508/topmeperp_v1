@@ -118,9 +118,9 @@ namespace topmeperp.Service
                     row.CreateCell(8).SetCellValue("");
                 }
                 //9 追加/轉入標單
-                if (null != item.TRANSFLAG && item.TRANSFLAG.ToString().Trim() != "")
+                if (null != item.TRANSFLAG && item.TRANSFLAG.ToString().Trim() != "" && item.TRANSFLAG.ToString()=="1")
                 {
-                    row.CreateCell(9).SetCellValue(item.TRANSFLAG);
+                    row.CreateCell(9).SetCellValue("Y");
                     row.Cells[9].CellStyle = style;
                 }
                 else
@@ -133,23 +133,23 @@ namespace topmeperp.Service
             logger.Info("InitialQuotation finish!!");
         }
         //由Excel 讀取資料
-        public void getDataFromExcel(string filpath)
+        public void getDataFromExcel(string filpath,string projectId,string formId)
         {
             InitializeWorkbook(filpath);
             SetOpSheet("異動單");
             //讀取專案資料
             IRow row = sheet.GetRow(1);
             project = new TND_PROJECT();
-            project.PROJECT_ID = row.Cells[1].ToString();
+            project.PROJECT_ID = projectId;
             project.PROJECT_NAME = row.Cells[2].ToString();
             logger.Debug("project id=" + project.PROJECT_ID + ",project name=" + project.PROJECT_NAME);
             //取得異動單資料
             row = sheet.GetRow(2);
             costChangeForm = new PLAN_COSTCHANGE_FORM();
             costChangeForm.PROJECT_ID = project.PROJECT_ID;
-            costChangeForm.FORM_ID = row.Cells[1].ToString();
+            costChangeForm.FORM_ID = formId;
             //檢查是否為新異動單
-            if (costChangeForm.FORM_ID == "")
+            if (null== costChangeForm.FORM_ID || costChangeForm.FORM_ID == "")
             {
                 costChangeForm.CREATE_USER_ID = user.USER_ID;
                 costChangeForm.CREATE_DATE = DateTime.Now;
@@ -159,6 +159,8 @@ namespace topmeperp.Service
                 costChangeForm.MODIFY_USER_ID = user.USER_ID;
                 costChangeForm.MODIFY_DATE = DateTime.Now;
             }
+            //未送審前狀態不變
+            costChangeForm.STATUS = "新建立";
             costChangeForm.REMARK = row.Cells[3].ToString();
             logger.Debug("FORM id=" + costChangeForm.FORM_ID + ",REMARK=" + costChangeForm.REMARK);
             ConvertExcel2Object();
@@ -251,14 +253,14 @@ namespace topmeperp.Service
                 cell = row.GetCell(8);
                 if (null != cell)
                 {
-                    item.ITEM_REMARK = row.Cells[8].ToString();
+                    item.ITEM_REMARK = cell.ToString();
                 }
                 //9 追加/轉入標單row.Cells[8].ToString();
                 cell = row.GetCell(9);
                 string strTransFlag = "Y"; 
                 if (null != cell)
                 {
-                    item.ITEM_REMARK = cell.ToString(); 
+                    strTransFlag = cell.ToString(); 
                 }
 
                 if (null != strTransFlag && strTransFlag != "" && strTransFlag != "N")

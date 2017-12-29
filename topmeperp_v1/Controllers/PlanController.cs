@@ -866,7 +866,13 @@ namespace topmeperp.Controllers
                 PLAN_COSTCHANGE_ITEM item = new PLAN_COSTCHANGE_ITEM();
                 item.PLAN_ITEM_ID = aryPlanItemIds[i];
                 logger.Debug(item.ITEM_ID + " Qty = " + Request[prefix + item.ITEM_ID]);
-                item.ITEM_QUANTITY = int.Parse(Request[prefix + item.PLAN_ITEM_ID]);
+                if (Request[prefix + item.PLAN_ITEM_ID].Trim() != "")
+                {
+                    item.ITEM_QUANTITY = int.Parse(Request[prefix + item.PLAN_ITEM_ID]);
+                }else
+                {
+                    item.ITEM_QUANTITY = 0;
+                }
                 logger.Debug("Item_ID=" + item.ITEM_ID + ",Change Qty=" + item.ITEM_QUANTITY);
                 lstItemId.Add(item);
             }
@@ -1017,7 +1023,7 @@ namespace topmeperp.Controllers
         public string uploadCostChangeForm(HttpPostedFileBase file1)
         {
             string projectid = Request["projectid"];
-            string fromid= Request["formid"];
+            string fromid = Request["formid"];
             logger.Debug("ProjectID=" + projectid + ",Upload ProjectItem=" + file1.FileName);
             SYS_USER u = (SYS_USER)Session["user"];
 
@@ -1039,7 +1045,7 @@ namespace topmeperp.Controllers
                     //2.2 解析Excel 檔案
                     poi4CostChangeService poiService = new poi4CostChangeService();
                     poiService.setUser(u);
-                    poiService.getDataFromExcel(path);
+                    poiService.getDataFromExcel(path, projectid, fromid);
                     //System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
                     //string itemJson = objSerializer.Serialize(poiService.project);
                     //logger.Info("project info=" + itemJson);
@@ -1049,7 +1055,7 @@ namespace topmeperp.Controllers
                     //logger.Info("item info=" + itemJson);
                     //2.3 寫入資料
                     CostChangeService s = new CostChangeService();
-                    if (poiService.costChangeForm.FORM_ID == "")
+                    if (null== poiService.costChangeForm.FORM_ID || poiService.costChangeForm.FORM_ID == "")
                     {
                         s.createChangeOrder(poiService.costChangeForm, poiService.lstItem);
                     }
