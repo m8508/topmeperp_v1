@@ -497,7 +497,7 @@ namespace topmeperp.Models
         public Int64 NO { get; set; }
         public Int64 SUB_NO { get; set; }
         public Nullable<decimal> TOTAL_OPERATION_EXP { get; set; }
-        
+
     }
     public class OperatingExpenseModel
     {

@@ -421,12 +421,14 @@ namespace topmeperp.Controllers
             string[] lstSubject = form.Get("subject").Split(',');
             string[] lstRemark = form.Get("item_remark").Split(',');
             string[] lstAmount = form.Get("amount").Split(',');
+            string[] lstExpItemId = form.Get("exp_item_id").Split(',');
             string formid = form.Get("formnumber").Trim();
             List<FIN_EXPENSE_ITEM> lstItem = new List<FIN_EXPENSE_ITEM>();
             for (int j = 0; j < lstSubject.Count(); j++)
             {
                 FIN_EXPENSE_ITEM item = new FIN_EXPENSE_ITEM();
                 item.FIN_SUBJECT_ID = lstSubject[j];
+                item.EXP_ITEM_ID = int.Parse(lstExpItemId[j]);
                 if (lstRemark[j].ToString() == "")
                 {
                     item.ITEM_REMARK = null;
@@ -443,7 +445,7 @@ namespace topmeperp.Controllers
                 {
                     item.AMOUNT = decimal.Parse(lstAmount[j]);
                 }
-                logger.Debug("Subject Id =" + item.FIN_SUBJECT_ID + ", Amount =" + item.AMOUNT);
+                logger.Debug("Expense Item Id =" + item.EXP_ITEM_ID + ", Subject Id =" + item.FIN_SUBJECT_ID + ", Amount =" + item.AMOUNT);
                 lstItem.Add(item);
             }
             int i = service.refreshEXPForm(formid, ef, lstItem);
@@ -483,12 +485,14 @@ namespace topmeperp.Controllers
             string[] lstSubject = form.Get("subject").Split(',');
             string[] lstRemark = form.Get("item_remark").Split(',');
             string[] lstAmount = form.Get("amount").Split(',');
+            string[] lstExpItemId = form.Get("exp_item_id").Split(',');
             string formid = form.Get("formnumber").Trim();
             List<FIN_EXPENSE_ITEM> lstItem = new List<FIN_EXPENSE_ITEM>();
             for (int j = 0; j < lstSubject.Count(); j++)
             {
                 FIN_EXPENSE_ITEM item = new FIN_EXPENSE_ITEM();
                 item.FIN_SUBJECT_ID = lstSubject[j];
+                item.EXP_ITEM_ID = int.Parse(lstExpItemId[j]);
                 if (lstRemark[j].ToString() == "")
                 {
                     item.ITEM_REMARK = null;
@@ -505,7 +509,7 @@ namespace topmeperp.Controllers
                 {
                     item.AMOUNT = decimal.Parse(lstAmount[j]);
                 }
-                logger.Debug("Subject Id =" + item.FIN_SUBJECT_ID + ", Amount =" + item.AMOUNT);
+                logger.Debug("Expense Item Id =" + item.EXP_ITEM_ID + ", Subject Id =" + item.FIN_SUBJECT_ID + ", Amount =" + item.AMOUNT);
                 lstItem.Add(item);
             }
             int i = service.refreshEXPForm(formid, ef, lstItem);
@@ -858,7 +862,7 @@ namespace topmeperp.Controllers
             {
                 ExpenseFormToExcel poi = new ExpenseFormToExcel();
                 //檔案位置
-                string fileLocation = poi.exportExcel(service.formEXP, service.EXPItem, service.siteEXPItem);
+                string fileLocation = poi.exportExcel(service.formEXP, service.EXPItem, service.siteEXPItem, service.ExpAmt, service.EarlyCumAmt, service.SiteEarlyCumAmt);
                 //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
                 string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
                 Response.Clear();
