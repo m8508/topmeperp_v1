@@ -1027,6 +1027,9 @@ namespace topmeperp.Service
                         if (item.INQUIRY_ITEM_ID != 0)
                         {
                             existItem = context.PLAN_SUP_INQUIRY_ITEM.Find(item.INQUIRY_ITEM_ID);
+                            existItem.ITEM_UNIT_PRICE = item.ITEM_UNIT_PRICE;
+                            existItem.ITEM_REMARK = item.ITEM_REMARK;
+                            context.PLAN_SUP_INQUIRY_ITEM.AddOrUpdate(existItem);
                         }
                         else
                         {
@@ -1035,22 +1038,34 @@ namespace topmeperp.Service
                             parameters.Add(new SqlParameter("itemid", item.PLAN_ITEM_ID));
                             string sql = "SELECT * FROM PLAN_SUP_INQUIRY_ITEM WHERE INQUIRY_FORM_ID=@formid AND PLAN_ITEM_ID=@itemid";
                             logger.Info(sql + " ;" + formid + ",plan_item_id=" + item.PLAN_ITEM_ID);
-                            PLAN_SUP_INQUIRY_ITEM excelItem = context.PLAN_SUP_INQUIRY_ITEM.SqlQuery(sql, parameters.ToArray()).First();
-                            existItem = context.PLAN_SUP_INQUIRY_ITEM.Find(excelItem.INQUIRY_ITEM_ID);
 
+                            PLAN_SUP_INQUIRY_ITEM excelItem = null;
+                            try
+                            {
+                                excelItem = context.PLAN_SUP_INQUIRY_ITEM.SqlQuery(sql, parameters.ToArray()).First();
+                                existItem = context.PLAN_SUP_INQUIRY_ITEM.Find(excelItem.INQUIRY_ITEM_ID);
+                                logger.Debug("find exist item=" + existItem.ITEM_DESC);
+                                existItem.ITEM_UNIT_PRICE = item.ITEM_UNIT_PRICE;
+                                existItem.ITEM_REMARK = item.ITEM_REMARK;
+                                context.PLAN_SUP_INQUIRY_ITEM.AddOrUpdate(existItem);
+                            }
+                            catch (Exception ex)
+                            {
+                                //若原來詢價單沒有此項目，將其加入
+                                logger.Error(ex.Message + ":" + ex.StackTrace);
+                                item.INQUIRY_FORM_ID = formid;
+                                context.PLAN_SUP_INQUIRY_ITEM.Add(item);
+                            }
                         }
-                        logger.Debug("find exist item=" + existItem.ITEM_DESC);
-                        existItem.ITEM_UNIT_PRICE = item.ITEM_UNIT_PRICE;
-                        existItem.ITEM_REMARK = item.ITEM_REMARK;
-                        context.PLAN_SUP_INQUIRY_ITEM.AddOrUpdate(existItem);
+                        j = context.SaveChanges();
                     }
-                    j = context.SaveChanges();
+
                     logger.Debug("Update plan supplier inquiry form item =" + j);
                     return j;
                 }
                 catch (Exception e)
                 {
-                    logger.Error("update new plan supplier form id fail:" + e.ToString());
+                    logger.Error("update new plan supplier form id fail:" + e.Message);
                     logger.Error(e.StackTrace);
                     message = e.Message;
                 }
@@ -1236,11 +1251,11 @@ namespace topmeperp.Service
                          "(select  B.type, B.INQUIRY_FORM_ID, B.TOTAL_ROW AS TOTAL_ROWS, B.TOTALPRICE AS TOTAL_PRICE,B.Budget as Budget  FROM (select p.FORM_NAME as type, p.INQUIRY_FORM_ID " +
                          "from PLAN_SUP_INQUIRY_ITEM pi LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL " +
                          "and pi.ITEM_UNIT_PRICE is not null GROUP BY p.INQUIRY_FORM_ID, p.FORM_NAME HAVING p.FORM_NAME NOT IN " +
-                         "(SELECT p.FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid AND p.ITEM_UNIT_COST IS NOT NULL GROUP BY p.FORM_NAME)) A RIGHT OUTER JOIN "+
+                         "(SELECT p.FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid AND p.ITEM_UNIT_COST IS NOT NULL GROUP BY p.FORM_NAME)) A RIGHT OUTER JOIN " +
                          "(select p.FORM_NAME as type, p.INQUIRY_FORM_ID, count(*) TOTAL_ROW,sum(map.qty*iif (ISNULL(ISWAGE,'N')='Y',pitem.BUDGET_RATIO,pitem.BUDGET_WAGE_RATIO)*pi.ITEM_UNIT_PRICE/100) Budget " +
                          ",sum(ITEM_QTY) as iQty,sum(ITEM_QTY * pi.ITEM_UNIT_PRICE) TOTALPRICE from PLAN_SUP_INQUIRY_ITEM pi Left Join vw_MAP_MATERLIALIST map " +
-                         " on pi.PLAN_ITEM_ID=map.PROJECT_ITEM_ID Left Join PLAN_ITEM pitem On pi.PLAN_ITEM_ID=pitem.PLAN_ITEM_ID  LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID "+
-                         "where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL  GROUP BY p.INQUIRY_FORM_ID, p.FORM_NAME) B "+ 
+                         " on pi.PLAN_ITEM_ID=map.PROJECT_ITEM_ID Left Join PLAN_ITEM pitem On pi.PLAN_ITEM_ID=pitem.PLAN_ITEM_ID  LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID " +
+                         "where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL  GROUP BY p.INQUIRY_FORM_ID, p.FORM_NAME) B " +
                          " ON A.INQUIRY_FORM_ID + A.type = B.INQUIRY_FORM_ID + B.type) D ON C.INQUIRY_FORM_ID + C.code1 = D.INQUIRY_FORM_ID + D.type ";
             ;
 
@@ -1255,9 +1270,9 @@ namespace topmeperp.Service
                          "from PLAN_SUP_INQUIRY_ITEM pi LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL " +
                          "and pi.ITEM_UNIT_PRICE is not null GROUP BY p.INQUIRY_FORM_ID, p.FORM_NAME HAVING p.FORM_NAME NOT IN " +
                          "(SELECT p.FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid AND p.MAN_PRICE IS NOT NULL GROUP BY p.FORM_NAME)) A RIGHT OUTER JOIN " +
-                         "(select p.FORM_NAME as type, p.INQUIRY_FORM_ID, count(*) TOTAL_ROW,sum(map.qty*iif (ISNULL(ISWAGE,'N')='Y',pitem.BUDGET_RATIO,pitem.BUDGET_WAGE_RATIO)*pi.ITEM_UNIT_PRICE/100) Budget "+
-                         ",sum(ITEM_QTY) as iQty,sum(ITEM_QTY * pi.ITEM_UNIT_PRICE) TOTALPRICE from PLAN_SUP_INQUIRY_ITEM pi Left Join vw_MAP_MATERLIALIST map "+
-                         "on pi.PLAN_ITEM_ID=map.PROJECT_ITEM_ID Left Join PLAN_ITEM pitem On pi.PLAN_ITEM_ID=pitem.PLAN_ITEM_ID  LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID "+
+                         "(select p.FORM_NAME as type, p.INQUIRY_FORM_ID, count(*) TOTAL_ROW,sum(map.qty*iif (ISNULL(ISWAGE,'N')='Y',pitem.BUDGET_RATIO,pitem.BUDGET_WAGE_RATIO)*pi.ITEM_UNIT_PRICE/100) Budget " +
+                         ",sum(ITEM_QTY) as iQty,sum(ITEM_QTY * pi.ITEM_UNIT_PRICE) TOTALPRICE from PLAN_SUP_INQUIRY_ITEM pi Left Join vw_MAP_MATERLIALIST map " +
+                         "on pi.PLAN_ITEM_ID=map.PROJECT_ITEM_ID Left Join PLAN_ITEM pitem On pi.PLAN_ITEM_ID=pitem.PLAN_ITEM_ID  LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID " +
                          "where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL  GROUP BY p.INQUIRY_FORM_ID, p.FORM_NAME) B " +
                          "ON A.INQUIRY_FORM_ID + A.type = B.INQUIRY_FORM_ID + B.type) D ON C.INQUIRY_FORM_ID + C.code1 = D.INQUIRY_FORM_ID + D.type ";
                 ;
@@ -2774,7 +2789,7 @@ namespace topmeperp.Service
         }
 
         //取得3天內須驗收的物料品項
-        public List<PurchaseRequisition>getPlanItemByNeedDate(string prjid)
+        public List<PurchaseRequisition> getPlanItemByNeedDate(string prjid)
         {
 
             logger.Info(" get materials ready to receive in 3 days by 專案編號 =" + prjid);
@@ -3952,7 +3967,7 @@ namespace topmeperp.Service
         }
 
         //取得特定年度公司費用每月預算總和
-        public List<ExpenseBudgetByMonth>getExpBudgetOfMonthByYear(int year)
+        public List<ExpenseBudgetByMonth> getExpBudgetOfMonthByYear(int year)
         {
             List<ExpenseBudgetByMonth> lstExpBudget = new List<ExpenseBudgetByMonth>();
             using (var context = new topmepEntities())
@@ -4538,7 +4553,7 @@ namespace topmeperp.Service
         }
 
         //取得特定年度公司費用每月執行總和
-        public List<ExpensetFromOPByMonth>getExpensetOfMonthByYear(int year)
+        public List<ExpensetFromOPByMonth> getExpensetOfMonthByYear(int year)
         {
             List<ExpensetFromOPByMonth> lstExpense = new List<ExpensetFromOPByMonth>();
             using (var context = new topmepEntities())

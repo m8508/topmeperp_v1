@@ -990,6 +990,9 @@
     <Content Include="UploadFile\expense_budget_form.xlsx" />
     <Content Include="UploadFile\site_budget_form.xlsx" />
     <Content Include="Views\Plan\costControllerIndex.cshtml" />
+    <Content Include="UploadFile\ExpBudgetSummary_form.xlsx" />
+    <Content Include="UploadFile\MaterialDelivery_form.xlsx" />
+    <Content Include="UploadFile\MaterialOrder_form.xlsx" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

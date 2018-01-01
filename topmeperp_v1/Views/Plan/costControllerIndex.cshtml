@@ -17,6 +17,9 @@
     @{
         decimal? sum = 0M;
         decimal? sumBudget = 0;
+        decimal? runSum = 0;
+        decimal? addSum = 0;
+        decimal? cutSum = 0;
     }
     <div class="row">
         <table class="table table-bordered">
@@ -24,7 +27,7 @@
                 <tr>
                     <td colspan="2">原合約金額</td>
                     <td style="text-align:right">@String.Format("{0:n0}", Model.Revenue.PLAN_REVENUE)</td>
-                    <td>目前合約金額(尚未加上異動成本)</td>
+                    <td>目前合約金額</td>
                     <td colspan="2" style="text-align:right">@String.Format("{0:n0}", Model.Revenue.PLAN_REVENUE) </td>
                     <td colspan="2">執行成本(A)+(B)</td>
                 </tr>
@@ -45,21 +48,46 @@
                     <th> @Model.Project.OWNER_NAME </th>
                     <th> @Model.Project.CONTRUCTION_NAME  </th>
                     <th style="text-align:right">@String.Format("{0:n0}", Model.Revenue.PLAN_REVENUE)</th>
-                    <th></th>
+                    <th style="text-align:right">@String.Format("{0:n0}", Model.Revenue.PLAN_REVENUE)</th>
+                    @{
+                        runSum = Model.Revenue.PLAN_REVENUE;
+                    }
                     <th></th>
                     <th></th>
                     <th></th>
                 </tr>
+                @foreach (var costChangeEvent in Model.lstCostChangeEvent)
+                {
+                    <tr>
+                        <td>
+                            <a href="/Plan/costChangeForm/@costChangeEvent.FORM_ID" target="_blank">
+                                @costChangeEvent.FORM_ID
+                            </a>
+                        </td>
+                        <td></td>
+                        <td> @costChangeEvent.REMARK </td>
+                        <td style="text-align:right">@String.Format("{0:n0}", costChangeEvent.TotalAmt)</td>
+                        @{
+                            runSum = runSum + costChangeEvent.RecognizeAmt;
+                            addSum = addSum + costChangeEvent.AddAmt;
+                            cutSum = cutSum + costChangeEvent.CutAmt;
+                        }
+                        <td style="text-align:right">@String.Format("{0:n0}", runSum)</td>
+                        <td style="text-align:right">@String.Format("{0:n0}", costChangeEvent.AddAmt)</td>
+                        <td style="text-align:right">@String.Format("{0:n0}", costChangeEvent.CutAmt)</td>
+                        <td style="text-align:right">@String.Format("{0:n0}", costChangeEvent.RecognizeAmt)</td>
+                    </tr>
+                            }
             </tbody>
             <tfoot>
                 <tr>
                     <th></th>
                     <th></th>
                     <th>合計(未稅)</th>
-                    <th style="text-align:right">@String.Format("{0:n0}", 0)</th>
-                    <th style="text-align:right">@String.Format("{0:n0}", 0)</th>
-                    <th></th>
-                    <th></th>
+                    <th style="text-align:right">@String.Format("{0:n0}", runSum)</th>
+                    <th style="text-align:right">@String.Format("{0:n0}", runSum)</th>
+                    <th style="text-align:right">@String.Format("{0:n0}", addSum)</th>
+                    <th style="text-align:right">@String.Format("{0:n0}", cutSum)</th>
                     <th style="text-align:right">@String.Format("{0:n0}", 0)</th>
                 </tr>
             </tfoot>
@@ -134,8 +162,10 @@
                     {
                         <tr>
                             <td> </td>
-                            <td> @Html.DisplayFor(modelItem => indirectCost.FIELD_ID).ToString().Substring(0,2)
-                             <input type="hidden" name="fieldId" id="fieldId" value="@indirectCost.FIELD_ID" /></td>
+                            <td>
+                                @Html.DisplayFor(modelItem => indirectCost.FIELD_ID).ToString().Substring(0, 2)
+                                <input type="hidden" name="fieldId" id="fieldId" value="@indirectCost.FIELD_ID" />
+                            </td>
                             <td> @indirectCost.FIELD_DESC </td>
                             <td style="text-align:right">
                                 <input type="text" name="cost" id="cost" value="@String.Format("{0:n0}", indirectCost.COST)" />
@@ -173,18 +203,19 @@
             dataType: "text",
             success: function (result) {
                 alert(result);
+                window.location.reload();
             }
         })
     }
     function updateIndirectCost() {
-       // var hidCost;
+        // var hidCost;
         $('input[name^="cost"]').each(function () {
             //hidCost = hidCost + "costHid"
             var newNo = $(this).val();
             $(this).val(newNo.replace(/[,]+/g, ""));
             //alert(newNo);
         });
-        var data = $('#FormindirectCost').serialize()+ "&projectId=" + $("#projectId").val();
+        var data = $('#FormindirectCost').serialize() + "&projectId=" + $("#projectId").val();
         console.log("updateIndirectCost:" + data);
         $.ajax({
             url: "/Plan/modifyIndirectCost",
@@ -198,4 +229,3 @@
         })
     }
 </script>
-

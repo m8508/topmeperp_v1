@@ -24,7 +24,8 @@ namespace topmeperp.Service
             CostInfo.Project = getProject(projectId);
             //1.合約金額與追加減項目
             CostInfo.Revenue = getPlanRevenueById(projectId);
-            ///缺異動單
+            //1.1 異動單彙整資料
+            CostInfo.lstCostChangeEvent = getCostChangeEvnet(projectId);
             //2.直接成本:材料與工資
             PurchaseFormService pfservice = new PurchaseFormService();
             CostInfo.lstDirectCostItem = pfservice.getPlanContract(projectId);
@@ -68,7 +69,7 @@ namespace topmeperp.Service
                 context.SaveChanges();
             }
         }
-        //
+        //取得間接成本資料
         private List<PLAN_INDIRECT_COST> getIndirectCost()
         {
             List<PLAN_INDIRECT_COST> lst = null;
@@ -82,7 +83,7 @@ namespace topmeperp.Service
             }
             return lst;
         }
-        //建立間接成本資料
+        //修正間接成本資料
         public void modifyIndirectCost(string projectId, List<PLAN_INDIRECT_COST> items)
         {
             using (var context = new topmepEntities())
@@ -107,6 +108,28 @@ namespace topmeperp.Service
             }
         }
 
+        ///成本異動彙整資料(對業主)
+        public List<CostChangeEvent> getCostChangeEvnet(string projectId)
+        {
+            List<CostChangeEvent> lstForms = new List<CostChangeEvent>();
+            //2.取得異動單彙整資料
+            using (var context = new topmepEntities())
+            {
+                //僅針對追加減部分列入 TRANSFLAG='1'
+                logger.Debug("query by project and remark:" + projectId);
+                string sql = @"SELECT FORM_ID,REMARK,SETTLEMENT_DATE,
+                            (SELECT SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) FROM PLAN_COSTCHANGE_ITEM WHERE FORM_ID = f.FORM_ID ) TotalAmt,
+                            (SELECT SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) FROM PLAN_COSTCHANGE_ITEM WHERE FORM_ID = f.FORM_ID AND TRANSFLAG='1') RecognizeAmt,
+                            (SELECT SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) FROM[PLAN_COSTCHANGE_ITEM] WHERE FORM_ID = f.FORM_ID AND ITEM_QUANTITY> 0 AND TRANSFLAG='1') AddAmt,
+                            (SELECT SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) FROM[PLAN_COSTCHANGE_ITEM] WHERE FORM_ID = f.FORM_ID AND ITEM_QUANTITY< 0 AND TRANSFLAG='1') CutAmt
+                            FROM PLAN_COSTCHANGE_FORM f WHERE PROJECT_ID=@projectId AND STATUS IN ('進行採購'); ";
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("projectId", projectId));
+                logger.Debug("SQL:" + sql);
+                lstForms = context.Database.SqlQuery<CostChangeEvent>(sql, parameters.ToArray()).ToList();
+            }
+            return lstForms;
+        }
     }
     //成本異動Service Layer
     public class CostChangeService : PlanService
@@ -131,23 +154,27 @@ namespace topmeperp.Service
                 logger.Debug("create COSTCHANGE_FORM:" + form.FORM_ID);
                 foreach (PLAN_COSTCHANGE_ITEM item in lstItem)
                 {
-                    pi = context.PLAN_ITEM.SqlQuery("SELECT * FROM PLAN_ITEM WHERE PLAN_ITEM_ID=@itemId", new SqlParameter("itemId", item.PLAN_ITEM_ID)).First();
-                    //補足標單品項欄位
-                    if (pi != null && item.ITEM_ID == null)
+                    if (null != item.PLAN_ITEM_ID && "" != item.PLAN_ITEM_ID)
                     {
-                        item.ITEM_ID = pi.ITEM_ID;
-                    }
-                    if (pi != null && item.ITEM_DESC == null)
-                    {
-                        item.ITEM_DESC = pi.ITEM_DESC;
-                    }
-                    if (pi != null && item.ITEM_UNIT == null)
-                    {
-                        item.ITEM_UNIT = pi.ITEM_UNIT;
-                    }
-                    if (pi != null && item.ITEM_UNIT_PRICE == null)
-                    {
-                        item.ITEM_UNIT_PRICE = pi.ITEM_UNIT_PRICE;
+                        logger.Debug("Object in contract :" + item.PLAN_ITEM_ID);
+                        pi = context.PLAN_ITEM.SqlQuery("SELECT * FROM PLAN_ITEM WHERE PLAN_ITEM_ID=@itemId", new SqlParameter("itemId", item.PLAN_ITEM_ID)).First();
+                        //補足標單品項欄位
+                        if (pi != null && item.ITEM_ID == null)
+                        {
+                            item.ITEM_ID = pi.ITEM_ID;
+                        }
+                        if (pi != null && item.ITEM_DESC == null)
+                        {
+                            item.ITEM_DESC = pi.ITEM_DESC;
+                        }
+                        if (pi != null && item.ITEM_UNIT == null)
+                        {
+                            item.ITEM_UNIT = pi.ITEM_UNIT;
+                        }
+                        if (pi != null && item.ITEM_UNIT_PRICE == null)
+                        {
+                            item.ITEM_UNIT_PRICE = pi.ITEM_UNIT_PRICE;
+                        }
                     }
                     item.FORM_ID = form.FORM_ID;
                     item.PROJECT_ID = form.PROJECT_ID;
@@ -208,7 +235,7 @@ namespace topmeperp.Service
         public string updateChangeOrder(PLAN_COSTCHANGE_FORM form, List<PLAN_COSTCHANGE_ITEM> lstItem)
         {
             int i = 0;
-            string sqlForm = "UPDATE PLAN_COSTCHANGE_FORM SET REMARK=@remark,STATUS=@status,MODIFY_USER_ID=@userId,MODIFY_DATE=@modifyDate WHERE FORM_ID=@formId;";
+            string sqlForm = "UPDATE PLAN_COSTCHANGE_FORM SET REMARK=@remark,SETTLEMENT_DATE=@settlementDate,STATUS=@status,MODIFY_USER_ID=@userId,MODIFY_DATE=@modifyDate WHERE FORM_ID=@formId;";
             string sqlItem = @"UPDATE PLAN_COSTCHANGE_ITEM SET ITEM_DESC=@itemdesc,ITEM_UNIT=@unit,ITEM_UNIT_PRICE=@unitPrice,
                               ITEM_QUANTITY=@Qty,ITEM_REMARK=@remark,TRANSFLAG=@transFlag,MODIFY_USER_ID=@userId,MODIFY_DATE=@modifyDate WHERE ITEM_UID=@uid";
             //2.將資料寫入 
@@ -221,6 +248,14 @@ namespace topmeperp.Service
                     context.Database.BeginTransaction();
                     var parameters = new List<SqlParameter>();
                     parameters.Add(new SqlParameter("remark", form.REMARK));
+                    if (null != form.SETTLEMENT_DATE)
+                    {
+                        parameters.Add(new SqlParameter("settlementDate", form.SETTLEMENT_DATE));
+                    }
+                    else
+                    {
+                        parameters.Add(new SqlParameter("settlementDate", DBNull.Value));
+                    }
                     parameters.Add(new SqlParameter("status", form.STATUS));
                     parameters.Add(new SqlParameter("userId", form.MODIFY_USER_ID));
                     parameters.Add(new SqlParameter("modifyDate", form.MODIFY_DATE));
@@ -250,8 +285,8 @@ namespace topmeperp.Service
                         }
                         parameters.Add(new SqlParameter("transFlag", item.TRANSFLAG));
                         parameters.Add(new SqlParameter("remark", item.ITEM_REMARK));
-                        parameters.Add(new SqlParameter("userId", item.MODIFY_USER_ID));
-                        parameters.Add(new SqlParameter("modifyDate", item.MODIFY_DATE));
+                        parameters.Add(new SqlParameter("userId", form.MODIFY_USER_ID));
+                        parameters.Add(new SqlParameter("modifyDate", form.MODIFY_DATE));
                         parameters.Add(new SqlParameter("uid", item.ITEM_UID));
                         i = i + context.Database.ExecuteSqlCommand(sqlItem, parameters.ToArray());
                     }
@@ -265,7 +300,7 @@ namespace topmeperp.Service
                 }
             }
 
-            return "資料更新成功!(" + i + ")";
+            return "資料更新成功(" + i + ")!";
         }
         //新增異動單品項
         public int addChangeOrderItem(PLAN_COSTCHANGE_ITEM item)
@@ -341,5 +376,6 @@ namespace topmeperp.Service
 
             return "資料更新成功!(" + i + ")";
         }
+
     }
 }

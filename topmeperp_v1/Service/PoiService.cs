@@ -109,6 +109,27 @@ namespace topmeperp.Service
             style = ExcelStyle.getContentStyle(hssfworkbook);
             styleNumber = ExcelStyle.getNumberStyle(hssfworkbook);
         }
+        //設定讀取之Excel 檔案
+        public void InitializeWorkbook(string path)
+        {
+            //read the template via FileStream, it is suggested to use FileAccess.Read to prevent file lock.
+            //book1.xls is an Excel-2007-generated file, so some new unknown BIFF records are added. 
+            using (FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                logger.Info("Read Excel File:" + path); if (file.Name.EndsWith(".xls"))
+                {
+                    logger.Debug("process excel file for office 2003");
+                    fileformat = "xls";
+                    hssfworkbook = new HSSFWorkbook(file);
+                }
+                else
+                {
+                    logger.Debug("process excel file for office 2007");
+                    hssfworkbook = new XSSFWorkbook(file);
+                }
+                file.Close();
+            }
+        }
         //Initial Sheet
         public void SetOpSheet(string sheetName)
         {
@@ -129,14 +150,10 @@ namespace topmeperp.Service
                 throw new Exception("檔案內沒有Sheet:"+ sheetName);
             }
         }
-        //轉換物件
-        public virtual void ConvertExcelToObject(int startrow)
-        {
-        }
     }
 
     /// <summary>
-    /// 
+    /// 備標階段標單品項清單
     /// </summary>
     public class ProjectItemFromExcel
     {

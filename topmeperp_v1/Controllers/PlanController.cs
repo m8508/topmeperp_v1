@@ -731,15 +731,21 @@ namespace topmeperp.Controllers
             ViewBag.projectId = cs.project.PROJECT_ID;
             ViewBag.projectName = cs.project.PROJECT_NAME;
             ViewBag.formStatus = cs.form.STATUS;
+            ViewBag.settlementDate = cs.form.SETTLEMENT_DATE;
             return View(cs.lstItem);
         }
-        //建立與修改異動單
+        //建立與修改異動單--加入審核功能
         public string creatOrModifyChangeForm(FormCollection f)
         {
             SYS_USER u = (SYS_USER)Session["user"];
             string formId = f["txtFormId"].Trim();
-            string remark = f["remark"].Trim();
             string projectId = f["projectId"].Trim();
+            string remark = null;
+            if (null != f["remark"])
+            {
+                remark = f["remark"].Trim();
+            }
+
             logger.Debug("projectId=" + projectId + ",formID=" + formId + ",remak=" + remark);
             string reurnMsg = "";
 
@@ -748,50 +754,60 @@ namespace topmeperp.Controllers
 
             if (formId != "")
             {
+                //直接新增時使用者尚未建立明細
                 logger.Debug("Modify Change Order:" + formId);
                 formCostChange.FORM_ID = formId;
                 formCostChange.REMARK = remark;
                 formCostChange.STATUS = f["status"];
+                if (null != f["status_next"])
+                {
+                    //審核通過或刪除
+                    formCostChange.STATUS = f["status_next"];
+                    formCostChange.SETTLEMENT_DATE = DateTime.Parse(f["settlementDate"]);
+                }
                 formCostChange.MODIFY_DATE = DateTime.Now;
                 formCostChange.MODIFY_USER_ID = u.USER_ID;
                 logger.Debug("Item Id=" + f["uid"] + "," + f["itemdesc"]);
-                string[] itemId = f["uid"].Split(',');
-                string[] itemdesc = f["itemdesc"].Split(',');
-                string[] itemunit = f["itemunit"].Split(',');
-                string[] itemUnitPrice = f["itemUnitPrice"].Split(',');
-                string[] itemQty = f["itemQty"].Split(',');
-                string[] itemRemark = f["itemRemark"].Split(',');
-
-                for (int i = 0; i < itemId.Length; i++)
+                if (null != f["uid"])
                 {
-                    PLAN_COSTCHANGE_ITEM it = new PLAN_COSTCHANGE_ITEM();
-                    it.ITEM_UID = long.Parse(itemId[i]);
-                    it.ITEM_DESC = itemdesc[i];
-                    it.ITEM_UNIT = itemunit[i];
-                    if (itemUnitPrice[i] != "")
+                    string[] itemId = f["uid"].Split(',');
+                    string[] itemdesc = f["itemdesc"].Split(',');
+                    string[] itemunit = f["itemunit"].Split(',');
+                    string[] itemUnitPrice = f["itemUnitPrice"].Split(',');
+                    string[] itemQty = f["itemQty"].Split(',');
+                    string[] itemRemark = f["itemRemark"].Split(',');
+
+                    for (int i = 0; i < itemId.Length; i++)
                     {
-                        it.ITEM_UNIT_PRICE = decimal.Parse(itemUnitPrice[i]);
+                        PLAN_COSTCHANGE_ITEM it = new PLAN_COSTCHANGE_ITEM();
+                        it.ITEM_UID = long.Parse(itemId[i]);
+                        it.ITEM_DESC = itemdesc[i];
+                        it.ITEM_UNIT = itemunit[i];
+                        if (itemUnitPrice[i] != "")
+                        {
+                            it.ITEM_UNIT_PRICE = decimal.Parse(itemUnitPrice[i]);
+                        }
+                        if (itemQty[i] != "")
+                        {
+                            it.ITEM_QUANTITY = decimal.Parse(itemQty[i]);
+                        }
+                        it.ITEM_REMARK = itemRemark[i];
+                        if (null != f["transFlg." + itemId[i]])
+                        {
+                            it.TRANSFLAG = f["transFlg." + itemId[i]];
+                        }
+                        else
+                        {
+                            it.TRANSFLAG = "0";
+                        }
+                        logger.Debug(it.ITEM_UID + "," + it.ITEM_DESC + "," + it.ITEM_UNIT_PRICE + "," + it.ITEM_QUANTITY + "," + it.ITEM_REMARK + "," + it.TRANSFLAG);
+                        it.MODIFY_DATE = DateTime.Now;
+                        it.MODIFY_USER_ID = u.USER_ID;
+                        lstItemId.Add(it);
                     }
-                    if (itemQty[i] != "")
-                    {
-                        it.ITEM_QUANTITY = decimal.Parse(itemQty[i]);
-                    }
-                    it.ITEM_REMARK = itemRemark[i];
-                    if (null != f["transFlg." + itemId[i]])
-                    {
-                        it.TRANSFLAG = f["transFlg." + itemId[i]];
-                    }
-                    else
-                    {
-                        it.TRANSFLAG = "0";
-                    }
-                    logger.Debug(it.ITEM_UID + "," + it.ITEM_DESC + "," + it.ITEM_UNIT_PRICE + "," + it.ITEM_QUANTITY + "," + it.ITEM_REMARK + "," + it.TRANSFLAG);
-                    it.MODIFY_DATE = DateTime.Now;
-                    it.MODIFY_USER_ID = u.USER_ID;
-                    lstItemId.Add(it);
                 }
                 CostChangeService s = new CostChangeService();
-                reurnMsg = s.updateChangeOrder(formCostChange, lstItemId);
+                reurnMsg = s.updateChangeOrder(formCostChange, lstItemId) + " <a href='/Plan/costChangeForm/" + formId + "'>返回</a>";
             }
             else
             {
@@ -850,7 +866,13 @@ namespace topmeperp.Controllers
                 PLAN_COSTCHANGE_ITEM item = new PLAN_COSTCHANGE_ITEM();
                 item.PLAN_ITEM_ID = aryPlanItemIds[i];
                 logger.Debug(item.ITEM_ID + " Qty = " + Request[prefix + item.ITEM_ID]);
-                item.ITEM_QUANTITY = int.Parse(Request[prefix + item.PLAN_ITEM_ID]);
+                if (Request[prefix + item.PLAN_ITEM_ID].Trim() != "")
+                {
+                    item.ITEM_QUANTITY = int.Parse(Request[prefix + item.PLAN_ITEM_ID]);
+                }else
+                {
+                    item.ITEM_QUANTITY = 0;
+                }
                 logger.Debug("Item_ID=" + item.ITEM_ID + ",Change Qty=" + item.ITEM_QUANTITY);
                 lstItemId.Add(item);
             }
@@ -977,11 +999,11 @@ namespace topmeperp.Controllers
             string[] fieldIds = Request["fieldId"].Split(',');
             string[] costs = Request["cost"].Split(',');
             string[] notes = Request["note"].Split(',');
-            logger.Debug("Field Count=" + fieldIds.Count()+",Cost Count=" + costs.Count());
+            logger.Debug("Field Count=" + fieldIds.Count() + ",Cost Count=" + costs.Count());
             SYS_USER u = (SYS_USER)Session["user"];
             ContextService4PlanCost s = new ContextService4PlanCost();
             List<PLAN_INDIRECT_COST> items = new List<PLAN_INDIRECT_COST>();
-            for (int i=0;i< fieldIds.Count(); i++)
+            for (int i = 0; i < fieldIds.Count(); i++)
             {
                 PLAN_INDIRECT_COST it = new PLAN_INDIRECT_COST();
                 it.FIELD_ID = fieldIds[i];
@@ -993,9 +1015,65 @@ namespace topmeperp.Controllers
             System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
             string itemJson = objSerializer.Serialize(items);
             logger.Debug("item  info=" + itemJson);
-             s.modifyIndirectCost(projectId, items);
+            s.modifyIndirectCost(projectId, items);
             //logger.Debug("create indirect cost by projectid=" + projectId);
             return "修改成功";
         }
+        //上傳異動單
+        public string uploadCostChangeForm(HttpPostedFileBase file1)
+        {
+            string projectid = Request["projectid"];
+            string fromid = Request["formid"];
+            logger.Debug("ProjectID=" + projectid + ",Upload ProjectItem=" + file1.FileName);
+            SYS_USER u = (SYS_USER)Session["user"];
+
+            if (null != file1 && file1.ContentLength != 0)
+            {
+                try
+                {
+                    //2.解析Excel
+                    logger.Info("Parser Excel data:" + file1.FileName);
+                    //2.1 檢查目錄
+                    var fileName = Path.GetFileName(file1.FileName);
+                    string folder = ContextService.strUploadPath + "/" + projectid + "/CostChangeForm";
+                    ZipFileCreator.CreateDirectory(folder);
+                    logger.Debug("costchange form folder");
+                    //2.1 將上傳檔案存檔
+                    var path = Path.Combine(folder, fileName);
+                    logger.Info("save excel file:" + path);
+                    file1.SaveAs(path);
+                    //2.2 解析Excel 檔案
+                    poi4CostChangeService poiService = new poi4CostChangeService();
+                    poiService.setUser(u);
+                    poiService.getDataFromExcel(path, projectid, fromid);
+                    //System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+                    //string itemJson = objSerializer.Serialize(poiService.project);
+                    //logger.Info("project info=" + itemJson);
+                    //itemJson = objSerializer.Serialize(poiService.costChangeForm);
+                    //logger.Info("form info=" + itemJson);
+                    //itemJson = objSerializer.Serialize(poiService.lstItem);
+                    //logger.Info("item info=" + itemJson);
+                    //2.3 寫入資料
+                    CostChangeService s = new CostChangeService();
+                    if (null== poiService.costChangeForm.FORM_ID || poiService.costChangeForm.FORM_ID == "")
+                    {
+                        s.createChangeOrder(poiService.costChangeForm, poiService.lstItem);
+                    }
+                    else
+                    {
+                        s.updateChangeOrder(poiService.costChangeForm, poiService.lstItem);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.StackTrace);
+                    return ex.Message;
+                }
+            }
+            return "匯入成功!!";
+
+        }
     }
 }
+
