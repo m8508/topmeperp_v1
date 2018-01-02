@@ -1102,10 +1102,10 @@ namespace topmeperp.Service
         public string exportExcel(ExpenseFormFunction ExpTable, List<ExpenseBudgetSummary> EXPTableItem, List<ExpenseBudgetSummary> SiteTableItem, ExpenseBudgetSummary ExpAmt, ExpenseBudgetSummary EarlyExpAmt, ExpenseBudgetSummary siteEarlyExpAmt)
         {
             int budgetYear = 0;
-            if(int.Parse(ExpTable.OCCURRED_MONTH.ToString()) > 6)
+            if (int.Parse(ExpTable.OCCURRED_MONTH.ToString()) > 6)
             {
                 budgetYear = int.Parse(ExpTable.OCCURRED_YEAR.ToString());
-            } 
+            }
             else
             {
                 budgetYear = int.Parse((ExpTable.OCCURRED_YEAR - 1).ToString());
@@ -1155,9 +1155,19 @@ namespace topmeperp.Service
                     logger.Debug("Table Head_6=" + sheet.GetRow(86).Cells[1].ToString());
                     sheet.GetRow(86).Cells[1].SetCellValue(ExpTable.REMARK);//說明事項
                     logger.Debug("Table Head_7=" + sheet.GetRow(86).Cells[12].ToString());
-                    sheet.GetRow(86).Cells[13].SetCellValue(double.Parse(siteBudget.TOTAL_BUDGET.ToString()));//總預算
+                    if (siteBudget.TOTAL_BUDGET.ToString() != "")
+                    {
+                        sheet.GetRow(86).Cells[13].SetCellValue(double.Parse(siteBudget.TOTAL_BUDGET.ToString()));//總預算
+                    }
                     logger.Debug("Table Head_8=" + sheet.GetRow(89).Cells[12].ToString());
-                    sheet.GetRow(89).Cells[13].SetCellValue(double.Parse(siteEarlyExpAmt.AMOUNT.ToString()));//前期累計
+                    if (siteEarlyExpAmt.AMOUNT.ToString() != "")
+                    {
+                        sheet.GetRow(89).Cells[13].SetCellValue(double.Parse(siteEarlyExpAmt.AMOUNT.ToString()));//前期累計
+                    }
+                    else
+                    {
+                        sheet.GetRow(43).Cells[13].SetCellValue("0");
+                    }
                     logger.Debug("Table Head_9=" + sheet.GetRow(90).Cells[12].ToString());
                     sheet.GetRow(90).Cells[13].SetCellValue(double.Parse(ExpAmt.AMOUNT.ToString()));//本期金額
                     logger.Debug("Table Head_10=" + sheet.GetRow(92).Cells[13].ToString());
@@ -1168,9 +1178,19 @@ namespace topmeperp.Service
                     logger.Debug("Table Head_6=" + sheet.GetRow(40).Cells[1].ToString());
                     sheet.GetRow(40).Cells[1].SetCellValue(ExpTable.REMARK);//說明事項
                     logger.Debug("Table Head_7=" + sheet.GetRow(40).Cells[12].ToString());
-                    sheet.GetRow(40).Cells[13].SetCellValue(double.Parse(siteBudget.TOTAL_BUDGET.ToString()));//總預算
+                    if (siteBudget.TOTAL_BUDGET.ToString() != "")
+                    {
+                        sheet.GetRow(40).Cells[13].SetCellValue(double.Parse(siteBudget.TOTAL_BUDGET.ToString()));//總預算
+                    }
                     logger.Debug("Table Head_8=" + sheet.GetRow(43).Cells[12].ToString());
-                    sheet.GetRow(43).Cells[13].SetCellValue(double.Parse(siteEarlyExpAmt.AMOUNT.ToString()));//前期累計
+                    if (siteEarlyExpAmt.AMOUNT.ToString() != "")
+                    {
+                        sheet.GetRow(43).Cells[13].SetCellValue(double.Parse(siteEarlyExpAmt.AMOUNT.ToString()));//前期累計
+                    }
+                    else
+                    {
+                        sheet.GetRow(43).Cells[13].SetCellValue("0");
+                    }
                     logger.Debug("Table Head_9=" + sheet.GetRow(44).Cells[12].ToString());
                     sheet.GetRow(44).Cells[13].SetCellValue(double.Parse(ExpAmt.AMOUNT.ToString()));//本期金額
                     logger.Debug("Table Head_10=" + sheet.GetRow(46).Cells[13].ToString());
@@ -1254,7 +1274,7 @@ namespace topmeperp.Service
                 }
                 else
                 {
-                sheet = (XSSFSheet)hssfworkbook.GetSheet("費用表");
+                    sheet = (XSSFSheet)hssfworkbook.GetSheet("費用表");
                 }
                 //2.填入表頭資料
                 sheet.GetRow(1).Cells[3].SetCellValue("公司營業費用");
@@ -1283,9 +1303,19 @@ namespace topmeperp.Service
                     logger.Debug("Table Head_6=" + sheet.GetRow(86).Cells[1].ToString());
                     sheet.GetRow(86).Cells[1].SetCellValue(ExpTable.REMARK);//說明事項
                     logger.Debug("Table Head_7=" + sheet.GetRow(86).Cells[12].ToString());
-                    sheet.GetRow(86).Cells[13].SetCellValue(double.Parse(Budget.TOTAL_BUDGET.ToString()));//總預算
+                    if (Budget.TOTAL_BUDGET.ToString() != "")
+                    {
+                        sheet.GetRow(86).Cells[13].SetCellValue(double.Parse(Budget.TOTAL_BUDGET.ToString()));//總預算
+                    }
                     logger.Debug("Table Head_8=" + sheet.GetRow(89).Cells[12].ToString());
-                    sheet.GetRow(89).Cells[13].SetCellValue(double.Parse(EarlyExpAmt.AMOUNT.ToString()));//前期累計
+                    if (EarlyExpAmt.AMOUNT.ToString() != "")
+                    {
+                        sheet.GetRow(89).Cells[13].SetCellValue(double.Parse(EarlyExpAmt.AMOUNT.ToString()));//前期累計
+                    }
+                    else
+                    {
+                        sheet.GetRow(89).Cells[13].SetCellValue("0");
+                    }
                     logger.Debug("Table Head_9=" + sheet.GetRow(90).Cells[12].ToString());
                     sheet.GetRow(90).Cells[13].SetCellValue(double.Parse(ExpAmt.AMOUNT.ToString()));//本期金額
                     logger.Debug("Table Head_10=" + sheet.GetRow(92).Cells[13].ToString());
@@ -1296,9 +1326,19 @@ namespace topmeperp.Service
                     logger.Debug("Table Head_6=" + sheet.GetRow(40).Cells[1].ToString());
                     sheet.GetRow(40).Cells[1].SetCellValue(ExpTable.REMARK);//說明事項
                     logger.Debug("Table Head_7=" + sheet.GetRow(40).Cells[12].ToString());
-                    sheet.GetRow(40).Cells[13].SetCellValue(double.Parse(Budget.TOTAL_BUDGET.ToString()));//總預算
+                    if (Budget.TOTAL_BUDGET.ToString() != "")
+                    {
+                        sheet.GetRow(40).Cells[13].SetCellValue(double.Parse(Budget.TOTAL_BUDGET.ToString()));//總預算
+                    }
                     logger.Debug("Table Head_8=" + sheet.GetRow(43).Cells[12].ToString());
-                    sheet.GetRow(43).Cells[13].SetCellValue(double.Parse(EarlyExpAmt.AMOUNT.ToString()));//前期累計
+                    if (EarlyExpAmt.AMOUNT.ToString() != "")
+                    {
+                        sheet.GetRow(43).Cells[13].SetCellValue(double.Parse(EarlyExpAmt.AMOUNT.ToString()));//前期累計
+                    }
+                    else
+                    {
+                        sheet.GetRow(43).Cells[13].SetCellValue("0");
+                    }
                     logger.Debug("Table Head_9=" + sheet.GetRow(44).Cells[12].ToString());
                     sheet.GetRow(44).Cells[13].SetCellValue(double.Parse(ExpAmt.AMOUNT.ToString()));//本期金額
                     logger.Debug("Table Head_10=" + sheet.GetRow(46).Cells[13].ToString());
@@ -1364,7 +1404,7 @@ namespace topmeperp.Service
                     //備註
                     row.Cells[17].SetCellValue(item.ITEM_REMARK);
                     logger.Debug("get Expense Form cell style rowid=" + idxRow);
-                    if(idxRow == 47)
+                    if (idxRow == 47)
                     {
                         idxRow = idxRow + 4;
                     }
@@ -1976,7 +2016,7 @@ namespace topmeperp.Service
         ISheet sheet = null;
         XSSFCellStyle style = null;
         XSSFCellStyle styleNumber = null;
-        
+
         string fileformat = "xlsx";
         //存放物料單資料
         public TND_PROJECT project = null;
@@ -2103,7 +2143,7 @@ namespace topmeperp.Service
                 lastRow.CreateCell(0);
                 lastRow.Cells[0].SetCellValue(tablePR.MESSAGE);//特殊需求
             }
-            else if(isDO)
+            else if (isDO)
             {
                 int idxRow = 7;
                 foreach (PurchaseRequisition item in deliveryItem)
