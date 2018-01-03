@@ -719,7 +719,7 @@ namespace topmeperp.Controllers
                     }
                     string htmlString = "<table class='table table-bordered'><tr>";
                     //處理表頭
-                    for (int i = 1; i < 6; i++)
+                    for (int i = 1; i < 7; i++)
                     {
                         log.Debug("column name=" + dt.Columns[i].ColumnName);
                         htmlString = htmlString + "<th>" + dt.Columns[i].ColumnName + "</th>";
@@ -728,7 +728,7 @@ namespace topmeperp.Controllers
                     Dictionary<string, COMPARASION_DATA_4PLAN> dirSupplierQuo = service.dirSupplierQuo;
                     log.Debug("Column Count=" + dt.Columns.Count);
                     List<string> list = new List<string>();
-                    for (int i = 7; i < dt.Columns.Count; i++)
+                    for (int i = 8; i < dt.Columns.Count; i++)
                     {
                         log.Debug("column name=" + dt.Columns[i].ColumnName);
                         string[] tmpString = dt.Columns[i].ColumnName.Split('|');
@@ -748,16 +748,16 @@ namespace topmeperp.Controllers
                     foreach (DataRow dr in dt.Rows)
                     {
                         htmlString = htmlString + "<tr>";
-                        for (int i = 1; i < 5; i++)
+                        for (int i = 1; i < 6; i++)
                         {
                             htmlString = htmlString + "<td>" + dr[i] + "</td>";
                         }
                         //單價欄位  <input type='text' id='cost_@item.INQUIRY_ITEM_ID' name='cost_@item.INQUIRY_ITEM_ID' size='5' />
                         //decimal price = decimal.Parse(dr[5].ToString());
-                        if (dr[5].ToString() != "")
+                        if (dr[6].ToString() != "")
                         {
-                            log.Debug("data row col 5=" + (decimal)dr[5]);
-                            htmlString = htmlString + "<td><input type='text' id='cost_" + dr[1] + "' name='cost_" + dr[1] + "' size='5' value='" + String.Format("{0:N0}", (decimal)dr[5]) + "' /></td>";
+                            log.Debug("data row col 6=" + (decimal)dr[6]);
+                            htmlString = htmlString + "<td><input type='text' id='cost_" + dr[1] + "' name='cost_" + dr[1] + "' size='5' value='" + String.Format("{0:N0}", (decimal)dr[6]) + "' /></td>";
                         }
                         else
                         {
@@ -765,7 +765,7 @@ namespace topmeperp.Controllers
                         }
                         //String.Format("{0:C}", 0);
                         //處理報價資料
-                        for (int i = 7; i < dt.Columns.Count; i++)
+                        for (int i = 8; i < dt.Columns.Count; i++)
                         {
                             //<td><button class="btn-link" onclick="clickPrice('@item.INQUIRY_ITEM_ID', '@item.QUOTATION_PRICE')">@item.QUOTATION_PRICE</button> </td>
                             if (dr[i].ToString() != "")
@@ -814,7 +814,7 @@ namespace topmeperp.Controllers
                     }
                     string htmlString = "<table class='table table-bordered'><tr>";
                     //處理表頭
-                    for (int i = 1; i < 6; i++)
+                    for (int i = 1; i < 7; i++)
                     {
                         log.Debug("column name=" + dt.Columns[i].ColumnName);
                         htmlString = htmlString + "<th>" + dt.Columns[i].ColumnName + "</th>";
@@ -823,7 +823,7 @@ namespace topmeperp.Controllers
                     Dictionary<string, COMPARASION_DATA_4PLAN> dirSupplierQuo = service.dirSupplierQuo;
                     log.Debug("Column Count=" + dt.Columns.Count);
                     List<string> list = new List<string>();
-                    for (int i = 6; i < dt.Columns.Count; i++)
+                    for (int i = 7; i < dt.Columns.Count; i++)
                     {
                         log.Debug("column name=" + dt.Columns[i].ColumnName);
                         string[] tmpString = dt.Columns[i].ColumnName.Split('|');
@@ -843,16 +843,16 @@ namespace topmeperp.Controllers
                     foreach (DataRow dr in dt.Rows)
                     {
                         htmlString = htmlString + "<tr>";
-                        for (int i = 1; i < 5; i++)
+                        for (int i = 1; i < 6; i++)
                         {
                             htmlString = htmlString + "<td>" + dr[i] + "</td>";
                         }
                         //單價欄位  <input type='text' id='cost_@item.INQUIRY_ITEM_ID' name='cost_@item.INQUIRY_ITEM_ID' size='5' />
                         //decimal price = decimal.Parse(dr[5].ToString());
-                        if (dr[5].ToString() != "")
+                        if (dr[6].ToString() != "")
                         {
-                            log.Debug("data row col 5=" + (decimal)dr[5]);
-                            htmlString = htmlString + "<td><input type='text' id='cost_" + dr[1] + "' name='cost_" + dr[1] + "' size='5' value='" + String.Format("{0:N0}", (decimal)dr[5]) + "' /></td>";
+                            log.Debug("data row col 6=" + (decimal)dr[6]);
+                            htmlString = htmlString + "<td><input type='text' id='cost_" + dr[1] + "' name='cost_" + dr[1] + "' size='5' value='" + String.Format("{0:N0}", (decimal)dr[6]) + "' /></td>";
                         }
                         else
                         {
@@ -860,7 +860,7 @@ namespace topmeperp.Controllers
                         }
                         //String.Format("{0:C}", 0);
                         //處理報價資料
-                        for (int i = 6; i < dt.Columns.Count; i++)
+                        for (int i = 7; i < dt.Columns.Count; i++)
                         {
                             //<td><button class="btn-link" onclick="clickPrice('@item.INQUIRY_ITEM_ID', '@item.QUOTATION_PRICE')">@item.QUOTATION_PRICE</button> </td>
                             if (dr[i].ToString() != "")

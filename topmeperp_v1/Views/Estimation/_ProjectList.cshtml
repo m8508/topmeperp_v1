@@ -1,60 +1,56 @@
-﻿@model IEnumerable<topmeperp.Models.TND_PROJECT>
-<table class="table">
+﻿@model IEnumerable<topmeperp.Models.ProjectList>
+<table class="rwd-table">
     <tr>
         <th>
-            專案編號
-        </th>
-        <th>
             專案名稱
-        </th>
-        <th>
-            專案負責人
-        </th>
-        <th>
-            得標標單檔名稱
         </th>
         <th>
             專案狀態
         </th>
         <th>
-            專案執行日期
+            業主名稱
         </th>
         <th>
-            功能區
+            聯絡人
         </th>
-
+        <th>
+            專案執行日期
+        </th>
 
     </tr>
 
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.PROJECT_ID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PROJECT_NAME)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.OWNER_USER_ID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EXCEL_FILE_NAME)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.STATUS)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MODIFY_DATE)
-            </td>
-            <td>
-                <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("Revenue", "Estimation", new { id = item.PROJECT_ID })'; ">收入管理</button>
-                <button type="button" class="btn btn-info" @ViewBag.F10005 onclick="location.href='@Url.Action("Valuation", "Estimation", new { id = item.PROJECT_ID })'">廠商估驗計價</button>
-                <button type="button" class="btn btn-info" @ViewBag.F10005 onclick="location.href='@Url.Action("EstimationForm", "Estimation", new { id = item.PROJECT_ID })'">廠商估驗計價單查詢</button>
-                <button type="button" class="btn btn-info" @ViewBag.F10005 onclick="location.href='@Url.Action("Expense", "Estimation", new { id = item.PROJECT_ID })'">工地費用</button>
-                <button type="button" class="btn btn-info" @ViewBag.F10005 onclick="location.href='@Url.Action("ExpenseForm", "CashFlow", new { id = item.PROJECT_ID })'">工地費用查詢</button>
-            </td>
-        </tr>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td data-th="專案名稱">
+                    @Html.DisplayFor(modelItem => item.PROJECT_NAME)
+                </td>
+                <td data-th="專案狀態">
+                    @Html.DisplayFor(modelItem => item.STATUS)
+                </td>
+                <td data-th="業主名稱">
+                    @Html.DisplayFor(modelItem => item.OWNER_NAME)
+                </td>
+                <td data-th="聯絡人">
+                    @Html.DisplayFor(modelItem => item.CONTACT_NAME)
+                </td>
+                <td data-th="專案執行日期">
+                    @item.PLAN_CREATE_DATE
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("Revenue", "Estimation", new { id = item.PROJECT_ID })'; ">收入管理</button>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-info" @ViewBag.F10005 onclick="location.href='@Url.Action("Valuation", "Estimation", new { id = item.PROJECT_ID })'">廠商估驗計價</button>
+                    <button type="button" class="btn btn-info" @ViewBag.F10005 onclick="location.href='@Url.Action("EstimationForm", "Estimation", new { id = item.PROJECT_ID })'">廠商估驗計價單查詢</button>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-primary" @ViewBag.F10005 onclick="location.href='@Url.Action("Expense", "Estimation", new { id = item.PROJECT_ID })'">工地費用</button>
+                    <button type="button" class="btn btn-primary" @ViewBag.F10005 onclick="location.href='@Url.Action("ExpenseForm", "CashFlow", new { id = item.PROJECT_ID })'">工地費用查詢</button>
+                </td>
+            </tr>
     }
 
 </table>

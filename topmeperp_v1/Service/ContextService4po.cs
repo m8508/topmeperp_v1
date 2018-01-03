@@ -1365,7 +1365,7 @@ namespace topmeperp.Service
             //採購名稱條件
             if (null != formName && "" != formName)
             {
-                string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PLAN_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
+                string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PLAN_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位, fitem.ITEM_QTY 數量, " +
                 "(SELECT SUPPLIER_ID+'|'+ fitem.INQUIRY_FORM_ID +'|' + FORM_NAME FROM PLAN_SUP_INQUIRY f WHERE f.INQUIRY_FORM_ID = fitem.INQUIRY_FORM_ID ) as SUPPLIER_NAME, " +
                 "pitem.ITEM_UNIT_COST 材料單價, " +
                 "(SELECT FORM_NAME FROM PLAN_SUP_INQUIRY f WHERE f.INQUIRY_FORM_ID = fitem.INQUIRY_FORM_ID ) as FORM_NAME, fitem.ITEM_UNIT_PRICE  " +
@@ -1376,7 +1376,7 @@ namespace topmeperp.Service
 
                 if (iswage == "Y")
                 {
-                    sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PLAN_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
+                    sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PLAN_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位, fitem.ITEM_QTY 數量, " +
                     "(SELECT SUPPLIER_ID+'|'+ fitem.INQUIRY_FORM_ID +'|' + FORM_NAME FROM PLAN_SUP_INQUIRY f WHERE f.INQUIRY_FORM_ID = fitem.INQUIRY_FORM_ID) as SUPPLIER_NAME, " +
                     "pitem.MAN_PRICE 工資單價, " +
                     "(SELECT FORM_NAME FROM PLAN_SUP_INQUIRY f WHERE f.INQUIRY_FORM_ID = fitem.INQUIRY_FORM_ID ) as FORM_NAME, fitem.ITEM_UNIT_PRICE  " +
@@ -1453,7 +1453,7 @@ namespace topmeperp.Service
             }
             else
             {
-                string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PLAN_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
+                string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PLAN_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位,fitem.ITEM_QTY 數量, " +
                 "(SELECT SUPPLIER_ID+'|'+ fitem.INQUIRY_FORM_ID +'|' + FORM_NAME FROM PLAN_SUP_INQUIRY f WHERE f.INQUIRY_FORM_ID = fitem.INQUIRY_FORM_ID ) as SUPPLIER_NAME, " +
                 "pitem.ITEM_UNIT_COST 材料單價, fitem.ITEM_UNIT_PRICE " +
                 "from PLAN_ITEM pitem " +
@@ -1463,7 +1463,7 @@ namespace topmeperp.Service
 
                 if (iswage == "Y")
                 {
-                    sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PLAN_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位," +
+                    sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PLAN_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位,fitem.ITEM_QTY 數量, " +
                     "(SELECT SUPPLIER_ID+'|'+ fitem.INQUIRY_FORM_ID +'|' + FORM_NAME FROM PLAN_SUP_INQUIRY f WHERE f.INQUIRY_FORM_ID = fitem.INQUIRY_FORM_ID) as SUPPLIER_NAME, " +
                     "pitem.MAN_PRICE 工資單價, fitem.ITEM_UNIT_PRICE " +
                     "from PLAN_ITEM pitem " +
@@ -4792,5 +4792,6 @@ namespace topmeperp.Service
             return lstAmount;
         }
         #endregion
+        
     }
 }

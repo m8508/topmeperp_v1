@@ -582,4 +582,8 @@ namespace topmeperp.Models
         public IEnumerable<ExpenseBudgetByMonth> budget{ get; set; }
         public IEnumerable<ExpensetFromOPByMonth> expense { get; set; }
     }
+    public class ProjectList: TND_PROJECT
+    {
+        public string PLAN_CREATE_DATE { get; set; }
     }
+}

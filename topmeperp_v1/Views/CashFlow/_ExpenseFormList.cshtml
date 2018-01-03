@@ -38,7 +38,7 @@
                         <td>@item.OCCURRED_DATE</td>
                         <td><a href="/CashFlow/SingleEXPForm/@item.EXP_FORM_ID" target="_blank">@item.EXP_FORM_ID</a></td>
                         <td>@item.SUBJECT_NAME</td>
-                        <td>@item.PAYMENT_DATE</td>
+                        <td>@item.PAYMENT_DATE.Value.ToLongDateString()</td>
                         @if (item.STATUS == 0)
                         {
 
