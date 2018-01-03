@@ -1186,7 +1186,7 @@ namespace topmeperp.Service
             List<plansummary> lst = new List<plansummary>();
             using (var context = new topmepEntities())
             {
-                lst = context.Database.SqlQuery<plansummary>("SELECT  A.PROJECT_ID + A.ID + A.FORM_NAME AS CONTRACT_ID, A.SUPPLIER_ID, A.FORM_NAME, " +
+                string sql = "SELECT  A.PROJECT_ID + A.ID + A.FORM_NAME AS CONTRACT_ID, A.SUPPLIER_ID, A.FORM_NAME, " +
                     "SUM(A.MapQty * A.ITEM_UNIT_COST) MATERIAL_COST, SUM(A.MapQty * ISNULL(A.MAN_PRICE, 0)) WAGE_COST, " +
                     "SUM(A.ITEM_QUANTITY * ISNULL(A.ITEM_UNIT_PRICE, 0)) REVENUE, SUM(A.MapQty * A.TndFormPrice * ISNULL(A.BUDGET_RATIO, 100) / 100) BUDGET, " +
                     "(SUM(A.MapQty * A.ITEM_UNIT_COST) + SUM(A.MapQty * ISNULL(A.MAN_PRICE, 0))) COST, (SUM(A.ITEM_QUANTITY * ISNULL(A.ITEM_UNIT_PRICE, 0)) - " +
@@ -1195,8 +1195,17 @@ namespace topmeperp.Service
                     "tpi.ITEM_UNIT_PRICE AS TndFormPrice FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON " +
                     "pi.SUPPLIER_ID = s.COMPANY_NAME LEFT JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT JOIN TND_PROJECT_ITEM tpi ON pi.PLAN_ITEM_ID = tpi.PROJECT_ITEM_ID  " +
                     ")A WHERE A.PROJECT_ID = @projectid AND A.ITEM_UNIT_COST IS NOT NULL " +
-                    "GROUP BY A.PROJECT_ID, A.ID, A.FORM_NAME, A.SUPPLIER_ID ,A.INQUIRY_FORM_ID; "
-                   , new SqlParameter("projectid", projectid)).ToList();
+                    "GROUP BY A.PROJECT_ID, A.ID, A.FORM_NAME, A.SUPPLIER_ID ,A.INQUIRY_FORM_ID; ";
+                logger.Debug("sql =" + sql + ",project id=" + projectid);
+
+                ///SQL 是否可調整如下
+                // SELECT pi.FORM_NAME,pi.INQUIRY_FORM_ID,pi.SUPPLIER_ID,SUM(pi.ITEM_QUANTITY*pi.ITEM_UNIT_PRICE) 業主報價,SUM(map.QTY*pi.ITEM_UNIT_PRICE*ISNULL(pi.BUDGET_RATIO, 100) / 100) 內部預算,
+                // (SELECT SUM(ITEM_QTY * ITEM_UNIT_PRICE) from PLAN_SUP_INQUIRY_ITEM WHERE INQUIRY_FORM_ID = pi.INQUIRY_FORM_ID) 廠商報價
+                //  FROM PLAN_ITEM pi
+                //INNER JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID
+                //WHERE pi.PROJECT_ID = 'P00023'
+                //GROUP BY   pi.FORM_NAME,pi.INQUIRY_FORM_ID,pi.SUPPLIER_ID
+                lst = context.Database.SqlQuery<plansummary>(sql, new SqlParameter("projectid", projectid)).ToList();
             }
             return lst;
         }
