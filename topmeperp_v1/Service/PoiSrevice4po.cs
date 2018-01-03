@@ -1091,19 +1091,47 @@ namespace topmeperp.Service
         public ExpenseFormFunction ExpTable = null;
         public List<ExpenseBudgetSummary> EXPTableItem = null;
         public List<ExpenseBudgetSummary> SiteTableItem = null;
+        ExpenseBudgetSummary Budget = null;
+        ExpenseBudgetSummary siteBudget = null;
+        ExpenseBudgetSummary ExpAmt = null;
+        ExpenseBudgetSummary EarlyExpAmt = null;
+        ExpenseBudgetSummary siteEarlyExpAmt = null;
         public string errorMessage = null;
 
         //建立預算下載表格
-        public string exportExcel(ExpenseFormFunction ExpTable, List<ExpenseBudgetSummary> EXPTableItem, List<ExpenseBudgetSummary> SiteTableItem)
+        public string exportExcel(ExpenseFormFunction ExpTable, List<ExpenseBudgetSummary> EXPTableItem, List<ExpenseBudgetSummary> SiteTableItem, ExpenseBudgetSummary ExpAmt, ExpenseBudgetSummary EarlyExpAmt, ExpenseBudgetSummary siteEarlyExpAmt)
         {
+            int budgetYear = 0;
+            if (int.Parse(ExpTable.OCCURRED_MONTH.ToString()) > 6)
+            {
+                budgetYear = int.Parse(ExpTable.OCCURRED_YEAR.ToString());
+            }
+            else
+            {
+                budgetYear = int.Parse((ExpTable.OCCURRED_YEAR - 1).ToString());
+            }
+            Budget = service.getTotalExpBudgetAmount(budgetYear);
+            siteBudget = service.getTotalSiteBudgetAmount(ExpTable.PROJECT_ID);
             //1.讀取費用表格檔案
             InitializeWorkbook(expenseFile);
             if (null != ExpTable.PROJECT_ID && ExpTable.PROJECT_ID != "")
             {
-                sheet = (XSSFSheet)hssfworkbook.GetSheet("費用表");
+                float page = 1;
+                logger.Info("工地費用單頁數 =" + Convert.ToInt16(Math.Ceiling(float.Parse(EXPTableItem.Count.ToString()) / 47)));
+                if (float.Parse(EXPTableItem.Count.ToString()) / 47 > 1)
+                {
+                    page = float.Parse(EXPTableItem.Count.ToString()) / 47;
+                    sheet = (XSSFSheet)hssfworkbook.GetSheet("費用表_2頁");
+                }
+                else
+                {
+                    sheet = (XSSFSheet)hssfworkbook.GetSheet("費用表");
+                }
                 //2.填入表頭資料
-                logger.Debug("Table Head_1=" + sheet.GetRow(1).Cells[3].ToString());
+                logger.Debug("Table Head_1=" + sheet.GetRow(1).Cells[0].ToString());
                 sheet.GetRow(1).Cells[3].SetCellValue(ExpTable.PROJECT_NAME);//專案名稱
+                sheet.GetRow(0).Cells[20].SetCellValue("第 1 頁");
+                sheet.GetRow(0).Cells[22].SetCellValue("共" + Convert.ToInt16(Math.Ceiling(page)) + "頁");
                 logger.Debug("Table Head_2=" + sheet.GetRow(1).Cells[9].ToString());
                 sheet.GetRow(1).Cells[9].SetCellValue(ExpTable.EXP_FORM_ID);//費用單編號
                 logger.Debug("Table Head_3=" + sheet.GetRow(1).Cells[14].ToString());
@@ -1112,11 +1140,62 @@ namespace topmeperp.Service
                 sheet.GetRow(1).Cells[19].SetCellValue(ExpTable.OCCURRED_YEAR.ToString() + "/" + ExpTable.OCCURRED_MONTH.ToString());//費用發生年月
                 logger.Debug("Table Head_5=" + sheet.GetRow(1).Cells[22].ToString());
                 sheet.GetRow(1).Cells[22].SetCellValue(Convert.ToDateTime(ExpTable.CREATE_DATE).ToShortDateString());//請款日期
-                logger.Debug("Table Head_6=" + sheet.GetRow(40).Cells[1].ToString());
-                sheet.GetRow(40).Cells[1].SetCellValue(ExpTable.REMARK);//說明事項
-                logger.Debug("Table Head_7=" + sheet.GetRow(46).Cells[13].ToString());
-                sheet.GetRow(46).Cells[13].SetCellValue(ExpTable.PAYMENT_DATE.ToString());//支付日期
-
+                if (float.Parse(EXPTableItem.Count.ToString()) / 47 > 1)
+                {
+                    sheet.GetRow(48).Cells[20].SetCellValue("第 2 頁");
+                    sheet.GetRow(48).Cells[22].SetCellValue("共" + Convert.ToInt16(Math.Ceiling(page)) + "頁");
+                    sheet.GetRow(49).Cells[3].SetCellValue(ExpTable.PROJECT_NAME);//專案名稱
+                    sheet.GetRow(49).Cells[9].SetCellValue(ExpTable.EXP_FORM_ID);//費用單編號
+                    sheet.GetRow(49).Cells[14].SetCellValue(ExpTable.CREATE_ID);//請款人
+                    sheet.GetRow(49).Cells[19].SetCellValue(ExpTable.OCCURRED_YEAR.ToString() + "/" + ExpTable.OCCURRED_MONTH.ToString());//費用發生年月
+                    sheet.GetRow(49).Cells[22].SetCellValue(Convert.ToDateTime(ExpTable.CREATE_DATE).ToShortDateString());//請款日期
+                }
+                if (float.Parse(EXPTableItem.Count.ToString()) / 47 > 1)
+                {
+                    logger.Debug("Table Head_6=" + sheet.GetRow(86).Cells[1].ToString());
+                    sheet.GetRow(86).Cells[1].SetCellValue(ExpTable.REMARK);//說明事項
+                    logger.Debug("Table Head_7=" + sheet.GetRow(86).Cells[12].ToString());
+                    if (siteBudget.TOTAL_BUDGET.ToString() != "")
+                    {
+                        sheet.GetRow(86).Cells[13].SetCellValue(double.Parse(siteBudget.TOTAL_BUDGET.ToString()));//總預算
+                    }
+                    logger.Debug("Table Head_8=" + sheet.GetRow(89).Cells[12].ToString());
+                    if (siteEarlyExpAmt.AMOUNT.ToString() != "")
+                    {
+                        sheet.GetRow(89).Cells[13].SetCellValue(double.Parse(siteEarlyExpAmt.AMOUNT.ToString()));//前期累計
+                    }
+                    else
+                    {
+                        sheet.GetRow(43).Cells[13].SetCellValue("0");
+                    }
+                    logger.Debug("Table Head_9=" + sheet.GetRow(90).Cells[12].ToString());
+                    sheet.GetRow(90).Cells[13].SetCellValue(double.Parse(ExpAmt.AMOUNT.ToString()));//本期金額
+                    logger.Debug("Table Head_10=" + sheet.GetRow(92).Cells[13].ToString());
+                    sheet.GetRow(92).Cells[13].SetCellValue(Convert.ToDateTime(ExpTable.PAYMENT_DATE).ToShortDateString());//支付日期
+                }
+                else
+                {
+                    logger.Debug("Table Head_6=" + sheet.GetRow(40).Cells[1].ToString());
+                    sheet.GetRow(40).Cells[1].SetCellValue(ExpTable.REMARK);//說明事項
+                    logger.Debug("Table Head_7=" + sheet.GetRow(40).Cells[12].ToString());
+                    if (siteBudget.TOTAL_BUDGET.ToString() != "")
+                    {
+                        sheet.GetRow(40).Cells[13].SetCellValue(double.Parse(siteBudget.TOTAL_BUDGET.ToString()));//總預算
+                    }
+                    logger.Debug("Table Head_8=" + sheet.GetRow(43).Cells[12].ToString());
+                    if (siteEarlyExpAmt.AMOUNT.ToString() != "")
+                    {
+                        sheet.GetRow(43).Cells[13].SetCellValue(double.Parse(siteEarlyExpAmt.AMOUNT.ToString()));//前期累計
+                    }
+                    else
+                    {
+                        sheet.GetRow(43).Cells[13].SetCellValue("0");
+                    }
+                    logger.Debug("Table Head_9=" + sheet.GetRow(44).Cells[12].ToString());
+                    sheet.GetRow(44).Cells[13].SetCellValue(double.Parse(ExpAmt.AMOUNT.ToString()));//本期金額
+                    logger.Debug("Table Head_10=" + sheet.GetRow(46).Cells[13].ToString());
+                    sheet.GetRow(46).Cells[13].SetCellValue(Convert.ToDateTime(ExpTable.PAYMENT_DATE).ToShortDateString());//支付日期
+                }
                 //3.填入資料
                 int idxRow = 4;
                 foreach (ExpenseBudgetSummary item in SiteTableItem)
@@ -1176,23 +1255,31 @@ namespace topmeperp.Service
                     }
                     //備註
                     row.Cells[17].SetCellValue(item.ITEM_REMARK);
-                    logger.Debug("getExpenseForm cell style rowid=" + idxRow);
+                    logger.Debug("get Site Expense Form cell style rowid=" + idxRow);
+                    if (idxRow == 47)
+                    {
+                        idxRow = idxRow + 4;
+                    }
                     idxRow++;
                 }
             }
             else
             {
                 float page = 1;
-                logger.Info("公司費用單頁數 =" + Convert.ToInt16(Math.Ceiling(float.Parse(EXPTableItem.Count.ToString()) / 15)));
-                if (float.Parse(EXPTableItem.Count.ToString()) / 15 > 1)
+                logger.Info("公司費用單頁數 =" + Convert.ToInt16(Math.Ceiling(float.Parse(EXPTableItem.Count.ToString()) / 47)));
+                if (float.Parse(EXPTableItem.Count.ToString()) / 47 > 1)
                 {
-                    page = float.Parse(EXPTableItem.Count.ToString()) / 15;
+                    page = float.Parse(EXPTableItem.Count.ToString()) / 47;
+                    sheet = (XSSFSheet)hssfworkbook.GetSheet("費用表_2頁");
                 }
-                sheet = (XSSFSheet)hssfworkbook.GetSheet("費用表_頁1");
+                else
+                {
+                    sheet = (XSSFSheet)hssfworkbook.GetSheet("費用表");
+                }
                 //2.填入表頭資料
                 sheet.GetRow(1).Cells[3].SetCellValue("公司營業費用");
-                sheet.GetRow(0).Cells[20].SetCellValue("");
-                sheet.GetRow(0).Cells[22].SetCellValue("共" + Convert.ToInt16(Math.Floor(page)) + "頁");
+                sheet.GetRow(0).Cells[20].SetCellValue("第 1 頁");
+                sheet.GetRow(0).Cells[22].SetCellValue("共" + Convert.ToInt16(Math.Ceiling(page)) + "頁");
                 logger.Debug("Table Head_2=" + sheet.GetRow(1).Cells[9].ToString());
                 sheet.GetRow(1).Cells[9].SetCellValue(ExpTable.EXP_FORM_ID);//費用單編號
                 logger.Debug("Table Head_3=" + sheet.GetRow(1).Cells[14].ToString());
@@ -1201,10 +1288,62 @@ namespace topmeperp.Service
                 sheet.GetRow(1).Cells[19].SetCellValue(ExpTable.OCCURRED_YEAR.ToString() + "/" + ExpTable.OCCURRED_MONTH.ToString());//費用發生年月
                 logger.Debug("Table Head_5=" + sheet.GetRow(1).Cells[22].ToString());
                 sheet.GetRow(1).Cells[22].SetCellValue(Convert.ToDateTime(ExpTable.CREATE_DATE).ToShortDateString());//請款日期
-                logger.Debug("Table Head_6=" + sheet.GetRow(40).Cells[1].ToString());
-                sheet.GetRow(40).Cells[1].SetCellValue(ExpTable.REMARK);//說明事項
-                logger.Debug("Table Head_7=" + sheet.GetRow(46).Cells[13].ToString());
-                sheet.GetRow(46).Cells[13].SetCellValue(ExpTable.PAYMENT_DATE.ToString());//支付日期
+                if (float.Parse(EXPTableItem.Count.ToString()) / 47 > 1)
+                {
+                    sheet.GetRow(48).Cells[20].SetCellValue("第 2 頁");
+                    sheet.GetRow(48).Cells[22].SetCellValue("共" + Convert.ToInt16(Math.Ceiling(page)) + "頁");
+                    sheet.GetRow(49).Cells[3].SetCellValue("公司營業費用");
+                    sheet.GetRow(49).Cells[9].SetCellValue(ExpTable.EXP_FORM_ID);//費用單編號
+                    sheet.GetRow(49).Cells[14].SetCellValue(ExpTable.CREATE_ID);//請款人
+                    sheet.GetRow(49).Cells[19].SetCellValue(ExpTable.OCCURRED_YEAR.ToString() + "/" + ExpTable.OCCURRED_MONTH.ToString());//費用發生年月
+                    sheet.GetRow(49).Cells[22].SetCellValue(Convert.ToDateTime(ExpTable.CREATE_DATE).ToShortDateString());//請款日期
+                }
+                if (float.Parse(EXPTableItem.Count.ToString()) / 47 > 1)
+                {
+                    logger.Debug("Table Head_6=" + sheet.GetRow(86).Cells[1].ToString());
+                    sheet.GetRow(86).Cells[1].SetCellValue(ExpTable.REMARK);//說明事項
+                    logger.Debug("Table Head_7=" + sheet.GetRow(86).Cells[12].ToString());
+                    if (Budget.TOTAL_BUDGET.ToString() != "")
+                    {
+                        sheet.GetRow(86).Cells[13].SetCellValue(double.Parse(Budget.TOTAL_BUDGET.ToString()));//總預算
+                    }
+                    logger.Debug("Table Head_8=" + sheet.GetRow(89).Cells[12].ToString());
+                    if (EarlyExpAmt.AMOUNT.ToString() != "")
+                    {
+                        sheet.GetRow(89).Cells[13].SetCellValue(double.Parse(EarlyExpAmt.AMOUNT.ToString()));//前期累計
+                    }
+                    else
+                    {
+                        sheet.GetRow(89).Cells[13].SetCellValue("0");
+                    }
+                    logger.Debug("Table Head_9=" + sheet.GetRow(90).Cells[12].ToString());
+                    sheet.GetRow(90).Cells[13].SetCellValue(double.Parse(ExpAmt.AMOUNT.ToString()));//本期金額
+                    logger.Debug("Table Head_10=" + sheet.GetRow(92).Cells[13].ToString());
+                    sheet.GetRow(92).Cells[13].SetCellValue(Convert.ToDateTime(ExpTable.PAYMENT_DATE).ToShortDateString());//支付日期
+                }
+                else
+                {
+                    logger.Debug("Table Head_6=" + sheet.GetRow(40).Cells[1].ToString());
+                    sheet.GetRow(40).Cells[1].SetCellValue(ExpTable.REMARK);//說明事項
+                    logger.Debug("Table Head_7=" + sheet.GetRow(40).Cells[12].ToString());
+                    if (Budget.TOTAL_BUDGET.ToString() != "")
+                    {
+                        sheet.GetRow(40).Cells[13].SetCellValue(double.Parse(Budget.TOTAL_BUDGET.ToString()));//總預算
+                    }
+                    logger.Debug("Table Head_8=" + sheet.GetRow(43).Cells[12].ToString());
+                    if (EarlyExpAmt.AMOUNT.ToString() != "")
+                    {
+                        sheet.GetRow(43).Cells[13].SetCellValue(double.Parse(EarlyExpAmt.AMOUNT.ToString()));//前期累計
+                    }
+                    else
+                    {
+                        sheet.GetRow(43).Cells[13].SetCellValue("0");
+                    }
+                    logger.Debug("Table Head_9=" + sheet.GetRow(44).Cells[12].ToString());
+                    sheet.GetRow(44).Cells[13].SetCellValue(double.Parse(ExpAmt.AMOUNT.ToString()));//本期金額
+                    logger.Debug("Table Head_10=" + sheet.GetRow(46).Cells[13].ToString());
+                    sheet.GetRow(46).Cells[13].SetCellValue(Convert.ToDateTime(ExpTable.PAYMENT_DATE).ToShortDateString());//支付日期
+                }
                 //3.填入資料
                 int idxRow = 4;
                 foreach (ExpenseBudgetSummary item in EXPTableItem)
@@ -1264,7 +1403,11 @@ namespace topmeperp.Service
                     }
                     //備註
                     row.Cells[17].SetCellValue(item.ITEM_REMARK);
-                    logger.Debug("getExpenseForm cell style rowid=" + idxRow);
+                    logger.Debug("get Expense Form cell style rowid=" + idxRow);
+                    if (idxRow == 47)
+                    {
+                        idxRow = idxRow + 4;
+                    }
                     idxRow++;
                 }
             }
@@ -1873,7 +2016,7 @@ namespace topmeperp.Service
         ISheet sheet = null;
         XSSFCellStyle style = null;
         XSSFCellStyle styleNumber = null;
-        
+
         string fileformat = "xlsx";
         //存放物料單資料
         public TND_PROJECT project = null;
@@ -2000,7 +2143,7 @@ namespace topmeperp.Service
                 lastRow.CreateCell(0);
                 lastRow.Cells[0].SetCellValue(tablePR.MESSAGE);//特殊需求
             }
-            else if(isDO)
+            else if (isDO)
             {
                 int idxRow = 7;
                 foreach (PurchaseRequisition item in deliveryItem)

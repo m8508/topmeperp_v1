@@ -34,6 +34,7 @@
                         <span class="btn btn-info">
                             <button type="button" class="close" ng-click="remove($index)">&times;</button>
                         </span>
+                        No.{{$index +1}} 
                         項目名稱：
                         <select id="subjectid" name="subjectid" style="height:27px" ng-model="m.SUBJECT" ng-options="(key.FIN_SUBJECT_ID + ' - ' + key.SUBJECT_NAME) for key in keys" required>
                             <option value="" required>-- 請選擇 --</option>

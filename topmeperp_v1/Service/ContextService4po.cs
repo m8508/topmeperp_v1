@@ -1256,11 +1256,11 @@ namespace topmeperp.Service
                          "FROM (select p.SUPPLIER_ID,  p.INQUIRY_FORM_ID, p.FORM_NAME AS code1, ISNULL(STATUS,'有效') STATUS, ISNULL(ISWAGE,'N')ISWAGE FROM PLAN_SUP_INQUIRY p LEFT OUTER JOIN PLAN_SUP_INQUIRY_ITEM pi " +
                          "ON p.INQUIRY_FORM_ID = pi.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL AND ISNULL(STATUS,'有效') <> '註銷' AND ISWAGE <> 'Y' GROUP BY p.FORM_NAME, p.INQUIRY_FORM_ID, p.STATUS, " +
                          "p.SUPPLIER_ID, p.ISWAGE HAVING p.FORM_NAME NOT IN (SELECT p.FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid " +
-                         "AND p.ITEM_UNIT_COST IS NOT NULL GROUP BY p.FORM_NAME))C LEFT OUTER JOIN " +
+                         "AND p.FORM_NAME IS NOT NULL GROUP BY p.FORM_NAME))C LEFT OUTER JOIN " +
                          "(select  B.type, B.INQUIRY_FORM_ID, B.TOTAL_ROW AS TOTAL_ROWS, B.TOTALPRICE AS TOTAL_PRICE,B.Budget as Budget  FROM (select p.FORM_NAME as type, p.INQUIRY_FORM_ID " +
                          "from PLAN_SUP_INQUIRY_ITEM pi LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL " +
-                         "and pi.ITEM_UNIT_PRICE is not null GROUP BY p.INQUIRY_FORM_ID, p.FORM_NAME HAVING p.FORM_NAME NOT IN " +
-                         "(SELECT p.FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid AND p.ITEM_UNIT_COST IS NOT NULL GROUP BY p.FORM_NAME)) A RIGHT OUTER JOIN " +
+                         "GROUP BY p.INQUIRY_FORM_ID, p.FORM_NAME HAVING p.FORM_NAME NOT IN " +
+                         "(SELECT p.FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid AND p.FORM_NAME IS NOT NULL GROUP BY p.FORM_NAME)) A RIGHT OUTER JOIN " +
                          "(select p.FORM_NAME as type, p.INQUIRY_FORM_ID, count(*) TOTAL_ROW,sum(map.qty*iif (ISNULL(ISWAGE,'N')='Y',pitem.BUDGET_RATIO,pitem.BUDGET_WAGE_RATIO)*pi.ITEM_UNIT_PRICE/100) Budget " +
                          ",sum(ITEM_QTY) as iQty,sum(ITEM_QTY * pi.ITEM_UNIT_PRICE) TOTALPRICE from PLAN_SUP_INQUIRY_ITEM pi Left Join vw_MAP_MATERLIALIST map " +
                          " on pi.PLAN_ITEM_ID=map.PROJECT_ITEM_ID Left Join PLAN_ITEM pitem On pi.PLAN_ITEM_ID=pitem.PLAN_ITEM_ID  LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID " +
@@ -4000,6 +4000,9 @@ namespace topmeperp.Service
         public ExpenseFormFunction formEXP = null;
         public List<ExpenseBudgetSummary> EXPItem = null;
         public List<ExpenseBudgetSummary> siteEXPItem = null;
+        public ExpenseBudgetSummary ExpAmt = null;
+        public ExpenseBudgetSummary EarlyCumAmt = null;
+        public ExpenseBudgetSummary SiteEarlyCumAmt = null;
         //取得公司費用項目
         public List<FIN_SUBJECT> getSubjectOfExpense()
         {
@@ -4090,22 +4093,40 @@ namespace topmeperp.Service
                     "ON fei.FIN_SUBJECT_ID = fs.FIN_SUBJECT_ID WHERE fei.EXP_FORM_ID = @expid)A " +
                     "LEFT JOIN (SELECT F.*, feb.AMOUNT FROM (SELECT fei.FIN_SUBJECT_ID, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID WHERE fei.EXP_FORM_ID = @expid " +
                     "GROUP BY fei.FIN_SUBJECT_ID, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH)F LEFT JOIN FIN_EXPENSE_BUDGET feb ON F.FIN_SUBJECT_ID + CONVERT(varchar, OCCURRED_YEAR) + CONVERT(varchar, OCCURRED_MONTH) = feb.SUBJECT_ID + CONVERT(varchar, CURRENT_YEAR) + CONVERT(varchar, BUDGET_MONTH))B ON A.FIN_SUBJECT_ID = B.FIN_SUBJECT_ID)G " +
-                    "LEFT JOIN (SELECT SUBJECT_ID, SUM(AMOUNT) AS CUM_BUDGET FROM FIN_EXPENSE_BUDGET WHERE CURRENT_YEAR = " + formEXP.OCCURRED_YEAR + "AND BUDGET_MONTH <= " + formEXP.OCCURRED_MONTH + "GROUP BY SUBJECT_ID) C ON G.FIN_SUBJECT_ID = C.SUBJECT_ID " +
+                    "LEFT JOIN (SELECT SUBJECT_ID, SUM(AMOUNT) AS CUM_BUDGET FROM FIN_EXPENSE_BUDGET WHERE CURRENT_YEAR = " + formEXP.OCCURRED_YEAR + "AND BUDGET_MONTH <= IIF(" + formEXP.OCCURRED_MONTH + "< 7," + formEXP.OCCURRED_MONTH + ", 0) OR BUDGET_YEAR = " +
+                    "IIF(" + formEXP.OCCURRED_MONTH + "< 7," + (formEXP.OCCURRED_YEAR - 1) + "," + formEXP.OCCURRED_YEAR + ") AND BUDGET_MONTH BETWEEN 7 AND IIF(" + formEXP.OCCURRED_MONTH + "< 7, 12," + formEXP.OCCURRED_MONTH + ") GROUP BY SUBJECT_ID) C ON G.FIN_SUBJECT_ID = C.SUBJECT_ID " +
                     "LEFT JOIN (SELECT fei.FIN_SUBJECT_ID, SUM(AMOUNT) AS CUM_YEAR_AMOUNT FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID " +
-                    "WHERE fef.OCCURRED_YEAR = " + formEXP.OCCURRED_YEAR + "AND fef.OCCURRED_MONTH <= " + formEXP.OCCURRED_MONTH + "GROUP BY fei.FIN_SUBJECT_ID)D ON G.FIN_SUBJECT_ID = D.FIN_SUBJECT_ID ", new SqlParameter("expid", expid)).ToList();
+                    "WHERE fef.OCCURRED_YEAR = " + formEXP.OCCURRED_YEAR + "AND fef.OCCURRED_MONTH <= IIF(" + formEXP.OCCURRED_MONTH + "< 7," + formEXP.OCCURRED_MONTH + ", 0) AND fef.STATUS >= 20 AND fef.CREATE_DATE <= CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) " +
+                    "OR fef.OCCURRED_YEAR = IIF(" + formEXP.OCCURRED_MONTH + "< 7," + (formEXP.OCCURRED_YEAR - 1) + "," + (formEXP.OCCURRED_YEAR) + ") " +
+                    "AND fef.OCCURRED_MONTH BETWEEN 7 AND IIF(" + formEXP.OCCURRED_MONTH + "< 7, 12," + formEXP.OCCURRED_MONTH + ") AND fef.STATUS >= 20 AND fef.CREATE_DATE <= CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) GROUP BY fei.FIN_SUBJECT_ID)D ON G.FIN_SUBJECT_ID = D.FIN_SUBJECT_ID ", new SqlParameter("expid", expid)).ToList();
                 logger.Debug("get query year of operating expense:" + formEXP.OCCURRED_YEAR);
                 logger.Debug("get operating expense item count:" + EXPItem.Count);
+                ExpAmt = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT SUM(AMOUNT) AS AMOUNT FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM ef ON fei.EXP_FORM_ID = ef.EXP_FORM_ID WHERE ef.EXP_FORM_ID = @expid ", new SqlParameter("expid", expid)).FirstOrDefault();
+                EarlyCumAmt = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT SUM(AMOUNT) AS AMOUNT FROM FIN_SUBJECT fs LEFT JOIN FIN_EXPENSE_ITEM fei ON fs.FIN_SUBJECT_ID = fei.FIN_SUBJECT_ID LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID " +
+                    "WHERE fs.CATEGORY = '公司營業費用' AND fef.OCCURRED_YEAR = " + formEXP.OCCURRED_YEAR + "AND fef.OCCURRED_MONTH <= IIF(" + formEXP.OCCURRED_MONTH + " < 7, " + formEXP.OCCURRED_MONTH + ", 0) AND fef.STATUS >= 20 AND fef.CREATE_DATE < CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) " +
+                    "OR fs.CATEGORY = '公司營業費用' AND fef.OCCURRED_YEAR = IIF(" + formEXP.OCCURRED_MONTH + " < 7, " + (formEXP.OCCURRED_YEAR - 1) + ", " + (formEXP.OCCURRED_YEAR) + ") " +
+                    "AND fef.OCCURRED_MONTH BETWEEN 7 AND IIF(" + formEXP.OCCURRED_MONTH + " < 7, 12, " + formEXP.OCCURRED_MONTH + ") AND fef.STATUS >= 20 AND fef.CREATE_DATE < CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) ").FirstOrDefault();
+                logger.Debug("get query create date of operating expense:" + formEXP.CREATE_DATE);
                 //取得工地費用單明細
-                siteEXPItem = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT G.*, C.CUM_BUDGET, D.CUM_YEAR_AMOUNT, G.AMOUNT / G.BUDGET_AMOUNT *100 AS MONTH_RATIO, D.CUM_YEAR_AMOUNT / C.CUM_BUDGET *100 AS YEAR_RATIO, ROW_NUMBER() OVER(ORDER BY G.EXP_ITEM_ID) AS NO " +
-                    "FROM (SELECT A.*, B.AMOUNT AS BUDGET_AMOUNT FROM (SELECT fei.*, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH, fef.STATUS, fs.SUBJECT_NAME FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs " +
-                    "ON fei.FIN_SUBJECT_ID = fs.FIN_SUBJECT_ID WHERE fei.EXP_FORM_ID = @expid)A " +
-                    "LEFT JOIN (SELECT F.*, sb.AMOUNT FROM (SELECT fei.FIN_SUBJECT_ID, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID WHERE fei.EXP_FORM_ID = @expid  " +
-                    "GROUP BY fei.FIN_SUBJECT_ID, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH)F LEFT JOIN PLAN_SITE_BUDGET sb ON F.FIN_SUBJECT_ID + CONVERT(varchar, OCCURRED_YEAR) + CONVERT(varchar, OCCURRED_MONTH) = sb.SUBJECT_ID + CONVERT(varchar, BUDGET_YEAR) + CONVERT(varchar, BUDGET_MONTH))B ON A.FIN_SUBJECT_ID = B.FIN_SUBJECT_ID)G " +
-                    "LEFT JOIN (SELECT SUBJECT_ID, SUM(AMOUNT) AS CUM_BUDGET FROM PLAN_SITE_BUDGET WHERE BUDGET_YEAR = " + formEXP.OCCURRED_YEAR + "AND BUDGET_MONTH <= " + formEXP.OCCURRED_MONTH + "GROUP BY SUBJECT_ID) C ON G.FIN_SUBJECT_ID = C.SUBJECT_ID " +
-                    "LEFT JOIN (SELECT fei.FIN_SUBJECT_ID, SUM(AMOUNT) AS CUM_YEAR_AMOUNT FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID " +
-                    "WHERE fef.OCCURRED_YEAR = " + formEXP.OCCURRED_YEAR + "AND fef.OCCURRED_MONTH <= " + formEXP.OCCURRED_MONTH + "GROUP BY fei.FIN_SUBJECT_ID)D ON G.FIN_SUBJECT_ID = D.FIN_SUBJECT_ID ", new SqlParameter("expid", expid)).ToList();
-                logger.Debug("get query year of plan site expense:" + formEXP.OCCURRED_YEAR);
-                logger.Debug("get plan site expense item count:" + siteEXPItem.Count);
+                if (null != formEXP.PROJECT_ID && formEXP.PROJECT_ID != "")
+                {
+                    siteEXPItem = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT G.*, C.CUM_BUDGET, D.CUM_YEAR_AMOUNT, G.AMOUNT / G.BUDGET_AMOUNT *100 AS MONTH_RATIO, D.CUM_YEAR_AMOUNT / C.CUM_BUDGET *100 AS YEAR_RATIO, ROW_NUMBER() OVER(ORDER BY G.EXP_ITEM_ID) AS NO " +
+                        "FROM (SELECT A.*, B.AMOUNT AS BUDGET_AMOUNT FROM (SELECT fei.*, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH, fef.STATUS, fs.SUBJECT_NAME FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs " +
+                        "ON fei.FIN_SUBJECT_ID = fs.FIN_SUBJECT_ID WHERE fei.EXP_FORM_ID = @expid)A " +
+                        "LEFT JOIN (SELECT F.*, psb.AMOUNT FROM (SELECT fei.FIN_SUBJECT_ID, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH, fef.PROJECT_ID FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID WHERE fei.EXP_FORM_ID = @expid " +
+                        "GROUP BY fei.FIN_SUBJECT_ID, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH, fef.PROJECT_ID)F LEFT JOIN PLAN_SITE_BUDGET psb ON F.PROJECT_ID + F.FIN_SUBJECT_ID + CONVERT(varchar, OCCURRED_YEAR) + CONVERT(varchar, OCCURRED_MONTH) = psb.PROJECT_ID + psb.SUBJECT_ID + CONVERT(varchar, BUDGET_YEAR) + CONVERT(varchar, BUDGET_MONTH))B ON A.FIN_SUBJECT_ID = B.FIN_SUBJECT_ID)G " +
+                        "LEFT OUTER JOIN (SELECT SUBJECT_ID, SUM(AMOUNT) AS CUM_BUDGET FROM PLAN_SITE_BUDGET WHERE PROJECT_ID = '" + formEXP.PROJECT_ID + "' AND BUDGET_YEAR = " + formEXP.OCCURRED_YEAR + " AND BUDGET_MONTH <= " + formEXP.OCCURRED_MONTH + " OR PROJECT_ID = '" + formEXP.PROJECT_ID + "' AND BUDGET_YEAR < " + formEXP.OCCURRED_YEAR + " GROUP BY SUBJECT_ID) C ON G.FIN_SUBJECT_ID = C.SUBJECT_ID " +
+                        "LEFT OUTER JOIN (SELECT fei.FIN_SUBJECT_ID, SUM(AMOUNT) AS CUM_YEAR_AMOUNT FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID " +
+                        "WHERE fef.PROJECT_ID = '" + formEXP.PROJECT_ID + "' AND fef.OCCURRED_YEAR = " + formEXP.OCCURRED_YEAR + " AND fef.OCCURRED_MONTH <=" + formEXP.OCCURRED_MONTH + " AND fef.STATUS >= 20 AND fef.CREATE_DATE <= CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) " +
+                        "OR fef.PROJECT_ID = '" + formEXP.PROJECT_ID + "' AND fef.OCCURRED_YEAR < " + formEXP.OCCURRED_YEAR + " AND  " +
+                        "fef.STATUS >= 20 AND fef.CREATE_DATE <= CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) GROUP BY fei.FIN_SUBJECT_ID)D ON G.FIN_SUBJECT_ID = D.FIN_SUBJECT_ID ", new SqlParameter("expid", expid)).ToList();
+                    logger.Debug("get query year of plan site expense:" + formEXP.OCCURRED_YEAR);
+                    logger.Debug("get plan site expense item count:" + siteEXPItem.Count);
+                    SiteEarlyCumAmt = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT SUM(AMOUNT) AS AMOUNT FROM FIN_SUBJECT fs LEFT JOIN FIN_EXPENSE_ITEM fei ON fs.FIN_SUBJECT_ID = fei.FIN_SUBJECT_ID LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID " +
+                        "WHERE fs.CATEGORY = '工地費用' AND fef.PROJECT_ID = '" + formEXP.PROJECT_ID + "' AND fef.OCCURRED_YEAR = " + formEXP.OCCURRED_YEAR + " AND fef.OCCURRED_MONTH <= " + formEXP.OCCURRED_MONTH + " AND fef.STATUS >= 20 AND fef.CREATE_DATE < CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) " +
+                        "OR fs.CATEGORY = '工地費用' AND fef.PROJECT_ID = '" + formEXP.PROJECT_ID + "' AND fef.OCCURRED_YEAR < " + formEXP.OCCURRED_YEAR + " AND  " +
+                        "fef.STATUS >= 20 AND fef.CREATE_DATE < CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) ").FirstOrDefault();
+                }
             }
         }
 
@@ -4189,7 +4210,7 @@ namespace topmeperp.Service
             {
                 string sql = "SELECT B.EXP_FORM_ID, B.PAYMENT_DATE, B.STATUS, left(B.Subjects,len(B.Subjects)-1) AS SUBJECT_NAME, " +
                     "CONVERT(char(4), B.OCCURRED_YEAR) + '/' + CONVERT(char(2), B.OCCURRED_MONTH) AS OCCURRED_DATE, ROW_NUMBER() OVER(ORDER BY B.EXP_FORM_ID) AS NO " +
-                    "FROM(SELECT ef.*, (SELECT cast( SUBJECT_NAME AS NVARCHAR ) + ',' from (SELECT ef.EXP_FORM_ID, fs.SUBJECT_NAME FROM FIN_EXPENSE_FORM ef " +
+                    "FROM(SELECT ef.*, (SELECT DISTINCT(cast( SUBJECT_NAME AS NVARCHAR ) + ',') from (SELECT ef.EXP_FORM_ID, fs.SUBJECT_NAME FROM FIN_EXPENSE_FORM ef " +
                     "LEFT JOIN FIN_EXPENSE_ITEM ei ON ef.EXP_FORM_ID = ei.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs ON ei.FIN_SUBJECT_ID = fs.FIN_SUBJECT_ID)A " +
                     "WHERE ef.EXP_FORM_ID = A.EXP_FORM_ID FOR XML PATH('')) as Subjects FROM FIN_EXPENSE_FORM ef)B ";
 
