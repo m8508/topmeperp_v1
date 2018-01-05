@@ -1,0 +1,74 @@
+﻿@model IEnumerable<topmeperp.Models.PURCHASE_ORDER>
+
+<div class="container">
+    <h2 style="padding-top:50px;">未發包之分項詢價單 : </h2>
+</div>
+<div style="padding-top:10px;">
+    <button type="button" class="btn btn-primary" onclick="window.open('@Url.Action("PendingItems", "PurchaseForm", new { id = ViewBag.projectid })');">材料分項漏項</button>
+    <button type="button" class="btn btn-primary" onclick="window.open('@Url.Action("PendingItems4Wage", "PurchaseForm", new { id = ViewBag.projectid })');">工資分項漏項</button>
+    <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+</div>
+<div style="padding-top:20px;">@ViewBag.SearchResult</div>
+<table class="table">
+    <tr>
+        <th>
+            No.
+        </th>
+        <th>
+            材料/工資
+        </th>
+        <th>
+            分項名稱
+        </th>
+        <th>
+            詢價單編號
+        </th>
+        <th>連結</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            @if (item.ISWAGE == "Y")
+            {
+                <td>
+                    <span style="color: blue; font-size: 15px;">
+                        @Html.DisplayFor(modelItem => item.NO)
+                    </span>
+                </td>
+            }
+            else
+            {
+                <td>
+                    @Html.DisplayFor(modelItem => item.NO)
+                </td>
+            }
+            @if (item.ISWAGE == "Y")
+            {
+                <td>
+                    <span style="color: blue; font-size: 15px;">
+                        工資
+                    </span>
+                </td>
+            }
+            else
+            {
+                <td>
+                    材料
+                </td>
+            }
+            <td>
+                @Html.DisplayFor(modelItem => item.FORM_NAME)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.INQUIRY_FORM_ID)
+            </td>
+            <td>
+                <a href="/PurchaseForm/downLoadInquiryForm?formid=@item.INQUIRY_FORM_ID&isTemp=N" target="_blank">下載空白詢價單</a>
+                <a href="/PurchaseForm/SinglePrjForm/@item.INQUIRY_FORM_ID" target="_blank"><span style="color: deeppink; font-size: 15px;">產生廠商詢價單</span></a>
+
+            </td>
+
+        </tr>
+    }
+</table>

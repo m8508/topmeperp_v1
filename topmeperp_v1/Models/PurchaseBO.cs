@@ -8,6 +8,7 @@ namespace topmeperp.Models
     {
         public Nullable<decimal> BudgetAmount { get; set; }
         public Nullable<int> CountPO { get; set; }
+        public Int64 NO { get; set; }
     }
     public class BUDGET_SUMMANY 
     {

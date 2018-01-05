@@ -543,6 +543,8 @@ namespace topmeperp.Models
     public class PlanItem4Map : PLAN_ITEM
     {
         public Nullable<decimal> MAP_QTY { get; set; }
+        public string formName { get; set; }
+        public string formId { get; set; }
     }
     public class ExpenseBudgetByMonth 
     {

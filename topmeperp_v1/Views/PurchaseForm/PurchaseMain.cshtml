@@ -10,8 +10,8 @@
     <button type="button" class="btn btn-primary" onclick="window.open('@Url.Action("Comparison4Wage", "PurchaseForm", new { id = ViewBag.id })'); ">工資比價</button>
      -->
     <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PurchasingContract", "PurchaseForm", new { id = ViewBag.id })'; ">發包收支摘要</button>
-    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PendingItems", "PurchaseForm", new { id = ViewBag.id })'; ">未發包材料品項</button>
-    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PendingItems4Wage", "PurchaseForm", new { id = ViewBag.id })'; ">未發包工資品項</button>
+    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PendingFormTemplate", "PurchaseForm", new { id = ViewBag.id })'; ">未發包分項</button>
+
     <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
     <form name="formSearch" id="formSearch" action="Search" method="Post" class="form-inline">
         <div class="row">

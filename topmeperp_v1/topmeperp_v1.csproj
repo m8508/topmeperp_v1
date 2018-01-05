@@ -993,6 +993,7 @@
     <Content Include="UploadFile\ExpBudgetSummary_form.xlsx" />
     <Content Include="UploadFile\MaterialDelivery_form.xlsx" />
     <Content Include="UploadFile\MaterialOrder_form.xlsx" />
+    <Content Include="Views\PurchaseForm\PendingFormTemplate.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

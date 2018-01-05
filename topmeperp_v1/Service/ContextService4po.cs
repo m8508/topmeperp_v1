@@ -904,6 +904,29 @@ namespace topmeperp.Service
             return lst;
         }
 
+        //取得尚未發包之分項詢價單資料(供應商欄位為0)
+        public List<PURCHASE_ORDER> getFormTempOutOfContractByProject(string projectid)
+        {
+            logger.Info("get purchase template out of contract by projectid=" + projectid);
+            List<PURCHASE_ORDER> lst = new List<PURCHASE_ORDER>();
+            using (var context = new topmepEntities())
+            {
+                //取得詢價單樣本資訊
+                string sql = "SELECT tmp.*,CountPO, ROW_NUMBER() OVER(ORDER BY tmp.INQUIRY_FORM_ID) AS NO " +
+                       "FROM(SELECT * FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID is Null AND PROJECT_ID = @projectid AND ISNULL(STATUS, '有效') = '有效' AND ISNULL(ISWAGE, 'N') = 'N') tmp " +
+                       "LEFT OUTER JOIN (SELECT COUNT(*) CountPO, FORM_NAME, PROJECT_ID FROM  PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NOT Null GROUP BY FORM_NAME, PROJECT_ID) Quo " +
+                       "ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME WHERE tmp.FORM_NAME not in (SELECT p.FORM_NAME AS CODE FROM PLAN_ITEM p  " +
+                       "WHERE p.PROJECT_ID = @projectid AND p.FORM_NAME IS NOT NULL GROUP BY p.FORM_NAME) UNION " +
+                       "SELECT tmp.*,CountPO, ROW_NUMBER() OVER(ORDER BY tmp.INQUIRY_FORM_ID) AS NO " +
+                       "FROM(SELECT * FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID is Null AND PROJECT_ID = @projectid AND ISNULL(STATUS, '有效') = '有效' AND ISNULL(ISWAGE, 'N') = 'Y') tmp " +
+                       "LEFT OUTER JOIN (SELECT COUNT(*) CountPO, FORM_NAME, PROJECT_ID FROM  PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NOT NULL GROUP BY FORM_NAME, PROJECT_ID) Quo " +
+                       "ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME  WHERE tmp.FORM_NAME NOT IN (SELECT p.MAN_FORM_NAME AS CODE FROM PLAN_ITEM p " +
+                       "WHERE p.PROJECT_ID = @projectid AND p.MAN_FORM_NAME IS NOT NULL GROUP BY p.MAN_FORM_NAME)";
+                lst = context.Database.SqlQuery<PURCHASE_ORDER>(sql, new SqlParameter("projectid", projectid)).ToList();
+            }
+            return lst;
+        }
+
         public int addFormName(List<PLAN_SUP_INQUIRY> lstItem)
         {
             int i = 0;
@@ -1273,12 +1296,12 @@ namespace topmeperp.Service
                 sql = "SELECT C.code1 AS FORM_NAME, C.INQUIRY_FORM_ID as INQUIRY_FORM_ID, C.SUPPLIER_ID AS SUPPLIER_ID, D.TOTAL_ROWS AS TOTALROWS, D.TOTAL_PRICE AS TAmount,D.Budget " +
                          "FROM (select p.SUPPLIER_ID,  p.INQUIRY_FORM_ID, p.FORM_NAME AS code1, ISNULL(STATUS,'有效') STATUS, ISNULL(ISWAGE,'N')ISWAGE FROM PLAN_SUP_INQUIRY p LEFT OUTER JOIN PLAN_SUP_INQUIRY_ITEM pi " +
                          "ON p.INQUIRY_FORM_ID = pi.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL AND ISNULL(STATUS,'有效') <> '註銷' AND ISWAGE ='Y' GROUP BY p.FORM_NAME, p.INQUIRY_FORM_ID, p.STATUS, " +
-                         "p.SUPPLIER_ID, p.ISWAGE HAVING p.FORM_NAME NOT IN (SELECT p.FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid " +
-                         "AND p.MAN_PRICE IS NOT NULL GROUP BY p.FORM_NAME)) C LEFT OUTER JOIN " +
+                         "p.SUPPLIER_ID, p.ISWAGE HAVING p.FORM_NAME NOT IN (SELECT p.MAN_FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid " +
+                         "AND p.MAN_FORM_NAME IS NOT NULL GROUP BY p.MAN_FORM_NAME)) C LEFT OUTER JOIN " +
                          "(select  B.type, B.INQUIRY_FORM_ID, B.TOTAL_ROW AS TOTAL_ROWS, B.TOTALPRICE AS TOTAL_PRICE,B.Budget as Budget  FROM (select p.FORM_NAME as type, p.INQUIRY_FORM_ID " +
                          "from PLAN_SUP_INQUIRY_ITEM pi LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL " +
-                         "and pi.ITEM_UNIT_PRICE is not null GROUP BY p.INQUIRY_FORM_ID, p.FORM_NAME HAVING p.FORM_NAME NOT IN " +
-                         "(SELECT p.FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid AND p.MAN_PRICE IS NOT NULL GROUP BY p.FORM_NAME)) A RIGHT OUTER JOIN " +
+                         "GROUP BY p.INQUIRY_FORM_ID, p.FORM_NAME HAVING p.FORM_NAME NOT IN " +
+                         "(SELECT p.MAN_FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid AND p.MAN_FORM_NAME IS NOT NULL GROUP BY p.MAN_FORM_NAME)) A RIGHT OUTER JOIN " +
                          "(select p.FORM_NAME as type, p.INQUIRY_FORM_ID, count(*) TOTAL_ROW,sum(map.qty*iif (ISNULL(ISWAGE,'N')='Y',pitem.BUDGET_RATIO,pitem.BUDGET_WAGE_RATIO)*pi.ITEM_UNIT_PRICE/100) Budget " +
                          ",sum(ITEM_QTY) as iQty,sum(ITEM_QTY * pi.ITEM_UNIT_PRICE) TOTALPRICE from PLAN_SUP_INQUIRY_ITEM pi Left Join vw_MAP_MATERLIALIST map " +
                          "on pi.PLAN_ITEM_ID=map.PROJECT_ITEM_ID Left Join PLAN_ITEM pitem On pi.PLAN_ITEM_ID=pitem.PLAN_ITEM_ID  LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID " +
@@ -1709,28 +1732,36 @@ namespace topmeperp.Service
             return payment;
         }
 
-        public List<PLAN_ITEM> getPendingItems(string projectid)
+        public List<PlanItem4Map> getPendingItems(string projectid)
         {
-            List<PLAN_ITEM> lst = new List<PLAN_ITEM>();
+            List<PlanItem4Map> lst = new List<PlanItem4Map>();
             using (var context = new topmepEntities())
             {
-                // ITEM_UNIT IS NOT NULL(確認單位欄位是空值就是不需採購的欄位嗎) AND ITEM_UNIT_PRICE IS NULL
-                lst = context.Database.SqlQuery<PLAN_ITEM>("SELECT * FROM PLAN_ITEM WHERE PROJECT_ID =@projectid AND ITEM_UNIT IS NOT NULL AND ITEM_UNIT <> '' AND ITEM_UNIT_COST IS NULL ;"
-                    , new SqlParameter("projectid", projectid)).ToList();
+                //取得材料中有列入分項項目之標單品項但卻未被發包的品項
+                lst = context.Database.SqlQuery<PlanItem4Map>("SELECT pi.*,fitem.FORM_NAME AS formName, fitem.INQUIRY_FORM_ID AS formId FROM PLAN_ITEM pi LEFT JOIN (SELECT it.PLAN_ITEM_ID, psi.FORM_NAME, psi.INQUIRY_FORM_ID, ISNULL(psi.ISWAGE, 'N') AS isWage FROM PLAN_SUP_INQUIRY_ITEM it LEFT JOIN PLAN_SUP_INQUIRY psi " +
+                    "ON it.INQUIRY_FORM_ID = psi.INQUIRY_FORM_ID WHERE psi.PROJECT_ID = @projectid AND psi.SUPPLIER_ID IS NULL AND ISNULL(STATUS, '有效') = '有效' AND psi.ISWAGE <> 'Y') fitem ON pi.PLAN_ITEM_ID = fitem.PLAN_ITEM_ID " +
+                    "WHERE PROJECT_ID = @projectid AND pi.FORM_NAME IS NULL AND fitem.PLAN_ITEM_ID IS NOT NULL AND fitem.FORM_NAME + isWage NOT IN (SELECT FORM_NAME + ISNULL(ISWAGE, 'N') AS tag FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NULL AND PROJECT_ID = @projectid AND ISNULL(STATUS, '有效') = '有效' AND ISNULL(ISWAGE, 'N') = 'Y' " +
+                    "AND FORM_NAME NOT IN (SELECT p.FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid AND p.FORM_NAME IS NOT NULL GROUP BY p.FORM_NAME)) " +
+                    "OR PROJECT_ID = @projectid AND pi.FORM_NAME = '' AND fitem.PLAN_ITEM_ID IS NOT NULL AND fitem.FORM_NAME + isWage NOT IN (SELECT FORM_NAME + ISNULL(ISWAGE, 'N') AS tag FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NULL AND PROJECT_ID = @projectid AND ISNULL(STATUS, '有效') = '有效' AND ISNULL(ISWAGE, 'N') = 'Y' " +
+                    "AND FORM_NAME NOT IN (SELECT p.FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid AND p.FORM_NAME IS NOT NULL GROUP BY p.FORM_NAME)) ; ", new SqlParameter("projectid", projectid)).ToList();
             }
             logger.Info("get plan pending items count:" + lst.Count);
             return lst;
         }
 
 
-        public List<PLAN_ITEM> getPendingItems4Wage(string projectid)
+        public List<PlanItem4Map> getPendingItems4Wage(string projectid)
         {
-            List<PLAN_ITEM> lst = new List<PLAN_ITEM>();
+            List<PlanItem4Map> lst = new List<PlanItem4Map>();
             using (var context = new topmepEntities())
             {
-                // ITEM_UNIT IS NOT NULL(確認單位欄位是空值就是不需採購的欄位嗎) AND ITEM_UNIT_PRICE IS NULL
-                lst = context.Database.SqlQuery<PLAN_ITEM>("SELECT * FROM PLAN_ITEM WHERE PROJECT_ID =@projectid AND ITEM_UNIT IS NOT NULL AND ITEM_UNIT <> '' AND MAN_PRICE IS NULL ;"
-                    , new SqlParameter("projectid", projectid)).ToList();
+                //取得工資中有列入分項項目之標單品項但卻未被發包的品項
+                lst = context.Database.SqlQuery<PlanItem4Map>("SELECT pi.*, fitem.FORM_NAME AS formName, fitem.INQUIRY_FORM_ID AS formId FROM PLAN_ITEM pi LEFT JOIN (SELECT it.PLAN_ITEM_ID, psi.FORM_NAME, psi.INQUIRY_FORM_ID, ISNULL(psi.ISWAGE, 'N') AS isWage FROM PLAN_SUP_INQUIRY_ITEM it LEFT JOIN PLAN_SUP_INQUIRY psi " +
+                    "ON it.INQUIRY_FORM_ID = psi.INQUIRY_FORM_ID WHERE psi.PROJECT_ID = @projectid AND psi.SUPPLIER_ID IS NULL AND ISNULL(STATUS, '有效') = '有效' AND psi.ISWAGE = 'Y') fitem ON pi.PLAN_ITEM_ID = fitem.PLAN_ITEM_ID " +
+                    "WHERE PROJECT_ID = @projectid AND pi.MAN_FORM_NAME IS NULL AND fitem.PLAN_ITEM_ID IS NOT NULL AND fitem.FORM_NAME + isWage NOT IN (SELECT FORM_NAME + ISNULL(ISWAGE, 'N') AS tag FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NULL AND PROJECT_ID = @projectid AND ISNULL(STATUS, '有效') = '有效' AND ISNULL(ISWAGE, 'N') = 'Y' " +
+                    "AND FORM_NAME NOT IN (SELECT p.MAN_FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid AND p.MAN_FORM_NAME IS NOT NULL GROUP BY p.MAN_FORM_NAME)) " +
+                    "OR PROJECT_ID = @projectid AND pi.MAN_FORM_NAME = '' AND fitem.PLAN_ITEM_ID IS NOT NULL AND fitem.FORM_NAME + isWage NOT IN (SELECT FORM_NAME + ISNULL(ISWAGE, 'N') AS tag FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NULL AND PROJECT_ID = @projectid AND ISNULL(STATUS, '有效') = '有效' AND ISNULL(ISWAGE, 'N') = 'Y' " +
+                    "AND FORM_NAME NOT IN (SELECT p.MAN_FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid AND p.MAN_FORM_NAME IS NOT NULL GROUP BY p.MAN_FORM_NAME)) ; ", new SqlParameter("projectid", projectid)).ToList();
             }
             logger.Info("get plan pending items count:" + lst.Count);
             return lst;
