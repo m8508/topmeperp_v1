@@ -28,13 +28,16 @@
                 <div class="row" ng-submit="submit()">
                     <h4 style="padding-bottom:10px; color:blue">公司費用項目內容，請按"新增"鈕來新增資料</h4>
                     <div style="padding-bottom : 20px">
-                        <input type="submit" value="新增" ng-click="addKey()" class="btn btn-warning" />
+                        <span ng-show="count < 59">
+                            <input type="submit" value="新增" ng-click="addKey()" class="btn btn-warning" />
+                        </span>
+                        <span style="color: deeppink; font-size: 20px;" ng-show="count >= 59">*費用項目個數已超過58項，其餘內容請另外新增費用單來加入*</span>
                     </div>
                     <ng-form ng-repeat="m in model">
                         <span class="btn btn-info">
                             <button type="button" class="close" ng-click="remove($index)">&times;</button>
                         </span>
-                        No.{{$index +1}} 
+                        No.{{$index +1}}
                         項目名稱：
                         <select id="subjectid" name="subjectid" style="height:27px" ng-model="m.SUBJECT" ng-options="(key.FIN_SUBJECT_ID + ' - ' + key.SUBJECT_NAME) for key in keys" required>
                             <option value="" required>-- 請選擇 --</option>
@@ -70,11 +73,15 @@
     function MyCtrl($scope) {
         $scope.keys = @Html.Raw(ViewData["items"]);
         $scope.model =[];
+        var count=0;
+        $scope.count=count;
         $scope.addKey = function () {
             $scope.model.push({ amount: null, remark: '' });
+            $scope.count++;
         };
         $scope.remove = function (index) {
             $scope.model.splice(index, 1);
+            $scope.count--;
         };
     }
 
@@ -90,4 +97,5 @@
             return false;
         }
     }
+
 </script>
