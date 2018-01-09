@@ -4833,7 +4833,182 @@ namespace topmeperp.Service
             }
             return lstAmount;
         }
+
+        //取得特定專案之工地費用預算年度
+        public int getYearOfSiteExpenseById(string projectid, int seqYear)
+        {
+            int lstYear = 0;
+            using (var context = new topmepEntities())
+            {
+                lstYear = context.Database.SqlQuery<int>("SELECT BUDGET_YEAR FROM PLAN_SITE_BUDGET WHERE PROJECT_ID = @projectid AND YEAR_SEQUENCE = @seqYear GROUP BY BUDGET_YEAR "
+               , new SqlParameter("projectid", projectid), new SqlParameter("seqYear", seqYear)).FirstOrDefault();
+            }
+            return lstYear;
+        }
+        //取得特定專案之起始年度
+        public int getFirstYearOfPlanById(string projectid)
+        {
+            int lstYear = 0;
+            using (var context = new topmepEntities())
+            {
+                lstYear = context.Database.SqlQuery<int>("SELECT YEAR(CREATE_DATE) FROM PLAN_ITEM WHERE PROJECT_ID = @projectid GROUP BY YEAR(CREATE_DATE) "
+               , new SqlParameter("projectid", projectid)).FirstOrDefault();
+            }
+            return lstYear;
+        }
+        //取得特定期間工地費用預算與費用彙整
+        public List<ExpenseBudgetSummary> getSiteExpBudgetSummaryBySeqYear(string projectid, int seqYear, int targetYear, int targetMonth, bool isCum)
+        {
+            List<ExpenseBudgetSummary> lstExpBudget = new List<ExpenseBudgetSummary>();
+            using (var context = new topmepEntities())
+            {
+                if (isCum == true)
+                {
+                    string sql = "SELECT ROW_NUMBER() OVER(ORDER BY D.SUBJECT_ID, D.SUB_NO) AS NO, D.* FROM(SELECT ROW_NUMBER() OVER(ORDER BY A.SUBJECT_ID) AS SUB_NO, A.*, G.HTOTAL " +
+                        "FROM(SELECT SUBJECT_NAME, FIN_SUBJECT_ID AS SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
+                        "FROM(SELECT main.*, sub.AMOUNT, sub.BUDGET_YEAR, sub.BUDGET_MONTH FROM (SELECT fs.FIN_SUBJECT_ID, fs.SUBJECT_NAME FROM FIN_SUBJECT fs WHERE fs.CATEGORY = '工地費用')main LEFT JOIN (SELECT psb.BUDGET_MONTH, psb.AMOUNT, psb.BUDGET_YEAR, psb.SUBJECT_ID " +
+                        "FROM PLAN_SITE_BUDGET psb WHERE psb.PROJECT_ID = @projectid AND psb.BUDGET_YEAR = @targetYear AND psb.BUDGET_MONTH <= @targetMonth)sub ON sub.SUBJECT_ID = main.FIN_SUBJECT_ID) As STable " +
+                        "PIVOT(SUM(AMOUNT) FOR BUDGET_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)A " +
+                        "LEFT JOIN (SELECT SUBJECT_ID, ISNULL(SUM(psb.AMOUNT), 0) AS HTOTAL FROM PLAN_SITE_BUDGET psb WHERE psb.PROJECT_ID = @projectid AND psb.BUDGET_YEAR < @targetYear OR " +
+                        "psb.PROJECT_ID = @projectid AND psb.BUDGET_YEAR = @targetYear AND psb.BUDGET_MONTH <= @targetMonth GROUP BY SUBJECT_ID)G ON A.SUBJECT_ID = G.SUBJECT_ID UNION " +
+                        "SELECT ROW_NUMBER() OVER(ORDER BY C.FIN_SUBJECT_ID) + 1 AS SUB_NO, C.*, F.HTOTAL FROM (SELECT SUBJECT_NAME, FIN_SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
+                        "FROM(SELECT B.OCCURRED_MONTH, fs.FIN_SUBJECT_ID, fs.SUBJECT_NAME, B.AMOUNT FROM FIN_SUBJECT fs LEFT JOIN(SELECT ef.OCCURRED_MONTH, ei.FIN_SUBJECT_ID, ei.AMOUNT FROM FIN_EXPENSE_ITEM ei " +
+                        "LEFT JOIN FIN_EXPENSE_FORM ef ON ei.EXP_FORM_ID = ef.EXP_FORM_ID WHERE ef.PROJECT_ID = @projectid AND ef.OCCURRED_YEAR = @targetYear AND ef.OCCURRED_MONTH <= @targetMonth)B " +
+                        "ON fs.FIN_SUBJECT_ID = B.FIN_SUBJECT_ID WHERE fs.CATEGORY = '工地費用') As STable " +
+                        "PIVOT(SUM(AMOUNT) FOR OCCURRED_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)C LEFT JOIN(SELECT FIN_SUBJECT_ID, ISNULL(SUM(fei.AMOUNT), 0) AS HTOTAL FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID " +
+                        "WHERE fef.PROJECT_ID = @projectid AND fef.OCCURRED_YEAR < @targetYear OR fef.PROJECT_ID = @projectid AND fef.OCCURRED_YEAR = @targetYear AND fef.OCCURRED_MONTH <= @targetMonth GROUP BY FIN_SUBJECT_ID)F ON C.FIN_SUBJECT_ID = F.FIN_SUBJECT_ID)D ORDER BY D.SUBJECT_ID, D.SUB_NO ";
+                    logger.Info("sql = " + sql);
+                    lstExpBudget = context.Database.SqlQuery<ExpenseBudgetSummary>(sql, new SqlParameter("projectid", projectid), new SqlParameter("targetYear", targetYear), new SqlParameter("targetMonth", targetMonth)).ToList();
+                }
+                else
+                {
+                    string sql = "SELECT ROW_NUMBER() OVER(ORDER BY D.SUBJECT_ID, D.SUB_NO) AS NO, D.* FROM(SELECT ROW_NUMBER() OVER(ORDER BY A.SUBJECT_ID) AS SUB_NO, A.*, " +
+                        "SUM(ISNULL(A.JAN,0))+ SUM(ISNULL(A.FEB,0))+ SUM(ISNULL(A.MAR,0)) + SUM(ISNULL(A.APR,0)) + SUM(ISNULL(A.MAY,0)) + SUM(ISNULL(A.JUN,0)) " +
+                        "+ SUM(ISNULL(A.JUL, 0)) + SUM(ISNULL(A.AUG, 0)) + SUM(ISNULL(A.SEP, 0)) + SUM(ISNULL(A.OCT, 0)) + SUM(ISNULL(A.NOV, 0)) + SUM(ISNULL(A.DEC, 0)) AS HTOTAL " +
+                        "FROM(SELECT SUBJECT_NAME, FIN_SUBJECT_ID AS SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
+                        "FROM(SELECT main.*, sub.AMOUNT, sub.BUDGET_YEAR, sub.BUDGET_MONTH FROM (SELECT fs.FIN_SUBJECT_ID, fs.SUBJECT_NAME FROM FIN_SUBJECT fs WHERE fs.CATEGORY = '工地費用')main LEFT JOIN (SELECT psb.BUDGET_MONTH, psb.AMOUNT, psb.BUDGET_YEAR, psb.SUBJECT_ID " +
+                        "FROM PLAN_SITE_BUDGET psb WHERE psb.PROJECT_ID = @projectid AND psb.YEAR_SEQUENCE = @seqYear)sub ON sub.SUBJECT_ID = main.FIN_SUBJECT_ID) As STable " +
+                        "PIVOT(SUM(AMOUNT) FOR BUDGET_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)A " +
+                        "GROUP BY A.SUBJECT_NAME, A.SUBJECT_ID, A.JAN, A.FEB, A.MAR,A.APR, A.MAY, A.JUN, A.JUL, A.AUG, A.SEP, A.OCT, A.NOV, A.DEC UNION " +
+                        "SELECT ROW_NUMBER() OVER(ORDER BY C.FIN_SUBJECT_ID) + 1 AS SUB_NO, C.*, SUM(ISNULL(C.JAN, 0)) + SUM(ISNULL(C.FEB, 0)) + SUM(ISNULL(C.MAR, 0)) + SUM(ISNULL(C.APR, 0)) + SUM(ISNULL(C.MAY, 0)) + SUM(ISNULL(C.JUN, 0)) " +
+                        "+ SUM(ISNULL(C.JUL, 0)) + SUM(ISNULL(C.AUG, 0)) + SUM(ISNULL(C.SEP, 0)) + SUM(ISNULL(C.OCT, 0)) + SUM(ISNULL(C.NOV, 0)) + SUM(ISNULL(C.DEC, 0)) AS HTOTAL " +
+                        "FROM(SELECT SUBJECT_NAME, FIN_SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
+                        "FROM(SELECT B.OCCURRED_MONTH, fs.FIN_SUBJECT_ID, fs.SUBJECT_NAME, B.AMOUNT FROM FIN_SUBJECT fs LEFT JOIN(SELECT ef.OCCURRED_MONTH, ei.FIN_SUBJECT_ID, ei.AMOUNT FROM FIN_EXPENSE_ITEM ei " +
+                        "LEFT JOIN FIN_EXPENSE_FORM ef ON ei.EXP_FORM_ID = ef.EXP_FORM_ID WHERE ef.PROJECT_ID = @projectid AND ef.OCCURRED_YEAR = @targetYear)B " +
+                        "ON fs.FIN_SUBJECT_ID = B.FIN_SUBJECT_ID WHERE fs.CATEGORY = '工地費用') As STable " +
+                        "PIVOT(SUM(AMOUNT) FOR OCCURRED_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)C " +
+                        "GROUP BY C.SUBJECT_NAME, C.FIN_SUBJECT_ID, C.JAN, C.FEB, C.MAR, C.APR, C.MAY, C.JUN, C.JUL, C.AUG, C.SEP, C.OCT, C.NOV, C.DEC )D ORDER BY D.SUBJECT_ID, D.SUB_NO ";
+                    logger.Info("sql = " + sql);
+                    lstExpBudget = context.Database.SqlQuery<ExpenseBudgetSummary>(sql, new SqlParameter("projectid", projectid), new SqlParameter("seqYear", seqYear), new SqlParameter("targetYear", targetYear)).ToList();
+                }
+            }
+            return lstExpBudget;
+        }
+
+        //取得特定專案工地費用每月預算總和
+        public List<ExpenseBudgetByMonth> getSiteExpBudgetOfMonth(string projectid, int seqYear, int targetYear, int targetMonth, bool isCum)
+        {
+            List<ExpenseBudgetByMonth> lstExpBudget = new List<ExpenseBudgetByMonth>();
+            using (var context = new topmepEntities())
+            {
+                if (isCum == true)
+                {
+                    lstExpBudget = context.Database.SqlQuery<ExpenseBudgetByMonth>("SELECT SUM(F.JAN) AS JAN, SUM(F.FEB) AS FEB, SUM(F.MAR) AS MAR, SUM(F.APR) AS APR, SUM(F.MAY) AS MAY, SUM(F.JUN) AS JUN, " +
+                        "SUM(F.JUL) AS JUL, SUM(F.AUG) AS AUG, SUM(F.SEP) AS SEP, SUM(F.OCT) AS OCT, SUM(F.NOV) AS NOV, SUM(F.DEC) AS DEC, SUM(F.HTOTAL) AS HTOTAL FROM(SELECT  A.*, G.HTOTAL " +
+                        "FROM(SELECT SUBJECT_NAME, FIN_SUBJECT_ID AS SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
+                        "FROM(SELECT main.*, sub.AMOUNT, sub.BUDGET_YEAR, sub.BUDGET_MONTH FROM(SELECT fs.FIN_SUBJECT_ID, fs.SUBJECT_NAME FROM FIN_SUBJECT fs WHERE fs.CATEGORY = '工地費用')main LEFT JOIN(SELECT psb.BUDGET_MONTH, psb.AMOUNT, psb.BUDGET_YEAR, psb.SUBJECT_ID " +
+                        "FROM PLAN_SITE_BUDGET psb WHERE psb.PROJECT_ID = @projectid AND psb.BUDGET_YEAR = @targetYear AND psb.BUDGET_MONTH <= @targetMonth)sub ON sub.SUBJECT_ID = main.FIN_SUBJECT_ID) As STable " +
+                        "PIVOT(SUM(AMOUNT) FOR BUDGET_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)A " +
+                        "LEFT JOIN(SELECT SUBJECT_ID, ISNULL(SUM(psb.AMOUNT), 0) AS HTOTAL FROM PLAN_SITE_BUDGET psb WHERE psb.PROJECT_ID = @projectid AND psb.BUDGET_YEAR < @targetYear OR " +
+                        "psb.PROJECT_ID = @projectid AND psb.BUDGET_YEAR = @targetYear AND psb.BUDGET_MONTH <= @targetMonth GROUP BY SUBJECT_ID)G ON A.SUBJECT_ID = G.SUBJECT_ID)F ; "
+                   , new SqlParameter("projectid", projectid), new SqlParameter("targetYear", targetYear), new SqlParameter("targetMonth", targetMonth)).ToList();
+                }
+                else
+                {
+                    lstExpBudget = context.Database.SqlQuery<ExpenseBudgetByMonth>("SELECT SUM(F.JAN) AS JAN, SUM(F.FEB) AS FEB, SUM(F.MAR) AS MAR, SUM(F.APR) AS APR, SUM(F.MAY) AS MAY, SUM(F.JUN) AS JUN, " +
+                        "SUM(F.JUL) AS JUL, SUM(F.AUG) AS AUG, SUM(F.SEP) AS SEP, SUM(F.OCT) AS OCT, SUM(F.NOV) AS NOV, SUM(F.DEC) AS DEC, SUM(F.HTOTAL) AS HTOTAL FROM(SELECT  A.*, " +
+                        "SUM(ISNULL(A.JAN, 0)) + SUM(ISNULL(A.FEB, 0)) + SUM(ISNULL(A.MAR, 0)) + SUM(ISNULL(A.APR, 0)) + SUM(ISNULL(A.MAY, 0)) + SUM(ISNULL(A.JUN, 0)) " +
+                        "+ SUM(ISNULL(A.JUL, 0)) + SUM(ISNULL(A.AUG, 0)) + SUM(ISNULL(A.SEP, 0)) + SUM(ISNULL(A.OCT, 0)) + SUM(ISNULL(A.NOV, 0)) + SUM(ISNULL(A.DEC, 0)) AS HTOTAL " +
+                        "FROM(SELECT SUBJECT_NAME, FIN_SUBJECT_ID AS SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
+                        "FROM(SELECT main.*, sub.AMOUNT, sub.BUDGET_YEAR, sub.BUDGET_MONTH FROM(SELECT fs.FIN_SUBJECT_ID, fs.SUBJECT_NAME FROM FIN_SUBJECT fs WHERE fs.CATEGORY = '工地費用')main LEFT JOIN(SELECT psb.BUDGET_MONTH, psb.AMOUNT, psb.BUDGET_YEAR, psb.SUBJECT_ID " +
+                        "FROM PLAN_SITE_BUDGET psb WHERE psb.PROJECT_ID = @projectid AND psb.YEAR_SEQUENCE = @seqYear)sub ON sub.SUBJECT_ID = main.FIN_SUBJECT_ID) As STable " +
+                        "PIVOT(SUM(AMOUNT) FOR BUDGET_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)A " +
+                        "GROUP BY A.SUBJECT_NAME, A.SUBJECT_ID, A.JAN, A.FEB, A.MAR, A.APR, A.MAY, A.JUN, A.JUL, A.AUG, A.SEP, A.OCT, A.NOV, A.DEC)F ; "
+                        , new SqlParameter("projectid", projectid), new SqlParameter("seqYear", seqYear)).ToList();
+                }
+            }
+            return lstExpBudget;
+        }
+
+        //取得特定專案工地費用每月執行總和
+        public List<ExpensetFromOPByMonth> getSiteExpensetOfMonth(string projectid, int targetYear, int targetMonth, bool isCum)
+        {
+            List<ExpensetFromOPByMonth> lstExpense = new List<ExpensetFromOPByMonth>();
+            using (var context = new topmepEntities())
+            {
+                if (isCum == true)
+                {
+                    lstExpense = context.Database.SqlQuery<ExpensetFromOPByMonth>("SELECT SUM(F.JAN) AS JAN, SUM(F.FEB) AS FEB, SUM(F.MAR) AS MAR, SUM(F.APR) AS APR, SUM(F.MAY) AS MAY, SUM(F.JUN) AS JUN, " +
+                        "SUM(F.JUL) AS JUL, SUM(F.AUG) AS AUG, SUM(F.SEP) AS SEP, SUM(F.OCT) AS OCT, SUM(F.NOV) AS NOV, SUM(F.DEC) AS DEC, SUM(F.HTOTAL) AS HTOTAL FROM(SELECT C.*, E.HTOTAL " +
+                        "FROM(SELECT SUBJECT_NAME, FIN_SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
+                        "FROM(SELECT B.OCCURRED_MONTH, fs.FIN_SUBJECT_ID, fs.SUBJECT_NAME, B.AMOUNT FROM FIN_SUBJECT fs LEFT JOIN(SELECT ef.OCCURRED_MONTH, ei.FIN_SUBJECT_ID, ei.AMOUNT FROM FIN_EXPENSE_ITEM ei " +
+                        "LEFT JOIN FIN_EXPENSE_FORM ef ON ei.EXP_FORM_ID = ef.EXP_FORM_ID WHERE ef.PROJECT_ID = @projectid AND ef.OCCURRED_YEAR = @targetYear AND ef.OCCURRED_MONTH <= @targetMonth)B " +
+                        "ON fs.FIN_SUBJECT_ID = B.FIN_SUBJECT_ID WHERE fs.CATEGORY = '工地費用') As STable " +
+                        "PIVOT(SUM(AMOUNT) FOR OCCURRED_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)C LEFT JOIN(SELECT FIN_SUBJECT_ID, ISNULL(SUM(fei.AMOUNT), 0) AS HTOTAL " +
+                        "FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID WHERE fef.PROJECT_ID = @projectid AND fef.OCCURRED_YEAR < @targetYear OR " +
+                        "fef.PROJECT_ID = @projectid AND fef.OCCURRED_YEAR = @targetYear AND fef.OCCURRED_MONTH <= @targetMonth GROUP BY FIN_SUBJECT_ID)E ON C.FIN_SUBJECT_ID = E.FIN_SUBJECT_ID)F; "
+                   , new SqlParameter("projectid", projectid), new SqlParameter("targetYear", targetYear), new SqlParameter("targetMonth", targetMonth)).ToList();
+                }
+                else
+                {
+                    lstExpense = context.Database.SqlQuery<ExpensetFromOPByMonth>("SELECT SUM(F.JAN) AS JAN, SUM(F.FEB) AS FEB, SUM(F.MAR) AS MAR, SUM(F.APR) AS APR, SUM(F.MAY) AS MAY, SUM(F.JUN) AS JUN, " +
+                        "SUM(F.JUL) AS JUL, SUM(F.AUG) AS AUG, SUM(F.SEP) AS SEP, SUM(F.OCT) AS OCT, SUM(F.NOV) AS NOV, SUM(F.DEC) AS DEC, SUM(F.HTOTAL) AS HTOTAL FROM(SELECT  C.*, " +
+                        "SUM(ISNULL(C.JAN, 0)) + SUM(ISNULL(C.FEB, 0)) + SUM(ISNULL(C.MAR, 0)) + SUM(ISNULL(C.APR, 0)) + SUM(ISNULL(C.MAY, 0)) + SUM(ISNULL(C.JUN, 0)) " +
+                        "+ SUM(ISNULL(C.JUL, 0)) + SUM(ISNULL(C.AUG, 0)) + SUM(ISNULL(C.SEP, 0)) + SUM(ISNULL(C.OCT, 0)) + SUM(ISNULL(C.NOV, 0)) + SUM(ISNULL(C.DEC, 0)) AS HTOTAL " +
+                        "FROM(SELECT SUBJECT_NAME, FIN_SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
+                        "FROM(SELECT B.OCCURRED_MONTH, fs.FIN_SUBJECT_ID, fs.SUBJECT_NAME, B.AMOUNT FROM FIN_SUBJECT fs LEFT JOIN(SELECT ef.OCCURRED_MONTH, ei.FIN_SUBJECT_ID, ei.AMOUNT FROM FIN_EXPENSE_ITEM ei " +
+                        "LEFT JOIN FIN_EXPENSE_FORM ef ON ei.EXP_FORM_ID = ef.EXP_FORM_ID WHERE ef.PROJECT_ID = @projectid AND ef.OCCURRED_YEAR = @targetYear)B " +
+                        "ON fs.FIN_SUBJECT_ID = B.FIN_SUBJECT_ID WHERE fs.CATEGORY = '工地費用') As STable " +
+                        "PIVOT(SUM(AMOUNT) FOR OCCURRED_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)C " +
+                        "GROUP BY C.SUBJECT_NAME, C.FIN_SUBJECT_ID, C.JAN, C.FEB, C.MAR, C.APR, C.MAY, C.JUN, C.JUL, C.AUG, C.SEP, C.OCT, C.NOV, C.DEC)F ; "
+                        , new SqlParameter("projectid", projectid), new SqlParameter("targetYear", targetYear)).ToList();
+                }
+            }
+            return lstExpense;
+        }
+        //取得特定專案之工地費用總預算金額
+        public ExpenseBudgetSummary getSiteBudgetAmountById(string projectid)
+        {
+            ExpenseBudgetSummary lstAmount = null;
+            using (var context = new topmepEntities())
+            {
+                lstAmount = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT SUM(AMOUNT) AS TOTAL_BUDGET FROM PLAN_SITE_BUDGET WHERE PROJECT_ID = @projectid  "
+               , new SqlParameter("projectid", projectid)).FirstOrDefault();
+            }
+            return lstAmount;
+        }
+        //取得特定專案之工地費用總執行金額
+        public ExpenseBudgetSummary getTotalSiteExpAmountById(string projectid, int targetYear, int targetMonth, bool isCum)
+        {
+            ExpenseBudgetSummary lstExpAmount = null;
+            using (var context = new topmepEntities())
+            {
+                if (isCum == true)
+                {
+                    lstExpAmount = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT SUM(ei.AMOUNT) AS CUM_YEAR_AMOUNT FROM FIN_EXPENSE_ITEM ei LEFT JOIN FIN_EXPENSE_FORM ef " +
+                    "ON ei.EXP_FORM_ID = ef.EXP_FORM_ID WHERE ef.PROJECT_ID = @projectid AND ef.OCCURRED_YEAR < @targetYear OR ef.PROJECT_ID = @projectid AND ef.OCCURRED_YEAR = @targetYear AND ef.OCCURRED_MONTH <= @targetMonth  "
+               , new SqlParameter("projectid", projectid), new SqlParameter("targetYear", targetYear), new SqlParameter("targetMonth", targetMonth)).FirstOrDefault();
+                }
+                else
+                {
+                    lstExpAmount = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT SUM(ei.AMOUNT) AS CUM_YEAR_AMOUNT FROM FIN_EXPENSE_ITEM ei LEFT JOIN FIN_EXPENSE_FORM ef " +
+                    "ON ei.EXP_FORM_ID = ef.EXP_FORM_ID WHERE ef.PROJECT_ID = @projectid AND ef.OCCURRED_YEAR = @targetYear "
+               , new SqlParameter("projectid", projectid), new SqlParameter("targetYear", targetYear)).FirstOrDefault();
+                }
+            }
+            return lstExpAmount;
+        }
         #endregion
-        
+
     }
 }

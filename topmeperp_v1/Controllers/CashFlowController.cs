@@ -340,7 +340,7 @@ namespace topmeperp.Controllers
             ViewData["items"] = JsonConvert.SerializeObject(Subject);
             return View("OperatingExpense", SubjectChecked);
         }
-
+        //單張費用單中新增的項目個數必須<= 58,以便套用到form_expense Template 的格式設定
         [HttpPost]
         public ActionResult AddExpense(FIN_EXPENSE_FORM ef, FormCollection form)
         {

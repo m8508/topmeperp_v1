@@ -50,6 +50,9 @@
                     <button type="button" class="btn btn-primary" @ViewBag.F10005 onclick="location.href='@Url.Action("Expense", "Estimation", new { id = item.PROJECT_ID })'">工地費用</button>
                     <button type="button" class="btn btn-primary" @ViewBag.F10005 onclick="location.href='@Url.Action("ExpenseForm", "CashFlow", new { id = item.PROJECT_ID })'">工地費用查詢</button>
                 </td>
+                <td>
+                    <button type="button" class="btn btn-primary" @ViewBag.F10005 onclick="location.href='@Url.Action("SiteExpSummary", "Estimation", new { id = item.PROJECT_ID })'">工地費用預算執行彙整表</button>
+                </td>
             </tr>
     }
 

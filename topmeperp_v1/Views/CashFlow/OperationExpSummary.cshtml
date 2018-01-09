@@ -36,12 +36,14 @@
         $("#divProcessing").hide();
         // Attach click handler to the submit button:
         $('#Submit1').click(function () {
-            $("#divProcessing").show();
+            if ($("#budgetyear").val() != "") {
+                $("#divProcessing").show();
+            }
     });
     });
     function Confirm_Form() {
         if ($("#budgetyear").val() == "") {
-            alert("預算年度欄位不可空白，請輸入要查詢/上傳的預算年度!!");
+            alert("預算年度欄位不可空白，請輸入要查詢的預算年度!!");
             return false;
         }
         if ($("#budgetyear").val() != "" || null != $("#budgetyear").val()) {

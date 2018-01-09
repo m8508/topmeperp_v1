@@ -25,7 +25,7 @@ namespace topmeperp.Controllers
         {
             List<ProjectList> lstProject = SearchProjectByName("", "專案執行");
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
-            
+
             //畫面上權限管理控制
             //頁面上使用ViewBag 定義開關\@ViewBag.F10005
             //由Session 取得權限清單
@@ -1946,5 +1946,135 @@ namespace topmeperp.Controllers
             return RedirectToAction("SiteBudget/" + projectid);
         }
         #endregion
+
+        public ActionResult SiteExpSummary(string id)
+        {
+            logger.Info("Access to Site Expense and Budget Summary Page，Project Id =" + id);
+            ViewBag.projectid = id;
+            TND_PROJECT p = service.getProjectById(id);
+            ViewBag.projectName = p.PROJECT_NAME;
+            ViewBag.searchKey = Request["searchKey"];
+            if (null != Request["searchKey"] && Request["searchKey"] != "")
+            {
+                int budgetYear = 0;
+                int targetYear = 0;
+                int targetMonth = 0;
+                int sequence = 0;
+                bool isCum = false;
+                if (Request["searchKey"] == "S")
+                {
+                    budgetYear = service.getYearOfSiteExpenseById(Request["projectid"], int.Parse(Request["yearSequence"]));
+                    targetYear = budgetYear;
+                    int firstYear = service.getFirstYearOfPlanById(Request["projectid"]);
+                    if (budgetYear == 0)
+                    {
+                        sequence = int.Parse(Request["yearSequence"]);
+                        targetYear = firstYear + sequence - 1;
+                    }
+                }
+                else
+                {
+                    string[] date = Request["date"].Split('/');
+                    targetYear = int.Parse(date[0]);
+                    targetMonth = int.Parse(date[1]);
+                    isCum = true;
+                }
+                List<ExpenseBudgetSummary> ExpBudget = null;
+                List<ExpenseBudgetByMonth> BudgetByMonth = null;
+                List<ExpensetFromOPByMonth> ExpenseByMonth = null;
+                ExpenseBudgetSummary Amt = null;
+                ExpenseBudgetSummary ExpAmt = null;
+                ExpenseBudgetModel viewModel = new ExpenseBudgetModel();
+                ExpBudget = service.getSiteExpBudgetSummaryBySeqYear(Request["projectid"], sequence, targetYear, targetMonth, isCum);
+                BudgetByMonth = service.getSiteExpBudgetOfMonth(Request["projectid"], sequence, targetYear, targetMonth, isCum);
+                ExpenseByMonth = service.getSiteExpensetOfMonth(Request["projectid"], targetYear, targetMonth, isCum);
+                Amt = service.getSiteBudgetAmountById(Request["projectid"]);
+                ExpAmt = service.getTotalSiteExpAmountById(Request["projectid"], targetYear, targetMonth, isCum);
+                viewModel.summary = ExpBudget;
+                viewModel.budget = BudgetByMonth;
+                viewModel.expense = ExpenseByMonth;
+                TempData["TotalAmt"] = Amt.TOTAL_BUDGET;
+                TempData["TotalExpAmt"] = ExpAmt.CUM_YEAR_AMOUNT;
+                TempData["targetYear"] = targetYear;
+                TempData["targetMonth"] = targetMonth;
+                return View(viewModel);
+            }
+            return View();
+        }
+
+        public ActionResult SearchSiteExpSummary()
+        {
+            logger.Info("Access to Site Expense and Budget Summary Page，Project Id =" + Request["projectid"]);
+            ViewBag.projectid = Request["projectid"];
+            ViewBag.projectName = Request["projectName"];
+            ViewBag.searchKey = Request["searchKey"];
+            logger.Debug("search date = " + Request["date"]);
+            int budgetYear = 0;
+            int targetYear = 0;
+            int targetMonth = 0;
+            int sequence = 0;
+            bool isCum = false;
+            if (Request["searchKey"] == "S")
+            {
+                budgetYear = service.getYearOfSiteExpenseById(Request["projectid"], int.Parse(Request["yearSequence"]));
+                targetYear = budgetYear;
+                int firstYear = service.getFirstYearOfPlanById(Request["projectid"]);
+                if (budgetYear == 0)
+                {
+                    sequence = int.Parse(Request["yearSequence"]);
+                    targetYear = firstYear + sequence - 1;
+                }
+            }
+            else
+            {
+                string[] date = Request["date"].Split('/');
+                targetYear = int.Parse(date[0]);
+                targetMonth = int.Parse(date[1]);
+                isCum = true;
+            }
+            List<ExpenseBudgetSummary> ExpBudget = null;
+            List<ExpenseBudgetByMonth> BudgetByMonth = null;
+            List<ExpensetFromOPByMonth> ExpenseByMonth = null;
+            ExpenseBudgetSummary Amt = null;
+            ExpenseBudgetSummary ExpAmt = null;
+            ExpenseBudgetModel viewModel = new ExpenseBudgetModel();
+            if (null != Request["searchKey"] && Request["searchKey"] != "")
+            {
+                ExpBudget = service.getSiteExpBudgetSummaryBySeqYear(Request["projectid"], sequence, targetYear, targetMonth, isCum);
+                BudgetByMonth = service.getSiteExpBudgetOfMonth(Request["projectid"], sequence, targetYear, targetMonth, isCum);
+                ExpenseByMonth = service.getSiteExpensetOfMonth(Request["projectid"], targetYear, targetMonth, isCum);
+                Amt = service.getSiteBudgetAmountById(Request["projectid"]);
+                ExpAmt = service.getTotalSiteExpAmountById(Request["projectid"], targetYear, targetMonth, isCum);
+                viewModel.summary = ExpBudget;
+                viewModel.budget = BudgetByMonth;
+                viewModel.expense = ExpenseByMonth;
+                TempData["TotalAmt"] = Amt.TOTAL_BUDGET;
+                TempData["TotalExpAmt"] = ExpAmt.CUM_YEAR_AMOUNT;
+                TempData["targetYear"] = targetYear;
+                TempData["targetMonth"] = targetMonth;
+                return View("SiteExpSummary", viewModel);
+            }
+            return View("SiteExpSummary");
+        }
+
+        /// <summary>
+        ///  工地費用預算執行彙整表
+        /// </summary>
+        public void downLoadSiteExpenseSummary()
+        {
+            int budgetYear = int.Parse(Request["budgetyear"]);
+            ExpBudgetSummaryToExcel poi = new ExpBudgetSummaryToExcel();
+            //檔案位置
+            string fileLocation = poi.exportExcel(budgetYear);
+            //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
+            string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
+            Response.Clear();
+            Response.Charset = "utf-8";
+            Response.ContentType = "text/xls";
+            Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", filename));
+            ///"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx"
+            Response.WriteFile(fileLocation);
+            Response.End();
+        }
     }
 }
