@@ -1997,6 +1997,7 @@ namespace topmeperp.Controllers
                 TempData["TotalExpAmt"] = ExpAmt.CUM_YEAR_AMOUNT;
                 TempData["targetYear"] = targetYear;
                 TempData["targetMonth"] = targetMonth;
+                TempData["yearSequence"] = sequence;
                 return View(viewModel);
             }
             return View();
@@ -2052,6 +2053,7 @@ namespace topmeperp.Controllers
                 TempData["TotalExpAmt"] = ExpAmt.CUM_YEAR_AMOUNT;
                 TempData["targetYear"] = targetYear;
                 TempData["targetMonth"] = targetMonth;
+                TempData["yearSequence"] = sequence;
                 return View("SiteExpSummary", viewModel);
             }
             return View("SiteExpSummary");
@@ -2062,10 +2064,23 @@ namespace topmeperp.Controllers
         /// </summary>
         public void downLoadSiteExpenseSummary()
         {
-            int budgetYear = int.Parse(Request["budgetyear"]);
-            ExpBudgetSummaryToExcel poi = new ExpBudgetSummaryToExcel();
+            string projectid = Request["projectid"];
+            int targetYear = int.Parse(Request["targetYear"]);
+            int sequence = 0;
+            int targetMonth = 0;
+            bool isCum = false;
+            if (null != Request["isCum"] && Request["isCum"] == "Y")
+            {
+                isCum = true;
+                targetMonth = int.Parse(Request["targetMonth"]);
+            }
+            else
+            {
+                sequence = int.Parse(Request["sequence"]);
+            }
+            SiteExpSummaryToExcel poi = new SiteExpSummaryToExcel();
             //檔案位置
-            string fileLocation = poi.exportExcel(budgetYear);
+            string fileLocation = poi.exportExcel(projectid, sequence, targetYear, targetMonth, isCum);
             //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
             string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
             Response.Clear();

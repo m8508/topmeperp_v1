@@ -337,7 +337,7 @@ textarea {
 
     .fixed_headers3 td:nth-child(3),
     .fixed_headers3 th:nth-child(3) {
-        width: 70px; /**預算/實際 */
+        width: 90px; /**預算/實際 */
     }
 
     .fixed_headers3 td:nth-child(4),

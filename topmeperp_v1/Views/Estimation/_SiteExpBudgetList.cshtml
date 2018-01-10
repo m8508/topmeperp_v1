@@ -1,33 +1,38 @@
 ﻿@model topmeperp.Models.ExpenseBudgetModel
 
-<div class="row" style="padding-bottom:10px">
-    <!--
+<div class="row">
     <div class="col-md-12">
-        <a class="btn btn-link" href="/CashFlow/downLoadOPExpenseSummary?budgetyear=@TempData["budgetYear"]" target="_blank"><span style="color :magenta; font-size: 20px;">下載彙整表</span></a>
-    </div>
-         -->
-    <div class="col-md-12" style="padding-top:5px">
-       
-    <div class="col-md-3">
-        @if(ViewBag.searchKey == "S")
+        @if (ViewBag.searchKey == "S")
         {
-        <span style="color: blue; font-size: 25px;">查詢年度 : @TempData["targetYear"]</span>
+            <a class="btn btn-link" href="/Estimation/downLoadSiteExpenseSummary?projectid=@ViewBag.projectid&targetYear=@TempData["targetYear"]&sequence=@TempData["yearSequence"]" target="_blank"><span style="color :magenta; font-size: 20px;">下載彙整表</span></a>
         }
         else
         {
-        <span style="color: blue; font-size: 20px;">查詢條件為累計至 : @TempData["targetYear"]/@TempData["targetMonth"]</span>
+            <a class="btn btn-link" href="/Estimation/downLoadSiteExpenseSummary?projectid=@ViewBag.projectid&targetYear=@TempData["targetYear"]&targetMonth=@TempData["targetMonth"]&isCum=Y" target="_blank"><span style="color :magenta; font-size: 20px;">下載彙整表</span></a>
         }
     </div>
-   
+    <div class="col-md-12" style="padding-top:5px">
+
+        <div class="col-md-3">
+            @if (ViewBag.searchKey == "S")
+            {
+                <span style="color: blue; font-size: 18px;">查詢年度 : @TempData["targetYear"]<lable>(專案第</lable>@TempData["yearSequence"]<lable>年度)</lable></span>
+            }
+            else
+            {
+                <span style="color: blue; font-size: 18px;">查詢條件為累計至 : @TempData["targetYear"]/@TempData["targetMonth"]</span>
+            }
+        </div>
+
         <div class="col-md-9 text-right">
-            <span style="color:darkgreen; font-size: 25px;">專案總預算金額 : @String.Format("{0:#,##0.#}", TempData["TotalAmt"])</span>
+            <span style="color:darkgreen; font-size: 18px;">專案總預算金額 : @String.Format("{0:#,##0.#}", TempData["TotalAmt"])</span>
         </div>
     </div>
     <div class="col-md-12" style="padding-bottom:10px">
         <div class="col-md-3">
         </div>
         <div class="col-md-9 text-right">
-            <span style="color: blue; font-size: 25px;">查詢條件執行金額 : @String.Format("{0:#,##0.#}", TempData["TotalExpAmt"])</span>
+            <span style="color: blue; font-size: 18px;">查詢條件執行金額 : @String.Format("{0:#,##0.#}", TempData["TotalExpAmt"])</span>
         </div>
     </div>
 </div>
@@ -81,225 +86,225 @@
             </th>
             @if (ViewBag.searchKey == "S")
             {
-            <th>
-                合計
-            </th>
+                <th>
+                    合計
+                </th>
             }
             else
             {
-            <th>
-                累計
-            </th>
+                <th>
+                    累計
+                </th>
             }
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model.summary)
         {
-        <tr>
-            <td>
-                @if (item.NO % 2 != 0)
+            <tr>
+                <td>
+                    @if (item.NO % 2 != 0)
                 {
 
-                <span style="font-size: 15px;">
-                    <input type="text" style="width:80px" value="@item.SUBJECT_NAME" readonly="readonly" />
-                </span>
-                }
-                else
+                        <span style="font-size: 15px;">
+                            <input type="text" style="width:80px" value="@item.SUBJECT_NAME" readonly="readonly" />
+                        </span>
+                    }
+                    else
+                    {
+                        <span style="color: blue; font-size: 15px;">
+                            <input type="text" style="width:80px" value="@item.SUBJECT_NAME" readonly="readonly" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
                 {
-                <span style="color: blue; font-size: 15px;">
-                    <input type="text" style="width:80px" value="@item.SUBJECT_NAME" readonly="readonly" />
-                </span>
-                }
-            </td>
-            <td>
-                @if (item.NO % 2 != 0)
+                        <span style="font-size: 15px;">
+                            <input type="text" style="width:60px" name="subjectid" id="subjectid" value="@item.SUBJECT_ID" readonly="readonly" />
+                        </span>
+                    }
+                    else
+                    {
+                        <span style="color: blue; font-size: 15px;">
+                            <input type="text" style="width:60px" name="subjectid" id="subjectid" value="@item.SUBJECT_ID" readonly="readonly" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
                 {
-                <span style="font-size: 15px;">
-                    <input type="text" style="width:60px" name="subjectid" id="subjectid" value="@item.SUBJECT_ID" readonly="readonly" />
-                </span>
-                }
-                else
-                {
-                <span style="color: blue; font-size: 15px;">
-                    <input type="text" style="width:60px" name="subjectid" id="subjectid" value="@item.SUBJECT_ID" readonly="readonly" />
-                </span>
-                }
-            </td>
-            <td>
-                @if (item.NO % 2 != 0)
-                {
-                <span style="font-size: 15px;"><input type="text" style="width:70px" value="預算數" readonly="readonly" /></span>
+                        <span style="font-size: 15px;"><input type="text" style="width:70px" value="預算數" readonly="readonly" /></span>
 
-                }
-                else
+                    }
+                    else
+                    {
+                        <span style="color: blue; font-size: 15px;"><input type="text" style="width:70px" value="實際數" readonly="readonly" /></span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
                 {
-                <span style="color: blue; font-size: 15px;"><input type="text" style="width:70px" value="實際數" readonly="readonly" /></span>
-                }
-            </td>
-            <td>
-                @if (item.NO % 2 != 0)
+                        <input type="text" style="width:70px" name="janAmt" id="janAmt" value="@String.Format(" {0:#,##0.#}", item.JAN)" />
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="janExp" id="janExp" value="@String.Format(" {0:#,##0.#}", item.JAN)" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
                 {
-                <input type="text" style="width:70px" name="janAmt" id="janAmt" value="@String.Format(" {0:#,##0.#}", item.JAN)" />
-                }
-                else
+                        <input type="text" style="width:70px" name="febAmt" id="febAmt" value="@String.Format(" {0:#,##0.#}", item.FEB)" />
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="febExp" id="febExp" value="@String.Format(" {0:#,##0.#}", item.FEB)" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
                 {
-                <span style="color: blue;">
-                    <input type="text" style="width:70px" name="janExp" id="janExp" value="@String.Format(" {0:#,##0.#}", item.JAN)" />
-                </span>
-                }
-            </td>
-            <td>
-                @if (item.NO % 2 != 0)
+                        <input type="text" style="width:70px" name="marAmt" id="marAmt" value="@String.Format(" {0:#,##0.#}", item.MAR)" />
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="marExp" id="marExp" value="@String.Format(" {0:#,##0.#}", item.MAR)" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
                 {
-                <input type="text" style="width:70px" name="febAmt" id="febAmt" value="@String.Format(" {0:#,##0.#}", item.FEB)" />
-                }
-                else
+                        <input type="text" style="width:70px" name="aprAmt" id="aprAmt" value="@String.Format(" {0:#,##0.#}", item.APR)" />
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="aprExp" id="aprExp" value="@String.Format(" {0:#,##0.#}", item.APR)" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
                 {
-                <span style="color: blue;">
-                    <input type="text" style="width:70px" name="febExp" id="febExp" value="@String.Format(" {0:#,##0.#}", item.FEB)" />
-                </span>
-                }
-            </td>
-            <td>
-                @if (item.NO % 2 != 0)
-                {
-                <input type="text" style="width:70px" name="marAmt" id="marAmt" value="@String.Format(" {0:#,##0.#}", item.MAR)" />
-                }
-                else
-                {
-                <span style="color: blue;">
-                    <input type="text" style="width:70px" name="marExp" id="marExp" value="@String.Format(" {0:#,##0.#}", item.MAR)" />
-                </span>
-                }
-            </td>
-            <td>
-                @if (item.NO % 2 != 0)
-                {
-                <input type="text" style="width:70px" name="aprAmt" id="aprAmt" value="@String.Format(" {0:#,##0.#}", item.APR)" />
-                }
-                else
-                {
-                <span style="color: blue;">
-                    <input type="text" style="width:70px" name="aprExp" id="aprExp" value="@String.Format(" {0:#,##0.#}", item.APR)" />
-                </span>
-                }
-            </td>
-            <td>
-                @if (item.NO % 2 != 0)
-                {
-                <input type="text" style="width:70px" name="mayAmt" id="mayAmt" value="@String.Format(" {0:#,##0.#}", item.MAY)" />
+                        <input type="text" style="width:70px" name="mayAmt" id="mayAmt" value="@String.Format(" {0:#,##0.#}", item.MAY)" />
 
-                }
-                else
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="mayExp" id="mayExp" value="@String.Format(" {0:#,##0.#}", item.MAY)" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
                 {
-                <span style="color: blue;">
-                    <input type="text" style="width:70px" name="mayExp" id="mayExp" value="@String.Format(" {0:#,##0.#}", item.MAY)" />
-                </span>
-                }
-            </td>
-            <td>
-                @if (item.NO % 2 != 0)
-                {
-                <input type="text" style="width:70px" name="junAmt" id="junAmt" value="@String.Format(" {0:#,##0.#}", item.JUN)" />
+                        <input type="text" style="width:70px" name="junAmt" id="junAmt" value="@String.Format(" {0:#,##0.#}", item.JUN)" />
 
-                }
-                else
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="junExp" id="junExp" value="@String.Format(" {0:#,##0.#}", item.JUN)" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
                 {
-                <span style="color: blue;">
-                    <input type="text" style="width:70px" name="junExp" id="junExp" value="@String.Format(" {0:#,##0.#}", item.JUN)" />
-                </span>
-                }
-            </td>
-            <td>
-                @if (item.NO % 2 != 0)
+                        <input type="text" style="width:70px" name="julAmt" id="julAmt" value="@String.Format(" {0:#,##0.#}", item.JUL)" />
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="julExp" id="julExp" value="@String.Format(" {0:#,##0.#}", item.JUL)" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
                 {
-                <input type="text" style="width:70px" name="julAmt" id="julAmt" value="@String.Format(" {0:#,##0.#}", item.JUL)" />
-                }
-                else
-                {
-                <span style="color: blue;">
-                    <input type="text" style="width:70px" name="julExp" id="julExp" value="@String.Format(" {0:#,##0.#}", item.JUL)" />
-                </span>
-                }
-            </td>
-            <td>
-                @if (item.NO % 2 != 0)
-                {
-                <input type="text" style="width:70px" name="augAmt" id="augAmt" value="@String.Format(" {0:#,##0.#}", item.AUG)" />
-                }
-                else
-                {
-                <span style="color: blue;">
-                    <input type="text" style="width:70px" name="augExp" id="augExp" value="@String.Format(" {0:#,##0.#}", item.AUG)" />
-                </span>
+                        <input type="text" style="width:70px" name="augAmt" id="augAmt" value="@String.Format(" {0:#,##0.#}", item.AUG)" />
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="augExp" id="augExp" value="@String.Format(" {0:#,##0.#}", item.AUG)" />
+                        </span>
 
-                }
-            </td>
-            <td>
-                @if (item.NO % 2 != 0)
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
                 {
-                <input type="text" style="width:70px" name="sepAmt" id="sepAmt" value="@String.Format(" {0:#,##0.#}", item.SEP)" />
-                }
-                else
+                        <input type="text" style="width:70px" name="sepAmt" id="sepAmt" value="@String.Format(" {0:#,##0.#}", item.SEP)" />
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="sepExp" id="sepExp" value="@String.Format(" {0:#,##0.#}", item.SEP)" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
                 {
-                <span style="color: blue;">
-                    <input type="text" style="width:70px" name="sepExp" id="sepExp" value="@String.Format(" {0:#,##0.#}", item.SEP)" />
-                </span>
-                }
-            </td>
-            <td>
-                @if (item.NO % 2 != 0)
-                {
-                <input type="text" style="width:70px" name="octAmt" id="octAmt" value="@String.Format(" {0:#,##0.#}", item.OCT)" />
+                        <input type="text" style="width:70px" name="octAmt" id="octAmt" value="@String.Format(" {0:#,##0.#}", item.OCT)" />
 
-                }
-                else
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="octExp" id="octExp" value="@String.Format(" {0:#,##0.#}", item.OCT)" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
                 {
-                <span style="color: blue;">
-                    <input type="text" style="width:70px" name="octExp" id="octExp" value="@String.Format(" {0:#,##0.#}", item.OCT)" />
-                </span>
-                }
-            </td>
-            <td>
-                @if (item.NO % 2 != 0)
+                        <input type="text" style="width:70px" name="novAmt" id="novAmt" value="@String.Format(" {0:#,##0.#}", item.NOV)" />
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="novExp" id="novExp" value="@String.Format(" {0:#,##0.#}", item.NOV)" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
                 {
-                <input type="text" style="width:70px" name="novAmt" id="novAmt" value="@String.Format(" {0:#,##0.#}", item.NOV)" />
-                }
-                else
+                        <input type="text" style="width:70px" name="decAmt" id="decAmt" value="@String.Format(" {0:#,##0.#}", item.DEC)" />
+                    }
+                    else
+                    {
+                        <span style="color: blue;">
+                            <input type="text" style="width:70px" name="decExp" id="decExp" value="@String.Format(" {0:#,##0.#}", item.DEC)" />
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.NO % 2 != 0)
                 {
-                <span style="color: blue;">
-                    <input type="text" style="width:70px" name="novExp" id="novExp" value="@String.Format(" {0:#,##0.#}", item.NOV)" />
-                </span>
-                }
-            </td>
-            <td>
-                @if (item.NO % 2 != 0)
-                {
-                <input type="text" style="width:70px" name="decAmt" id="decAmt" value="@String.Format(" {0:#,##0.#}", item.DEC)" />
-                }
-                else
-                {
-                <span style="color: blue;">
-                    <input type="text" style="width:70px" name="decExp" id="decExp" value="@String.Format(" {0:#,##0.#}", item.DEC)" />
-                </span>
-                }
-            </td>
-            <td>
-                @if (item.NO % 2 != 0)
-                {
-                <span style="font-size: 15px;">
-                    <input type="text" style="width:80px" name="htotal" id="htotal" value="@String.Format(" {0:#,##0.#}", item.HTOTAL)" readonly="readonly" />
-                </span>
-                }
-                else
-                {
-                <span style="color :blue; font-size: 15px;">
-                    <input type="text" style="width:80px" name="htotal_Exp" id="htotal_Exp" value="@String.Format(" {0:#,##0.#}", item.HTOTAL)" readonly="readonly" />
-                </span>
-                }
-            </td>
-        </tr>
+                        <span style="font-size: 15px;">
+                            <input type="text" style="width:80px" name="htotal" id="htotal" value="@String.Format(" {0:#,##0.#}", item.HTOTAL)" readonly="readonly" />
+                        </span>
+                    }
+                    else
+                    {
+                        <span style="color :blue; font-size: 15px;">
+                            <input type="text" style="width:80px" name="htotal_Exp" id="htotal_Exp" value="@String.Format(" {0:#,##0.#}", item.HTOTAL)" readonly="readonly" />
+                        </span>
+                    }
+                </td>
+            </tr>
         }
     </tbody>
 </table>
