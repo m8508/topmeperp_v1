@@ -1,23 +1,23 @@
 ﻿@model topmeperp.Models.ContractModels
 @{
-    ViewBag.Title = "發包合約收支摘要";
+    ViewBag.Title = "發包合約收支摘要 :";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <!--標單項目搜尋區條件集合區域-->
-<div class="jumbotron">
-    <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
-    <div class="row">
-        <div class="col-md-4 form-group" style="padding-top:10px">
+<h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
+
+    <div class="row" style="padding-bottom:20px">
+        <div class="col-md-4 form-group">
             <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.id" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
         </div>
-        <div class="col-md-4" style="padding-top:10px">
+        <div class="col-md-4">
             <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
         </div>
-        <div class="col-md-4" style="padding-top:35px">
+        <div class="col-md-4" style="padding-top:25px">
             <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
         </div>
     </div>
-</div>
+
 <div class="contailer">
     <table class="table table-bordered">
         <thead>

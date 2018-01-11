@@ -4,224 +4,229 @@
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 
-<div class="page-header">
-    <h2 style="padding-bottom:15px;">執行預算作業 : </h2>
-    <div class="row col-md-12" style="padding-bottom:15px">
-        <label>🎪預算填寫表連結 : </label>
-        <a href="/Plan/downLoadBudgetForm?projectid=@ViewBag.projectid" target="_blank">下載</a>
+
+<h3 style="padding-bottom:8px">執行預算作業 : </h3>
+<div class="row col-md-12" style="padding-bottom:15px">
+    <label>🎪預算填寫表連結 : </label>
+    <a href="/Plan/downLoadBudgetForm?projectid=@ViewBag.projectid" target="_blank">下載</a>
+</div>
+<form id="UploadFile" name="UploadFile" action="/Plan/uploadBudgetTable" method="post" enctype="multipart/form-data">
+    <label for="file">🎪預算匯入:</label>
+    <input type="hidden" name="projectid" id="projectid" value="@ViewBag.projectid" />
+    <input type="file" name="fileBudget" id="fileBudget" />
+    <input id="btnUploadfile" name="btnUploadfile" type="submit" class="btn-primary" value="匯入檔案" />
+</form>
+<div class="col-md-12">
+    <div class="col-md-4"></div>
+    <div class="col-md-4 alert-info">
+        @Html.Raw(TempData["result"])
     </div>
-    <form id="UploadFile" name="UploadFile" action="/Plan/uploadBudgetTable" method="post" enctype="multipart/form-data">
-        <label for="file">🎪預算匯入:</label>
-        <input type="hidden" name="projectid" id="projectid" value="@ViewBag.projectid" />
-        <input type="file" name="fileBudget" id="fileBudget" />
-        <input id="btnUploadfile" name="btnUploadfile" type="submit" class="btn-primary" value="匯入檔案" />
-    </form>
-    <div class="col-md-12">
-        <div class="col-md-4"></div>
-        <div class="col-md-4 alert-info">
-            @Html.Raw(TempData["result"])
-        </div>
-        <div class="col-md-4 alert-danger">
-            @Html.Raw(TempData["wagePrice"])
-            @if (ViewBag.wageAmount == null)
+    <div class="col-md-4 alert-danger">
+        @Html.Raw(TempData["wagePrice"])
+        @if (ViewBag.wageAmount == null)
             {
             <a href="/Tender/Create/@ViewBag.projectid" target="_blank" class="btn btn-link">輸入單日工資</a>
-            }
-            else
-            {
+        }
+        else
+        {
             <label>單日工資: @ViewBag.wageAmount</label><a href="/Tender/Create/@ViewBag.projectid" target="_blank" class="btn btn-link">修改單日工資</a>
-            <input type="button" class="btn btn-warning" onclick="myrefresh()" value="更新">
-            }
-        </div>
-    </div>
-    <div class="col-md-12 form-group" style="padding-top:40px">
-        <form id="formBudget" name="formBudget" action="UpdateBudget" method="post">
-            <label for="id" class="col-md-2" style="text-align:right">專案編號 :</label>
-            <div id="id" class="col-md-2 text-left">
-                <input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control" readonly="readonly" />
-            </div>
-            <label for="name" class="col-md-2" style="text-align:right">專案名稱 :</label>
-            <div id="name" class="col-md-4 text-left">
-                <input id="name" name="name" type="text" value="@ViewBag.projectName" class="form-control" readonly="readonly" />
-            </div>
-            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("BudgetForForm","Plan", new { id = @ViewBag.projectid })'; ">詢價單預算</button>
-            <div class="col-md-2 pull-right" style="padding-top:15px"><input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁"></div>
-            <div style="padding-top:30px"></div>
-
-            <h5>@ViewBag.Result</h5>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>材料預算金額</th>
-                        <th>工資預算金額</th>
-                        <th>預算金額總計</th>
-                        <th>發包金額總計</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            @if (ViewBag.budgetdata != null)
-                            {
-                                <span style="color: red; font-size: 20px;">
-                                    @String.Format("{0:N0}", ViewBag.budget)
-                                </span>
-                            }
-                            else
-                            {
-                            }
-                        </td>
-                        <td>
-                            @if (ViewBag.budgetdata != null)
-                            {
-                                <span style="color: red; font-size: 20px;">
-                                    @String.Format("{0:N0}", ViewBag.wagebudget)
-                                </span>
-                            }
-                            else
-                            {
-                            }
-                        </td>
-                        <td>
-                            @if (ViewBag.budgetdata != null)
-                            {
-                                <span style="color: red; font-size: 20px;">
-                                    @String.Format("{0:N0}", ViewBag.totalbudget)
-                                </span>
-                            }
-                            else
-                            {
-                            }
-                        </td>
-                        <td>
-                            @if (ViewBag.p_cost != null)
-                            {
-                                <span style="color: red; font-size: 20px;">
-                                    @String.Format("{0:N0}", ViewBag.p_cost)
-                                </span>
-                            }
-                            else
-                            {
-                            }
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-                <table class="table fixed_headers1">
-                    <thead>
-                        <tr>
-                            <th>九宮格</th>
-                            <th>次九宮格</th>
-                            <th>名稱</th>
-                            <th>合約金額</th>
-                            <th>材料成本</th>
-                            <th>材料預算折數 %</th>
-                            <th>工資成本</th>
-                            <th>工資預算折數 %</th>
-                            <th>預算金額</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                        @foreach (var item in Model)
-                        {
-                            if (ViewBag.budgetdata != null)
-                            {
-                                if (item.MAINCODE != null && item.SUB_CODE != null)
-                                {
-                                    <tr>
-                                        <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
-                                        <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
-                                        <td>
-                                            @item.MAINCODE_DESC _ @item.SUB_DESC
-                                        </td>
-                                        <td>@String.Format("{0:N0}", item.CONTRACT_PRICE)</td>
-                                        <td>
-                                            @String.Format("{0:N0}", item.MATERIAL_COST_INMAP)
-                                        </td>
-                                        <td><input type="text" style="width:60px" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
-                                        <td>
-                                            @String.Format("{0:N0}", item.MAN_DAY_INMAP)
-                                        </td>
-                                        <td><input type="text" style="width:60px" name="inputbudget4wage" id="inputbudget4wage" value="@String.Format("{0:N0}", item.BUDGET_WAGE)"></td>
-                                        <td>
-                                            @String.Format("{0:N0}", item.AMOUNT_BY_CODE)
-                                        </td>
-                                    </tr>
-                                }
-                                else if (item.SUB_CODE == null)
-                                {
-                                    <tr>
-                                        <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
-                                        <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
-                                        <td>
-                                            @item.MAINCODE_DESC
-                                        </td>
-                                        <td>@String.Format("{0:N0}", item.CONTRACT_PRICE)</td>
-                                        <td>@String.Format("{0:N0}", item.MATERIAL_COST_INMAP)</td>
-                                        <td><input type="text" style="width:60px" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
-                                        <td>
-                                            @String.Format("{0:N0}", item.MAN_DAY_INMAP)
-                                        </td>
-                                        <td><input type="text" style="width:60px" name="inputbudget4wage" id="inputbudget4wage" value="@String.Format("{0:N0}", item.BUDGET_WAGE)"></td>
-                                        <td>
-                                            @String.Format("{0:N0}", item.AMOUNT_BY_CODE)
-                                        </td>
-                                    </tr>
-                                }
-                            }
-                            else
-                            {
-                                if (item.MAINCODE != null && item.SUB_CODE != null)
-                                {
-                                    <tr>
-                                        <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
-                                        <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
-                                        <td>
-                                            @item.MAINCODE_DESC _ @item.SUB_DESC
-                                        </td>
-                                        <td>@String.Format("{0:N0}", item.CONTRACT_PRICE)</td>
-                                        <td>
-                                            @String.Format("{0:N0}", item.MATERIAL_COST_INMAP)
-                                        </td>
-                                        <td><input type="text" style="width:60px" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
-                                        <td>
-                                            @String.Format("{0:N0}", item.MAN_DAY_INMAP)
-                                        </td>
-                                        <td><input type="text" style="width:60px" name="inputbudget4wage" id="inputbudget4wage" value="@String.Format("{0:N0}", item.BUDGET_WAGE)"></td>
-                                        <td>
-                                            @String.Format("{0:N0}", item.AMOUNT_BY_CODE)
-                                        </td>
-                                    </tr>
-                                }
-                                else if (item.SUB_CODE == null)
-                                {
-                                    <tr>
-                                        <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
-                                        <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
-                                        <td>
-                                            @item.MAINCODE_DESC
-                                        </td>
-                                        <td>@String.Format("{0:N0}", item.CONTRACT_PRICE)</td>
-                                        <td>@String.Format("{0:N0}", item.MATERIAL_COST_INMAP)</td>
-                                        <td><input type="text" style="width:60px" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
-                                        <td>
-                                            @String.Format("{0:N0}", item.MAN_DAY_INMAP)
-                                        </td>
-                                        <td><input type="text" style="width:60px" name="inputbudget4wage" id="inputbudget4wage" value="@String.Format("{0:N0}", item.BUDGET_WAGE)"></td>
-                                        <td>
-                                            @String.Format("{0:N0}", item.AMOUNT_BY_CODE)
-                                        </td>
-                                    </tr>
-                                }
-                            }
-                        }
-                    </tbody>
-                </table>
-            
-</form>
+                <input type="button" class="btn btn-warning" onclick="myrefresh()" value="更新">
+        }
     </div>
 </div>
+<div class="page-header">
+    <div class="col-md-12 form-group">
+        <form id="formBudget" name="formBudget" action="UpdateBudget" method="post">
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                </div>
+                <div class="col-md-4">
+                    <label for="name">專案名稱:</label><input id="name" name="name" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                </div>
+                <div class="col-md-4 form-group" style="padding-top:22px">
+                    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("BudgetForForm","Plan", new { id = @ViewBag.projectid })'; ">詢價單預算</button>
+                    <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+                </div>
+            </div>
+    <h5>@ViewBag.Result</h5>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>材料預算金額</th>
+                <th>工資預算金額</th>
+                <th>預算金額總計</th>
+                <th>發包金額總計</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    @if (ViewBag.budgetdata != null)
+                    {
+                        <span style="color: red; font-size: 20px;">
+                            @String.Format("{0:N0}", ViewBag.budget)
+                        </span>
+                    }
+                    else
+                    {
+                    }
+                </td>
+                <td>
+                    @if (ViewBag.budgetdata != null)
+                    {
+                        <span style="color: red; font-size: 20px;">
+                            @String.Format("{0:N0}", ViewBag.wagebudget)
+                        </span>
+                    }
+                    else
+                    {
+                    }
+                </td>
+                <td>
+                    @if (ViewBag.budgetdata != null)
+                    {
+                        <span style="color: red; font-size: 20px;">
+                            @String.Format("{0:N0}", ViewBag.totalbudget)
+                        </span>
+                    }
+                    else
+                    {
+                    }
+                </td>
+                <td>
+                    @if (ViewBag.p_cost != null)
+                    {
+                        <span style="color: red; font-size: 20px;">
+                            @String.Format("{0:N0}", ViewBag.p_cost)
+                        </span>
+                    }
+                    else
+                    {
+                    }
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table fixed_headers1">
+        <thead>
+            <tr>
+                <th>九宮格</th>
+                <th>次九宮格</th>
+                <th>名稱</th>
+                <th>合約金額</th>
+                <th>材料成本</th>
+                <th>材料預算折數 %</th>
+                <th>工資成本</th>
+                <th>工資預算折數 %</th>
+                <th>預算金額</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var item in Model)
+            {
+                if (ViewBag.budgetdata != null)
+                {
+                    if (item.MAINCODE != null && item.SUB_CODE != null)
+                    {
+                        <tr>
+                            <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
+                            <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
+                            <td>
+                                @item.MAINCODE_DESC _ @item.SUB_DESC
+                            </td>
+                            <td>@String.Format("{0:N0}", item.CONTRACT_PRICE)</td>
+                            <td>
+                                @String.Format("{0:N0}", item.MATERIAL_COST_INMAP)
+                            </td>
+                            <td><input type="text" style="width:60px" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
+                            <td>
+                                @String.Format("{0:N0}", item.MAN_DAY_INMAP)
+                            </td>
+                            <td><input type="text" style="width:60px" name="inputbudget4wage" id="inputbudget4wage" value="@String.Format("{0:N0}", item.BUDGET_WAGE)"></td>
+                            <td>
+                                @String.Format("{0:N0}", item.AMOUNT_BY_CODE)
+                            </td>
+                        </tr>
+                    }
+                    else if (item.SUB_CODE == null)
+                    {
+                        <tr>
+                            <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
+                            <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
+                            <td>
+                                @item.MAINCODE_DESC
+                            </td>
+                            <td>@String.Format("{0:N0}", item.CONTRACT_PRICE)</td>
+                            <td>@String.Format("{0:N0}", item.MATERIAL_COST_INMAP)</td>
+                            <td><input type="text" style="width:60px" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
+                            <td>
+                                @String.Format("{0:N0}", item.MAN_DAY_INMAP)
+                            </td>
+                            <td><input type="text" style="width:60px" name="inputbudget4wage" id="inputbudget4wage" value="@String.Format("{0:N0}", item.BUDGET_WAGE)"></td>
+                            <td>
+                                @String.Format("{0:N0}", item.AMOUNT_BY_CODE)
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    if (item.MAINCODE != null && item.SUB_CODE != null)
+                    {
+                        <tr>
+                            <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
+                            <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
+                            <td>
+                                @item.MAINCODE_DESC _ @item.SUB_DESC
+                            </td>
+                            <td>@String.Format("{0:N0}", item.CONTRACT_PRICE)</td>
+                            <td>
+                                @String.Format("{0:N0}", item.MATERIAL_COST_INMAP)
+                            </td>
+                            <td><input type="text" style="width:60px" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
+                            <td>
+                                @String.Format("{0:N0}", item.MAN_DAY_INMAP)
+                            </td>
+                            <td><input type="text" style="width:60px" name="inputbudget4wage" id="inputbudget4wage" value="@String.Format("{0:N0}", item.BUDGET_WAGE)"></td>
+                            <td>
+                                @String.Format("{0:N0}", item.AMOUNT_BY_CODE)
+                            </td>
+                        </tr>
+                    }
+                    else if (item.SUB_CODE == null)
+                    {
+                        <tr>
+                            <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
+                            <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
+                            <td>
+                                @item.MAINCODE_DESC
+                            </td>
+                            <td>@String.Format("{0:N0}", item.CONTRACT_PRICE)</td>
+                            <td>@String.Format("{0:N0}", item.MATERIAL_COST_INMAP)</td>
+                            <td><input type="text" style="width:60px" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)"></td>
+                            <td>
+                                @String.Format("{0:N0}", item.MAN_DAY_INMAP)
+                            </td>
+                            <td><input type="text" style="width:60px" name="inputbudget4wage" id="inputbudget4wage" value="@String.Format("{0:N0}", item.BUDGET_WAGE)"></td>
+                            <td>
+                                @String.Format("{0:N0}", item.AMOUNT_BY_CODE)
+                            </td>
+                        </tr>
+                    }
+                }
+            }
+        </tbody>
+    </table>
+
+    </form>
+</div>
+
+    </div>
+
+
+
 
 <div class="row">
     <div class="col-md-12">

@@ -1,17 +1,17 @@
 ﻿
 @{
-    ViewBag.Title = "物料庫存查詢";
+    ViewBag.Title = "物料庫存查詢 :";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <!--標單項目搜尋區條件區域-->
+<h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
 <div class="jumbotron">
-    <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
     <form name="formSearch" id="formSearch" action="SearchInventory" method="Post" class="form-inline">
         <div class="row">
-            <div class="col-md-6 form-group" style="padding-top:10px">
+            <div class="col-md-6 form-group">
                 <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
             </div>
-            <div class="col-md-6" style="padding-top:10px">
+            <div class="col-md-6">
                 <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
             </div>
         </div>
@@ -33,15 +33,17 @@
         </div>
         <div class="row" style="padding-top:10px">
             <div class="col-md-6">
-                <label for="item">物料名稱:</label><input id="item" name="item" type="text" value="" class="form-control" />
+                <label for="item">物料名稱:</label><input id="item" name="item" type="text" value="" class="form-control" style="width:250px"/>
             </div>
-            <div class="col-md-4">
-                <div id="divProcessing">
-                    <img src="~/Content/ajax-loader.gif">
-                </div>
+            <div class="col-md-2">
                 <input id="Submit4" type="submit" class="btn btn-info" value="查詢" />
                 <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "Plan")'" value="回上一頁">
             </div>
+                <div class="col-md-2">
+                    <div id="divProcessing">
+                        <img src="~/Content/ajax-loader.gif">
+                    </div>
+                </div>
             <div class="col-md-2">
                 <input type="button" class="btn btn-primary" onclick="javascript:window.location='@Url.Action("ReceiptSearch", "MaterialManage", new { id = @ViewBag.projectid })'" value="使用驗收單搜尋">
             </div>

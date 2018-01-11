@@ -1,25 +1,27 @@
 ﻿
 @{
-    ViewBag.Title = "議約發包主頁";
+    ViewBag.Title = "議約發包主頁 :";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <!--標單項目搜尋區條件區域-->
-<div class="jumbotron">
-    <button type="button" class="btn btn-primary" onclick="window.open('@Url.Action("Comparison", "PurchaseForm", new { id = ViewBag.id })'); ">採購比價</button>
-    <!--
-    <button type="button" class="btn btn-primary" onclick="window.open('@Url.Action("Comparison4Wage", "PurchaseForm", new { id = ViewBag.id })'); ">工資比價</button>
-     -->
-    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PurchasingContract", "PurchaseForm", new { id = ViewBag.id })'; ">發包收支摘要</button>
-    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PendingFormTemplate", "PurchaseForm", new { id = ViewBag.id })'; ">未發包分項</button>
 
-    <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
+<h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
+<div class="jumbotron">
     <form name="formSearch" id="formSearch" action="Search" method="Post" class="form-inline">
         <div class="row">
-            <div class="col-md-6 form-group" style="padding-top:10px">
-                <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.id" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            <div class="col-md-3 form-group">
+                <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.id" class="form-control" style="background-color:#cccccc; width:100px;" readonly="readonly" />
             </div>
-            <div class="col-md-6" style="padding-top:10px">
-                <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            <div class="col-md-5">
+                <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc; width:250px;" readonly="readonly" />
+            </div>
+            <div class="col-md-4">
+                <button type="button" class="btn btn-primary" onclick="window.open('@Url.Action("Comparison", "PurchaseForm", new { id = ViewBag.id })'); ">採購比價</button>
+                <!--
+                <button type="button" class="btn btn-primary" onclick="window.open('@Url.Action("Comparison4Wage", "PurchaseForm", new { id = ViewBag.id })'); ">工資比價</button>
+                 -->
+                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PurchasingContract", "PurchaseForm", new { id = ViewBag.id })'; ">發包收支摘要</button>
+                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PendingFormTemplate", "PurchaseForm", new { id = ViewBag.id })'; ">未發包分項</button>
             </div>
         </div>
         <hr style="border-top: 1px solid #8c8b8b;" />
@@ -27,16 +29,18 @@
             <div class="col-md-4">
                 <label for="formname">採購項目名稱:</label><input id="formname" name="formname" type="text" value="" class="form-control" />
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2" style="padding-top:8px;">
                 <input type="checkbox" value="Y" id="isWage" name="isWage" />工資
             </div>
-            <div class="col-md-6">
+            <div class="col-md-2">
                 <div id="divProcessing">
                     <img src="~/Content/ajax-loader.gif">
                 </div>
-                <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
-                <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
             </div>
+                <div class="col-md-2">
+                    <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
+                    <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
+                </div>
         </div>
     </form>
 </div>

@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<topmeperp.Models.PURCHASE_ORDER>
 
 <div class="container">
-    <h2 style="padding-top:50px;">未發包之分項詢價單 : </h2>
+    <h3 style="padding-top:40px;">未發包之分項詢價單 : </h3>
 </div>
 <div style="padding-top:10px;">
     <button type="button" class="btn btn-primary" onclick="window.open('@Url.Action("PendingItems", "PurchaseForm", new { id = ViewBag.projectid })');">材料分項漏項</button>

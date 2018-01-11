@@ -1,42 +1,42 @@
 ﻿
 @{
-    ViewBag.Title = "申購單查詢";
+    ViewBag.Title = "申購單查詢 :";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 
+
+<h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
 <div class="jumbotron">
-    <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
     <form name="prSearch" id="prSearch" action="Search" method="Post" class="form-inline">
         <div class="row">
-            <div class="col-md-6 form-group" style="padding-top:10px">
+            <div class="col-md-6 form-group">
                 <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
             </div>
-            <div class="col-md-6" style="padding-top:10px">
-                <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            <div class="col-md-6">
+                <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;width:300px;" readonly="readonly" />
             </div>
         </div>
         <hr style="border-top: 1px solid #8c8b8b;" />
 
         <div class="row">
-            <div class='col-md-6 date form-group' style="padding-top:10px">
+            <div class='col-md-6 date form-group'>
                 <label for="create_date">申購日期 : </label>
                 <input id="create_date" name="create_date" class="form-control" />
-                <div class="col-md-6 form-group" style="padding-top:10px">
+            </div>
+            <div class='col-md-6 form-group'>
+                <label for="prid">申購單編號 :</label>
+                <input id="prid" name="prid" type="text" value="" class="form-control" />
+            </div>
+                <div class="col-md-6 form-group" style="padding-top:5px">
                     <label for="taskname">任務名稱 :</label>
                     <input id="taskname" name="taskname" type="text" value="" class="form-control" />
                 </div>
-            </div>
-            <div class='col-md-6 form-group' style="padding-top:10px">
-                <label for="prid">申購單編號 :</label>
-                <input id="prid" name="prid" type="text" value="" class="form-control" />
-                <div class="col-md-6 form-group" style="padding-top:10px">
+                <div class="col-md-6 form-group" style="padding-top:5px">
                     <input type="checkbox" value="10" id="status" name="status" checked/>申購單(已送審)
                     <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
                     <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "Plan")'" value="回上一頁">
                 </div>
             </div>
-
-        </div>
         <div class="col-md-6">
             <div id="divProcessing">
                 <img src="~/Content/ajax-loader.gif">

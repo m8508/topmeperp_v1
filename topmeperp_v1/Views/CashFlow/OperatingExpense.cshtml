@@ -5,13 +5,13 @@
 }
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0rc1/angular.min.js"></script>
 
-<div class="page-header">
-    <h3 style="height:10px;line-height:5px">@ViewBag.Title</h3><br />
-    <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
-    <div style="padding-top:30px">
+
+    <div class="row col-md-12" style="padding-bottom:25px;" >
+        <div class="row col-md-4"><h3>@ViewBag.Title</h3></div>
+        <div class="row col-md-4" style="padding-top:20px;"><input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁"></div>
+    </div>
         @using (Html.BeginForm("AddExpense", "CashFlow", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
         {
-
             <label class="col-md-2 control-label">費用發生年月: </label>
             <div class='col-md-10'>
                 <input style="width:200px" type="text" class="form-control" name="occurreddate" id="occurreddate" value="">
@@ -26,8 +26,8 @@
             </div>
             <div ng-app="" ng-controller="MyCtrl">
                 <div class="row" ng-submit="submit()">
-                    <h4 style="padding-bottom:10px; color:blue">公司費用項目內容，請按"新增"鈕來新增資料</h4>
-                    <div style="padding-bottom : 20px">
+                    <div class="row col-md-12"><h4 style="padding-bottom:10px; color:blue">公司費用項目內容，請按"新增"鈕來新增資料</h4></div>
+                    <div style="padding-bottom : 10px">
                         <span ng-show="count < 59">
                             <input type="submit" value="新增" ng-click="addKey()" class="btn btn-warning" />
                         </span>
@@ -58,8 +58,8 @@
                 <input id="Submit1" type="submit" value="送出" class="btn btn-default" onclick="return Confirm_Form()" />
             </div>
         }
-    </div>
-</div>
+    
+
 <script type="text/javascript">
     $(document).ready(function () {
         $(function () {

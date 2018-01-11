@@ -88,6 +88,9 @@
         @using (Html.BeginForm("Application", "MaterialManage", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
         {
             <div class="row">
+                <div class="col-md-6 alert-dismissable">
+                    <span style="color:deeppink;font-size:16px;">@Html.Raw(TempData["result"])</span>
+                </div>
                 <div class="col-md-12">
                     <input type="hidden" id="projectid" name="projectid" value="@ViewBag.projectid" />
                     <div class="container" id="MapItem" style="padding-bottom :10px;">

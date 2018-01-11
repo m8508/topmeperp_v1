@@ -9,21 +9,21 @@
     <a class="btn btn-link" href="/MaterialManage/downLoadMaterialForm?key=@Model.planPR.PROJECT_ID-@Model.planPR.PR_ID-@Model.planPR.PARENT_PR_ID" target="_blank">下載彙整表</a>
     <form id="formPO" name="formPO" action="RefreshPO" method="post">
         <div class="row">
-            <div class="col-md-8"><h3 style="height:30px;line-height:20px" class="text-center">協成水電工程事業有限公司-採購單</h3></div>
+            <div class="col-md-12"><h3 style="height:30px;line-height:20px" class="text-center">協成水電工程事業有限公司-採購單</h3></div>
         </div>
         <!-- Reg-Form new { enctype = "multipart/form-data" } -->
         <div class="row">
-            <div class="col-md-6" style="padding-bottom:10px">
+            <div class="col-md-3" style="padding-bottom:30px">
                 <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@Model.prj.PROJECT_NAME" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
             </div>
-            <div class="col-md-6" style="padding-bottom:30px">
+            <div class="col-md-3" style="padding-bottom:30px">
                 <label for="order_date">採購日期:</label><input id="order_date" name="order_date" type="text" value="@ViewBag.orderDate" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
             </div>
 
-            <div class="col-md-6" style="padding-bottom:30px">
+            <div class="col-md-3" style="padding-bottom:30px">
                 <label for="pr_id">採購單號:</label><input id="pr_id" name="pr_id" type="text" value="@Model.planPR.PR_ID" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
             </div>
-            <div class="col-md-6" style="padding-bottom:30px">
+            <div class="col-md-3" style="padding-bottom:30px">
                 <label for="supplier">供應商:</label><input id="supplier" name="supplier" type="text" value="@Model.planPR.SUPPLIER_ID" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
             </div>
 
