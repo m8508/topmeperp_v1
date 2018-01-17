@@ -3922,7 +3922,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 logger.Info("delete all FIN_EXPENSE_BUDGET by budget year =" + year);
-                i = context.Database.ExecuteSqlCommand("DELETE FROM FIN_EXPENSE_BUDGET WHERE BUDGET_YEAR=@year", new SqlParameter("@year", year));
+                i = context.Database.ExecuteSqlCommand("DELETE FROM FIN_EXPENSE_BUDGET WHERE BUDGET_YEAR=@year", new SqlParameter("year", year));
             }
             logger.Debug("deleteFIN_EXPENSE_BUDGET count=" + i);
             return i;
@@ -5009,6 +5009,177 @@ namespace topmeperp.Service
             return lstExpAmount;
         }
         #endregion
+        //刪除已上傳的業主計價項目
+        public int delVAItemOfOwnerById(string projectid)
+        {
+            logger.Info("remove all items of valuation from owner by project id=" + projectid);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("delete all PLAN_VALUATION_4OWNER by  project id =" + projectid);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM PLAN_VALUATION_4OWNER WHERE PROJECT_ID=@projectid", new SqlParameter("projectid", projectid));
+            }
+            logger.Debug("delete PLAN_VALUATION_4OWNER count=" + i);
+            return i;
+        }
+
+        public int refreshVAItemOfOwner(List<PLAN_VALUATION_4OWNER> items)
+        {
+            int i = 0;
+            logger.Info("refresh items of valuation from owner = " + items.Count);
+            //2.將Excel 資料寫入 
+            using (var context = new topmepEntities())
+            {
+                foreach (PLAN_VALUATION_4OWNER item in items)
+                {
+                    context.PLAN_VALUATION_4OWNER.Add(item);
+                }
+                i = context.SaveChanges();
+            }
+            logger.Info("add PLAN_VALUATION_4OWNER count =" + i);
+            return i;
+        }
+        //判斷專案是否已上傳業主計價項目
+        public string getVAOfOwnerById(string pid)
+        {
+            string projectid = null;
+            using (var context = new topmepEntities())
+            {
+                projectid = context.Database.SqlQuery<string>("SELECT DISTINCT PROJECT_ID FROM PLAN_VALUATION_4OWNER WHERE PROJECT_ID = @pid "
+                    , new SqlParameter("pid", pid)).FirstOrDefault();
+            }
+            return projectid;
+        }
+        //取得業主計價項目
+        public List<RevenueFromOwner> getVAItemOfOwnerById(string projectid)
+        {
+            List<RevenueFromOwner> lstItem = new List<RevenueFromOwner>();
+            using (var context = new topmepEntities())
+            {
+                lstItem = context.Database.SqlQuery<RevenueFromOwner>("SELECT pvo.*, ROUND(revenue.PLAN_REVENUE * pvo.ITEM_VALUATION_RATIO / 100, 0) AS ITEM_REVENUE " +
+                    "FROM PLAN_VALUATION_4OWNER pvo LEFT JOIN (SELECT p.PROJECT_ID AS CONTRACT_ID, " +
+                    "(SELECT SUM(ITEM_UNIT_PRICE*ITEM_QUANTITY) FROM PLAN_ITEM pi WHERE pi.PROJECT_ID = @projectid) AS PLAN_REVENUE " +
+                     "FROM TND_PROJECT p WHERE p.PROJECT_ID = @projectid)revenue ON pvo.PROJECT_ID = revenue.CONTRACT_ID WHERE pvo.PROJECT_ID = @projectid ORDER BY CAST(pvo.ITEN_NO AS int) ;"
+                    , new SqlParameter("projectid", projectid)).ToList();
+                logger.Info("Get VA Items of Owner Count=" + lstItem.Count);
+            }
+            return lstItem;
+        }
+
+        public PLAN_VALUATION_4OWNER getVAItem(string projectid, string no)
+        {
+            logger.Debug("get valuation item by project id =" + projectid + ", item no =" + no);
+            PLAN_VALUATION_4OWNER vitem = null;
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                vitem = context.PLAN_VALUATION_4OWNER.SqlQuery("SELECT * FROM PLAN_VALUATION_4OWNER WHERE PROJECT_ID =@projectid AND ITEM_NO=@no",
+                new SqlParameter("projectid", projectid), new SqlParameter("no", no)).First();
+            }
+            return vitem;
+        }
+        
+        public int updateVAItem(PLAN_VALUATION_4OWNER item)
+        {
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.PLAN_VALUATION_4OWNER.AddOrUpdate(item);
+                    i = context.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    logger.Error("updatePlanItem  fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+            }
+            return i;
+        }
+        // 寫入每期業主計價內容
+        public string newVA(string projectid, PLAN_VALUATION_FORM form, string[] lstItemId)
+        {
+            //1.建立計價單
+            logger.Info("create new valuation form ");
+            string sno_key = "VA";
+            SerialKeyService snoservice = new SerialKeyService();
+            form.VA_FORM_ID = snoservice.getSerialKey(sno_key);
+            logger.Info("new valuation form =" + form.ToString());
+            using (var context = new topmepEntities())
+            {
+                context.PLAN_VALUATION_FORM.Add(form);
+                int i = context.SaveChanges();
+                logger.Debug("Add valuation form=" + i);
+                logger.Info("plan valuation form id = " + form.VA_FORM_ID);
+                //if (i > 0) { status = true; };
+                List<topmeperp.Models.PLAN_VALUATION_FORM_ITEM> lstItem = new List<PLAN_VALUATION_FORM_ITEM>();
+                string ItemId = "";
+                for (i = 0; i < lstItemId.Count(); i++)
+                {
+                    if (i < lstItemId.Count() - 1)
+                    {
+                        ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
+                    }
+                    else
+                    {
+                        ItemId = ItemId + "'" + lstItemId[i] + "'";
+                    }
+                }
+
+                string sql = "INSERT INTO PLAN_VALUATION_FORM_ITEM (VA_FORM_ID, ITEM_NO) "
+                + "SELECT '" + form.VA_FORM_ID + "' as VA_FORM_ID, A.ITEM_NO as ITEM_NO "
+                + "FROM (SELECT pvo.ITEN_NO FROM PLAN_VALUATION_4OWNER pvo WHERE pvo.ITEN_NO IN (" + ItemId + "))A ";
+                logger.Info("sql =" + sql);
+                var parameters = new List<SqlParameter>();
+                i = context.Database.ExecuteSqlCommand(sql);
+                return form.VA_FORM_ID;
+            }
+        }
+        //更新業主計價金額
+        public int refreshVA(string formid, PLAN_VALUATION_FORM form, List<PLAN_VALUATION_FORM_ITEM> lstItem)
+        {
+            logger.Info("Update plan valuation form id =" + formid);
+            int i = 0;
+            int j = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.Entry(form).State = EntityState.Modified;
+                    i = context.SaveChanges();
+                    logger.Debug("Update plan valuation form =" + i);
+                    logger.Info("valuation form item = " + lstItem.Count);
+                    //2.將item資料寫入 
+                    foreach (PLAN_VALUATION_FORM_ITEM item in lstItem)
+                    {
+                        PLAN_VALUATION_FORM_ITEM existItem = null;
+                        var parameters = new List<SqlParameter>();
+                        parameters.Add(new SqlParameter("formid", formid));
+                        parameters.Add(new SqlParameter("itemid", item.ITEM_NO));
+                        string sql = "SELECT * FROM PLAN_VALUATION_FORM_ITEM WHERE VA_FORM_ID=@formid AND ITEM_NO=@itemid";
+                        logger.Info(sql + " ;" + formid + ",item_no=" + item.ITEM_NO);
+                        PLAN_VALUATION_FORM_ITEM excelItem = context.PLAN_VALUATION_FORM_ITEM.SqlQuery(sql, parameters.ToArray()).First();
+                        existItem = context.PLAN_VALUATION_FORM_ITEM.Find(excelItem.VA_ITEM_ID);
+                        logger.Debug("find exist item=" + existItem.ITEM_NO);
+                        existItem.ITEM_VALUATION_AMOUNT = item.ITEM_VALUATION_AMOUNT;
+                        context.PLAN_VALUATION_FORM_ITEM.AddOrUpdate(existItem);
+                    }
+                    j = context.SaveChanges();
+                    logger.Debug("Update valuation form item =" + j);
+                    return j;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("update new valuation form id fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return i;
+        }
 
     }
 }

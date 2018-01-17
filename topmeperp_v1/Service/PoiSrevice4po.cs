@@ -3193,4 +3193,218 @@ namespace topmeperp.Service
         }
     }
     #endregion
+
+    #region 業主計價項目下載表格格式處理區段
+    public class VAItem4OwnerToExcel
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        string wageFile = ContextService.strUploadPath + "\\wage_form.xlsx";
+        string outputPath = ContextService.strUploadPath;
+
+        IWorkbook hssfworkbook;
+        ISheet sheet = null;
+        string fileformat = "xlsx";
+        //存放業主計價項目
+        public TND_PROJECT project = null;
+        public List<PLAN_VALUATION_4OWNER> VAItems = null;
+        public string errorMessage = null;
+        string projId = null;
+        //建立業主計價項目下載表格
+        public void exportExcel(TND_PROJECT project, List<PROJECT_ITEM_WITH_WAGE> projectItems)
+        {
+            //1.讀取業主計價項目表格檔案
+            InitializeWorkbook(wageFile);
+            sheet = (XSSFSheet)hssfworkbook.GetSheet("工率");
+
+            //2.填入表頭資料
+            logger.Debug("Table Head_1=" + sheet.GetRow(1).Cells[0].ToString());
+            sheet.GetRow(1).Cells[1].SetCellValue(project.PROJECT_ID);//專案編號
+            logger.Debug("Table Head_2=" + sheet.GetRow(2).Cells[0].ToString());
+            sheet.GetRow(2).Cells[1].SetCellValue(project.PROJECT_NAME);//專案名稱
+
+            //3.填入表單明細
+            int idxRow = 4;
+            foreach (TND_PROJECT_ITEM item in projectItems)
+            {
+                IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+                //PK(PROJECT_ITEM_ID) 項次 名稱 單位 數量 單價 備註 九宮格 次九宮格 主系統 次系統
+                row.CreateCell(0).SetCellValue(item.PROJECT_ITEM_ID);//PK(PROJECT_ITEM_ID)
+                row.CreateCell(1).SetCellValue(item.ITEM_ID);//項次
+                logger.Debug("Wage :ITEM DESC=" + item.ITEM_DESC);
+                row.CreateCell(2).SetCellValue(item.ITEM_DESC);//項目說明
+                row.CreateCell(3).SetCellValue(item.ITEM_UNIT);// 單位
+                if (null != item.ITEM_QUANTITY && item.ITEM_QUANTITY.ToString().Trim() != "")
+                {
+                    row.CreateCell(4).SetCellValue(double.Parse(item.ITEM_QUANTITY.ToString())); //數量
+                }
+                if (null != item.ITEM_UNIT_PRICE && item.ITEM_UNIT_PRICE.ToString().Trim() != "")
+                {
+                    row.CreateCell(5).SetCellValue(double.Parse(item.ITEM_UNIT_PRICE.ToString())); //單價
+                }
+                row.CreateCell(6).SetCellValue(item.ITEM_REMARK);// 備註
+                row.CreateCell(7).SetCellValue(item.TYPE_CODE_1);// 九宮格
+                row.CreateCell(8).SetCellValue(item.TYPE_CODE_2);// 次九宮格
+                row.CreateCell(9).SetCellValue(item.SYSTEM_MAIN);// 主系統
+                row.CreateCell(10).SetCellValue(item.SYSTEM_SUB);// 次系統
+                //建立空白欄位
+                for (int iTmp = 11; iTmp < 20; iTmp++)
+                {
+                    row.CreateCell(iTmp);
+                }
+                idxRow++;
+            }
+            //4.令存新檔至專案所屬目錄
+            var file = new FileStream(outputPath + "\\" + project.PROJECT_ID + "\\" + project.PROJECT_ID + "_工率.xlsx", FileMode.Create);
+            hssfworkbook.Write(file);
+            file.Close();
+        }
+        public VAItem4OwnerToExcel()
+        {
+        }
+        public void InitializeWorkbook(string path)
+        {
+            //read the wage file via FileStream, it is suggested to use FileAccess.Read to prevent file lock.
+            //book1.xls is an Excel-2007-generated file, so some new unknown BIFF records are added. 
+            using (FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                logger.Info("Read Excel File:" + path); if (file.Name.EndsWith(".xls"))
+                {
+                    logger.Debug("process excel file for office 2003");
+                    //fileformat = "xls";
+                    hssfworkbook = new HSSFWorkbook(file);
+                }
+                else
+                {
+                    logger.Debug("process excel file for office 2007");
+                    hssfworkbook = new XSSFWorkbook(file);
+                }
+                file.Close();
+            }
+        }
+        #region 業主計價項目資料轉換 
+        /**
+         * 取得業主計價項目Sheet 資料
+         * */
+        public List<PLAN_VALUATION_4OWNER> ConvertDataForVAOfOwner(string projectId)
+        {
+            projId = projectId;
+            //1.依據檔案附檔名使用不同物件讀取Excel 檔案，並開啟整理後標單Sheet
+            if (fileformat == "xls")
+            {
+                logger.Debug("office 2003:" + fileformat + " for projectID=" + projId + ":業主計價項目");
+                sheet = (HSSFSheet)hssfworkbook.GetSheet("業主計價項目");
+            }
+            else
+            {
+                logger.Debug("office 2007:" + fileformat + " for projectID=" + projId + ":業主計價項目");
+                sheet = (XSSFSheet)hssfworkbook.GetSheet("業主計價項目");
+            }
+            if (null == sheet)
+            {
+                logger.Error("檔案內沒有業主計價項目(Sheet)! filename=" + fileformat);
+                throw new Exception("檔案內沒有[業主計價項目]資料");
+            }
+            return ConverData2VAOfOwner();
+        }
+        /**
+         * 轉換業主計價項目資料檔:計價項目
+         * */
+        protected List<PLAN_VALUATION_4OWNER> ConverData2VAOfOwner()
+        {
+            IRow row = null;
+            List<PLAN_VALUATION_4OWNER> lstItem = new List<PLAN_VALUATION_4OWNER>();
+            System.Collections.IEnumerator rows = sheet.GetRowEnumerator();
+            //2.逐行讀取資料
+            int iRowIndex = 0; //0 表 Row 1
+
+            //2.1  忽略不要的行數..(表頭)
+            while (iRowIndex < (4))
+            {
+                rows.MoveNext();
+                iRowIndex++;
+                //row = (IRow)rows.Current;
+                //logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
+            }
+            //循序處理每一筆資料之欄位!!
+            iRowIndex++;
+            while (rows.MoveNext())
+            {
+                row = (IRow)rows.Current;
+                int i = 0;
+                string slog = "";
+                for (i = 0; i < row.Cells.Count; i++)
+                {
+                    slog = slog + "," + row.Cells[i];
+
+                }
+                logger.Debug("Excel Value:" + slog);
+                //將各Row 資料寫入物件內
+                //0.項次	1.工程項目 2.分項計價比率 3.說明(remark)
+                if (row.Cells[0].ToString().ToUpper() != "END")
+                {
+                    lstItem.Add(convertRow2VAOfOwner(row, iRowIndex));
+                }
+                else
+                {
+                    logErrorMessage("Step1 ;取得業主計價項目資料:" + VAItems.Count + "筆");
+                    logger.Info("Finish convert Job : count=" + VAItems.Count);
+                    return lstItem;
+                }
+                iRowIndex++;
+            }
+            logger.Info("PLAN_VALUATION_4OWNER Count:" + iRowIndex);
+            return lstItem;
+        }
+        /**
+         * 將Excel Row 轉換成為對應的資料物件
+         * */
+        private PLAN_VALUATION_4OWNER convertRow2VAOfOwner(IRow row, int excelrow)
+        {
+            PLAN_VALUATION_4OWNER item = new PLAN_VALUATION_4OWNER();
+            item.PROJECT_ID = projId;
+            if (row.Cells[0].ToString().Trim() != "")//0.項次
+            {
+                item.ITEN_NO = row.Cells[0].ToString();
+            }
+            if (row.Cells[1].ToString().Trim() != "")//1.工程項目
+            {
+                item.ITEM_DESC = row.Cells[1].ToString();
+            }
+            if (null != row.Cells[2].ToString().Trim() || row.Cells[2].ToString().Trim() != "")//2.分項計價比率
+            {
+                try
+                {
+                    decimal dRatio = decimal.Parse(row.Cells[2].ToString());
+                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[2].ToString());
+                    item.ITEM_VALUATION_RATIO = dRatio;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[12].value=" + row.Cells[2].ToString());
+                    logger.Error(e);
+                }
+            }
+            if (row.Cells[3].ToString().Trim() != "")//3.說明
+            {
+                item.REMARK = row.Cells[3].ToString();
+            }
+            item.CREATE_DATE = System.DateTime.Now;
+            logger.Info("PLAN_VALUATION_4OWNER=" + item.ToString());
+            return item;
+        }
+
+        #endregion
+        private void logErrorMessage(string message)
+        {
+            if (errorMessage == null)
+            {
+                errorMessage = message;
+            }
+            else
+            {
+                errorMessage = errorMessage + "<br/>" + message;
+            }
+        }
+    }
+    #endregion
 }

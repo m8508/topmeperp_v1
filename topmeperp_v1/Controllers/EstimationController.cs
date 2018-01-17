@@ -2091,5 +2091,153 @@ namespace topmeperp.Controllers
             Response.WriteFile(fileLocation);
             Response.End();
         }
+
+        //上傳業主計價項目
+        public string uploadVAItem4Owner(HttpPostedFileBase fileValuation)
+        {
+            string projectId = Request["id"];
+            logger.Info("Upload valuation item for owner, project id =" + projectId);
+            if (null != fileValuation && fileValuation.ContentLength != 0)
+            {
+                try
+                {
+                    //2.解析Excel
+                    logger.Info("Parser Excel data:" + fileValuation.FileName);
+                    //2.1 設定Excel 檔案名稱
+                    var fileName = Path.GetFileName(fileValuation.FileName);
+                    var path = Path.Combine(ContextService.strUploadPath, fileName);
+                    logger.Info("save excel file:" + path);
+                    fileValuation.SaveAs(path);
+                    //2.2 開啟Excel 檔案
+                    logger.Info("Parser Excel File Begin:" + fileValuation.FileName);
+                    VAItem4OwnerToExcel ownerservice = new VAItem4OwnerToExcel();
+                    ownerservice.InitializeWorkbook(path);
+                    //解析預算數量
+                    List<PLAN_VALUATION_4OWNER> lstVAItem = ownerservice.ConvertDataForVAOfOwner(projectId);
+                    //2.3
+                    logger.Info("Delete PLAN_VALUATION_4OWNER By Project Id");
+                    service.delVAItemOfOwnerById(projectId);
+                    //2.4 
+                    logger.Info("Add All PLAN_VALUATION_4OWNER to DB");
+                    service.refreshVAItemOfOwner(lstVAItem);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.StackTrace);
+                    return ex.Message;
+                }
+            }
+            if (service.strMessage != null)
+            {
+                return service.strMessage;
+            }
+            else
+            {
+                return "匯入成功!!";
+            }
+        }
+        //業主估驗計價
+        public ActionResult Valuation4Owner(string id)
+        {
+            logger.Info("Access to Valuation For Owner Page，Project Id =" + id);
+            ViewBag.projectid = id;
+            TND_PROJECT p = service.getProjectById(id);
+            ViewBag.projectName = p.PROJECT_NAME;
+            var priId = service.getVAOfOwnerById(id);
+            if (null != priId && priId != "")
+            {
+                List<RevenueFromOwner> lstVAItem = null;
+                lstVAItem = service.getVAItemOfOwnerById(id);
+                ViewBag.SearchResult = "共取得" + lstVAItem.Count + "筆資料";
+                //轉成Json字串
+                ViewData["items"] = JsonConvert.SerializeObject(lstVAItem);
+            }
+            return View();
+        }
+
+        public string getVAItem(string itemid)
+        {
+            logger.Info("get valuatio item by item no =" + itemid);
+            string[] key = itemid.Split('+');
+            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            string itemJson = objSerializer.Serialize(service.getVAItem(key[0], key[1]));
+            logger.Info("valuatio item  info=" + itemJson);
+            return itemJson;
+        }
+        
+        public String updateVAItem(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            string msg = "更新成功!!";
+
+            PLAN_VALUATION_4OWNER item = new PLAN_VALUATION_4OWNER();
+            item.PROJECT_ID = form["project_id"];
+            item.ITEN_NO = form["item_no"];
+            item.ITEM_DESC = form["item_desc"];
+            item.REMARK = form["item_remark"];
+            try
+            {
+                item.ITEM_VALUATION_RATIO = decimal.Parse(form["item_valuation_ratio"]);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(item.ITEN_NO + " not valuation_ratio:" + ex.Message);
+            }
+            SYS_USER loginUser = (SYS_USER)Session["user"];
+            item.MODIFY_ID = loginUser.USER_ID;
+            item.MODIFY_DATE = DateTime.Now;
+            int i = 0;
+            i = service.updateVAItem(item);
+            if (i == 0) { msg = service.message; }
+            return msg;
+        }
+        //新增業主計價單
+        public ActionResult AddVAForm(PLAN_VALUATION_FORM vf)
+        {
+            //取得專案編號
+            logger.Info("Project Id:" + Request["id"]);
+            //取得專案名稱
+            logger.Info("Project Name:" + Request["projectName"]);
+            //取得使用者勾選品項ID
+            logger.Info("item_list:" + Request["chkItem"]);
+            string[] lstItemId = Request["chkItem"].ToString().Split(',');
+            logger.Info("select count:" + lstItemId.Count());
+            var i = 0;
+            for (i = 0; i < lstItemId.Count(); i++)
+            {
+                logger.Info("item_list return No.:" + lstItemId[i]);
+            }
+            string[] Amt = Request["evaluated_amount"].Split(',');
+            List<string> lstAmt = new List<string>();
+            var m = 0;
+            for (m = 0; m < Amt.Count(); m++)
+            {
+                if (Amt[m] != "" && null != Amt[m])
+                {
+                    lstAmt.Add(Amt[m]);
+                }
+            }
+            //建立計價單
+            logger.Info("create new Valuation Form");
+            UserService us = new UserService();
+            SYS_USER u = (SYS_USER)Session["user"];
+            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            vf.PROJECT_ID = Request["id"];
+            vf.CREATE_ID = u.USER_ID;
+            vf.CREATE_DATE = DateTime.Now;
+            PLAN_VALUATION_FORM_ITEM item = new PLAN_VALUATION_FORM_ITEM();
+            string vaid = service.newVA(Request["id"], vf, lstItemId);
+            List<PLAN_VALUATION_FORM_ITEM> lstItem = new List<PLAN_VALUATION_FORM_ITEM>();
+            for (int j = 0; j < lstItemId.Count(); j++)
+            {
+                PLAN_VALUATION_FORM_ITEM items = new PLAN_VALUATION_FORM_ITEM();
+                items.ITEM_NO = lstItemId[j];
+                items.ITEM_VALUATION_AMOUNT = decimal.Parse(lstAmt[j]);
+                logger.Debug("Item No=" + items.ITEM_NO + ", Amt =" + items.ITEM_VALUATION_AMOUNT);
+                lstItem.Add(items);
+            }
+            int k = service.refreshVA(vaid, vf, lstItem);
+            return Redirect("SingleVA?id=" + vaid);
+        }
     }
 }

@@ -588,4 +588,12 @@ namespace topmeperp.Models
     {
         public string PLAN_CREATE_DATE { get; set; }
     }
+    public class RevenueFromOwner : PLAN_VALUATION_4OWNER
+    {
+        public Nullable<decimal> PLAN_REVENUE { get; set; }
+        public Nullable<decimal> ITEM_REVENUE { get; set; }
+        public string OCCURRED_DATE { get; set; }
+        public string PROJECT_NAME { get; set; }
+
+    }
 }

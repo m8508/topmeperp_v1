@@ -445,6 +445,15 @@
     <Compile Include="Models\PLAN_SITE_BUDGET.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\PLAN_VALUATION_4OWNER.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PLAN_VALUATION_FORM.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PLAN_VALUATION_FORM_ITEM.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\PurchaseBO.cs" />
     <Compile Include="Models\BOExtentionModels.cs" />
     <Compile Include="Models\BusinessObjectModels.cs" />
@@ -996,6 +1005,8 @@
     <Content Include="Views\PurchaseForm\PendingFormTemplate.cshtml" />
     <Content Include="Views\Estimation\SiteExpSummary.cshtml" />
     <Content Include="Views\Estimation\_SiteExpBudgetList.cshtml" />
+    <Content Include="Views\Estimation\Valuation4Owner.cshtml" />
+    <Content Include="Views\Estimation\_VAItem.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

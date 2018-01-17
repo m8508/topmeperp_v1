@@ -1,0 +1,21 @@
+﻿<!-- Modal content-->
+<div class="modal-content">
+    <form id="formVAItem" name="formVAItem" action="updateVAItem" method="post">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">業主計價項目資料</h4>
+        </div>
+        <div class="modal-body form-group">
+            <input type="hidden" id="project_id" name="project_id" value="@ViewBag.projectid" />
+            <div class="row form-group"><div class="col-md-4">項次</div><div class="col-md-8"><input type="text" id="item_no" name="item_no" class="form-control" readonly /></div></div>
+            <div class="row form-group"><div class="col-md-4">工程項目</div><div class="col-md-8"><input type="text" id="item_desc" name="item_desc" class="form-control" /></div></div>
+            <div class="row form-group"><div class="col-sm-4">分項計價比例</div><div class="col-md-8"><input type="text" id="item_valuation_ratio" name="item_valuation_ratio" class="form-control" /></div></div>
+            <div class="row form-group"><div class="col-md-4">說明</div><div class="col-md-8"><input type="text" id="item_remark" name="item_remark" class="form-control" /></div></div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">關閉</button>
+            <button type="submit" class="btn btn-default" data-dismiss="modal" id="savePlanItem">儲存</button>
+        </div>
+    </form>
+</div>
+
