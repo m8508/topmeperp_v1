@@ -65,9 +65,6 @@
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="welcome"><i class="fa fa-fw fa-user"></i>@u.USER_NAME <span class="caret"></span></a>
                     <ul class="dropdown-menu" aria-labelledby="welcome">
                         <li><a href="/UserManage/userProfile" target="userprofile">修改基本資料</a></li>
-                        <!--
-                        <li><a href="">變更基本資料</a></li>
-                         -->
                         <li><a href="~/Home/Logout">登出</a></li>
                     </ul>
                 </li>
@@ -77,6 +74,11 @@
     </div>
 
     <div class="container body-content" style="padding-top:30px;">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                @Html.Raw(new HtmlString(topmeperp.Filter.AuthFilter.getBreadcrumb(Request.Url.PathAndQuery)))
+            </ol>
+        </nav>
         @RenderBody()
     </div>
     

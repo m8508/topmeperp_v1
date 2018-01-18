@@ -11,7 +11,7 @@
                     <th class="text-center" style="width:10%">
                         報告日期
                     </th>
-                    <th class="text-center" style="width:50%">
+                    <th class="text-center" style="width:40%">
                         摘要
                     </th>
                     <th class="text-center" style="width:10%">
@@ -23,6 +23,7 @@
                     <th class="text-center" style="width:10%">
                         建立日期
                     </th>
+                    <th class="text-center" style="width:10%"></th>
                 </tr>
             </thead>
             <tbody>
@@ -31,14 +32,14 @@
                     <tr>
                         <td><a href="/ProjectPlan/dailyReportItem?rptID=@m.REPORT_ID" >@m.REPORT_ID</a>
                          </td>
-                        <td>
-                            <a href="/ProjectPlan/dailyReportPrinter?rptID=@m.REPORT_ID">列印</a>
-                        </td>
                         <td>@Html.Label(@m.REPORT_DATE.Value.ToString("yyyy/MM/dd"))</td>
                         <td>@m.SUMMARY</td>
                         <td>@m.WEATHER</td>
                         <td>@m.SCENE_USER_NAME</td>
                         <td>@Html.Label(@m.CREATE_DATE.Value.ToString("yyyy/MM/dd HH:mm:dd")) </td>
+                        <td>
+                            <a href="/ProjectPlan/dailyReportPrinter?rptID=@m.REPORT_ID">列印</a>
+                        </td>
                     </tr>
                 }
             </tbody>
