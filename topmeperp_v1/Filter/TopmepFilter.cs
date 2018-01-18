@@ -1,7 +1,5 @@
 ﻿using log4net;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -48,15 +46,20 @@ namespace topmeperp.Filter
             //使用list 物件查詢功能
             SYS_FUNCTION curFunction = lst.Find(x => x.FUNCTION_URI.Contains(url));
             log.Info("cur url=" + curFunction);
-
-            if (curFunction.ISMENU == "Y")
+            if (null != curFunction && curFunction.ISMENU == "Y")
             {
+                //未來有樹狀較完整後再調整
                 //string[] breadcrumb = url.Split('/');
                 // for (int i = 1; i < breadcrumb.Length; i++)
-                // { breadcrumbHtml = breadcrumbHtml + "<li class='breadcrumb-item'><a href='"+ curFunction.FUNCTION_URI + "'>"+ curFunction.FUNCTION_NAME+ "</a></li>";
+                // {
+                //breadcrumbHtml = breadcrumbHtml + "<li class='breadcrumb-item'><a href='"+ curFunction.FUNCTION_URI + "'>"+ curFunction.FUNCTION_NAME+ "</a></li>";
+                // }
                 breadcrumbHtml = breadcrumbHtml + "<li class='breadcrumb-item'><a href='#'>" + curFunction.MODULE_NAME + "</a></li>";
                 breadcrumbHtml = breadcrumbHtml + "<li class='breadcrumb-item'><a href='" + curFunction.FUNCTION_URI + "'>" + curFunction.FUNCTION_NAME + "</a></li>";
-                // }
+                HttpContext.Current.Session["sitepath"]= breadcrumbHtml;
+            }else
+            {
+                breadcrumbHtml = (string)HttpContext.Current.Session["sitepath"];
             }
             return breadcrumbHtml;
         }
