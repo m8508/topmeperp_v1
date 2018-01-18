@@ -33,9 +33,9 @@
             </td>
             @if (item.TYPE == "W")
             {
-                <td>
-                    工資
-                </td>
+            <td>
+                工資
+            </td>
             }
             else
             {
@@ -47,20 +47,9 @@
             <td>
                 @Html.DisplayFor(modelItem => item.SUPPLIER_ID)
             </td>
-            @if (item.TYPE == "W")
-            {
-                <td>
-                    @Html.DisplayFor(modelItem => item.MAN_FORM_NAME)
-                </td>
-            }
-
-            else
-            {
-                <td>
-                    @Html.DisplayFor(modelItem => item.FORM_NAME)
-                </td>
-            }
-
+            <td>
+                @Html.DisplayFor(modelItem => item.FORM_NAME)
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.ITEM_ROWS)
             </td>

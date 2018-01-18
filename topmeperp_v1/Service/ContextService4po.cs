@@ -2849,8 +2849,8 @@ namespace topmeperp.Service
             parameters.Add(new SqlParameter("projectid", projectid));
             //處理SQL 預先填入專案代號,設定集合處理參數
             string sql = "SELECT p.INQUIRY_FORM_ID AS CONTRACT_ID, p.SUPPLIER_ID, p.FORM_NAME, p.PROJECT_ID, p.SUPPLIER_ID + '_' + p.FORM_NAME AS CONTRACT_NAME, 'M' AS TYPE," +
-                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY p.SUPPLIER_ID) AS NO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid " +
-                    "GROUP BY p.PROJECT_ID, p.SUPPLIER_ID, p.FORM_NAME, p.INQUIRY_FORM_ID HAVING p.INQUIRY_FORM_ID IS NOT NULL ";
+                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY p.SUPPLIER_ID) AS NO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid AND p.INQUIRY_FORM_ID IS NOT NULL " +
+                    "GROUP BY p.PROJECT_ID, p.SUPPLIER_ID, p.FORM_NAME, p.INQUIRY_FORM_ID ";
 
             //供應商
             if (null != supplier && supplier != "")
@@ -2864,9 +2864,9 @@ namespace topmeperp.Service
                 sql = sql + "AND p.FORM_NAME LIKE @formName ";
                 parameters.Add(new SqlParameter("formName", "%" + formName + "%"));
             }
-            sql = sql + "UNION SELECT p.MAN_FORM_ID AS CONTRACT_ID, p.MAN_SUPPLIER_ID, p.PROJECT_ID, p.MAN_FORM_NAME, p.MAN_SUPPLIER_ID + '_' + p.MAN_FORM_NAME AS CONTRACT_NAME, 'W' AS TYPE, " +
-                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY p.MAN_SUPPLIER_ID) AS NO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid and p.MAN_PRICE IS NOT NULL " +
-                    "GROUP BY p.PROJECT_ID, p.MAN_SUPPLIER_ID, p.MAN_FORM_NAME, p.MAN_FORM_ID HAVING p.MAN_FORM_ID IS NOT NULL ";
+            sql = sql + "UNION SELECT p.MAN_FORM_ID AS CONTRACT_ID, p.MAN_SUPPLIER_ID, p.MAN_FORM_NAME, p.PROJECT_ID, p.MAN_SUPPLIER_ID + '_' + p.MAN_FORM_NAME AS CONTRACT_NAME, 'W' AS TYPE, " +
+                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY p.MAN_SUPPLIER_ID) AS NO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid AND p.MAN_FORM_ID IS NOT NULL " +
+                    "GROUP BY p.PROJECT_ID, p.MAN_SUPPLIER_ID, p.MAN_FORM_NAME, p.MAN_FORM_ID ";
             //供應商
             if (null != supplier && supplier != "")
             {
