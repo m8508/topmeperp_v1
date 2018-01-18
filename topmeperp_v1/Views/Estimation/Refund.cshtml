@@ -18,7 +18,7 @@
             <input type="button" class="btn btn-default" value="關閉" onclick="window.close();" />
         </div>
         <form id="refund_form" name="refund_form" ng-submit="submit()">
-            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("ChooseSupplierOfRefund", "Estimation", new { id = @ViewBag.keyId })'; ">挑選廠商</button>
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("ChooseSupplierOfRefund", "Estimation", new { id = @ViewBag.formid , contractid = @ViewBag.contractid })'; ">挑選廠商</button>
             <div class="row">
                 <div class="col-md-4" style="padding-top:10px">
                     <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />

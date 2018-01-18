@@ -1,92 +1,41 @@
 ﻿
 @{
-    ViewBag.Title = "議約發包主頁 :";
+    ViewBag.Title = "發包選商列表 :";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <!--標單項目搜尋區條件區域-->
 
 <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
-<div class="jumbotron">
-    <form name="formSearch" id="formSearch" action="Search" method="Post" class="form-inline">
-        <div class="row">
-            <div class="col-md-3 form-group">
-                <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.id" class="form-control" style="background-color:#cccccc; width:100px;" readonly="readonly" />
-            </div>
-            <div class="col-md-5">
-                <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc; width:250px;" readonly="readonly" />
-            </div>
-            <div class="col-md-4">
-                <button type="button" class="btn btn-primary" onclick="window.open('@Url.Action("Comparison", "PurchaseForm", new { id = ViewBag.id })'); ">採購比價</button>
-                <!--
-                <button type="button" class="btn btn-primary" onclick="window.open('@Url.Action("Comparison4Wage", "PurchaseForm", new { id = ViewBag.id })'); ">工資比價</button>
-                 -->
-                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PurchasingContract", "PurchaseForm", new { id = ViewBag.id })'; ">發包收支摘要</button>
-                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PendingFormTemplate", "PurchaseForm", new { id = ViewBag.id })'; ">未發包分項</button>
-            </div>
+<input id="btnPrint" type="button" class="btn btn-info" value="列印發包選商表" onclick="javascript: printpage('printarea')" />
+<div class="row" id="printarea" style="padding-top:10px;">
+    <div>
+        <span id="JustPrint" style="color: blue; font-size: 20px;">專案名稱 : @ViewBag.projectName </span>
+    </div>
+    <div style="padding-bottom:30px;">
+        <span id="JustPrint" style="color: blue; font-size: 20px;">參與競標廠商資料表如下 : </span>
+    </div>
+    @if (ViewBag.itembudget != null && ViewBag.isWage == null)
+    {
+        <div style="padding-bottom:10px;">
+            <span style="color: black; font-size:large;">預算金額 :  </span><span style="border:2px red solid; padding:5px; color: red; font-size: 18px;">@String.Format("{0:N0}", ViewBag.itembudget)</span>
         </div>
-        <hr style="border-top: 1px solid #8c8b8b;" />
-        <div class="row">
-            <div class="col-md-4">
-                <label for="formname">採購項目名稱:</label><input id="formname" name="formname" type="text" value="" class="form-control" />
-            </div>
-            <div class="col-md-2" style="padding-top:8px;">
-                <input type="checkbox" value="Y" id="isWage" name="isWage" />工資
-            </div>
-            <div class="col-md-2">
-                <div id="divProcessing">
-                    <img src="~/Content/ajax-loader.gif">
-                </div>
-            </div>
-                <div class="col-md-2">
-                    <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
-                    <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
-                </div>
+    }
+    else if (ViewBag.itemwagebudget != null && ViewBag.isWage != null)
+    {
+        <div style="padding-bottom:10px;">
+            <span style="color: black; font-size:large;">預算金額 :  </span><span style="border:2px red solid; padding:5px; color: red; font-size: 18px;">@String.Format("{0:N0}", ViewBag.itemwagebudget)</span>
         </div>
-    </form>
-</div>
-<!--專案列表區域-->
-<div class="container">
-    <input id="btnPrint" type="button" class="btn btn-info" value="列印發包選商表" onclick="javascript: printpage('printarea')" />
-    <div class="row" id="printarea" style="padding-top:10px;">
-        <div>
-            <span id="JustPrint" style="color: blue; font-size: 20px;">專案名稱 : @ViewBag.projectName </span>
-        </div>
-        <div style="padding-bottom:30px;">
-            <span id="JustPrint" style="color: blue; font-size: 20px;">參與競標廠商資料表如下 : </span>
-        </div>
-        @if (ViewBag.itembudget != null && ViewBag.isWage == null)
-        {
-            <div style="padding-bottom:10px;">
-                <span style="color: black; font-size:large;">預算金額 :  </span><span style="border:2px red solid; padding:5px; color: red; font-size: 18px;">@String.Format("{0:N0}", ViewBag.itembudget)</span>
-            </div>
-        }
-        else if (ViewBag.itemwagebudget != null && ViewBag.isWage != null)
-        {
-            <div style="padding-bottom:10px;">
-                <span style="color: black; font-size:large;">預算金額 :  </span><span style="border:2px red solid; padding:5px; color: red; font-size: 18px;">@String.Format("{0:N0}", ViewBag.itemwagebudget)</span>
-            </div>
-        }
-        else
-        {
-        }
-        @ViewBag.SearchResult
-        @if (null != Model)
+    }
+    else
+    {
+    }
+    @ViewBag.SearchResult
+    @if (null != Model)
             {
                 Html.RenderPartial("FormListForOffer");
             }
-    </div>
 </div>
 
-<script type="text/javascript">
-    $(document).ready(function () {
-        // Hide the "busy" Gif at load:
-        $("#divProcessing").hide();
-        // Attach click handler to the submit button:
-        $('#Submit1').click(function () {
-            $("#divProcessing").show();
-        });
-    });
-</script>
 <script language="javascript" type="text/javascript">
 
     function printpage(printarea) {

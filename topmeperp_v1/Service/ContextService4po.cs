@@ -912,16 +912,16 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 //取得詢價單樣本資訊
-                string sql = "SELECT tmp.*,CountPO, ROW_NUMBER() OVER(ORDER BY tmp.INQUIRY_FORM_ID) AS NO " +
+                string sql = "SELECT tmp.*,CountPO, Bargain, ROW_NUMBER() OVER(ORDER BY tmp.INQUIRY_FORM_ID) AS NO " +
                        "FROM(SELECT * FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID is Null AND PROJECT_ID = @projectid AND ISNULL(STATUS, '有效') = '有效' AND ISNULL(ISWAGE, 'N') = 'N') tmp " +
                        "LEFT OUTER JOIN (SELECT COUNT(*) CountPO, FORM_NAME, PROJECT_ID FROM  PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NOT Null GROUP BY FORM_NAME, PROJECT_ID) Quo " +
-                       "ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME WHERE tmp.FORM_NAME not in (SELECT p.FORM_NAME AS CODE FROM PLAN_ITEM p  " +
-                       "WHERE p.PROJECT_ID = @projectid AND p.FORM_NAME IS NOT NULL GROUP BY p.FORM_NAME) UNION " +
-                       "SELECT tmp.*,CountPO, ROW_NUMBER() OVER(ORDER BY tmp.INQUIRY_FORM_ID) AS NO " +
+                       "ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME LEFT OUTER JOIN (SELECT p.FORM_NAME AS Bargain FROM PLAN_ITEM p " +
+                       "WHERE p.PROJECT_ID = @projectid AND p.FORM_NAME IS NOT NULL GROUP BY p.FORM_NAME)Con ON tmp.FORM_NAME = Con.Bargain UNION " +
+                       "SELECT tmp.*,CountPO, Bargain, ROW_NUMBER() OVER(ORDER BY tmp.INQUIRY_FORM_ID) AS NO " +
                        "FROM(SELECT * FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID is Null AND PROJECT_ID = @projectid AND ISNULL(STATUS, '有效') = '有效' AND ISNULL(ISWAGE, 'N') = 'Y') tmp " +
                        "LEFT OUTER JOIN (SELECT COUNT(*) CountPO, FORM_NAME, PROJECT_ID FROM  PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NOT NULL GROUP BY FORM_NAME, PROJECT_ID) Quo " +
-                       "ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME  WHERE tmp.FORM_NAME NOT IN (SELECT p.MAN_FORM_NAME AS CODE FROM PLAN_ITEM p " +
-                       "WHERE p.PROJECT_ID = @projectid AND p.MAN_FORM_NAME IS NOT NULL GROUP BY p.MAN_FORM_NAME)";
+                       "ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME  LEFT OUTER JOIN (SELECT p.MAN_FORM_NAME AS Bargain FROM PLAN_ITEM p " +
+                       "WHERE p.PROJECT_ID = @projectid AND p.MAN_FORM_NAME IS NOT NULL GROUP BY p.MAN_FORM_NAME)Con ON tmp.FORM_NAME = Con.Bargain";
                 lst = context.Database.SqlQuery<PURCHASE_ORDER>(sql, new SqlParameter("projectid", projectid)).ToList();
             }
             return lst;
@@ -1209,7 +1209,7 @@ namespace topmeperp.Service
             List<plansummary> lst = new List<plansummary>();
             using (var context = new topmepEntities())
             {
-                string sql = "SELECT  A.PROJECT_ID + A.ID + A.FORM_NAME AS CONTRACT_ID, A.SUPPLIER_ID, A.FORM_NAME, " +
+                string sql = "SELECT A.INQUIRY_FORM_ID AS CONTRACT_ID, A.SUPPLIER_ID, A.FORM_NAME, A.ID, " +
                     "SUM(A.MapQty * A.ITEM_UNIT_COST) MATERIAL_COST, SUM(A.MapQty * ISNULL(A.MAN_PRICE, 0)) WAGE_COST, " +
                     "SUM(A.ITEM_QUANTITY * ISNULL(A.ITEM_UNIT_PRICE, 0)) REVENUE, SUM(A.MapQty * A.TndFormPrice * ISNULL(A.BUDGET_RATIO, 100) / 100) BUDGET, " +
                     "(SUM(A.MapQty * A.ITEM_UNIT_COST) + SUM(A.MapQty * ISNULL(A.MAN_PRICE, 0))) COST, (SUM(A.ITEM_QUANTITY * ISNULL(A.ITEM_UNIT_PRICE, 0)) - " +
@@ -1217,8 +1217,8 @@ namespace topmeperp.Service
                     "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.SUPPLIER_ID) AS NO, A.INQUIRY_FORM_ID FROM(SELECT pi.*, s.SUPPLIER_ID AS ID, map.QTY AS MapQty, " +
                     "tpi.ITEM_UNIT_PRICE AS TndFormPrice FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON " +
                     "pi.SUPPLIER_ID = s.COMPANY_NAME LEFT JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT JOIN TND_PROJECT_ITEM tpi ON pi.PLAN_ITEM_ID = tpi.PROJECT_ITEM_ID  " +
-                    ")A WHERE A.PROJECT_ID = @projectid AND A.ITEM_UNIT_COST IS NOT NULL " +
-                    "GROUP BY A.PROJECT_ID, A.ID, A.FORM_NAME, A.SUPPLIER_ID ,A.INQUIRY_FORM_ID; ";
+                    ")A WHERE A.PROJECT_ID = @projectid AND A.INQUIRY_FORM_ID IS NOT NULL " +
+                    "GROUP BY A.PROJECT_ID, A.ID, A.FORM_NAME, A.SUPPLIER_ID, A.INQUIRY_FORM_ID; ";
                 logger.Debug("sql =" + sql + ",project id=" + projectid);
 
                 ///SQL 是否可調整如下
@@ -1238,13 +1238,13 @@ namespace topmeperp.Service
             List<plansummary> lst = new List<plansummary>();
             using (var context = new topmepEntities())
             {
-                lst = context.Database.SqlQuery<plansummary>("SELECT  A.PROJECT_ID + A.ID + A.MAN_FORM_NAME AS CONTRACT_ID, A.MAN_SUPPLIER_ID, A.MAN_FORM_NAME, " +
+                lst = context.Database.SqlQuery<plansummary>("SELECT  MAN_FORM_ID AS CONTRACT_ID, A.MAN_SUPPLIER_ID, A.MAN_FORM_NAME, " +
                     "SUM(A.MapQty * ISNULL(A.MAN_PRICE, 0)) WAGE_COST, SUM(A.MapQty * A.Ratio * A.WAGE_MULTIPLIER * ISNULL(A.BUDGET_WAGE_RATIO, 100) / 100) AS WAGE_BUDGET, " +
-                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.MAN_SUPPLIER_ID) AS NO,A.INQUIRY_FORM_ID FROM(SELECT pi.*, map.QTY AS MapQty, w.RATIO AS Ratio, p.WAGE_MULTIPLIER, " +
+                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.MAN_SUPPLIER_ID) AS NO,A.MAN_FORM_ID FROM(SELECT pi.*, map.QTY AS MapQty, w.RATIO AS Ratio, p.WAGE_MULTIPLIER, " +
                     "s.SUPPLIER_ID AS ID FROM PLAN_ITEM pi LEFT JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT OUTER JOIN TND_WAGE w ON pi.PLAN_ITEM_ID = w.PROJECT_ITEM_ID " +
                     "LEFT JOIN TND_PROJECT p ON pi.PROJECT_ID = p.PROJECT_ID LEFT JOIN TND_SUPPLIER s ON " +
-                    "pi.MAN_SUPPLIER_ID = s.COMPANY_NAME)A WHERE A.PROJECT_ID = 'P00023' and A.MAN_PRICE IS NOT NULL " +
-                    "GROUP BY A.PROJECT_ID, A.MAN_SUPPLIER_ID, A.MAN_FORM_NAME, A.ID,A.INQUIRY_FORM_ID  ; "
+                    "pi.MAN_SUPPLIER_ID = s.COMPANY_NAME)A WHERE A.PROJECT_ID = @projectid and A.MAN_FORM_ID IS NOT NULL " +
+                    "GROUP BY A.PROJECT_ID, A.MAN_SUPPLIER_ID, A.MAN_FORM_NAME, A.ID, A.MAN_FORM_ID  ; "
                    , new SqlParameter("projectid", projectid)).ToList();
             }
             return lst;
@@ -1256,13 +1256,12 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 lst = context.Database.SqlQuery<plansummary>("SELECT SUM(REVENUE) TOTAL_REVENUE, SUM(COST) TOTAL_COST, SUM(BUDGET) TOTAL_BUDGET, SUM(PROFIT) TOTAL_PROFIT " +
-                    "FROM(select p.PROJECT_ID + p.SUPPLIER_ID + p.FORM_NAME AS CONTRACT_ID, " +
-                    "p.SUPPLIER_ID, p.FORM_NAME, sum(p.ITEM_QUANTITY * p.ITEM_UNIT_PRICE) REVENUE, " +
+                    "FROM (select p.FORM_NAME, sum(p.ITEM_QUANTITY * p.ITEM_UNIT_PRICE) REVENUE, " +
                     "sum(map.QTY * tpi.ITEM_UNIT_PRICE * ISNULL(p.BUDGET_RATIO,100) / 100) + sum(map.QTY * w.RATIO * tp.WAGE_MULTIPLIER * ISNULL(p.BUDGET_WAGE_RATIO,100) / 100) BUDGET, " +
-                    "(sum(map.QTY * p.ITEM_UNIT_COST) + SUM(map.QTY * ISNULL(p.MAN_PRICE, 0))) COST, (sum(p.ITEM_QUANTITY * p.ITEM_UNIT_PRICE) - sum(map.QTY * p.ITEM_UNIT_COST) - SUM(map.QTY * ISNULL(p.MAN_PRICE, 0))) PROFIT, " +
-                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY p.SUPPLIER_ID) AS NO FROM PLAN_ITEM p LEFT JOIN vw_MAP_MATERLIALIST map ON p.PLAN_ITEM_ID = map.PROJECT_ITEM_ID " +
+                    "(sum(map.QTY * p.ITEM_UNIT_COST) + SUM(map.QTY * ISNULL(p.MAN_PRICE, 0))) COST, (sum(p.ITEM_QUANTITY * p.ITEM_UNIT_PRICE) - sum(map.QTY * p.ITEM_UNIT_COST) - SUM(map.QTY * ISNULL(p.MAN_PRICE, 0))) PROFIT " +
+                    "FROM PLAN_ITEM p LEFT JOIN vw_MAP_MATERLIALIST map ON p.PLAN_ITEM_ID = map.PROJECT_ITEM_ID " +
                     "LEFT JOIN TND_PROJECT_ITEM tpi ON p.PLAN_ITEM_ID = tpi.PROJECT_ITEM_ID LEFT JOIN TND_WAGE w ON p.PLAN_ITEM_ID = w.PROJECT_ITEM_ID LEFT JOIN TND_PROJECT tp ON p.PROJECT_ID = tp.PROJECT_ID WHERE p.PROJECT_ID = @projectid " +
-                    "GROUP BY p.PROJECT_ID, p.SUPPLIER_ID, p.FORM_NAME)A ; "
+                    "GROUP BY p.FORM_NAME)A ; "
                    , new SqlParameter("projectid", projectid)).First();
             }
             return lst;
@@ -1275,39 +1274,20 @@ namespace topmeperp.Service
             logger.Info("search purchase form by 採購項目 =" + formname);
             List<purchasesummary> lstForm = new List<purchasesummary>();
             //處理SQL 預先填入專案代號,設定集合處理參數
-            string sql = "SELECT C.code1 AS FORM_NAME, C.INQUIRY_FORM_ID as INQUIRY_FORM_ID, C.SUPPLIER_ID AS SUPPLIER_ID, D.TOTAL_ROWS AS TOTALROWS, D.TOTAL_PRICE AS TAmount,D.Budget " +
-                         "FROM (select p.SUPPLIER_ID,  p.INQUIRY_FORM_ID, p.FORM_NAME AS code1, ISNULL(STATUS,'有效') STATUS, ISNULL(ISWAGE,'N')ISWAGE FROM PLAN_SUP_INQUIRY p LEFT OUTER JOIN PLAN_SUP_INQUIRY_ITEM pi " +
-                         "ON p.INQUIRY_FORM_ID = pi.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL AND ISNULL(STATUS,'有效') <> '註銷' AND ISWAGE <> 'Y' GROUP BY p.FORM_NAME, p.INQUIRY_FORM_ID, p.STATUS, " +
-                         "p.SUPPLIER_ID, p.ISWAGE HAVING p.FORM_NAME NOT IN (SELECT p.FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid " +
-                         "AND p.FORM_NAME IS NOT NULL GROUP BY p.FORM_NAME))C LEFT OUTER JOIN " +
-                         "(select  B.type, B.INQUIRY_FORM_ID, B.TOTAL_ROW AS TOTAL_ROWS, B.TOTALPRICE AS TOTAL_PRICE,B.Budget as Budget  FROM (select p.FORM_NAME as type, p.INQUIRY_FORM_ID " +
-                         "from PLAN_SUP_INQUIRY_ITEM pi LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL " +
-                         "GROUP BY p.INQUIRY_FORM_ID, p.FORM_NAME HAVING p.FORM_NAME NOT IN " +
-                         "(SELECT p.FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid AND p.FORM_NAME IS NOT NULL GROUP BY p.FORM_NAME)) A RIGHT OUTER JOIN " +
-                         "(select p.FORM_NAME as type, p.INQUIRY_FORM_ID, count(*) TOTAL_ROW,sum(map.qty*iif (ISNULL(ISWAGE,'N')='Y',pitem.BUDGET_RATIO,pitem.BUDGET_WAGE_RATIO)*pi.ITEM_UNIT_PRICE/100) Budget " +
-                         ",sum(ITEM_QTY) as iQty,sum(ITEM_QTY * pi.ITEM_UNIT_PRICE) TOTALPRICE from PLAN_SUP_INQUIRY_ITEM pi Left Join vw_MAP_MATERLIALIST map " +
-                         " on pi.PLAN_ITEM_ID=map.PROJECT_ITEM_ID Left Join PLAN_ITEM pitem On pi.PLAN_ITEM_ID=pitem.PLAN_ITEM_ID  LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID " +
-                         "where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL  GROUP BY p.INQUIRY_FORM_ID, p.FORM_NAME) B " +
-                         " ON A.INQUIRY_FORM_ID + A.type = B.INQUIRY_FORM_ID + B.type) D ON C.INQUIRY_FORM_ID + C.code1 = D.INQUIRY_FORM_ID + D.type ";
-            ;
-
+            string sql = "SELECT C.code1 AS FORM_NAME, C.INQUIRY_FORM_ID as INQUIRY_FORM_ID, C.SUPPLIER_ID AS SUPPLIER_ID, D.TOTAL_ROW AS TOTALROWS, D. TOTALPRICE AS TAmount " +
+                         "FROM(select p.SUPPLIER_ID, p.INQUIRY_FORM_ID, p.FORM_NAME AS code1, ISNULL(STATUS, '有效') STATUS, ISNULL(ISWAGE, 'N')ISWAGE FROM PLAN_SUP_INQUIRY p LEFT OUTER JOIN PLAN_SUP_INQUIRY_ITEM pi " +
+                         "ON p.INQUIRY_FORM_ID = pi.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL AND ISNULL(STATUS, '有效') <> '註銷' AND ISWAGE <> 'Y' GROUP BY p.FORM_NAME, p.INQUIRY_FORM_ID, " +
+                         "p.STATUS, p.SUPPLIER_ID, p.ISWAGE)C LEFT OUTER JOIN (select p.FORM_NAME as type, p.INQUIRY_FORM_ID, count(*) TOTAL_ROW, sum(ITEM_QTY * pi.ITEM_UNIT_PRICE) TOTALPRICE from PLAN_SUP_INQUIRY_ITEM pi " +
+                         "LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL GROUP BY p.INQUIRY_FORM_ID, p.FORM_NAME)D " +
+                         "ON C.INQUIRY_FORM_ID + C.code1 = D.INQUIRY_FORM_ID + D.type ";
             if (iswage == "Y")
             {
-                sql = "SELECT C.code1 AS FORM_NAME, C.INQUIRY_FORM_ID as INQUIRY_FORM_ID, C.SUPPLIER_ID AS SUPPLIER_ID, D.TOTAL_ROWS AS TOTALROWS, D.TOTAL_PRICE AS TAmount,D.Budget " +
-                         "FROM (select p.SUPPLIER_ID,  p.INQUIRY_FORM_ID, p.FORM_NAME AS code1, ISNULL(STATUS,'有效') STATUS, ISNULL(ISWAGE,'N')ISWAGE FROM PLAN_SUP_INQUIRY p LEFT OUTER JOIN PLAN_SUP_INQUIRY_ITEM pi " +
-                         "ON p.INQUIRY_FORM_ID = pi.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL AND ISNULL(STATUS,'有效') <> '註銷' AND ISWAGE ='Y' GROUP BY p.FORM_NAME, p.INQUIRY_FORM_ID, p.STATUS, " +
-                         "p.SUPPLIER_ID, p.ISWAGE HAVING p.FORM_NAME NOT IN (SELECT p.MAN_FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid " +
-                         "AND p.MAN_FORM_NAME IS NOT NULL GROUP BY p.MAN_FORM_NAME)) C LEFT OUTER JOIN " +
-                         "(select  B.type, B.INQUIRY_FORM_ID, B.TOTAL_ROW AS TOTAL_ROWS, B.TOTALPRICE AS TOTAL_PRICE,B.Budget as Budget  FROM (select p.FORM_NAME as type, p.INQUIRY_FORM_ID " +
-                         "from PLAN_SUP_INQUIRY_ITEM pi LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL " +
-                         "GROUP BY p.INQUIRY_FORM_ID, p.FORM_NAME HAVING p.FORM_NAME NOT IN " +
-                         "(SELECT p.MAN_FORM_NAME AS CODE FROM PLAN_ITEM p WHERE p.PROJECT_ID = @projectid AND p.MAN_FORM_NAME IS NOT NULL GROUP BY p.MAN_FORM_NAME)) A RIGHT OUTER JOIN " +
-                         "(select p.FORM_NAME as type, p.INQUIRY_FORM_ID, count(*) TOTAL_ROW,sum(map.qty*iif (ISNULL(ISWAGE,'N')='Y',pitem.BUDGET_RATIO,pitem.BUDGET_WAGE_RATIO)*pi.ITEM_UNIT_PRICE/100) Budget " +
-                         ",sum(ITEM_QTY) as iQty,sum(ITEM_QTY * pi.ITEM_UNIT_PRICE) TOTALPRICE from PLAN_SUP_INQUIRY_ITEM pi Left Join vw_MAP_MATERLIALIST map " +
-                         "on pi.PLAN_ITEM_ID=map.PROJECT_ITEM_ID Left Join PLAN_ITEM pitem On pi.PLAN_ITEM_ID=pitem.PLAN_ITEM_ID  LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID " +
-                         "where p.PROJECT_ID = @projectid AND p.SUPPLIER_ID IS NOT NULL  GROUP BY p.INQUIRY_FORM_ID, p.FORM_NAME) B " +
-                         "ON A.INQUIRY_FORM_ID + A.type = B.INQUIRY_FORM_ID + B.type) D ON C.INQUIRY_FORM_ID + C.code1 = D.INQUIRY_FORM_ID + D.type ";
-                ;
+                sql = "SELECT C.code1 AS FORM_NAME, C.INQUIRY_FORM_ID as INQUIRY_FORM_ID, C.SUPPLIER_ID AS SUPPLIER_ID, D.TOTAL_ROW AS TOTALROWS, D.TOTALPRICE AS TAmount " +
+                      "FROM(select p.SUPPLIER_ID, p.INQUIRY_FORM_ID, p.FORM_NAME AS code1, ISNULL(STATUS, '有效') STATUS, ISNULL(ISWAGE, 'N')ISWAGE FROM PLAN_SUP_INQUIRY p LEFT OUTER JOIN PLAN_SUP_INQUIRY_ITEM pi " +
+                      "ON p.INQUIRY_FORM_ID = pi.INQUIRY_FORM_ID where p.PROJECT_ID = 'P00023' AND p.SUPPLIER_ID IS NOT NULL AND ISNULL(STATUS, '有效') <> '註銷' AND ISWAGE = 'Y' GROUP BY p.FORM_NAME, p.INQUIRY_FORM_ID, " +
+                      "p.STATUS, p.SUPPLIER_ID, p.ISWAGE) C LEFT OUTER JOIN (select p.FORM_NAME as type, p.INQUIRY_FORM_ID, count(*) TOTAL_ROW, sum(ITEM_QTY * pi.ITEM_UNIT_PRICE) TOTALPRICE from PLAN_SUP_INQUIRY_ITEM pi " +
+                      "LEFT JOIN PLAN_SUP_INQUIRY p ON pi.INQUIRY_FORM_ID = p.INQUIRY_FORM_ID where p.PROJECT_ID = 'P00023' AND p.SUPPLIER_ID IS NOT NULL  GROUP BY p.INQUIRY_FORM_ID, p.FORM_NAME)D " +
+                      "ON C.INQUIRY_FORM_ID + C.code1 = D.INQUIRY_FORM_ID + D.type ";
             }
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("projectid", projectid));
@@ -1676,10 +1656,10 @@ namespace topmeperp.Service
             {
                 List<topmeperp.Models.PLAN_PAYMENT_TERMS> lstItem = new List<PLAN_PAYMENT_TERMS>();
                 string sql = "INSERT INTO PLAN_PAYMENT_TERMS (CONTRACT_ID, PROJECT_ID, TYPE) " +
-                       "SELECT distinct ('" + projectid + "' + A.SUPPLIER_ID + A.FORM_NAME) AS contractid, '" + projectid + "', 'S' FROM " +
-                       "(SELECT pi.PROJECT_ID, pi.SUPPLIER_ID AS SUPPLIER_NAME, pi.FORM_NAME, s.SUPPLIER_ID FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON " +
+                       "SELECT distinct A.INQUIRY_FORM_ID AS contractid, '" + projectid + "', 'S' FROM " +
+                       "(SELECT pi.PROJECT_ID, pi.SUPPLIER_ID AS SUPPLIER_NAME, pi.INQUIRY_FORM_ID, s.SUPPLIER_ID FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON " +
                        "pi.SUPPLIER_ID = s.COMPANY_NAME WHERE pi.SUPPLIER_ID IS NOT NULL)A WHERE A.PROJECT_ID = '" + projectid + "' " +
-                       "AND '" + projectid + "' + A.SUPPLIER_ID + A.FORM_NAME NOT IN(SELECT ppt.CONTRACT_ID FROM PLAN_PAYMENT_TERMS ppt) ";
+                       "AND A.INQUIRY_FORM_ID NOT IN(SELECT ppt.CONTRACT_ID FROM PLAN_PAYMENT_TERMS ppt) ";
 
                 var parameters = new List<SqlParameter>();
                 i = context.Database.ExecuteSqlCommand(sql);
@@ -1695,10 +1675,10 @@ namespace topmeperp.Service
             {
                 List<topmeperp.Models.PLAN_PAYMENT_TERMS> lstItem = new List<PLAN_PAYMENT_TERMS>();
                 string sql = "INSERT INTO PLAN_PAYMENT_TERMS (CONTRACT_ID, PROJECT_ID, TYPE) " +
-                   "SELECT distinct ('" + projectid + "' + A.SUPPLIER_ID + A.MAN_FORM_NAME) AS contractid, '" + projectid + "', 'S' FROM " +
-                   "(SELECT pi.PROJECT_ID, pi.MAN_SUPPLIER_ID AS SUPPLIER_NAME, pi.MAN_FORM_NAME, s.SUPPLIER_ID FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON " +
+                   "SELECT distinct A.MAN_FORM_ID AS contractid, '" + projectid + "', 'S' FROM " +
+                   "(SELECT pi.PROJECT_ID, pi.MAN_SUPPLIER_ID AS SUPPLIER_NAME, pi.MAN_FORM_ID, s.SUPPLIER_ID FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON " +
                    "pi.MAN_SUPPLIER_ID = s.COMPANY_NAME WHERE pi.MAN_SUPPLIER_ID IS NOT NULL)A WHERE A.PROJECT_ID = '" + projectid + "' " +
-                   "AND '" + projectid + "' + A.SUPPLIER_ID + A.MAN_FORM_NAME NOT IN (SELECT ppt.CONTRACT_ID FROM PLAN_PAYMENT_TERMS ppt) ";
+                   "AND A.MAN_FORM_ID NOT IN (SELECT ppt.CONTRACT_ID FROM PLAN_PAYMENT_TERMS ppt) ";
 
                 logger.Info("sql =" + sql);
                 var parameters = new List<SqlParameter>();
@@ -1712,7 +1692,7 @@ namespace topmeperp.Service
             List<PLAN_ITEM> lst = new List<PLAN_ITEM>();
             using (var context = new topmepEntities())
             {
-                lst = context.PLAN_ITEM.SqlQuery("SELECT * FROM PLAN_ITEM WHERE  PROJECT_ID + SUPPLIER_ID + FORM_NAME = @contractid ;"
+                lst = context.PLAN_ITEM.SqlQuery("SELECT * FROM PLAN_ITEM WHERE INQUIRY_FORM_ID OR MAN_FORM_ID = @contractid ;"
                     , new SqlParameter("contractid", contractid)).ToList();
             }
             logger.Info("get plan supplier contract items count:" + lst.Count);
@@ -2868,9 +2848,9 @@ namespace topmeperp.Service
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("projectid", projectid));
             //處理SQL 預先填入專案代號,設定集合處理參數
-            string sql = "SELECT  ' ' + p.PROJECT_ID + p.SUPPLIER_ID + p.FORM_NAME AS CONTRACT_ID, p.SUPPLIER_ID, p.FORM_NAME, p.SUPPLIER_ID + '_' + p.FORM_NAME AS CONTRACT_NAME, '' AS TYPE," +
+            string sql = "SELECT p.INQUIRY_FORM_ID AS CONTRACT_ID, p.SUPPLIER_ID, p.FORM_NAME, p.PROJECT_ID, p.SUPPLIER_ID + '_' + p.FORM_NAME AS CONTRACT_NAME, 'M' AS TYPE," +
                     "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY p.SUPPLIER_ID) AS NO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid " +
-                    "GROUP BY p.PROJECT_ID, p.SUPPLIER_ID, p.FORM_NAME HAVING p.SUPPLIER_ID IS NOT NULL ";
+                    "GROUP BY p.PROJECT_ID, p.SUPPLIER_ID, p.FORM_NAME, p.INQUIRY_FORM_ID HAVING p.INQUIRY_FORM_ID IS NOT NULL ";
 
             //供應商
             if (null != supplier && supplier != "")
@@ -2884,9 +2864,9 @@ namespace topmeperp.Service
                 sql = sql + "AND p.FORM_NAME LIKE @formName ";
                 parameters.Add(new SqlParameter("formName", "%" + formName + "%"));
             }
-            sql = sql + "UNION SELECT  'W' + p.PROJECT_ID + p.MAN_SUPPLIER_ID + p.MAN_FORM_NAME AS CONTRACT_ID, p.MAN_SUPPLIER_ID, p.MAN_FORM_NAME, p.MAN_SUPPLIER_ID + '_' + p.MAN_FORM_NAME AS CONTRACT_NAME, '工資' AS TYPE, " +
+            sql = sql + "UNION SELECT p.MAN_FORM_ID AS CONTRACT_ID, p.MAN_SUPPLIER_ID, p.PROJECT_ID, p.MAN_FORM_NAME, p.MAN_SUPPLIER_ID + '_' + p.MAN_FORM_NAME AS CONTRACT_NAME, 'W' AS TYPE, " +
                     "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY p.MAN_SUPPLIER_ID) AS NO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid and p.MAN_PRICE IS NOT NULL " +
-                    "GROUP BY p.PROJECT_ID, p.MAN_SUPPLIER_ID, p.MAN_FORM_NAME HAVING p.MAN_SUPPLIER_ID IS NOT NULL ";
+                    "GROUP BY p.PROJECT_ID, p.MAN_SUPPLIER_ID, p.MAN_FORM_NAME, p.MAN_FORM_ID HAVING p.MAN_FORM_ID IS NOT NULL ";
             //供應商
             if (null != supplier && supplier != "")
             {
@@ -2909,7 +2889,7 @@ namespace topmeperp.Service
         }
 
         //取得個別合約的明細資料
-        public List<EstimationForm> getContractItemById(string contractid)
+        public List<EstimationForm> getContractItemById(string contractid, string projectid)
         {
 
             logger.Info("get contract item by contractid  =" + contractid);
@@ -2919,12 +2899,12 @@ namespace topmeperp.Service
             {
                 lstItem = context.Database.SqlQuery<EstimationForm>("SELECT pi.*, map.QTY AS mapQty, A.CUM_QTY AS CUM_EST_QTY, B.CUM_QTY AS CUM_RECPT_QTY, ISNULL(B.CUM_QTY, 0)-ISNULL(A.CUM_QTY,0) AS Quota FROM PLAN_ITEM pi " +
                     "LEFT JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT JOIN (SELECT ei.PLAN_ITEM_ID, SUM(ei.EST_QTY) AS CUM_QTY " +
-                    "FROM PLAN_ESTIMATION_ITEM ei LEFT JOIN PLAN_ESTIMATION_FORM ef ON ei.EST_FORM_ID = ef.EST_FORM_ID JOIN TND_SUPPLIER sup ON SUBSTRING(ef.CONTRACT_ID, 7, 7) = sup.SUPPLIER_ID " +
-                    "WHERE STUFF(ef.CONTRACT_ID, 7, 7, sup.COMPANY_NAME) = @contractid GROUP BY ei.PLAN_ITEM_ID)A ON pi.PLAN_ITEM_ID = A.PLAN_ITEM_ID " +
+                    "FROM PLAN_ESTIMATION_ITEM ei LEFT JOIN PLAN_ESTIMATION_FORM ef ON ei.EST_FORM_ID = ef.EST_FORM_ID " +
+                    "WHERE ef.CONTRACT_ID = @contractid GROUP BY ei.PLAN_ITEM_ID)A ON pi.PLAN_ITEM_ID = A.PLAN_ITEM_ID " +
                     "LEFT JOIN (SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS CUM_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr " +
-                    "ON pri.PR_ID = pr.PR_ID WHERE pri.PR_ID LIKE 'RP%' AND pr.PROJECT_ID = SUBSTRING(@contractid,1,6) GROUP BY pri.PLAN_ITEM_ID)B ON pi.PLAN_ITEM_ID = B.PLAN_ITEM_ID WHERE " +
-                    "pi.PROJECT_ID + pi.SUPPLIER_ID + pi.FORM_NAME = @contractid OR pi.PROJECT_ID + pi.MAN_SUPPLIER_ID + pi.MAN_FORM_NAME = @contractid ; "
-            , new SqlParameter("contractid", contractid)).ToList();
+                    "ON pri.PR_ID = pr.PR_ID WHERE pri.PR_ID LIKE 'RP%' AND pr.PROJECT_ID = @projectid GROUP BY pri.PLAN_ITEM_ID)B ON pi.PLAN_ITEM_ID = B.PLAN_ITEM_ID WHERE " +
+                    "pi.INQUIRY_FORM_ID = @contractid OR pi.MAN_FORM_ID = @contractid ; "
+            , new SqlParameter("contractid", contractid), new SqlParameter("projectid", projectid)).ToList();
             }
 
             return lstItem;
@@ -2936,13 +2916,13 @@ namespace topmeperp.Service
             plansummary lst = new plansummary();
             using (var context = new topmepEntities())
             {
-                lst = context.Database.SqlQuery<plansummary>("SELECT  A.PROJECT_ID + A.ID + A.FORM_NAME AS CONTRACT_ID, A.SUPPLIER_ID, A.FORM_NAME, " +
+                lst = context.Database.SqlQuery<plansummary>("SELECT A.INQUIRY_FORM_ID AS CONTRACT_ID, A.SUPPLIER_ID, A.FORM_NAME, " +
                     "SUM(A.mapQty * A.ITEM_UNIT_COST) MATERIAL_COST, SUM(A.mapQty * ISNULL(A.MAN_PRICE, 0)) WAGE_COST, " +
                     "SUM(A.ITEM_QUANTITY * A.ITEM_UNIT_PRICE) REVENUE, SUM(A.mapQty * A.ITEM_UNIT_COST * A.BUDGET_RATIO / 100) BUDGET, " +
                     "(SUM(A.mapQty * A.ITEM_UNIT_COST) + SUM(A.mapQty * ISNULL(A.MAN_PRICE, 0))) COST, (SUM(A.ITEM_QUANTITY * A.ITEM_UNIT_PRICE) - " +
                     "SUM(A.mapQty * A.ITEM_UNIT_COST) - SUM(A.mapQty * ISNULL(A.MAN_PRICE, 0))) PROFIT, " +
                     "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.SUPPLIER_ID) AS NO FROM (SELECT pi.*, s.SUPPLIER_ID AS ID, map.QTY AS mapQty FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON " +
-                    "pi.SUPPLIER_ID = s.COMPANY_NAME LEFT JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID)A GROUP BY A.PROJECT_ID, A.ID, A.FORM_NAME, A.SUPPLIER_ID HAVING A.PROJECT_ID + A.SUPPLIER_ID + A.FORM_NAME =@contractid ; "
+                    "pi.SUPPLIER_ID = s.COMPANY_NAME LEFT JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID)A GROUP BY A.PROJECT_ID, A.INQUIRY_FORM_ID, A.FORM_NAME, A.SUPPLIER_ID HAVING A.INQUIRY_FORM_ID =@contractid ; "
                    , new SqlParameter("contractid", contractid)).First();
             }
             return lst;
@@ -2953,10 +2933,10 @@ namespace topmeperp.Service
             plansummary lst = new plansummary();
             using (var context = new topmepEntities())
             {
-                lst = context.Database.SqlQuery<plansummary>("SELECT  A.PROJECT_ID + A.ID + A.MAN_FORM_NAME AS CONTRACT_ID, A.MAN_SUPPLIER_ID, A.MAN_FORM_NAME, " +
+                lst = context.Database.SqlQuery<plansummary>("SELECT  A.MAN_FORM_ID AS CONTRACT_ID, A.MAN_SUPPLIER_ID, A.MAN_FORM_NAME, " +
                     "SUM(A.mapQty * ISNULL(A.MAN_PRICE, 0)) WAGE_COST, " +
                     "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.MAN_SUPPLIER_ID) AS NO FROM(SELECT pi.*, s.SUPPLIER_ID AS ID, map.QTY AS mapQty FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON " +
-                    "pi.MAN_SUPPLIER_ID = s.COMPANY_NAME LEFT JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID)A GROUP BY A.PROJECT_ID, A.MAN_SUPPLIER_ID, A.MAN_FORM_NAME, A.ID HAVING A.PROJECT_ID + A.MAN_SUPPLIER_ID + A.MAN_FORM_NAME =@contractid ; "
+                    "pi.MAN_SUPPLIER_ID = s.COMPANY_NAME LEFT JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID)A GROUP BY A.PROJECT_ID, A.MAN_SUPPLIER_ID, A.MAN_FORM_NAME, A.MAN_FORM_ID HAVING A.MAN_FORM_ID =@contractid ; "
                    , new SqlParameter("contractid", contractid)).First();
             }
             return lst;
@@ -3154,12 +3134,12 @@ namespace topmeperp.Service
         public List<PLAN_OTHER_PAYMENT> getOtherPayById(string id)
         {
 
-            logger.Info("get other payment by EST id + contractid  =" + id);
+            logger.Info("get other payment by EST id =" + id);
             List<PLAN_OTHER_PAYMENT> lstItem = new List<PLAN_OTHER_PAYMENT>();
             //處理SQL 預先填入ID,設定集合處理參數
             using (var context = new topmepEntities())
             {
-                lstItem = context.Database.SqlQuery<PLAN_OTHER_PAYMENT>("SELECT * FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID =@id AND TYPE = 'O' ; "
+                lstItem = context.Database.SqlQuery<PLAN_OTHER_PAYMENT>("SELECT * FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID =@id AND TYPE = 'O' ; "
             , new SqlParameter("id", id)).ToList();
             }
 
@@ -3170,11 +3150,11 @@ namespace topmeperp.Service
         public int getStatusById(string id)
         {
             int status = -10;
-            logger.Info("get EST status by EST id + contractid  =" + id);
+            logger.Info("get EST status by EST id =" + id);
             //處理SQL 預先填入ID,設定集合處理參數
             using (var context = new topmepEntities())
             {
-                status = context.Database.SqlQuery<int>("SELECT STATUS FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID + CONTRACT_ID =@id ; "
+                status = context.Database.SqlQuery<int>("SELECT STATUS FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID =@id ; "
             , new SqlParameter("id", id)).FirstOrDefault();
             }
 
@@ -3265,22 +3245,22 @@ namespace topmeperp.Service
 
         AdvancePaymentFunction advancePay = null;
         //取得估驗單預付款明細資料
-        public AdvancePaymentFunction getAdvancePayById(string id)
+        public AdvancePaymentFunction getAdvancePayById(string id, string contractid)
         {
 
             logger.Info("get advance payment by EST id + contractid  =" + id);
             using (var context = new topmepEntities())
             {
-                advancePay = context.Database.SqlQuery<AdvancePaymentFunction>("SELECT (SELECT AMOUNT FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID =@id AND TYPE = 'A') AS A_AMOUNT, " +
-                    "(SELECT AMOUNT FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID =@id AND TYPE = 'B') AS B_AMOUNT, " +
-                    "(SELECT AMOUNT FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID =@id AND TYPE = 'C') AS C_AMOUNT, " +
-                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = SUBSTRING(@id,10, LEN(@id)-9) AND TYPE = 'A' " +
-                    "AND CREATE_DATE < ISNULL((SELECT CREATE_DATE FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = SUBSTRING(@id, 1,9) AND TYPE = 'A'), GETDATE()) GROUP BY CONTRACT_ID),0) CUM_A_AMOUNT, " +
-                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = SUBSTRING(@id,10, LEN(@id)-9) AND TYPE = 'B' " +
-                    "AND CREATE_DATE < ISNULL((SELECT CREATE_DATE FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = SUBSTRING(@id, 1,9) AND TYPE = 'B'), GETDATE()) GROUP BY CONTRACT_ID),0) CUM_B_AMOUNT, " +
-                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = SUBSTRING(@id,10, LEN(@id)-9) AND TYPE = 'C' " +
-                    "AND CREATE_DATE < ISNULL((SELECT CREATE_DATE FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = SUBSTRING(@id, 1,9) AND TYPE = 'C'), GETDATE()) GROUP BY CONTRACT_ID),0) CUM_C_AMOUNT  "
-            , new SqlParameter("id", id)).First();
+                advancePay = context.Database.SqlQuery<AdvancePaymentFunction>("SELECT (SELECT AMOUNT FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID =@id AND TYPE = 'A') AS A_AMOUNT, " +
+                    "(SELECT AMOUNT FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID =@id AND TYPE = 'B') AS B_AMOUNT, " +
+                    "(SELECT AMOUNT FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID =@id AND TYPE = 'C') AS C_AMOUNT, " +
+                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = @contractid AND TYPE = 'A' " +
+                    "AND CREATE_DATE < ISNULL((SELECT CREATE_DATE FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = @id AND TYPE = 'A'), GETDATE()) GROUP BY CONTRACT_ID),0) CUM_A_AMOUNT, " +
+                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = @contractid AND TYPE = 'B' " +
+                    "AND CREATE_DATE < ISNULL((SELECT CREATE_DATE FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = @id AND TYPE = 'B'), GETDATE()) GROUP BY CONTRACT_ID),0) CUM_B_AMOUNT, " +
+                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = @contractid AND TYPE = 'C' " +
+                    "AND CREATE_DATE < ISNULL((SELECT CREATE_DATE FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = @id AND TYPE = 'C'), GETDATE()) GROUP BY CONTRACT_ID),0) CUM_C_AMOUNT  "
+            , new SqlParameter("id", id), new SqlParameter("contractid", contractid)).First();
             }
 
             return advancePay;
@@ -3309,12 +3289,12 @@ namespace topmeperp.Service
         public List<PLAN_OTHER_PAYMENT> getAdvancePayByESTId(string id)
         {
 
-            logger.Info("get advance payment by EST id + contractid  =" + id);
+            logger.Info("get advance payment by EST id =" + id);
             List<PLAN_OTHER_PAYMENT> lstItem = new List<PLAN_OTHER_PAYMENT>();
             //處理SQL 預先填入ID,設定集合處理參數
             using (var context = new topmepEntities())
             {
-                lstItem = context.Database.SqlQuery<PLAN_OTHER_PAYMENT>("SELECT * FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID =@id AND TYPE IN ('A','B','C') ; "
+                lstItem = context.Database.SqlQuery<PLAN_OTHER_PAYMENT>("SELECT * FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID =@id AND TYPE IN ('A','B','C') ; "
             , new SqlParameter("id", id)).ToList();
             }
 
@@ -3352,9 +3332,9 @@ namespace topmeperp.Service
 
         PaymentDetailsFunction detailsPay = null;
         //取得估驗單預付款明細資料
-        public PaymentDetailsFunction getDetailsPayById(string id)
+        public PaymentDetailsFunction getDetailsPayById(string formid, string contractid)
         {
-            logger.Info("get details payment by  id  =" + id);
+            logger.Info("get details payment by  id  =" + formid);
             using (var context = new topmepEntities())
             {
                 detailsPay = context.Database.SqlQuery<PaymentDetailsFunction>("SELECT D.*,(D.EST_AMOUNT-D.T_FOREIGN+D.T_REPAYMENT) AS SUB_AMOUNT, (D.CUM_EST_AMOUNT - D.CUM_T_FOREIGN + D.CUM_T_REPAYMENT) AS CUM_SUB_AMOUNT, (D.EST_AMOUNT-D.T_FOREIGN-D.T_RETENTION-D.T_ADVANCE-D.T_OTHER+D.T_REPAYMENT-D.T_REFUND) AS PAYABLE_AMOUNT, " +
@@ -3363,28 +3343,28 @@ namespace topmeperp.Service
                     "(D.T_FOREIGN + D.CUM_T_FOREIGN) AS TOTAL_FOREIGN, (D.EST_AMOUNT - D.T_FOREIGN + D.CUM_EST_AMOUNT - D.CUM_T_FOREIGN + D.T_REPAYMENT + D.CUM_T_REPAYMENT) AS TOTAL_SUB_AMOUNT, (D.T_RETENTION + D.CUM_T_RETENTION) AS TOTAL_RETENTION, (D.T_ADVANCE + D.CUM_T_ADVANCE) AS TOTAL_ADVANCE, (D.T_REPAYMENT + D.CUM_T_REPAYMENT) AS TOTAL_REPAYMENT, " +
                     "(D.T_REFUND + D.CUM_T_REFUND) AS TOTAL_REFUND, (D.T_OTHER + D.CUM_T_OTHER) AS TOTAL_OTHER, (D.EST_AMOUNT-D.T_FOREIGN-D.T_RETENTION-D.T_ADVANCE-D.T_OTHER + D.CUM_EST_AMOUNT-D.CUM_T_FOREIGN - D.CUM_T_RETENTION - D.CUM_T_ADVANCE - D.CUM_T_OTHER + D.CUM_T_REPAYMENT - D.CUM_T_REFUND) AS TOTAL_PAYABLE_AMOUNT,  " +
                     "(D.TAX_AMOUNT + D.CUM_TAX_AMOUNT) AS TOTAL_TAX_AMOUNT, (D.EST_AMOUNT-D.T_FOREIGN-D.T_RETENTION-D.T_ADVANCE-D.T_OTHER + D.TAX_AMOUNT + D.CUM_EST_AMOUNT-D.CUM_T_FOREIGN-D.CUM_T_RETENTION-D.CUM_T_ADVANCE-D.CUM_T_OTHER + D.CUM_TAX_AMOUNT + D.CUM_T_REPAYMENT - D.CUM_T_REFUND) AS TOTAL_PAID_AMOUNT " +
-                    "FROM(SELECT ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID = @id AND TYPE IN('A', 'B', 'C') GROUP BY EST_FORM_ID + CONTRACT_ID), 0) AS T_ADVANCE, " +
-                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9) AND TYPE IN('A', 'B', 'C') " +
-                    "AND CREATE_DATE < (SELECT ISNULL((SELECT MIN(CREATE_DATE) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9) AND TYPE IN('A', 'B', 'C')), GETDATE())) GROUP BY CONTRACT_ID),0) AS CUM_T_ADVANCE, " +
-                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID = @id AND TYPE = 'R' GROUP BY EST_FORM_ID + CONTRACT_ID), 0) AS T_REPAYMENT, " +
-                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9) AND TYPE = 'R' " +
-                    "AND CREATE_DATE < (SELECT ISNULL((SELECT MIN(CREATE_DATE) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9) AND TYPE = 'R'), GETDATE())) GROUP BY CONTRACT_ID),0) AS CUM_T_REPAYMENT, " +
-                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID + CONTRACT_ID = @id AND TYPE = 'F' GROUP BY EST_FORM_ID + CONTRACT_ID), 0) AS T_REFUND, " +
-                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9) AND TYPE = 'F' " +
-                    "AND CREATE_DATE < (SELECT ISNULL((SELECT MIN(CREATE_DATE) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9) AND TYPE = 'F'), GETDATE())) GROUP BY CONTRACT_ID),0) AS CUM_T_REFUND, " +
+                    "FROM(SELECT ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID =@formid AND CONTRACT_ID = @contractid AND TYPE IN('A', 'B', 'C') GROUP BY EST_FORM_ID, CONTRACT_ID), 0) AS T_ADVANCE, " +
+                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = @contractid AND TYPE IN('A', 'B', 'C') " +
+                    "AND CREATE_DATE < (SELECT ISNULL((SELECT MIN(CREATE_DATE) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = @formid AND TYPE IN('A', 'B', 'C')), GETDATE())) GROUP BY CONTRACT_ID),0) AS CUM_T_ADVANCE, " +
+                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID =@formid AND CONTRACT_ID = @contractid AND TYPE = 'R' GROUP BY EST_FORM_ID, CONTRACT_ID), 0) AS T_REPAYMENT, " +
+                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = @contractid AND TYPE = 'R' " +
+                    "AND CREATE_DATE < (SELECT ISNULL((SELECT MIN(CREATE_DATE) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = @formid AND TYPE = 'R'), GETDATE())) GROUP BY CONTRACT_ID),0) AS CUM_T_REPAYMENT, " +
+                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID =@formid AND CONTRACT_ID = @contractid AND TYPE = 'F' GROUP BY EST_FORM_ID, CONTRACT_ID), 0) AS T_REFUND, " +
+                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = @contractid AND TYPE = 'F' " +
+                    "AND CREATE_DATE < (SELECT ISNULL((SELECT MIN(CREATE_DATE) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = @formid AND TYPE = 'F'), GETDATE())) GROUP BY CONTRACT_ID),0) AS CUM_T_REFUND, " +
                     "ISNULL((SELECT SUM(AMOUNT) AS AMOUNT FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID IN(SELECT EST_FORM_ID FROM PLAN_ESTIMATION_FORM WHERE CREATE_DATE < (SELECT DISTINCT ef.CREATE_DATE FROM PLAN_OTHER_PAYMENT pop JOIN PLAN_ESTIMATION_FORM ef " +
-                    "ON pop.EST_FORM_ID = ef.EST_FORM_ID WHERE pop.EST_FORM_ID = SUBSTRING(@id, 1, 9))) AND TYPE = 'O' AND CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9)),0) AS CUM_T_OTHER, " +
-                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE TYPE = 'O' GROUP BY EST_FORM_ID HAVING EST_FORM_ID = SUBSTRING(@id, 1, 9)),0) AS T_OTHER, " +
-                    "ISNULL((SELECT TAX_RATIO FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9)),0) AS TAX_RATIO, " +
-                    "ISNULL((SELECT RETENTION_PAYMENT FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9)),0) AS T_RETENTION, " +
-                    "ISNULL((SELECT TAX_AMOUNT FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9)),0) AS TAX_AMOUNT, " +
-                    "ISNULL((SELECT SUM(RETENTION_PAYMENT) FROM PLAN_ESTIMATION_FORM WHERE CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9) AND CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9))),0)  AS CUM_T_RETENTION, " +
-                    "ISNULL((SELECT SUM(TAX_AMOUNT) FROM PLAN_ESTIMATION_FORM WHERE CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9) AND CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9))),0) AS CUM_TAX_AMOUNT, " +
-                    "ISNULL((SELECT SUM(pei.EST_QTY * pi.ITEM_UNIT_COST) PRICE FROM PLAN_ESTIMATION_ITEM pei LEFT JOIN PLAN_ITEM pi ON PEI.PLAN_ITEM_ID = PI.PLAN_ITEM_ID WHERE pei.EST_FORM_ID = SUBSTRING(@id, 1, 9)),0) AS EST_AMOUNT, " +
-                    "ISNULL((SELECT SUM(pei.EST_QTY * pi.ITEM_UNIT_COST) PRICE FROM PLAN_ESTIMATION_ITEM pei LEFT JOIN PLAN_ITEM pi ON pei.PLAN_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN PLAN_ESTIMATION_FORM ef ON pei.EST_FORM_ID = ef.EST_FORM_ID WHERE ef.CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9))), 0) AS CUM_EST_AMOUNT,  " +
-                    "ISNULL((SELECT FOREIGN_PAYMENT FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9)),0) AS T_FOREIGN, ISNULL((SELECT SUM(FOREIGN_PAYMENT) FROM PLAN_ESTIMATION_FORM WHERE CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9) " +
-                    "AND CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9))),0) AS CUM_T_FOREIGN)D "
-            , new SqlParameter("id", id)).First();
+                    "ON pop.EST_FORM_ID = ef.EST_FORM_ID WHERE pop.EST_FORM_ID = @formid AND TYPE = 'O' AND CONTRACT_ID = @contractid),0) AS CUM_T_OTHER, " +
+                    "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE TYPE = 'O' GROUP BY EST_FORM_ID HAVING EST_FORM_ID = @formid),0) AS T_OTHER, " +
+                    "ISNULL((SELECT TAX_RATIO FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid),0) AS TAX_RATIO, " +
+                    "ISNULL((SELECT RETENTION_PAYMENT FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid),0) AS T_RETENTION, " +
+                    "ISNULL((SELECT TAX_AMOUNT FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid),0) AS TAX_AMOUNT, " +
+                    "ISNULL((SELECT SUM(RETENTION_PAYMENT) FROM PLAN_ESTIMATION_FORM WHERE CONTRACT_ID = @contractid AND CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid)),0)  AS CUM_T_RETENTION, " +
+                    "ISNULL((SELECT SUM(TAX_AMOUNT) FROM PLAN_ESTIMATION_FORM WHERE CONTRACT_ID = @contractid AND CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid)),0) AS CUM_TAX_AMOUNT, " +
+                    "ISNULL((SELECT SUM(pei.EST_QTY * pi.ITEM_UNIT_COST) PRICE FROM PLAN_ESTIMATION_ITEM pei LEFT JOIN PLAN_ITEM pi ON PEI.PLAN_ITEM_ID = PI.PLAN_ITEM_ID WHERE pei.EST_FORM_ID = @formid),0) AS EST_AMOUNT, " +
+                    "ISNULL((SELECT SUM(pei.EST_QTY * pi.ITEM_UNIT_COST) PRICE FROM PLAN_ESTIMATION_ITEM pei LEFT JOIN PLAN_ITEM pi ON pei.PLAN_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN PLAN_ESTIMATION_FORM ef ON pei.EST_FORM_ID = ef.EST_FORM_ID WHERE ef.CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid)), 0) AS CUM_EST_AMOUNT,  " +
+                    "ISNULL((SELECT FOREIGN_PAYMENT FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid),0) AS T_FOREIGN, ISNULL((SELECT SUM(FOREIGN_PAYMENT) FROM PLAN_ESTIMATION_FORM WHERE CONTRACT_ID = @contractid " +
+                    "AND CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid)),0) AS CUM_T_FOREIGN)D "
+            , new SqlParameter("formid", formid), new SqlParameter("contractid", contractid)).First();
             }
             return detailsPay;
         }
@@ -3401,20 +3381,21 @@ namespace topmeperp.Service
             return retention;
         }
         //寫入估驗保留款
-        public int UpdateRetentionAmountById(string id)
+        public int UpdateRetentionAmountById(string formid, string contractid)
         {
             int i = 0;
-            logger.Info("update retention payment of EST form by id" + id);
+            logger.Info("update retention payment of EST form by id" + formid);
             string sql = "UPDATE  PLAN_ESTIMATION_FORM SET RETENTION_PAYMENT = i.PAY, TAX_AMOUNT = i.TAX_AMOUNT  " +
                 "FROM(SELECT RATIO * AMOUNT / 100 * (1+TAX_RATIO/100) AS PAY, (AMOUNT -T_FOREIGN) * TAX_RATIO/100 AS TAX_AMOUNT FROM(SELECT ISNULL((SELECT PAYMENT_RETENTION_RATIO FROM PLAN_PAYMENT_TERMS WHERE " +
-                "CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9)), 0) AS RATIO, ISNULL((SELECT TAX_RATIO FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9)),0) AS TAX_RATIO, " +
-                "ISNULL((SELECT FOREIGN_PAYMENT FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9)),0) AS T_FOREIGN, " +
+                "CONTRACT_ID = @contractid), 0) AS RATIO, ISNULL((SELECT TAX_RATIO FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid),0) AS TAX_RATIO, " +
+                "ISNULL((SELECT FOREIGN_PAYMENT FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid),0) AS T_FOREIGN, " +
                 "(SELECT ISNULL(SUM(pei.EST_QTY * pi.ITEM_UNIT_COST), 0) PRICE FROM PLAN_ESTIMATION_ITEM pei LEFT JOIN PLAN_ITEM pi ON pei.PLAN_ITEM_ID = pi.PLAN_ITEM_ID " +
-                "WHERE pei.EST_FORM_ID = SUBSTRING(@id, 1, 9)) AS AMOUNT)B) i WHERE EST_FORM_ID = SUBSTRING(@id, 1, 9)";
+                "WHERE pei.EST_FORM_ID = @formid) AS AMOUNT)B) i WHERE EST_FORM_ID = @formid ";
             logger.Debug("batch sql:" + sql);
             db = new topmepEntities();
             var parameters = new List<SqlParameter>();
-            parameters.Add(new SqlParameter("id", id));
+            parameters.Add(new SqlParameter("formid", formid));
+            parameters.Add(new SqlParameter("contractid", contractid));
             db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
             i = db.SaveChanges();
             logger.Info("Update Record:" + i);
@@ -3556,13 +3537,13 @@ namespace topmeperp.Service
         public List<PLAN_INVOICE> getInvoiceById(string id)
         {
 
-            logger.Info("get invoice by EST id + contractid  =" + id);
+            logger.Info("get invoice by EST id =" + id);
             List<PLAN_INVOICE> lstItem = new List<PLAN_INVOICE>();
             //處理SQL 預先填入ID,設定集合處理參數
             using (var context = new topmepEntities())
             {
                 lstItem = context.Database.SqlQuery<PLAN_INVOICE>("SELECT INVOICE_ID, EST_FORM_ID, CONTRACT_ID, INVOICE_DATE, INVOICE_NUMBER, " +
-                    "AMOUNT, TAX, TYPE, SUB_TYPE, PLAN_ITEM_ID, DISCOUNT_QTY, DISCOUNT_UNIT_PRICE, CREATE_DATE FROM PLAN_INVOICE WHERE EST_FORM_ID + CONTRACT_ID =@id ; "
+                    "AMOUNT, TAX, TYPE, SUB_TYPE, PLAN_ITEM_ID, DISCOUNT_QTY, DISCOUNT_UNIT_PRICE, CREATE_DATE FROM PLAN_INVOICE WHERE EST_FORM_ID =@id ; "
             , new SqlParameter("id", id)).ToList();
             }
 
@@ -3607,13 +3588,13 @@ namespace topmeperp.Service
         public List<RePaymentFunction> getRePaymentById(string id)
         {
 
-            logger.Info("get repayment by EST id + contractid  =" + id);
+            logger.Info("get repayment by EST id =" + id);
             List<RePaymentFunction> lstItem = new List<RePaymentFunction>();
             //處理SQL 預先填入ID,設定集合處理參數
             using (var context = new topmepEntities())
             {
-                lstItem = context.Database.SqlQuery<RePaymentFunction>("SELECT pop.AMOUNT AS AMOUNT, pop.REASON AS REASON, pop.CONTRACT_ID_FOR_REFUND AS CONTRACT_ID_FOR_REFUND, s.COMPANY_NAME AS COMPANY_NAME " +
-                    "FROM PLAN_OTHER_PAYMENT pop LEFT JOIN TND_SUPPLIER s ON SUBSTRING(pop.CONTRACT_ID_FOR_REFUND, 7, 7) = s.SUPPLIER_ID WHERE pop.EST_FORM_ID + pop.CONTRACT_ID =@id AND pop.TYPE = 'R' ; "
+                lstItem = context.Database.SqlQuery<RePaymentFunction>("SELECT pop.AMOUNT AS AMOUNT, pop.REASON AS REASON, pop.CONTRACT_ID_FOR_REFUND AS CONTRACT_ID_FOR_REFUND, s.SUPPLIER_ID AS COMPANY_NAME " +
+                    "FROM PLAN_OTHER_PAYMENT pop LEFT JOIN PLAN_SUP_INQUIRY s ON pop.CONTRACT_ID_FOR_REFUND = s.INQUIRY_FORM_ID WHERE pop.EST_FORM_ID =@id AND pop.TYPE = 'R' ; "
             , new SqlParameter("id", id)).ToList();
             }
 
@@ -3629,9 +3610,9 @@ namespace topmeperp.Service
             //處理SQL 預先填入ID,設定集合處理參數
             using (var context = new topmepEntities())
             {
-                lstItem = context.Database.SqlQuery<RePaymentFunction>("SELECT DISTINCT pi.SUPPLIER_ID AS COMPANY_NAME, pi.PROJECT_ID + s.SUPPLIER_ID + REPLACE(pi.FORM_NAME,',','*') AS CONTRACT_NAME " +
-                    "FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON pi.SUPPLIER_ID = s.COMPANY_NAME  WHERE PROJECT_ID =@prjid UNION SELECT DISTINCT pi.MAN_SUPPLIER_ID, " +
-                    "pi.PROJECT_ID + s.SUPPLIER_ID + REPLACE(pi.MAN_FORM_NAME,',','*') FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON pi.MAN_SUPPLIER_ID = s.COMPANY_NAME WHERE PROJECT_ID =@prjid ; "
+                lstItem = context.Database.SqlQuery<RePaymentFunction>("SELECT DISTINCT pi.SUPPLIER_ID AS COMPANY_NAME, pi.INQUIRY_FORM_ID AS CONTRACT_NAME " +
+                    "FROM PLAN_ITEM pi WHERE PROJECT_ID =@prjid UNION SELECT DISTINCT pi.MAN_SUPPLIER_ID, " +
+                    "pi.MAN_FORM_ID FROM PLAN_ITEM pi WHERE PROJECT_ID =@prjid ; "
             , new SqlParameter("prjid", prjid)).ToList();
             }
 
@@ -3675,18 +3656,18 @@ namespace topmeperp.Service
         public List<RePaymentFunction> getRefundById(string id)
         {
 
-            logger.Info("get refund by EST id + contractid  =" + id);
+            logger.Info("get refund by EST id =" + id);
             List<RePaymentFunction> lstItem = new List<RePaymentFunction>();
             //處理SQL 預先填入ID,設定集合處理參數
             using (var context = new topmepEntities())
             {
                 lstItem = context.Database.SqlQuery<RePaymentFunction>("SELECT A.*, ISNULL((SELECT COUNT(ef.CONTRACT_ID) + 1 FROM PLAN_ESTIMATION_FORM ef WHERE ef.CREATE_DATE <  " +
-                    "(SELECT DISTINCT pef.CREATE_DATE from PLAN_OTHER_PAYMENT pop LEFT JOIN PLAN_ESTIMATION_FORM pef ON pef.EST_FORM_ID = pop.EST_FORM_ID_REFUND WHERE pop.EST_FORM_ID = SUBSTRING(@id,1,9) AND pef.CREATE_DATE IS NOT NULL) " +
-                    "AND ef.CONTRACT_ID = (SELECT DISTINCT pef.CONTRACT_ID FROM PLAN_OTHER_PAYMENT pop LEFT JOIN PLAN_ESTIMATION_FORM pef ON pef.EST_FORM_ID = pop.EST_FORM_ID_REFUND WHERE pop.EST_FORM_ID = SUBSTRING(@id,1,9) AND pef.CREATE_DATE IS NOT NULL) " +
+                    "(SELECT DISTINCT pef.CREATE_DATE from PLAN_OTHER_PAYMENT pop LEFT JOIN PLAN_ESTIMATION_FORM pef ON pef.EST_FORM_ID = pop.EST_FORM_ID_REFUND WHERE pop.EST_FORM_ID = @id AND pef.CREATE_DATE IS NOT NULL) " +
+                    "AND ef.CONTRACT_ID = (SELECT DISTINCT pef.CONTRACT_ID FROM PLAN_OTHER_PAYMENT pop LEFT JOIN PLAN_ESTIMATION_FORM pef ON pef.EST_FORM_ID = pop.EST_FORM_ID_REFUND WHERE pop.EST_FORM_ID = @id AND pef.CREATE_DATE IS NOT NULL) " +
                     "GROUP BY ef.CONTRACT_ID),1) AS EST_COUNT_REFUND FROM(SELECT pop.AMOUNT AS AMOUNT, pop.REASON AS REASON, pop.CONTRACT_ID AS CONTRACT_ID, " +
-                    "pop.EST_FORM_ID_REFUND AS EST_FORM_ID_REFUND, pop.CONTRACT_ID_FOR_REFUND AS CONTRACT_ID_FOR_REFUND, s.COMPANY_NAME AS COMPANY_NAME FROM PLAN_OTHER_PAYMENT pop LEFT JOIN TND_SUPPLIER s " +
-                    "ON SUBSTRING(pop.CONTRACT_ID_FOR_REFUND, 7, 7) = s.SUPPLIER_ID " +
-                    "WHERE pop.EST_FORM_ID + pop.CONTRACT_ID =@id AND pop.TYPE = 'F')A ; "
+                    "pop.EST_FORM_ID_REFUND AS EST_FORM_ID_REFUND, pop.CONTRACT_ID_FOR_REFUND AS CONTRACT_ID_FOR_REFUND, s.SUPPLIER_ID AS COMPANY_NAME FROM PLAN_OTHER_PAYMENT pop LEFT JOIN PLAN_SUP_INQUIRY s " +
+                    "ON pop.CONTRACT_ID_FOR_REFUND = s.INQUIRY_FORM_ID " +
+                    "WHERE pop.EST_FORM_ID =@id AND pop.TYPE = 'F')A ; "
             , new SqlParameter("id", id)).ToList();
             }
 
@@ -3694,38 +3675,38 @@ namespace topmeperp.Service
         }
 
         //取得特定廠商所有代付扣回明細資料
-        public List<RePaymentFunction> getRefundOfSupplierById(string id)
+        public List<RePaymentFunction> getRefundOfSupplierById(string contractid)
         {
 
-            logger.Info("get all refunds of this supplier by EST id + contractid  =" + id);
+            logger.Info("get all refunds of this supplier by contractid =" + contractid);
             List<RePaymentFunction> lstItem = new List<RePaymentFunction>();
             //處理SQL 預先填入ID,設定集合處理參數
             using (var context = new topmepEntities())
             {
                 lstItem = context.Database.SqlQuery<RePaymentFunction>("SELECT pop.AMOUNT AS AMOUNT, pop.REASON AS REASON, pop.CONTRACT_ID AS CONTRACT_ID, " +
-                    "pop.EST_FORM_ID_REFUND AS EST_FORM_ID_REFUND, pop.EST_COUNT_REFUND AS EST_COUNT_REFUND, s.COMPANY_NAME AS COMPANY_NAME " +
-                    "FROM PLAN_OTHER_PAYMENT pop LEFT JOIN TND_SUPPLIER s ON SUBSTRING(pop.CONTRACT_ID_FOR_REFUND, 7, 7) = s.SUPPLIER_ID " +
-                    "WHERE pop.CONTRACT_ID = SUBSTRING(@id, 10, LEN(@id) - 9) AND pop.TYPE = 'F' AND pop.EST_COUNT_REFUND IS NOT NULL ; "
-            , new SqlParameter("id", id)).ToList();
+                    "pop.EST_FORM_ID_REFUND AS EST_FORM_ID_REFUND, pop.EST_COUNT_REFUND AS EST_COUNT_REFUND, s.SUPPLIER_ID AS COMPANY_NAME " +
+                    "FROM PLAN_OTHER_PAYMENT pop LEFT JOIN PLAN_SUP_INQUIRY s ON pop.CONTRACT_ID_FOR_REFUND = s.INQUIRY_FORM_ID " +
+                    "WHERE pop.CONTRACT_ID = @contractid AND pop.TYPE = 'F' AND pop.EST_COUNT_REFUND IS NOT NULL ; "
+            , new SqlParameter("contractid", contractid)).ToList();
             }
 
             return lstItem;
         }
         //取得需扣回給代付廠商之資料
-        public List<RePaymentFunction> getSupplierOfContractRefundById(string id)
+        public List<RePaymentFunction> getSupplierOfContractRefundById(string contractid)
         {
 
-            logger.Info("get refund by contractid  =" + id);
+            logger.Info("get refund by contractid  =" + contractid);
             List<RePaymentFunction> lstItem = new List<RePaymentFunction>();
             //處理SQL 預先填入ID,設定集合處理參數
             using (var context = new topmepEntities())
             {
                 lstItem = context.Database.SqlQuery<RePaymentFunction>("SELECT pop.AMOUNT AS AMOUNT, pop.REASON AS REASON, pop.CONTRACT_ID AS CONTRACT_ID, pop.EST_FORM_ID AS EST_FORM_ID_REFUND, " +
-                    "pop.OTHER_PAYMENT_ID AS OTHER_PAYMENT_ID, s.COMPANY_NAME AS COMPANY_NAME FROM PLAN_OTHER_PAYMENT pop LEFT JOIN TND_SUPPLIER s " +
-                    "ON SUBSTRING(pop.CONTRACT_ID, 7, 7) = s.SUPPLIER_ID " +
-                    "WHERE REPLACE(pop.CONTRACT_ID_FOR_REFUND,'*',',') =@id AND pop.TYPE = 'R' AND pop.CONTRACT_ID + pop.EST_FORM_ID + REPLACE(pop.CONTRACT_ID_FOR_REFUND,'*',',') + pop.REASON NOT IN " +
-                    "(SELECT REPLACE(op.CONTRACT_ID_FOR_REFUND,'*',',') + op.EST_FORM_ID_REFUND + op.CONTRACT_ID + op.REASON FROM PLAN_OTHER_PAYMENT op WHERE op.TYPE = 'F'); "
-            , new SqlParameter("id", id)).ToList();
+                    "pop.OTHER_PAYMENT_ID AS OTHER_PAYMENT_ID, s.SUPPLIER_ID AS COMPANY_NAME FROM PLAN_OTHER_PAYMENT pop LEFT JOIN PLAN_SUP_INQUIRY] s " +
+                    "ON pop.CONTRACT_ID = s.INQUIRY_FORM_ID " +
+                    "WHERE pop.CONTRACT_ID_FOR_REFUND =@contractid AND pop.TYPE = 'R' AND pop.CONTRACT_ID + pop.EST_FORM_ID + pop.CONTRACT_ID_FOR_REFUND + pop.REASON NOT IN " +
+                    "(SELECT op.CONTRACT_ID_FOR_REFUND + op.EST_FORM_ID_REFUND + op.CONTRACT_ID + op.REASON FROM PLAN_OTHER_PAYMENT op WHERE op.TYPE = 'F'); "
+            , new SqlParameter("contractid", contractid)).ToList();
             }
 
             return lstItem;

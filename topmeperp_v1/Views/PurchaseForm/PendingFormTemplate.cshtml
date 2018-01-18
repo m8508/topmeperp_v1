@@ -1,9 +1,14 @@
 ﻿@model IEnumerable<topmeperp.Models.PURCHASE_ORDER>
 
 <div class="container">
-    <h3 style="padding-top:40px;">未發包之分項詢價單 : </h3>
+    <h3 style="padding-top:40px;">議約發包之分項明細 : </h3>
 </div>
 <div style="padding-top:10px;">
+    <button type="button" class="btn btn-primary" onclick="window.open('@Url.Action("Comparison", "PurchaseForm", new { id = ViewBag.projectid })'); ">採購比價</button>
+    <!--
+    <button type="button" class="btn btn-primary" onclick="window.open('@Url.Action("Comparison4Wage", "PurchaseForm", new { id = ViewBag.projectid })'); ">工資比價</button>
+     -->
+    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PurchasingContract", "PurchaseForm", new { id = ViewBag.projectid })'; ">發包收支摘要</button>
     <button type="button" class="btn btn-primary" onclick="window.open('@Url.Action("PendingItems", "PurchaseForm", new { id = ViewBag.projectid })');">材料分項漏項</button>
     <button type="button" class="btn btn-primary" onclick="window.open('@Url.Action("PendingItems4Wage", "PurchaseForm", new { id = ViewBag.projectid })');">工資分項漏項</button>
     <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
@@ -21,8 +26,12 @@
             分項名稱
         </th>
         <th>
-            詢價單編號
+            已發包
         </th>
+        <th>
+            廠商詢價單數量
+        </th>
+        <th>功能</th>
         <th>連結</th>
     </tr>
 
@@ -60,15 +69,29 @@
             <td>
                 @Html.DisplayFor(modelItem => item.FORM_NAME)
             </td>
+            @if (null != item.Bargain && item.Bargain != "")
+            {
+                <td>
+                    <span style="color: red; font-size: 15px;">
+                        ✔
+                    </span>
+                </td>
+            }
+            else
+            {
+                <td>
+                </td>
+            }
             <td>
-                @Html.DisplayFor(modelItem => item.INQUIRY_FORM_ID)
+                @Html.DisplayFor(modelItem => item.CountPO)
+            </td>
+            <td>
+                <a href="/PurchaseForm/PurchaseMain?id=@item.PROJECT_ID&formname=@item.FORM_NAME&iswage=@item.ISWAGE" target="_blank"><span style="color:forestgreen; font-size: 15px;">連結議約廠商</span></a>
             </td>
             <td>
                 <a href="/PurchaseForm/downLoadInquiryForm?formid=@item.INQUIRY_FORM_ID&isTemp=N" target="_blank">下載空白詢價單</a>
                 <a href="/PurchaseForm/SinglePrjForm/@item.INQUIRY_FORM_ID" target="_blank"><span style="color: deeppink; font-size: 15px;">產生廠商詢價單</span></a>
-
             </td>
-
         </tr>
     }
 </table>

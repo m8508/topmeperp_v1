@@ -6,13 +6,13 @@
         <thead>
             <tr>
                 <th>期別</th>
-                <th>+ 代付支出<a href="/Estimation/RePayment/@ViewBag.paymentkey" target="_blank">＠</a></th>
+                <th>+ 代付支出<a href="/Estimation/RePayment?id=@ViewBag.formid&contractid=@ViewBag.contractid" target="_blank">＠</a></th>
                 <th>- 外勞扣款</th>
                 <th>= 小計</th>
                 <th>- 保留款 <input type="text" id="retention" name="retention" value="@ViewBag.retention" readonly="readonly" style="width:60px;" />%</th>
-                <th>- 預付款<a href="/Estimation/AdvancePayment/@ViewBag.paymentkey" target="_blank">＠</a></th>
-                <th>- 代付扣回<a href="/Estimation/Refund/@ViewBag.paymentkey" target="_blank">＠</a></th>
-                <th>- 其他扣款<a href="/Estimation/OtherPayment/@ViewBag.paymentkey" target="_blank" id="otherPay">＠</a></th>
+                <th>- 預付款<a href="/Estimation/AdvancePayment?id=@ViewBag.formid&contractid=@ViewBag.contractid" target="_blank">＠</a></th>
+                <th>- 代付扣回<a href="/Estimation/Refund?id=@ViewBag.formid&contractid=@ViewBag.contractid" target="_blank">＠</a></th>
+                <th>- 其他扣款<a href="/Estimation/OtherPayment?id=@ViewBag.formid&contractid=@ViewBag.contractid" target="_blank" id="otherPay">＠</a></th>
                 <th>= 應付金額</th>
                 <th>+ 營業稅</th>
                 <th>= 實付金額</th>

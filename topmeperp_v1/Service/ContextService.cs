@@ -798,14 +798,14 @@ namespace topmeperp.Service
 
         TND_SUPPLIER supplier = null;
         //取得供應商資料
-        public TND_SUPPLIER getSupplierInfo(string supplierid)
+        public TND_SUPPLIER getSupplierInfo(string supplierName)
         {
-            logger.Debug("get supplier by id=" + supplierid);
+            logger.Debug("get supplier by id=" + supplierName);
             using (var context = new topmepEntities())
             {
                 supplier = context.TND_SUPPLIER.SqlQuery("select s.* from TND_SUPPLIER s "
-                    + "where s.SUPPLIER_ID = @supplierid "
-                   , new SqlParameter("supplierid", supplierid)).First();
+                    + "where s.COMPANY_NAME = @supplierName "
+                   , new SqlParameter("supplierName", supplierName)).First();
             }
             return supplier;
         }

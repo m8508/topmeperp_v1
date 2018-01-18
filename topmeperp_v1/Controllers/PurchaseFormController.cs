@@ -600,7 +600,7 @@ namespace topmeperp.Controllers
             }
         }
         //議約採購功能主頁
-        public ActionResult PurchaseMain(string id)
+        public ActionResult PurchaseMain(string id, string formname, string iswage)
         {
             //傳入專案編號，
             log.Info("start project id=" + id);
@@ -610,31 +610,21 @@ namespace topmeperp.Controllers
             TND_PROJECT p = service.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
             //取得未決標需議價之詢價單資料
-            string iswage = "N";
-            ViewBag.isWage = Request["isWage"];
-            if (null != Request["isWage"])
-            {
-                iswage = Request["isWage"];
-            }
-            List<purchasesummary> lstforms = service.getPurchaseForm4Offer(id, Request["formname"], iswage);
+            //string iswage = "N";
+            //ViewBag.isWage = Request["isWage"];
+            //if (null != Request["isWage"])
+            //{
+                //iswage = Request["isWage"];
+            //}
+            List<purchasesummary> lstforms = service.getPurchaseForm4Offer(id, formname, iswage);
             BudgetDataService bs = new BudgetDataService();
-            DirectCost iteminfo = bs.getItemBudget(id, Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formname"]);
+            DirectCost iteminfo = bs.getItemBudget(id, Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], formname);
             ViewBag.itembudget = iteminfo.ITEM_BUDGET;
             ViewBag.itemwagebudget = iteminfo.ITEM_BUDGET_WAGE;
             ViewBag.SearchResult = "共取得" + lstforms.Count + "筆資料";
             return View(lstforms);
         }
-        public ActionResult Search()
-        {
-            List<purchasesummary> lstforms = service.getPurchaseForm4Offer(Request["id"], Request["formname"], Request["isWage"]);
-            BudgetDataService bs = new BudgetDataService();
-            DirectCost iteminfo = bs.getItemBudget(Request["id"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formname"]);
-            ViewBag.itembudget = iteminfo.ITEM_BUDGET;
-            ViewBag.itemwagebudget = iteminfo.ITEM_BUDGET_WAGE;
-            ViewBag.SearchResult = "共取得" + lstforms.Count + "筆資料";
-            return View("PurchaseMain", lstforms);
-        }
-
+        
         //採購比價功能資料頁
         public ActionResult Comparison(string id)
         {

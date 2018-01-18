@@ -88,33 +88,34 @@ namespace topmeperp.Controllers
             return View("Valuation", contract);
         }
 
-        public ActionResult AddEST(string id)
+        public ActionResult AddEST(string id, string projectid, string type)
         {
             logger.Info("create EST form id process!  Contract id=" + id);
             //新增估驗單編號
             string formid = service.getEstNo();
-            return RedirectToAction("ContractItems", "Estimation", new { id = id, formid = formid });
+            return RedirectToAction("ContractItems", "Estimation", new { id = id, formid = formid, projectid = projectid, type = type });
         }
 
-        public ActionResult ContractItems(string id, string formid)
+        public ActionResult ContractItems(string id, string formid, string projectid, string type)
         {
             logger.Info("Access To Contract Item By Contract Id =" + id);
-            ViewBag.projectId = id.Substring(1, 6).Trim();
-            TND_PROJECT p = service.getProjectById(id.Substring(1, 6).Trim());
+            ViewBag.projectId = projectid;
+            TND_PROJECT p = service.getProjectById(projectid);
             ViewBag.projectName = p.PROJECT_NAME;
-            ViewBag.wage = id.Substring(0, 1).Trim();
+            ViewBag.wage = type;
             ContractModels contract = new ContractModels();
             ViewBag.formid = formid;
+            ViewBag.contractid = id;
             ViewBag.keyid = id; //使用供應商名稱的contractid
             //取得合約金額與供應商名稱,採購項目等資料
-            if (ViewBag.wage == "")
+            if (ViewBag.wage != "W")
             {
-                plansummary lstContract = service.getPlanContract4Est(id.Substring(1).Trim());
+                plansummary lstContract = service.getPlanContract4Est(id);
                 ViewBag.supplier = lstContract.SUPPLIER_ID;
                 ViewBag.formname = lstContract.FORM_NAME;
                 ViewBag.amount = lstContract.MATERIAL_COST;
-                ViewBag.contractid = lstContract.CONTRACT_ID; //使用供應商編號的contractid
-                PLAN_PAYMENT_TERMS payment = service.getPaymentTerm(lstContract.CONTRACT_ID);
+                //ViewBag.contractid = lstContract.CONTRACT_ID; //使用供應商編號的contractid
+                PLAN_PAYMENT_TERMS payment = service.getPaymentTerm(id);
                 if (payment.PAYMENT_RETENTION_RATIO != null)
                 {
                     ViewBag.retention = payment.PAYMENT_RETENTION_RATIO;
@@ -131,9 +132,9 @@ namespace topmeperp.Controllers
                 {
                     ViewBag.type = 'M'; // 設備合約
                 }
-                ViewBag.estCount = service.getEstCountById(lstContract.CONTRACT_ID);
-                ViewBag.paymentTerms = service.getTermsByContractId(lstContract.CONTRACT_ID);
-                var balance = service.getBalanceOfRefundById(lstContract.CONTRACT_ID);
+                ViewBag.estCount = service.getEstCountById(id);
+                ViewBag.paymentTerms = service.getTermsByContractId(id);
+                var balance = service.getBalanceOfRefundById(id);
                 if (balance > 0)
                 {
                     TempData["balance"] = "本合約目前尚有 " + string.Format("{0:C0}", balance) + "的代付支出款項，仍未扣回!";
@@ -141,7 +142,7 @@ namespace topmeperp.Controllers
             }
             else
             {
-                plansummary lstWageContract = service.getPlanContractOfWage4Est(id.Substring(1).Trim());
+                plansummary lstWageContract = service.getPlanContractOfWage4Est(id);
                 ViewBag.supplier4Wage = lstWageContract.MAN_SUPPLIER_ID;
                 ViewBag.formname4Wage = lstWageContract.MAN_FORM_NAME;
                 ViewBag.amount4Wage = lstWageContract.WAGE_COST;
@@ -165,9 +166,9 @@ namespace topmeperp.Controllers
                 }
             }
             ViewBag.date = DateTime.Now;
-            ViewBag.paymentkey = ViewBag.formid + ViewBag.contractid;
+            //ViewBag.paymentkey = ViewBag.formid + ViewBag.contractid;
             List<EstimationForm> lstContractItem = null;
-            lstContractItem = service.getContractItemById(id.Substring(1).Trim());
+            lstContractItem = service.getContractItemById(id, projectid);
             //contract.planItems = lstContractItem;
             ViewBag.SearchResult = "共取得" + lstContractItem.Count + "筆資料";
             //轉成Json字串
@@ -200,7 +201,7 @@ namespace topmeperp.Controllers
         {
             //取得估驗單編號
             logger.Info("EST form Id:" + Request["formid"]);
-            logger.Info("Project Id:" + Request["contractid"].Substring(0, 6).Trim());
+            logger.Info("Project Id:" + Request["projectid"]);
             logger.Info("get EST No of un Approval By contractid:" + Request["contractid"]);
             string contractid = Request["contractid"];
             string UnApproval = null;
@@ -208,7 +209,7 @@ namespace topmeperp.Controllers
             if (UnApproval != null && "" != UnApproval)
             {
                 TempData["result"] = "目前尚有未核准的估驗單，估驗單編號為" + UnApproval + "，待此單核准後再新增估驗單!";
-                return RedirectToAction("Valuation", "Estimation", new { id = Request["contractid"].Substring(0, 6).Trim() });
+                return RedirectToAction("Valuation", "Estimation", new { id = Request["projectid"] });
             }
             else
             {
@@ -228,14 +229,14 @@ namespace topmeperp.Controllers
             //取得估驗單編號
             logger.Info("EST form Id:" + Request["formid"]);
             logger.Info("get EST No of un Approval By contractid:" + Request["contractid"]);
-            logger.Info("Project Id:" + Request["contractid"].Substring(0, 6).Trim());
+            logger.Info("Project Id:" + Request["projectid"]);
             string contractid = Request["contractid"];
             string UnApproval = null;
             UnApproval = service.getEstNoByContractId(contractid);
             if (UnApproval != null && "" != UnApproval)
             {
                 TempData["result"] = "目前尚有未核准的估驗單，估驗單編號為" + UnApproval + "，待此單核准後再新增估驗單!";
-                return RedirectToAction("Valuation", "Estimation", new { id = Request["contractid"].Substring(0, 6).Trim() });
+                return RedirectToAction("Valuation", "Estimation", new { id = Request["projectid"] });
             }
             else
             {
@@ -253,7 +254,7 @@ namespace topmeperp.Controllers
             logger.Info("Project Id:" + Request["id"]);
             //取得專案名稱
             logger.Info("Project Name:" + Request["projectName"]);
-            logger.Info("ContractId:" + Request["keyid"]);
+            //logger.Info("ContractId:" + Request["keyid"]);
             logger.Info("get EST No of un Approval By contractid:" + Request["contractid"]);
             string contractid = Request["contractid"];
             string UnApproval = null;
@@ -329,9 +330,9 @@ namespace topmeperp.Controllers
                     lstItem.Add(items);
                 }
                 int k = service.refreshEST(estid, est, lstItem);
-                int m = service.UpdateRetentionAmountById(Request["formid"] + Request["contractid"]);
+                int m = service.UpdateRetentionAmountById(Request["formid"], Request["contractid"]);
                 System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-                string itemJson = objSerializer.Serialize(service.getDetailsPayById(Request["formid"] + Request["contractid"]));
+                string itemJson = objSerializer.Serialize(service.getDetailsPayById(Request["formid"], Request["contractid"]));
                 logger.Info("EST form details payment amount=" + itemJson);
                 return itemJson;
             }
@@ -413,7 +414,7 @@ namespace topmeperp.Controllers
             singleForm.planESTItem = service.ESTItem;
             singleForm.prj = service.getProjectById(singleForm.planEST.PROJECT_ID);
             logger.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
-            PaymentDetailsFunction lstSummary = service.getDetailsPayById(id + singleForm.planEST.CONTRACT_ID);
+            PaymentDetailsFunction lstSummary = service.getDetailsPayById(id, singleForm.planEST.CONTRACT_ID);
             var balance = service.getBalanceOfRefundById(ViewBag.contractid);
             if (balance > 0)
             {
@@ -425,16 +426,17 @@ namespace topmeperp.Controllers
             return View(singleForm);
         }
         //其他扣款
-        public ActionResult OtherPayment(string id)
+        public ActionResult OtherPayment(string id, string contractid)
         {
             logger.Info("Access To Other Payment By EST Form Id =" + id);
-            ViewBag.keyId = id;
-            ViewBag.projectId = id.Substring(9, 6).Trim();
-            TND_PROJECT p = service.getProjectById(id.Substring(9, 6).Trim());
+            service.getInqueryForm(id);
+            PLAN_SUP_INQUIRY f = service.formInquiry;
+            ViewBag.projectId = f.PROJECT_ID;
+            TND_PROJECT p = service.getProjectById(f.PROJECT_ID);
             ViewBag.projectName = p.PROJECT_NAME;
-            ViewBag.contractid = id.Substring(9).Trim();
-            ViewBag.formname = id.Substring(22).Trim();
-            ViewBag.formid = id.Substring(0, 9).Trim();
+            ViewBag.contractid = contractid;
+            ViewBag.formname = f.FORM_NAME;
+            ViewBag.formid = id;
             List<PLAN_OTHER_PAYMENT> lstOtherPayItem = null;
             lstOtherPayItem = service.getOtherPayById(id);
             ViewBag.status = -10; //估驗單尚未建立
@@ -555,7 +557,7 @@ namespace topmeperp.Controllers
             }
             int k = service.RefreshESTByEstId(form["estid"], tax, taxratio);
             int i = service.refreshESTQty(form["estid"], lstItem);
-            int m = service.UpdateRetentionAmountById(form["estid"] + form["contractid"]);
+            int m = service.UpdateRetentionAmountById(form["estid"], form["contractid"]);
             if (i == 0)
             {
                 msg = service.message;
@@ -593,18 +595,19 @@ namespace topmeperp.Controllers
         }
 
         //預付款
-        public ActionResult AdvancePayment(string id)
+        public ActionResult AdvancePayment(string id, string contractid)
         {
             logger.Info("Access To Advance Payment By EST Form Id =" + id);
-            ViewBag.keyId = id;
-            ViewBag.projectId = id.Substring(9, 6).Trim();
-            TND_PROJECT p = service.getProjectById(id.Substring(9, 6).Trim());
+            service.getInqueryForm(id);
+            PLAN_SUP_INQUIRY f = service.formInquiry;
+            ViewBag.projectId = f.PROJECT_ID;
+            TND_PROJECT p = service.getProjectById(f.PROJECT_ID);
             ViewBag.projectName = p.PROJECT_NAME;
-            ViewBag.contractid = id.Substring(9).Trim();
-            ViewBag.formid = id.Substring(0, 9).Trim();
-            PLAN_PAYMENT_TERMS payment = service.getPaymentTerm(id.Substring(9).Trim());
+            ViewBag.contractid = contractid;
+            ViewBag.formid = id;
+            PLAN_PAYMENT_TERMS payment = service.getPaymentTerm(contractid);
             ViewBag.advancePaymentRatio = payment.PAYMENT_ADVANCE_RATIO;
-            AdvancePaymentFunction advancePay = service.getAdvancePayById(id);
+            AdvancePaymentFunction advancePay = service.getAdvancePayById(id, contractid);
             List<PLAN_OTHER_PAYMENT> lstAdvancePayItem = null;
             lstAdvancePayItem = service.getAdvancePayByESTId(id);
             ViewBag.key = lstAdvancePayItem.Count;
@@ -760,21 +763,22 @@ namespace topmeperp.Controllers
         }
 
         //憑證
-        public ActionResult Invoice(string id)
+        public ActionResult Invoice(string id, string contractid)
         {
             logger.Info("Access To Invoice By EST Form Id =" + id);
-            ViewBag.keyId = id;
-            ViewBag.projectId = id.Substring(9, 6).Trim();
-            TND_PROJECT p = service.getProjectById(id.Substring(9, 6).Trim());
+            service.getInqueryForm(id);
+            PLAN_SUP_INQUIRY f = service.formInquiry;
+            ViewBag.projectId = f.PROJECT_ID;
+            TND_PROJECT p = service.getProjectById(f.PROJECT_ID);
             ViewBag.projectName = p.PROJECT_NAME;
-            ViewBag.formname = id.Substring(22).Trim();
-            ViewBag.contractid = id.Substring(9).Trim();
-            ViewBag.formid = id.Substring(0, 9).Trim();
-            TND_SUPPLIER lstSupplier = service.getSupplierInfo(id.Substring(15, 7).Trim());
+            ViewBag.formname = f.FORM_NAME;
+            ViewBag.contractid = contractid;
+            ViewBag.formid = id;
+            TND_SUPPLIER lstSupplier = service.getSupplierInfo(f.SUPPLIER_ID);
             ViewBag.supplier = lstSupplier.COMPANY_NAME;
             ViewBag.companyid = lstSupplier.COMPANY_ID;
             ContractModels singleForm = new ContractModels();
-            service.getESTByEstId(id.Substring(0, 9).Trim());
+            service.getESTByEstId(id);
             singleForm.planEST = service.formEST;
             try
             {
@@ -972,16 +976,17 @@ namespace topmeperp.Controllers
         }
 
         //代付支出
-        public ActionResult RePayment(string id)
+        public ActionResult RePayment(string id, string contractid)
         {
             logger.Info("Access To RePayment By EST Form Id =" + id);
-            ViewBag.keyId = id;
-            ViewBag.projectId = id.Substring(9, 6).Trim();
-            TND_PROJECT p = service.getProjectById(id.Substring(9, 6).Trim());
+            service.getInqueryForm(id);
+            PLAN_SUP_INQUIRY f = service.formInquiry;
+            ViewBag.projectId = f.PROJECT_ID;
+            TND_PROJECT p = service.getProjectById(f.PROJECT_ID);
             ViewBag.projectName = p.PROJECT_NAME;
-            ViewBag.contractid = id.Substring(9).Trim();
-            ViewBag.formname = id.Substring(22).Trim();
-            ViewBag.formid = id.Substring(0, 9).Trim();
+            ViewBag.contractid = contractid;
+            ViewBag.formname = f.FORM_NAME;
+            ViewBag.formid = id;
             List<RePaymentFunction> lstOtherPayItem = null;
             lstOtherPayItem = service.getRePaymentById(id);
             ViewBag.status = -10; //估驗單尚未建立
@@ -993,14 +998,15 @@ namespace topmeperp.Controllers
             return View();
         }
         //代付支出-選商
-        public ActionResult ChooseSupplier(string id)
+        public ActionResult ChooseSupplier(string id, string contractid)
         {
             logger.Info("Access To RePayment By EST Form Id =" + id);
-            ViewBag.keyId = id;
-            ViewBag.contractid = id.Substring(9).Trim();
-            ViewBag.formid = id.Substring(0, 9).Trim();
+            service.getInqueryForm(id);
+            PLAN_SUP_INQUIRY f = service.formInquiry;
+            ViewBag.contractid = contractid;
+            ViewBag.formid = id;
             List<RePaymentFunction> lstSupplier = null;
-            lstSupplier = service.getSupplierOfContractByPrjId(id.Substring(9, 6).Trim());
+            lstSupplier = service.getSupplierOfContractByPrjId(f.PROJECT_ID);
             ViewBag.status = -10; //估驗單尚未建立
             ViewBag.status = service.getStatusById(id);
             ViewBag.key = lstSupplier.Count;
@@ -1008,14 +1014,12 @@ namespace topmeperp.Controllers
             return View(lstSupplier);
         }
 
-        public ActionResult AddRePayment(string id)
+        public ActionResult AddRePayment(FormCollection form)
         {
             //取得估驗單編號
             logger.Info("EST Form Id:" + Request["formid"]);
             //取得合約編號
             logger.Info("Contract Id:" + Request["contractid"]);
-            //取得KEY_ID
-            logger.Info("Key Id:" + Request["keyid"]);
             //取得使用者勾選品項ID
             logger.Info("item_list:" + Request["chkItem"]);
             string[] lstItemId = Request["chkItem"].ToString().Split(',');
@@ -1036,7 +1040,7 @@ namespace topmeperp.Controllers
                 lstItem.Add(item);
             }
             int k = service.AddRePay(lstItem);
-            return Redirect("RePayment?id=" + Request["keyid"]);
+            return Redirect("RePayment?id=" + Request["formid"] + "&contractid=" + Request["contractid"]);
         }
         public String UpdateRePay(FormCollection form)
         {
@@ -1082,20 +1086,21 @@ namespace topmeperp.Controllers
             return msg;
         }
         //代付扣回
-        public ActionResult Refund(string id)
+        public ActionResult Refund(string id, string contractid)
         {
             logger.Info("Access To Refund By EST Form Id =" + id);
-            ViewBag.keyId = id;
-            ViewBag.projectId = id.Substring(9, 6).Trim();
-            TND_PROJECT p = service.getProjectById(id.Substring(9, 6).Trim());
+            service.getInqueryForm(id);
+            PLAN_SUP_INQUIRY f = service.formInquiry;
+            ViewBag.projectId = f.PROJECT_ID;
+            TND_PROJECT p = service.getProjectById(f.PROJECT_ID);
             ViewBag.projectName = p.PROJECT_NAME;
-            ViewBag.contractid = id.Substring(9).Trim();
-            ViewBag.formname = id.Substring(22).Trim();
-            ViewBag.formid = id.Substring(0, 9).Trim();
+            ViewBag.contractid = contractid;
+            ViewBag.formname = f.FORM_NAME;
+            ViewBag.formid = id;
             List<RePaymentFunction> lstOtherPayItem = null;
             List<RePaymentFunction> lstRefundItem = null;
             lstOtherPayItem = service.getRefundById(id);
-            lstRefundItem = service.getRefundOfSupplierById(id);
+            lstRefundItem = service.getRefundOfSupplierById(contractid);
             ViewBag.status = -10; //估驗單尚未建立
             ViewBag.status = service.getStatusById(id);
             ViewBag.key = lstOtherPayItem.Count;
@@ -1106,14 +1111,15 @@ namespace topmeperp.Controllers
         }
 
         //代付支出-選商
-        public ActionResult ChooseSupplierOfRefund(string id)
+        public ActionResult ChooseSupplierOfRefund(string id, string contractid)
         {
             logger.Info("Access To Refund By EST Form Id =" + id);
-            ViewBag.keyId = id;
-            ViewBag.contractid = id.Substring(9).Trim();
-            ViewBag.formid = id.Substring(0, 9).Trim();
+            service.getInqueryForm(id);
+            PLAN_SUP_INQUIRY f = service.formInquiry;
+            ViewBag.contractid = contractid;
+            ViewBag.formid = id;
             List<RePaymentFunction> lstSupplier = null;
-            lstSupplier = service.getSupplierOfContractRefundById(id.Substring(9).Trim());
+            lstSupplier = service.getSupplierOfContractRefundById(contractid);
             ViewBag.status = -10; //估驗單尚未建立
             ViewBag.status = service.getStatusById(id);
             ViewBag.key = lstSupplier.Count;
@@ -1121,14 +1127,12 @@ namespace topmeperp.Controllers
             return View(lstSupplier);
         }
 
-        public ActionResult AddRefund(string id)
+        public ActionResult AddRefund(FormCollection form)
         {
             //取得估驗單編號
             logger.Info("EST Form Id:" + Request["formid"]);
             //取得合約編號
             logger.Info("Contract Id:" + Request["contractid"]);
-            //取得KEY_ID
-            logger.Info("Key Id:" + Request["keyid"]);
             //取得使用者勾選品項ID
             logger.Info("item_list:" + Request["chkItem"]);
             string[] lstItemId = Request["chkItem"].ToString().Split(',');
@@ -1140,7 +1144,7 @@ namespace topmeperp.Controllers
             }
             PLAN_OTHER_PAYMENT Item = new PLAN_OTHER_PAYMENT();
             string k = service.AddRefund(Request["formid"], Request["contractid"], lstItemId);
-            return Redirect("Refund?id=" + Request["keyid"]);
+            return Redirect("Refund?id=" + Request["formid"] + "&contractid=" + Request["contractid"]);
         }
 
         public String UpdateRefund(FormCollection form)
