@@ -18,7 +18,7 @@
 
         <div class="row">
             <div class='col-md-4 date form-group' style="padding-top:5px">
-                <label for="create_date">採購日期 : </label>
+                <label for="create_date">採購年月 : </label>
                 <input id="create_date" name="create_date" class="form-control" />
             </div>
             <div class='col-md-4 form-group' style="padding-top:5px">
@@ -66,7 +66,8 @@
 
         $(function () {
             $('#create_date').datetimepicker({
-                format: 'YYYY/MM/DD'
+                format: 'YYYY/MM',
+                locale: 'zh-tw'
             });
         });
     })

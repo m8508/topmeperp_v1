@@ -4,8 +4,8 @@
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 
-
-<h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
+<!--
+<h3 style="height:20px;line-height:10px">@ViewBag.Title</h3> -->
 <div class="jumbotron">
     <form name="prSearch" id="prSearch" action="Search" method="Post" class="form-inline">
         <div class="row">
@@ -19,23 +19,32 @@
         <hr style="border-top: 1px solid #8c8b8b;" />
 
         <div class="row">
-            <div class='col-md-6 date form-group'>
-                <label for="create_date">申購日期 : </label>
+            <div class='col-md-4 date form-group'>
+                <label for="create_date">申購年月 : </label>
                 <input id="create_date" name="create_date" class="form-control" />
             </div>
-            <div class='col-md-6 form-group'>
+            <div class='col-md-4 form-group'>
                 <label for="prid">申購單編號 :</label>
                 <input id="prid" name="prid" type="text" value="" class="form-control" />
-            </div>
-                <div class="col-md-6 form-group" style="padding-top:5px">
-                    <label for="taskname">任務名稱 :</label>
-                    <input id="taskname" name="taskname" type="text" value="" class="form-control" />
                 </div>
-                <div class="col-md-6 form-group" style="padding-top:5px">
-                    <input type="checkbox" value="10" id="status" name="status" checked/>申購單(已送審)
-                    <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
+                <div class='col-md-4 form-group'>
                     <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "Plan")'" value="回上一頁">
                 </div>
+                <div class="col-md-4 form-group" style="padding-top:8px">
+                    <label for="taskname">關鍵字 :</label>
+                    <input id="keyname" name="keyname" type="text" value="" class="form-control" style="width:250px;"/>
+                </div>
+                <div class="col-md-4 form-group" style="padding-top:8px">
+                    <input type="radio" value="0" id="status" name="status" checked />草稿/退件
+                    <input type="radio" value="10" id="status" name="status" />已送審
+                    <input type="radio" value="20" id="status" name="status" />未採購
+                    <input type="radio" value="30" id="status" name="status" />未驗收
+                    <input type="radio" value="5" id="status" name="status" />不處理
+                    </div>
+                    <div class="col-md-4 form-group" style="padding-top:8px">
+                        <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
+                        <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PlanTask","MaterialManage", new { id = @ViewBag.projectid })'; ">新增申購單</button>
+                    </div>
             </div>
         <div class="col-md-6">
             <div id="divProcessing">
@@ -65,7 +74,8 @@
 
         $(function () {
             $('#create_date').datetimepicker({
-                format: 'YYYY/MM/DD'
+                format: 'YYYY/M',
+                locale: 'zh-tw'
             });
         });
     })

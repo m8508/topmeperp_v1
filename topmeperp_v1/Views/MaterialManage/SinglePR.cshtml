@@ -11,6 +11,10 @@
             {
                 <div class="col-md-12"><h3 style="height:30px;line-height:20px" class="text-center">協成水電工程事業有限公司-申購單草稿</h3></div>
             }
+            else if (Model.planPR.STATUS == -10)
+            {
+                <div class="col-md-12"><h3 style="height:30px;line-height:20px" class="text-center">協成水電工程事業有限公司-申購單退件</h3></div>
+            }
             else
             {
                 <div class="col-md-12"><h3 style="height:30px;line-height:20px" class="text-center">協成水電工程事業有限公司-申購單</h3></div>
@@ -59,6 +63,9 @@
                             項目說明
                         </th>
                         <th>
+                            備註
+                        </th>
+                        <th>
                             單位
                         </th>
                         <th>
@@ -76,9 +83,7 @@
                         <th>
                             需求日期
                         </th>
-                        <th>
-                            備註
-                        </th>
+                        
                     </tr>
                 </thead>
                 <tbody>
@@ -87,7 +92,7 @@
 
                         <tr>
                             <td>
-                                @Html.TextBox("pr_item_id", @item.PR_ITEM_ID, new { @class = "form-control", style = "width:90px", @readonly = "readonly" })
+                                @Html.TextBox("pr_item_id", @item.PR_ITEM_ID, new { @class = "form-control", style = "width:60px", @readonly = "readonly" })
                             </td>
                             <td>
                                 @item.ITEM_ID
@@ -95,6 +100,18 @@
                             <td>
                                 @item.ITEM_DESC
                             </td>
+                            @if (Model.planPR.STATUS <= 10)
+                            {
+                                <td>
+                                    @Html.TextBox("remark", item.REMARK, new { @class = "form-control", style = "width:300px" })
+                                </td>
+                            }
+                            else
+                            {
+                                <td>
+                                    @item.REMARK
+                                </td>
+                            }
                             <td>
                                 @item.ITEM_UNIT
                             </td>
@@ -107,7 +124,7 @@
                             <td>
                                 @item.INVENTORY_QTY
                             </td>
-                            @if (Model.planPR.STATUS == 0)
+                            @if (Model.planPR.STATUS <= 10)
                             {
                                 <td>
                                     @Html.TextBox("need_qty", item.NEED_QTY, new { @class = "form-control", style = "width:90px", Name = "need_qty" })
@@ -117,11 +134,11 @@
                             {
                                 <td>@item.NEED_QTY</td>
                             }
-                            @if (Model.planPR.STATUS == 0)
+                            @if (Model.planPR.STATUS <= 10)
                             {
                                 <td>
                                     <div class='col-md-12 date'>
-                                        @Html.TextBoxFor(m => item.NEED_DATE, new { @class = "form-control", @id = "need_date", Name = "date" })
+                                        @Html.TextBoxFor(m => item.NEED_DATE, new { @class = "form-control", @id = "need_date", Name = "date", style = "width:100px" })
                                     </div>
 
                                 </td>
@@ -132,34 +149,52 @@
                                     @item.NEED_DATE
                                 </td>
                             }
-                            @if (Model.planPR.STATUS == 0)
-                            {
-                                <td>
-                                    @Html.TextBox("remark", item.REMARK, new { @class = "form-control", style = "width:300px" })
-                                </td>
-                            }
-                            else
-                            {
-                                <td>
-                                    @item.REMARK
-                                </td>
-                            }
                         </tr>
                     }
                 </tbody>
             </table>
         </div>
+        <div class="col-md-12" style="padding-bottom:20px;">
+@if (Model.planPR.STATUS <= 10)
+{
+            <div class="col-md-6">
+                備忘錄:<textarea class="form-control" rows="5" id="memo" name="memo">@Model.planPR.MEMO</textarea>
+            </div>
+}
+else
+{
+    <div class="col-md-6">
+        備忘錄:<textarea class="form-control" rows="5" id="memo" name="memo" readonly>@Model.planPR.MEMO</textarea>
+    </div>
+}
+            @if (Model.planPR.STATUS == -10)
+            {
+                <div class="col-md-6">
+                    退件不處理說明:<textarea class="form-control" rows="5" id="message" name="message" style="color: red; font-size: 15px;background-color:Highlight"></textarea>
+                </div>
+            }
+            else if (Model.planPR.STATUS == 5)
+            {
+                <div class="col-md-6">
+                    退件不處理說明:<textarea class="form-control" rows="5" id="message" name="message" style="color: red; font-size: 15px;background-color:Highlight" readonly>@Model.planPR.MESSAGE</textarea>
+                </div>
+            }
+        </div>
     </form>
 </div>
 <div class="row">
     <div class="" col-md-12">
-        @if (Model.planPR.STATUS == 0)
+        @if (Model.planPR.STATUS <= 10)
         {
             <input type="button" value="修改" class="btn btn-default" id="updatePR" />
         }
-        @if (Model.planPR.STATUS == 0)
+        @if (Model.planPR.STATUS < 10)
         {
             <input type="button" value="申購" class="btn btn-warning" id="addPR" />
+        }
+        @if (Model.planPR.STATUS == -10)
+        {
+            <input type="button" value="不處理" class="btn btn-danger" id="skipPR" />
         }
 
     </div>
@@ -190,6 +225,27 @@
         });
     });
 
+    $("#skipPR").click(function () {
+        if ($("#message").val() == "")
+        {
+            alert("退件不處理說明不可空白，請輸入原因!");
+            return false;
+        }
+        $.ajax({
+            url: '@Url.Action("changePRStatus", "MaterialManage")',
+            data: $('#formPR').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+                window.location.reload()
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    });
+
     $("#addPR").click(function () {
         var boolOver = false;
         $('table > tbody > tr').each(function () {
@@ -206,22 +262,22 @@
 
         });
         if (boolOver == true) {
-            var r = confirm("總申購量大於圖算數量，請確認您要申購的數量，送出後申購單就無法再修改！");
+            var r = confirm("總申購量大於圖算數量，請確認您要申購的數量，若無誤請按下確定！");
             if (r != true) return false;
         }
-    
-            $.ajax({
-    url: '@Url.Action("CreatePR", "MaterialManage")',
-    data: $('#formPR').serialize(),
-    type: "POST",
-    dataType: 'text',
-    success: function (msg) {
-        alert(msg);
-        window.location.reload()
-    },
-    error: function (xhr, ajaxOptions, thrownError) {
-        alert(thrownError);
-    }
-    });
+
+        $.ajax({
+            url: '@Url.Action("CreatePR", "MaterialManage")',
+            data: $('#formPR').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+                window.location.reload()
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
     });
 </script>

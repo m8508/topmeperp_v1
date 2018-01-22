@@ -105,15 +105,17 @@
                             <input type="checkbox" id="chkItem" name="chkItem" value="@item.PLAN_ITEM_ID" />
                         </td>
                         <td><input style="width:80px" type="text" class="form-control" name="need_qty" id="need_qty" value=""></td>
-                        <td><input style="width: 200px" type="text" class="form-control" name="remark" id="remark" value=""></td>
-                        <td><input style="width: 150px" type="date" class="form-control" name="Date_${index}" id="Date_${index}" value=""></td>
+                        <td><input style="width:300px" type="text" class="form-control" name="remark" id="remark" value=""></td>
+                        <td><input style="width:150px" type="date" class="form-control" name="Date_${index}" id="Date_${index}" value=""></td>
                     </tr>
                 }
             </tbody>
         </table>
-
-        <div class="row">
-            <div class="" col-md-12">
+        <div class="col-md-12">
+            <div class="col-md-10">
+                <textarea class="form-control" rows="5" id="memo" name="memo" placeholder="備忘錄"></textarea>
+            </div>
+            <div class="col-md-2 pull-right" style="padding-top:30px;">
                 <input type="submit" value="儲存" name="SavePR" class="btn btn-default" onclick="return Confirm_Form2()" />
                 <input type="submit" value="申購" name="AddPR" class="btn btn-warning" onclick="return Confirm_Form()" />
             </div>

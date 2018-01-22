@@ -108,7 +108,7 @@ namespace topmeperp.Controllers
             ViewBag.contractid = id;
             ViewBag.keyid = id; //使用供應商名稱的contractid
             //取得合約金額與供應商名稱,採購項目等資料
-            if (ViewBag.wage != "W")
+            if (ViewBag.wage != "Y")
             {
                 plansummary lstContract = service.getPlanContract4Est(id);
                 ViewBag.supplier = lstContract.SUPPLIER_ID;

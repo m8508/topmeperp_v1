@@ -26,7 +26,7 @@
         <div class="row">
             <div class="col-md-3 form-group">
                 <label for="formname">發包項目:</label>
-                @if (ViewBag.wage == "M")
+                @if (ViewBag.wage == "N")
             {
                     <input type="text" id="formname" name="formname" value="@ViewBag.formname" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
                 }
@@ -38,7 +38,7 @@
             <div class="col-md-3">
 
                 <label for="supplier">付款對象:</label>
-                @if (ViewBag.wage == "M")
+                @if (ViewBag.wage == "N")
             {
                     <input type="text" id="supplier" name="supplier" value="@ViewBag.supplier" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
                 }
@@ -49,7 +49,7 @@
             </div>
             <div class="col-md-3 form-group">
                 <label for="contractamount">合約金額:</label>
-                @if (ViewBag.wage == "M")
+                @if (ViewBag.wage == "N")
             {
                     <input id="contractamount" name="contractamount" type="text" value="@String.Format("{0:#,##0.#}", ViewBag.amount)" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
                 }
@@ -140,7 +140,7 @@
                         <td>
                             {{row.mapQty | number : 0}}
                         </td>
-                        @if (ViewBag.wage == "M")
+                        @if (ViewBag.wage == "N")
                         {
                             <td>
                                 {{row.ITEM_UNIT_COST | number : 0}}
@@ -158,7 +158,7 @@
                         </td>
                         
                         <td>
-                            @if (ViewBag.wage == "M")
+                            @if (ViewBag.wage == "N")
                             {
                                 <input style="width:90px" type="number" class="form-control pull-right" name="amount" id="amount" value="{{row.ITEM_UNIT_COST  * row.evaluated_qty}}" readonly="readonly">
                             }
@@ -176,7 +176,7 @@
                         <td>
                             {{row.CUM_EST_QTY / row.mapQty*100 | number : 0}}
                         </td>
-                        @if (ViewBag.type == 'M')
+                        @if (ViewBag.type == 'N')
                         {
                             <td><input type="hidden" name="cum_recpt_qty" id="cum_recpt_qty" value="{{row.CUM_RECPT_QTY}}"></td>
                         }
@@ -186,7 +186,7 @@
 
             <div class="pull-right" style="padding-bottom: 15px">
                 本期金額:$
-                @if (ViewBag.wage == "M")
+                @if (ViewBag.wage == "N")
                 {
                     <input id="totalAmount" name="totalAmount" type="number" value="{{GetTotalNum()}}" readonly="readonly" style="width:80px" />
                 }
@@ -195,7 +195,7 @@
                     <input id="totalAmount" name="totalAmount" type="number" value="{{GetTotalNum4Wage()}}" readonly="readonly" style="width:80px" />
                 }
                 累計金額:$
-                @if (ViewBag.wage == "M")
+                @if (ViewBag.wage == "N")
                 {
                     <input id="totalAmount" name="totalAmount" type="number" value="{{GetTotalSum()}}" readonly="readonly" style="width:90px" />
                 }
@@ -204,7 +204,7 @@
                     <input id="totalAmount" name="totalAmount" type="number" value="{{GetTotalSum4Wage()}}" readonly="readonly" style="width:90px" />
                 }
                 比率:
-                @if (ViewBag.wage == "M")
+                @if (ViewBag.wage == "N")
                 {
                     <input id="totalAmount" name="totalAmount" type="number" value="{{GetTotalRatio()}}" readonly="readonly" style="width:40px" />
                 }

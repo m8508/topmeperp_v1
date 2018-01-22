@@ -13,7 +13,7 @@
             <div class="col-md-2" style="padding-top:35px">
                 <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
             </div>
-            </div>
+        </div>
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -31,14 +31,29 @@
                     <tr>
                         <th><a href="/MaterialManage/SinglePR/@item.PR_ID" target="_blank">@item.PR_ID</a></th>
                         <th>@item.CREATE_DATE</th>
-                        <td>@item.SUPPLIER_ID</td>
+                        @if (null != item.SUPPLIER_ID && item.SUPPLIER_ID != "")
+                        {
+                            <td>@item.SUPPLIER_ID</td>
+                        }
+                        else
+                        {
+                            <td>
+                                <span style="color: red; font-size: 15px;">尚未發包</span>
+                            </td>
+                        }
                         <td>@item.NEED_DATE</td>
-                        <td><a href="/MaterialManage/PurchaseOperation/@item.KEYNAME" target="_blank">執行採購作業</a></td>
+                        @if (null != item.SUPPLIER_ID && item.SUPPLIER_ID != "")
+                        {
+                            <td><a href="/MaterialManage/PurchaseOperation?prjid=@item.PROJECT_ID&prid=@item.PR_ID&sup=@item.SUPPLIER_ID" target="_blank">執行採購作業</a></td>
+                        }
+                        else
+                        {
+                            <td><a href="/MaterialManage/PurchaseOperation?prjid=@item.PROJECT_ID&prid=@item.PR_ID&sup=@item.SUPPLIER_ID" target="_blank">查看未發包項目</a></td>
+                        }
+
                     </tr>
                 }
             </tbody>
         </table>
     </div>
 </div>
-
-

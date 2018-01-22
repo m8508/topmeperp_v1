@@ -343,6 +343,7 @@ namespace topmeperp.Controllers
             pr.RECIPIENT = Request["recipient"];
             pr.LOCATION = Request["location"];
             pr.REMARK = Request["caution"];
+            pr.MEMO = Request["memo"];
             pr.STATUS = 10; //表示申購單已送出
             PLAN_PURCHASE_REQUISITION_ITEM item = new PLAN_PURCHASE_REQUISITION_ITEM();
             string prid = service.newPR(Request["id"], pr, lstItemId);
@@ -418,6 +419,7 @@ namespace topmeperp.Controllers
             pr.RECIPIENT = Request["recipient"];
             pr.LOCATION = Request["location"];
             pr.REMARK = Request["caution"];
+            pr.MEMO = Request["memo"];
             pr.STATUS = 0; //表示申購單未送出，只是存檔而已
             //pr.PRJ_UID = int.Parse(Request["prj_uid"]);
             PLAN_PURCHASE_REQUISITION_ITEM item = new PLAN_PURCHASE_REQUISITION_ITEM();
@@ -451,20 +453,35 @@ namespace topmeperp.Controllers
             TnderProject tndservice = new TnderProject();
             TND_PROJECT p = tndservice.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
-            //申購單草稿
-            int status = 10;
-            if (Request["status"] == null || Request["status"] == "")
+            int status = -10;
+            if(null != Request["status"] && Request["status"] != 10.ToString() && Request["status"] != 20.ToString() && Request["status"] != 30.ToString() && Request["status"] != 5.ToString())
             {
                 status = 0;
             }
-            List<PRFunction> lstPR = service.getPRByPrjId(id, Request["create_date"], Request["taskname"], Request["prid"], status);
+            else if (null != Request["status"] && Request["status"] != 0.ToString() && Request["status"] != 20.ToString() && Request["status"] != 30.ToString() && Request["status"] != 5.ToString())
+            {
+                status = 10;
+            }
+            else if (null != Request["status"] && Request["status"] != 0.ToString() && Request["status"] != 10.ToString() && Request["status"] != 30.ToString() && Request["status"] != 5.ToString())
+            {
+                status = 20;
+            }
+            else if (null != Request["status"] && Request["status"] != 0.ToString() && Request["status"] != 20.ToString() && Request["status"] != 10.ToString() && Request["status"] != 5.ToString())
+            {
+                status = 30;
+            }
+            else if(null != Request["status"])
+            {
+                status = 5;
+            }
+            List<PRFunction> lstPR = service.getPRByPrjId(id, Request["create_date"], Request["keyname"], Request["prid"], status);
             return View(lstPR);
         }
 
         public ActionResult Search()
         {
-            log.Info("projectid=" + Request["id"] + ", taskname =" + Request["taskname"] + ", prid =" + Request["prid"] + ", create_id =" + Request["create_date"] + ", status =" + int.Parse(Request["status"]));
-            List<PRFunction> lstPR = service.getPRByPrjId(Request["id"], Request["create_date"], Request["taskname"], Request["prid"], int.Parse(Request["status"]));
+            //log.Info("projectid=" + Request["id"] + ", keyname =" + Request["keyname"] + ", prid =" + Request["prid"] + ", create_id =" + Request["create_date"] + ", status =" + int.Parse(Request["status"]));
+            List<PRFunction> lstPR = service.getPRByPrjId(Request["id"], Request["create_date"], Request["keyname"], Request["prid"], int.Parse(Request["status"]));
             ViewBag.SearchResult = "共取得" + lstPR.Count + "筆資料";
             ViewBag.projectId = Request["id"];
             ViewBag.projectName = Request["projectName"];
@@ -500,6 +517,7 @@ namespace topmeperp.Controllers
             pr.RECIPIENT = form.Get("recipient").Trim();
             pr.LOCATION = form.Get("location").Trim();
             pr.REMARK = form.Get("caution").Trim();
+            pr.MEMO = form.Get("memo").Trim();
             pr.CREATE_USER_ID = loginUser.USER_ID;
             pr.MODIFY_DATE = DateTime.Now;
             try
@@ -562,6 +580,7 @@ namespace topmeperp.Controllers
             pr.RECIPIENT = form.Get("recipient").Trim();
             pr.LOCATION = form.Get("location").Trim();
             pr.REMARK = form.Get("caution").Trim();
+            pr.MEMO = form.Get("memo").Trim();
             pr.CREATE_USER_ID = loginUser.USER_ID;
             pr.MODIFY_DATE = DateTime.Now;
             try
@@ -609,7 +628,13 @@ namespace topmeperp.Controllers
             return msg;
         }
 
-
+        //更新申購單狀態(退件不處理)
+        public string changePRStatus(FormCollection form)
+        {
+            log.Info("formid=" + form["pr_id"]);
+            int i = service.changePRStatus(form["pr_id"], form["message"]);
+            return "更新成功!!";
+        }
         //採購作業
         public ActionResult PurchaseOrder(string id)
         {
@@ -622,17 +647,15 @@ namespace topmeperp.Controllers
             return View(lstPO);
         }
         //取得申購單之供應商合約項目
-        public ActionResult PurchaseOperation(string id, FormCollection form)
+        public ActionResult PurchaseOperation(string prjid, string prid, string sup)
         {
             log.Info("Access to Purchase Operation page!!");
-
-            ViewBag.projectid = id.Substring(0, 6).Trim();
-            string[] allKey = id.Split('-');
+            ViewBag.projectid = prjid;
             TnderProject tndservice = new TnderProject();
-            TND_PROJECT p = tndservice.getProjectById(allKey[0]);
+            TND_PROJECT p = tndservice.getProjectById(prjid);
             ViewBag.projectName = p.PROJECT_NAME;
-            ViewBag.supplier = allKey[2];
-            ViewBag.parentPrId = allKey[1];
+            ViewBag.supplier = sup;
+            ViewBag.parentPrId = prid;
             ViewBag.OrderDate = DateTime.Now;
             PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
             service.getPRByPrId(ViewBag.parentPrId, ViewBag.parentPrId);
@@ -640,6 +663,7 @@ namespace topmeperp.Controllers
             ViewBag.recipient = singleForm.planPR.RECIPIENT;
             ViewBag.location = singleForm.planPR.LOCATION;
             ViewBag.caution = singleForm.planPR.REMARK;
+            ViewBag.status = singleForm.planPR.STATUS;
             List<PurchaseRequisition> lstPR = service.getPurchaseItemBySupplier(String.Join("-", ViewBag.parentPrId, ViewBag.supplier));
             return View(lstPR);
         }
@@ -690,7 +714,7 @@ namespace topmeperp.Controllers
             pr.PARENT_PR_ID = Request["parent_pr_id"];
             pr.STATUS = 20;
             pr.MEMO = Request["memo"];
-            log.Debug("meme = " + Request["memo"]);
+            log.Debug("memo = " + Request["memo"]);
             pr.MESSAGE = Request["message"];
             log.Debug("message = " + Request["message"]);
             PLAN_PURCHASE_REQUISITION_ITEM item = new PLAN_PURCHASE_REQUISITION_ITEM();
@@ -1227,18 +1251,57 @@ namespace topmeperp.Controllers
         }
 
         //3天內須驗收的物料品項
-        public ActionResult CheckForReceipt(string id)
+        public ActionResult CheckForReceipt(string prid, string prjid, int status)
         {
-            log.Info("Access to CheckForReceip Page !!");
-            ViewBag.projectid = id;
+            log.Info("Access to CheckForReceip Page By PR Id =" + prid);
+            string parentId = "";
+            service.getPRByPrId(prid, parentId);
+            PLAN_PURCHASE_REQUISITION f = service.formPR;
+            ViewBag.projectid = f.PROJECT_ID;
             TnderProject tndservice = new TnderProject();
-            TND_PROJECT p = tndservice.getProjectById(id);
+            TND_PROJECT p = tndservice.getProjectById(f.PROJECT_ID);
             ViewBag.projectName = p.PROJECT_NAME;
-            List<PurchaseRequisition> lstItem = service.getPlanItemByNeedDate(id);
+            ViewBag.formid = prid;
+            List<PurchaseRequisition> lstItem = service.getPlanItemByNeedDate(prid, prjid, status);
             ViewBag.SearchResult = "共取得" + lstItem.Count + "筆資料";
             return View(lstItem);
         }
-
+        public String RejectPRById(FormCollection form)
+        {
+            //取得申購單編號
+            log.Info("PR form Id:" + form["pr_id"]);
+            //更新費用單狀態
+            log.Info("Reject PR Form ");
+            string formid = form.Get("pr_id").Trim();
+            //申購單(已退件) STATUS = -10
+            string msg = "";
+            int i = service.RejectPRByPRId(formid);
+            if (i == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "申購單已退回";
+            }
+            return msg;
+        }
+        //申購單驗收未完成的物料品項
+        public ActionResult CheckForReceiptQty(string prid, string prjid, int status)
+        {
+            log.Info("Access to CheckForReceipQty Page By PR Id =" + prid);
+            string parentId = "";
+            service.getPRByPrId(prid, parentId);
+            PLAN_PURCHASE_REQUISITION f = service.formPR;
+            ViewBag.projectid = f.PROJECT_ID;
+            TnderProject tndservice = new TnderProject();
+            TND_PROJECT p = tndservice.getProjectById(f.PROJECT_ID);
+            ViewBag.projectName = p.PROJECT_NAME;
+            ViewBag.formid = prid;
+            List<PurchaseRequisition> lstItem = service.getItemNeedReceivedByPrId(prid, prjid, status);
+            ViewBag.SearchResult = "共取得" + lstItem.Count + "筆資料";
+            return View(lstItem);
+        }
         /// <summary>
         /// 物料採購單
         /// </summary>

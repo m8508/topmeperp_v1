@@ -317,6 +317,7 @@ namespace topmeperp.Models
         public string DELIVERY_ORDER_ID { get; set; }
         public string PARENT_PR_ID { get; set; }
         public string PR_ID { get; set; }
+        public Nullable<decimal> diffQty { get; set; }
 
     }
     public class PRFunction
@@ -336,6 +337,8 @@ namespace topmeperp.Models
         public string CHILD_PR_ID { get; set; }
         public string PARENT_PR_ID { get; set; }
         public string PROJECT_ID { get; set; }
+        public string Dminus3day { get; set; }
+        public string KEY_NAME { get; set; }
 
     }
     public class PurchaseRequisitionDetail
@@ -348,7 +351,7 @@ namespace topmeperp.Models
 
     public class PurchaseOrderFunction
     {
-        public string KEYNAME { get; set; }
+        public string PROJECT_ID { get; set; }
         public string PR_ID { get; set; }
         public string CREATE_DATE { get; set; }
         public string SUPPLIER_ID { get; set; }
