@@ -17,6 +17,7 @@ namespace topmeperp.Models
         public long DELIVERY_ID { get; set; }
         public string DELIVERY_ORDER_ID { get; set; }
         public string PLAN_ITEM_ID { get; set; }
+        public string REMARK { get; set; }
         public string PROJECT_ID { get; set; }
         public Nullable<decimal> DELIVERY_QTY { get; set; }
         public Nullable<System.DateTime> CREATE_DATE { get; set; }

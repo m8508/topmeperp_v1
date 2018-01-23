@@ -167,16 +167,10 @@ else
         備忘錄:<textarea class="form-control" rows="5" id="memo" name="memo" readonly>@Model.planPR.MEMO</textarea>
     </div>
 }
-            @if (Model.planPR.STATUS == -10)
+            @if (Model.planPR.STATUS == -10 || Model.planPR.STATUS == 5)
             {
                 <div class="col-md-6">
-                    退件不處理說明:<textarea class="form-control" rows="5" id="message" name="message" style="color: red; font-size: 15px;background-color:Highlight"></textarea>
-                </div>
-            }
-            else if (Model.planPR.STATUS == 5)
-            {
-                <div class="col-md-6">
-                    退件不處理說明:<textarea class="form-control" rows="5" id="message" name="message" style="color: red; font-size: 15px;background-color:Highlight" readonly>@Model.planPR.MESSAGE</textarea>
+                    退件不處理說明:<textarea class="form-control" rows="5" id="message" name="message" style="color: red; font-size: 15px;background-color:Highlight">@Model.planPR.MESSAGE</textarea>
                 </div>
             }
         </div>

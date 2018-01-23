@@ -54,6 +54,9 @@
                                 項目說明
                             </th>
                             <th>
+                                備註
+                            </th>
+                            <th>
                                 單位
                             </th>
                             <th>
@@ -71,9 +74,7 @@
                             <th>
                                 需求日期
                             </th>
-                            <th>
-                                備註
-                            </th>
+                           
                             <th><input type="checkbox" name="CheckAll" id="CheckAll">全選</th>
                             <th>
                                 驗收數量
@@ -95,6 +96,9 @@
                                     @item.ITEM_DESC
                                 </td>
                                 <td>
+                                    @item.REMARK
+                                </td>
+                                <td>
                                     @item.ITEM_UNIT
                                 </td>
                                 <td>
@@ -111,9 +115,6 @@
                                 </td>
                                 <td>
                                     @item.NEED_DATE
-                                </td>
-                                <td>
-                                    @item.REMARK
                                 </td>
                                 <td>
                                     <input type="checkbox" id="chkItem" name="chkItem" value="@item.PLAN_ITEM_ID" />

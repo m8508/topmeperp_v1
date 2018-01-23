@@ -518,6 +518,7 @@ namespace topmeperp.Controllers
             pr.LOCATION = form.Get("location").Trim();
             pr.REMARK = form.Get("caution").Trim();
             pr.MEMO = form.Get("memo").Trim();
+            pr.MESSAGE = form.Get("message").Trim();
             pr.CREATE_USER_ID = loginUser.USER_ID;
             pr.MODIFY_DATE = DateTime.Now;
             try
@@ -962,7 +963,6 @@ namespace topmeperp.Controllers
             string formid = form.Get("pr_id").Trim();
             string[] lstItemId = form.Get("pr_item_id").Split(',');
             string[] lstQty = form.Get("receipt_qty").Split(',');
-
             List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem = new List<PLAN_PURCHASE_REQUISITION_ITEM>();
             for (int j = 0; j < lstItemId.Count(); j++)
             {
@@ -1059,20 +1059,84 @@ namespace topmeperp.Controllers
                 selectType1.Add(selectI);
             }
             ViewBag.TypeCodeL1 = selectType1;
-            List<PurchaseRequisition> lstItem = service.getInventoryByPrjId(id, Request["item"], Request["TypeCodeL2"], Request["TypeSub"], Request["systemMain"], Request["systemSub"]);
+            List<PurchaseRequisition> lstItem = service.getInventoryByPrjId(id, Request["item"], Request["TypeCodeL2"], Request["TypeSub"], Request["systemMain"], Request["systemSub"], Request["remark"]);
             return View(lstItem);
         }
 
         public ActionResult SearchInventory()
         {
-            log.Info("projectid=" + Request["id"] + ", planitemname =" + Request["item"] + ", TypeCodeL1 =" + Request["TypeCodeL1"] + ", TypeCodeL2 =" + Request["TypeCodeL2"] + ", TypeSub =" + Request["TypeSub"] + ", systemMain =" + Request["systemMain"] + ", systemSub =" + Request["systemSub"]);
-            List<PurchaseRequisition> lstItem = service.getInventoryByPrjId(Request["id"], Request["item"], Request["TypeCodeL2"], Request["TypeSub"], Request["systemMain"], Request["systemSub"]);
+            //log.Info("projectid=" + Request["id"] + ", planitemname =" + Request["item"] + ", TypeCodeL1 =" + Request["TypeCodeL1"] + ", TypeCodeL2 =" + Request["TypeCodeL2"] + ", TypeSub =" + Request["TypeSub"] + ", systemMain =" + Request["systemMain"] + ", systemSub =" + Request["systemSub"]);
+            List<PurchaseRequisition> lstItem = service.getInventoryByPrjId(Request["id"], Request["item"], Request["TypeCodeL2"], Request["TypeSub"], Request["systemMain"], Request["systemSub"], Request["remark"]);
             ViewBag.SearchResult = "共取得" + lstItem.Count + "筆資料";
             ViewBag.projectId = Request["id"];
             ViewBag.projectName = Request["projectName"];
             return View("InventoryIndex", lstItem);
         }
 
+        //領料作業
+        public ActionResult DeliveryIndex(string id)
+        {
+            log.Info("Access To Delivery Operation Page，Project Id =" + id);
+            ViewBag.projectid = id;
+            TnderProject tndservice = new TnderProject();
+            TND_PROJECT p = tndservice.getProjectById(id);
+            ViewBag.projectName = p.PROJECT_NAME;
+            SYS_USER u = (SYS_USER)Session["user"];
+            ViewBag.createid = u.USER_ID;
+            //取得主系統資料
+            List<SelectListItem> selectMain = new List<SelectListItem>();
+            foreach (string itm in service.getSystemMain(id))
+            {
+                log.Debug("Main System=" + itm);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = itm;
+                selectI.Text = itm;
+                if (null != itm && "" != itm)
+                {
+                    selectMain.Add(selectI);
+                }
+            }
+            ViewBag.SystemMain = selectMain;
+            //取得次系統資料
+            List<SelectListItem> selectSub = new List<SelectListItem>();
+            foreach (string itm in service.getSystemSub(id))
+            {
+                log.Debug("Sub System=" + itm);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = itm;
+                selectI.Text = itm;
+                if (null != itm && "" != itm)
+                {
+                    selectSub.Add(selectI);
+                }
+            }
+            ViewBag.SystemSub = selectSub;
+            TypeManageService typeService = new TypeManageService();
+            List<REF_TYPE_MAIN> lstType1 = typeService.getTypeMainL1();
+            //取得九宮格
+            List<SelectListItem> selectType1 = new List<SelectListItem>();
+            for (int idx = 0; idx < lstType1.Count; idx++)
+            {
+                log.Debug("REF_TYPE_MAIN=" + idx + "," + lstType1[idx].CODE_1_DESC);
+                SelectListItem selectI = new SelectListItem();
+                selectI.Value = lstType1[idx].TYPE_CODE_1;
+                selectI.Text = lstType1[idx].CODE_1_DESC;
+                selectType1.Add(selectI);
+            }
+            ViewBag.TypeCodeL1 = selectType1;
+            List<PurchaseRequisition> lstItem = service.getInventoryByPrjId(id, Request["item"], Request["TypeCodeL2"], Request["TypeSub"], Request["systemMain"], Request["systemSub"], Request["remark"]);
+            return View(lstItem);
+        }
+
+        public ActionResult SearchDelivery()
+        {
+            //log.Info("projectid=" + Request["id"] + ", planitemname =" + Request["item"] + ", TypeCodeL1 =" + Request["TypeCodeL1"] + ", TypeCodeL2 =" + Request["TypeCodeL2"] + ", TypeSub =" + Request["TypeSub"] + ", systemMain =" + Request["systemMain"] + ", systemSub =" + Request["systemSub"]);
+            List<PurchaseRequisition> lstItem = service.getInventoryByPrjId(Request["id"], Request["item"], Request["TypeCodeL2"], Request["TypeSub"], Request["systemMain"], Request["systemSub"], Request["remark"]);
+            ViewBag.SearchResult = "共取得" + lstItem.Count + "筆資料";
+            ViewBag.projectId = Request["id"];
+            ViewBag.projectName = Request["projectName"];
+            return View("DeliveryIndex", lstItem);
+        }
         //新增物料提領資料
         public ActionResult AddDelivery(FormCollection form)
         {
@@ -1115,9 +1179,10 @@ namespace topmeperp.Controllers
             for (int j = 0; j < lstItemId.Count(); j++)
             {
                 PLAN_ITEM_DELIVERY items = new PLAN_ITEM_DELIVERY();
-                items.PLAN_ITEM_ID = lstItemId[j];
+                items.PLAN_ITEM_ID = lstItemId[j].Split('/')[0];
+                items.REMARK = lstItemId[j].Split('/')[1];
                 items.DELIVERY_QTY = decimal.Parse(lstQty[j]);
-                log.Debug("Item No=" + items.PLAN_ITEM_ID + ", Qty =" + items.DELIVERY_QTY);
+                log.Debug("Item No=" + items.PLAN_ITEM_ID + ", Remark =" + items.REMARK + ", Qty =" + items.DELIVERY_QTY);
                 lstItem.Add(items);
             }
             int k = service.refreshDelivery(deliveryorderid, lstItem);

@@ -1,12 +1,12 @@
 ﻿
 @{
-    ViewBag.Title = "物料庫存查詢 :";
+    ViewBag.Title = "領料作業:";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <!--標單項目搜尋區條件區域
 <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>-->
 <div class="jumbotron">
-    <form name="formSearch" id="formSearch" action="SearchInventory" method="Post" class="form-inline">
+    <form name="formSearch" id="formSearch" action="SearchDelivery" method="Post" class="form-inline">
         <div class="row">
             <div class="col-md-6 form-group">
                 <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
@@ -16,7 +16,7 @@
             </div>
         </div>
         <hr style="border-top: 1px solid #8c8b8b;" />
-        
+
         <!--設備主要依據9宮格次九宮格-->
         <div class="row">
             <div class="col-md-12">
@@ -33,7 +33,7 @@
         </div>
         <div class="row" style="padding-top:10px">
             <div class="col-md-4">
-                <label for="item">物料名稱:</label><input id="item" name="item" type="text" value="" class="form-control" style="width:250px"/>
+                <label for="item">物料名稱:</label><input id="item" name="item" type="text" value="" class="form-control" style="width:250px" />
             </div>
             <div class="col-md-4">
                 <label for="item">備註:</label><input id="remark" name="remark" type="text" value="" class="form-control" style="width:250px" />
@@ -42,12 +42,12 @@
                 <input id="Submit4" type="submit" class="btn btn-info" value="查詢" />
                 <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "Plan")'" value="回上一頁">
             </div>
-                <div class="col-md-1">
-                    <div id="divProcessing">
-                        <img src="~/Content/ajax-loader.gif">
-                    </div>
+            <div class="col-md-1">
+                <div id="divProcessing">
+                    <img src="~/Content/ajax-loader.gif">
                 </div>
             </div>
+        </div>
     </form>
 </div>
 
@@ -57,7 +57,7 @@
     @ViewBag.SearchResult
     @if (null != Model)
             {
-                Html.RenderPartial("_InventoryList");
+                Html.RenderPartial("_DeliveryItem");
             }
 </div>
 

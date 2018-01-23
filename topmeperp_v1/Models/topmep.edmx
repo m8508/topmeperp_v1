@@ -298,6 +298,7 @@
           <Property Name="DELIVERY_ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="DELIVERY_ORDER_ID" Type="varchar" MaxLength="50" />
           <Property Name="PLAN_ITEM_ID" Type="varchar" MaxLength="50" />
+          <Property Name="REMARK" Type="varchar" MaxLength="1000" />
           <Property Name="PROJECT_ID" Type="varchar" MaxLength="20" />
           <Property Name="DELIVERY_QTY" Type="decimal" Precision="18" Scale="3" />
           <Property Name="CREATE_DATE" Type="datetime" />
@@ -1112,7 +1113,6 @@
           <EntitySet Name="PLAN_ESTIMATION_ITEM" EntityType="topmepModel.PLAN_ESTIMATION_ITEM" />
           <EntitySet Name="PLAN_INVOICE" EntityType="topmepModel.PLAN_INVOICE" />
           <EntitySet Name="PLAN_ITEM" EntityType="topmepModel.PLAN_ITEM" />
-          <EntitySet Name="PLAN_ITEM_DELIVERY" EntityType="topmepModel.PLAN_ITEM_DELIVERY" />
           <EntitySet Name="PLAN_OTHER_PAYMENT" EntityType="topmepModel.PLAN_OTHER_PAYMENT" />
           <EntitySet Name="PLAN_PAYMENT_TERMS" EntityType="topmepModel.PLAN_PAYMENT_TERMS" />
           <EntitySet Name="PLAN_PURCHASE_REQUISITION" EntityType="topmepModel.PLAN_PURCHASE_REQUISITION" />
@@ -1173,6 +1173,7 @@
           </AssociationSet>
           <EntitySet Name="PLAN_VALUATION_FORM" EntityType="topmepModel.PLAN_VALUATION_FORM" />
           <EntitySet Name="PLAN_VALUATION_FORM_ITEM" EntityType="topmepModel.PLAN_VALUATION_FORM_ITEM" />
+          <EntitySet Name="PLAN_ITEM_DELIVERY" EntityType="topmepModel.PLAN_ITEM_DELIVERY" />
         </EntityContainer>
         <EntityType Name="FIN_EXPENSE_BUDGET">
           <Key>
@@ -1393,20 +1394,6 @@
           <Property Name="INQUIRY_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="MAN_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="BUDGET_WAGE_RATIO" Type="Decimal" Precision="18" Scale="3" />
-        </EntityType>
-        <EntityType Name="PLAN_ITEM_DELIVERY">
-          <Key>
-            <PropertyRef Name="DELIVERY_ID" />
-          </Key>
-          <Property Name="DELIVERY_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="DELIVERY_ORDER_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PLAN_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="DELIVERY_QTY" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="CREATE_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
-          <Property Name="MODIFY_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="PLAN_OTHER_PAYMENT">
           <Key>
@@ -2195,6 +2182,21 @@
           <Property Name="ITEM_NO" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="ITEM_VALUATION_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
         </EntityType>
+        <EntityType Name="PLAN_ITEM_DELIVERY">
+          <Key>
+            <PropertyRef Name="DELIVERY_ID" />
+          </Key>
+          <Property Name="DELIVERY_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DELIVERY_ORDER_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PLAN_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="DELIVERY_QTY" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="CREATE_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="MODIFY_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2432,21 +2434,6 @@
                 <ScalarProperty Name="ITEM_ID" ColumnName="ITEM_ID" />
                 <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
                 <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_ITEM_DELIVERY">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_ITEM_DELIVERY">
-              <MappingFragment StoreEntitySet="PLAN_ITEM_DELIVERY">
-                <ScalarProperty Name="MODIFY_USER_ID" ColumnName="MODIFY_USER_ID" />
-                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
-                <ScalarProperty Name="CREATE_USER_ID" ColumnName="CREATE_USER_ID" />
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="DELIVERY_QTY" ColumnName="DELIVERY_QTY" />
-                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
-                <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
-                <ScalarProperty Name="DELIVERY_ORDER_ID" ColumnName="DELIVERY_ORDER_ID" />
-                <ScalarProperty Name="DELIVERY_ID" ColumnName="DELIVERY_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -3203,6 +3190,22 @@
                 <ScalarProperty Name="ITEM_NO" ColumnName="ITEM_NO" />
                 <ScalarProperty Name="VA_FORM_ID" ColumnName="VA_FORM_ID" />
                 <ScalarProperty Name="VA_ITEM_ID" ColumnName="VA_ITEM_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_ITEM_DELIVERY">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_ITEM_DELIVERY">
+              <MappingFragment StoreEntitySet="PLAN_ITEM_DELIVERY">
+                <ScalarProperty Name="MODIFY_USER_ID" ColumnName="MODIFY_USER_ID" />
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="CREATE_USER_ID" ColumnName="CREATE_USER_ID" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="DELIVERY_QTY" ColumnName="DELIVERY_QTY" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
+                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
+                <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
+                <ScalarProperty Name="DELIVERY_ORDER_ID" ColumnName="DELIVERY_ORDER_ID" />
+                <ScalarProperty Name="DELIVERY_ID" ColumnName="DELIVERY_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

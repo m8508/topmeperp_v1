@@ -1008,6 +1008,8 @@
     <Content Include="Views\Estimation\Valuation4Owner.cshtml" />
     <Content Include="Views\Estimation\_VAItem.cshtml" />
     <Content Include="Views\MaterialManage\CheckForReceiptQty.cshtml" />
+    <Content Include="Views\MaterialManage\DeliveryIndex.cshtml" />
+    <Content Include="Views\MaterialManage\_DeliveryItem.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

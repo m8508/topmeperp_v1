@@ -39,7 +39,6 @@ namespace topmeperp.Models
         public virtual DbSet<PLAN_ESTIMATION_ITEM> PLAN_ESTIMATION_ITEM { get; set; }
         public virtual DbSet<PLAN_INVOICE> PLAN_INVOICE { get; set; }
         public virtual DbSet<PLAN_ITEM> PLAN_ITEM { get; set; }
-        public virtual DbSet<PLAN_ITEM_DELIVERY> PLAN_ITEM_DELIVERY { get; set; }
         public virtual DbSet<PLAN_OTHER_PAYMENT> PLAN_OTHER_PAYMENT { get; set; }
         public virtual DbSet<PLAN_PAYMENT_TERMS> PLAN_PAYMENT_TERMS { get; set; }
         public virtual DbSet<PLAN_PURCHASE_REQUISITION> PLAN_PURCHASE_REQUISITION { get; set; }
@@ -80,5 +79,6 @@ namespace topmeperp.Models
         public virtual DbSet<PLAN_COSTCHANGE_ITEM> PLAN_COSTCHANGE_ITEM { get; set; }
         public virtual DbSet<PLAN_VALUATION_FORM> PLAN_VALUATION_FORM { get; set; }
         public virtual DbSet<PLAN_VALUATION_FORM_ITEM> PLAN_VALUATION_FORM_ITEM { get; set; }
+        public virtual DbSet<PLAN_ITEM_DELIVERY> PLAN_ITEM_DELIVERY { get; set; }
     }
 }

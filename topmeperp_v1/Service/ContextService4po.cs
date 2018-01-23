@@ -2052,7 +2052,7 @@ namespace topmeperp.Service
 
                 logger.Debug("get purchase requisition item count:" + PRItem.Count);
                 //取得領料明細
-                DOItem = context.Database.SqlQuery<PurchaseRequisition>("SELECT pid.PLAN_ITEM_ID, pid.DELIVERY_QTY, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.SYSTEM_MAIN, ROW_NUMBER() OVER(ORDER BY pi.EXCEL_ROW_ID) AS NO " +
+                DOItem = context.Database.SqlQuery<PurchaseRequisition>("SELECT pid.PLAN_ITEM_ID, pid.REMARK, pid.DELIVERY_QTY, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.SYSTEM_MAIN, ROW_NUMBER() OVER(ORDER BY pi.EXCEL_ROW_ID) AS NO " +
                     "FROM PLAN_ITEM_DELIVERY pid LEFT JOIN PLAN_ITEM pi ON pid.PLAN_ITEM_ID = pi.PLAN_ITEM_ID WHERE pid.DELIVERY_ORDER_ID =@prid", new SqlParameter("prid", prid)).ToList();
 
                 logger.Debug("get delivery item count:" + DOItem.Count);
@@ -2157,8 +2157,8 @@ namespace topmeperp.Service
             {
                 string sql = "SELECT pi.PLAN_ITEM_ID, pri.PR_ITEM_ID, pri.NEED_QTY, CONVERT(char(10), pri.NEED_DATE, 111) AS NEED_DATE, pri.REMARK , pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.ITEM_FORM_QUANTITY, " +
                     "pi.SUPPLIER_ID, B.CUMULATIVE_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_ITEM pi on pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID " +
-                    "LEFT JOIN (SELECT pri.PLAN_ITEM_ID, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE PR_ID LIKE 'PR%' GROUP BY pri.PLAN_ITEM_ID)B " +
-                    "ON pri.PLAN_ITEM_ID = B.PLAN_ITEM_ID WHERE pri.PR_ID + '-' + ISNULL(pi.SUPPLIER_ID,'') =@id ";
+                    "LEFT JOIN (SELECT pri.PLAN_ITEM_ID, pri.REMARK, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE PR_ID LIKE 'PR%' GROUP BY pri.PLAN_ITEM_ID, pri.REMARK)B " +
+                    "ON pri.PLAN_ITEM_ID + pri.REMARK = B.PLAN_ITEM_ID + B.REMARK WHERE pri.PR_ID + '-' + ISNULL(pi.SUPPLIER_ID,'') =@id ";
 
                 logger.Info("sql = " + sql);
                 var parameters = new List<SqlParameter>();
@@ -2593,17 +2593,24 @@ namespace topmeperp.Service
             return lstForm;
         }
         //取得物料庫存數量
-        public List<PurchaseRequisition> getInventoryByPrjId(string prjid, string itemName, string typeMain, string typeSub, string systemMain, string systemSub)
+        public List<PurchaseRequisition> getInventoryByPrjId(string prjid, string itemName, string typeMain, string typeSub, string systemMain, string systemSub, string remark)
         {
 
-            logger.Info("search inventory by 專案編號 =" + prjid + ", 物料名稱 =" + itemName + ", 九宮格 =" + typeMain + ", 次九宮格 =" + typeSub + ", 主系統 =" + systemMain + ", 次系統 =" + systemSub);
+            logger.Info("search inventory by 專案編號 =" + prjid + ", 物料名稱 =" + itemName + ", 九宮格 =" + typeMain + ", 次九宮格 =" + typeSub + ", 主系統 =" + systemMain + ", 次系統 =" + systemSub + ", 備註 =" + remark);
             List<PurchaseRequisition> lstItem = new List<PurchaseRequisition>();
             //處理SQL 預先填入專案代號,設定集合處理參數
-            string sql = "SELECT pri.PLAN_ITEM_ID, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.SYSTEM_MAIN, SUM(pri.RECEIPT_QTY) - ISNULL(A.DELIVERY_QTY, 0) AS INVENTORY_QTY " +
-                "FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_ITEM pi ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID " +
-                "LEFT JOIN (SELECT pid.PLAN_ITEM_ID, SUM(pid.DELIVERY_QTY) AS DELIVERY_QTY FROM PLAN_ITEM_DELIVERY pid " +
-                "GROUP BY pid.PLAN_ITEM_ID)A ON pri.PLAN_ITEM_ID = A.PLAN_ITEM_ID GROUP BY pri.PLAN_ITEM_ID, A.DELIVERY_QTY, " +
-                "pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.TYPE_CODE_1, pi.TYPE_CODE_2, pi.SYSTEM_MAIN, pi.SYSTEM_SUB, pi.EXCEL_ROW_ID HAVING pri.PLAN_ITEM_ID IN (SELECT pi.PLAN_ITEM_ID FROM PLAN_ITEM pi WHERE pi.PROJECT_ID =@prjid) ";
+            string sql = "SELECT pri.PLAN_ITEM_ID, pri.REMARK, pr.PROJECT_ID, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.SYSTEM_MAIN, SUM(pri.RECEIPT_QTY) - ISNULL(A.DELIVERY_QTY, 0) AS INVENTORY_QTY, B.diffQty " +
+                "FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID LEFT JOIN PLAN_ITEM pi ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID " +
+                "LEFT JOIN (SELECT pid.PLAN_ITEM_ID, pid.REMARK, SUM(pid.DELIVERY_QTY) AS DELIVERY_QTY FROM PLAN_ITEM_DELIVERY pid " +
+                "GROUP BY pid.PLAN_ITEM_ID, pid.REMARK)A ON pri.PLAN_ITEM_ID + pri.REMARK = A.PLAN_ITEM_ID + A.REMARK LEFT JOIN " +
+                "(SELECT pri.PLAN_ITEM_ID, pri.REMARK, SUM(ISNULL(pri.NEED_QTY, 0)) - ISNULL(main.RECEIPT_QTY, 0) AS diffQty " +
+                "FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID LEFT JOIN " +
+                "(SELECT pri.PLAN_ITEM_ID, pri.REMARK, SUM(pri.RECEIPT_QTY)AS RECEIPT_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri " +
+                "LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID =@prjid AND pri.PR_ID LIKE 'RP%' " +
+                "GROUP BY pri.PLAN_ITEM_ID, pri.REMARK)main ON main.PLAN_ITEM_ID + main.REMARK = pri.PLAN_ITEM_ID + pri.REMARK " +
+                "WHERE pr.PROJECT_ID =@prjid AND pri.PR_ID LIKE 'PPO%' GROUP BY pri.PLAN_ITEM_ID, pri.REMARK, main.RECEIPT_QTY)B ON pri.PLAN_ITEM_ID + pri.REMARK = B.PLAN_ITEM_ID + B.REMARK " +
+                "WHERE pr.PR_ID NOT LIKE 'PR%' GROUP BY pri.PLAN_ITEM_ID, pri.REMARK, pr.PROJECT_ID, A.DELIVERY_QTY, B.diffQty, " +
+                "pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.TYPE_CODE_1, pi.TYPE_CODE_2, pi.SYSTEM_MAIN, pi.SYSTEM_SUB, pi.EXCEL_ROW_ID HAVING pr.PROJECT_ID =@prjid ";
 
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("prjid", prjid));
@@ -2613,6 +2620,12 @@ namespace topmeperp.Service
             {
                 sql = sql + "AND pi.ITEM_DESC LIKE @itemName ";
                 parameters.Add(new SqlParameter("itemName", '%' + itemName + '%'));
+            }
+            //項目備註條件
+            if (null != remark && remark != "")
+            {
+                sql = sql + "AND pri.REMARK LIKE @remark ";
+                parameters.Add(new SqlParameter("remark", '%' + remark + '%'));
             }
             //九宮格條件
             if (null != typeMain && typeMain != "")
@@ -2678,9 +2691,10 @@ namespace topmeperp.Service
                     }
                 }
 
-                string sql = "INSERT INTO PLAN_ITEM_DELIVERY (DELIVERY_ORDER_ID, PLAN_ITEM_ID, PROJECT_ID, CREATE_USER_ID) "
-                + "SELECT '" + form.PR_ID + "' as DELIVERY_ORDER_ID, A.PLAN_ITEM_ID as PLAN_ITEM_ID, '" + projectid + "' as PROJECT_ID, '" + createid + "' as CREATE_USER_ID  "
-                + "FROM (SELECT pi.PLAN_ITEM_ID FROM PLAN_ITEM pi WHERE pi.PLAN_ITEM_ID IN (" + ItemId + "))A ";
+                string sql = "INSERT INTO PLAN_ITEM_DELIVERY (DELIVERY_ORDER_ID, PLAN_ITEM_ID, REMARK, PROJECT_ID, CREATE_USER_ID) "
+                + "SELECT '" + form.PR_ID + "' as DELIVERY_ORDER_ID, A.PLAN_ITEM_ID as PLAN_ITEM_ID, A.REMARK as REMARK, '" + projectid + "' as PROJECT_ID, '" + createid + "' as CREATE_USER_ID  "
+                + "FROM (SELECT pri.PLAN_ITEM_ID, pri.REMARK FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID " +
+                "WHERE pr.PROJECT_ID = '" + projectid + "' AND pr.PR_ID LIKE 'RP%' AND pri.PLAN_ITEM_ID + '/' + pri.REMARK IN (" + ItemId + ") GROUP BY pri.PLAN_ITEM_ID, pri.REMARK)A ";
                 logger.Info("sql =" + sql);
                 var parameters = new List<SqlParameter>();
                 i = context.Database.ExecuteSqlCommand(sql);
@@ -2703,8 +2717,9 @@ namespace topmeperp.Service
                         var parameters = new List<SqlParameter>();
                         parameters.Add(new SqlParameter("formid", deliveryorderid));
                         parameters.Add(new SqlParameter("itemid", item.PLAN_ITEM_ID));
-                        string sql = "SELECT * FROM PLAN_ITEM_DELIVERY WHERE DELIVERY_ORDER_ID=@formid AND PLAN_ITEM_ID=@itemid";
-                        logger.Info(sql + " ;" + deliveryorderid + ",plan_item_id=" + item.PLAN_ITEM_ID);
+                        parameters.Add(new SqlParameter("remark", item.REMARK));
+                        string sql = "SELECT * FROM PLAN_ITEM_DELIVERY WHERE DELIVERY_ORDER_ID=@formid AND PLAN_ITEM_ID=@itemid AND REMARK =@remark ";
+                        logger.Info(sql + " ;" + deliveryorderid + ",plan_item_id=" + item.PLAN_ITEM_ID + ",remark=" + item.REMARK);
                         PLAN_ITEM_DELIVERY excelItem = context.PLAN_ITEM_DELIVERY.SqlQuery(sql, parameters.ToArray()).First();
                         existItem = context.PLAN_ITEM_DELIVERY.Find(excelItem.DELIVERY_ID);
                         logger.Debug("find exist item=" + existItem.PLAN_ITEM_ID);
@@ -2735,9 +2750,9 @@ namespace topmeperp.Service
             List<PurchaseRequisition> lstItem = new List<PurchaseRequisition>();
             //處理SQL 預先填入專案代號,設定集合處理參數
             string sql = "SELECT A.* FROM (SELECT pid.DELIVERY_ORDER_ID, pid.CREATE_DATE, pid.DELIVERY_QTY, pr.PARENT_PR_ID, ROW_NUMBER() OVER(ORDER BY pid.CREATE_DATE ASC) AS NO " +
-                "FROM PLAN_ITEM_DELIVERY pid LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pid.DELIVERY_ORDER_ID = pr.PR_ID WHERE pid.PLAN_ITEM_ID =@itemid " +
+                "FROM PLAN_ITEM_DELIVERY pid LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pid.DELIVERY_ORDER_ID = pr.PR_ID WHERE pid.PLAN_ITEM_ID + pid.REMARK =@itemid " +
                 "UNION SELECT pri.PR_ID, pr.CREATE_DATE, pri.RECEIPT_QTY, pr.PARENT_PR_ID, ROW_NUMBER() OVER(ORDER BY pr.CREATE_DATE ASC) AS NO FROM PLAN_PURCHASE_REQUISITION_ITEM pri " +
-                "LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID WHERE pr.PR_ID LIKE 'RP%' AND pri.PLAN_ITEM_ID =@itemid)A ORDER BY A.CREATE_DATE ";
+                "LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID WHERE pr.PR_ID LIKE 'RP%' AND pri.PLAN_ITEM_ID + pri.REMARK =@itemid)A ORDER BY A.CREATE_DATE ";
 
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("itemid", itemid));
