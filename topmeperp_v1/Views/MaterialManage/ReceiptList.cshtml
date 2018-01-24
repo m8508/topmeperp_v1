@@ -19,7 +19,7 @@
                     <tr>
                         <td>@item.NO</td>
                         <td>@item.CREATE_DATE</td>
-                        <td><a href="/MaterialManage/SingleRP/@item.ALL_KEY" target="_blank">@item.PR_ID</a></td>
+                        <td><a href="/MaterialManage/SingleRP?id=@item.PR_ID&parentId=@item.PARENT_PR_ID&prjid=@item.PROJECT_ID" target="_blank">@item.PR_ID</a></td>
                         <td>@item.SUPPLIER_ID</td>
                     </tr>
                 }

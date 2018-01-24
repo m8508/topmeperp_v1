@@ -489,12 +489,12 @@ namespace topmeperp.Controllers
         }
 
         //顯示單一申購單功能
-        public ActionResult SinglePR(string id)
+        public ActionResult SinglePR(string id, string prjid)
         {
             log.Info("http get mehtod:" + id);
             PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
             string parentId = "";
-            service.getPRByPrId(id, parentId);
+            service.getPRByPrId(id, parentId, prjid);
             singleForm.planPR = service.formPR;
             singleForm.planPRItem = service.PRItem;
             singleForm.prj = service.getProjectById(singleForm.planPR.PROJECT_ID);
@@ -629,7 +629,7 @@ namespace topmeperp.Controllers
             return msg;
         }
 
-        //更新申購單狀態(退件不處理)
+        //更新申購單狀態(退件:代碼5,不處理)
         public string changePRStatus(FormCollection form)
         {
             log.Info("formid=" + form["pr_id"]);
@@ -659,13 +659,13 @@ namespace topmeperp.Controllers
             ViewBag.parentPrId = prid;
             ViewBag.OrderDate = DateTime.Now;
             PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
-            service.getPRByPrId(ViewBag.parentPrId, ViewBag.parentPrId);
+            service.getPRByPrId(ViewBag.parentPrId, ViewBag.parentPrId, prjid);
             singleForm.planPR = service.formPR;
             ViewBag.recipient = singleForm.planPR.RECIPIENT;
             ViewBag.location = singleForm.planPR.LOCATION;
             ViewBag.caution = singleForm.planPR.REMARK;
             ViewBag.status = singleForm.planPR.STATUS;
-            List<PurchaseRequisition> lstPR = service.getPurchaseItemBySupplier(String.Join("-", ViewBag.parentPrId, ViewBag.supplier));
+            List<PurchaseRequisition> lstPR = service.getPurchaseItemBySupplier(String.Join("-", ViewBag.parentPrId, ViewBag.supplier), prjid);
             return View(lstPR);
         }
         //新增採購單
@@ -756,12 +756,12 @@ namespace topmeperp.Controllers
         }
 
         //顯示單一採購單功能
-        public ActionResult SinglePO(string id)
+        public ActionResult SinglePO(string id, string prjid)
         {
             log.Info("http get mehtod:" + id);
             PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
             string parentId = "";
-            service.getPRByPrId(id, parentId);
+            service.getPRByPrId(id, parentId, prjid);
             singleForm.planPR = service.formPR;
             singleForm.planPRItem = service.PRItem;
             ViewBag.orderDate = singleForm.planPR.CREATE_DATE.Value.ToString("yyyy/MM/dd");
@@ -841,11 +841,11 @@ namespace topmeperp.Controllers
             return "更新成功!!";
         }
         //驗收作業
-        public ActionResult Receipt(string id)
+        public ActionResult Receipt(string id, string prjid)
         {
             log.Info("http get mehtod:" + id);
             PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
-            service.getPRByPrId(id, id);
+            service.getPRByPrId(id, id, prjid);
             singleForm.planPR = service.formPR;
             singleForm.planPRItem = service.PRItem;
             ViewBag.receiptDate = DateTime.Now.ToString("yyyy/MM/dd");
@@ -903,7 +903,7 @@ namespace topmeperp.Controllers
             pr.MESSAGE = Request["message"];
             PLAN_PURCHASE_REQUISITION_ITEM item = new PLAN_PURCHASE_REQUISITION_ITEM();
             string prid = service.newRP(Request["projectid"], pr, lstItemId, Request["pr_id"]);
-            string allKey = prid + '-' + Request["pr_id"];
+            //string allKey = prid + '-' + Request["pr_id"];
             List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem = new List<PLAN_PURCHASE_REQUISITION_ITEM>();
             for (int j = 0; j < lstItemId.Count(); j++)
             {
@@ -914,18 +914,18 @@ namespace topmeperp.Controllers
                 lstItem.Add(items);
             }
             int k = service.refreshRP(prid, pr, lstItem);
-            return Redirect("SingleRP?id=" + allKey);
+            return Redirect("SingleRP?id=" + prid + "&parentId=" + Request["pr_id"] + "&prjid=" + Request["projectid"]);
         }
 
         //顯示單一驗收單功能
-        public ActionResult SingleRP(string id)
+        public ActionResult SingleRP(string id, string parentId, string prjid)
         {
             log.Info("http get mehtod:" + id);
-            string[] allKey = id.Split('-');
-            string parentId = allKey[1];
-            string prId = allKey[0];
+            //string[] allKey = id.Split('-');
+            //string parentId = allKey[1];
+            //string prId = allKey[0];
             PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
-            service.getPRByPrId(prId, parentId);
+            service.getPRByPrId(id, parentId, prjid);
             singleForm.planPR = service.formPR;
             singleForm.planPRItem = service.PRItem;
             ViewBag.receiptDate = singleForm.planPR.CREATE_DATE.Value.ToString("yyyy/MM/dd");
@@ -1221,70 +1221,13 @@ namespace topmeperp.Controllers
             return View("ReceiptSearch", lstRP);
         }
 
-        //從驗收單傳換至領料單功能
-        public ActionResult ChangeToDelivery(string id, DateTime createDate)
-        {
-            log.Info("http get mehtod:" + id);
-            ViewBag.createDate = createDate;
-            PLAN_PURCHASE_REQUISITION form = service.getNewDeliveryOrderId(id, createDate);
-            if (form != null)
-            {
-                ViewBag.formid = form.PR_ID;
-                ViewBag.caution = form.CAUTION;
-            }
-            PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
-            string parentId = "";
-            service.getPRByPrId(id, parentId);
-            singleForm.planPR = service.formPR;
-            singleForm.planPRItem = service.PRItem;
-            singleForm.prj = service.getProjectById(singleForm.planPR.PROJECT_ID);
-            log.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
-            return View(singleForm);
-        }
-
-        //新增領料單For無標單品項的物料
-        public String AddDOFromRP(FormCollection form)
-        {
-            log.Info("form:" + form.Count);
-            string msg = "";
-            // 取得領料單資料
-            PLAN_PURCHASE_REQUISITION pr = new PLAN_PURCHASE_REQUISITION();
-            SYS_USER loginUser = (SYS_USER)Session["user"];
-            pr.PROJECT_ID = form.Get("projectid").Trim();
-            //pr.PRJ_UID = int.Parse(form.Get("prjuid").Trim());
-            pr.STATUS = 40;
-            pr.PARENT_PR_ID = form.Get("pr_id").Trim();
-            pr.CREATE_USER_ID = loginUser.USER_ID;
-            pr.CREATE_DATE = Convert.ToDateTime(form.Get("create_date").Trim());
-            pr.CAUTION = form.Get("caution").Trim();
-            string[] lstItemId = form.Get("pr_item_id").Split(',');
-            log.Info("get item count:" + lstItemId.Count());
-            var i = 0;
-            for (i = 0; i < lstItemId.Count(); i++)
-            {
-                log.Info("item_list return No.:" + lstItemId[i]);
-            }
-            string prid = service.newDO(Request["projectid"], pr, lstItemId);
-            if (prid != "" && null != prid)
-            {
-                msg = "新增領料單成功，PR_ID =" + prid;
-            }
-            else
-            {
-                msg = service.message;
-            }
-
-            log.Info("Request: PR_ID = " + prid + "Task Id =" + form["prjuid"]);
-            return msg;
-        }
-
         //顯示單一領料單功能
-        public ActionResult SingleDO(string id)
+        public ActionResult SingleDO(string id, string prjid)
         {
             log.Info("http get mehtod:" + id);
             PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
             string parentId = "";
-            service.getPRByPrId(id, parentId);
+            service.getPRByPrId(id, parentId, prjid);
             singleForm.planPR = service.formPR;
             singleForm.planPRItem = service.PRItem;
             singleForm.planDOItem = service.DOItem;
@@ -1319,12 +1262,9 @@ namespace topmeperp.Controllers
         public ActionResult CheckForReceipt(string prid, string prjid, int status)
         {
             log.Info("Access to CheckForReceip Page By PR Id =" + prid);
-            string parentId = "";
-            service.getPRByPrId(prid, parentId);
-            PLAN_PURCHASE_REQUISITION f = service.formPR;
-            ViewBag.projectid = f.PROJECT_ID;
+            ViewBag.projectid = prjid;
             TnderProject tndservice = new TnderProject();
-            TND_PROJECT p = tndservice.getProjectById(f.PROJECT_ID);
+            TND_PROJECT p = tndservice.getProjectById(prjid);
             ViewBag.projectName = p.PROJECT_NAME;
             ViewBag.formid = prid;
             List<PurchaseRequisition> lstItem = service.getPlanItemByNeedDate(prid, prjid, status);
@@ -1355,12 +1295,9 @@ namespace topmeperp.Controllers
         public ActionResult CheckForReceiptQty(string prid, string prjid, int status)
         {
             log.Info("Access to CheckForReceipQty Page By PR Id =" + prid);
-            string parentId = "";
-            service.getPRByPrId(prid, parentId);
-            PLAN_PURCHASE_REQUISITION f = service.formPR;
-            ViewBag.projectid = f.PROJECT_ID;
+            ViewBag.projectid = prjid;
             TnderProject tndservice = new TnderProject();
-            TND_PROJECT p = tndservice.getProjectById(f.PROJECT_ID);
+            TND_PROJECT p = tndservice.getProjectById(prjid);
             ViewBag.projectName = p.PROJECT_NAME;
             ViewBag.formid = prid;
             List<PurchaseRequisition> lstItem = service.getItemNeedReceivedByPrId(prid, prjid, status);
@@ -1372,15 +1309,14 @@ namespace topmeperp.Controllers
         /// </summary>
         public void downLoadMaterialForm()
         {
-            string[] key = Request["key"].Split('-');
-            string projectid = key[0].Trim();
-            string formid = key[1].Trim();
-            string parentId = key[2].Trim();
+            string projectid = Request["prjid"];
+            string formid = Request["prid"];
+            string parentId = Request["parentId"];
             bool isOrder = false;
             bool isDO = false;
             PlanService pservice = new PlanService();
             pservice.getProject(projectid);
-            service.getPRByPrId(formid, parentId);
+            service.getPRByPrId(formid, parentId, projectid);
             if (formid.Substring(0,1) != "D")
             {
                 isOrder = true;

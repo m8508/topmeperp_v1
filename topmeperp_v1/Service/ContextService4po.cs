@@ -1851,9 +1851,12 @@ namespace topmeperp.Service
 
                 string sql = "SELECT pi.* , map.QTY AS MAP_QTY, B.CUMULATIVE_QTY, C.ALL_RECEIPT_QTY- D.DELIVERY_QTY AS INVENTORY_QTY FROM PLAN_ITEM pi  " +
                     "JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT JOIN (SELECT pri.PLAN_ITEM_ID, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY " +
-                    "FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE PR_ID LIKE 'PPO%' GROUP BY pri.PLAN_ITEM_ID )B ON pi.PLAN_ITEM_ID = B.PLAN_ITEM_ID " +
-                    "LEFT JOIN(SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS ALL_RECEIPT_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE PR_ID LIKE 'RP%' GROUP BY " +
-                    "pri.PLAN_ITEM_ID)C ON pi.PLAN_ITEM_ID = C.PLAN_ITEM_ID LEFT JOIN (SELECT pid.PLAN_ITEM_ID, SUM(pid.DELIVERY_QTY) AS DELIVERY_QTY FROM PLAN_ITEM_DELIVERY pid " +
+                    "FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID = @projectid AND " +
+                    "pri.PR_ID LIKE 'PPO%' GROUP BY pri.PLAN_ITEM_ID )B ON pi.PLAN_ITEM_ID = B.PLAN_ITEM_ID " +
+                    "LEFT JOIN(SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS ALL_RECEIPT_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr " +
+                    "ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID = @projectid AND pri.PR_ID LIKE 'RP%' GROUP BY pri.PLAN_ITEM_ID)C" +
+                    "ON pi.PLAN_ITEM_ID = C.PLAN_ITEM_ID LEFT JOIN (SELECT pid.PLAN_ITEM_ID, SUM(pid.DELIVERY_QTY) AS DELIVERY_QTY FROM PLAN_ITEM_DELIVERY pid " +
+                    "LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pid.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID = @projectid " +
                     "GROUP BY pid.PLAN_ITEM_ID)D ON pi.PLAN_ITEM_ID = D.PLAN_ITEM_ID WHERE pi.PROJECT_ID = @projectid AND pi.PLAN_ITEM_ID IN (" + ItemId + ") ";
 
                 logger.Info("sql = " + sql);
@@ -2031,7 +2034,7 @@ namespace topmeperp.Service
         }
 
         //取得申購單
-        public void getPRByPrId(string prid, string parentId)
+        public void getPRByPrId(string prid, string parentId, string prjid)
         {
             logger.Info("get form : formid=" + prid);
             using (var context = new topmepEntities())
@@ -2042,13 +2045,14 @@ namespace topmeperp.Service
                 formPR = context.PLAN_PURCHASE_REQUISITION.SqlQuery(sql, new SqlParameter("prid", prid)).First();
                 //取得申購單明細
                 PRItem = context.Database.SqlQuery<PurchaseRequisition>("SELECT pri.NEED_QTY, CONVERT(char(10), pri.NEED_DATE, 111) AS NEED_DATE, pri.REMARK, pri.PR_ITEM_ID, pri.ORDER_QTY, pri.PLAN_ITEM_ID, pri.RECEIPT_QTY, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.ITEM_FORM_QUANTITY, pi.SYSTEM_MAIN, md.QTY AS MAP_QTY,  " +
-                    "B.CUMULATIVE_QTY, C.ALL_RECEIPT_QTY, C.ALL_RECEIPT_QTY - D.DELIVERY_QTY AS INVENTORY_QTY, ROW_NUMBER() OVER(ORDER BY pi.EXCEL_ROW_ID) AS NO FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_ITEM pi ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN TND_MAP_DEVICE md " +
-                    "ON pi.PLAN_ITEM_ID = md.PROJECT_ITEM_ID LEFT JOIN (SELECT pri.PLAN_ITEM_ID, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY " +
-                    "FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE PR_ID LIKE 'PPO%' GROUP BY pri.PLAN_ITEM_ID)B ON pri.PLAN_ITEM_ID = B.PLAN_ITEM_ID " +
-                    "LEFT JOIN(SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS ALL_RECEIPT_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION ppr " +
-                    "ON pri.PR_ID = ppr.PR_ID WHERE ppr.PARENT_PR_ID =@parentId GROUP BY " +
-                    "pri.PLAN_ITEM_ID)C ON pri.PLAN_ITEM_ID = C.PLAN_ITEM_ID LEFT JOIN (SELECT pid.PLAN_ITEM_ID, SUM(pid.DELIVERY_QTY) AS DELIVERY_QTY FROM PLAN_ITEM_DELIVERY pid " +
-                    "GROUP BY pid.PLAN_ITEM_ID)D ON pri.PLAN_ITEM_ID = D.PLAN_ITEM_ID WHERE PR_ID =@prid", new SqlParameter("prid", prid), new SqlParameter("parentId", parentId)).ToList();
+                    "B.CUMULATIVE_QTY, C.RECEIPT_QTY_BY_PO, E.ALL_RECEIPT_QTY, E.ALL_RECEIPT_QTY - D.DELIVERY_QTY AS INVENTORY_QTY, ROW_NUMBER() OVER(ORDER BY pi.EXCEL_ROW_ID) AS NO FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_ITEM pi ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN TND_MAP_DEVICE md " +
+                    "ON pi.PLAN_ITEM_ID = md.PROJECT_ITEM_ID LEFT JOIN (SELECT pri.PLAN_ITEM_ID, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID " +
+                    "WHERE pr.PROJECT_ID =@prjid AND pri.PR_ID LIKE 'PPO%' GROUP BY pri.PLAN_ITEM_ID)B ON pri.PLAN_ITEM_ID = B.PLAN_ITEM_ID " +
+                    "LEFT JOIN(SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS RECEIPT_QTY_BY_PO FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION ppr " +
+                    "ON pri.PR_ID = ppr.PR_ID WHERE ppr.PARENT_PR_ID =@parentId GROUP BY pri.PLAN_ITEM_ID)C ON pri.PLAN_ITEM_ID = C.PLAN_ITEM_ID LEFT JOIN " +
+                    "(SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS ALL_RECEIPT_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr " +
+                    "ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID = @projectid AND pri.PR_ID LIKE 'RP%' GROUP BY pri.PLAN_ITEM_ID)E ON pri.PLAN_ITEM_ID = E.PLAN_ITEM_ID LEFT JOIN (SELECT pid.PLAN_ITEM_ID, SUM(pid.DELIVERY_QTY) AS DELIVERY_QTY FROM PLAN_ITEM_DELIVERY pid " +
+                    "LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pid.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID = @projectid GROUP BY pid.PLAN_ITEM_ID)D ON pri.PLAN_ITEM_ID = D.PLAN_ITEM_ID WHERE PR_ID =@prid", new SqlParameter("prid", prid), new SqlParameter("parentId", parentId), new SqlParameter("prjid", prjid)).ToList();
 
                 logger.Debug("get purchase requisition item count:" + PRItem.Count);
                 //取得領料明細
@@ -2148,7 +2152,7 @@ namespace topmeperp.Service
             return lstPO;
         }
         //取得申購單項目by供應商
-        public List<PurchaseRequisition> getPurchaseItemBySupplier(string id)
+        public List<PurchaseRequisition> getPurchaseItemBySupplier(string id, string prjid)
         {
             //取得各供應商採購內容
             logger.Info("get purchase requisition item by supplier ");
@@ -2157,12 +2161,14 @@ namespace topmeperp.Service
             {
                 string sql = "SELECT pi.PLAN_ITEM_ID, pri.PR_ITEM_ID, pri.NEED_QTY, CONVERT(char(10), pri.NEED_DATE, 111) AS NEED_DATE, pri.REMARK , pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.ITEM_FORM_QUANTITY, " +
                     "pi.SUPPLIER_ID, B.CUMULATIVE_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_ITEM pi on pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID " +
-                    "LEFT JOIN (SELECT pri.PLAN_ITEM_ID, pri.REMARK, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri WHERE PR_ID LIKE 'PR%' GROUP BY pri.PLAN_ITEM_ID, pri.REMARK)B " +
+                    "LEFT JOIN (SELECT pri.PLAN_ITEM_ID, pri.REMARK, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr " +
+                    "ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID =@prjid AND pri.PR_ID LIKE 'PR%' GROUP BY pri.PLAN_ITEM_ID, pri.REMARK)B " +
                     "ON pri.PLAN_ITEM_ID + pri.REMARK = B.PLAN_ITEM_ID + B.REMARK WHERE pri.PR_ID + '-' + ISNULL(pi.SUPPLIER_ID,'') =@id ";
 
                 logger.Info("sql = " + sql);
                 var parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("id", id));
+                parameters.Add(new SqlParameter("prjid", prjid));
                 lstItem = context.Database.SqlQuery<PurchaseRequisition>(sql, parameters.ToArray()).ToList();
                 logger.Info("Get purchase requisition item by supplier Record Count=" + lstItem.Count);
             }
@@ -2550,7 +2556,7 @@ namespace topmeperp.Service
             logger.Info("search purchase receipt by 採購單編號 =" + prid);
             List<PRFunction> lstForm = new List<PRFunction>();
             //處理SQL 預先填入專案代號,設定集合處理參數
-            string sql = "SELECT CONVERT(char(10), CREATE_DATE, 111) AS CREATE_DATE, PR_ID, SUPPLIER_ID, PR_ID + '-' + PARENT_PR_ID AS ALL_KEY, ROW_NUMBER() OVER(ORDER BY PR_ID) AS NO " +
+            string sql = "SELECT CONVERT(char(10), CREATE_DATE, 111) AS CREATE_DATE, PR_ID, SUPPLIER_ID, PARENT_PR_ID, ROW_NUMBER() OVER(ORDER BY PR_ID) AS NO " +
                 "FROM PLAN_PURCHASE_REQUISITION WHERE SUPPLIER_ID IS NOT NULL AND PARENT_PR_ID =@prid AND PR_ID LIKE 'RP%' ";
 
             var parameters = new List<SqlParameter>();
@@ -2805,18 +2811,18 @@ namespace topmeperp.Service
             }
         }
 
-        PLAN_PURCHASE_REQUISITION PRform = null;
+        //PLAN_PURCHASE_REQUISITION PRform = null;
         //取得新增的領料單號
-        public PLAN_PURCHASE_REQUISITION getNewDeliveryOrderId(string prid, DateTime createDate)
-        {
-            using (var context = new topmepEntities())
-            {
-                PRform = context.PLAN_PURCHASE_REQUISITION.SqlQuery("SELECT * FROM PLAN_PURCHASE_REQUISITION pr WHERE pr.PARENT_PR_ID =@prid " +
-                    "AND pr.PR_ID LIKE 'DF%' AND pr.CREATE_DATE = @createDate "
-                   , new SqlParameter("prid", prid), new SqlParameter("createDate", createDate)).FirstOrDefault();
-            }
-            return PRform;
-        }
+        //public PLAN_PURCHASE_REQUISITION getNewDeliveryOrderId(string prid, DateTime createDate)
+        //{
+            //using (var context = new topmepEntities())
+            //{
+                //PRform = context.PLAN_PURCHASE_REQUISITION.SqlQuery("SELECT * FROM PLAN_PURCHASE_REQUISITION pr WHERE pr.PARENT_PR_ID =@prid " +
+                    //"AND pr.PR_ID LIKE 'DF%' AND pr.CREATE_DATE = @createDate "
+                   //, new SqlParameter("prid", prid), new SqlParameter("createDate", createDate)).FirstOrDefault();
+            //}
+            //return PRform;
+        //}
 
         //取得領料單資料
         public List<PRFunction> getDOByPrjId(string projectid, string recipient, string prid, string caution)

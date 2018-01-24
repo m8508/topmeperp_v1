@@ -27,7 +27,7 @@
                     <tr>
                         <td>@item.NO</td>
                         <td>@item.CREATE_DATE</td>
-                        <td><a href="/MaterialManage/SinglePR/@item.PR_ID" target="_blank">@item.PR_ID</a></td>
+                        <td><a href="/MaterialManage/SinglePR?id=@item.PR_ID&prjid=@item.PROJECT_ID" target="_blank">@item.PR_ID</a></td>
                          <!--
                         <td>@item.TASK_NAME</td>
                              -->
@@ -56,7 +56,7 @@
                         <td>
                             @if (null != item.CHILD_PR_ID && item.CHILD_PR_ID != "")
                             {
-                            <a href="/MaterialManage/SinglePO/@item.CHILD_PR_ID" target="_blank">連結至採購單</a>
+                            <a href="/MaterialManage/SinglePO?id=@item.CHILD_PR_ID&prjid=@item.PROJECT_ID" target="_blank">連結至採購單</a>
                             }
                             else
                             {

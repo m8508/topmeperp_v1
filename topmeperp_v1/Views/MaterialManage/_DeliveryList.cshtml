@@ -19,10 +19,10 @@
                     <tr>
                         <td>@item.NO</td>
                         <td>@item.CREATE_DATE</td>
-                        <td><a href="/MaterialManage/SingleDO/@item.PR_ID" target="_blank">@item.PR_ID</a></td>
+                        <td><a href="/MaterialManage/SingleDO?id=@item.PR_ID&prjid=@item.PROJECT_ID" target="_blank">@item.PR_ID</a></td>
                         <td>@item.RECIPIENT</td>
                         <td>@item.CAUTION</td>
-                        <td><a class="btn btn-link" href="/MaterialManage/downLoadMaterialForm?key=@item.PROJECT_ID-@item.PR_ID-@item.PARENT_PR_ID" target="_blank">下載</a></td>
+                        <td><a class="btn btn-link" href="/MaterialManage/downLoadMaterialForm?prjid=@item.PROJECT_ID&prid=@item.PR_ID&parentId=@item.PARENT_PR_ID" target="_blank">下載</a></td>
                     </tr>
                 }
             </tbody>
