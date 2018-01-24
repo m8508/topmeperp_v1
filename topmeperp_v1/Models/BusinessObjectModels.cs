@@ -318,7 +318,7 @@ namespace topmeperp.Models
         public string PARENT_PR_ID { get; set; }
         public string PR_ID { get; set; }
         public Nullable<decimal> diffQty { get; set; }
-
+        public Nullable<decimal> RECEIPT_QTY_BY_PO { get; set; }
     }
     public class PRFunction
     {
