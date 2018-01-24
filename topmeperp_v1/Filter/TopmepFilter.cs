@@ -13,14 +13,10 @@ namespace topmeperp.Filter
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             log.Info("request URL=" + context.HttpContext.Request.RawUrl);
-            if (context.HttpContext.Session["user"] != null)
+            if (context.HttpContext.Session["user"] != null || exceptionUrl(context.HttpContext.Request.RawUrl))
             {
                 //驗證成功
                 log.Info("session exist!!");
-                //if (context.HttpContext.Request.RawUrl == "/")
-                //{
-                //    log.Info("forward to first function");
-                //}
             }
             else
             {
@@ -38,6 +34,18 @@ namespace topmeperp.Filter
                 }
             }
 
+        }
+        public bool exceptionUrl(string url)
+        {
+            string[] exceptinUrl = new string[] {""};
+            for (int i=0;i< exceptinUrl.Length; i++)
+            {
+                if (url.Equals(exceptinUrl[i]))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
         public static string getBreadcrumb(string url)
         {
