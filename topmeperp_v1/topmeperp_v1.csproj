@@ -400,6 +400,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\BankInfoController.cs" />
     <Compile Include="Controllers\CashFlowController.cs" />
     <Compile Include="Controllers\EstimationController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -421,6 +422,12 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\FIN_BANK_ACCOUNT.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\FIN_BANK_LOAN.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\FIN_EXPENSE_BUDGET.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
@@ -428,6 +435,9 @@
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\FIN_EXPENSE_ITEM.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\FIN_LOAN_TRANACTION.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\FIN_SUBJECT.cs">
@@ -606,6 +616,7 @@
       <DependentUpon>topmep.edmx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service\ContextService4BankInfo.cs" />
     <Compile Include="Service\ContextService4CostChange.cs" />
     <Compile Include="Service\EMailService.cs" />
     <Compile Include="Service\poi4CostChangeService.cs" />
@@ -1010,6 +1021,8 @@
     <Content Include="Views\MaterialManage\CheckForReceiptQty.cshtml" />
     <Content Include="Views\MaterialManage\DeliveryIndex.cshtml" />
     <Content Include="Views\MaterialManage\_DeliveryItem.cshtml" />
+    <Content Include="Views\BankInfo\Index.cshtml" />
+    <Content Include="Views\BankInfo\_BankAccountInfo.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
