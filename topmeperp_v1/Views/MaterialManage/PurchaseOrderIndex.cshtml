@@ -11,7 +11,7 @@
                 <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
             </div>
             <div class="col-md-6">
-                <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc; width:250px;" readonly="readonly" />
             </div>
         </div>
         <hr style="border-top: 1px solid #8c8b8b;" />
@@ -29,18 +29,22 @@
                 <label for="prid">採購單編號 :</label>
                 <input id="prid" name="prid" type="text" value="" class="form-control" />
             </div>
-            <div class='col-md-8 form-group' style="padding-top:10px">
+            <div class='col-md-5 form-group' style="padding-top:10px">
                 <label for="supplier">供應商名稱 :</label>
-                <input id="supplier" name="supplier" type="text" value="" class="form-control" style="width:300px"/>
+                <input id="supplier" name="supplier" type="text" value="" class="form-control" style="width:300px" />
             </div>
-            <div class='col-md-3 form-group pull-right' style="padding-top:10px">
+            <div class="col-md-4 form-group" style="padding-top:10px">
+                <label for="keyname">關鍵字 :</label>
+                <input id="keyname" name="keyname" type="text" value="" class="form-control" style="width:250px;" />
+            </div>
+            <div class='col-md-2 form-group pull-right' style="padding-top:10px">
                 <input id="Submit2" type="submit" class="btn btn-info" value="查詢" />
                 <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "PurchaseForm")'" value="回上一頁">
             </div>
-        </div>
-        <div class="col-md-2">
-            <div id="divProcessing">
-                <img src="~/Content/ajax-loader.gif">
+            <div class="col-md-1" style="padding-top:10px">
+                <div id="divProcessing">
+                    <img src="~/Content/ajax-loader.gif">
+                </div>
             </div>
         </div>
     </form>

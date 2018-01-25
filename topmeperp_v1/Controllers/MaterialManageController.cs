@@ -747,8 +747,8 @@ namespace topmeperp.Controllers
         [HttpPost]
         public ActionResult PurchaseOrderIndex(FormCollection f)
         {
-            log.Info("projectid=" + Request["id"] + ", supplier =" + Request["supplier"] + ", prid =" + Request["prid"] + ", create_id =" + Request["create_date"] + ", parent_prid =" + Request["parent_prid"]);
-            List<PRFunction> lstPO = service.getPOByPrjId(Request["id"], Request["create_date"], Request["supplier"], Request["prid"], Request["parent_prid"]);
+            log.Info("projectid=" + Request["id"] + ", supplier =" + Request["supplier"] + ", prid =" + Request["prid"] + ", create_id =" + Request["create_date"] + ", parent_prid =" + Request["parent_prid"] + ", keyname =" + Request["keyname"]);
+            List<PRFunction> lstPO = service.getPOByPrjId(Request["id"], Request["create_date"], Request["supplier"], Request["prid"], Request["parent_prid"], Request["keyname"]);
             ViewBag.SearchResult = "共取得" + lstPO.Count + "筆資料";
             ViewBag.projectId = Request["id"];
             ViewBag.projectName = Request["projectName"];
@@ -758,7 +758,7 @@ namespace topmeperp.Controllers
         //顯示單一採購單功能
         public ActionResult SinglePO(string id, string prjid)
         {
-            log.Info("http get mehtod:" + id);
+            log.Info("http get prid :" + id + ",and project id = " + prjid);
             PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
             string parentId = "";
             service.getPRByPrId(id, parentId, prjid);

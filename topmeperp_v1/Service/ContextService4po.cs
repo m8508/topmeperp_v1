@@ -1960,8 +1960,9 @@ namespace topmeperp.Service
             List<PRFunction> lstForm = new List<PRFunction>();
             //處理SQL 預先填入專案代號,設定集合處理參數
 
-            string sql = "SELECT CONVERT(char(10), A.CREATE_DATE, 111) AS CREATE_DATE, A.PR_ID, A.STATUS, A.TASK_NAME, A.REMARK + A.MEMO AS KEY_NAME, B.PR_ID AS CHILD_PR_ID, C.PR_ID AS Dminus3day, D.PARENT_PR_ID AS PARENT_PR_ID, ROW_NUMBER() OVER(ORDER BY C.PR_ID desc, A.STATUS,B.PR_ID, D.PARENT_PR_ID desc) AS NO " +
-                "FROM (SELECT pr.CREATE_DATE, pr.PR_ID, pr.PRJ_UID, pt.TASK_NAME, pr.STATUS, pr.REMARK, pr.MEMO FROM PLAN_PURCHASE_REQUISITION pr LEFT OUTER JOIN PLAN_TASK pt " +
+            string sql = "SELECT A.PROJECT_ID, CONVERT(char(10), A.CREATE_DATE, 111) AS CREATE_DATE, A.PR_ID, A.STATUS, A.TASK_NAME, ISNULL(A.REMARK,'') + ISNULL(A.MEMO,'') AS KEY_NAME, A.REMARK, A.MEMO, B.PR_ID AS CHILD_PR_ID, " +
+                "C.PR_ID AS Dminus3day, D.PARENT_PR_ID AS PARENT_PR_ID, ROW_NUMBER() OVER(ORDER BY C.PR_ID desc, A.STATUS,B.PR_ID, D.PARENT_PR_ID desc) AS NO " +
+                "FROM (SELECT pr.PROJECT_ID, pr.CREATE_DATE, pr.PR_ID, pr.PRJ_UID, pt.TASK_NAME, pr.STATUS, pr.REMARK, pr.MEMO FROM PLAN_PURCHASE_REQUISITION pr LEFT OUTER JOIN PLAN_TASK pt " +
                 "ON pr.PRJ_UID = pt.PRJ_UID WHERE pr.PROJECT_ID=@projectid AND pr.PR_ID LIKE 'PR%')A LEFT JOIN (SELECT * FROM PLAN_PURCHASE_REQUISITION pr WHERE pr.PROJECT_ID=@projectid AND pr.PR_ID LIKE 'PPO%')B " +
                 "ON A.PR_ID = B.PARENT_PR_ID LEFT JOIN (SELECT pri.PR_ID FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID =@projectid " +
                 "AND pri.PR_ID LIKE 'PR%' AND pr.STATUS = 10 AND pri.NEED_DATE BETWEEN CAST(convert(varchar, getdate()-3, 120) AS DATETIME) AND CAST(convert(varchar, getdate(), 120) AS DATETIME) GROUP BY pri.PR_ID " +
@@ -1997,7 +1998,7 @@ namespace topmeperp.Service
             //關鍵字條件
             if (null != keyname && keyname != "")
             {
-                sql = sql + "AND KEY_NAME LIKE @keyname ";
+                sql = sql + "AND ISNULL(A.REMARK,'') + ISNULL(A.MEMO,'') LIKE @keyname ";
                 parameters.Add(new SqlParameter("keyname", '%' + keyname + '%'));
             }
             //申購單狀態
@@ -2013,8 +2014,7 @@ namespace topmeperp.Service
             }
             if (status == 10)//已送審
             {
-                sql = sql + "AND A.STATUS >=@status ";
-                parameters.Add(new SqlParameter("status", status));
+                sql = sql + "AND A.STATUS >= 5 ";
             }
             if (status == 20)//未採購
             {
@@ -2051,8 +2051,8 @@ namespace topmeperp.Service
                     "LEFT JOIN(SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS RECEIPT_QTY_BY_PO FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION ppr " +
                     "ON pri.PR_ID = ppr.PR_ID WHERE ppr.PARENT_PR_ID =@parentId GROUP BY pri.PLAN_ITEM_ID)C ON pri.PLAN_ITEM_ID = C.PLAN_ITEM_ID LEFT JOIN " +
                     "(SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS ALL_RECEIPT_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr " +
-                    "ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID = @projectid AND pri.PR_ID LIKE 'RP%' GROUP BY pri.PLAN_ITEM_ID)E ON pri.PLAN_ITEM_ID = E.PLAN_ITEM_ID LEFT JOIN (SELECT pid.PLAN_ITEM_ID, SUM(pid.DELIVERY_QTY) AS DELIVERY_QTY FROM PLAN_ITEM_DELIVERY pid " +
-                    "LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pid.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID = @projectid GROUP BY pid.PLAN_ITEM_ID)D ON pri.PLAN_ITEM_ID = D.PLAN_ITEM_ID WHERE PR_ID =@prid", new SqlParameter("prid", prid), new SqlParameter("parentId", parentId), new SqlParameter("prjid", prjid)).ToList();
+                    "ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID = @prjid AND pri.PR_ID LIKE 'RP%' GROUP BY pri.PLAN_ITEM_ID)E ON pri.PLAN_ITEM_ID = E.PLAN_ITEM_ID LEFT JOIN (SELECT pid.PLAN_ITEM_ID, SUM(pid.DELIVERY_QTY) AS DELIVERY_QTY FROM PLAN_ITEM_DELIVERY pid " +
+                    "LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pid.DELIVERY_ORDER_ID = pr.PR_ID WHERE pr.PROJECT_ID = @prjid GROUP BY pid.PLAN_ITEM_ID)D ON pri.PLAN_ITEM_ID = D.PLAN_ITEM_ID WHERE pri.PR_ID =@prid", new SqlParameter("prid", prid), new SqlParameter("parentId", parentId), new SqlParameter("prjid", prjid)).ToList();
 
                 logger.Debug("get purchase requisition item count:" + PRItem.Count);
                 //取得領料明細
@@ -2291,13 +2291,14 @@ namespace topmeperp.Service
         }
 
         //取得採購單資料
-        public List<PRFunction> getPOByPrjId(string projectid, string date, string supplier, string prid, string parentPrid)
+        public List<PRFunction> getPOByPrjId(string projectid, string date, string supplier, string prid, string parentPrid, string keyname)
         {
 
-            logger.Info("search purchase order by 採購日期 =" + date + ", 採購單編號 =" + prid + ", 供應商名稱 =" + supplier + ", 申購單編號 =" + parentPrid);
+            logger.Info("search purchase order by 採購日期 =" + date + ", 採購單編號 =" + prid + ", 供應商名稱 =" + supplier + ", 申購單編號 =" + parentPrid + ", 關鍵字 =" + keyname);
             List<PRFunction> lstForm = new List<PRFunction>();
             //處理SQL 預先填入專案代號,設定集合處理參數
-            string sql = "SELECT CONVERT(char(10), CREATE_DATE, 111) AS CREATE_DATE, PR_ID, PROJECT_ID, SUPPLIER_ID, PARENT_PR_ID, ROW_NUMBER() OVER(ORDER BY PR_ID) AS NO " +
+            string sql = "SELECT CONVERT(char(10), CREATE_DATE, 111) AS CREATE_DATE, PR_ID, PROJECT_ID, SUPPLIER_ID, PARENT_PR_ID, " +
+                "ISNULL(CAUTION,'') + ISNULL(MEMO,'') + ISNULL(MESSAGE,'') AS KEY_NAME, ROW_NUMBER() OVER(ORDER BY PR_ID) AS NO " +
                 "FROM PLAN_PURCHASE_REQUISITION WHERE PROJECT_ID =@projectid AND SUPPLIER_ID IS NOT NULL AND PR_ID NOT LIKE 'RP%' ";
 
             var parameters = new List<SqlParameter>();
@@ -2313,6 +2314,12 @@ namespace topmeperp.Service
                 string Month = period[1];
                 sql = sql + "AND YEAR(CREATE_DATE) = '" + Year + "' AND MONTH(CREATE_DATE) = '" + Month + "' ";
                 parameters.Add(new SqlParameter("date", date));
+            }
+            //關鍵字條件
+            if (null != keyname && keyname != "")
+            {
+                sql = sql + "AND ISNULL(CAUTION,'') + ISNULL(MEMO,'') + ISNULL(MESSAGE,'') LIKE @keyname ";
+                parameters.Add(new SqlParameter("keyname", '%' + keyname + '%'));
             }
             //採購單編號條件
             if (null != prid && prid != "")
