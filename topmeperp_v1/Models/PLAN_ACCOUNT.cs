@@ -26,5 +26,6 @@ namespace topmeperp.Models
         public string CREATE_ID { get; set; }
         public string MODIFY_ID { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
+        public string CHECK_NO { get; set; }
     }
 }

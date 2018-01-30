@@ -523,6 +523,7 @@ namespace topmeperp.Models
         public string PAYEE { get; set; }
         public string RECORDED_DATE { get; set; }
         public string RECORDED_AMOUNT { get; set; }
+        public Int64 NO { get; set; }
 
     }
     public class SiteBudgetModels
@@ -592,12 +593,20 @@ namespace topmeperp.Models
     {
         public string PLAN_CREATE_DATE { get; set; }
     }
-    public class RevenueFromOwner : PLAN_VALUATION_4OWNER
+    
+    public class RevenueFromOwner : PLAN_VALUATION_FORM
     {
-        public Nullable<decimal> PLAN_REVENUE { get; set; }
-        public Nullable<decimal> ITEM_REVENUE { get; set; }
-        public string OCCURRED_DATE { get; set; }
-        public string PROJECT_NAME { get; set; }
+        public Int32 VACount { get; set; }
+        public Int32 isVA { get; set; }
+        public Int64 NO { get; set; }
+        public Nullable<decimal> AR { get; set; }
+        public Nullable<decimal> contractAtm { get; set; }
+        public Nullable<decimal> advancePaymentBalance { get; set; }
+        public Nullable<decimal> AR_UNPAID { get; set; }
+        public Nullable<decimal> AR_PAID { get; set; }
+        public string RECORDED_DATE { get; set; }
+        
+
 
     }
 }

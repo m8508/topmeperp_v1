@@ -13,65 +13,71 @@
     <input type="button" class="btn btn-success" onclick="closewin();" value="關閉">
 </div>
 
-    <div style="padding-top:50px;">
-        <form id="formAccount" name="formAccount" action="UpdateAccountStatus" method="post">
-            <table class="table">
-                <tr>
-                    <th>
-                        帳款類別
-                    </th>
-                    <th>
-                        帳款單據編號(可點選連結)
-                    </th>
-                    <th>
-                        預計入帳日期
-                    </th>
-                    <th>
-                        金額
-                    </th>
-                    <th>
-                        暫不入帳
-                    </th>
-                </tr>
+<div style="padding-top:50px;">
+    <form id="formAccount" name="formAccount" action="UpdateAccountStatus" method="post">
+        <table class="table">
+            <tr>
+                <th>
+                    帳款類別
+                </th>
+                <th>
+                    帳款單據編號(可點選連結)
+                </th>
+                <th>
+                    預計入帳日期
+                </th>
+                <th>
+                    金額
+                </th>
+                <th>
+                    暫不入帳
+                </th>
+            </tr>
 
-                @foreach (var item in Model)
+            @foreach (var item in Model)
             {
-                    <tr>
-                        @if (item.ACCOUNT_TYPE == "R")
+                <tr>
+                    @if (item.ACCOUNT_TYPE == "R")
                 {
-                            <td>業內收入</td>
-                        }
-                        else
-                        {
-                            <td>業外收入</td>
-                        }
-                        <td>
-                            <a href="/CashFlow/SingleEXPForm?id=@item.ACCOUNT_FORM_ID" target="_blank">@Html.TextBox("formid", item.ACCOUNT_FORM_ID, new { style = "width:150px", @readonly = "readonly" })</a>
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.PAYMENT_DATE, "LongDateTime")
-                        </td>
-                        <td>
-                            @String.Format("{0:$#,##0.#}", item.AMOUNT)
-                        </td>
-                        @if (item.STATUS == 10)
+                        <td>業內收入</td>
+                    }
+                    else
+                    {
+                        <td>業外收入</td>
+                    }
+                    @if (item.ACCOUNT_TYPE == "R")
+                    {
+                        <td><a href="/Estimation/Valuation4Owner?id=@item.PROJECT_ID" target="_blank">@item.ACCOUNT_FORM_ID</a></td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PAYMENT_DATE, "LongDateTime")
+                    </td>
+                    <td>
+                        @String.Format("{0:$#,##0.#}", item.AMOUNT)
+                    </td>
+                    @if (item.STATUS == 10)
                 {
-                            <td>
-                                <input type="checkbox" id="status" name="status" value="0" />
-                            </td>
-                        }
-                        else
-                        {
-                            <td>
-                                <input type="checkbox" id="status" name="status" value="0" checked />
-                            </td>
-                        }
-                    </tr>
-                }
-            </table>
-        </form>
+                        <td>
+                            <input type="checkbox" id="status" name="status" value="0" />
+                        </td>
+                    }
+                    else
+                    {
+                        <td>
+                            <input type="checkbox" id="status" name="status" value="0" checked />
+                        </td>
+                    }
+                    <td><input type="hidden" id="plan_account_id" name="plan_account_id" value="@item.PLAN_ACCOUNT_ID" /></td>
+                </tr>
+            }
+        </table>
+    </form>
 </div>
-    <script type="text/javascript">
+<script type="text/javascript">
     function closewin() {
         window.open('', '_self', ''); window.close();
     }
@@ -91,4 +97,4 @@
             }
         });
     });
-    </script>
+</script>

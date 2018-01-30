@@ -1,18 +1,18 @@
 ﻿
 @{
-    ViewBag.Title = "修改帳款支付日期";
+    ViewBag.Title = "修改帳款資料 : ";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 
+<h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
 <div class="jumbotron">
-    <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
     <form name="accountSearch" id="accountSearch"  method="Post" class="form-inline">
         <div class="row">
-            <div class='col-md-6 form-group' style="padding-top:10px">
+            <div class='col-md-6 form-group'>
                 <label for="payment_date">支付日期 : </label>
                 <input id="payment_date" name="payment_date" class="form-control" />
             </div>
-            <div class='col-md-6 form-group' style="padding-top:10px">
+            <div class='col-md-6 form-group'>
                 <label for="payee">受款人 : </label>
                 <input id="payee" name="payee" class="form-control" />
             </div>
@@ -99,15 +99,17 @@
             data: { itemid: itemid },
             dataType: "JSON",
             success: function (data) {
-                $('#project_id').val(data.PROJECT_ID);
+                $('#project_name').val(data.PROJECT_NAME);
                 $('#plan_account_id').val(data.PLAN_ACCOUNT_ID);
                 $('#contract_id').val(data.CONTRACT_ID);
                 $('#type').val(data.ACCOUNT_TYPE);
                 $('#isdebit').val(data.ISDEBIT);
                 $('#create_id').val(data.CREATE_ID);
+                $('#check_no').val(data.CHECK_NO);
                 $('#account_form_id').val(data.ACCOUNT_FORM_ID);
                 $('#amount').val(data.RECORDED_AMOUNT);
                 $('#date').val(data.RECORDED_DATE);
+                $('#project_id').val(data.PROJECT_ID);
                 $('#unRecordedFlag').val(data.STATUS);
                 $('#planAcountItem').modal('show'); // show bootstrap modal when complete loaded
                 //$('.modal-title').text('編輯設定資料'); // Set title to Bootstrap modal title

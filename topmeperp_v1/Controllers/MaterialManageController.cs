@@ -730,7 +730,7 @@ namespace topmeperp.Controllers
                 lstItem.Add(items);
             }
             int k = service.refreshPO(prid, pr, lstItem);
-            return Redirect("SinglePO?id=" + prid);
+            return Redirect("SinglePO?id=" + prid + "&prjid=" + Request["id"]);
         }
 
         //採購單查詢
@@ -1186,7 +1186,7 @@ namespace topmeperp.Controllers
                 lstItem.Add(items);
             }
             int k = service.refreshDelivery(deliveryorderid, lstItem);
-            return Redirect("SingleDO?id=" + deliveryorderid);
+            return Redirect("SingleDO?id=" + deliveryorderid + "&prjid=" + Request["prjId"]);
         }
 
         //物料進出明細
