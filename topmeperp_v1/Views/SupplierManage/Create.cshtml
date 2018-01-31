@@ -8,11 +8,10 @@
     <form id="formSupplier" name="formSupplier" action="RefreshSupplier" method="post">
 
         <div class="col-md-12">
-            <h4>供應商基本資料 :</h4><input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "SupplierManage")'" value="回首頁">
-        </div>
-        <div class="col-md-12">
-            <div class="col-md-8"></div>
-            <div class="col-md-4 alert-info">
+            <div class="col-md-2">
+                <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "SupplierManage")'" value="回首頁">
+            </div>
+            <div class="col-md-8 alert-info">
                 @Html.Raw(TempData["result"])
             </div>
         </div>

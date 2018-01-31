@@ -106,7 +106,7 @@ namespace topmeperp.Controllers
             ContractModels contract = new ContractModels();
             ViewBag.formid = formid;
             ViewBag.contractid = id;
-            ViewBag.keyid = id; //使用供應商名稱的contractid
+            //ViewBag.keyid = id; //使用供應商名稱的contractid
             //取得合約金額與供應商名稱,採購項目等資料
             if (ViewBag.wage != "Y")
             {
@@ -120,7 +120,7 @@ namespace topmeperp.Controllers
                 {
                     ViewBag.retention = payment.PAYMENT_RETENTION_RATIO;
                 }
-                else
+                else if (payment.USANCE_RETENTION_RATIO != null)
                 {
                     ViewBag.retention = payment.USANCE_RETENTION_RATIO;
                 }
@@ -153,7 +153,7 @@ namespace topmeperp.Controllers
                 {
                     ViewBag.retention = payment.PAYMENT_RETENTION_RATIO;
                 }
-                else
+                else if (payment.USANCE_RETENTION_RATIO != null)
                 {
                     ViewBag.retention = payment.USANCE_RETENTION_RATIO;
                 }
@@ -167,6 +167,7 @@ namespace topmeperp.Controllers
             }
             ViewBag.date = DateTime.Now;
             //ViewBag.paymentkey = ViewBag.formid + ViewBag.contractid;
+            ViewBag.InvoicePieces = service.getInvoicePiecesById(formid);
             List<EstimationForm> lstContractItem = null;
             lstContractItem = service.getContractItemById(id, projectid);
             //contract.planItems = lstContractItem;
@@ -351,14 +352,14 @@ namespace topmeperp.Controllers
             {
                 status = 10;
             }
-            List<ESTFunction> lstEST = service.getESTListByEstId(id, Request["contractid"], Request["estid"], status);
+            List<ESTFunction> lstEST = service.getESTListByEstId(id, Request["contractid"], Request["estid"], status, Request["supplier"]);
             return View(lstEST);
         }
 
         public ActionResult SearchEST()
         {
-            logger.Info("projectid=" + Request["id"] + ", contractid =" + Request["contractid"] + ", estid =" + Request["estid"] + ", status =" + int.Parse(Request["status"]));
-            List<ESTFunction> lstEST = service.getESTListByEstId(Request["id"], Request["contractid"], Request["estid"], int.Parse(Request["status"]));
+            //logger.Info("projectid=" + Request["id"] + ", contractid =" + Request["contractid"] + ", estid =" + Request["estid"] + ", status =" + int.Parse(Request["status"]));
+            List<ESTFunction> lstEST = service.getESTListByEstId(Request["id"], Request["contractid"], Request["estid"], int.Parse(Request["status"]), Request["supplier"]);
             ViewBag.SearchResult = "共取得" + lstEST.Count + "筆資料";
             ViewBag.projectId = Request["id"];
             ViewBag.projectName = Request["projectName"];
@@ -384,18 +385,21 @@ namespace topmeperp.Controllers
             ContractModels singleForm = new ContractModels();
             service.getESTByEstId(id);
             singleForm.planEST = service.formEST;
+            ViewBag.formid = id;
             ViewBag.wage = singleForm.planEST.TYPE;
             ViewBag.contractid = singleForm.planEST.CONTRACT_ID;
-            TND_SUPPLIER s = service.getSupplierInfo(singleForm.planEST.CONTRACT_ID.Substring(6, 7).Trim());
+            service.getInqueryForm(singleForm.planEST.CONTRACT_ID);
+            PLAN_SUP_INQUIRY f = service.formInquiry;
+            TND_SUPPLIER s = service.getSupplierInfo(f.SUPPLIER_ID.Trim());
             ViewBag.supplier = s.COMPANY_NAME;
             if (ViewBag.wage != "W")
             {
-                plansummary lstContract = service.getPlanContract4Est(singleForm.planEST.CONTRACT_ID.Replace(singleForm.planEST.CONTRACT_ID.Substring(6, 7), s.COMPANY_NAME));
+                plansummary lstContract = service.getPlanContract4Est(singleForm.planEST.CONTRACT_ID);
                 ViewBag.contractamount = lstContract.MATERIAL_COST;
             }
             else
             {
-                plansummary lstWageContract = service.getPlanContractOfWage4Est(singleForm.planEST.CONTRACT_ID.Replace(singleForm.planEST.CONTRACT_ID.Substring(6, 7), s.COMPANY_NAME));
+                plansummary lstWageContract = service.getPlanContractOfWage4Est(singleForm.planEST.CONTRACT_ID);
                 ViewBag.contractamount = lstWageContract.WAGE_COST;
             }
             PLAN_PAYMENT_TERMS payment = service.getPaymentTerm(singleForm.planEST.CONTRACT_ID);
@@ -409,13 +413,13 @@ namespace topmeperp.Controllers
             }
             ViewBag.paymentTerms = service.getTermsByContractId(singleForm.planEST.CONTRACT_ID);
             ViewBag.estCount = service.getEstCountByESTId(id);
-            ViewBag.formname = singleForm.planEST.CONTRACT_ID.Substring(13).Trim();
-            ViewBag.paymentkey = id + singleForm.planEST.CONTRACT_ID;
+            ViewBag.formname = f.FORM_NAME.Trim();
+            //ViewBag.paymentkey = id + singleForm.planEST.CONTRACT_ID;
             singleForm.planESTItem = service.ESTItem;
             singleForm.prj = service.getProjectById(singleForm.planEST.PROJECT_ID);
             logger.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
             PaymentDetailsFunction lstSummary = service.getDetailsPayById(id, singleForm.planEST.CONTRACT_ID);
-            var balance = service.getBalanceOfRefundById(ViewBag.contractid);
+            var balance = service.getBalanceOfRefundById(singleForm.planEST.CONTRACT_ID);
             if (balance > 0)
             {
                 TempData["balance"] = "本合約目前尚有 " + string.Format("{0:C0}", balance) + "的代付支出款項，仍未扣回!";
@@ -429,7 +433,7 @@ namespace topmeperp.Controllers
         public ActionResult OtherPayment(string id, string contractid)
         {
             logger.Info("Access To Other Payment By EST Form Id =" + id);
-            service.getInqueryForm(id);
+            service.getInqueryForm(contractid);
             PLAN_SUP_INQUIRY f = service.formInquiry;
             ViewBag.projectId = f.PROJECT_ID;
             TND_PROJECT p = service.getProjectById(f.PROJECT_ID);
@@ -598,7 +602,7 @@ namespace topmeperp.Controllers
         public ActionResult AdvancePayment(string id, string contractid)
         {
             logger.Info("Access To Advance Payment By EST Form Id =" + id);
-            service.getInqueryForm(id);
+            service.getInqueryForm(contractid);
             PLAN_SUP_INQUIRY f = service.formInquiry;
             ViewBag.projectId = f.PROJECT_ID;
             TND_PROJECT p = service.getProjectById(f.PROJECT_ID);
@@ -766,7 +770,7 @@ namespace topmeperp.Controllers
         public ActionResult Invoice(string id, string contractid)
         {
             logger.Info("Access To Invoice By EST Form Id =" + id);
-            service.getInqueryForm(id);
+            service.getInqueryForm(contractid);
             PLAN_SUP_INQUIRY f = service.formInquiry;
             ViewBag.projectId = f.PROJECT_ID;
             TND_PROJECT p = service.getProjectById(f.PROJECT_ID);
@@ -979,7 +983,7 @@ namespace topmeperp.Controllers
         public ActionResult RePayment(string id, string contractid)
         {
             logger.Info("Access To RePayment By EST Form Id =" + id);
-            service.getInqueryForm(id);
+            service.getInqueryForm(contractid);
             PLAN_SUP_INQUIRY f = service.formInquiry;
             ViewBag.projectId = f.PROJECT_ID;
             TND_PROJECT p = service.getProjectById(f.PROJECT_ID);
@@ -1001,7 +1005,7 @@ namespace topmeperp.Controllers
         public ActionResult ChooseSupplier(string id, string contractid)
         {
             logger.Info("Access To RePayment By EST Form Id =" + id);
-            service.getInqueryForm(id);
+            service.getInqueryForm(contractid);
             PLAN_SUP_INQUIRY f = service.formInquiry;
             ViewBag.contractid = contractid;
             ViewBag.formid = id;
@@ -1089,7 +1093,7 @@ namespace topmeperp.Controllers
         public ActionResult Refund(string id, string contractid)
         {
             logger.Info("Access To Refund By EST Form Id =" + id);
-            service.getInqueryForm(id);
+            service.getInqueryForm(contractid);
             PLAN_SUP_INQUIRY f = service.formInquiry;
             ViewBag.projectId = f.PROJECT_ID;
             TND_PROJECT p = service.getProjectById(f.PROJECT_ID);
@@ -1114,7 +1118,7 @@ namespace topmeperp.Controllers
         public ActionResult ChooseSupplierOfRefund(string id, string contractid)
         {
             logger.Info("Access To Refund By EST Form Id =" + id);
-            service.getInqueryForm(id);
+            service.getInqueryForm(contractid);
             PLAN_SUP_INQUIRY f = service.formInquiry;
             ViewBag.contractid = contractid;
             ViewBag.formid = id;
@@ -2096,50 +2100,6 @@ namespace topmeperp.Controllers
             Response.End();
         }
 
-        //上傳業主計價項目
-        public string uploadVAItem4Owner(HttpPostedFileBase fileValuation)
-        {
-            string projectId = Request["id"];
-            logger.Info("Upload valuation item for owner, project id =" + projectId);
-            if (null != fileValuation && fileValuation.ContentLength != 0)
-            {
-                try
-                {
-                    //2.解析Excel
-                    logger.Info("Parser Excel data:" + fileValuation.FileName);
-                    //2.1 設定Excel 檔案名稱
-                    var fileName = Path.GetFileName(fileValuation.FileName);
-                    var path = Path.Combine(ContextService.strUploadPath, fileName);
-                    logger.Info("save excel file:" + path);
-                    fileValuation.SaveAs(path);
-                    //2.2 開啟Excel 檔案
-                    logger.Info("Parser Excel File Begin:" + fileValuation.FileName);
-                    VAItem4OwnerToExcel ownerservice = new VAItem4OwnerToExcel();
-                    ownerservice.InitializeWorkbook(path);
-                    //解析預算數量
-                    List<PLAN_VALUATION_4OWNER> lstVAItem = ownerservice.ConvertDataForVAOfOwner(projectId);
-                    //2.3
-                    logger.Info("Delete PLAN_VALUATION_4OWNER By Project Id");
-                    service.delVAItemOfOwnerById(projectId);
-                    //2.4 
-                    logger.Info("Add All PLAN_VALUATION_4OWNER to DB");
-                    service.refreshVAItemOfOwner(lstVAItem);
-                }
-                catch (Exception ex)
-                {
-                    logger.Error(ex.StackTrace);
-                    return ex.Message;
-                }
-            }
-            if (service.strMessage != null)
-            {
-                return service.strMessage;
-            }
-            else
-            {
-                return "匯入成功!!";
-            }
-        }
         //業主估驗計價
         public ActionResult Valuation4Owner(string id)
         {
@@ -2147,101 +2107,199 @@ namespace topmeperp.Controllers
             ViewBag.projectid = id;
             TND_PROJECT p = service.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
-            var priId = service.getVAOfOwnerById(id);
-            if (null != priId && priId != "")
+            //取得付款條件
+            PLAN_PAYMENT_TERMS payment = service.getPaymentTerm(id);
+            if (payment.PAYMENT_RETENTION_RATIO != null)
             {
-                List<RevenueFromOwner> lstVAItem = null;
-                lstVAItem = service.getVAItemOfOwnerById(id);
-                ViewBag.SearchResult = "共取得" + lstVAItem.Count + "筆資料";
-                //轉成Json字串
-                ViewData["items"] = JsonConvert.SerializeObject(lstVAItem);
+                ViewBag.retention = payment.PAYMENT_RETENTION_RATIO;
+            }
+            else if (payment.USANCE_RETENTION_RATIO != null)
+            {
+                ViewBag.retention = payment.USANCE_RETENTION_RATIO;
+            }
+            if (payment.PAYMENT_ADVANCE_RATIO != null)
+            {
+                ViewBag.advance = payment.PAYMENT_ADVANCE_RATIO;
+            }
+            else if (payment.USANCE_ADVANCE_RATIO != null)
+            {
+                ViewBag.advance = payment.USANCE_ADVANCE_RATIO;
+            }
+            RevenueFromOwner va = service.getVACount4OwnerById(id);
+            ViewBag.VACount = va.isVA;
+            if (va.isVA > 1)
+            {
+                List<RevenueFromOwner> valuation = null;
+                RevenueFromOwner summary = service.getVASummaryAtmById(id);
+                ViewBag.contractAtm = (null == summary.contractAtm ? 0 : summary.contractAtm);
+                ViewBag.advancePaymentBalance = (null == summary.advancePaymentBalance ? 0 : summary.advancePaymentBalance);
+                ViewBag.totalTax = (null == summary.TAX_AMOUNT ? 0 : summary.TAX_AMOUNT);
+                ViewBag.totalRetention = (null == summary.RETENTION_PAYMENT ? 0 : summary.RETENTION_PAYMENT);
+                ViewBag.VAAtm = (null == summary.VALUATION_AMOUNT ? 0 : summary.VALUATION_AMOUNT);
+                ViewBag.AR = (null == summary.AR ? 0 : summary.AR);
+                ViewBag.ARUnPaid = (null == summary.AR ? 0 : summary.AR) - (null == summary.AR_PAID ? 0 : summary.AR_PAID);
+                ViewBag.VABalance = (null == summary.contractAtm ? 0 : summary.contractAtm) - (null == summary.VALUATION_AMOUNT ? 0 : summary.VALUATION_AMOUNT);
+                valuation = service.getVADetailById(id);
+                return View(valuation);
             }
             return View();
         }
-
-        public string getVAItem(string itemid)
+        /// <summary>
+        /// 取得業主計價次數
+        /// </summary>
+        /// <param name="projectid"></param>
+        /// <returns></returns>
+        public string getVAItem(string projectid)
         {
-            logger.Info("get valuatio item by item no =" + itemid);
-            string[] key = itemid.Split('+');
+            logger.Info("get VA item by project id=" + projectid);
             System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            string itemJson = objSerializer.Serialize(service.getVAItem(key[0], key[1]));
-            logger.Info("valuatio item  info=" + itemJson);
+            string itemJson = objSerializer.Serialize(service.getVACount4OwnerById(projectid));
+            logger.Info("VA item's Info=" + itemJson);
             return itemJson;
         }
-        
-        public String updateVAItem(FormCollection form)
+        /// <summary>
+        /// 取得業主計價資料
+        /// </summary>
+        /// <param name="formid"></param>
+        /// <returns></returns>
+        public string getVADetail(string formid)
+        {
+            logger.Info("get VA detail by form id=" + formid);
+            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            string itemJson = objSerializer.Serialize(service.getVADetailByVAId(formid));
+            logger.Info("VA detail's Info=" + itemJson);
+            return itemJson;
+        }
+        //新增業主計價資料
+        public String addVAItem(FormCollection form)
         {
             logger.Info("form:" + form.Count);
-            string msg = "更新成功!!";
-
-            PLAN_VALUATION_4OWNER item = new PLAN_VALUATION_4OWNER();
-            item.PROJECT_ID = form["project_id"];
-            item.ITEN_NO = form["item_no"];
-            item.ITEM_DESC = form["item_desc"];
-            item.REMARK = form["item_remark"];
-            try
+            string msg = "新增計價資料成功!!";
+            string Remsg = "修改計價資料成功!!";
+            PLAN_VALUATION_FORM item = new PLAN_VALUATION_FORM();
+            item.PROJECT_ID = form["projectid"];
+            if (form["formid"] != "")
             {
-                item.ITEM_VALUATION_RATIO = decimal.Parse(form["item_valuation_ratio"]);
+                item.VA_FORM_ID = form["formid"];
             }
-            catch (Exception ex)
+            if (form["va_amount"] != "")
             {
-                logger.Error(item.ITEN_NO + " not valuation_ratio:" + ex.Message);
+                item.VALUATION_AMOUNT = decimal.Parse(form["va_amount"]);
             }
-            SYS_USER loginUser = (SYS_USER)Session["user"];
-            item.MODIFY_ID = loginUser.USER_ID;
-            item.MODIFY_DATE = DateTime.Now;
-            int i = 0;
-            i = service.updateVAItem(item);
-            if (i == 0) { msg = service.message; }
-            return msg;
-        }
-        //新增業主計價單
-        public ActionResult AddVAForm(PLAN_VALUATION_FORM vf)
-        {
-            //取得專案編號
-            logger.Info("Project Id:" + Request["id"]);
-            //取得專案名稱
-            logger.Info("Project Name:" + Request["projectName"]);
-            //取得使用者勾選品項ID
-            logger.Info("item_list:" + Request["chkItem"]);
-            string[] lstItemId = Request["chkItem"].ToString().Split(',');
-            logger.Info("select count:" + lstItemId.Count());
-            var i = 0;
-            for (i = 0; i < lstItemId.Count(); i++)
+            if (form["advance_payment"] != "")
             {
-                logger.Info("item_list return No.:" + lstItemId[i]);
+                item.ADVANCE_PAYMENT = decimal.Parse(form["advance_payment"]);
             }
-            string[] Amt = Request["evaluated_amount"].Split(',');
-            List<string> lstAmt = new List<string>();
-            var m = 0;
-            for (m = 0; m < Amt.Count(); m++)
+            if (form["other_payment"] != "")
             {
-                if (Amt[m] != "" && null != Amt[m])
-                {
-                    lstAmt.Add(Amt[m]);
-                }
+                item.OTHER_PAYMENT = decimal.Parse(form["other_payment"]);
             }
-            //建立計價單
-            logger.Info("create new Valuation Form");
+            item.OTHER_PAYMENT_REMARK = form["other_payment_remark"];
+            if (form["repayment"] != "")
+            {
+                item.REPAYMENT = decimal.Parse(form["repayment"]);
+            }
+            if (form["tax_ratio"] != "")
+            {
+                item.TAX_RATIO = decimal.Parse(form["tax_ratio"]);
+            }
+            if (form["tax_amount"] != "")
+            {
+                item.TAX_AMOUNT = decimal.Parse(form["tax_amount"]);
+            }
+            if (form["advance_refund"] != "")
+            {
+                item.ADVANCE_PAYMENT_REFUND = decimal.Parse(form["advance_refund"]);
+            }
+            if (form["retention_amount"] != "")
+            {
+                item.RETENTION_PAYMENT = decimal.Parse(form["retention_amount"]);
+            }
+            item.REMARK = form["remark"];
             UserService us = new UserService();
             SYS_USER u = (SYS_USER)Session["user"];
             SYS_USER uInfo = us.getUserInfo(u.USER_ID);
-            vf.PROJECT_ID = Request["id"];
-            vf.CREATE_ID = u.USER_ID;
-            vf.CREATE_DATE = DateTime.Now;
-            PLAN_VALUATION_FORM_ITEM item = new PLAN_VALUATION_FORM_ITEM();
-            string vaid = service.newVA(Request["id"], vf, lstItemId);
-            List<PLAN_VALUATION_FORM_ITEM> lstItem = new List<PLAN_VALUATION_FORM_ITEM>();
-            for (int j = 0; j < lstItemId.Count(); j++)
+            if (null == form["formid"] || form["formid"] == "")
             {
-                PLAN_VALUATION_FORM_ITEM items = new PLAN_VALUATION_FORM_ITEM();
-                items.ITEM_NO = lstItemId[j];
-                items.ITEM_VALUATION_AMOUNT = decimal.Parse(lstAmt[j]);
-                logger.Debug("Item No=" + items.ITEM_NO + ", Amt =" + items.ITEM_VALUATION_AMOUNT);
-                lstItem.Add(items);
+                item.CREATE_DATE = DateTime.Now;
+                item.CREATE_ID = uInfo.USER_ID;
+                item.STATUS = 0;//草稿
             }
-            int k = service.refreshVA(vaid, vf, lstItem);
-            return Redirect("SingleVA?id=" + vaid);
+            else
+            {
+                item.MODIFY_DATE = DateTime.Now;
+                item.CREATE_DATE = Convert.ToDateTime(form.Get("create_date"));
+                item.CREATE_ID = form["create_id"];
+                item.STATUS = int.Parse(form["status"]);
+            }
+            string fid = service.refreshVA(form["formid"], item);
+            if (null == form["formid"] || form["formid"] == "")
+            {
+                RevenueFromOwner payment = service.getVAPayItemById(fid);
+                decimal retention = decimal.Parse(payment.RETENTION_PAYMENT.ToString());
+                decimal advanceRefund = decimal.Parse(payment.ADVANCE_PAYMENT_REFUND.ToString());
+                logger.Debug("advanceRefund = " + advanceRefund);
+                decimal tax = decimal.Parse(payment.TAX_AMOUNT.ToString());
+                int i = service.refreshVAItem(fid, retention, advanceRefund, tax);
+            }
+            else if (decimal.Parse(form["advance_refund"]) != Math.Round(decimal.Parse(form["va_amount"]) * decimal.Parse(form["advanceRatio"]), 0))
+            {
+                decimal advanceRefund = decimal.Parse(form["advance_refund"]);
+                decimal retention = decimal.Parse(form["retention_amount"]);
+                decimal tax = Math.Round((decimal.Parse(form["va_amount"]) - decimal.Parse(form["advance_refund"])) * decimal.Parse(form["tax_ratio"]) / 100, 0);
+                int i = service.refreshVAItem(fid, retention, advanceRefund, tax);
+            }
+            if (fid == "" || null == fid) { msg = service.message; }
+            if (form["formid"] != "")
+            {
+                return Remsg;
+            }
+            else
+            {
+                return msg;
+            }
+        }
+        /// <summary>
+        /// 取得業主計價次數
+        /// </summary>
+        /// <param name="formid"></param>
+        /// <returns></returns>
+        public string getAROfForm(string formid)
+        {
+            logger.Info("get AR of VA form by form id=" + formid);
+            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            string itemJson = objSerializer.Serialize(service.getVADetailByVAId(formid));
+            logger.Info("VA AR's Info=" + itemJson);
+            return itemJson;
+        }
+        //新增應收帳款支付資料
+        public String addPaymentDate(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            string msg = "新增支付資料成功!!";
+            PLAN_ACCOUNT item = new PLAN_ACCOUNT();
+            item.PROJECT_ID = form["projectid"];
+            item.CONTRACT_ID = form["projectid"];
+            item.ACCOUNT_FORM_ID = form["va_form_id"];
+            if (form["payment_amount"] != "")
+            {
+                item.AMOUNT = decimal.Parse(form["payment_amount"]);
+            }
+            if (form["payment_date"] != "")
+            {
+                item.PAYMENT_DATE = Convert.ToDateTime(form.Get("payment_date"));
+            }
+            item.CHECK_NO = form["check_no"];
+            UserService us = new UserService();
+            SYS_USER u = (SYS_USER)Session["user"];
+            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            item.CREATE_ID = uInfo.USER_ID;
+            item.ISDEBIT = "Y";
+            item.ACCOUNT_TYPE = "R";
+            item.STATUS = 10;//已支付
+            int i = service.addPlanAccount(item);
+            if (i == 0) { msg = service.message; }
+            return msg;
         }
     }
 }

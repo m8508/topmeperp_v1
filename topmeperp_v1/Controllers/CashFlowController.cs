@@ -674,7 +674,7 @@ namespace topmeperp.Controllers
             logger.Info("form:" + form.Count);
             string msg = "";
             int i = 0;
-            string[] lstForm = form.Get("formid").Split(',');
+            string[] lstForm = form.Get("plan_account_id").Split(',');
             List<PLAN_ACCOUNT> lstItem = new List<PLAN_ACCOUNT>();
             if (form.Get("status") != null)
             {
@@ -682,7 +682,7 @@ namespace topmeperp.Controllers
                 for (int j = 0; j < lstForm.Count(); j++)
                 {
                     PLAN_ACCOUNT item = new PLAN_ACCOUNT();
-                    item.ACCOUNT_FORM_ID = lstForm[j];
+                    item.PLAN_ACCOUNT_ID = int.Parse(lstForm[j]);
                     item.MODIFY_DATE = DateTime.Now;
                     if (lstStatus[j].ToString() == "")
                     {
@@ -692,7 +692,7 @@ namespace topmeperp.Controllers
                     {
                         item.STATUS = 0;
                     }
-                    logger.Debug("Acount Form Id =" + item.ACCOUNT_FORM_ID + ", Status =" + item.STATUS);
+                    logger.Debug("Plan Acount Id =" + item.PLAN_ACCOUNT_ID + ", Status =" + item.STATUS);
                     lstItem.Add(item);
                 }
             }
@@ -701,10 +701,10 @@ namespace topmeperp.Controllers
                 for (int j = 0; j < lstForm.Count(); j++)
                 {
                     PLAN_ACCOUNT item = new PLAN_ACCOUNT();
-                    item.ACCOUNT_FORM_ID = lstForm[j];
+                    item.PLAN_ACCOUNT_ID = int.Parse(lstForm[j]);
                     item.STATUS = 10;
                     item.MODIFY_DATE = DateTime.Now;
-                    logger.Debug("Acount Form Id =" + item.ACCOUNT_FORM_ID + ", Status =" + item.STATUS);
+                    logger.Debug("Plan Acount Id =" + item.PLAN_ACCOUNT_ID + ", Status =" + item.STATUS);
                     lstItem.Add(item);
                 }
             }
@@ -754,6 +754,12 @@ namespace topmeperp.Controllers
             return PartialView(lstAccount);
         }
 
+        public ActionResult PlanAccountOfForm(string formid)
+        {
+            logger.Info("get plan account by form id=" + formid);
+            List<PlanAccountFunction> lstAccount = service.getPlanAccountById(formid);
+            return View(lstAccount);
+        }
         public string getPlanAccountItem(string itemid)
         {
             logger.Info("get plan account item by id=" + itemid);
@@ -787,6 +793,7 @@ namespace topmeperp.Controllers
             item.ISDEBIT = form["isdebit"];
             item.STATUS = int.Parse(form["unRecordedFlag"]);
             item.CREATE_ID = form["create_id"];
+            item.CHECK_NO = form["check_no"]; 
             SYS_USER loginUser = (SYS_USER)Session["user"];
             item.MODIFY_ID = loginUser.USER_ID;
             item.MODIFY_DATE = DateTime.Now;

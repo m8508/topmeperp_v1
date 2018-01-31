@@ -72,7 +72,6 @@ namespace topmeperp.Models
         public virtual DbSet<TND_SUPPLIER> TND_SUPPLIER { get; set; }
         public virtual DbSet<TND_TASKASSIGN> TND_TASKASSIGN { get; set; }
         public virtual DbSet<TND_WAGE> TND_WAGE { get; set; }
-        public virtual DbSet<PLAN_ACCOUNT> PLAN_ACCOUNT { get; set; }
         public virtual DbSet<PLAN_INDIRECT_COST> PLAN_INDIRECT_COST { get; set; }
         public virtual DbSet<PLAN_COSTCHANGE_FORM> PLAN_COSTCHANGE_FORM { get; set; }
         public virtual DbSet<PLAN_COSTCHANGE_ITEM> PLAN_COSTCHANGE_ITEM { get; set; }
@@ -81,7 +80,8 @@ namespace topmeperp.Models
         public virtual DbSet<FIN_BANK_LOAN> FIN_BANK_LOAN { get; set; }
         public virtual DbSet<FIN_LOAN_TRANACTION> FIN_LOAN_TRANACTION { get; set; }
         public virtual DbSet<PLAN_VALUATION_4OWNER> PLAN_VALUATION_4OWNER { get; set; }
-        public virtual DbSet<PLAN_VALUATION_FORM> PLAN_VALUATION_FORM { get; set; }
         public virtual DbSet<PLAN_VALUATION_FORM_ITEM> PLAN_VALUATION_FORM_ITEM { get; set; }
+        public virtual DbSet<PLAN_VALUATION_FORM> PLAN_VALUATION_FORM { get; set; }
+        public virtual DbSet<PLAN_ACCOUNT> PLAN_ACCOUNT { get; set; }
     }
 }

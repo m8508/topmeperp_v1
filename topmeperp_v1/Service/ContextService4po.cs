@@ -1854,9 +1854,9 @@ namespace topmeperp.Service
                     "FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID = @projectid AND " +
                     "pri.PR_ID LIKE 'PPO%' GROUP BY pri.PLAN_ITEM_ID )B ON pi.PLAN_ITEM_ID = B.PLAN_ITEM_ID " +
                     "LEFT JOIN(SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS ALL_RECEIPT_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr " +
-                    "ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID = @projectid AND pri.PR_ID LIKE 'RP%' GROUP BY pri.PLAN_ITEM_ID)C" +
+                    "ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID = @projectid AND pri.PR_ID LIKE 'RP%' GROUP BY pri.PLAN_ITEM_ID)C " +
                     "ON pi.PLAN_ITEM_ID = C.PLAN_ITEM_ID LEFT JOIN (SELECT pid.PLAN_ITEM_ID, SUM(pid.DELIVERY_QTY) AS DELIVERY_QTY FROM PLAN_ITEM_DELIVERY pid " +
-                    "LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pid.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID = @projectid " +
+                    "LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pid.DELIVERY_ORDER_ID = pr.PR_ID WHERE pr.PROJECT_ID = @projectid " +
                     "GROUP BY pid.PLAN_ITEM_ID)D ON pi.PLAN_ITEM_ID = D.PLAN_ITEM_ID WHERE pi.PROJECT_ID = @projectid AND pi.PLAN_ITEM_ID IN (" + ItemId + ") ";
 
                 logger.Info("sql = " + sql);
@@ -3165,7 +3165,7 @@ namespace topmeperp.Service
         }
 
         //取得符合條件之估驗單名單
-        public List<ESTFunction> getESTListByEstId(string projectid, string contractid, string estid, int status)
+        public List<ESTFunction> getESTListByEstId(string projectid, string contractid, string estid, int status, string supplier)
         {
             logger.Info("search estimation form by 估驗單編號 =" + estid + ", 合約名稱 =" + contractid + ", 估驗單狀態 =" + status);
             List<ESTFunction> lstForm = new List<ESTFunction>();
@@ -3173,8 +3173,8 @@ namespace topmeperp.Service
             if (20 == status)
             {
                 string sql = "SELECT CONVERT(char(10), A.CREATE_DATE, 111) AS CREATE_DATE, A.EST_FORM_ID, A.STATUS, A.CONTRACT_NAME, A.SUPPLIER_NAME, ROW_NUMBER() OVER(ORDER BY A.EST_FORM_ID) AS NO " +
-                    "FROM (SELECT ef.CREATE_DATE, ef.EST_FORM_ID, ef.STATUS, STUFF(ef.CONTRACT_ID,7, 7, sup.COMPANY_NAME) AS CONTRACT_NAME, sup.COMPANY_NAME AS SUPPLIER_NAME " +
-                    "FROM PLAN_ESTIMATION_FORM ef LEFT JOIN TND_SUPPLIER sup ON SUBSTRING(ef.CONTRACT_ID, 7, 7) = sup.SUPPLIER_ID WHERE ef.PROJECT_ID =@projectid)A ";
+                    "FROM (SELECT ef.CREATE_DATE, ef.EST_FORM_ID, ef.STATUS, f.FORM_NAME AS CONTRACT_NAME, f.SUPPLIER_ID AS SUPPLIER_NAME " +
+                    "FROM PLAN_ESTIMATION_FORM ef LEFT JOIN PLAN_SUP_INQUIRY f ON ef.CONTRACT_ID = f.INQUIRY_FORM_ID WHERE ef.PROJECT_ID =@projectid)A ";
 
 
                 var parameters = new List<SqlParameter>();
@@ -3187,11 +3187,17 @@ namespace topmeperp.Service
                     sql = sql + "AND A.EST_FORM_ID =@estid ";
                     parameters.Add(new SqlParameter("estid", estid));
                 }
-                //合約名稱條件
+                //發包項目名稱條件
                 if (null != contractid && contractid != "")
                 {
                     sql = sql + "AND A.CONTRACT_NAME LIKE @contractid ";
                     parameters.Add(new SqlParameter("contractid", '%' + contractid + '%'));
+                }
+                //供應商名稱條件
+                if (null != supplier && supplier != "")
+                {
+                    sql = sql + "AND A.SUPPLIER_NAME LIKE @supplier ";
+                    parameters.Add(new SqlParameter("supplier", '%' + supplier + '%'));
                 }
                 using (var context = new topmepEntities())
                 {
@@ -3203,8 +3209,8 @@ namespace topmeperp.Service
             else
             {
                 string sql = "SELECT CONVERT(char(10), A.CREATE_DATE, 111) AS CREATE_DATE, A.EST_FORM_ID, A.STATUS, A.CONTRACT_NAME, A.SUPPLIER_NAME, ROW_NUMBER() OVER(ORDER BY A.EST_FORM_ID) AS NO " +
-                    "FROM (SELECT ef.CREATE_DATE, ef.EST_FORM_ID, ef.STATUS, STUFF(ef.CONTRACT_ID,7, 7, sup.COMPANY_NAME) AS CONTRACT_NAME, sup.COMPANY_NAME AS SUPPLIER_NAME " +
-                    "FROM PLAN_ESTIMATION_FORM ef LEFT JOIN TND_SUPPLIER sup ON SUBSTRING(ef.CONTRACT_ID, 7, 7) = sup.SUPPLIER_ID WHERE ef.PROJECT_ID =@projectid)A ";
+                    "FROM (SELECT ef.CREATE_DATE, ef.EST_FORM_ID, ef.STATUS, f.FORM_NAME AS CONTRACT_NAME, f.SUPPLIER_ID AS SUPPLIER_NAME " +
+                    "FROM PLAN_ESTIMATION_FORM ef LEFT JOIN PLAN_SUP_INQUIRY f ON ef.CONTRACT_ID = f.INQUIRY_FORM_ID WHERE ef.PROJECT_ID =@projectid)A ";
 
                 var parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("projectid", projectid));
@@ -3484,7 +3490,7 @@ namespace topmeperp.Service
                     "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE CONTRACT_ID = @contractid AND TYPE = 'F' " +
                     "AND CREATE_DATE < (SELECT ISNULL((SELECT MIN(CREATE_DATE) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID = @formid AND TYPE = 'F'), GETDATE())) GROUP BY CONTRACT_ID),0) AS CUM_T_REFUND, " +
                     "ISNULL((SELECT SUM(AMOUNT) AS AMOUNT FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID IN(SELECT EST_FORM_ID FROM PLAN_ESTIMATION_FORM WHERE CREATE_DATE < (SELECT DISTINCT ef.CREATE_DATE FROM PLAN_OTHER_PAYMENT pop JOIN PLAN_ESTIMATION_FORM ef " +
-                    "ON pop.EST_FORM_ID = ef.EST_FORM_ID WHERE pop.EST_FORM_ID = @formid AND TYPE = 'O' AND CONTRACT_ID = @contractid),0) AS CUM_T_OTHER, " +
+                    "ON pop.EST_FORM_ID = ef.EST_FORM_ID WHERE pop.EST_FORM_ID = @formid AND pop.TYPE = 'O' AND pop.CONTRACT_ID = @contractid))),0) AS CUM_T_OTHER, " +
                     "ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE TYPE = 'O' GROUP BY EST_FORM_ID HAVING EST_FORM_ID = @formid),0) AS T_OTHER, " +
                     "ISNULL((SELECT TAX_RATIO FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid),0) AS TAX_RATIO, " +
                     "ISNULL((SELECT RETENTION_PAYMENT FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid),0) AS T_RETENTION, " +
@@ -3700,6 +3706,20 @@ namespace topmeperp.Service
             return i;
         }
 
+        //取得特定估驗單憑證張數
+        public int getInvoicePiecesById(string estid)
+        {
+            int pieces = 0;
+            logger.Info("get invoice pieces by form id  =" + estid);
+            //處理SQL 預先填入ID,設定集合處理參數
+            using (var context = new topmepEntities())
+            {
+                pieces = context.Database.SqlQuery<int>("SELECT COUNT(*) AS invoicePieces FROM PLAN_INVOICE WHERE EST_FORM_ID =@estid GROUP BY EST_FORM_ID ; "
+            , new SqlParameter("estid", estid)).FirstOrDefault();
+            }
+
+            return pieces;
+        }
         //取得付款條件
         public string getTermsByContractId(string contractid)
         {
@@ -4639,8 +4659,8 @@ namespace topmeperp.Service
             logger.Info("search plan account by " + paymentdate + ", 受款人 =" + payee + ", 專案名稱 =" + projectname + ", 帳款類型 =" + accounttype);
             List<PlanAccountFunction> lstForm = new List<PlanAccountFunction>();
             //處理SQL 預先填入專案代號,設定集合處理參數
-            string sql = "SELECT pa.AMOUNT, pa.ACCOUNT_TYPE, CONVERT(char(10), pa.PAYMENT_DATE, 111) AS RECORDED_DATE, pa.PLAN_ACCOUNT_ID, pa.STATUS, p.PROJECT_NAME, s.COMPANY_NAME AS PAYEE FROM PLAN_ACCOUNT pa LEFT JOIN TND_PROJECT p ON pa.PROJECT_ID = p.PROJECT_ID " +
-                "LEFT JOIN TND_SUPPLIER s ON SUBSTRING(pa.CONTRACT_ID, 7, 7) = s.SUPPLIER_ID WHERE pa.ACCOUNT_TYPE = @accounttype ";
+            string sql = "SELECT pa.AMOUNT, pa.ACCOUNT_TYPE, CONVERT(char(10), pa.PAYMENT_DATE, 111) AS RECORDED_DATE, pa.PLAN_ACCOUNT_ID, pa.STATUS, pa.CHECK_NO, p.PROJECT_NAME, s.COMPANY_NAME AS PAYEE FROM PLAN_ACCOUNT pa " +
+                "LEFT JOIN TND_PROJECT p ON pa.PROJECT_ID = p.PROJECT_ID LEFT JOIN TND_SUPPLIER s ON SUBSTRING(pa.CONTRACT_ID, 7, 7) = s.SUPPLIER_ID WHERE pa.ACCOUNT_TYPE = @accounttype ";
 
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("accounttype", accounttype));
@@ -4682,13 +4702,27 @@ namespace topmeperp.Service
             {
                 //條件篩選
                 aitem = context.Database.SqlQuery<PlanAccountFunction>("SELECT PARSENAME(Convert(varchar,Convert(money,pa.AMOUNT),1),2) AS RECORDED_AMOUNT, pa.ACCOUNT_TYPE, CONVERT(char(10), pa.PAYMENT_DATE, 111) AS RECORDED_DATE, " +
-                    "pa.PLAN_ACCOUNT_ID, pa.CONTRACT_ID, pa.ACCOUNT_TYPE, pa.ACCOUNT_FORM_ID, pa.ISDEBIT, pa.STATUS, pa.CREATE_ID, p.PROJECT_NAME FROM PLAN_ACCOUNT pa LEFT JOIN TND_PROJECT p ON pa.PROJECT_ID = p.PROJECT_ID " +
+                    "pa.PLAN_ACCOUNT_ID, pa.CONTRACT_ID, pa.ACCOUNT_TYPE, pa.ACCOUNT_FORM_ID, pa.ISDEBIT, pa.STATUS, pa.CREATE_ID, pa.PROJECT_ID, pa.CHECK_NO, p.PROJECT_NAME FROM PLAN_ACCOUNT pa LEFT JOIN TND_PROJECT p ON pa.PROJECT_ID = p.PROJECT_ID " +
                     "WHERE pa.PLAN_ACCOUNT_ID=@itemid ",
                 new SqlParameter("itemid", itemid)).First();
             }
             return aitem;
         }
 
+        public List<PlanAccountFunction> getPlanAccountById(string formid)
+        {
+            logger.Debug("get plan account by form id=" + formid);
+            List<PlanAccountFunction> lstForm = new List<PlanAccountFunction>();
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                lstForm = context.Database.SqlQuery<PlanAccountFunction>("SELECT PARSENAME(Convert(varchar,Convert(money,pa.AMOUNT),1),2) AS RECORDED_AMOUNT, pa.ACCOUNT_TYPE, CONVERT(char(10), pa.PAYMENT_DATE, 111) AS RECORDED_DATE, " +
+                    "pa.PLAN_ACCOUNT_ID, pa.CONTRACT_ID, pa.ACCOUNT_TYPE, pa.ACCOUNT_FORM_ID, pa.ISDEBIT, pa.STATUS, pa.CREATE_ID, pa.PROJECT_ID, pa.CHECK_NO, p.PROJECT_NAME, ROW_NUMBER() OVER(ORDER BY pa.PAYMENT_DATE) AS NO " +
+                    "FROM PLAN_ACCOUNT pa LEFT JOIN TND_PROJECT p ON pa.PROJECT_ID = p.PROJECT_ID WHERE pa.ACCOUNT_FORM_ID=@formid ",
+                new SqlParameter("formid", formid)).ToList();
+            }
+            return lstForm;
+        }
         public int updatePlanAccountItem(PLAN_ACCOUNT item)
         {
             int i = 0;
@@ -5121,171 +5155,142 @@ namespace topmeperp.Service
             return lstExpAmount;
         }
         #endregion
-        //刪除已上傳的業主計價項目
-        public int delVAItemOfOwnerById(string projectid)
+        //取得特定專案之業主計價次數
+        public RevenueFromOwner getVACount4OwnerById(string projectid)
         {
-            logger.Info("remove all items of valuation from owner by project id=" + projectid);
-            int i = 0;
+            RevenueFromOwner valuation = null;
             using (var context = new topmepEntities())
             {
-                logger.Info("delete all PLAN_VALUATION_4OWNER by  project id =" + projectid);
-                i = context.Database.ExecuteSqlCommand("DELETE FROM PLAN_VALUATION_4OWNER WHERE PROJECT_ID=@projectid", new SqlParameter("projectid", projectid));
+                valuation = context.Database.SqlQuery<RevenueFromOwner>("SELECT DISTINCT pi.PROJECT_ID, ISNULL((SELECT COUNT(PROJECT_ID) FROM PLAN_VALUATION_FORM " +
+                    "WHERE VALUATION_AMOUNT IS NOT NULL GROUP BY PROJECT_ID HAVING PROJECT_ID =@projectid),0)+1 AS VACount, ISNULL((SELECT COUNT(PROJECT_ID) FROM PLAN_VALUATION_FORM " +
+                    "GROUP BY PROJECT_ID HAVING PROJECT_ID =@projectid),0)+1 AS isVA FROM PLAN_ITEM pi WHERE pi.PROJECT_ID =@projectid  "
+                   , new SqlParameter("projectid", projectid)).First();
             }
-            logger.Debug("delete PLAN_VALUATION_4OWNER count=" + i);
-            return i;
+            return valuation;
         }
 
-        public int refreshVAItemOfOwner(List<PLAN_VALUATION_4OWNER> items)
+        public string refreshVA(string formid, PLAN_VALUATION_FORM form)
         {
             int i = 0;
-            logger.Info("refresh items of valuation from owner = " + items.Count);
-            //2.將Excel 資料寫入 
-            using (var context = new topmepEntities())
+            if (null != formid && formid != "")
             {
-                foreach (PLAN_VALUATION_4OWNER item in items)
-                {
-                    context.PLAN_VALUATION_4OWNER.Add(item);
-                }
-                i = context.SaveChanges();
+                form.VA_FORM_ID = formid;
             }
-            logger.Info("add PLAN_VALUATION_4OWNER count =" + i);
-            return i;
-        }
-        //判斷專案是否已上傳業主計價項目
-        public string getVAOfOwnerById(string pid)
-        {
-            string projectid = null;
-            using (var context = new topmepEntities())
+            else
             {
-                projectid = context.Database.SqlQuery<string>("SELECT DISTINCT PROJECT_ID FROM PLAN_VALUATION_4OWNER WHERE PROJECT_ID = @pid "
-                    , new SqlParameter("pid", pid)).FirstOrDefault();
+                string sno_key = "VA";
+                SerialKeyService snoservice = new SerialKeyService();
+                form.VA_FORM_ID = snoservice.getSerialKey(sno_key);
             }
-            return projectid;
-        }
-        //取得業主計價項目
-        public List<RevenueFromOwner> getVAItemOfOwnerById(string projectid)
-        {
-            List<RevenueFromOwner> lstItem = new List<RevenueFromOwner>();
-            using (var context = new topmepEntities())
-            {
-                lstItem = context.Database.SqlQuery<RevenueFromOwner>("SELECT pvo.*, ROUND(revenue.PLAN_REVENUE * pvo.ITEM_VALUATION_RATIO / 100, 0) AS ITEM_REVENUE " +
-                    "FROM PLAN_VALUATION_4OWNER pvo LEFT JOIN (SELECT p.PROJECT_ID AS CONTRACT_ID, " +
-                    "(SELECT SUM(ITEM_UNIT_PRICE*ITEM_QUANTITY) FROM PLAN_ITEM pi WHERE pi.PROJECT_ID = @projectid) AS PLAN_REVENUE " +
-                     "FROM TND_PROJECT p WHERE p.PROJECT_ID = @projectid)revenue ON pvo.PROJECT_ID = revenue.CONTRACT_ID WHERE pvo.PROJECT_ID = @projectid ORDER BY CAST(pvo.ITEN_NO AS int) ;"
-                    , new SqlParameter("projectid", projectid)).ToList();
-                logger.Info("Get VA Items of Owner Count=" + lstItem.Count);
-            }
-            return lstItem;
-        }
-
-        public PLAN_VALUATION_4OWNER getVAItem(string projectid, string no)
-        {
-            logger.Debug("get valuation item by project id =" + projectid + ", item no =" + no);
-            PLAN_VALUATION_4OWNER vitem = null;
-            using (var context = new topmepEntities())
-            {
-                //條件篩選
-                vitem = context.PLAN_VALUATION_4OWNER.SqlQuery("SELECT * FROM PLAN_VALUATION_4OWNER WHERE PROJECT_ID =@projectid AND ITEM_NO=@no",
-                new SqlParameter("projectid", projectid), new SqlParameter("no", no)).First();
-            }
-            return vitem;
-        }
-
-        public int updateVAItem(PLAN_VALUATION_4OWNER item)
-        {
-            int i = 0;
             using (var context = new topmepEntities())
             {
                 try
                 {
-                    context.PLAN_VALUATION_4OWNER.AddOrUpdate(item);
+                    context.PLAN_VALUATION_FORM.AddOrUpdate(form);
                     i = context.SaveChanges();
                 }
                 catch (Exception e)
                 {
-                    logger.Error("updatePlanItem  fail:" + e.ToString());
+                    logger.Error("update VA item fail:" + e.ToString());
                     logger.Error(e.StackTrace);
                     message = e.Message;
                 }
+
             }
-            return i;
+            return form.VA_FORM_ID;
         }
-        // 寫入每期業主計價內容
-        public string newVA(string projectid, PLAN_VALUATION_FORM form, string[] lstItemId)
+        public RevenueFromOwner getVAPayItemById(string formid)
         {
-            //1.建立計價單
-            logger.Info("create new valuation form ");
-            string sno_key = "VA";
-            SerialKeyService snoservice = new SerialKeyService();
-            form.VA_FORM_ID = snoservice.getSerialKey(sno_key);
-            logger.Info("new valuation form =" + form.ToString());
+            RevenueFromOwner payment = null;
             using (var context = new topmepEntities())
             {
-                context.PLAN_VALUATION_FORM.Add(form);
-                int i = context.SaveChanges();
-                logger.Debug("Add valuation form=" + i);
-                logger.Info("plan valuation form id = " + form.VA_FORM_ID);
-                //if (i > 0) { status = true; };
-                List<topmeperp.Models.PLAN_VALUATION_FORM_ITEM> lstItem = new List<PLAN_VALUATION_FORM_ITEM>();
-                string ItemId = "";
-                for (i = 0; i < lstItemId.Count(); i++)
-                {
-                    if (i < lstItemId.Count() - 1)
-                    {
-                        ItemId = ItemId + "'" + lstItemId[i] + "'" + ",";
-                    }
-                    else
-                    {
-                        ItemId = ItemId + "'" + lstItemId[i] + "'";
-                    }
-                }
-
-                string sql = "INSERT INTO PLAN_VALUATION_FORM_ITEM (VA_FORM_ID, ITEM_NO) "
-                + "SELECT '" + form.VA_FORM_ID + "' as VA_FORM_ID, A.ITEM_NO as ITEM_NO "
-                + "FROM (SELECT pvo.ITEN_NO FROM PLAN_VALUATION_4OWNER pvo WHERE pvo.ITEN_NO IN (" + ItemId + "))A ";
-                logger.Info("sql =" + sql);
-                var parameters = new List<SqlParameter>();
-                i = context.Database.ExecuteSqlCommand(sql);
-                return form.VA_FORM_ID;
+                payment = context.Database.SqlQuery<RevenueFromOwner>("SELECT A.VA_FORM_ID , ROUND(CAST(IIF(ISNULL(A.advancePaymentBalance, 0) - ISNULL(A.VALUATION_AMOUNT , 0)*A.ADVANCE_RATIO/100 > 0, " +
+                    "ISNULL(A.VALUATION_AMOUNT , 0)*A.ADVANCE_RATIO/100, IIF(ISNULL(A.advancePaymentBalance, 0) > 0, A.advancePaymentBalance, 0)) AS decimal(10,1)),0) AS ADVANCE_PAYMENT_REFUND, " +
+                    "ROUND(CAST(ISNULL(A.VALUATION_AMOUNT , 0)*A.RETENTION_RATIO/100 AS decimal(10,1)),0) AS RETENTION_PAYMENT, ROUND(CAST((ISNULL(A.VALUATION_AMOUNT , 0)-ISNULL(A.VALUATION_AMOUNT , 0) " +
+                    "*A.ADVANCE_RATIO/100)*ISNULL(A.TAX_RATIO,0) / 100 AS decimal(10,1)),0) AS TAX_AMOUNT " +
+                    "FROM (SELECT vf.*, B.advancePaymentBalance, ISNULL(IIF(ppt.PAYMENT_TERMS = 'P', ppt.PAYMENT_ADVANCE_RATIO, ppt.USANCE_ADVANCE_RATIO), 0) AS ADVANCE_RATIO, " +
+                    "ISNULL(IIF(ppt.PAYMENT_TERMS = 'P', ppt.PAYMENT_RETENTION_RATIO, ppt.USANCE_RETENTION_RATIO),0) AS RETENTION_RATIO FROM PLAN_VALUATION_FORM vf " +
+                    "LEFT JOIN PLAN_PAYMENT_TERMS ppt ON vf.PROJECT_ID = ppt.CONTRACT_ID LEFT JOIN (SELECT PROJECT_ID, SUM(ADVANCE_PAYMENT) - SUM(ADVANCE_PAYMENT_REFUND) AS advancePaymentBalance " +
+                    "FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID)B ON vf.PROJECT_ID = B.PROJECT_ID WHERE vf.VA_FORM_ID =@formid)A  "
+                   , new SqlParameter("formid", formid)).FirstOrDefault();
             }
+            return payment;
         }
-        
-        //更新業主計價金額
-        public int refreshVA(string formid, PLAN_VALUATION_FORM form, List<PLAN_VALUATION_FORM_ITEM> lstItem)
+        //寫入保留款,預付扣回與營業稅額
+        public int refreshVAItem(string formid, decimal retention, decimal advanceRefund, decimal tax)
         {
-            logger.Info("Update plan valuation form id =" + formid);
             int i = 0;
-            int j = 0;
+            logger.Info("refresh rentention amount, advance refund and tax amount of VA by form id" + formid);
+            string sql = "UPDATE  PLAN_VALUATION_FORM SET RETENTION_PAYMENT =@retention, ADVANCE_PAYMENT_REFUND =@advanceRefund, TAX_AMOUNT =@tax WHERE VA_FORM_ID=@formid ";
+            logger.Debug("refresh items from Quote sql:" + sql);
+            db = new topmepEntities();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("formid", formid));
+            parameters.Add(new SqlParameter("retention", retention));
+            parameters.Add(new SqlParameter("advanceRefund", advanceRefund));
+            parameters.Add(new SqlParameter("tax", tax));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            logger.Info("Update Record:" + i);
+            db = null;
+            return i;
+        }
+        public List<RevenueFromOwner> getVADetailById(string projectid)
+        {
+            List<RevenueFromOwner> VAItem = new List<RevenueFromOwner>();
+            using (var context = new topmepEntities())
+            {
+                VAItem = context.Database.SqlQuery<RevenueFromOwner>("SELECT vf.*, account.AR_PAID, ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + ISNULL(vf.TAX_AMOUNT, 0) " +
+                    "- ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) - ISNULL(vf.OTHER_PAYMENT, 0) - ISNULL(vf.REPAYMENT, 0) AS AR, " +
+                    "ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + ISNULL(vf.TAX_AMOUNT, 0) - ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) " +
+                    "- ISNULL(vf.OTHER_PAYMENT, 0) - ISNULL(vf.REPAYMENT, 0) - account.AR_PAID AS AR_UNPAID, " +
+                    "ROW_NUMBER() OVER(ORDER BY vf.CREATE_DATE) AS NO FROM PLAN_VALUATION_FORM vf LEFT JOIN (SELECT pa.ACCOUNT_FORM_ID, SUM(pa.AMOUNT) AS AR_PAID FROM PLAN_ACCOUNT pa " +
+                    "WHERE pa.ACCOUNT_TYPE = 'R' AND pa.PROJECT_ID =@projectid AND pa.STATUS = 10 GROUP BY pa.ACCOUNT_FORM_ID)account ON vf.VA_FORM_ID = account.ACCOUNT_FORM_ID WHERE vf.PROJECT_ID =@projectid "
+                   , new SqlParameter("projectid", projectid)).ToList();
+            }
+            return VAItem;
+        }
+        public RevenueFromOwner getVADetailByVAId(string formid)
+        {
+            RevenueFromOwner detail = null;
+            using (var context = new topmepEntities())
+            {
+                detail = context.Database.SqlQuery<RevenueFromOwner>("SELECT vf.*, CONVERT(varchar, vf.CREATE_DATE, 120) AS RECORDED_DATE, ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + ISNULL(vf.TAX_AMOUNT, 0) " +
+                    "- ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) - ISNULL(vf.OTHER_PAYMENT, 0) - ISNULL(vf.REPAYMENT, 0) AS AR, " +
+                    "ROW_NUMBER() OVER(ORDER BY vf.CREATE_DATE) AS NO FROM PLAN_VALUATION_FORM vf WHERE vf.VA_FORM_ID =@formid  "
+                   , new SqlParameter("formid", formid)).FirstOrDefault();
+            }
+            return detail;
+        }
+
+        public RevenueFromOwner getVASummaryAtmById(string prjid)
+        {
+            RevenueFromOwner summaryAmt = null;
+            using (var context = new topmepEntities())
+            {
+                summaryAmt = context.Database.SqlQuery<RevenueFromOwner>("SELECT (SELECT SUM(ITEM_UNIT_PRICE*ITEM_QUANTITY) FROM PLAN_ITEM pi WHERE pi.PROJECT_ID =@pid) AS contractAtm, " +
+                    "(SELECT SUM(pa.AMOUNT) FROM PLAN_ACCOUNT pa WHERE pa.ACCOUNT_TYPE = 'R' AND pa.PROJECT_ID =@pid AND pa.STATUS = 10) AS AR_PAID, " +
+                    "SUM(VALUATION_AMOUNT) AS VALUATION_AMOUNT, SUM(TAX_AMOUNT) AS TAX_AMOUNT, SUM(RETENTION_PAYMENT) AS RETENTION_PAYMENT, SUM(ADVANCE_PAYMENT) - SUM(ADVANCE_PAYMENT_REFUND) AS advancePaymentBalance, " +
+                    "SUM(ADVANCE_PAYMENT) + SUM(VALUATION_AMOUNT) + SUM(TAX_AMOUNT) - SUM(RETENTION_PAYMENT) - SUM(ADVANCE_PAYMENT_REFUND) - SUM(OTHER_PAYMENT) - SUM(REPAYMENT) AS AR " +
+                    "FROM PLAN_VALUATION_FORM WHERE PROJECT_ID =@pid GROUP BY PROJECT_ID "
+                   , new SqlParameter("pid", prjid)).FirstOrDefault();
+            }
+            return summaryAmt;
+        }
+        //寫入應收帳款支付資料
+        public int addPlanAccount(PLAN_ACCOUNT form)
+        {
+            int i = 0;
             using (var context = new topmepEntities())
             {
                 try
                 {
-                    context.Entry(form).State = EntityState.Modified;
+                    context.PLAN_ACCOUNT.AddOrUpdate(form);
                     i = context.SaveChanges();
-                    logger.Debug("Update plan valuation form =" + i);
-                    logger.Info("valuation form item = " + lstItem.Count);
-                    //2.將item資料寫入 
-                    foreach (PLAN_VALUATION_FORM_ITEM item in lstItem)
-                    {
-                        PLAN_VALUATION_FORM_ITEM existItem = null;
-                        var parameters = new List<SqlParameter>();
-                        parameters.Add(new SqlParameter("formid", formid));
-                        parameters.Add(new SqlParameter("itemid", item.ITEM_NO));
-                        string sql = "SELECT * FROM PLAN_VALUATION_FORM_ITEM WHERE VA_FORM_ID=@formid AND ITEM_NO=@itemid";
-                        logger.Info(sql + " ;" + formid + ",item_no=" + item.ITEM_NO);
-                        PLAN_VALUATION_FORM_ITEM excelItem = context.PLAN_VALUATION_FORM_ITEM.SqlQuery(sql, parameters.ToArray()).First();
-                        existItem = context.PLAN_VALUATION_FORM_ITEM.Find(excelItem.VA_ITEM_ID);
-                        logger.Debug("find exist item=" + existItem.ITEM_NO);
-                        existItem.ITEM_VALUATION_AMOUNT = item.ITEM_VALUATION_AMOUNT;
-                        context.PLAN_VALUATION_FORM_ITEM.AddOrUpdate(existItem);
-                    }
-                    j = context.SaveChanges();
-                    logger.Debug("Update valuation form item =" + j);
-                    return j;
                 }
                 catch (Exception e)
                 {
-                    logger.Error("update new valuation form id fail:" + e.ToString());
+                    logger.Error("update plan account item fail:" + e.ToString());
                     logger.Error(e.StackTrace);
                     message = e.Message;
                 }
@@ -5293,6 +5298,5 @@ namespace topmeperp.Service
             }
             return i;
         }
-
     }
 }

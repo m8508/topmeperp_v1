@@ -55,7 +55,6 @@
         <AssociationConnector Association="topmepModel.FK_SYS_PRIVILEGE_SYS_FUNCTION" />
         <AssociationConnector Association="topmepModel.FK_SYS_PRIVILEGE_SYS_ROLE" />
         <AssociationConnector Association="topmepModel.FK_SYS_USER_SYS_ROLE" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_ACCOUNT" Width="1.5" PointX="22.375" PointY="15.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_INDIRECT_COST" Width="1.5" PointX="26.25" PointY="9" />
         <AssociationConnector Association="topmepModel.FK_PLAN_IND_REFERENCE_TND_PROJ" />
         <EntityTypeShape EntityType="topmepModel.PLAN_COSTCHANGE_FORM" Width="1.5" PointX="22.375" PointY="20.625" />
@@ -67,8 +66,9 @@
         <EntityTypeShape EntityType="topmepModel.FIN_LOAN_TRANACTION" Width="1.5" PointX="26.625" PointY="5.375" />
         <AssociationConnector Association="topmepModel.FK_FIN_LOAN_REFERENCE_FIN_BANK" />
         <EntityTypeShape EntityType="topmepModel.PLAN_VALUATION_4OWNER" Width="1.5" PointX="17.375" PointY="23.75" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_VALUATION_FORM" Width="1.5" PointX="19.375" PointY="23.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_VALUATION_FORM_ITEM" Width="1.5" PointX="8.375" PointY="8.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_VALUATION_FORM" Width="1.5" PointX="19.375" PointY="23.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_ACCOUNT" Width="1.5" PointX="22.375" PointY="15.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

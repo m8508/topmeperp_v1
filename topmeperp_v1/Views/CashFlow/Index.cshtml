@@ -4,9 +4,9 @@
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <div class="container">
-    <h2 class="text-center" style="padding-top:10px;">財務收支報表</h2>
+    <h2 class="text-center">財務收支報表</h2>
 </div>
-<button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PlanAccount", "CashFlow")'; ">修改支付日期</button>
+<button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PlanAccount", "CashFlow")'; ">修改帳款資料</button>
 <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
 <div style="padding-top:30px;">
     <table class="table">
@@ -15,10 +15,10 @@
                 日期
             </th>
             <th>
-                收入
+                現金流入
             </th>
             <th>
-                支出
+                現金流出
             </th>
             <th>
                 合計

@@ -8,21 +8,27 @@
         <div class="col-md-12 form-group">
             <form name="formSearch" id="formSearch" action="/Estimation/Search" method="Post" class="form-inline">
                 <div class="row col-md-12">
-                    <label for="projectId" class="col-md-2 text-right">專案編號</label><input class="form-control col-md-3" id="projectId" name="projectId" type="text" value="@ViewBag.projectId" style="background-color:#cccccc;" readonly="readonly" />
-                    <label for="projectName" class="col-md-2 text-right">專案編號</label><input class="form-control col-md-3" id="projectName" name="projectName" type="text" value="@ViewBag.projectName" style="background-color:#cccccc;" readonly="readonly" />
-                </div>
-                <div class="row col-md-12" style="padding-top:5px;">
-                    <label for="supplier" class="col-md-2 text-right">供應商</label><input class="form-control col-md-3" id="supplier" name="supplier" type="text" />
-                    <label for="formName" class="col-md-2 text-right">採購項目</label> <input class="form-control col-md-3" id="formName" name="formName" type="text" />
-                </div>
-                <div class="row col-md-12" style="padding-top:15px;">
-                    <div class="col-md-8 alert-info">
-                        @Html.Raw(TempData["result"])
-                    </div>
-                    <div class="col-md-3 pull-right">
-                        <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
+                    <label for="projectId" class="col-md-2 text-right">專案編號</label><input class="form-control col-md-2" id="projectId" name="projectId" type="text" value="@ViewBag.projectId" style="background-color:#cccccc;" readonly="readonly" />
+                    <label for="projectName" class="col-md-2 text-right">專案名稱</label><input class="form-control col-md-3" id="projectName" name="projectName" type="text" value="@ViewBag.projectName" style="background-color:#cccccc; width:250px;" readonly="readonly" />
+                    <div class="col-md-2 pull-right">
                         <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
                     </div>
+                    </div>
+                <div class="row col-md-12" style="padding-top:8px;">
+                    <label for="formName" class="col-md-2 text-right">採購項目</label> <input class="form-control col-md-2" id="formName" name="formName" type="text" />
+                    <label for="supplier" class="col-md-2 text-right">供應商</label><input class="form-control col-md-3" id="supplier" name="supplier" type="text" style="width:250px;"/>
+                    <div class="col-md-2 pull-right">
+                        <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
+                    </div>
+                </div>
+                <div class="row col-md-12" style="padding-top:5px;">
+                    <div class="col-md-8 alert-dismissable">
+                        @Html.Raw(TempData["result"])
+                    </div>
+                    
+                       
+                        
+                   
                     <div id="divProcessing" class="col-md-1">
                         <img src="~/Content/ajax-loader.gif">
                     </div>

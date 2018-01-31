@@ -16,6 +16,15 @@ namespace topmeperp.Models
     {
         public string VA_FORM_ID { get; set; }
         public string PROJECT_ID { get; set; }
+        public Nullable<decimal> VALUATION_AMOUNT { get; set; }
+        public Nullable<decimal> TAX_RATIO { get; set; }
+        public Nullable<decimal> TAX_AMOUNT { get; set; }
+        public Nullable<decimal> RETENTION_PAYMENT { get; set; }
+        public Nullable<decimal> ADVANCE_PAYMENT { get; set; }
+        public Nullable<decimal> ADVANCE_PAYMENT_REFUND { get; set; }
+        public Nullable<decimal> OTHER_PAYMENT { get; set; }
+        public string OTHER_PAYMENT_REMARK { get; set; }
+        public Nullable<decimal> REPAYMENT { get; set; }
         public string REMARK { get; set; }
         public string CREATE_ID { get; set; }
         public Nullable<System.DateTime> CREATE_DATE { get; set; }

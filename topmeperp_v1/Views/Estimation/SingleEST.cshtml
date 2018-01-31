@@ -1,12 +1,12 @@
 ﻿@model topmeperp.Models.ContractModels
 @{
-    ViewBag.Title = "估驗計價 : ";
+    ViewBag.Title = "估驗單";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0rc1/angular.min.js"></script>
 <div class="page-header">
-    <h3 style="height:10px;line-height:5px">@ViewBag.Title</h3>
+    <h3 class="text-center">@ViewBag.Title</h3>
     <div class="row">
         <div class="col-md-3 form-group" style="padding-top:10px">
             <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@Model.prj.PROJECT_ID" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
@@ -47,21 +47,21 @@
                 @if (Model.planEST.INVOICE == "E")
                 {
                     <div class="col-md-4">
-                        <label for="projectName">憑證:</label><br /><input type="text" id="piece" name="piece" style="width:60px;" />張  <a href="/Estimation/Invoice/@ViewBag.paymentkey" target="_blank">編輯</a>
+                        <label for="projectName">憑證:</label><br /><input type="text" id="piece" name="piece" value="@ViewBag.InvoicePieces" style="width:60px;" />張  <a href="/Estimation/Invoice?id=@ViewBag.formid&contractid=@ViewBag.contractid" target="_blank">編輯</a>
                         <br /><input type="radio" id="invoice" name="invoice" value="N" />不檢查發票<input type="radio" id="invoice" name="invoice" value="E" checked />發票含保留款<input type="radio" id="invoice" name="invoice" value="I" />發票不含保留款
                     </div>
                 }
                 else if (Model.planEST.INVOICE == "N")
                 {
                     <div class="col-md-4">
-                        <label for="projectName">憑證:</label><br /><input type="text" id="piece" name="piece" style="width:60px;" />張  <a href="/Estimation/Invoice/@ViewBag.paymentkey" target="_blank">編輯</a>
+                        <label for="projectName">憑證:</label><br /><input type="text" id="piece" name="piece" style="width:60px;" />張  <a href="/Estimation/Invoice?id=@ViewBag.formid&contractid=@ViewBag.contractid" target="_blank">編輯</a>
                         <br /><input type="radio" id="invoice" name="invoice" value="N" checked />不檢查發票<input type="radio" id="invoice" name="invoice" value="E" />發票含保留款<input type="radio" id="invoice" name="invoice" value="I" />發票不含保留款
                     </div>
                 }
                 else
                 {
                     <div class="col-md-4">
-                        <label for="projectName">憑證:</label><br /><input type="text" id="piece" name="piece" style="width:60px;" />張  <a href="/Estimation/Invoice/@ViewBag.paymentkey" target="_blank">編輯</a>
+                        <label for="projectName">憑證:</label><br /><input type="text" id="piece" name="piece" style="width:60px;" />張  <a href="/Estimation/Invoice?id=@ViewBag.formid&contractid=@ViewBag.contractid" target="_blank">編輯</a>
                         <br /><input type="radio" id="invoice" name="invoice" value="N" />不檢查發票<input type="radio" id="invoice" name="invoice" value="E" />發票含保留款<input type="radio" id="invoice" name="invoice" value="I" checked />發票不含保留款
                     </div>
                 }
@@ -261,13 +261,13 @@
                     <thead>
                         <tr>
                             <th>期別</th>
-                            <th>+ 代付支出<a href="/Estimation/RePayment/@ViewBag.paymentkey" target="_blank">＠</a></th>
+                            <th>+ 代付支出<a href="/Estimation/RePayment?id=@ViewBag.formid&contractid=@ViewBag.contractid" target="_blank">＠</a></th>
                             <th>- 外勞扣款</th>
                             <th>= 小計</th>
                             <th>- 保留款 <input type="text" id="retention" name="retention" value="@ViewBag.retention" readonly="readonly" style="width:60px;" />%</th>
-                            <th>- 預付款<a href="/Estimation/AdvancePayment/@ViewBag.paymentkey" target="_blank">＠</a></th>
-                            <th>- 代付扣回<a href="/Estimation/Refund/@ViewBag.paymentkey" target="_blank">＠</a></th>
-                            <th>- 其他扣款<a href="/Estimation/OtherPayment/@ViewBag.paymentkey" target="_blank" id="otherPay">＠</a></th>
+                            <th>- 預付款<a href="/Estimation/AdvancePayment?id=@ViewBag.formid&contractid=@ViewBag.contractid" target="_blank">＠</a></th>
+                            <th>- 代付扣回<a href="/Estimation/Refund?id=@ViewBag.formid&contractid=@ViewBag.contractid" target="_blank">＠</a></th>
+                            <th>- 其他扣款<a href="/Estimation/OtherPayment?id=@ViewBag.formid&contractid=@ViewBag.contractid" target="_blank" id="otherPay">＠</a></th>
                             <th>= 應付金額</th>
                             <th>+ 營業稅</th>
                             <th>= 實付金額</th>
@@ -321,7 +321,7 @@
                 <div class="col-md-6">
                     <textarea class="form-control" rows="10" id="remark" name="remark">@Model.planEST.REMARK</textarea>
                 </div>
-                <div class="col-md-6 alert-info">
+                <div class="col-md-6 alert-dismissable">
                     @Html.Raw(TempData["balance"])
                 </div>
             </div>
