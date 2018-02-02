@@ -106,6 +106,7 @@ namespace topmeperp.Controllers
             ContractModels contract = new ContractModels();
             ViewBag.formid = formid;
             ViewBag.contractid = id;
+            ViewBag.paymentTermsId = id + '/' + formid;
             //ViewBag.keyid = id; //使用供應商名稱的contractid
             //取得合約金額與供應商名稱,採購項目等資料
             if (ViewBag.wage != "Y")
@@ -115,7 +116,7 @@ namespace topmeperp.Controllers
                 ViewBag.formname = lstContract.FORM_NAME;
                 ViewBag.amount = lstContract.MATERIAL_COST;
                 //ViewBag.contractid = lstContract.CONTRACT_ID; //使用供應商編號的contractid
-                PLAN_PAYMENT_TERMS payment = service.getPaymentTerm(id);
+                PaymentTermsFunction payment = service.getPaymentTerm(id, formid);
                 if (payment.PAYMENT_RETENTION_RATIO != null)
                 {
                     ViewBag.retention = payment.PAYMENT_RETENTION_RATIO;
@@ -148,7 +149,7 @@ namespace topmeperp.Controllers
                 ViewBag.amount4Wage = lstWageContract.WAGE_COST;
                 ViewBag.contractid4Wage = lstWageContract.CONTRACT_ID;
                 ViewBag.type = 'W'; //工資合約
-                PLAN_PAYMENT_TERMS payment = service.getPaymentTerm(lstWageContract.CONTRACT_ID);
+                PaymentTermsFunction payment = service.getPaymentTerm(lstWageContract.CONTRACT_ID, formid);
                 if (payment.PAYMENT_RETENTION_RATIO != null)
                 {
                     ViewBag.retention = payment.PAYMENT_RETENTION_RATIO;
@@ -332,6 +333,9 @@ namespace topmeperp.Controllers
                 }
                 int k = service.refreshEST(estid, est, lstItem);
                 int m = service.UpdateRetentionAmountById(Request["formid"], Request["contractid"]);
+                //寫入小計金額(PAYMENT_TRANSFER 欄位)與實付金額(PAID_AMOUNT 欄位)
+                PaymentDetailsFunction amountPaid = service.getDetailsPayById(Request["formid"], Request["contractid"]);
+                int t = service.UpdatePaidAmountById(Request["formid"], decimal.Parse(amountPaid.SUB_AMOUNT.ToString()), decimal.Parse(amountPaid.PAID_AMOUNT.ToString()));
                 System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
                 string itemJson = objSerializer.Serialize(service.getDetailsPayById(Request["formid"], Request["contractid"]));
                 logger.Info("EST form details payment amount=" + itemJson);
@@ -369,11 +373,11 @@ namespace topmeperp.Controllers
         //取得合約付款條件
         public string getPaymentTerms(string contractid)
         {
+            string[] key = Request["contractid"].Split('/');
             PurchaseFormService service = new PurchaseFormService();
             logger.Info("access the terms of payment by:" + Request["contractid"]);
-
             System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            string itemJson = objSerializer.Serialize(service.getPaymentTerm(contractid));
+            string itemJson = objSerializer.Serialize(service.getPaymentTerm(key[0], key[1]));
             logger.Info("plan payment terms info=" + itemJson);
             return itemJson;
         }
@@ -388,6 +392,7 @@ namespace topmeperp.Controllers
             ViewBag.formid = id;
             ViewBag.wage = singleForm.planEST.TYPE;
             ViewBag.contractid = singleForm.planEST.CONTRACT_ID;
+            ViewBag.paymentTermsId = singleForm.planEST.CONTRACT_ID + '/' + id;
             service.getInqueryForm(singleForm.planEST.CONTRACT_ID);
             PLAN_SUP_INQUIRY f = service.formInquiry;
             TND_SUPPLIER s = service.getSupplierInfo(f.SUPPLIER_ID.Trim());
@@ -402,7 +407,7 @@ namespace topmeperp.Controllers
                 plansummary lstWageContract = service.getPlanContractOfWage4Est(singleForm.planEST.CONTRACT_ID);
                 ViewBag.contractamount = lstWageContract.WAGE_COST;
             }
-            PLAN_PAYMENT_TERMS payment = service.getPaymentTerm(singleForm.planEST.CONTRACT_ID);
+            PaymentTermsFunction payment = service.getPaymentTerm(singleForm.planEST.CONTRACT_ID, id);
             if (payment.PAYMENT_RETENTION_RATIO != null)
             {
                 ViewBag.retention = payment.PAYMENT_RETENTION_RATIO;
@@ -414,6 +419,7 @@ namespace topmeperp.Controllers
             ViewBag.paymentTerms = service.getTermsByContractId(singleForm.planEST.CONTRACT_ID);
             ViewBag.estCount = service.getEstCountByESTId(id);
             ViewBag.formname = f.FORM_NAME.Trim();
+            ViewBag.InvoicePieces = service.getInvoicePiecesById(id);
             //ViewBag.paymentkey = id + singleForm.planEST.CONTRACT_ID;
             singleForm.planESTItem = service.ESTItem;
             singleForm.prj = service.getProjectById(singleForm.planEST.PROJECT_ID);
@@ -581,10 +587,24 @@ namespace topmeperp.Controllers
             logger.Info("form:" + form.Count);
             string msg = "";
             decimal foreign_payment = decimal.Parse(form.Get("t_foreign").Trim());
+            decimal original_foreign_payment = decimal.Parse(form.Get("original_t_foreign").Trim());
             decimal retention = decimal.Parse(form.Get("t_retention").Trim());
-            decimal tax_amount = decimal.Parse(form.Get("tax_amount").Trim());
+            decimal totalAmount = decimal.Parse(form.Get("totalAmount").Trim());
+            decimal tax_ratio = decimal.Parse(form.Get("taxratio").Trim());
+            decimal tax_amount = 0;
+            if (foreign_payment != original_foreign_payment)
+            {
+                tax_amount = Math.Round((totalAmount - foreign_payment) * tax_ratio / 100, 0);
+            }
+            else
+            {
+                tax_amount = decimal.Parse(form.Get("tax_amount").Trim());
+            }
             string remark = form.Get("remark").Trim();
             int i = service.RefreshESTAmountByEstId(form["estid"], foreign_payment, retention, tax_amount, remark);
+            //修改小計金額(PAYMENT_TRANSFER 欄位)與實付金額(PAID_AMOUNT 欄位)
+            PaymentDetailsFunction amountPaid = service.getDetailsPayById(form["estid"], form["contractid"]);
+            int t = service.UpdatePaidAmountById(form["estid"], decimal.Parse(amountPaid.SUB_AMOUNT.ToString()), decimal.Parse(amountPaid.PAID_AMOUNT.ToString()));
             if (i == 0)
             {
                 msg = service.message;
@@ -609,7 +629,7 @@ namespace topmeperp.Controllers
             ViewBag.projectName = p.PROJECT_NAME;
             ViewBag.contractid = contractid;
             ViewBag.formid = id;
-            PLAN_PAYMENT_TERMS payment = service.getPaymentTerm(contractid);
+            PaymentTermsFunction payment = service.getPaymentTerm(contractid, id);
             ViewBag.advancePaymentRatio = payment.PAYMENT_ADVANCE_RATIO;
             AdvancePaymentFunction advancePay = service.getAdvancePayById(id, contractid);
             List<PLAN_OTHER_PAYMENT> lstAdvancePayItem = null;
@@ -707,10 +727,24 @@ namespace topmeperp.Controllers
             logger.Info("EST form Id:" + form["estid"]);
             string msg = "";
             decimal foreign_payment = decimal.Parse(form.Get("t_foreign").Trim());
+            decimal original_foreign_payment = decimal.Parse(form.Get("original_t_foreign").Trim());
             decimal retention = decimal.Parse(form.Get("t_retention").Trim());
-            decimal tax_amount = decimal.Parse(form.Get("tax_amount").Trim());
+            decimal totalAmount = decimal.Parse(form.Get("totalAmount").Trim());
+            decimal tax_ratio = decimal.Parse(form.Get("taxratio").Trim());
+            decimal tax_amount = 0;
+            if (foreign_payment != original_foreign_payment)
+            {
+                tax_amount = Math.Round((totalAmount - foreign_payment) * tax_ratio / 100, 0);
+            }
+            else
+            {
+                tax_amount = decimal.Parse(form.Get("tax_amount").Trim());
+            }
             string remark = form.Get("remark").Trim();
             int i = service.RefreshESTAmountByEstId(form["estid"], foreign_payment, retention, tax_amount, remark);
+            //修改小計金額(PAYMENT_TRANSFER 欄位)與實付金額(PAID_AMOUNT 欄位)
+            PaymentDetailsFunction amountPaid = service.getDetailsPayById(form["estid"], form["contractid"]);
+            int t = service.UpdatePaidAmountById(form["estid"], decimal.Parse(amountPaid.SUB_AMOUNT.ToString()), decimal.Parse(amountPaid.PAID_AMOUNT.ToString()));
             //更新估驗單狀態
             logger.Info("Update Estimation Form Status");
             //估驗單(已送審) STATUS = 20
@@ -2108,7 +2142,7 @@ namespace topmeperp.Controllers
             TND_PROJECT p = service.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
             //取得付款條件
-            PLAN_PAYMENT_TERMS payment = service.getPaymentTerm(id);
+            PaymentTermsFunction payment = service.getPaymentTerm(id, id);
             if (payment.PAYMENT_RETENTION_RATIO != null)
             {
                 ViewBag.retention = payment.PAYMENT_RETENTION_RATIO;

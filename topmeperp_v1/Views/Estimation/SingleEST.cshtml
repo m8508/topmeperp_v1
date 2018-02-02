@@ -42,7 +42,7 @@
         <form id="formEST" name="formEST">
             <div class="row">
                 <div class="col-md-3">
-                    <label for="projectName">現金 • 期票比率:</label><button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@Model.planEST.CONTRACT_ID')">查看</button>
+                    <label for="projectName">現金 • 期票比率:</label><button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@ViewBag.paymentTermsId')">查看</button>
                 </div>
                 @if (Model.planEST.INVOICE == "E")
                 {
@@ -174,12 +174,12 @@
                                 {{row.ITEM_UNIT}}
                             </td>
                             <td>
-                                {{row.ITEM_FORM_QUANTITY | number : 0}}
+                                {{row.mapQty | number : 0}}
                             </td>
                             @if (ViewBag.wage != "W")
                             {
                                 <td>
-                                    {{row.ITEM_UNIT_PRICE  | number : 0}}
+                                    {{row.ITEM_UNIT_COST  | number : 0}}
                                 </td>
                             }
                             else
@@ -199,7 +199,7 @@
                             <td>
                                 @if (ViewBag.wage != "W")
                                 {
-                                    <input style="width:100px" type="number" class="form-control pull-right" name="amount" id="amount" value="{{row.ITEM_UNIT_PRICE * row.EST_QTY}}" readonly="readonly">
+                                    <input style="width:100px" type="number" class="form-control pull-right" name="amount" id="amount" value="{{row.ITEM_UNIT_COST * row.EST_QTY}}" readonly="readonly">
                                 }
                                 else
                                 {
@@ -207,13 +207,13 @@
                                 }
                             </td>
                             <td>
-                                {{row.CUM_QTY | number : 0}}
+                                {{row.CUM_EST_QTY | number : 0}}
                             </td>
                             <td>
-                                {{row.CUM_QTY * row.ITEM_UNIT_PRICE  | number : 0}}
+                                {{row.CUM_EST_QTY * row.ITEM_UNIT_COST  | number : 0}}
                             </td>
                             <td>
-                                {{row.CUM_QTY / row.ITEM_FORM_QUANTITY *100 | number : 0}}
+                                {{row.CUM_EST_QTY / row.mapQty *100 | number : 0}}
                             </td>
                             <td>
                                 <button ng-hide="row.EditMode" ng-click="EnterEdit(row)" class="btn btn-default">編輯</button>
@@ -283,7 +283,7 @@
                             <td><input type="text" id="cum_t_advance" name="cum_t_advance" value="{{key.CUM_T_ADVANCE}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="cum_t_refund" name="cum_t_refund" value="{{key.CUM_T_REFUND}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="cum_t_other" name="cum_t_other" value="{{key.CUM_T_OTHER}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
-                            <td><input type="text" id="cum_payable_amount" name="cum_payable_amount" value="{{key.PAYABLE_AMOUNT}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
+                            <td><input type="text" id="cum_payable_amount" name="cum_payable_amount" value="{{key.CUM_PAYABLE_AMOUNT}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="cum_tax_amount" name="cum_tax_amount" value="{{key.CUM_TAX_AMOUNT}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="cum_paid_amount" name="cum_paid_amount" value="{{key.CUM_PAID_AMOUNT}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                         </tr>
@@ -316,6 +316,7 @@
                         </tr>
                     </tbody>
                 </table>
+                <input type="hidden" id="original_t_foreign" name="original_t_foreign" value="{{key.T_FOREIGN}}"/>
             </div>
             <div class="col-md-12" style="padding-bottom:30px;">
                 <div class="col-md-6">
@@ -375,7 +376,7 @@
         $scope.GetTotalNum = function () {
             var sum = 0;
             for (var i = 0; i < $scope.items.length; i++) {
-                sum += parseFloat($scope.items[i].ITEM_UNIT_PRICE * $scope.items[i].EST_QTY);
+                sum += parseFloat($scope.items[i].ITEM_UNIT_COST * $scope.items[i].EST_QTY);
             }
             return sum;
         }
@@ -390,14 +391,14 @@
         $scope.GetTotalSum = function () {
             var cumsum = 0;
             for (var i = 0; i < $scope.items.length; i++) {
-                cumsum += parseFloat($scope.items[i].ITEM_UNIT_PRICE * $scope.items[i].CUM_QTY);
+                cumsum += parseFloat($scope.items[i].ITEM_UNIT_COST * $scope.items[i].CUM_EST_QTY);
             }
             return cumsum;
         }
         $scope.GetTotalSum4Wage = function () {
             var cumsum = 0;
             for (var i = 0; i < $scope.items.length; i++) {
-                cumsum += parseFloat($scope.items[i].MAN_PRICE * $scope.items[i].CUM_QTY);
+                cumsum += parseFloat($scope.items[i].MAN_PRICE * $scope.items[i].CUM_EST_QTY);
             }
             return cumsum;
         }
@@ -405,8 +406,8 @@
             var cumsum = 0;
             var totalamount = 0;
             for (var i = 0; i < $scope.items.length; i++) {
-                cumsum += parseFloat($scope.items[i].ITEM_UNIT_PRICE * $scope.items[i].CUM_QTY);
-                totalamount += parseFloat($scope.items[i].ITEM_UNIT_PRICE * $scope.items[i].ITEM_FORM_QUANTITY);
+                cumsum += parseFloat($scope.items[i].ITEM_UNIT_COST * $scope.items[i].CUM_EST_QTY);
+                totalamount += parseFloat($scope.items[i].ITEM_UNIT_COST * $scope.items[i].mapQty);
             }
             return parseInt(cumsum / totalamount * 100);
         }
@@ -414,8 +415,8 @@
             var cumsum = 0;
             var totalamount = 0;
             for (var i = 0; i < $scope.items.length; i++) {
-                cumsum += parseFloat($scope.items[i].MAN_PRICE * $scope.items[i].CUM_QTY);
-                totalamount += parseFloat($scope.items[i].MAN_PRICE * $scope.items[i].ITEM_FORM_QUANTITY);
+                cumsum += parseFloat($scope.items[i].MAN_PRICE * $scope.items[i].CUM_EST_QTY);
+                totalamount += parseFloat($scope.items[i].MAN_PRICE * $scope.items[i].mapQty);
             }
             return parseInt(cumsum / totalamount * 100);
         }
@@ -584,6 +585,9 @@
                 $('#usanceretention_cash').val(data.USANCE_RETENTION_CASH_RATIO);
                 $('#usanceretention_1').val(data.USANCE_RETENTION_1_RATIO);
                 $('#usanceretention_2').val(data.USANCE_RETENTION_2_RATIO);
+                $('#payment_date_cash').val(data.paidDateCash);
+                $('#payment_date_1').val(data.paidDate1);
+                $('#payment_date_2').val(data.paidDate2);
                 if ((data.DATE_3) == null) {
                     $("input[name=payfrequency][value='O']").attr('checked', true);
                 }
@@ -596,7 +600,35 @@
                 else {
                     $("input[name=payterms][value='S']").attr('checked', true);
                 }
-
+                if ((data.advanceCash) == null && (data.retentionCash) == null) {
+                    $('#paid_amount_cash').val(data.estCash);
+                }
+                else if ((data.estCash) == null && (data.retentionCash) == null)
+                {
+                    $('#paid_amount_cash').val(data.advanceCash);
+                }
+                else
+                {
+                    $('#paid_amount_cash').val(data.retentionCash);
+                }
+                if ((data.advanceAmt1) == null && (data.retentionAmt1) == null) {
+                    $('#paid_amount_1').val(data.estAmt1);
+                }
+                else if ((data.estAmt1) == null && (data.retentionAmt1) == null) {
+                    $('#paid_amount_1').val(data.advanceAmt1);
+                }
+                else {
+                    $('#paid_amount_1').val(data.retentionAmt1);
+                }
+                if ((data.advanceAmt2) == null && (data.retentionAmt2) == null) {
+                    $('#paid_amount_2').val(data.estAmt2);
+                }
+                else if ((data.estAmt2) == null && (data.retentionAmt2) == null) {
+                    $('#paid_amount_2').val(data.advanceAmt2);
+                }
+                else {
+                    $('#paid_amount_2').val(data.retentionAmt2);
+                }
                 $('#paymentInfo').modal('show'); // show bootstrap modal when complete loaded
                 //$('.modal-title').text('編輯設定資料'); // Set title to Bootstrap modal title
 

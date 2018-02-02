@@ -15,7 +15,6 @@
         <EntityTypeShape EntityType="topmepModel.PLAN_DR_NOTE" Width="1.5" PointX="0.75" PointY="12.5" />
         <EntityTypeShape EntityType="topmepModel.PLAN_DR_TASK" Width="1.5" PointX="2.75" PointY="12.5" />
         <EntityTypeShape EntityType="topmepModel.PLAN_DR_WORKER" Width="1.5" PointX="4.75" PointY="12.5" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_FORM" Width="1.5" PointX="6.75" PointY="12.5" />
         <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_ITEM" Width="1.5" PointX="11.75" PointY="2.5" />
         <EntityTypeShape EntityType="topmepModel.PLAN_INVOICE" Width="1.5" PointX="21.875" PointY="11.125" />
         <EntityTypeShape EntityType="topmepModel.PLAN_ITEM" Width="1.5" PointX="11.75" PointY="10.5" />
@@ -69,6 +68,7 @@
         <EntityTypeShape EntityType="topmepModel.PLAN_VALUATION_FORM_ITEM" Width="1.5" PointX="8.375" PointY="8.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_VALUATION_FORM" Width="1.5" PointX="19.375" PointY="23.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_ACCOUNT" Width="1.5" PointX="22.375" PointY="15.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_FORM" Width="1.5" PointX="21.375" PointY="24.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

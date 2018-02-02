@@ -1699,15 +1699,37 @@ namespace topmeperp.Service
             return lst;
         }
 
-        public PLAN_PAYMENT_TERMS getPaymentTerm(string contractid)
+        public PaymentTermsFunction getPaymentTerm(string contractid, string estid)
         {
             logger.Debug("get payment terms by contractid=" + contractid);
-            PLAN_PAYMENT_TERMS payment = null;
+            PaymentTermsFunction payment = null;
             using (var context = new topmepEntities())
             {
                 //條件篩選
-                payment = context.PLAN_PAYMENT_TERMS.SqlQuery("SELECT * FROM PLAN_PAYMENT_TERMS WHERE CONTRACT_ID=@contractid",
-                new SqlParameter("contractid", contractid)).FirstOrDefault();
+                payment = context.Database.SqlQuery<PaymentTermsFunction>("SELECT ppt.*, IIF(ef.advanceAmt < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT*ppt.PAYMENT_ADVANCE_CASH_RATIO/100,ef.PAID_AMOUNT*USANCE_ADVANCE_CASH_RATIO/100) AS advanceCash, " +
+                          "IIF(ef.advanceAmt < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_ADVANCE_1_RATIO / 100, ef.PAID_AMOUNT * USANCE_ADVANCE_1_RATIO / 100) AS advanceAmt1, " +
+                          "IIF(ef.advanceAmt < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_ADVANCE_2_RATIO / 100, ef.PAID_AMOUNT * USANCE_ADVANCE_2_RATIO / 100) AS advanceAmt2, " +
+                          "IIF(ef.RETENTION_PAYMENT < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_RETENTION_CASH_RATIO / 100, ef.PAID_AMOUNT * USANCE_RETENTION_CASH_RATIO / 100) AS retentionCash, " +
+                          "IIF(ef.RETENTION_PAYMENT < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_RETENTION_1_RATIO / 100, ef.PAID_AMOUNT * USANCE_RETENTION_1_RATIO / 100) AS retentionAmt1, " +
+                          "IIF(ef.RETENTION_PAYMENT < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_RETENTION_2_RATIO / 100, ef.PAID_AMOUNT * USANCE_RETENTION_2_RATIO / 100) AS retentionAmt2, " +
+                          "IIF(ef.PAYMENT_TRANSFER > 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * PAYMENT_ESTIMATED_CASH_RATIO / 100, ef.PAID_AMOUNT * USANCE_GOODS_CASH_RATIO / 100) AS estCash, " +
+                          "IIF(ef.PAYMENT_TRANSFER > 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * PAYMENT_ESTIMATED_1_RATIO / 100, ef.PAID_AMOUNT * USANCE_GOODS_1_RATIO / 100) AS estAmt1, " +
+                          "IIF(ef.PAYMENT_TRANSFER > 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * PAYMENT_ESTIMATED_2_RATIO / 100, ef.PAID_AMOUNT * USANCE_GOODS_2_RATIO / 100) AS estAmt2, " +
+                          "IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3) AS dateBase1, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null) AS dateBase2, " +
+                          "IIF(DAY(ef.MODIFY_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3), IIF(MONTH(ef.MODIFY_DATE) > 11, CONVERT(varchar, YEAR(ef.MODIFY_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                          "CONVERT(varchar, YEAR(ef.MODIFY_DATE)) + '/' + CONVERT(varchar, MONTH(ef.MODIFY_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
+                          "CONVERT(varchar, YEAR(ef.MODIFY_DATE)) + '/' + CONVERT(varchar, MONTH(ef.MODIFY_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))) AS paidDateCash, " +
+                          "IIF(DAY(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.MODIFY_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3), IIF(MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.MODIFY_DATE) > 11, " +
+                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.MODIFY_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.MODIFY_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.MODIFY_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
+                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.MODIFY_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.MODIFY_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))) AS paidDate1, " +
+                          "IIF(DAY(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.MODIFY_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3), IIF(MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.MODIFY_DATE) > 11, " +
+                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.MODIFY_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.MODIFY_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.MODIFY_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
+                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.MODIFY_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.MODIFY_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))) AS paidDate2 " +
+                          "FROM PLAN_PAYMENT_TERMS ppt LEFT JOIN(SELECT ef.CONTRACT_ID, pop.advanceAmt, ef.RETENTION_PAYMENT, ef.PAID_AMOUNT, ef.PAYMENT_TRANSFER, ef.MODIFY_DATE FROM PLAN_ESTIMATION_FORM ef LEFT JOIN(SELECT EST_FORM_ID, SUM(AMOUNT) AS advanceAmt FROM PLAN_OTHER_PAYMENT WHERE TYPE IN('A', 'B', 'C') GROUP BY EST_FORM_ID HAVING EST_FORM_ID =@estid)pop " +
+                          "ON ef.EST_FORM_ID = pop.EST_FORM_ID WHERE ef.EST_FORM_ID =@estid)ef ON ppt.CONTRACT_ID = ef.CONTRACT_ID WHERE ppt.CONTRACT_ID =@contractid ",
+                new SqlParameter("contractid", contractid), new SqlParameter("estid", estid)).FirstOrDefault();
             }
             return payment;
         }
@@ -3028,8 +3050,8 @@ namespace topmeperp.Service
             //處理SQL 預先填入合約代號,設定集合處理參數
             using (var context = new topmepEntities())
             {
-                lstItem = context.Database.SqlQuery<EstimationForm>("SELECT pi.*, map.QTY AS mapQty, A.CUM_QTY AS CUM_EST_QTY, B.CUM_QTY AS CUM_RECPT_QTY, ISNULL(B.CUM_QTY, 0)-ISNULL(A.CUM_QTY,0) AS Quota FROM PLAN_ITEM pi " +
-                    "LEFT JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT JOIN (SELECT ei.PLAN_ITEM_ID, SUM(ei.EST_QTY) AS CUM_QTY " +
+                lstItem = context.Database.SqlQuery<EstimationForm>("SELECT pi.*, psi.ITEM_QTY AS mapQty, A.CUM_QTY AS CUM_EST_QTY, ISNULL(B.CUM_QTY, 0) AS CUM_RECPT_QTY, ISNULL(B.CUM_QTY, 0)-ISNULL(A.CUM_QTY,0) AS Quota FROM PLAN_ITEM pi " +
+                    "LEFT JOIN (SELECT PLAN_ITEM_ID, ITEM_QTY FROM PLAN_SUP_INQUIRY_ITEM WHERE INQUIRY_FORM_ID =@contractid)psi ON pi.PLAN_ITEM_ID = psi.PLAN_ITEM_ID LEFT JOIN (SELECT ei.PLAN_ITEM_ID, SUM(ei.EST_QTY) AS CUM_QTY " +
                     "FROM PLAN_ESTIMATION_ITEM ei LEFT JOIN PLAN_ESTIMATION_FORM ef ON ei.EST_FORM_ID = ef.EST_FORM_ID " +
                     "WHERE ef.CONTRACT_ID = @contractid GROUP BY ei.PLAN_ITEM_ID)A ON pi.PLAN_ITEM_ID = A.PLAN_ITEM_ID " +
                     "LEFT JOIN (SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS CUM_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr " +
@@ -3048,12 +3070,13 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 lst = context.Database.SqlQuery<plansummary>("SELECT A.INQUIRY_FORM_ID AS CONTRACT_ID, A.SUPPLIER_ID, A.FORM_NAME, " +
-                    "SUM(A.mapQty * A.ITEM_UNIT_COST) MATERIAL_COST, SUM(A.mapQty * ISNULL(A.MAN_PRICE, 0)) WAGE_COST, " +
-                    "SUM(A.ITEM_QUANTITY * A.ITEM_UNIT_PRICE) REVENUE, SUM(A.mapQty * A.ITEM_UNIT_COST * A.BUDGET_RATIO / 100) BUDGET, " +
-                    "(SUM(A.mapQty * A.ITEM_UNIT_COST) + SUM(A.mapQty * ISNULL(A.MAN_PRICE, 0))) COST, (SUM(A.ITEM_QUANTITY * A.ITEM_UNIT_PRICE) - " +
-                    "SUM(A.mapQty * A.ITEM_UNIT_COST) - SUM(A.mapQty * ISNULL(A.MAN_PRICE, 0))) PROFIT, " +
-                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.SUPPLIER_ID) AS NO FROM (SELECT pi.*, s.SUPPLIER_ID AS ID, map.QTY AS mapQty FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON " +
-                    "pi.SUPPLIER_ID = s.COMPANY_NAME LEFT JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID)A GROUP BY A.PROJECT_ID, A.INQUIRY_FORM_ID, A.FORM_NAME, A.SUPPLIER_ID HAVING A.INQUIRY_FORM_ID =@contractid ; "
+                    "SUM(A.formQty * A.ITEM_UNIT_COST) MATERIAL_COST, SUM(A.formQty * ISNULL(A.MAN_PRICE, 0)) WAGE_COST, " +
+                    "SUM(A.ITEM_QUANTITY * A.ITEM_UNIT_PRICE) REVENUE, SUM(A.mapQty * A.tndPrice * A.BUDGET_RATIO / 100) BUDGET, " +
+                    "(SUM(A.formQty * A.ITEM_UNIT_COST) + SUM(A.formQty * ISNULL(A.MAN_PRICE, 0))) COST, (SUM(A.ITEM_QUANTITY * A.ITEM_UNIT_PRICE) - " +
+                    "SUM(A.formQty * A.ITEM_UNIT_COST) - SUM(A.formQty * ISNULL(A.MAN_PRICE, 0))) PROFIT, " +
+                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.SUPPLIER_ID) AS NO FROM (SELECT pi.*, s.SUPPLIER_ID AS ID, psi.ITEM_QTY AS formQty, map.QTY AS mapQty, tpi.ITEM_UNIT_PRICE AS tndPrice FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON " +
+                    "pi.SUPPLIER_ID = s.COMPANY_NAME LEFT JOIN (SELECT PLAN_ITEM_ID, ITEM_QTY FROM PLAN_SUP_INQUIRY_ITEM WHERE INQUIRY_FORM_ID =@contractid)psi ON pi.PLAN_ITEM_ID = psi.PLAN_ITEM_ID " +
+                    "LEFT JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT JOIN TND_PROJECT_ITEM tpi ON pi.PLAN_ITEM_ID = tpi.PROJECT_ITEM_ID)A GROUP BY A.PROJECT_ID, A.INQUIRY_FORM_ID, A.FORM_NAME, A.SUPPLIER_ID HAVING A.INQUIRY_FORM_ID =@contractid ; "
                    , new SqlParameter("contractid", contractid)).First();
             }
             return lst;
@@ -3065,9 +3088,9 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 lst = context.Database.SqlQuery<plansummary>("SELECT  A.MAN_FORM_ID AS CONTRACT_ID, A.MAN_SUPPLIER_ID, A.MAN_FORM_NAME, " +
-                    "SUM(A.mapQty * ISNULL(A.MAN_PRICE, 0)) WAGE_COST, " +
-                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.MAN_SUPPLIER_ID) AS NO FROM(SELECT pi.*, s.SUPPLIER_ID AS ID, map.QTY AS mapQty FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON " +
-                    "pi.MAN_SUPPLIER_ID = s.COMPANY_NAME LEFT JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID)A GROUP BY A.PROJECT_ID, A.MAN_SUPPLIER_ID, A.MAN_FORM_NAME, A.MAN_FORM_ID HAVING A.MAN_FORM_ID =@contractid ; "
+                    "SUM(A.formQty * ISNULL(A.MAN_PRICE, 0)) WAGE_COST, " +
+                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.MAN_SUPPLIER_ID) AS NO FROM(SELECT pi.*, s.SUPPLIER_ID AS ID, psi.ITEM_QTY AS formQty FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON " +
+                    "pi.MAN_SUPPLIER_ID = s.COMPANY_NAME LEFT JOIN (SELECT PLAN_ITEM_ID, ITEM_QTY FROM PLAN_SUP_INQUIRY_ITEM WHERE INQUIRY_FORM_ID =@contractid)psi ON pi.PLAN_ITEM_ID = psi.PLAN_ITEM_ID)A GROUP BY A.PROJECT_ID, A.MAN_SUPPLIER_ID, A.MAN_FORM_NAME, A.MAN_FORM_ID HAVING A.MAN_FORM_ID =@contractid ; "
                    , new SqlParameter("contractid", contractid)).First();
             }
             return lst;
@@ -3235,13 +3258,14 @@ namespace topmeperp.Service
             {
                 //取得估驗單檔頭資訊
                 string sql = "SELECT EST_FORM_ID, PROJECT_ID, CONTRACT_ID, PLUS_TAX, TAX_AMOUNT, TAX_RATIO, PAYMENT_TRANSFER, FOREIGN_PAYMENT, RETENTION_PAYMENT, MODIFY_DATE, REMARK, INVOICE, " +
-                    "CREATE_ID, CREATE_DATE, SETTLEMENT, STATUS, TYPE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID =@estid ";
+                    "CREATE_ID, CREATE_DATE, SETTLEMENT, STATUS, TYPE, PAID_AMOUNT FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID =@estid ";
 
                 formEST = context.PLAN_ESTIMATION_FORM.SqlQuery(sql, new SqlParameter("estid", estid)).FirstOrDefault();
                 //取得估驗單明細
-                ESTItem = context.Database.SqlQuery<EstimationForm>("SELECT pei.PLAN_ITEM_ID, pei.EST_QTY, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.ITEM_FORM_QUANTITY, " +
-                    "pi.ITEM_UNIT_PRICE, A.CUM_QTY AS CUM_QTY FROM PLAN_ESTIMATION_ITEM pei LEFT JOIN PLAN_ESTIMATION_FORM ef ON pei.EST_FORM_ID = ef.EST_FORM_ID LEFT JOIN PLAN_ITEM pi ON " +
-                    "pei.PLAN_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN (SELECT pei.PLAN_ITEM_ID, sum(pei.EST_QTY) AS CUM_QTY FROM PLAN_ESTIMATION_ITEM pei JOIN PLAN_ESTIMATION_FORM ef ON " +
+                ESTItem = context.Database.SqlQuery<EstimationForm>("SELECT pei.PLAN_ITEM_ID, pei.EST_QTY, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, psi.ITEM_QTY AS mapQty, pi.ITEM_UNIT_COST, " +
+                    "pi.MAN_PRICE, ISNULL(A.CUM_QTY, 0) AS CUM_EST_QTY FROM PLAN_ESTIMATION_ITEM pei LEFT JOIN PLAN_ESTIMATION_FORM ef ON pei.EST_FORM_ID = ef.EST_FORM_ID LEFT JOIN PLAN_ITEM pi ON " +
+                    "pei.PLAN_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN (SELECT PLAN_ITEM_ID, ITEM_QTY FROM PLAN_SUP_INQUIRY_ITEM WHERE INQUIRY_FORM_ID = '" + formEST.CONTRACT_ID + "')psi ON pei.PLAN_ITEM_ID = psi.PLAN_ITEM_ID " +
+                    "LEFT JOIN (SELECT pei.PLAN_ITEM_ID, sum(pei.EST_QTY) AS CUM_QTY FROM PLAN_ESTIMATION_ITEM pei JOIN PLAN_ESTIMATION_FORM ef ON " +
                     "pei.EST_FORM_ID = ef.EST_FORM_ID WHERE ef.CREATE_DATE < (select CREATE_DATE from PLAN_ESTIMATION_FORM where EST_FORM_ID = @estid) GROUP BY  pei.PLAN_ITEM_ID)A " +
                     "ON pei.PLAN_ITEM_ID = A.PLAN_ITEM_ID WHERE pei.EST_FORM_ID = @estid", new SqlParameter("estid", estid)).ToList();
                 logger.Debug("get estimation form item count:" + ESTItem.Count);
@@ -3497,7 +3521,7 @@ namespace topmeperp.Service
                     "ISNULL((SELECT TAX_AMOUNT FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid),0) AS TAX_AMOUNT, " +
                     "ISNULL((SELECT SUM(RETENTION_PAYMENT) FROM PLAN_ESTIMATION_FORM WHERE CONTRACT_ID = @contractid AND CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid)),0)  AS CUM_T_RETENTION, " +
                     "ISNULL((SELECT SUM(TAX_AMOUNT) FROM PLAN_ESTIMATION_FORM WHERE CONTRACT_ID = @contractid AND CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid)),0) AS CUM_TAX_AMOUNT, " +
-                    "ISNULL((SELECT SUM(pei.EST_QTY * pi.ITEM_UNIT_COST) PRICE FROM PLAN_ESTIMATION_ITEM pei LEFT JOIN PLAN_ITEM pi ON PEI.PLAN_ITEM_ID = PI.PLAN_ITEM_ID WHERE pei.EST_FORM_ID = @formid),0) AS EST_AMOUNT, " +
+                    "ISNULL((SELECT SUM(pei.EST_QTY * pi.ITEM_UNIT_COST) PRICE FROM PLAN_ESTIMATION_ITEM pei LEFT JOIN PLAN_ITEM pi ON pei.PLAN_ITEM_ID = pi.PLAN_ITEM_ID WHERE pei.EST_FORM_ID = @formid),0) AS EST_AMOUNT, " +
                     "ISNULL((SELECT SUM(pei.EST_QTY * pi.ITEM_UNIT_COST) PRICE FROM PLAN_ESTIMATION_ITEM pei LEFT JOIN PLAN_ITEM pi ON pei.PLAN_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN PLAN_ESTIMATION_FORM ef ON pei.EST_FORM_ID = ef.EST_FORM_ID WHERE ef.CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid)), 0) AS CUM_EST_AMOUNT,  " +
                     "ISNULL((SELECT FOREIGN_PAYMENT FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid),0) AS T_FOREIGN, ISNULL((SELECT SUM(FOREIGN_PAYMENT) FROM PLAN_ESTIMATION_FORM WHERE CONTRACT_ID = @contractid " +
                     "AND CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid)),0) AS CUM_T_FOREIGN)D "
@@ -3523,7 +3547,7 @@ namespace topmeperp.Service
             int i = 0;
             logger.Info("update retention payment of EST form by id" + formid);
             string sql = "UPDATE  PLAN_ESTIMATION_FORM SET RETENTION_PAYMENT = i.PAY, TAX_AMOUNT = i.TAX_AMOUNT  " +
-                "FROM(SELECT RATIO * AMOUNT / 100 * (1+TAX_RATIO/100) AS PAY, (AMOUNT -T_FOREIGN) * TAX_RATIO/100 AS TAX_AMOUNT FROM(SELECT ISNULL((SELECT PAYMENT_RETENTION_RATIO FROM PLAN_PAYMENT_TERMS WHERE " +
+                "FROM(SELECT ROUND(CAST(RATIO * AMOUNT / 100 * (1+TAX_RATIO/100) AS decimal(10,1)),0) AS PAY, ROUND(CAST((AMOUNT -T_FOREIGN) * TAX_RATIO/100 AS decimal(8,1)),0) AS TAX_AMOUNT FROM(SELECT ISNULL((SELECT PAYMENT_RETENTION_RATIO FROM PLAN_PAYMENT_TERMS WHERE " +
                 "CONTRACT_ID = @contractid), 0) AS RATIO, ISNULL((SELECT TAX_RATIO FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid),0) AS TAX_RATIO, " +
                 "ISNULL((SELECT FOREIGN_PAYMENT FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid),0) AS T_FOREIGN, " +
                 "(SELECT ISNULL(SUM(pei.EST_QTY * pi.ITEM_UNIT_COST), 0) PRICE FROM PLAN_ESTIMATION_ITEM pei LEFT JOIN PLAN_ITEM pi ON pei.PLAN_ITEM_ID = pi.PLAN_ITEM_ID " +
@@ -3539,6 +3563,25 @@ namespace topmeperp.Service
             db = null;
             return i;
         }
+        //寫入當次估驗小計金額與實付金額
+        public int UpdatePaidAmountById(string formid, decimal subAmt, decimal paidAmt)
+        {
+            int i = 0;
+            logger.Info("update sub amount and amount need to pay from EST form by id" + formid);
+            string sql = "UPDATE  PLAN_ESTIMATION_FORM SET PAYMENT_TRANSFER = @subAmt, PAID_AMOUNT = @paidAmt  WHERE EST_FORM_ID = @formid ";
+            logger.Debug("batch sql:" + sql);
+            db = new topmepEntities();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("formid", formid));
+            parameters.Add(new SqlParameter("subAmt", subAmt));
+            parameters.Add(new SqlParameter("paidAmt", paidAmt));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            logger.Info("Update Record:" + i);
+            db = null;
+            return i;
+        }
+        
         public int delESTByESTId(string estid)
         {
             logger.Info("remove EST form detail by EST FORM ID =" + estid);

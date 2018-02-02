@@ -256,6 +256,7 @@
           <Property Name="PLUS_TAX" Type="varchar" MaxLength="1" />
           <Property Name="TAX_AMOUNT" Type="decimal" Precision="18" Scale="3" />
           <Property Name="PAYMENT_TRANSFER" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="PAID_AMOUNT" Type="decimal" Precision="18" Scale="3" />
           <Property Name="FOREIGN_PAYMENT" Type="decimal" Precision="18" Scale="3" />
           <Property Name="RETENTION_PAYMENT" Type="decimal" Precision="18" Scale="3" />
           <Property Name="REMARK" Type="varchar" MaxLength="1000" />
@@ -1194,7 +1195,6 @@
           <EntitySet Name="PLAN_DR_NOTE" EntityType="topmepModel.PLAN_DR_NOTE" />
           <EntitySet Name="PLAN_DR_TASK" EntityType="topmepModel.PLAN_DR_TASK" />
           <EntitySet Name="PLAN_DR_WORKER" EntityType="topmepModel.PLAN_DR_WORKER" />
-          <EntitySet Name="PLAN_ESTIMATION_FORM" EntityType="topmepModel.PLAN_ESTIMATION_FORM" />
           <EntitySet Name="PLAN_ESTIMATION_ITEM" EntityType="topmepModel.PLAN_ESTIMATION_ITEM" />
           <EntitySet Name="PLAN_INVOICE" EntityType="topmepModel.PLAN_INVOICE" />
           <EntitySet Name="PLAN_ITEM" EntityType="topmepModel.PLAN_ITEM" />
@@ -1266,6 +1266,7 @@
           <EntitySet Name="PLAN_VALUATION_FORM_ITEM" EntityType="topmepModel.PLAN_VALUATION_FORM_ITEM" />
           <EntitySet Name="PLAN_VALUATION_FORM" EntityType="topmepModel.PLAN_VALUATION_FORM" />
           <EntitySet Name="PLAN_ACCOUNT" EntityType="topmepModel.PLAN_ACCOUNT" />
+          <EntitySet Name="PLAN_ESTIMATION_FORM" EntityType="topmepModel.PLAN_ESTIMATION_FORM" />
         </EntityContainer>
         <EntityType Name="FIN_EXPENSE_BUDGET">
           <Key>
@@ -1398,28 +1399,6 @@
           <Property Name="WORKER_QTY" Type="Decimal" Precision="18" Scale="3" />
           <Property Name="LAST_QTY" Type="Decimal" Precision="18" Scale="3" />
           <Property Name="REMARK" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="PLAN_ESTIMATION_FORM">
-          <Key>
-            <PropertyRef Name="EST_FORM_ID" />
-          </Key>
-          <Property Name="EST_FORM_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="CONTRACT_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PLUS_TAX" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
-          <Property Name="TAX_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="PAYMENT_TRANSFER" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="FOREIGN_PAYMENT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="RETENTION_PAYMENT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="SETTLEMENT" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
-          <Property Name="TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
-          <Property Name="STATUS" Type="Int32" />
-          <Property Name="TAX_RATIO" Type="Decimal" Precision="5" Scale="2" />
-          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
-          <Property Name="INVOICE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="PLAN_ESTIMATION_ITEM">
           <Key>
@@ -2369,6 +2348,29 @@
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
           <Property Name="CHECK_NO" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
         </EntityType>
+        <EntityType Name="PLAN_ESTIMATION_FORM">
+          <Key>
+            <PropertyRef Name="EST_FORM_ID" />
+          </Key>
+          <Property Name="EST_FORM_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="CONTRACT_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PLUS_TAX" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="TAX_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="PAYMENT_TRANSFER" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="PAID_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="FOREIGN_PAYMENT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="RETENTION_PAYMENT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="SETTLEMENT" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="STATUS" Type="Int32" />
+          <Property Name="TAX_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="INVOICE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2514,29 +2516,6 @@
                 <ScalarProperty Name="PARA_KEY_ID" ColumnName="PARA_KEY_ID" />
                 <ScalarProperty Name="REPORT_ID" ColumnName="REPORT_ID" />
                 <ScalarProperty Name="DR_WORKER_ID" ColumnName="DR_WORKER_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_ESTIMATION_FORM">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_ESTIMATION_FORM">
-              <MappingFragment StoreEntitySet="PLAN_ESTIMATION_FORM">
-                <ScalarProperty Name="INVOICE" ColumnName="INVOICE" />
-                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
-                <ScalarProperty Name="TAX_RATIO" ColumnName="TAX_RATIO" />
-                <ScalarProperty Name="STATUS" ColumnName="STATUS" />
-                <ScalarProperty Name="TYPE" ColumnName="TYPE" />
-                <ScalarProperty Name="SETTLEMENT" ColumnName="SETTLEMENT" />
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
-                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
-                <ScalarProperty Name="RETENTION_PAYMENT" ColumnName="RETENTION_PAYMENT" />
-                <ScalarProperty Name="FOREIGN_PAYMENT" ColumnName="FOREIGN_PAYMENT" />
-                <ScalarProperty Name="PAYMENT_TRANSFER" ColumnName="PAYMENT_TRANSFER" />
-                <ScalarProperty Name="TAX_AMOUNT" ColumnName="TAX_AMOUNT" />
-                <ScalarProperty Name="PLUS_TAX" ColumnName="PLUS_TAX" />
-                <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
-                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
-                <ScalarProperty Name="EST_FORM_ID" ColumnName="EST_FORM_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -3447,6 +3426,30 @@
                 <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
                 <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
                 <ScalarProperty Name="PLAN_ACCOUNT_ID" ColumnName="PLAN_ACCOUNT_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_ESTIMATION_FORM">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_ESTIMATION_FORM">
+              <MappingFragment StoreEntitySet="PLAN_ESTIMATION_FORM">
+                <ScalarProperty Name="INVOICE" ColumnName="INVOICE" />
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="TAX_RATIO" ColumnName="TAX_RATIO" />
+                <ScalarProperty Name="STATUS" ColumnName="STATUS" />
+                <ScalarProperty Name="TYPE" ColumnName="TYPE" />
+                <ScalarProperty Name="SETTLEMENT" ColumnName="SETTLEMENT" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
+                <ScalarProperty Name="RETENTION_PAYMENT" ColumnName="RETENTION_PAYMENT" />
+                <ScalarProperty Name="FOREIGN_PAYMENT" ColumnName="FOREIGN_PAYMENT" />
+                <ScalarProperty Name="PAID_AMOUNT" ColumnName="PAID_AMOUNT" />
+                <ScalarProperty Name="PAYMENT_TRANSFER" ColumnName="PAYMENT_TRANSFER" />
+                <ScalarProperty Name="TAX_AMOUNT" ColumnName="TAX_AMOUNT" />
+                <ScalarProperty Name="PLUS_TAX" ColumnName="PLUS_TAX" />
+                <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
+                <ScalarProperty Name="EST_FORM_ID" ColumnName="EST_FORM_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

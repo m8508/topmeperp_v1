@@ -5,11 +5,18 @@
 }
 
 
+@if (null != ViewBag.projectid && ViewBag.projectid != "")
+{
+    <h3 style="height:20px;line-height:10px">工地費用查詢 :</h3>
+}
+else
+{
+    <h3 style="height:20px;line-height:10px">公司營業費用查詢 :</h3>
+}
 <div class="jumbotron">
     <form name="expSearch" id="expSearch" action="/CashFlow/SearchEXP" method="Post" class="form-inline">
         @if (null != ViewBag.projectid && ViewBag.projectid != "")
         {
-            <h3 style="height:20px;line-height:10px">工地費用查詢 :</h3>
             <div class="row">
                 <div class="col-md-6 form-group">
                     <label for="id">專案編號 :</label>
@@ -20,10 +27,6 @@
                     <input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc; width:250px;" readonly="readonly" />
                 </div>
             </div>
-        }
-        else
-        {
-            <h3 style="height:20px;line-height:10px">公司營業費用查詢</h3>
         }
         <div class="row">
             <div class='col-md-6 form-group' style="padding-top:10px">
