@@ -258,7 +258,7 @@ namespace topmeperp.Models
         public IEnumerable<plansummary> contractItems { get; set; }
         public IEnumerable<plansummary> wagecontractItems { get; set; }
         public IEnumerable<PLAN_PAYMENT_TERMS> paymentTerms { get; set; }
-        public PLAN_PAYMENT_TERMS planpayment { get; set; }
+        public PaymentTermsFunction planpayment { get; set; }
         public IEnumerable<PLAN_ITEM> planItems { get; set; }
         public TND_PROJECT prj { get; set; }
         public PLAN_ESTIMATION_FORM planEST { get; set; }
@@ -605,8 +605,23 @@ namespace topmeperp.Models
         public Nullable<decimal> AR_UNPAID { get; set; }
         public Nullable<decimal> AR_PAID { get; set; }
         public string RECORDED_DATE { get; set; }
-        
-
-
     }
+    public class PaymentTermsFunction : PLAN_PAYMENT_TERMS
+    {
+        public Nullable<decimal> advanceCash { get; set; }
+        public Nullable<decimal> advanceAmt1 { get; set; }
+        public Nullable<decimal> advanceAmt2 { get; set; }
+        public Nullable<decimal> retentionCash { get; set; }
+        public Nullable<decimal> retentionAmt1 { get; set; }
+        public Nullable<decimal> retentionAmt2 { get; set; }
+        public Nullable<decimal> estCash { get; set; }
+        public Nullable<decimal> estAmt1 { get; set; }
+        public Nullable<decimal> estAmt2 { get; set; }
+        public Nullable<decimal> dateBase1 { get; set; }
+        public Nullable<decimal> dateBase2 { get; set; }
+        public string paidDateCash { get; set; }
+        public string paidDate1 { get; set; }
+        public string paidDate2 { get; set; }
+    }
+    
 }

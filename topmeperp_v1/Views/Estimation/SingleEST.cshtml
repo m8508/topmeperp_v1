@@ -132,9 +132,11 @@
                             <th>
                                 本期數量
                             </th>
+                            <!--
                             <th>
                                 計價比率 %
                             </th>
+                                 -->
                             <th>
                                 金額
                             </th>
@@ -193,9 +195,11 @@
                                 <span ng-hide="row.EditMode">{{row.EST_QTY  | number : 0}}</span>
                                 <input type="text" ng-show="row.EditMode" ng-model="row.Qty2" id="evaluated_qty" name="evaluated_qty" style="width:80px">
                             </td>
+                            <!--
                             <td>
                                 <input style="width:80px" type="text" class="form-control" ng-model="row.evaluated_ratio" id="evaluated_ration" name="evaluated_ration">
                             </td>
+                                -->
                             <td>
                                 @if (ViewBag.wage != "W")
                                 {

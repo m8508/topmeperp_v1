@@ -1213,7 +1213,7 @@ namespace topmeperp.Controllers
             PurchaseFormService service = new PurchaseFormService();
             log.Info("access the terms of payment by:" + Request["contractid"]);
             System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            string itemJson = objSerializer.Serialize(service.getPaymentTerm(contractid));
+            string itemJson = objSerializer.Serialize(service.getPaymentTerm(contractid, contractid));
             log.Info("plan payment terms info=" + itemJson);
             return itemJson;
         }
