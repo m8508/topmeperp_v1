@@ -1202,16 +1202,26 @@ namespace topmeperp.Controllers
             ViewBag.SearchResult = "共取得" + lstContract.Count + "筆資料";
             ViewBag.Result = lstContract.Count;
             ViewBag.Result4Wage = lstWageContract.Count;
-            int i = service.addContractId(id);
-            int j = service.addContractIdForWage(id);
             return View(contract);
         }
 
         //取得合約付款條件
         public string getPaymentTerms(string contractid)
         {
-            PurchaseFormService service = new PurchaseFormService();
             log.Info("access the terms of payment by:" + Request["contractid"]);
+            PurchaseFormService service = new PurchaseFormService();
+            if (contractid.Substring(0, 5) != "Owner")
+            {
+                service.getInqueryForm(contractid);
+                PLAN_SUP_INQUIRY f = service.formInquiry;
+                int i = service.addContractId(f.PROJECT_ID);
+                int j = service.addContractIdForWage(f.PROJECT_ID);
+            }
+            else
+            {
+                contractid = contractid.Substring(5);
+            }
+            log.Info("contractid =" + contractid);
             System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
             string itemJson = objSerializer.Serialize(service.getPaymentTerm(contractid, contractid));
             log.Info("plan payment terms info=" + itemJson);
@@ -1672,10 +1682,12 @@ namespace topmeperp.Controllers
         {
             log.Info("start project id=" + id);
             PurchaseFormService service = new PurchaseFormService();
+            ContractModels contract = new ContractModels();
             formOutOfContract = service.getFormTempOutOfContractByProject(id);
+            contract.planOrder = formOutOfContract;
             ViewBag.projectid = id;
             ViewBag.SearchResult = "共取得" + formOutOfContract.Count + "筆資料";
-            return View(formOutOfContract);
+            return View(contract);
         }
     }
 }

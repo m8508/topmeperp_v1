@@ -305,7 +305,7 @@ namespace topmeperp.Controllers
             //取得業主合約金額
             PlanRevenue contractAmount = service.getPlanRevenueById(id);
             ViewBag.Amount = (null == contractAmount.PLAN_REVENUE ? 0 : contractAmount.PLAN_REVENUE);
-            ViewBag.contractid = contractAmount.CONTRACT_ID;
+            ViewBag.contractid = "Owner" + contractAmount.CONTRACT_ID;
             int i = service.addContractId4Owner(id);
             return View();
         }

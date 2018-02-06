@@ -338,7 +338,7 @@
                     $("input[name=payterms][value='S']").attr('checked', true);
                 }
                 if ((data.advanceCash) == null && (data.retentionCash) == null) {
-                    $('#paid_amount_cash').val(data.estCash);
+                    $('#paid_amount_cash').val(data.estCash.ToString("#,##0"));
                 }
                 else if ((data.estCash) == null && (data.retentionCash) == null)
                 {
@@ -349,7 +349,7 @@
                     $('#paid_amount_cash').val(data.retentionCash);
                 }
                 if ((data.advanceAmt1) == null && (data.retentionAmt1) == null) {
-                    $('#paid_amount_1').val(data.estAmt1);
+                    $('#paid_amount_1').val(data.estAmt1.ToString("#,##0"));
                 }
                 else if ((data.estAmt1) == null && (data.retentionAmt1) == null) {
                     $('#paid_amount_1').val(data.advanceAmt1);

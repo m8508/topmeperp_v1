@@ -10,10 +10,15 @@ namespace topmeperp.Models
         public Nullable<int> CountPO { get; set; }
         public Int64 NO { get; set; }
         public string Bargain { get; set; }
+        public Nullable<decimal> paymentFrequency { get; set; }
+        public string PAYMENT_TERMS { get; set; }
+        public string ContractId { get; set; }
     }
     public class BUDGET_SUMMANY 
     {
         public Nullable<decimal> Material_Budget { get; set; }
         public Nullable<decimal> Wage_Budget { get; set; }
     }
+
+
 }

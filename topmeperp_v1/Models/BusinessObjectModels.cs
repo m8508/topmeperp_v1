@@ -263,7 +263,8 @@ namespace topmeperp.Models
         public TND_PROJECT prj { get; set; }
         public PLAN_ESTIMATION_FORM planEST { get; set; }
         public IEnumerable<EstimationForm> planESTItem { get; set; }
-
+        public IEnumerable<PURCHASE_ORDER> planOrder { get; set; }
+        
     }
     public class CostForBudget
     {

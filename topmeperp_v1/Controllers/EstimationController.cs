@@ -400,12 +400,12 @@ namespace topmeperp.Controllers
             if (ViewBag.wage != "W")
             {
                 plansummary lstContract = service.getPlanContract4Est(singleForm.planEST.CONTRACT_ID);
-                ViewBag.contractamount = lstContract.MATERIAL_COST;
+                ViewBag.contractamount = String.Format("{0:#,##0.#}",lstContract.MATERIAL_COST);
             }
             else
             {
                 plansummary lstWageContract = service.getPlanContractOfWage4Est(singleForm.planEST.CONTRACT_ID);
-                ViewBag.contractamount = lstWageContract.WAGE_COST;
+                ViewBag.contractamount = String.Format("{0:#,##0.#}", lstWageContract.WAGE_COST);
             }
             PaymentTermsFunction payment = service.getPaymentTerm(singleForm.planEST.CONTRACT_ID, id);
             if (payment.PAYMENT_RETENTION_RATIO != null)

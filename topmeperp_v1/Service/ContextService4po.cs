@@ -912,16 +912,18 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 //取得詢價單樣本資訊
-                string sql = "SELECT tmp.*,CountPO, Bargain, ROW_NUMBER() OVER(ORDER BY tmp.INQUIRY_FORM_ID) AS NO " +
+                string sql = "SELECT tmp.*,CountPO, Bargain, paymentFrequency, PAYMENT_TERMS, ContractId, ROW_NUMBER() OVER(ORDER BY tmp.INQUIRY_FORM_ID) AS NO " +
                        "FROM(SELECT * FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID is Null AND PROJECT_ID = @projectid AND ISNULL(STATUS, '有效') = '有效' AND ISNULL(ISWAGE, 'N') = 'N') tmp " +
                        "LEFT OUTER JOIN (SELECT COUNT(*) CountPO, FORM_NAME, PROJECT_ID FROM  PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NOT Null GROUP BY FORM_NAME, PROJECT_ID) Quo " +
-                       "ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME LEFT OUTER JOIN (SELECT p.FORM_NAME AS Bargain FROM PLAN_ITEM p " +
-                       "WHERE p.PROJECT_ID = @projectid AND p.FORM_NAME IS NOT NULL GROUP BY p.FORM_NAME)Con ON tmp.FORM_NAME = Con.Bargain UNION " +
-                       "SELECT tmp.*,CountPO, Bargain, ROW_NUMBER() OVER(ORDER BY tmp.INQUIRY_FORM_ID) AS NO " +
+                       "ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME LEFT OUTER JOIN (SELECT p.FORM_NAME AS Bargain, IIF(ppt.PAYMENT_FREQUENCY = 'O', ppt.DATE_1, ppt.DATE_3) AS paymentFrequency, " +
+                       "ppt.PAYMENT_TERMS, p.INQUIRY_FORM_ID AS ContractId FROM PLAN_ITEM p LEFT JOIN PLAN_PAYMENT_TERMS ppt ON p.INQUIRY_FORM_ID = ppt.CONTRACT_ID WHERE p.PROJECT_ID = @projectid " +
+                       "AND p.FORM_NAME IS NOT NULL GROUP BY p.FORM_NAME, IIF(ppt.PAYMENT_FREQUENCY = 'O', ppt.DATE_1, ppt.DATE_3), ppt.PAYMENT_TERMS, p.INQUIRY_FORM_ID)Con ON tmp.FORM_NAME = Con.Bargain UNION " +
+                       "SELECT tmp.*,CountPO, Bargain, paymentFrequency, PAYMENT_TERMS, ContractId, ROW_NUMBER() OVER(ORDER BY tmp.INQUIRY_FORM_ID) AS NO " +
                        "FROM(SELECT * FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID is Null AND PROJECT_ID = @projectid AND ISNULL(STATUS, '有效') = '有效' AND ISNULL(ISWAGE, 'N') = 'Y') tmp " +
                        "LEFT OUTER JOIN (SELECT COUNT(*) CountPO, FORM_NAME, PROJECT_ID FROM  PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NOT NULL GROUP BY FORM_NAME, PROJECT_ID) Quo " +
-                       "ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME  LEFT OUTER JOIN (SELECT p.MAN_FORM_NAME AS Bargain FROM PLAN_ITEM p " +
-                       "WHERE p.PROJECT_ID = @projectid AND p.MAN_FORM_NAME IS NOT NULL GROUP BY p.MAN_FORM_NAME)Con ON tmp.FORM_NAME = Con.Bargain";
+                       "ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME  LEFT OUTER JOIN (SELECT p.MAN_FORM_NAME AS Bargain, IIF(ppt.PAYMENT_FREQUENCY = 'O', ppt.DATE_1, ppt.DATE_3) AS paymentFrequency, " +
+                       "ppt.PAYMENT_TERMS, p.MAN_FORM_ID AS ContractId FROM PLAN_ITEM p LEFT JOIN PLAN_PAYMENT_TERMS ppt ON p.MAN_FORM_ID = ppt.CONTRACT_ID WHERE p.PROJECT_ID = @projectid AND p.MAN_FORM_NAME IS NOT NULL " +
+                       "GROUP BY p.MAN_FORM_NAME, IIF(ppt.PAYMENT_FREQUENCY = 'O', ppt.DATE_1, ppt.DATE_3), ppt.PAYMENT_TERMS, p.MAN_FORM_ID)Con ON tmp.FORM_NAME = Con.Bargain";
                 lst = context.Database.SqlQuery<PURCHASE_ORDER>(sql, new SqlParameter("projectid", projectid)).ToList();
             }
             return lst;
