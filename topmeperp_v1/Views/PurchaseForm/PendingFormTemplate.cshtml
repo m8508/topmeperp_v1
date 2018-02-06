@@ -237,6 +237,11 @@
             return false;
         }
         if (method2 == "P") {
+            if ($("#paymenttype").val() == "")
+            {
+                alert("請選取按期估驗的合約類型，例如:連工帶料");
+                return false;
+            }
             alert("您選擇的付款比例與票期為按期估驗");
         }
         if (method2 == "S") {
