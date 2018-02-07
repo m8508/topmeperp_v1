@@ -1,4 +1,4 @@
-﻿@model IEnumerable<topmeperp.Models.FIN_BANK_ACCOUNT>
+﻿@model IEnumerable<topmeperp.Models.FIN_BANK_LOAN>
 @{
     ViewBag.Title = "財務管理-貸款管理";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
@@ -10,29 +10,42 @@
             <form name="formUpdateBankAccount" id="formUpdateBankAccount" action="updateBankAccount" method="Post">
                 <!--工具列-->
                 <div class="row">
-                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#bankAccountInfo">新增</button>
-                    <button type="submit" class="btn btn-warning">修改現額</button>
+                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#bankLoanInfo">新增</button>
                 </div>
                 <div class="container">
                     <table class="table">
                         <thead>
-                            <tr><th>No</th><th>銀行代號</th><th>銀行名稱</th><th>分行名稱</th><th>帳戶名稱</th><th>帳號</th><th>現額</th><th>更新時間</th></tr>
+                            <tr>
+                                <th>No</th>
+                                <th>明細</th>
+                                <th>銀行代號</th>
+                                <th>銀行名稱</th>
+                                <th>帳戶名稱</th>
+                                <th colspan="2" style="text-align:center">貸款期間</th>
+                                <th>額度</th>
+                                <th>期數</th>
+                                <th>備註</th>
+                                <th>修改日期</th>
+                            </tr>
                         </thead>
                         <tbody>
                             @foreach (var item in Model)
                             {
                                 <tr>
                                     <td>
-                                        @item.BANK_ACCOUNT_ID
-                                        <input type="hidden" id="BankAccountId" name="BankAccountId" value="@item.BANK_ACCOUNT_ID" />
+                                        <a href="#" onclick="editBankLoan('@item.BL_ID')"> @item.BL_ID</a>
+                                        <input type="hidden" id="BL_ID" name="BL_ID" value="@item.BL_ID" />
                                     </td>
+                                    <td><a href="#">明細</a></td>
                                     <td>@item.BANK_ID</td>
                                     <td>@item.BANK_NAME</td>
-                                    <td>@item.BRANCH_NAME</td>
                                     <td>@item.ACCOUNT_NAME</td>
-                                    <td>@item.ACCOUNT_NO</td>
-                                    <td><input type="text" class="form-control" id="curAmount" name="curAmount" value="@String.Format("{0:n0}",item.CUR_AMOUNT)"  autocomplete="off"/></td>
-                                    <td><input type="text" class="form-control" id="curDate" name="curDate" value="@item.CUR_DATE"  autocomplete="off"/></td>
+                                    <td>@string.Format("{0:yyyy/MM/dd}", item.START_DATE)</td>
+                                    <td>@string.Format("{0:yyyy/MM/dd}", item.DUE_DATE)</td>
+                                    <td>@string.Format("{0:N0}", item.QUOTA)</td>
+                                    <td>@item.PERIOD_COUNT</td>
+                                    <td>@item.REMARK</td>
+                                    <td>@item.MODIFY_DATE</td>
                                 </tr>
                             }
                         </tbody>
@@ -46,29 +59,29 @@
 </div>
 
 <!-- Modal :對話框-->
-<div class="modal fade" id="bankAccountInfo" role="dialog">
-    <div class="modal-dialog" id="projectItemDialog">
+<div class="modal fade" id="bankLoanInfo" role="dialog">
+    <div class="modal-dialog" id="bankLoanInfoDialog">
         <!-- Modal content-->
-        @Html.Partial("_BankAccountInfo");
+        @Html.Partial("_BankLoanInfo");
     </div>
 </div>
 
 <script type="text/javascript">
     $(function () {
-        $('#CUR_DATE').datetimepicker({
+        $('#START_DATE').datetimepicker({
             format: 'YYYY/MM/DD',
             locale: 'zh-tw'
         });
-        $("input[id='curDate']").datetimepicker({
+        $('#DUE_DATE').datetimepicker({
             format: 'YYYY/MM/DD',
             locale: 'zh-tw'
         });
     });
-
-    //增加銀行帳戶資料
+    //管理貸還款資料
     $("#submit").click(function () {
-        var s = $('#formAddBankAccunt').serialize();
-        var URLs = "/BankInfo/addBankAccount";
+        alert("submit click!!");
+        var s = $('#formAddBankLoan').serialize();
+        var URLs = "/BankInfo/addBankLoan";
         $.ajax({
             url: URLs,
             data: s,
@@ -82,4 +95,7 @@
             }
         });
     });
+    function editBankLoan(id) {
+        alert("edit:" + id);
+    }
 </script>
