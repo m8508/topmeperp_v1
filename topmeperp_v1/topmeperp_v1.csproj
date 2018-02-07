@@ -1024,7 +1024,6 @@
     <Content Include="Views\BankInfo\Index.cshtml" />
     <Content Include="Views\BankInfo\_BankAccountInfo.cshtml" />
     <Content Include="Views\BankInfo\BankLoanList.cshtml" />
-    <Content Include="Views\BankInfo\_BankLoadRecord.cshtml" />
     <Content Include="Views\BankInfo\_BankLoanInfo.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
