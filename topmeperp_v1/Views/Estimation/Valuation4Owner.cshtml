@@ -14,10 +14,10 @@
             <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;width:250px;" readonly="readonly" />
         </div>
         <div class="col-md-2 form-group">
-            <label for="id">預付款% : </label><input id="advance_ratio" name="advance_ratio" type="text" value="@ViewBag.advance" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            <label for="id">預付款% : </label><input id="advance_ratio" name="advance_ratio" type="text" value="@String.Format("{0:#,##0.#}",ViewBag.advance)" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
         </div>
         <div class="col-md-2 form-group">
-            <label for="id">保留款% :</label><input id="retention_ratio" name="retention_ratio" type="text" value="@ViewBag.retention" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            <label for="id">保留款% :</label><input id="retention_ratio" name="retention_ratio" type="text" value="@String.Format("{0:#,##0.#}",ViewBag.retention)" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
         </div>
         <div class="col-md-2" style="padding-top:22px;">
             <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#VAItemInfo" onclick="getVAItem('@ViewBag.projectid')">新增計價資料</button>
@@ -25,6 +25,16 @@
         <div class="col-md-1" style="padding-top:22px;">
             <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
         </div>
+        <!--
+        <div class="col-md-1">
+            <div id="divProcessing">
+                <img src="~/Content/ajax-loader.gif">
+            </div>
+        </div>
+        <div class="col-md-1" style="padding-top:22px;">
+            <button class="btn btn-link" data-toggle="modal" data-target="#formUploadVA" type="button">上傳檔案</button>
+        </div>
+            -->
     </div>
 </div>
 @if (ViewBag.VACount > 1)
@@ -184,8 +194,10 @@ else
         @Html.Partial("_PaymentInfo");
     </div>
 </div>
+
 <script type="text/javascript">
     $(document).ready(function () {
+        $("#divProcessing").hide();
         $(function () {
             $('#payment_date').datetimepicker({
                 format: 'YYYY/MM/DD'
@@ -225,7 +237,6 @@ else
     }
 
     $("#saveVA").click(function () {
-
         var URLs = "/Estimation/addVAItem";
         $.ajax({
             url: URLs,

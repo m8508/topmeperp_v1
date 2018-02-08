@@ -1,28 +1,28 @@
 ﻿
 @{
-    ViewBag.Title = "會計稽核作業";
+    ViewBag.Title = "會計稽核作業:";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 
+<h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
 <div class="jumbotron">
-    <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
     <form name="formSearch" id="formSearch" action="SearchForm4Journal" method="Post" class="form-inline">
         <div class="row">
-            <div class='col-md-6 form-group' style="padding-top:10px">
+            <div class='col-md-6 form-group'>
                 <label for="occurred_date">發生年月 : </label>
                 <input id="occurred_date" name="occurred_date" class="form-control" />
             </div>
-            <div class='col-md-6 form-group' style="padding-top:10px">
+            <div class='col-md-6 form-group'>
                 <label for="expid">公司營業費用單編號 :</label>
                 <input id="expid" name="expid" type="text" value="" class="form-control" />
             </div>
         </div>
         <div class="row">
-            <div class='col-md-6 form-group' style="padding-top:10px">
+            <div class='col-md-6 form-group' style="padding-top:5px">
                 <label for="subjectname">項目名稱 : </label>
                 <input id="subjectname" name="subjectname" class="form-control" />
             </div>
-            <div class="col-md-3 form-group" style="padding-top:10px">
+            <div class="col-md-3 form-group" style="padding-top:5px">
                 <input type="hidden" value="30" id="status" name="status" />
                 <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
             </div>

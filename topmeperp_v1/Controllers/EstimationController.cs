@@ -2145,20 +2145,22 @@ namespace topmeperp.Controllers
             PaymentTermsFunction payment = service.getPaymentTerm(id, id);
             if (payment.PAYMENT_RETENTION_RATIO != null)
             {
-                ViewBag.retention = payment.PAYMENT_RETENTION_RATIO;
+                ViewBag.retention = (null == payment.PAYMENT_RETENTION_RATIO ? 0 : payment.PAYMENT_RETENTION_RATIO);
             }
             else if (payment.USANCE_RETENTION_RATIO != null)
             {
-                ViewBag.retention = payment.USANCE_RETENTION_RATIO;
+                ViewBag.retention = (null == payment.USANCE_RETENTION_RATIO ? 0 : payment.USANCE_RETENTION_RATIO);
             }
+            else { ViewBag.retention = 0; }
             if (payment.PAYMENT_ADVANCE_RATIO != null)
             {
-                ViewBag.advance = payment.PAYMENT_ADVANCE_RATIO;
+                ViewBag.advance = (null == payment.PAYMENT_ADVANCE_RATIO ? 0 : payment.PAYMENT_ADVANCE_RATIO);
             }
             else if (payment.USANCE_ADVANCE_RATIO != null)
             {
-                ViewBag.advance = payment.USANCE_ADVANCE_RATIO;
+                ViewBag.advance = (null == payment.USANCE_ADVANCE_RATIO ? 0 : payment.USANCE_ADVANCE_RATIO);
             }
+            else { ViewBag.advance = 0; }
             RevenueFromOwner va = service.getVACount4OwnerById(id);
             ViewBag.VACount = va.isVA;
             if (va.isVA > 1)
