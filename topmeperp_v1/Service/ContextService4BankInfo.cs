@@ -74,5 +74,43 @@ namespace topmeperp.Service
                 }
             }
         }
+        //取得貸款帳戶資料
+        public List<FIN_BANK_LOAN> getAllBankLoan()
+        {
+            List<FIN_BANK_LOAN> lstBankLoan = null;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    lstBankLoan = context.FIN_BANK_LOAN.ToList();
+                    logger.Info("new bank loan records=" + lstBankLoan.Count);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.Message + ":StackTrace=" + ex.StackTrace);
+                }
+            }
+            return lstBankLoan;
+        }
+        //取得貸款帳戶資料
+        public int addBankLoan(FIN_BANK_LOAN bankloan)
+        {
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.FIN_BANK_LOAN.Add(bankloan);
+                    i = context.SaveChanges();
+                    logger.Info("new bank loan record=" + bankloan.ACCOUNT_NAME);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.Message + ":StackTrace=" + ex.StackTrace);
+                }
+            }
+            logger.Info("add bankloan count =" + i);
+            return i;
+        }
     }
 }

@@ -80,5 +80,51 @@ namespace topmeperp.Controllers
             service.updateBankAccount(lstCurAmt);
             Response.Redirect("Index");
         }
+        /// <summary>
+        /// 取得貸款銀行帳戶資料
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult BankLoanList()
+        {
+            ContextService4BankInfo service = new ContextService4BankInfo();
+            List<FIN_BANK_LOAN> lstBankLoan = service.getAllBankLoan();
+            return View(lstBankLoan);
+        }
+        /// <summary>
+        /// 增加貸款銀行基本資料
+        /// </summary>
+        /// <returns></returns>
+        public string addBankLoan(FormCollection f)
+        {
+            SYS_USER u = (SYS_USER)Session["user"];
+            FIN_BANK_LOAN bankloanInfo = new FIN_BANK_LOAN();
+            bankloanInfo.BANK_ID = Request["BANK_ID"];
+            bankloanInfo.BANK_NAME = Request["BANK_NAME"];
+            //bankloanInfo.BRANCH_NAME = Request["BRANCH_NAME"];
+            bankloanInfo.ACCOUNT_NAME = Request["ACCOUNT_NAME"];
+            //bankloanInfo.ACCOUNT_NO = Request["ACCOUNT_NO"];
+
+            bankloanInfo.START_DATE = DateTime.Parse(Request["START_DATE"]);
+            bankloanInfo.DUE_DATE = DateTime.Parse(Request["DUE_DATE"]);
+
+            bankloanInfo.PERIOD_COUNT = int.Parse(Request["PERIOD_COUNT"]);
+            decimal quota = decimal.Parse(Request["QUOTA"]);
+            bankloanInfo.QUOTA = quota;
+            bankloanInfo.REMARK = Request["REMARK"];
+            bankloanInfo.ACCOUNT_NAME = Request["ACCOUNT_NAME"];
+
+            bankloanInfo.CREATE_ID = u.USER_ID;
+            bankloanInfo.CREATE_DATE = DateTime.Now;
+            ContextService4BankInfo service = new ContextService4BankInfo();
+            int i = service.addBankLoan(bankloanInfo);
+            if (i > 0)
+            {
+                return "更新成功(" + bankloanInfo.BL_ID + ")!!";
+            }
+            else
+            {
+                return "更新失敗!!";
+            }
+        }
     }
 }
