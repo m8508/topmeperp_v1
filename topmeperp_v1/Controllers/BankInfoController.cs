@@ -126,5 +126,17 @@ namespace topmeperp.Controllers
                 return "更新失敗!!";
             }
         }
+        /// <summary>
+        /// 貸還款交易維護
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult BankLoanTransaction()
+        {
+            string blid = Request["BL_ID"];
+            ContextService4BankInfo service = new ContextService4BankInfo();
+            BankLoanInfo loanInfo = service.getBankLoan(blid);
+            logger.Debug("Bank Loan Transaction:" + blid);
+            return View(loanInfo);
+        }
     }
 }
