@@ -93,6 +93,25 @@ namespace topmeperp.Service
             return lstBankLoan;
         }
         //取得貸款帳戶資料
+        public BankLoanInfo getBankLoan(string bl_id)
+        {
+            BankLoanInfo item = new BankLoanInfo();
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    logger.Info("get bank transaction BL_ID=" + bl_id);
+                    item.LoanInfo = context.FIN_BANK_LOAN.Find(long.Parse(bl_id));
+                    item.LoanTransaction = context.FIN_LOAN_TRANACTION.Where(b => b.BL_ID == long.Parse(bl_id)).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.Message + ":StackTrace=" + ex.StackTrace);
+                }
+            }
+            return item;
+        }
+        //取得貸款帳戶資料
         public int addBankLoan(FIN_BANK_LOAN bankloan)
         {
             int i = 0;
