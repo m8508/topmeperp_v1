@@ -51,14 +51,7 @@
             <div class="form-group">
                 <label for="inputitem" class="col-md-2 control-label">採購項目</label>
                 <div class="col-md-4">
-                    @if (Model.planForm.FORM_NAME != null)
-                    {
-                        <input type="text" class="form-control" name="formname" id="formname" value="@Model.planForm.FORM_NAME" readonly="readonly">
-                    }
-                    else
-                    {
-                        <input type="text" id="formname" name="formname" class="form-control" />
-                    }
+                    <input type="text" class="form-control" name="formname" id="formname" value="@Model.planForm.FORM_NAME">
                 </div>
             </div>
             <div class="form-group">
@@ -205,14 +198,14 @@
                             }
                             else
                             {
-                            if (@item.ITEM_UNIT_PRICE != null)
-                            {
-                                <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="@item.ITEM_UNIT_PRICE" style="width:100px">
-                            }
-                            else
-                            {
-                                <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="" style="width:100px">
-                            }
+                                if (@item.ITEM_UNIT_PRICE != null)
+                                {
+                                    <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="@item.ITEM_UNIT_PRICE" style="width:100px">
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="" style="width:100px">
+                                }
                             }
                         </td>
                         <td></td>
@@ -225,7 +218,7 @@
                             {
                                 @Html.TextBox("remark", @item.ITEM_REMARK, new { style = "width:500px", @class = "form-control" })
                             }
-                        </td>                       
+                        </td>
                         <td><input type="hidden" name="plan_item_id" id="plan_item_id" value="@item.PLAN_ITEM_ID"></td>
                     </tr>
                 }
@@ -265,7 +258,7 @@
     })
 </script>
 <script type="text/javascript">
-     ///Auto Complete 公司名稱
+    ///Auto Complete 公司名稱
     $('#supplier').typeahead({
         source: function (query, process) {
             return $.ajax({

@@ -606,6 +606,7 @@ namespace topmeperp.Models
         public Nullable<decimal> AR_UNPAID { get; set; }
         public Nullable<decimal> AR_PAID { get; set; }
         public string RECORDED_DATE { get; set; }
+        public string fileFound { get; set; }
     }
     public class PaymentTermsFunction : PLAN_PAYMENT_TERMS
     {

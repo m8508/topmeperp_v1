@@ -1,6 +1,6 @@
 ﻿<!-- Modal content-->
 <div class="modal-content">
-    <form id="formVAItem" name="formVAItem" action="addVAItem" method="post">
+    <form id="formVAItem" name="formVAItem" action="/Estimation/addVAItem" method="post" enctype="multipart/form-data">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal">&times;</button>
             <h4 class="modal-title">業主計價資料</h4>
@@ -24,11 +24,12 @@
             <div id="taxAmount" class="row form-group"><div class="col-md-4">營業稅額</div><div class="col-md-8"><input type="text" id="tax_amount" name="tax_amount" class="form-control" /></div></div>
             <div id="advanceRefund" class="row form-group"><div class="col-md-4">預付扣回</div><div class="col-md-8"><input type="text" id="advance_refund" name="advance_refund" class="form-control" /></div></div>
             <div id="retention" class="row form-group"><div class="col-md-4">保留款</div><div class="col-md-8"><input type="text" id="retention_amount" name="retention_amount" class="form-control" /></div></div>
-            <div id="fileValuation" class="row form-group"><div class="col-md-4">上傳計價檔案</div><div class="col-md-8"><input type="file" id="fileValuation" name="fileValuation" class="form-control" /></div></div>
+            <div class="row form-group"><div class="col-md-4">上傳計價檔案</div><input type="file" id ="file" name="file" />
+            </div>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-primary" data-dismiss="modal">關閉</button>
-            <button type="submit" class="btn btn-default" data-dismiss="modal" id="saveVA">儲存</button>
+            <input type="button" class="btn btn-default" data-dismiss="modal" value="儲存" onclick="saveVA()">
         </div>
     </form>
 </div>

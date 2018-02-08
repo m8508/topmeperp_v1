@@ -5253,6 +5253,21 @@ namespace topmeperp.Service
             }
             return form.VA_FORM_ID;
         }
+        public string addVAFile(string projectid, string keyName, string fileName, string fileType, string path, string createId)
+        {
+            //寫入檔案相關資料
+            using (var context = new topmepEntities())
+            {
+                string sql = "INSERT INTO TND_FILE (PROJECT_ID, FILE_UPLOAD_NAME, FILE_ACTURE_NAME, "
+                    + "FILE_TYPE, FILE_LOCATIOM, CREATE_ID) "
+                    + "VALUES ('" + projectid + "', '" + keyName + "', '" + fileName + "', '" + fileType + "', '" + path + "', '" + createId + "') ";
+                logger.Info("sql =" + sql);
+                var parameters = new List<SqlParameter>();
+                i = context.Database.ExecuteSqlCommand(sql);
+                return keyName;
+            }
+        }
+        
         public RevenueFromOwner getVAPayItemById(string formid)
         {
             RevenueFromOwner payment = null;
@@ -5294,12 +5309,13 @@ namespace topmeperp.Service
             List<RevenueFromOwner> VAItem = new List<RevenueFromOwner>();
             using (var context = new topmepEntities())
             {
-                VAItem = context.Database.SqlQuery<RevenueFromOwner>("SELECT vf.*, account.AR_PAID, ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + ISNULL(vf.TAX_AMOUNT, 0) " +
+                VAItem = context.Database.SqlQuery<RevenueFromOwner>("SELECT vf.*, account.AR_PAID, f.FILE_LOCATIOM AS fileFound, ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + ISNULL(vf.TAX_AMOUNT, 0) " +
                     "- ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) - ISNULL(vf.OTHER_PAYMENT, 0) - ISNULL(vf.REPAYMENT, 0) AS AR, " +
                     "ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + ISNULL(vf.TAX_AMOUNT, 0) - ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) " +
                     "- ISNULL(vf.OTHER_PAYMENT, 0) - ISNULL(vf.REPAYMENT, 0) - account.AR_PAID AS AR_UNPAID, " +
                     "ROW_NUMBER() OVER(ORDER BY vf.CREATE_DATE) AS NO FROM PLAN_VALUATION_FORM vf LEFT JOIN (SELECT pa.ACCOUNT_FORM_ID, SUM(pa.AMOUNT) AS AR_PAID FROM PLAN_ACCOUNT pa " +
-                    "WHERE pa.ACCOUNT_TYPE = 'R' AND pa.PROJECT_ID =@projectid AND pa.STATUS = 10 GROUP BY pa.ACCOUNT_FORM_ID)account ON vf.VA_FORM_ID = account.ACCOUNT_FORM_ID WHERE vf.PROJECT_ID =@projectid "
+                    "WHERE pa.ACCOUNT_TYPE = 'R' AND pa.PROJECT_ID =@projectid AND pa.STATUS = 10 GROUP BY pa.ACCOUNT_FORM_ID)account ON vf.VA_FORM_ID = account.ACCOUNT_FORM_ID " +
+                    "LEFT JOIN TND_FILE f ON vf.VA_FORM_ID = f.FILE_UPLOAD_NAME WHERE vf.PROJECT_ID =@projectid "
                    , new SqlParameter("projectid", projectid)).ToList();
             }
             return VAItem;

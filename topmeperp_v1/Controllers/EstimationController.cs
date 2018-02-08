@@ -2207,55 +2207,55 @@ namespace topmeperp.Controllers
             return itemJson;
         }
         //新增業主計價資料
-        public String addVAItem(FormCollection form)
+        public String addVAItem(HttpPostedFileBase file)
         {
-            logger.Info("form:" + form.Count);
+            //logger.Info("form:" + form.Count);
             string msg = "新增計價資料成功!!";
             string Remsg = "修改計價資料成功!!";
             PLAN_VALUATION_FORM item = new PLAN_VALUATION_FORM();
-            item.PROJECT_ID = form["projectid"];
-            if (form["formid"] != "")
+            item.PROJECT_ID = Request["projectid"];
+            if (Request["formid"] != "")
             {
-                item.VA_FORM_ID = form["formid"];
+                item.VA_FORM_ID = Request["formid"];
             }
-            if (form["va_amount"] != "")
+            if (Request["va_amount"] != "")
             {
-                item.VALUATION_AMOUNT = decimal.Parse(form["va_amount"]);
+                item.VALUATION_AMOUNT = decimal.Parse(Request["va_amount"]);
             }
-            if (form["advance_payment"] != "")
+            if (Request["advance_payment"] != "")
             {
-                item.ADVANCE_PAYMENT = decimal.Parse(form["advance_payment"]);
+                item.ADVANCE_PAYMENT = decimal.Parse(Request["advance_payment"]);
             }
-            if (form["other_payment"] != "")
+            if (Request["other_payment"] != "")
             {
-                item.OTHER_PAYMENT = decimal.Parse(form["other_payment"]);
+                item.OTHER_PAYMENT = decimal.Parse(Request["other_payment"]);
             }
-            item.OTHER_PAYMENT_REMARK = form["other_payment_remark"];
-            if (form["repayment"] != "")
+            item.OTHER_PAYMENT_REMARK = Request["other_payment_remark"];
+            if (Request["repayment"] != "")
             {
-                item.REPAYMENT = decimal.Parse(form["repayment"]);
+                item.REPAYMENT = decimal.Parse(Request["repayment"]);
             }
-            if (form["tax_ratio"] != "")
+            if (Request["tax_ratio"] != "")
             {
-                item.TAX_RATIO = decimal.Parse(form["tax_ratio"]);
+                item.TAX_RATIO = decimal.Parse(Request["tax_ratio"]);
             }
-            if (form["tax_amount"] != "")
+            if (Request["tax_amount"] != "")
             {
-                item.TAX_AMOUNT = decimal.Parse(form["tax_amount"]);
+                item.TAX_AMOUNT = decimal.Parse(Request["tax_amount"]);
             }
-            if (form["advance_refund"] != "")
+            if (Request["advance_refund"] != "")
             {
-                item.ADVANCE_PAYMENT_REFUND = decimal.Parse(form["advance_refund"]);
+                item.ADVANCE_PAYMENT_REFUND = decimal.Parse(Request["advance_refund"]);
             }
-            if (form["retention_amount"] != "")
+            if (Request["retention_amount"] != "")
             {
-                item.RETENTION_PAYMENT = decimal.Parse(form["retention_amount"]);
+                item.RETENTION_PAYMENT = decimal.Parse(Request["retention_amount"]);
             }
-            item.REMARK = form["remark"];
+            item.REMARK = Request["remark"];
             UserService us = new UserService();
             SYS_USER u = (SYS_USER)Session["user"];
             SYS_USER uInfo = us.getUserInfo(u.USER_ID);
-            if (null == form["formid"] || form["formid"] == "")
+            if (null == Request["formid"] || Request["formid"] == "")
             {
                 item.CREATE_DATE = DateTime.Now;
                 item.CREATE_ID = uInfo.USER_ID;
@@ -2264,12 +2264,43 @@ namespace topmeperp.Controllers
             else
             {
                 item.MODIFY_DATE = DateTime.Now;
-                item.CREATE_DATE = Convert.ToDateTime(form.Get("create_date"));
-                item.CREATE_ID = form["create_id"];
-                item.STATUS = int.Parse(form["status"]);
+                item.CREATE_DATE = Convert.ToDateTime(Request["create_date"]);
+                item.CREATE_ID = Request["create_id"];
+                item.STATUS = int.Parse(Request["status"]);
             }
-            string fid = service.refreshVA(form["formid"], item);
-            if (null == form["formid"] || form["formid"] == "")
+            string fid = service.refreshVA(Request["formid"], item);
+            //若使用者有上傳計價附檔，則增加檔案資料
+            if (null != file && file.ContentLength != 0)
+            {
+                //TND_FILE saveF = new TND_FILE();
+                //2.解析檔案
+                logger.Info("Parser file data:" + file.FileName);
+                //2.1 設定檔案名稱,實體位址,附檔名
+                string projectid = Request["projectid"];
+                string keyName = null;
+                if (null != Request["formid"] && Request["formid"] != "")
+                {
+                    keyName = Request["formid"];
+                }
+                else
+                {
+                    keyName = fid;
+                }
+                logger.Info("file upload namme =" + keyName);
+                var fileName = Path.GetFileName(file.FileName);
+                var path = Path.Combine(ContextService.strUploadPath + "/" + Request["projectid"], fileName);
+                //saveF.FILE_ACTURE_NAME = fileName;
+                var fileType = Path.GetExtension(file.FileName);
+                //f.FILE_LOCATIOM = path;
+                DateTime createDate = DateTime.Now;
+                string createId = uInfo.USER_ID;
+                string k = service.addVAFile(projectid, keyName, fileName, fileType, path, createId);
+                //int j = service.refreshVAFile(saveF);
+                //2.2 將上傳檔案存檔
+                logger.Info("save upload file:" + path);
+                file.SaveAs(path);
+            }
+            if (null == Request["formid"] || Request["formid"] == "")
             {
                 RevenueFromOwner payment = service.getVAPayItemById(fid);
                 decimal retention = decimal.Parse(payment.RETENTION_PAYMENT.ToString());
@@ -2278,15 +2309,15 @@ namespace topmeperp.Controllers
                 decimal tax = decimal.Parse(payment.TAX_AMOUNT.ToString());
                 int i = service.refreshVAItem(fid, retention, advanceRefund, tax);
             }
-            else if (decimal.Parse(form["advance_refund"]) != Math.Round(decimal.Parse(form["va_amount"]) * decimal.Parse(form["advanceRatio"]), 0))
+            else if (decimal.Parse(Request["advance_refund"]) != Math.Round(decimal.Parse(Request["va_amount"]) * decimal.Parse(Request["advanceRatio"]), 0))
             {
-                decimal advanceRefund = decimal.Parse(form["advance_refund"]);
-                decimal retention = decimal.Parse(form["retention_amount"]);
-                decimal tax = Math.Round((decimal.Parse(form["va_amount"]) - decimal.Parse(form["advance_refund"])) * decimal.Parse(form["tax_ratio"]) / 100, 0);
+                decimal advanceRefund = decimal.Parse(Request["advance_refund"]);
+                decimal retention = decimal.Parse(Request["retention_amount"]);
+                decimal tax = Math.Round((decimal.Parse(Request["va_amount"]) - decimal.Parse(Request["advance_refund"])) * decimal.Parse(Request["tax_ratio"]) / 100, 0);
                 int i = service.refreshVAItem(fid, retention, advanceRefund, tax);
             }
             if (fid == "" || null == fid) { msg = service.message; }
-            if (form["formid"] != "")
+            if (Request["formid"] != "")
             {
                 return Remsg;
             }
@@ -2336,6 +2367,18 @@ namespace topmeperp.Controllers
             int i = service.addPlanAccount(item);
             if (i == 0) { msg = service.message; }
             return msg;
+        }
+        /// <summary>
+        ///  業主計價附檔
+        /// </summary>
+        public ActionResult downLoadVAFile()
+        {
+            //我要下載的檔案位置與檔名
+            string filepath = Request["path"];
+            //讀成串流
+            Stream iStream = new FileStream(filepath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            //回傳檔案
+            return File(iStream, filepath);
         }
     }
 }

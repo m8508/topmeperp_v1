@@ -55,7 +55,6 @@ namespace topmeperp.Models
         public virtual DbSet<SYS_PRIVILEGE> SYS_PRIVILEGE { get; set; }
         public virtual DbSet<SYS_ROLE> SYS_ROLE { get; set; }
         public virtual DbSet<SYS_USER> SYS_USER { get; set; }
-        public virtual DbSet<TND_FILE> TND_FILE { get; set; }
         public virtual DbSet<TND_MAP_DEVICE> TND_MAP_DEVICE { get; set; }
         public virtual DbSet<TND_MAP_FP> TND_MAP_FP { get; set; }
         public virtual DbSet<TND_MAP_FW> TND_MAP_FW { get; set; }
@@ -83,5 +82,6 @@ namespace topmeperp.Models
         public virtual DbSet<PLAN_VALUATION_FORM> PLAN_VALUATION_FORM { get; set; }
         public virtual DbSet<PLAN_ACCOUNT> PLAN_ACCOUNT { get; set; }
         public virtual DbSet<PLAN_ESTIMATION_FORM> PLAN_ESTIMATION_FORM { get; set; }
+        public virtual DbSet<TND_FILE> TND_FILE { get; set; }
     }
 }

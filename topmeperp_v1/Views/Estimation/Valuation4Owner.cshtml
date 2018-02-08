@@ -39,38 +39,38 @@
 </div>
 @if (ViewBag.VACount > 1)
 {
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>合約金額</th>
-            <th>計價總額</th>
-            <th>計價餘額</th>
-            <th>預付款餘額</th>
-            <th>保留款總額</th>
-            <th>營業稅總額</th>
-            <th>實付總額</th>
-            <th>應付未付</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>@String.Format("{0:#,##0.#}", ViewBag.contractAtm)</td>
-            <td>@String.Format("{0:#,##0.#}", ViewBag.VAAtm)</td>
-            <td>@String.Format("{0:#,##0.#}", ViewBag.VABalance)</td>
-            @if (ViewBag.advancePaymentBalance >= 0)
-            {
-                <td>@String.Format("{0:#,##0.#}", ViewBag.advancePaymentBalance)</td>
-            }
-            else
-            {
-                <td><span style="color: red; font-size: 15px;">@String.Format("{0:#,##0.#}", ViewBag.advancePaymentBalance)</span></td>
-            }
-            <td>@String.Format("{0:#,##0.#}", ViewBag.totalRetention)</td>
-            <td>@String.Format("{0:#,##0.#}", ViewBag.totalTax)</td>
-            <td>@String.Format("{0:#,##0.#}", ViewBag.AR)</td>
-            <td>@String.Format("{0:#,##0.#}", ViewBag.ARUnPaid)</td>
-        </tr>
-</table>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>合約金額</th>
+                <th>計價總額</th>
+                <th>計價餘額</th>
+                <th>預付款餘額</th>
+                <th>保留款總額</th>
+                <th>營業稅總額</th>
+                <th>實付總額</th>
+                <th>應付未付</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@String.Format("{0:#,##0.#}", ViewBag.contractAtm)</td>
+                <td>@String.Format("{0:#,##0.#}", ViewBag.VAAtm)</td>
+                <td>@String.Format("{0:#,##0.#}", ViewBag.VABalance)</td>
+                @if (ViewBag.advancePaymentBalance >= 0)
+                {
+                    <td>@String.Format("{0:#,##0.#}", ViewBag.advancePaymentBalance)</td>
+                }
+                else
+                {
+                    <td><span style="color: red; font-size: 15px;">@String.Format("{0:#,##0.#}", ViewBag.advancePaymentBalance)</span></td>
+                }
+                <td>@String.Format("{0:#,##0.#}", ViewBag.totalRetention)</td>
+                <td>@String.Format("{0:#,##0.#}", ViewBag.totalTax)</td>
+                <td>@String.Format("{0:#,##0.#}", ViewBag.AR)</td>
+                <td>@String.Format("{0:#,##0.#}", ViewBag.ARUnPaid)</td>
+            </tr>
+    </table>
 }
 @if (ViewBag.VACount > 1)
 {
@@ -171,7 +171,14 @@
                         <span class="glyphicon glyphicon-usd" aria-hidden="true"></span>
                     </button>
                 </td>
-                <td></td>
+                @if (null != item.fileFound && item.fileFound != "")
+                {
+                    <td><a class="btn btn-link" href="/Estimation/downLoadVAFile?path=@item.fileFound" target="_blank"><span style="color :magenta; font-size: 10px;">下載</span></a></td>
+                }
+                else
+                {
+                    <td>無</td>
+                }
             </tr>
         }
     </table>
@@ -236,23 +243,38 @@ else
         });
     }
 
-    $("#saveVA").click(function () {
-        var URLs = "/Estimation/addVAItem";
-        $.ajax({
-            url: URLs,
-            data: $('#formVAItem').serialize(),
-            type: "POST",
-            dataType: 'text',
-            success: function (msg) {
-                alert(msg);
-                window.location.reload();
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert(thrownError);
-            }
+    function saveVA() {
+        $("#formVAItem").submit(function (e) {
+            var formObj = $(this);
+            var formURL = formObj.attr("action");
+            var formData = new FormData(this);
+            //var URLs = "/Estimation/addVAItem";
+            $.ajax({
+                url: formURL,
+                type: 'POST',
+                data: formData,
+                mimeType: "multipart/form-data",
+                contentType: false,
+                cache: false,
+                processData: false,
+                //url: URLs,
+                //data: $('#formVAItem').serialize(),
+                //type: "POST",
+                //dataType: 'text',
+                success: function (msg) {
+                    alert(msg);
+                    window.location.reload();
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                }
+            });
+            e.preventDefault(); //Prevent Default action. 
+            e.unbind();
         });
-    });
-
+        $("#formVAItem").submit(); //Submit the form
+        // document.forms["formFileUpload"].submit();
+    }
     //由ITEM_NO 取得資料填入表單
     //由ID 取得資料填入表單
     function getVADetail(formid) {
