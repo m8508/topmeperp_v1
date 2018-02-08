@@ -649,6 +649,10 @@
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Content\handsontable\handsontable.css" />
+    <Content Include="Content\handsontable\handsontable.full.css" />
+    <Content Include="Content\handsontable\handsontable.full.min.css" />
+    <Content Include="Content\handsontable\handsontable.min.css" />
     <Content Include="Content\PagedList.css" />
     <Content Include="Content\Site.css" />
     <Content Include="Content\themes\base\images\ui-icons_444444_256x240.png" />
@@ -784,6 +788,10 @@
     <Content Include="Content\bootstrap-theme.min.css.map" />
     <Content Include="Content\bootstrap-theme.css.map" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
+    <Content Include="Scripts\handsontable\handsontable.full.js" />
+    <Content Include="Scripts\handsontable\handsontable.full.min.js" />
+    <Content Include="Scripts\handsontable\handsontable.js" />
+    <Content Include="Scripts\handsontable\handsontable.min.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
     <Content Include="Scripts\jquery-3.3.1.min.js" />
     <Content Include="Scripts\jquery-3.3.1.slim.js" />
