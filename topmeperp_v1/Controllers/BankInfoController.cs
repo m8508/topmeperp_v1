@@ -69,7 +69,7 @@ namespace topmeperp.Controllers
             {
                 FIN_BANK_ACCOUNT curAmt = new FIN_BANK_ACCOUNT();
                 curAmt.BANK_ACCOUNT_ID = long.Parse(acctId[i]);
-                curAmt.CUR_AMOUNT= decimal.Parse(amt[i]);
+                curAmt.CUR_AMOUNT = decimal.Parse(amt[i]);
                 curAmt.CUR_DATE = DateTime.Parse(curDate[i]);
                 curAmt.MODIFY_ID = u.USER_ID;
                 curAmt.MODIFY_DATE = DateTime.Now;
@@ -87,7 +87,7 @@ namespace topmeperp.Controllers
         public ActionResult BankLoanList()
         {
             ContextService4BankInfo service = new ContextService4BankInfo();
-            List<FIN_BANK_LOAN> lstBankLoan = service.getAllBankLoan();
+            List<BankLoanInfoExt> lstBankLoan = service.getAllBankLoan();
             return View(lstBankLoan);
         }
         /// <summary>
@@ -137,6 +137,73 @@ namespace topmeperp.Controllers
             BankLoanInfo loanInfo = service.getBankLoan(blid);
             logger.Debug("Bank Loan Transaction:" + blid);
             return View(loanInfo);
+        }
+        /// <summary>
+        /// 增加借還款紀錄
+        /// </summary>
+        public void addBankLoanTransaction()
+        {
+            logger.Info("bl_id=" + Request["bl_id"]);
+            long blid = long.Parse(Request["bl_id"]);
+            int period = int.Parse(Request["period"]);
+            string[] formKeys = Request.Form.AllKeys;
+            List<FIN_LOAN_TRANACTION> lstLoanTransaction = new List<FIN_LOAN_TRANACTION>();
+            List<string> lstFormKey = new List<string>();
+            for (int i = 0; i < formKeys.Length; i++)
+            {
+                logger.Debug("key=" + formKeys[i]);
+                if (formKeys[i].StartsWith("EVENT_DATE"))
+                {
+                    lstFormKey.Add(formKeys[i]);
+                }
+            }
+            //處理借款紀錄
+            SYS_USER u = (SYS_USER)Session["user"];
+            foreach (string key in lstFormKey)
+            {
+                string[] keyAry = key.Split('.');
+                //借款記錄
+                if (Request["LOAN_AMOUNT." + keyAry[1]].Trim() != "")
+                {
+                    FIN_LOAN_TRANACTION loanTransaction = new FIN_LOAN_TRANACTION();
+                    loanTransaction.BL_ID = blid;
+                    loanTransaction.PERIOD = period + 1;
+                    loanTransaction.EVENT_DATE = DateTime.Parse(Request["EVENT_DATE." + keyAry[1]]);
+                    loanTransaction.TRANSACTION_TYPE = -1;
+                    loanTransaction.AMOUNT = decimal.Parse(Request["LOAN_AMOUNT." + keyAry[1]]);
+                    loanTransaction.REMARK = Request["REMARK." + keyAry[1]].Trim();
+                    logger.Info("Event Date=" + loanTransaction.EVENT_DATE + ",Loan Amount=" + loanTransaction.AMOUNT);
+
+                    loanTransaction.CREATE_ID = u.USER_ID;
+                    loanTransaction.CREATE_DATE = DateTime.Now;
+                    lstLoanTransaction.Add(loanTransaction);
+                    period++;
+                }
+                //還款記錄
+                if (Request["PAYBACK_LOAN_AMOUNT." + keyAry[1]].Trim() != "")
+                {
+                    FIN_LOAN_TRANACTION loanTransaction = new FIN_LOAN_TRANACTION();
+                    loanTransaction.BL_ID = blid;
+                    loanTransaction.PERIOD = period + 1;
+                    loanTransaction.PAYBACK_DATE = DateTime.Parse(Request["EVENT_DATE." + keyAry[1]]);
+                    loanTransaction.TRANSACTION_TYPE = 1;
+                    loanTransaction.AMOUNT = decimal.Parse(Request["PAYBACK_LOAN_AMOUNT." + keyAry[1]]);
+                    loanTransaction.REMARK = Request["REMARK." + keyAry[1]].Trim();
+                    logger.Info("PAYBACK_DATE=" + loanTransaction.PAYBACK_DATE + ",PayBack Amount=" + loanTransaction.AMOUNT);
+
+                    loanTransaction.CREATE_ID = u.USER_ID;
+                    loanTransaction.CREATE_DATE = DateTime.Now;
+                    lstLoanTransaction.Add(loanTransaction);
+                    period++;
+                }
+                if (lstLoanTransaction.Count > 0)
+                {
+                    ContextService4BankInfo service = new ContextService4BankInfo();
+                    service.addBankLoanTransaction(lstLoanTransaction);
+                }
+            }
+
+            Response.Redirect("/BankInfo/BankLoanTransaction?BL_ID=" + Request["bl_id"]);
         }
     }
 }

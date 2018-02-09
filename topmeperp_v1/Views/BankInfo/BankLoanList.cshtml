@@ -1,4 +1,4 @@
-﻿@model IEnumerable<topmeperp.Models.FIN_BANK_LOAN>
+﻿@model IEnumerable<topmeperp.Models.BankLoanInfoExt>
 @{
     ViewBag.Title = "財務管理-貸款管理";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
@@ -23,6 +23,7 @@
                                 <th>帳戶名稱</th>
                                 <th colspan="2" style="text-align:center">貸款期間</th>
                                 <th>額度</th>
+                                <th>剩餘額度</th>
                                 <th>期數</th>
                                 <th>備註</th>
                                 <th>修改日期</th>
@@ -43,6 +44,7 @@
                                     <td>@string.Format("{0:yyyy/MM/dd}", item.START_DATE)</td>
                                     <td>@string.Format("{0:yyyy/MM/dd}", item.DUE_DATE)</td>
                                     <td>@string.Format("{0:N0}", item.QUOTA)</td>
+                                    <td>@string.Format("{0:N0}", item.QUOTA+item.SumTransactionAmount )</td>
                                     <td>@item.PERIOD_COUNT</td>
                                     <td>@item.REMARK</td>
                                     <td>@item.MODIFY_DATE</td>

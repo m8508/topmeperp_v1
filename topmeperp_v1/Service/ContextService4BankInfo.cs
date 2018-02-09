@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
@@ -75,14 +76,16 @@ namespace topmeperp.Service
             }
         }
         //取得貸款帳戶資料
-        public List<FIN_BANK_LOAN> getAllBankLoan()
+        public List<BankLoanInfoExt> getAllBankLoan()
         {
-            List<FIN_BANK_LOAN> lstBankLoan = null;
+            List<BankLoanInfoExt> lstBankLoan = null;
             using (var context = new topmepEntities())
             {
                 try
                 {
-                    lstBankLoan = context.FIN_BANK_LOAN.ToList();
+                    string sql = "SELECT * , (SELECT SUM(TRANSACTION_TYPE * AMOUNT) FROM FIN_LOAN_TRANACTION T WHERE T.BL_ID = B.BL_ID) SumTransactionAmount  FROM FIN_BANK_LOAN B";
+
+                    lstBankLoan = context.Database.SqlQuery<BankLoanInfoExt>(sql).ToList();
                     logger.Info("new bank loan records=" + lstBankLoan.Count);
                 }
                 catch (Exception ex)
@@ -92,7 +95,7 @@ namespace topmeperp.Service
             }
             return lstBankLoan;
         }
-        //取得貸款帳戶資料
+        //取得貸款帳戶交易資料
         public BankLoanInfo getBankLoan(string bl_id)
         {
             BankLoanInfo item = new BankLoanInfo();
@@ -102,7 +105,18 @@ namespace topmeperp.Service
                 {
                     logger.Info("get bank transaction BL_ID=" + bl_id);
                     item.LoanInfo = context.FIN_BANK_LOAN.Find(long.Parse(bl_id));
-                    item.LoanTransaction = context.FIN_LOAN_TRANACTION.Where(b => b.BL_ID == long.Parse(bl_id)).ToList();
+                    long blid = long.Parse(bl_id);
+                    item.LoanTransaction = context.FIN_LOAN_TRANACTION.Where(b => b.BL_ID == blid).ToList();
+                    //取得期數與匯總金額
+                    string sql = "SELECT MAX(ISNULL(PERIOD,0)) CUR_PERIOD,SUM(TRANSACTION_TYPE*AMOUNT) AMOUNT  from FIN_LOAN_TRANACTION WHERE BL_ID=@BL_ID";
+                    Dictionary<string, object> para = new Dictionary<string, object>();
+                    para.Add("BL_ID", blid);
+                    DataSet ds =ExecuteStoreQuery(sql, System.Data.CommandType.Text, para);
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        item.CurPeriod = long.Parse(ds.Tables[0].Rows[0]["CUR_PERIOD"].ToString());
+                        item.SumTransactionAmount = (decimal)ds.Tables[0].Rows[0]["AMOUNT"];
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -111,7 +125,7 @@ namespace topmeperp.Service
             }
             return item;
         }
-        //取得貸款帳戶資料
+        //新增貸款帳戶資料
         public int addBankLoan(FIN_BANK_LOAN bankloan)
         {
             int i = 0;
@@ -129,6 +143,29 @@ namespace topmeperp.Service
                 }
             }
             logger.Info("add bankloan count =" + i);
+            return i;
+        }
+        /// <summary>
+        /// 增加借款還款紀錄
+        /// </summary>
+        /// <param name="loanTransaction"></param>
+        /// <returns></returns>
+        public int addBankLoanTransaction(List<FIN_LOAN_TRANACTION> loanTransaction)
+        {
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.FIN_LOAN_TRANACTION.AddRange(loanTransaction);
+                    i = context.SaveChanges();
+                    logger.Info("new bank loan transaction record=" + loanTransaction.Count);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.Message + ":StackTrace=" + ex.StackTrace);
+                }
+            }
             return i;
         }
     }
