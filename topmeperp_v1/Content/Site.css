@@ -404,3 +404,86 @@ textarea {
     .fixed_headers3 th:nth-child(16) {
         width: 80px; /**合計*/
     }
+
+    /*合約管制表头固定*/
+.fixed_headers4 thead tr {
+    display: block;
+    position: relative;
+}
+
+.fixed_headers4 tbody {
+    display: block;
+    overflow: auto;
+    height: 500px;
+}
+/* 每列宽度
+//每列宽度*/
+.fixed_headers4 td:nth-child(1),
+.fixed_headers4 th:nth-child(1) {
+    width: 50px; /**No. */
+}
+
+.fixed_headers4 td:nth-child(2),
+.fixed_headers4 th:nth-child(2) {
+    width: 200px; /**材料(或工資) */
+}
+
+.fixed_headers4 td:nth-child(3),
+.fixed_headers4 th:nth-child(3) {
+    width: 200px; /**分項名稱 */
+    overflow: auto;
+}
+
+.fixed_headers4 td:nth-child(4),
+.fixed_headers4 th:nth-child(4) {
+    width: 200px; /**廠商詢價單數量 */
+}
+
+.fixed_headers4 td:nth-child(5),
+.fixed_headers4 th:nth-child(5) {
+    width: 100px; /**功能 */
+}
+
+.fixed_headers4 td:nth-child(6),
+.fixed_headers4 th:nth-child(6) {
+    width: 200px; /**連結 */
+}
+
+.fixed_headers4 td:nth-child(7),
+.fixed_headers4 th:nth-child(7) {
+    width: 150px; /**發包廠商 */
+}
+
+.fixed_headers4 td:nth-child(8),
+.fixed_headers4 th:nth-child(8) {
+    width: 150px; /**廠牌*/
+}
+
+.fixed_headers4 td:nth-child(9),
+.fixed_headers4 th:nth-child(9) {
+    width: 80px; /**已發包 */
+}
+
+.fixed_headers4 td:nth-child(10),
+.fixed_headers4 th:nth-child(10) {
+    width: 100px; /**合約已製作 */
+}
+
+.fixed_headers4 td:nth-child(11),
+.fixed_headers4 th:nth-child(11) {
+    width: 150px; /**交期 */
+}
+
+.fixed_headers4 td:nth-child(12),
+.fixed_headers4 th:nth-child(12) {
+    min-width: 100px; /**付款日期已設定*/
+}
+
+.fixed_headers4 td:nth-child(13),
+.fixed_headers4 th:nth-child(13) {
+    width: 100px; /**付款條件已設定*/
+}
+.fixed_headers4 td:nth-child(14),
+.fixed_headers4 th:nth-child(14) {
+    min-width: 500px; /**備註*/
+}

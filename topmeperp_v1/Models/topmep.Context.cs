@@ -83,5 +83,6 @@ namespace topmeperp.Models
         public virtual DbSet<PLAN_ACCOUNT> PLAN_ACCOUNT { get; set; }
         public virtual DbSet<PLAN_ESTIMATION_FORM> PLAN_ESTIMATION_FORM { get; set; }
         public virtual DbSet<TND_FILE> TND_FILE { get; set; }
+        public virtual DbSet<PLAN_CONTRACT_PROCESS> PLAN_CONTRACT_PROCESS { get; set; }
     }
 }

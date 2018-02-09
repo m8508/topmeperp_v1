@@ -1689,5 +1689,77 @@ namespace topmeperp.Controllers
             ViewBag.SearchResult = "共取得" + formOutOfContract.Count + "筆資料";
             return View(contract);
         }
+        public String UpdateConStatus(FormCollection form)
+        {
+            log.Info("form:" + form.Count);
+            string projectId = form.Get("projectid").Trim();
+            log.Info("Delete PLAN_CONTRACT_PROCESS By Project ID");
+            service.delAllContractByProject(projectId);
+            string msg = "";
+            SYS_USER u = (SYS_USER)Session["user"];
+            // 取得合約簽訂狀態資料
+            string[] lstItemId = form.Get("contractid").Split(',');
+            string[] lstBrand = form.Get("brand").Split(',');
+            string[] lstProduction = form.Get("production").Split(',');
+            string[] lstDate = form.Get("Date_${index}").Split(',');
+            string[] lstRemark = form.Get("remark").Split(',');
+            log.Info("select count:" + lstItemId.Count());
+            var j = 0;
+            for (j = 0; j < lstItemId.Count(); j++)
+            {
+                log.Info("item_list return No.:" + lstItemId[j]);
+            }
+            List<PLAN_CONTRACT_PROCESS> lstItem = new List<PLAN_CONTRACT_PROCESS>();
+            for (int i = 0; i < lstItemId.Count(); i++)
+            {
+                PLAN_CONTRACT_PROCESS item = new PLAN_CONTRACT_PROCESS();
+                item.CONTRACT_ID = lstItemId[i];
+                if (lstRemark[i].ToString() == "")
+                {
+                    item.REMARK = null;
+                }
+                else
+                {
+                    item.REMARK = lstRemark[i];
+                }
+                if (lstBrand[i].ToString() == "")
+                {
+                    item.MATERIAL_BRAND = null;
+                }
+                else
+                {
+                    item.MATERIAL_BRAND = lstBrand[i];
+                }
+                if (lstProduction[i].ToString() == "")
+                {
+                    item.CONTRACT_PRODUCTION = null;
+                }
+                else
+                {
+                    item.CONTRACT_PRODUCTION = lstProduction[i];
+                }
+                if (lstDate[i].ToString() == "")
+                {
+                    item.DELIVERY_DATE = null;
+                }
+                else
+                {
+                    item.DELIVERY_DATE = Convert.ToDateTime(lstDate[i]);
+                }
+                item.CREATE_ID = u.USER_ID;
+                log.Debug("Contract Id=" + item.CONTRACT_ID + ", Brand =" + item.MATERIAL_BRAND + ", Production =" + item.CONTRACT_PRODUCTION + ", deliveryDate =" + item.DELIVERY_DATE);
+                lstItem.Add(item);
+            }
+            int k = service.AddContractProcess(projectId, lstItem);
+            if (k == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "更新合約管制表成功";
+            }
+            return msg;
+        }
     }
 }

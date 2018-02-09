@@ -448,6 +448,9 @@
     <Compile Include="Models\FIN_SUBJECT.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\PLAN_CONTRACT_PROCESS.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\PLAN_COSTCHANGE_FORM.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>

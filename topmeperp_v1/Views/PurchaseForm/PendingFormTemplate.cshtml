@@ -1,10 +1,10 @@
 ﻿@model topmeperp.Models.ContractModels
 @{
-    ViewBag.Title = "採購單管理-議約發包之分項明細";
+    ViewBag.Title = "採購單管理-議約發包之合約管制表";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <div class="container">
-    <h3 style="padding-top:40px;">議約發包之分項明細 : </h3>
+    <h3>議約發包之合約管制表 : </h3>
 </div>
 <div style="padding-top:10px;">
     <button type="button" class="btn btn-primary" onclick="window.open('@Url.Action("Comparison", "PurchaseForm", new { id = ViewBag.projectid })'); ">採購比價</button>
@@ -17,253 +17,338 @@
     <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
 </div>
 <div style="padding-top:20px;">@ViewBag.SearchResult</div>
-<table class="table">
-    <tr>
-        <th>
-            No.
-        </th>
-        <th>
-            材料/工資
-        </th>
-        <th>
-            分項名稱
-        </th>
-        <th>
-            已發包
-        </th>
-        <th>
-            廠商詢價單數量
-        </th>
-        <th>功能</th>
-        <th>連結</th>
-        <th>付款日期已設定</th>
-        <th>付款條件已設定</th>
-    </tr>
+<form id="formContract" name="formContract" action="UpdateConStatus" method="post">
+    <input type="hidden" name="projectid" id="projectid" value="@ViewBag.projectid">
+    <table class="table fixed_headers4">
+        <thead>
+            <tr>
+                <th>
+                    No.
+                </th>
+                <th>
+                    材料/工資
+                </th>
+                <th>
+                    分項名稱
+                </th>
 
-    @foreach (var item in Model.planOrder)
-    {
-        <tr>
-            @if (item.ISWAGE == "Y")
+                <th>
+                    詢價單數量
+                </th>
+                <th>功能</th>
+                <th>連結</th>
+                <th>發包廠商</th>
+                <th>廠牌</th>
+                <th>
+                    已發包
+                </th>
+                <th>
+                    合約已製作
+                </th>
+                <th>
+                    交期
+                </th>
+                <th>付款日期已設定</th>
+                <th>付款條件已設定</th>
+                <th>
+                    備註
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.planOrder)
             {
-                <td>
-                    <span style="color: blue; font-size: 15px;">
-                        @Html.DisplayFor(modelItem => item.NO)
-                    </span>
-                </td>
+                <tr>
+                    @if (item.ISWAGE == "Y")
+                {
+                        <td>
+                            <span style="color: blue; font-size: 15px;">
+                                @Html.DisplayFor(modelItem => item.NO)
+                            </span>
+                        </td>
+                    }
+                    else
+                    {
+                        <td>
+                            @Html.DisplayFor(modelItem => item.NO)
+                        </td>
+                    }
+                    @if (item.ISWAGE == "Y")
+                {
+                        <td>
+                            <span style="color: blue; font-size: 15px;">
+                                工資
+                            </span>
+                        </td>
+                    }
+                    else
+                    {
+                        <td>
+                            材料
+                        </td>
+                    }
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FORM_NAME)
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CountPO)
+                    </td>
+                    <td>
+                        <a href="/PurchaseForm/PurchaseMain?id=@item.PROJECT_ID&formname=@item.FORM_NAME&iswage=@item.ISWAGE" target="_blank"><span style="color:forestgreen; font-size: 15px;">連結議約廠商</span></a>
+                    </td>
+                    <td>
+                        <a href="/PurchaseForm/downLoadInquiryForm?formid=@item.INQUIRY_FORM_ID&isTemp=N" target="_blank">下載空白詢價單</a>
+                        <a href="/PurchaseForm/SinglePrjForm/@item.INQUIRY_FORM_ID" target="_blank"><span style="color: deeppink; font-size: 15px;">產生廠商詢價單</span></a>
+                    </td>
+                    <td>@Html.DisplayFor(modelItem => item.Supplier)</td>
+                    <td><input type="text" class="form-control" style="width:170px" name="brand" id="brand" value="@item.MATERIAL_BRAND"></td>
+                    @if (null != item.Bargain && item.Bargain != "")
+                {
+                        <td>
+                            <span style="color: red; font-size: 15px;">
+                                ✔
+                            </span>
+                        </td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (item.CONTRACT_PRODUCTION == "N")
+                {
+                        <td><select id="production" name="production"><option value=""></option><option value="N" selected>❌</option><option value="Y">✔</option><option value="S">⭐</option><option value="E">簡易合約</option></select></td>
+                    }
+                    else if (item.CONTRACT_PRODUCTION == "Y")
+                    {
+                        <td><select id="production" name="production"><option value=""></option><option value="N">❌</option><option value="Y" selected>✔</option><option value="S">⭐</option><option value="E">簡易合約</option></select></td>
+                    }
+                    else if (item.CONTRACT_PRODUCTION == "E")
+                    {
+                        <td><select id="production" name="production"><option value=""></option><option value="N">❌</option><option value="Y">✔</option><option value="S">⭐</option><option value="E" selected>簡易合約</option></select></td>
+                    }
+                    else if (item.CONTRACT_PRODUCTION == "S")
+                    {
+                        <td><select id="production" name="production"><option value=""></option><option value="N">❌</option><option value="Y">✔</option><option value="S" selected>⭐</option><option value="E">簡易合約</option></select></td>
+                    }
+                    else
+                    {
+                        <td><select id="production" name="production"><option value=""></option><option value="N">❌</option><option value="Y">✔</option><option value="S">⭐</option><option value="E">簡易合約</option></select></td>
+                    }
+                    @if (null != item.DELIVERY_DATE && item.DELIVERY_DATE != "")
+                {
+                        <td><input style="width:150px" type="text" class="form-control" name="Date_${index}" id="Date_${index}" value="@item.DELIVERY_DATE"></td>
+                    }
+                    else
+                    {
+                        <td><input style="width:150px" type="date" class="form-control" name="Date_${index}" id="Date_${index}" value=""></td>
+                    }
+                    @if (null != item.paymentFrequency)
+                {
+                        <td>
+                            <span style="color: red; font-size: 15px;">
+                                ✔
+                            </span>
+                        </td>
+                    }
+                    else if (null != item.Bargain && item.Bargain != "")
+                    {
+                        <td><button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@item.ContractId')">查看</button></td>
+                    }
+                    else
+                    {
+                        <td>尚未發包</td>
+                    }
+                    @if (null != item.PAYMENT_TERMS && item.PAYMENT_TERMS != "")
+                {
+                        <td>
+                            <span style="color: red; font-size: 15px;">
+                                ✔
+                            </span>
+                        </td>
+                    }
+                    else if (null != item.Bargain && item.Bargain != "")
+                    {
+                        <td><button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@item.ContractId')">查看</button></td>
+                    }
+                    else
+                    {
+                        <td>尚未發包</td>
+                    }
+                    <td><input style="width:500px" type="text" class="form-control" name="remark" id="remark" value="@item.ConRemark"></td>
+                    @if (null != item.ContractId && item.ContractId != "")
+                {
+                        <td><input type="hidden" name="contractid" id="contractid" value="@item.ContractId"></td>
+                    }
+                    else
+                    {
+                        <td><input type="hidden" name="contractid" id="contractid" value="@item.INQUIRY_FORM_ID"></td>
+                    }
+                </tr>
             }
-            else
-            {
-                <td>
-                    @Html.DisplayFor(modelItem => item.NO)
-                </td>
-            }
-            @if (item.ISWAGE == "Y")
-            {
-                <td>
-                    <span style="color: blue; font-size: 15px;">
-                        工資
-                    </span>
-                </td>
-            }
-            else
-            {
-                <td>
-                    材料
-                </td>
-            }
-            <td>
-                @Html.DisplayFor(modelItem => item.FORM_NAME)
-            </td>
-            @if (null != item.Bargain && item.Bargain != "")
-            {
-                <td>
-                    <span style="color: red; font-size: 15px;">
-                        ✔
-                    </span>
-                </td>
-            }
-            else
-            {
-                <td></td>
-            }
-            <td>
-                @Html.DisplayFor(modelItem => item.CountPO)
-            </td>
-            <td>
-                <a href="/PurchaseForm/PurchaseMain?id=@item.PROJECT_ID&formname=@item.FORM_NAME&iswage=@item.ISWAGE" target="_blank"><span style="color:forestgreen; font-size: 15px;">連結議約廠商</span></a>
-            </td>
-            <td>
-                <a href="/PurchaseForm/downLoadInquiryForm?formid=@item.INQUIRY_FORM_ID&isTemp=N" target="_blank">下載空白詢價單</a>
-                <a href="/PurchaseForm/SinglePrjForm/@item.INQUIRY_FORM_ID" target="_blank"><span style="color: deeppink; font-size: 15px;">產生廠商詢價單</span></a>
-            </td>
-            @if (null != item.paymentFrequency)
-            {
-                <td>
-                    <span style="color: red; font-size: 15px;">
-                        ✔
-                    </span>
-                </td>
-            }
-            else if (null != item.Bargain && item.Bargain != "")
-            {
-                <td><button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@item.ContractId')">查看</button></td>
-            }
-            else
-            {
-                <td>尚未發包</td>
-            }
-            @if (null != item.PAYMENT_TERMS && item.PAYMENT_TERMS != "")
-            {
-                <td>
-                    <span style="color: red; font-size: 15px;">
-                        ✔
-                    </span>
-                </td>
-            }
-            else if (null != item.Bargain && item.Bargain != "")
-            {
-                <td><button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@item.ContractId')">查看</button></td>
-            }
-            else
-            {
-                <td>尚未發包</td>
-            }
-        </tr>
-    }
+        </tbody>
 </table>
-
-<!-- Modal :對話框-->
-<div class="row" style="padding-top:10px;">
-    <div class="modal fade" id="paymentInfo" role="dialog">
-        <div class="modal-dialog" id="paymentInfoDialog">
-            <!-- Modal content-->
-            @Html.Partial("_PaymentTerms");
+</form>
+    <div class="row">
+        <div class="col-md-12">
+            <input type="button" value="儲存" class="btn btn-warning" id="savePage" />
         </div>
     </div>
-</div>
+    <!-- Modal :對話框-->
+    <div class="row" style="padding-top:10px;">
+        <div class="modal fade" id="paymentInfo" role="dialog">
+            <div class="modal-dialog" id="paymentInfoDialog">
+                <!-- Modal content-->
+                @Html.Partial("_PaymentTerms");
+            </div>
+        </div>
+    </div>
 
-<script type="text/javascript">
-    //由ID 取得資料填入表單
-    function getPaymentTerm(contractid) {
-        //alert(contractid);
-        $.ajax({
-            url: "/PurchaseForm/getPaymentTerms",
-            type: "GET",
-            data: { contractid: contractid },
-            dataType: "JSON",
-            success: function (data) {
-                $('#project_id').val(data.PROJECT_ID);
-                $('#contract_id').val(data.CONTRACT_ID);
-                $('#date1').val(data.DATE_1);
-                $('#date2').val(data.DATE_2);
-                $('#date3').val(data.DATE_3);
-                $('#paymenttype').val(data.PAYMENT_TYPE);
-                $('#paymentcash').val(data.PAYMENT_CASH);
-                $('#payment_date1').val(data.PAYMENT_UP_TO_U_DATE1);
-                $('#payment_date2').val(data.PAYMENT_UP_TO_U_DATE2);
-                $('#payment_1').val(data.PAYMENT_UP_TO_U_1);
-                $('#payment_2').val(data.PAYMENT_UP_TO_U_2);
-                $('#paymentadvance').val(data.PAYMENT_ADVANCE_RATIO);
-                $('#paymentadvance_cash').val(data.PAYMENT_ADVANCE_CASH_RATIO);
-                $('#paymentadvance_1').val(data.PAYMENT_ADVANCE_1_RATIO);
-                $('#paymentadvance_2').val(data.PAYMENT_ADVANCE_2_RATIO);
-                $('#paymentestimated').val(data.PAYMENT_ESTIMATED_RATIO);
-                $('#paymentestimated_cash').val(data.PAYMENT_ESTIMATED_CASH_RATIO);
-                $('#paymentestimated_1').val(data.PAYMENT_ESTIMATED_1_RATIO);
-                $('#paymentestimated_2').val(data.PAYMENT_ESTIMATED_2_RATIO);
-                $('#paymentretention').val(data.PAYMENT_RETENTION_RATIO);
-                $('#paymentretention_cash').val(data.PAYMENT_RETENTION_CASH_RATIO);
-                $('#paymentretention_1').val(data.PAYMENT_RETENTION_1_RATIO);
-                $('#paymentretention_2').val(data.PAYMENT_RETENTION_2_RATIO);
-                $('#usancecash').val(data.USANCE_CASH);
-                $('#usance_date1').val(data.USANCE_UP_TO_U_DATE1);
-                $('#usance_date2').val(data.USANCE_UP_TO_U_DATE2);
-                $('#usance_1').val(data.USANCE_UP_TO_U_1);
-                $('#usance_2').val(data.USANCE_UP_TO_U_2);
-                $('#usanceadvance').val(data.USANCE_ADVANCE_RATIO);
-                $('#usanceadvance_cash').val(data.USANCE_ADVANCE_CASH_RATIO);
-                $('#usanceadvance_1').val(data.USANCE_ADVANCE_1_RATIO);
-                $('#usanceadvance_2').val(data.USANCE_ADVANCE_2_RATIO);
-                $('#usancegoods').val(data.USANCE_GOODS_RATIO);
-                $('#usancegoods_cash').val(data.USANCE_GOODS_CASH_RATIO);
-                $('#usancegoods_1').val(data.USANCE_GOODS_1_RATIO);
-                $('#usancegoods_2').val(data.USANCE_GOODS_2_RATIO);
-                $('#usancefinished').val(data.USANCE_FINISHED_RATIO);
-                $('#usancefinished_cash').val(data.USANCE_FINISHED_CASH_RATIO);
-                $('#usancefinished_1').val(data.USANCE_FINISHED_1_RATIO);
-                $('#usancefinished_2').val(data.USANCE_FINISHED_2_RATIO);
-                $('#usanceretention').val(data.USANCE_RETENTION_RATIO);
-                $('#usanceretention_cash').val(data.USANCE_RETENTION_CASH_RATIO);
-                $('#usanceretention_1').val(data.USANCE_RETENTION_1_RATIO);
-                $('#usanceretention_2').val(data.USANCE_RETENTION_2_RATIO);
-                if ((data.DATE_3) == null) {
-                    $("input[name=payfrequency][value='O']").attr('checked', true);
-                }
-                else {
-                    $("input[name=payfrequency][value='T']").attr('checked', true)
-                }
-                if ((data.PAYMENT_TYPE) != null && (data.PAYMENT_TYPE) != "") {
-                    $("input[name=payterms][value='P']").attr('checked', true);
-                }
-                else {
-                    $("input[name=payterms][value='S']").attr('checked', true);
-                }
-
-                $('#paymentInfo').modal('show'); // show bootstrap modal when complete loaded
-                //$('.modal-title').text('編輯設定資料'); // Set title to Bootstrap modal title
-
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert('Error get data from ajax');
-            }
+    <script type="text/javascript">
+        $(function () {
+            var date = { index: new Date().getTime() };
+            $('#Date_${index}').datetimepicker({
+                format: 'YYYY/MM/DD',
+                locale: 'zh-tw'
+            });
         });
+        //由ID 取得資料填入表單
+        function getPaymentTerm(contractid) {
+            //alert(contractid);
+            $.ajax({
+                url: "/PurchaseForm/getPaymentTerms",
+                type: "GET",
+                data: { contractid: contractid },
+                dataType: "JSON",
+                success: function (data) {
+                    $('#project_id').val(data.PROJECT_ID);
+                    $('#contract_id').val(data.CONTRACT_ID);
+                    $('#date1').val(data.DATE_1);
+                    $('#date2').val(data.DATE_2);
+                    $('#date3').val(data.DATE_3);
+                    $('#paymenttype').val(data.PAYMENT_TYPE);
+                    $('#paymentcash').val(data.PAYMENT_CASH);
+                    $('#payment_date1').val(data.PAYMENT_UP_TO_U_DATE1);
+                    $('#payment_date2').val(data.PAYMENT_UP_TO_U_DATE2);
+                    $('#payment_1').val(data.PAYMENT_UP_TO_U_1);
+                    $('#payment_2').val(data.PAYMENT_UP_TO_U_2);
+                    $('#paymentadvance').val(data.PAYMENT_ADVANCE_RATIO);
+                    $('#paymentadvance_cash').val(data.PAYMENT_ADVANCE_CASH_RATIO);
+                    $('#paymentadvance_1').val(data.PAYMENT_ADVANCE_1_RATIO);
+                    $('#paymentadvance_2').val(data.PAYMENT_ADVANCE_2_RATIO);
+                    $('#paymentestimated').val(data.PAYMENT_ESTIMATED_RATIO);
+                    $('#paymentestimated_cash').val(data.PAYMENT_ESTIMATED_CASH_RATIO);
+                    $('#paymentestimated_1').val(data.PAYMENT_ESTIMATED_1_RATIO);
+                    $('#paymentestimated_2').val(data.PAYMENT_ESTIMATED_2_RATIO);
+                    $('#paymentretention').val(data.PAYMENT_RETENTION_RATIO);
+                    $('#paymentretention_cash').val(data.PAYMENT_RETENTION_CASH_RATIO);
+                    $('#paymentretention_1').val(data.PAYMENT_RETENTION_1_RATIO);
+                    $('#paymentretention_2').val(data.PAYMENT_RETENTION_2_RATIO);
+                    $('#usancecash').val(data.USANCE_CASH);
+                    $('#usance_date1').val(data.USANCE_UP_TO_U_DATE1);
+                    $('#usance_date2').val(data.USANCE_UP_TO_U_DATE2);
+                    $('#usance_1').val(data.USANCE_UP_TO_U_1);
+                    $('#usance_2').val(data.USANCE_UP_TO_U_2);
+                    $('#usanceadvance').val(data.USANCE_ADVANCE_RATIO);
+                    $('#usanceadvance_cash').val(data.USANCE_ADVANCE_CASH_RATIO);
+                    $('#usanceadvance_1').val(data.USANCE_ADVANCE_1_RATIO);
+                    $('#usanceadvance_2').val(data.USANCE_ADVANCE_2_RATIO);
+                    $('#usancegoods').val(data.USANCE_GOODS_RATIO);
+                    $('#usancegoods_cash').val(data.USANCE_GOODS_CASH_RATIO);
+                    $('#usancegoods_1').val(data.USANCE_GOODS_1_RATIO);
+                    $('#usancegoods_2').val(data.USANCE_GOODS_2_RATIO);
+                    $('#usancefinished').val(data.USANCE_FINISHED_RATIO);
+                    $('#usancefinished_cash').val(data.USANCE_FINISHED_CASH_RATIO);
+                    $('#usancefinished_1').val(data.USANCE_FINISHED_1_RATIO);
+                    $('#usancefinished_2').val(data.USANCE_FINISHED_2_RATIO);
+                    $('#usanceretention').val(data.USANCE_RETENTION_RATIO);
+                    $('#usanceretention_cash').val(data.USANCE_RETENTION_CASH_RATIO);
+                    $('#usanceretention_1').val(data.USANCE_RETENTION_1_RATIO);
+                    $('#usanceretention_2').val(data.USANCE_RETENTION_2_RATIO);
+                    if ((data.DATE_3) == null) {
+                        $("input[name=payfrequency][value='O']").attr('checked', true);
+                    }
+                    else {
+                        $("input[name=payfrequency][value='T']").attr('checked', true)
+                    }
+                    if ((data.PAYMENT_TYPE) != null && (data.PAYMENT_TYPE) != "") {
+                        $("input[name=payterms][value='P']").attr('checked', true);
+                    }
+                    else {
+                        $("input[name=payterms][value='S']").attr('checked', true);
+                    }
 
-    }
+                    $('#paymentInfo').modal('show'); // show bootstrap modal when complete loaded
+                    //$('.modal-title').text('編輯設定資料'); // Set title to Bootstrap modal title
 
-</script>
-<script language="javascript" type="text/javascript">
-    $('#savePayment').click(function () {
-        var method1 = $('input[name=payfrequency]:radio:checked').val();
-        if (typeof (method1) == "undefined") { // 注意檢查完全沒有選取的寫法，這行是精華
-            alert("請選取付款方式，並檢查輸入之日期是否正確！");
-            return false;
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert('Error get data from ajax');
+                }
+            });
+
         }
-        if (method1 == "O") {
-            alert("您選擇的付款方式為每月付款2次");
-        }
-        if (method1 == "T") {
-            alert("您選擇的付款方式為每月1次");
-        }
-        var method2 = $('input[name=payterms]:radio:checked').val();
-        if (typeof (method2) == "undefined") { // 注意檢查完全沒有選取的寫法，這行是精華
-            alert("請選取付款比例與票期，並檢查輸入之資料是否正確！");
-            return false;
-        }
-        if (method2 == "P") {
-            if ($("#paymenttype").val() == "")
-            {
-                alert("請選取按期估驗的合約類型，例如:連工帶料");
+
+    </script>
+    <script language="javascript" type="text/javascript">
+        $('#savePayment').click(function () {
+            var method1 = $('input[name=payfrequency]:radio:checked').val();
+            if (typeof (method1) == "undefined") { // 注意檢查完全沒有選取的寫法，這行是精華
+                alert("請選取付款方式，並檢查輸入之日期是否正確！");
                 return false;
             }
-            alert("您選擇的付款比例與票期為按期估驗");
-        }
-        if (method2 == "S") {
-            alert("您選擇的付款比例與票期為階段付款");
-        }
-        var s = $('#formPayment').serialize();
-        var URLs = "/PurchaseForm/addPaymentTerms";
-        $.ajax({
-            url: URLs,
-            data: $('#formPayment').serialize(),
-            type: "POST",
-            dataType: 'text',
-            success: function (msg) {
-                alert(msg);
-                window.location.reload()
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert(thrownError);
+            if (method1 == "O") {
+                alert("您選擇的付款方式為每月付款2次");
             }
+            if (method1 == "T") {
+                alert("您選擇的付款方式為每月1次");
+            }
+            var method2 = $('input[name=payterms]:radio:checked').val();
+            if (typeof (method2) == "undefined") { // 注意檢查完全沒有選取的寫法，這行是精華
+                alert("請選取付款比例與票期，並檢查輸入之資料是否正確！");
+                return false;
+            }
+            if (method2 == "P") {
+                if ($("#paymenttype").val() == "") {
+                    alert("請選取按期估驗的合約類型，例如:連工帶料");
+                    return false;
+                }
+                alert("您選擇的付款比例與票期為按期估驗");
+            }
+            if (method2 == "S") {
+                alert("您選擇的付款比例與票期為階段付款");
+            }
+            var s = $('#formPayment').serialize();
+            var URLs = "/PurchaseForm/addPaymentTerms";
+            $.ajax({
+                url: URLs,
+                data: $('#formPayment').serialize(),
+                type: "POST",
+                dataType: 'text',
+                success: function (msg) {
+                    alert(msg);
+                    window.location.reload()
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                }
+            });
         });
-    });
-</script>
+
+        $("#savePage").click(function () {
+            $.ajax({
+                url: '@Url.Action("UpdateConStatus", "PurchaseForm")',
+                data: $('#formContract').serialize(),
+                type: "POST",
+                dataType: 'text',
+                success: function (msg) {
+                    alert(msg);
+                    window.location.reload()
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                }
+            });
+        });
+    </script>

@@ -69,6 +69,7 @@
         <EntityTypeShape EntityType="topmepModel.PLAN_ACCOUNT" Width="1.5" PointX="22.375" PointY="15.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_FORM" Width="1.5" PointX="21.375" PointY="24.75" />
         <EntityTypeShape EntityType="topmepModel.TND_FILE" Width="1.5" PointX="24.375" PointY="15.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_CONTRACT_PROCESS" Width="1.5" PointX="23.375" PointY="25.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

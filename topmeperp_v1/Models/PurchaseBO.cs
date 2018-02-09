@@ -13,6 +13,12 @@ namespace topmeperp.Models
         public Nullable<decimal> paymentFrequency { get; set; }
         public string PAYMENT_TERMS { get; set; }
         public string ContractId { get; set; }
+        public string Supplier { get; set; }
+        public string MATERIAL_BRAND { get; set; }
+        public string CONTRACT_PRODUCTION { get; set; }
+        public string DELIVERY_DATE { get; set; }
+        public string ConRemark { get; set; }
+
     }
     public class BUDGET_SUMMANY 
     {

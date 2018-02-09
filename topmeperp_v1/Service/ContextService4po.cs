@@ -912,23 +912,83 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 //取得詢價單樣本資訊
-                string sql = "SELECT tmp.*,CountPO, Bargain, paymentFrequency, PAYMENT_TERMS, ContractId, ROW_NUMBER() OVER(ORDER BY tmp.INQUIRY_FORM_ID) AS NO " +
+                string sql = "SELECT tmp.*,CountPO, Bargain, paymentFrequency, PAYMENT_TERMS, ContractId, Supplier, MATERIAL_BRAND, CONTRACT_PRODUCTION, " +
+                       "CONVERT(char(10),DELIVERY_DATE, 111) AS DELIVERY_DATE, ConRemark, ROW_NUMBER() OVER(ORDER BY tmp.INQUIRY_FORM_ID) AS NO " +
                        "FROM(SELECT * FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID is Null AND PROJECT_ID = @projectid AND ISNULL(STATUS, '有效') = '有效' AND ISNULL(ISWAGE, 'N') = 'N') tmp " +
                        "LEFT OUTER JOIN (SELECT COUNT(*) CountPO, FORM_NAME, PROJECT_ID FROM  PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NOT Null GROUP BY FORM_NAME, PROJECT_ID) Quo " +
-                       "ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME LEFT OUTER JOIN (SELECT p.FORM_NAME AS Bargain, IIF(ppt.PAYMENT_FREQUENCY = 'O', ppt.DATE_1, ppt.DATE_3) AS paymentFrequency, " +
-                       "ppt.PAYMENT_TERMS, p.INQUIRY_FORM_ID AS ContractId FROM PLAN_ITEM p LEFT JOIN PLAN_PAYMENT_TERMS ppt ON p.INQUIRY_FORM_ID = ppt.CONTRACT_ID WHERE p.PROJECT_ID = @projectid " +
-                       "AND p.FORM_NAME IS NOT NULL GROUP BY p.FORM_NAME, IIF(ppt.PAYMENT_FREQUENCY = 'O', ppt.DATE_1, ppt.DATE_3), ppt.PAYMENT_TERMS, p.INQUIRY_FORM_ID)Con ON tmp.FORM_NAME = Con.Bargain UNION " +
-                       "SELECT tmp.*,CountPO, Bargain, paymentFrequency, PAYMENT_TERMS, ContractId, ROW_NUMBER() OVER(ORDER BY tmp.INQUIRY_FORM_ID) AS NO " +
+                       "ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME LEFT OUTER JOIN (SELECT p.FORM_NAME AS Bargain, p.SUPPLIER_ID AS Supplier, IIF(ppt.PAYMENT_FREQUENCY = 'O', ppt.DATE_1, ppt.DATE_3) AS paymentFrequency, " +
+                       "ppt.PAYMENT_TERMS, p.INQUIRY_FORM_ID AS ContractId, pcp.MATERIAL_BRAND, pcp.CONTRACT_PRODUCTION, pcp.DELIVERY_DATE, pcp.REMARK AS ConRemark FROM PLAN_ITEM p " +
+                       "LEFT JOIN PLAN_PAYMENT_TERMS ppt ON p.INQUIRY_FORM_ID = ppt.CONTRACT_ID LEFT JOIN PLAN_CONTRACT_PROCESS pcp ON p.INQUIRY_FORM_ID = pcp.CONTRACT_ID WHERE p.PROJECT_ID = @projectid " +
+                       "AND p.FORM_NAME IS NOT NULL GROUP BY p.FORM_NAME, p.SUPPLIER_ID, IIF(ppt.PAYMENT_FREQUENCY = 'O', ppt.DATE_1, ppt.DATE_3), ppt.PAYMENT_TERMS, p.INQUIRY_FORM_ID, " +
+                       "pcp.MATERIAL_BRAND, pcp.CONTRACT_PRODUCTION, pcp.DELIVERY_DATE, pcp.REMARK)Con ON tmp.FORM_NAME = Con.Bargain UNION " +
+                       "SELECT tmp.*,CountPO, Bargain, paymentFrequency, PAYMENT_TERMS, ContractId, Supplier, MATERIAL_BRAND, CONTRACT_PRODUCTION, " +
+                       "CONVERT(char(10),DELIVERY_DATE, 111) AS DELIVERY_DATE, ConRemark, ROW_NUMBER() OVER(ORDER BY tmp.INQUIRY_FORM_ID) AS NO " +
                        "FROM(SELECT * FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID is Null AND PROJECT_ID = @projectid AND ISNULL(STATUS, '有效') = '有效' AND ISNULL(ISWAGE, 'N') = 'Y') tmp " +
                        "LEFT OUTER JOIN (SELECT COUNT(*) CountPO, FORM_NAME, PROJECT_ID FROM  PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NOT NULL GROUP BY FORM_NAME, PROJECT_ID) Quo " +
-                       "ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME  LEFT OUTER JOIN (SELECT p.MAN_FORM_NAME AS Bargain, IIF(ppt.PAYMENT_FREQUENCY = 'O', ppt.DATE_1, ppt.DATE_3) AS paymentFrequency, " +
-                       "ppt.PAYMENT_TERMS, p.MAN_FORM_ID AS ContractId FROM PLAN_ITEM p LEFT JOIN PLAN_PAYMENT_TERMS ppt ON p.MAN_FORM_ID = ppt.CONTRACT_ID WHERE p.PROJECT_ID = @projectid AND p.MAN_FORM_NAME IS NOT NULL " +
-                       "GROUP BY p.MAN_FORM_NAME, IIF(ppt.PAYMENT_FREQUENCY = 'O', ppt.DATE_1, ppt.DATE_3), ppt.PAYMENT_TERMS, p.MAN_FORM_ID)Con ON tmp.FORM_NAME = Con.Bargain";
+                       "ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME  LEFT OUTER JOIN (SELECT p.MAN_FORM_NAME AS Bargain, p.MAN_SUPPLIER_ID AS Supplier, " +
+                       "IIF(ppt.PAYMENT_FREQUENCY = 'O', ppt.DATE_1, ppt.DATE_3) AS paymentFrequency, ppt.PAYMENT_TERMS, p.MAN_FORM_ID AS ContractId, pcp.MATERIAL_BRAND, pcp.CONTRACT_PRODUCTION, " +
+                       "pcp.DELIVERY_DATE, pcp.REMARK AS ConRemark FROM PLAN_ITEM p LEFT JOIN PLAN_PAYMENT_TERMS ppt ON p.MAN_FORM_ID = ppt.CONTRACT_ID LEFT JOIN " +
+                       "PLAN_CONTRACT_PROCESS pcp ON p.MAN_FORM_ID = pcp.CONTRACT_ID WHERE p.PROJECT_ID = @projectid AND p.MAN_FORM_NAME IS NOT NULL " +
+                       "GROUP BY p.MAN_FORM_NAME, p.MAN_SUPPLIER_ID, IIF(ppt.PAYMENT_FREQUENCY = 'O', ppt.DATE_1, ppt.DATE_3), ppt.PAYMENT_TERMS, p.MAN_FORM_ID, " +
+                       "pcp.MATERIAL_BRAND, pcp.CONTRACT_PRODUCTION, pcp.DELIVERY_DATE, pcp.REMARK)Con ON tmp.FORM_NAME = Con.Bargain";
                 lst = context.Database.SqlQuery<PURCHASE_ORDER>(sql, new SqlParameter("projectid", projectid)).ToList();
             }
             return lst;
         }
 
+        public int delAllContractByProject(string projectId)
+        {
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("delete all contract by proejct id=" + projectId);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM PLAN_CONTRACT_PROCESS WHERE PROJECT_ID=@projectid", new SqlParameter("@projectid", projectId));
+            }
+            logger.Debug("delete contract count=" + i);
+            return i;
+        }
+        //新增合約製作狀態
+        public int AddContractProcess(string projectId, List<PLAN_CONTRACT_PROCESS> lstItem)
+        {
+            logger.Info("Add plan contract process by project id =" + projectId);
+            int j = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+
+                    //將contract process寫入 
+                    foreach (PLAN_CONTRACT_PROCESS item in lstItem)
+                    {
+                        //PLAN_CONTRACT_PROCESS existItem = null;
+                        PLAN_CONTRACT_PROCESS existItem = new PLAN_CONTRACT_PROCESS();
+                        logger.Debug("item contract id=" + item.CONTRACT_ID);
+                        if (item.CONTRACT_ID != null)
+                        {
+                            existItem.CONTRACT_ID = item.CONTRACT_ID;
+                            existItem.PROJECT_ID = projectId;
+                            existItem.CONTRACT_PRODUCTION = item.CONTRACT_PRODUCTION;
+                            existItem.DELIVERY_DATE = item.DELIVERY_DATE;
+                            existItem.MATERIAL_BRAND = item.MATERIAL_BRAND;
+                            existItem.REMARK = item.REMARK;
+                            existItem.CREATE_ID = item.CREATE_ID;
+                            existItem.CREATE_DATE = DateTime.Now;
+                            context.PLAN_CONTRACT_PROCESS.Add(existItem); 
+                        }
+                    }
+                    j = context.SaveChanges();
+
+                    logger.Debug("Add plan contract process item =" + j);
+                }
+                catch (Exception e)
+                {
+                    logger.Error("update new plan supplier form id fail:" + e.Message);
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+            }
+            return j;
+        }
         public int addFormName(List<PLAN_SUP_INQUIRY> lstItem)
         {
             int i = 0;
