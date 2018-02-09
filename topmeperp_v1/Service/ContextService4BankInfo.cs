@@ -76,14 +76,16 @@ namespace topmeperp.Service
             }
         }
         //取得貸款帳戶資料
-        public List<FIN_BANK_LOAN> getAllBankLoan()
+        public List<BankLoanInfoExt> getAllBankLoan()
         {
-            List<FIN_BANK_LOAN> lstBankLoan = null;
+            List<BankLoanInfoExt> lstBankLoan = null;
             using (var context = new topmepEntities())
             {
                 try
                 {
-                    lstBankLoan = context.FIN_BANK_LOAN.ToList();
+                    string sql = "SELECT * , (SELECT SUM(TRANSACTION_TYPE * AMOUNT) FROM FIN_LOAN_TRANACTION T WHERE T.BL_ID = B.BL_ID) SumTransactionAmount  FROM FIN_BANK_LOAN B";
+
+                    lstBankLoan = context.Database.SqlQuery<BankLoanInfoExt>(sql).ToList();
                     logger.Info("new bank loan records=" + lstBankLoan.Count);
                 }
                 catch (Exception ex)
@@ -93,7 +95,7 @@ namespace topmeperp.Service
             }
             return lstBankLoan;
         }
-        //取得貸款帳戶資料
+        //取得貸款帳戶交易資料
         public BankLoanInfo getBankLoan(string bl_id)
         {
             BankLoanInfo item = new BankLoanInfo();
@@ -123,7 +125,7 @@ namespace topmeperp.Service
             }
             return item;
         }
-        //取得貸款帳戶資料
+        //新增貸款帳戶資料
         public int addBankLoan(FIN_BANK_LOAN bankloan)
         {
             int i = 0;

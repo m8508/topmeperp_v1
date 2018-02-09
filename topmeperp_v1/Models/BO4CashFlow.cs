@@ -12,4 +12,8 @@ namespace topmeperp.Models
         public long CurPeriod { get; set; }
         public decimal SumTransactionAmount { get; set; }
     }
+    public class BankLoanInfoExt: FIN_BANK_LOAN
+    {
+        public decimal SumTransactionAmount { get; set; }
+    }
 }

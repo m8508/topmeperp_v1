@@ -87,7 +87,7 @@ namespace topmeperp.Controllers
         public ActionResult BankLoanList()
         {
             ContextService4BankInfo service = new ContextService4BankInfo();
-            List<FIN_BANK_LOAN> lstBankLoan = service.getAllBankLoan();
+            List<BankLoanInfoExt> lstBankLoan = service.getAllBankLoan();
             return View(lstBankLoan);
         }
         /// <summary>
@@ -145,6 +145,7 @@ namespace topmeperp.Controllers
         {
             logger.Info("bl_id=" + Request["bl_id"]);
             long blid = long.Parse(Request["bl_id"]);
+            int period = int.Parse(Request["period"]);
             string[] formKeys = Request.Form.AllKeys;
             List<FIN_LOAN_TRANACTION> lstLoanTransaction = new List<FIN_LOAN_TRANACTION>();
             List<string> lstFormKey = new List<string>();
@@ -166,6 +167,7 @@ namespace topmeperp.Controllers
                 {
                     FIN_LOAN_TRANACTION loanTransaction = new FIN_LOAN_TRANACTION();
                     loanTransaction.BL_ID = blid;
+                    loanTransaction.PERIOD = period + 1;
                     loanTransaction.EVENT_DATE = DateTime.Parse(Request["EVENT_DATE." + keyAry[1]]);
                     loanTransaction.TRANSACTION_TYPE = -1;
                     loanTransaction.AMOUNT = decimal.Parse(Request["LOAN_AMOUNT." + keyAry[1]]);
@@ -175,12 +177,14 @@ namespace topmeperp.Controllers
                     loanTransaction.CREATE_ID = u.USER_ID;
                     loanTransaction.CREATE_DATE = DateTime.Now;
                     lstLoanTransaction.Add(loanTransaction);
+                    period++;
                 }
                 //還款記錄
                 if (Request["PAYBACK_LOAN_AMOUNT." + keyAry[1]].Trim() != "")
                 {
                     FIN_LOAN_TRANACTION loanTransaction = new FIN_LOAN_TRANACTION();
                     loanTransaction.BL_ID = blid;
+                    loanTransaction.PERIOD = period + 1;
                     loanTransaction.PAYBACK_DATE = DateTime.Parse(Request["EVENT_DATE." + keyAry[1]]);
                     loanTransaction.TRANSACTION_TYPE = 1;
                     loanTransaction.AMOUNT = decimal.Parse(Request["PAYBACK_LOAN_AMOUNT." + keyAry[1]]);
@@ -190,6 +194,7 @@ namespace topmeperp.Controllers
                     loanTransaction.CREATE_ID = u.USER_ID;
                     loanTransaction.CREATE_DATE = DateTime.Now;
                     lstLoanTransaction.Add(loanTransaction);
+                    period++;
                 }
                 if (lstLoanTransaction.Count > 0)
                 {

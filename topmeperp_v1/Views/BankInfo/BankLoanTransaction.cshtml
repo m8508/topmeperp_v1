@@ -14,6 +14,7 @@
             <label class="col-sm-1 control-label">編號:</label>
             <div class="col-sm-1">
                 <input class="form-control" type="text" id="bl_id" name="bl_id" value="@Model.LoanInfo.BL_ID" readonly />
+                <input type="hidden" name="period" id="period" value="@Model.CurPeriod" />
             </div>
             <label class="col-sm-1 control-label">銀行代號:</label>
             <label class="col-sm-2 info">@Model.LoanInfo.BANK_ID </label>
@@ -24,12 +25,13 @@
         </div>
         <div class="row">
             <label class="col-sm-1 control-label">期數:</label><label class="col-sm-1 info">@Model.LoanInfo.PERIOD_COUNT </label>
-            <label class="col-sm-1 control-label">額度:</label><label class="col-sm-3 info">@Model.LoanInfo.QUOTA </label>
-            <label class="col-sm-1 control-label">剩餘額度:</label><label class="col-sm-3 info">@(Model.LoanInfo.QUOTA + Model.SumTransactionAmount)　 </label>
+            <label class="col-sm-1 control-label">額度:</label><label class="col-sm-3 info">@string.Format("{0:N0}", @Model.LoanInfo.QUOTA)</label>
+            <label class="col-sm-1 control-label">剩餘額度:</label><label class="col-sm-3 info">@string.Format("{0:N0}", Model.LoanInfo.QUOTA + Model.SumTransactionAmount)　 </label>
         </div>
         <div class="row">
             <label class="col-sm-1 control-label">備註:</label><label class="col-sm-4 info">@Model.LoanInfo.REMARK </label>
-        </div>
+            <a href="/BankInfo/BankLoanList" class="btn btn-success">回上一頁</a>
+          </div>
     </div>
     <div class="contaier">
         <label class="col-sm-1 control-label">交易明細:</label>
@@ -74,8 +76,8 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td style="text-align: left;" colspan="5">
-                            <input type="button" class="btn alert-info" id="addrow" value="新增" />
+                        <td style="text-align: right;" colspan="5">
+                            <input type="button" class="btn btn btn-warning" id="addrow" value="新增" />
                             <input type="submit" class="btn" id="save" value="儲存" />
                         </td>
                     </tr>
