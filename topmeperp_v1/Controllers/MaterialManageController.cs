@@ -144,7 +144,7 @@ namespace topmeperp.Controllers
             log.Debug("get type code=" + typecode);
             TypeManageService typeService = new TypeManageService();
             List<REF_TYPE_SUB> lstType = typeService.getSubType(typecode);
-            string strOpt = "{";
+            string strOpt = "{\"0\":\"全部\",";
 
             for (int idx = 0; idx < lstType.Count; idx++)
             {
@@ -494,6 +494,10 @@ namespace topmeperp.Controllers
             log.Info("http get mehtod:" + id);
             PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
             string parentId = "";
+            if(null== prjid)
+            {
+                prjid = "";
+            }
             service.getPRByPrId(id, parentId, prjid);
             singleForm.planPR = service.formPR;
             singleForm.planPRItem = service.PRItem;
