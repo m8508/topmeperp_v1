@@ -278,6 +278,11 @@ namespace topmeperp.Models
         public Int64 NO { get; set; }
         public Nullable<decimal> PLAN_REVENUE { get; set; }
         public string CONTRACT_ID { get; set; }
+        public string CONTRACT_PRODUCTION { get; set; }
+        public string DELIVERY_DATE { get; set; }
+        public string ConRemark { get; set; }
+        public Nullable<decimal> PAYMENT_ADVANCE_RATIO { get; set; }
+        public Nullable<decimal> PAYMENT_RETENTION_RATIO { get; set; }
     }
     public class MAP_FP_VIEW : TND_MAP_FP
     {

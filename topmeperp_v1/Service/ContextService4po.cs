@@ -249,14 +249,47 @@ namespace topmeperp.Service
         {
             using (var context = new topmepEntities())
             {
-                plan = context.Database.SqlQuery<PlanRevenue>("SELECT p.PROJECT_ID AS CONTRACT_ID, " +
-                    "(SELECT SUM(ITEM_UNIT_PRICE*ITEM_QUANTITY) FROM PLAN_ITEM pi WHERE pi.PROJECT_ID = @pid) AS PLAN_REVENUE " +
-                     "FROM TND_PROJECT p WHERE p.PROJECT_ID = @pid "
+                plan = context.Database.SqlQuery<PlanRevenue>("SELECT p.PROJECT_ID AS CONTRACT_ID, pcp.CONTRACT_PRODUCTION, CONVERT(char(10), pcp.DELIVERY_DATE, 111) AS DELIVERY_DATE, " +
+                    "pcp.REMARK AS ConRemark, ppt.PAYMENT_ADVANCE_RATIO, ppt.PAYMENT_RETENTION_RATIO, (SELECT SUM(ITEM_UNIT_PRICE*ITEM_QUANTITY) FROM PLAN_ITEM pi WHERE pi.PROJECT_ID = @pid) AS PLAN_REVENUE " +
+                     "FROM TND_PROJECT p LEFT JOIN PLAN_CONTRACT_PROCESS pcp ON p.PROJECT_ID = pcp.CONTRACT_ID LEFT JOIN PLAN_PAYMENT_TERMS ppt ON p.PROJECT_ID = ppt.CONTRACT_ID WHERE p.PROJECT_ID = @pid "
                    , new SqlParameter("pid", prjid)).First();
             }
             return plan;
         }
 
+        public int delOwnerContractByProject(string projectId)
+        {
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                logger.Info("delete owner contract by proejct id=" + projectId);
+                i = context.Database.ExecuteSqlCommand("DELETE FROM PLAN_CONTRACT_PROCESS WHERE PROJECT_ID=@projectid AND CONTRACT_ID =@projectid ", new SqlParameter("@projectid", projectId));
+            }
+            logger.Debug("delete owner contract count =" + i);
+            return i;
+        }
+
+        //新增業主合約簽訂資料
+        public int AddOwnerContractProcess(PLAN_CONTRACT_PROCESS contract)
+        {
+            string message = "";
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.PLAN_CONTRACT_PROCESS.AddOrUpdate(contract);
+                    i = context.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    logger.Error("add owner contract process fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+            }
+            return i;
+        }
         public int addContractId4Owner(string projectid)
         {
             int i = 0;
@@ -942,7 +975,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 logger.Info("delete all contract by proejct id=" + projectId);
-                i = context.Database.ExecuteSqlCommand("DELETE FROM PLAN_CONTRACT_PROCESS WHERE PROJECT_ID=@projectid", new SqlParameter("@projectid", projectId));
+                i = context.Database.ExecuteSqlCommand("DELETE FROM PLAN_CONTRACT_PROCESS WHERE PROJECT_ID=@projectid AND CONTRACT_ID <> @projectid ", new SqlParameter("@projectid", projectId));
             }
             logger.Debug("delete contract count=" + i);
             return i;

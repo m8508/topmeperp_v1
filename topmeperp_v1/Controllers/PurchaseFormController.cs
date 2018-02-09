@@ -1697,7 +1697,7 @@ namespace topmeperp.Controllers
             service.delAllContractByProject(projectId);
             string msg = "";
             SYS_USER u = (SYS_USER)Session["user"];
-            // 取得合約簽訂狀態資料
+            //取得合約簽訂狀態資料
             string[] lstItemId = form.Get("contractid").Split(',');
             string[] lstBrand = form.Get("brand").Split(',');
             string[] lstProduction = form.Get("production").Split(',');

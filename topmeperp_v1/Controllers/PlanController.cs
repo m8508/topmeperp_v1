@@ -302,12 +302,51 @@ namespace topmeperp.Controllers
             TnderProject tndservice = new TnderProject();
             TND_PROJECT p = tndservice.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
+            ViewBag.ownerName = p.OWNER_NAME;
             //取得業主合約金額
             PlanRevenue contractAmount = service.getPlanRevenueById(id);
             ViewBag.Amount = (null == contractAmount.PLAN_REVENUE ? 0 : contractAmount.PLAN_REVENUE);
             ViewBag.contractid = "Owner" + contractAmount.CONTRACT_ID;
+            ViewBag.production = contractAmount.CONTRACT_PRODUCTION;
+            ViewBag.deliveyDate = contractAmount.DELIVERY_DATE;
+            ViewBag.advance = contractAmount.PAYMENT_ADVANCE_RATIO;
+            ViewBag.retention = contractAmount.PAYMENT_RETENTION_RATIO;
+            ViewBag.remark = contractAmount.ConRemark;
             int i = service.addContractId4Owner(id);
             return View();
+        }
+        public String UpdateConStatus(PLAN_CONTRACT_PROCESS con)
+        {
+            string projectId = Request["projectid"];
+            logger.Info("Delete PLAN_CONTRACT_PROCESS By Project ID");
+            service.delOwnerContractByProject(projectId);
+            string msg = "";
+            SYS_USER u = (SYS_USER)Session["user"];
+            //取得合約簽訂狀態資料
+            con.CONTRACT_ID = projectId;
+            con.PROJECT_ID = projectId;
+            con.CONTRACT_PRODUCTION = Request["production"];
+            con.REMARK = Request["remark"];
+            con.CREATE_ID = u.USER_ID;
+            con.CREATE_DATE = DateTime.Now;
+            if (Request["delivery_date"] != "")
+            {
+                con.DELIVERY_DATE = Convert.ToDateTime(Request["delivery_date"]);
+            }
+            else
+            {
+                con.DELIVERY_DATE = null; 
+            }
+            int k = service.AddOwnerContractProcess(con);
+            if (k == 0)
+            {
+                msg = service.message;
+            }
+            else
+            {
+                msg = "更新業主合約簽訂狀態成功";
+            }
+            return msg;
         }
 
         public ActionResult Budget(string id)
