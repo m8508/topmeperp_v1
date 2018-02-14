@@ -227,7 +227,13 @@ namespace topmeperp.Service
                 rows.MoveNext();
                 iRowIndex++;
                 row = (IRow)rows.Current;
-                logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
+                if (row.Cells.Count > 2) {
+                    logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
+                }
+                else
+                {
+                    logger.Debug("Index=" + iRowIndex);
+                }
             }
             //循序處理每一筆資料之欄位!!
             iRowIndex++;
@@ -235,7 +241,7 @@ namespace topmeperp.Service
             while (rows.MoveNext())
             {
                 row = (IRow)rows.Current;
-                logger.Debug("Cells Count=" + row.Cells.Count + ",Excel Value:" + row.Cells[0].ToString());
+                logger.Debug("Cells Count=" + row.Cells.Count + ",Excel Index:" + iRowIndex);
                 //將各Row 資料寫入物件內
                 //項次,名稱,單位,數量,單價,複價,備註,九宮格,次九宮格,主系統,次系統
                 if (row.Cells[0].ToString().ToUpper() != "END")
@@ -255,6 +261,26 @@ namespace topmeperp.Service
         {
             TND_PROJECT_ITEM projectItem = new TND_PROJECT_ITEM();
             projectItem.PROJECT_ID = projId;
+            if (row.Cells.Count < 3)
+            {
+                foreach (ICell c in row.Cells)
+                {
+                    if (c.CellType.Equals(CellType.Blank))
+                    {
+                        logger.Debug("Blank");
+                    }else
+                    {
+                        projectItem.ITEM_DESC = projectItem.ITEM_DESC + c.StringCellValue;
+                    }
+                }
+                logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
+                logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
+                projectItem.PROJECT_ITEM_ID = projId + "-" + id;
+                projectItem.EXCEL_ROW_ID = excelrow;
+                projectItem.CREATE_DATE = System.DateTime.Now;
+                return projectItem;
+            }
+
             if (row.Cells[0].ToString().Trim() != "")//項次
             {
                 projectItem.ITEM_ID = row.Cells[0].ToString();
@@ -263,30 +289,11 @@ namespace topmeperp.Service
             {
                 projectItem.ITEM_DESC = row.Cells[1].ToString();
             }
-            if (row.Cells.Count < 3)
-            {
-                logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
-                logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
-                projectItem.PROJECT_ITEM_ID = projId + "-" + id;
-                projectItem.EXCEL_ROW_ID = excelrow;
-                projectItem.CREATE_DATE = System.DateTime.Now;
-                return projectItem;
-            }
+
             if (row.Cells[2].ToString().Trim() != "")//單位
             {
                 projectItem.ITEM_UNIT = row.Cells[2].ToString();
             }
-
-            if (row.Cells.Count < 5)
-            {
-                logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
-                logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
-                projectItem.PROJECT_ITEM_ID = projId + "-" + id;
-                projectItem.EXCEL_ROW_ID = excelrow;
-                projectItem.CREATE_DATE = System.DateTime.Now;
-                return projectItem;
-            }
-
             if (row.Cells[3].ToString().Trim() != "")//數量
             {
                 try
@@ -303,18 +310,19 @@ namespace topmeperp.Service
                 }
 
             }
-            if (row.Cells[6].ToString().Trim() != "")//備註
-            {
-                projectItem.ITEM_REMARK = row.Cells[6].ToString();
-            }
+
             if (row.Cells.Count < 11)
             {
-                logErrorMessage("data format warring on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
-                logger.Error("data format warring on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
+                logErrorMessage("data format warring on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",未分類(" + row.Cells.Count + ")");
+                logger.Error("data format warring on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",未分類(" + row.Cells.Count + ")");
                 projectItem.PROJECT_ITEM_ID = projId + "-" + id;
                 projectItem.EXCEL_ROW_ID = excelrow;
                 projectItem.CREATE_DATE = System.DateTime.Now;
                 return projectItem;
+            }
+            if (row.Cells[6].ToString().Trim() != "")//備註
+            {
+                projectItem.ITEM_REMARK = row.Cells[6].ToString();
             }
             if (row.Cells[7].ToString().Trim() != "")//九宮格
             {
