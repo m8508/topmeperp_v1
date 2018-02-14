@@ -72,31 +72,31 @@
                 </td>
                 @if (ViewBag.production == "N")
             {
-                    <td><select id="production" name="production"><option value=""></option><option value="N" selected>❌</option><option value="Y">✔</option><option value="S">⭐</option></select></td>
+                    <td><select  class="form-control" id="production" name="production"><option value=""></option><option value="N" selected>❌</option><option value="Y">✔</option><option value="S">⭐</option></select></td>
                 }
                 else if (ViewBag.production == "Y")
                 {
-                    <td><select id="production" name="production"><option value=""></option><option value="N">❌</option><option value="Y" selected>✔</option><option value="S">⭐</option></select></td>
+                    <td><select  class="form-control" id="production" name="production"><option value=""></option><option value="N">❌</option><option value="Y" selected>✔</option><option value="S">⭐</option></select></td>
                 }
                 else if (ViewBag.production == "S")
                 {
-                    <td><select id="production" name="production"><option value=""></option><option value="N">❌</option><option value="Y">✔</option><option value="S" selected>⭐</option></select></td>
+                    <td><select  class="form-control" id="production" name="production"><option value=""></option><option value="N">❌</option><option value="Y">✔</option><option value="S" selected>⭐</option></select></td>
                 }
                 else
                 {
-                    <td><select id="production" name="production"><option value=""></option><option value="N">❌</option><option value="Y">✔</option><option value="S">⭐</option></select></td>
+                    <td><select  class="form-control" id="production" name="production"><option value=""></option><option value="N">❌</option><option value="Y">✔</option><option value="S">⭐</option></select></td>
                 }
                 @if (null != ViewBag.deliveyDate && ViewBag.deliveyDate != "")
                 {
-                    <td><input style="width:150px" type="text" class="form-control" name="delivery_date" id="delivery_date" value="@ViewBag.deliveyDate"></td>
+                    <td><input style="width:150px;" type="text" class="form-control" name="delivery_date" id="delivery_date" value="@ViewBag.deliveyDate"></td>
                 }
                 else
                 {
-                    <td><input style="width:150px" type="date" class="form-control" name="delivery_date" id="delivery_date" value=""></td>
+                    <td><input style="width:150px;" type="date" class="form-control" name="delivery_date" id="delivery_date" value=""></td>
                 }
                 <td>
-                    <input style="width:300px" type="text" class="form-control" name="remark" id="remark" value="@ViewBag.remark">
-                </td>
+                    <textarea class="form-control" rows="5" style="width:300px;" name="remark" id="remark">@ViewBag.remark</textarea>
+</td>
                 @if (null != ViewBag.advance || null != ViewBag.retention)
             {
                     <td>

@@ -171,9 +171,9 @@
                         <span class="glyphicon glyphicon-usd" aria-hidden="true"></span>
                     </button>
                 </td>
-                @if (null != item.fileFound && item.fileFound != "")
+                @if (null != item.FILE_UPLOAD_NAME && item.FILE_UPLOAD_NAME != "")
                 {
-                    <td><a class="btn btn-link" href="/Estimation/downLoadVAFile?path=@item.fileFound" target="_blank"><span style="color :magenta; font-size: 10px;">下載</span></a></td>
+                    <td><a href="/Estimation/VAFileList/@item.VA_FORM_ID" target="_blank">檢視</a></td>
                 }
                 else
                 {

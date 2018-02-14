@@ -5346,14 +5346,14 @@ namespace topmeperp.Service
             }
             return form.VA_FORM_ID;
         }
-        public string addVAFile(string projectid, string keyName, string fileName, string fileType, string path, string createId)
+        public string addVAFile(string projectid, string keyName, string fileName, string fileType, string path, string createId, string createDate)
         {
             //寫入檔案相關資料
             using (var context = new topmepEntities())
             {
                 string sql = "INSERT INTO TND_FILE (PROJECT_ID, FILE_UPLOAD_NAME, FILE_ACTURE_NAME, "
-                    + "FILE_TYPE, FILE_LOCATIOM, CREATE_ID) "
-                    + "VALUES ('" + projectid + "', '" + keyName + "', '" + fileName + "', '" + fileType + "', '" + path + "', '" + createId + "') ";
+                    + "FILE_TYPE, FILE_LOCATIOM, CREATE_ID, CREATE_DATE) "
+                    + "VALUES ('" + projectid + "', '" + keyName + "', '" + fileName + "', '" + fileType + "', '" + path + "', '" + createId + "', CONVERT(datetime, '" + createDate + "', 120)) ";
                 logger.Info("sql =" + sql);
                 var parameters = new List<SqlParameter>();
                 i = context.Database.ExecuteSqlCommand(sql);
@@ -5402,13 +5402,13 @@ namespace topmeperp.Service
             List<RevenueFromOwner> VAItem = new List<RevenueFromOwner>();
             using (var context = new topmepEntities())
             {
-                VAItem = context.Database.SqlQuery<RevenueFromOwner>("SELECT vf.*, account.AR_PAID, f.FILE_LOCATIOM AS fileFound, ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + ISNULL(vf.TAX_AMOUNT, 0) " +
+                VAItem = context.Database.SqlQuery<RevenueFromOwner>("SELECT vf.*, account.AR_PAID, f.FILE_UPLOAD_NAME, ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + ISNULL(vf.TAX_AMOUNT, 0) " +
                     "- ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) - ISNULL(vf.OTHER_PAYMENT, 0) - ISNULL(vf.REPAYMENT, 0) AS AR, " +
                     "ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + ISNULL(vf.TAX_AMOUNT, 0) - ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) " +
                     "- ISNULL(vf.OTHER_PAYMENT, 0) - ISNULL(vf.REPAYMENT, 0) - account.AR_PAID AS AR_UNPAID, " +
                     "ROW_NUMBER() OVER(ORDER BY vf.CREATE_DATE) AS NO FROM PLAN_VALUATION_FORM vf LEFT JOIN (SELECT pa.ACCOUNT_FORM_ID, SUM(pa.AMOUNT) AS AR_PAID FROM PLAN_ACCOUNT pa " +
                     "WHERE pa.ACCOUNT_TYPE = 'R' AND pa.PROJECT_ID =@projectid AND pa.STATUS = 10 GROUP BY pa.ACCOUNT_FORM_ID)account ON vf.VA_FORM_ID = account.ACCOUNT_FORM_ID " +
-                    "LEFT JOIN TND_FILE f ON vf.VA_FORM_ID = f.FILE_UPLOAD_NAME WHERE vf.PROJECT_ID =@projectid "
+                    "LEFT JOIN (SELECT FILE_UPLOAD_NAME FROM TND_FILE GROUP BY FILE_UPLOAD_NAME)f ON vf.VA_FORM_ID = f.FILE_UPLOAD_NAME WHERE vf.PROJECT_ID =@projectid "
                    , new SqlParameter("projectid", projectid)).ToList();
             }
             return VAItem;
@@ -5460,6 +5460,59 @@ namespace topmeperp.Service
 
             }
             return i;
+        }
+        //取得上傳的計價檔案紀錄
+        public List<RevenueFromOwner> getVAFileByFormId(string formid)
+        {
+
+            logger.Info(" get VA file by form id =" + formid);
+            List<RevenueFromOwner> lstItem = new List<RevenueFromOwner>();
+            //處理SQL 預先填入專案代號,設定集合處理參數
+            string sql = "SELECT f.FILE_ID AS ITEM_UID, f.PROJECT_ID, f.FILE_UPLOAD_NAME, f.FILE_ACTURE_NAME, f.FILE_TYPE, " +
+                "f.CREATE_DATE, ROW_NUMBER() OVER(ORDER BY FILE_ID) AS NO FROM TND_FILE f WHERE f.FILE_UPLOAD_NAME = @formid ";
+
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("formid", formid));
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("get VA file sql=" + sql);
+                lstItem = context.Database.SqlQuery<RevenueFromOwner>(sql, parameters.ToArray()).ToList();
+            }
+            logger.Info("get VA file record count=" + lstItem.Count);
+            return lstItem;
+        }
+        //移除業主計價附檔資料
+        public int delVAFile(long itemid)
+        {
+            int i = 0;
+            //2.將檔案資料刪除
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    string sql = "DELETE FROM TND_FILE WHERE FILE_ID=@itemUid;";
+                    var parameters = new List<SqlParameter>();
+                    parameters.Add(new SqlParameter("itemUid", itemid));
+                    logger.Debug("Delete TND_FILE:" + itemid);
+                    context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+                    i = context.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.Message + ":" + ex.StackTrace);
+                }
+            }
+            return 1;
+        }
+        TND_FILE f = null;
+        public TND_FILE getVAFileByItemId(long itemid)
+        {
+            using (var context = new topmepEntities())
+            {
+                f = context.TND_FILE.SqlQuery("SELECT * FROM TND_FILE WHERE FILE_ID = @itemid "
+                   , new SqlParameter("itemid", itemid)).FirstOrDefault();
+            }
+            return f;
         }
     }
 }

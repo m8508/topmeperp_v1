@@ -2292,9 +2292,10 @@ namespace topmeperp.Controllers
                 //saveF.FILE_ACTURE_NAME = fileName;
                 var fileType = Path.GetExtension(file.FileName);
                 //f.FILE_LOCATIOM = path;
-                DateTime createDate = DateTime.Now;
+                string createDate = DateTime.Now.ToString("yyyy/MM/dd");
+                logger.Info("createDate = " + createDate);
                 string createId = uInfo.USER_ID;
-                string k = service.addVAFile(projectid, keyName, fileName, fileType, path, createId);
+                string k = service.addVAFile(projectid, keyName, fileName, fileType, path, createId, createDate);
                 //int j = service.refreshVAFile(saveF);
                 //2.2 將上傳檔案存檔
                 logger.Info("save upload file:" + path);
@@ -2368,17 +2369,41 @@ namespace topmeperp.Controllers
             if (i == 0) { msg = service.message; }
             return msg;
         }
+        //業主計價附檔明細
+        public ActionResult VAFileList(string id)
+        {
+            logger.Info("Access to the Page abount files of Valuation!!");
+            List<RevenueFromOwner> lstItem = service.getVAFileByFormId(id);
+            logger.Debug("va_form_id = " + id);
+            return View(lstItem);
+        }
         /// <summary>
         ///  業主計價附檔
         /// </summary>
-        public ActionResult downLoadVAFile()
+        public FileResult downLoadVAFile()
         {
-            //我要下載的檔案位置與檔名
+            //要下載的檔案位置與檔名
             string filepath = Request["path"];
+            //取得檔案名稱
+            string filename = System.IO.Path.GetFileName(filepath);
+            //var mime = Path.GetExtension(filepath);
             //讀成串流
-            Stream iStream = new FileStream(filepath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            Stream iStream = new FileStream(ContextService.strUploadPath + "/" + Request["projectid"], FileMode.Open, FileAccess.Read, FileShare.Read);
             //回傳檔案
-            return File(iStream, filepath);
+            return File(iStream, filename);
+            //return File(file[0] + "/" + Request["projectid"], mime, filename);
+        }
+        
+        //刪除單一附檔資料
+        public String delVAFile()
+        {
+            long itemUid = long.Parse(Request["itemid"]);
+            SYS_USER loginUser = (SYS_USER)Session["user"];
+            logger.Info(loginUser.USER_ID + " remove data:va file uid=" + itemUid);
+            TND_FILE f = service.getVAFileByItemId(long.Parse(Request["itemid"]));
+            System.IO.File.Delete(ContextService.strUploadPath + "/" + f.PROJECT_ID + f.FILE_ACTURE_NAME);
+            int i = service.delVAFile(itemUid);
+            return "檔案已刪除(" + i + ")";
         }
     }
 }
