@@ -1975,8 +1975,9 @@ namespace topmeperp.Service
                     }
                 }
 
-                string sql = "SELECT pi.* , map.QTY AS MAP_QTY, B.CUMULATIVE_QTY, C.ALL_RECEIPT_QTY- D.DELIVERY_QTY AS INVENTORY_QTY FROM PLAN_ITEM pi  " +
-                    "JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT JOIN (SELECT pri.PLAN_ITEM_ID, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY " +
+                string sql = "SELECT pi.* , (map.QTY + pci.ITEM_QUANTITY) AS MAP_QTY, B.CUMULATIVE_QTY, C.ALL_RECEIPT_QTY- D.DELIVERY_QTY AS INVENTORY_QTY FROM PLAN_ITEM pi  " +
+                    "JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT JOIN PLAN_COSTCHANGE_ITEM pci ON pi.PLAN_ITEM_ID = pci.PLAN_ITEM_ID " +
+                    "LEFT JOIN (SELECT pri.PLAN_ITEM_ID, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY " +
                     "FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID = @projectid AND " +
                     "pri.PR_ID LIKE 'PPO%' GROUP BY pri.PLAN_ITEM_ID )B ON pi.PLAN_ITEM_ID = B.PLAN_ITEM_ID " +
                     "LEFT JOIN(SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS ALL_RECEIPT_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr " +
@@ -3909,8 +3910,8 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 lstItem = context.Database.SqlQuery<RePaymentFunction>("SELECT DISTINCT pi.SUPPLIER_ID AS COMPANY_NAME, pi.INQUIRY_FORM_ID AS CONTRACT_NAME " +
-                    "FROM PLAN_ITEM pi WHERE PROJECT_ID =@prjid UNION SELECT DISTINCT pi.MAN_SUPPLIER_ID, " +
-                    "pi.MAN_FORM_ID FROM PLAN_ITEM pi WHERE PROJECT_ID =@prjid ; "
+                    "FROM PLAN_ITEM pi WHERE PROJECT_ID =@prjid AND SUPPLIER_ID IS NOT NULL UNION SELECT DISTINCT pi.MAN_SUPPLIER_ID, " +
+                    "pi.MAN_FORM_ID FROM PLAN_ITEM pi WHERE PROJECT_ID =@prjid AND MAN_SUPPLIER_ID IS NOT NULL ; "
             , new SqlParameter("prjid", prjid)).ToList();
             }
 

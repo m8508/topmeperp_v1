@@ -181,8 +181,13 @@ namespace topmeperp.Controllers
             lstTask = service.getTaskByPrjId(id);
             TND_PROJECT p = service.getProjectById(id);
             TndProjectModels viewModel = new TndProjectModels();
+            var priId = service.getTaskAssignById(id);
+            ViewBag.taskAssign = priId;
             viewModel.tndProject = p;
-            viewModel.tndTaskAssign = lstTask;
+            if (null != priId)
+            {
+                viewModel.tndTaskAssign = lstTask;
+            }
             //畫面上權限管理控制
             //頁面上使用ViewBag 定義開關\@ViewBag.F00003
             //由Session 取得權限清單
@@ -901,5 +906,131 @@ namespace topmeperp.Controllers
             }
         }
 
+        //新增任務分派資料
+        public String AddTaskAssign(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            string msg = "新增任務分派資料成功!!";
+            TND_TASKASSIGN leader = new TND_TASKASSIGN();
+            TND_TASKASSIGN costing = new TND_TASKASSIGN();
+            TND_TASKASSIGN map = new TND_TASKASSIGN();
+            leader.PROJECT_ID = form["project_id"];
+            costing.PROJECT_ID = form["project_id"];
+            map.PROJECT_ID = form["project_id"];
+            leader.TASK_TYPE = "主辦";
+            costing.TASK_TYPE = "成控";
+            map.TASK_TYPE = "圖算";
+            if (form["leader_user_id"] != "")
+            {
+                leader.USER_ID = form["leader_user_id"];
+            }
+            if (form["leader_task_item"] != "")
+            {
+                leader.TASK_ITEM = form["leader_task_item"];
+            }
+            if (form["leader_remark"] != "")
+            {
+                leader.REMARK = form["leader_remark"];
+            }
+            if (form["leader_finish_date"] != "")
+            {
+                leader.FINISH_DATE = Convert.ToDateTime(form.Get("leader_finish_date"));
+            }
+            if (form["costing_user_id"] != "")
+            {
+                costing.USER_ID = form["costing_user_id"];
+            }
+            if (form["costing_task_item"] != "")
+            {
+                costing.TASK_ITEM = form["costing_task_item"];
+            }
+            if (form["costing_remark"] != "")
+            {
+                costing.REMARK = form["costing_remark"];
+            }
+            if (form["costing_finish_date"] != "")
+            {
+                costing.FINISH_DATE = Convert.ToDateTime(form.Get("costing_finish_date"));
+            }
+            if (form["map_user_id"] != "")
+            {
+                map.USER_ID = form["map_user_id"];
+            }
+            if (form["map_task_item"] != "")
+            {
+                map.TASK_ITEM = form["map_task_item"];
+            }
+            if (form["map_remark"] != "")
+            {
+                map.REMARK = form["map_remark"];
+            }
+            if (form["map_finish_date"] != "")
+            {
+                map.FINISH_DATE = Convert.ToDateTime(form.Get("map_finish_date"));
+            }
+            UserService us = new UserService();
+            SYS_USER u = (SYS_USER)Session["user"];
+            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            leader.CREATE_ID = uInfo.USER_ID;
+            leader.CREATE_DATE = DateTime.Now;
+            costing.CREATE_ID = uInfo.USER_ID;
+            costing.CREATE_DATE = DateTime.Now;
+            map.CREATE_ID = uInfo.USER_ID;
+            map.CREATE_DATE = DateTime.Now;
+            List<TND_TASKASSIGN> taskAssign = new List<TND_TASKASSIGN>();
+            taskAssign.Add(leader);
+            taskAssign.Add(costing);
+            taskAssign.Add(map);
+            TnderProject service = new TnderProject();
+            int i = service.refreshTask(taskAssign);
+            if (i == 0) { msg = service.message; }
+            return msg;
+        }
+        /// <summary>
+        /// 取得任務分派詳細資料
+        /// </summary>
+        /// <param name="itemid"></param>
+        /// <returns></returns>
+        public string getTaskItem(string itemid)
+        {
+            TnderProject service = new TnderProject();
+            logger.Info("get task assign item by id=" + itemid);
+            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            string itemJson = objSerializer.Serialize(service.getTaskById(itemid));
+            logger.Info("task assign item  info=" + itemJson);
+            return itemJson;
+        }
+        //更新任務分派資料
+        public String refreshTaskItem(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            string msg = "修改任務分派資料成功!!";
+            TND_TASKASSIGN item = new TND_TASKASSIGN();
+            item.PROJECT_ID = form["prjid"];
+            item.TASK_ID = Int64.Parse(form["task_id"]);
+            item.USER_ID = form["userId"];
+            item.TASK_TYPE = form["taskType"];
+            item.TASK_ITEM = form["taskItem"];
+            item.CREATE_ID = form["createId"];
+            item.REMARK = form["taskRemark"];
+            if (form["finishDate"] != "")
+            {
+                item.FINISH_DATE = Convert.ToDateTime(form.Get("finishDate"));
+            }
+            else
+            {
+                item.FINISH_DATE = null;
+            }
+            item.CREATE_DATE = Convert.ToDateTime(form.Get("createDate"));
+            UserService us = new UserService();
+            SYS_USER u = (SYS_USER)Session["user"];
+            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            item.MODIFY_ID = uInfo.USER_ID;
+            item.MODIFY_DATE = DateTime.Now;
+            TnderProject service = new TnderProject();
+            int i = service.updateTask(item);
+            if (i == 0) { msg = service.message; }
+            return msg;
+        }
     }
 }

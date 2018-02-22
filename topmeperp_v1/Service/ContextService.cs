@@ -361,7 +361,16 @@ namespace topmeperp.Service
             return i;
         }
         #endregion
-
+        public string getTaskAssignById(string prjid)
+        {
+            string projectid = null;
+            using (var context = new topmepEntities())
+            {
+                projectid = context.Database.SqlQuery<string>("select DISTINCT PROJECT_ID FROM TND_TASKASSIGN WHERE PROJECT_ID = @pid "
+               , new SqlParameter("pid", prjid)).FirstOrDefault();
+            }
+            return projectid;
+        }
         //2.建立任務分配表
         public int refreshTask(List<TND_TASKASSIGN> task)
         {
@@ -373,11 +382,11 @@ namespace topmeperp.Service
             {
                 foreach (TND_TASKASSIGN item in task)
                 {
-                    if (item.FINISH_DATE.ToString() == "")
-                    {
-                        item.FINISH_DATE = DateTime.Now;
-                    }
-                    item.CREATE_DATE = DateTime.Now;
+                    //if (item.FINISH_DATE.ToString() == "")
+                    //{
+                        //item.FINISH_DATE = DateTime.Now;
+                    //}
+                    //item.CREATE_DATE = DateTime.Now;
                     context.TND_TASKASSIGN.Add(item);
                 }
                 i = context.SaveChanges();
@@ -385,6 +394,7 @@ namespace topmeperp.Service
             logger.Info("add task count =" + i);
             return i;
         }
+        
         public TND_PROJECT getProjectById(string prjid)
         {
             using (var context = new topmepEntities())
@@ -545,18 +555,18 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 lstTask = context.TND_TASKASSIGN.SqlQuery("select t.* from TND_TASKASSIGN t "
-                    + "where t.PROJECT_ID = @projectid "
+                    + "where t.PROJECT_ID = @projectid order by TASK_TYPE "
                    , new SqlParameter("projectid", projectid)).ToList();
             }
             return lstTask;
         }
-        public TND_TASKASSIGN getTaskById(string taskid)
+        public TaskAssign getTaskById(string taskid)
         {
-            TND_TASKASSIGN lst = new TND_TASKASSIGN();
+            TaskAssign lst = new TaskAssign();
             using (var context = new topmepEntities())
             {
-                lst = context.TND_TASKASSIGN.SqlQuery("select t.* from TND_TASKASSIGN t "
-                    + "where t.TASK_ID = @taskid "
+                lst = context.Database.SqlQuery<TaskAssign>("select t.*, convert(varchar, t.FINISH_DATE, 111) as finishDate, " 
+                    + "convert(varchar, t.CREATE_DATE, 120) as createDate from TND_TASKASSIGN t where t.TASK_ID = @taskid "
                    , new SqlParameter("taskid", taskid)).First();
             }
             return lst;
@@ -569,9 +579,18 @@ namespace topmeperp.Service
             int i = 0;
             using (var context = new topmepEntities())
             {
-                context.TND_TASKASSIGN.AddOrUpdate(task);
+                try
+                {
+                    context.TND_TASKASSIGN.AddOrUpdate(task);
                 i = context.SaveChanges();
-                logger.Debug("Update task=" + i);
+                }
+                catch (Exception e)
+                {
+                    logger.Debug("Update task=" + i);
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
             }
             return i;
         }

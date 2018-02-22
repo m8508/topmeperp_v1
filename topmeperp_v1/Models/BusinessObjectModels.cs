@@ -635,5 +635,9 @@ namespace topmeperp.Models
         public string paidDate1 { get; set; }
         public string paidDate2 { get; set; }
     }
-    
+    public class TaskAssign : TND_TASKASSIGN
+    {
+        public string finishDate { get; set; }
+        public string createDate { get; set; }
+    }
 }
