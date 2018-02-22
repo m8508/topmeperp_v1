@@ -91,7 +91,7 @@ namespace topmeperp.Controllers
         public ActionResult userProfile(SYS_USER newUser)
         {
             SYS_USER u = (SYS_USER)Session["user"];
-            if (newUser.PASSWORD != "")
+            if (null!= newUser.PASSWORD && newUser.PASSWORD != "")
             {
                 //check password
                 if (null != newUser.PASSWORD && newUser.PASSWORD != Request["confirmpwd"])
