@@ -8,7 +8,7 @@
 <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
 <div class="jumbotron">
     <div class="row">
-        <div class="col-md-2 form-group">
+        <div class="col-md-2">
             <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.id" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
         </div>
         <div class="col-md-4">
@@ -118,13 +118,63 @@
         </div>
     </div>
 </div>
-
+<div>
+    <h3 class="bg-info">檔案上傳區 : <button class="btn btn-link" data-toggle="modal" data-target="#formUploadFile" type="button">檔案上傳</button></h3>
+        <div class="col-md-12" style="padding-top:10px;">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>檔案名稱</th>
+                        <th>檔案類型</th>
+                        <th>上傳時間</th>
+                        <th>連結</th>
+                        <th>功能</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.ownerConFile)
+            {
+                        <tr>
+                            <td>@item.NO</td>
+                            <td>@item.FILE_ACTURE_NAME</td>
+                            <td>@item.FILE_TYPE</td>
+                            <td>@item.CREATE_DATE.Value.ToString("yyyy/MM/dd")</td>
+                            <td><a class="btn btn-link" href="/Plan/downLoadOwnerContractFile?path=@item.fileFound&projectid=@item.PROJECT_ID" target="_blank">下載</a></td>
+                            <td><button type="button" class="btn btn-danger" onclick="delOwnerContractFile('@item.ITEM_UID')">刪除</button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 <!-- Modal :對話框-->
 <div class="row" style="padding-top:10px;">
     <div class="modal fade" id="paymentInfo" role="dialog">
         <div class="modal-dialog" id="paymentInfoDialog">
             <!-- Modal content-->
             @Html.Partial("_PaymentTerms");
+        </div>
+    </div>
+</div>
+<!-- Modal :對話框 上傳檔案-->
+<div class="modal fade" id="formUploadFile" role="dialog">
+    <div class="modal-dialog" id="formUploadFile">
+        <div class="modal-content">
+            <form id="formFileUpload" name="formFileUpload" action="/Plan/uploadFile4Owner" method="post" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">上傳檔案</h4>
+                </div>
+                <div class="modal-body form-group">
+                    <input id="projectid" name="projectid" type="text" value="@ViewBag.id" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                    <input type="file" name="file" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">關閉</button>
+                    <input type="button" class="btn btn-default" data-dismiss="modal" value="上傳" id="upload" onclick="uploadFile4Owner()" />
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -275,5 +325,51 @@
             }
         });
     });
+
+    function uploadFile4Owner() {
+        $("#formFileUpload").submit(function (e) {
+            var formObj = $(this);
+            var formURL = formObj.attr("action");
+            var formData = new FormData(this);
+            $.ajax({
+                url: formURL,
+                type: 'POST',
+                data: formData,
+                mimeType: "multipart/form-data",
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function (msg) {
+                    alert(msg);
+                    window.location.reload();
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                }
+            });
+            e.preventDefault(); //Prevent Default action. 
+            e.unbind();
+        });
+        $("#formFileUpload").submit(); //Submit the form
+        // document.forms["formFileUpload"].submit();
+    }
+
+    //將Owner Contract File 註記刪除
+    function delOwnerContractFile(itemid) {
+
+        $.ajax({
+            url: "/Plan/delOwnerContractFile",
+            type: "POST",
+            data: { itemid: itemid },
+            dataType: "text",
+            success: function (data) {
+                alert(data);
+                location.reload();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('Error del data by ajax');
+            }
+        });
+    }
 </script>
 

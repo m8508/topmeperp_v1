@@ -1340,7 +1340,7 @@ namespace topmeperp.Service
             return item;
         }
     }
-
+    
     //工率相關資料提供作業
     public class WageTableService : TnderProject
     {
@@ -2008,7 +2008,7 @@ namespace topmeperp.Service
         }
     }
     #endregion
-
+    
     #region 供應商管理區塊
     /*
      *供應商管理 
@@ -2049,6 +2049,7 @@ namespace topmeperp.Service
             }
             return supplier.SUPPLIER_ID;
         }
+        
         public TND_SUPPLIER getSupplierById(string supid)
         {
             using (var context = new topmepEntities())
@@ -2290,4 +2291,62 @@ namespace topmeperp.Service
         }
     }
     #endregion
-}
+
+    #region 檔案管理區塊
+    /*
+     *檔案管理 
+     */
+    public class FileManage : ContextService
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        public string addFile(string projectid, string keyName, string fileName, string fileType, string path, string createId, string createDate)
+        {
+            int i = 0;
+            //寫入檔案相關資料
+            using (var context = new topmepEntities())
+            {
+                string sql = "INSERT INTO TND_FILE (PROJECT_ID, FILE_UPLOAD_NAME, FILE_ACTURE_NAME, "
+                    + "FILE_TYPE, FILE_LOCATIOM, CREATE_ID, CREATE_DATE) "
+                    + "VALUES ('" + projectid + "', '" + keyName + "', '" + fileName + "', '" + fileType + "', '" + path + "', '" + createId + "', CONVERT(datetime, '" + createDate + "', 120)) ";
+                logger.Info("sql =" + sql);
+                var parameters = new List<SqlParameter>();
+                i = context.Database.ExecuteSqlCommand(sql);
+                return keyName;
+            }
+        }
+        //移除檔案資料
+        public int delFile(long itemid)
+        {
+            int i = 0;
+            //2.將檔案資料刪除
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    string sql = "DELETE FROM TND_FILE WHERE FILE_ID=@itemUid;";
+                    var parameters = new List<SqlParameter>();
+                    parameters.Add(new SqlParameter("itemUid", itemid));
+                    logger.Debug("Delete TND_FILE:" + itemid);
+                    context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+                    i = context.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.Message + ":" + ex.StackTrace);
+                }
+            }
+            return 1;
+        }
+        TND_FILE f = null;
+        public TND_FILE getFileByItemId(long itemid)
+        {
+            using (var context = new topmepEntities())
+            {
+                f = context.TND_FILE.SqlQuery("SELECT * FROM TND_FILE WHERE FILE_ID = @itemid "
+                   , new SqlParameter("itemid", itemid)).FirstOrDefault();
+            }
+            return f;
+        }
+    }
+        #endregion
+    }

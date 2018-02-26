@@ -2295,7 +2295,8 @@ namespace topmeperp.Controllers
                 string createDate = DateTime.Now.ToString("yyyy/MM/dd");
                 logger.Info("createDate = " + createDate);
                 string createId = uInfo.USER_ID;
-                string k = service.addVAFile(projectid, keyName, fileName, fileType, path, createId, createDate);
+                FileManage fs = new FileManage();
+                string k = fs.addFile(projectid, keyName, fileName, fileType, path, createId, createDate);
                 //int j = service.refreshVAFile(saveF);
                 //2.2 將上傳檔案存檔
                 logger.Info("save upload file:" + path);
@@ -2400,9 +2401,11 @@ namespace topmeperp.Controllers
             long itemUid = long.Parse(Request["itemid"]);
             SYS_USER loginUser = (SYS_USER)Session["user"];
             logger.Info(loginUser.USER_ID + " remove data:va file uid=" + itemUid);
-            TND_FILE f = service.getVAFileByItemId(long.Parse(Request["itemid"]));
-            System.IO.File.Delete(ContextService.strUploadPath + "/" + f.PROJECT_ID + f.FILE_ACTURE_NAME);
-            int i = service.delVAFile(itemUid);
+            FileManage fs = new FileManage();
+            TND_FILE f = fs.getFileByItemId(long.Parse(Request["itemid"]));
+            var path = Path.Combine(ContextService.strUploadPath + "/" + f.PROJECT_ID, f.FILE_ACTURE_NAME);
+            System.IO.File.Delete(path);
+            int i = fs.delFile(itemUid);
             return "檔案已刪除(" + i + ")";
         }
     }

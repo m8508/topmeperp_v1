@@ -24,8 +24,16 @@ namespace topmeperp.Controllers
         public ActionResult Index()
         {
             List<CashFlowFunction> lstCashFlow = null;
+            List<PlanFinanceProfile> lstFinProfile = null;
+            PlanFinanceProfile totalFinProfile = null;
             lstCashFlow = service.getCashFlow();
-            return View(lstCashFlow);
+            lstFinProfile = service.getPlanFinProfile();
+            totalFinProfile = service.getFinProfile();
+            CashFlowModel viewModel = new CashFlowModel();
+            viewModel.finFlow = lstCashFlow;
+            viewModel.finProfile = lstFinProfile;
+            viewModel.totalFinProfile = totalFinProfile;
+            return View(viewModel);
         }
 
         //取得特定日期收入明細
