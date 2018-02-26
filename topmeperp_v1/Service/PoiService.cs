@@ -17,7 +17,7 @@ namespace topmeperp.Service
     public class ExcelBase
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        public IWorkbook hssfworkbook=null;
+        public IWorkbook hssfworkbook = null;
         public static string strUploadPath = ConfigurationManager.AppSettings["UploadFolder"];
         public ISheet sheet = null;
         public string fileformat = "xlsx";
@@ -34,7 +34,7 @@ namespace topmeperp.Service
 
         }
 
-        public void DataTableToExcelFile(DataTable dt,int startRowIndex = 0)
+        public void DataTableToExcelFile(DataTable dt, int startRowIndex = 0)
         {
             //建立Excel 2003檔案
             hssfworkbook = new HSSFWorkbook();
@@ -146,8 +146,8 @@ namespace topmeperp.Service
             }
             if (null == sheet)
             {
-                logger.Error("檔案內沒有Sheet="+ sheetName + "! filename=" + fileformat);
-                throw new Exception("檔案內沒有Sheet:"+ sheetName);
+                logger.Error("檔案內沒有Sheet=" + sheetName + "! filename=" + fileformat);
+                throw new Exception("檔案內沒有Sheet:" + sheetName);
             }
         }
     }
@@ -224,11 +224,16 @@ namespace topmeperp.Service
             //2.1  忽略不要的行數..
             while (iRowIndex < (startrow - 1))
             {
-                rows.MoveNext();
                 iRowIndex++;
-                row = (IRow)rows.Current;
-                if (row.Cells.Count > 2) {
-                    logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
+
+                row = (IRow)sheet.GetRow(iRowIndex);
+                if (null == row)
+                {
+                    logger.Debug("Empty Row Index=" + iRowIndex);
+                }
+                else if (row.Cells.Count > 2)
+                {
+                    logger.Debug("skip data Excel Value:" + iRowIndex + "," + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
                 }
                 else
                 {
@@ -238,9 +243,10 @@ namespace topmeperp.Service
             //循序處理每一筆資料之欄位!!
             iRowIndex++;
             int itemId = 1;
-            while (rows.MoveNext())
+            bool hasMore = true;
+            while (hasMore)
             {
-                row = (IRow)rows.Current;
+                row = (IRow)sheet.GetRow(iRowIndex);
                 logger.Debug("Cells Count=" + row.Cells.Count + ",Excel Index:" + iRowIndex);
                 //將各Row 資料寫入物件內
                 //項次,名稱,單位,數量,單價,複價,備註,九宮格,次九宮格,主系統,次系統
@@ -251,6 +257,7 @@ namespace topmeperp.Service
                 else
                 {
                     logger.Info("Finish convert Job : count=" + lstProjectItem.Count);
+                    hasMore = false;
                     return;
                 }
                 iRowIndex++;
@@ -268,7 +275,8 @@ namespace topmeperp.Service
                     if (c.CellType.Equals(CellType.Blank))
                     {
                         logger.Debug("Blank");
-                    }else
+                    }
+                    else
                     {
                         projectItem.ITEM_DESC = projectItem.ITEM_DESC + c.StringCellValue;
                     }
@@ -3265,7 +3273,7 @@ namespace topmeperp.Service
                 {
                     projectItem.TYPE_CODE_2 = row.Cells[cellNo - 4].ToString();
                 }
-                if (row.Cells[cellNo - 2-3].ToString().Trim() != "")//主系統 11
+                if (row.Cells[cellNo - 2 - 3].ToString().Trim() != "")//主系統 11
                 {
                     projectItem.SYSTEM_MAIN = row.Cells[cellNo - 3].ToString();
                 }
@@ -3273,7 +3281,7 @@ namespace topmeperp.Service
                 {
                     projectItem.SYSTEM_SUB = row.Cells[cellNo - 2].ToString();
                 }
-                logger.Debug("excel row:"+ excelrow+ ",type_code1="+ projectItem.TYPE_CODE_1 + ",type_code2=" + projectItem.TYPE_CODE_2 + ",system_main=" + projectItem.SYSTEM_MAIN+ ",system_sub=" + projectItem.SYSTEM_SUB );
+                logger.Debug("excel row:" + excelrow + ",type_code1=" + projectItem.TYPE_CODE_1 + ",type_code2=" + projectItem.TYPE_CODE_2 + ",system_main=" + projectItem.SYSTEM_MAIN + ",system_sub=" + projectItem.SYSTEM_SUB);
             }
             logger.Info("TndprojectItem=" + projectItem.ToString());
             return projectItem;
