@@ -1071,6 +1071,7 @@
     <Content Include="Scripts\popper-utils.js.map" />
     <Content Include="Views\Estimation\VAFileList.cshtml" />
     <Content Include="Views\Tender\_TaskAssignItem.cshtml" />
+    <Content Include="Views\Estimation\_PaymentInfo.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

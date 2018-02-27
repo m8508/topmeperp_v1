@@ -816,35 +816,39 @@ namespace topmeperp.Controllers
             ViewBag.supplier = lstSupplier.COMPANY_NAME;
             ViewBag.companyid = lstSupplier.COMPANY_ID;
             ContractModels singleForm = new ContractModels();
-            service.getESTByEstId(id);
-            singleForm.planEST = service.formEST;
-            try
+            int EstCount = service.getEstCountById(id);
+            ViewBag.type = "不檢查發票";
+            ViewBag.tax = "其他";
+            if (EstCount > 1)
             {
-                ViewBag.type = "不檢查發票";
-                if (singleForm.planEST.INVOICE == "E")
+                service.getESTByEstId(id);
+                singleForm.planEST = service.formEST;
+                try
                 {
-                    ViewBag.type = "發票含保留款";
+                    if (singleForm.planEST.INVOICE == "E")
+                    {
+                        ViewBag.type = "發票含保留款";
+                    }
+                    else if (singleForm.planEST.INVOICE == "I")
+                    {
+                        ViewBag.type = "發票不含保留款";
+                    }
                 }
-                else if (singleForm.planEST.INVOICE == "I")
+                catch (Exception ex)
                 {
-                    ViewBag.type = "發票不含保留款";
+                    logger.Error(ex.StackTrace);
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex.StackTrace);
-            }
-            try
-            {
-                ViewBag.tax = "其他";
-                if (singleForm.planEST.PLUS_TAX == "E")
+                try
                 {
-                    ViewBag.tax = "外加稅 " + singleForm.planEST.TAX_RATIO + "  %";
+                    if (singleForm.planEST.PLUS_TAX == "E")
+                    {
+                        ViewBag.tax = "外加稅 " + singleForm.planEST.TAX_RATIO + "  %";
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex.StackTrace);
+                catch (Exception ex)
+                {
+                    logger.Error(ex.StackTrace);
+                }
             }
             List<PLAN_INVOICE> lstInvoice = null;
             lstInvoice = service.getInvoiceById(id);

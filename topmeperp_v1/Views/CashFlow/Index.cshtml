@@ -15,6 +15,9 @@
                 日期
             </th>
             <th>
+                銀行存款
+            </th>
+            <th>
                 現金流入
             </th>
             <th>
@@ -34,6 +37,18 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.DATE_CASHFLOW)
                 </td>
+@if (item.AMOUNT_BANK != 0)
+{
+    <td>
+        <a href="/BankInfo/Index" target="_blank">@String.Format("{0:$#,##0.#}", item.AMOUNT_BANK)</a>
+    </td>
+}
+else
+{
+                <td>
+                    @String.Format("{0:$#,##0.#}", item.AMOUNT_BANK)
+                </td>
+}
                 @if (item.AMOUNT_INFLOW != 0)
                 {
                     <td>

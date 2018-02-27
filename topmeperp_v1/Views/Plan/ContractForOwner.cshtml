@@ -28,6 +28,8 @@
     </div>
 </div>
 <div class="contailer">
+    <label class="col-md-9"></label>
+    <label class="col-md-3  pull-right">製作中 / 跑流程 : ⭐ 確定 : ✔ 無 : ❌</label>
     <form id="formContract" name="formContract" action="UpdateConStatus" method="post">
         <input id="projectid" name="projectid" type="hidden" value="@ViewBag.id" />
         <table class="table">
@@ -54,6 +56,8 @@
                     備註
                 </th>
                 <th>付款條件已設定</th>
+                <th>履約保固金</th>
+                <th>保固金到期日</th>
             </tr>
             <tr>
                 <td>
@@ -95,7 +99,7 @@
                     <td><input style="width:150px;" type="date" class="form-control" name="delivery_date" id="delivery_date" value=""></td>
                 }
                 <td>
-                    <textarea class="form-control" rows="5" style="width:300px;" name="remark" id="remark">@ViewBag.remark</textarea>
+                    <textarea class="form-control" rows="5" style="width:200px;" name="remark" id="remark">@ViewBag.remark</textarea>
 </td>
                 @if (null != ViewBag.advance || null != ViewBag.retention)
             {
@@ -108,6 +112,19 @@
                 else
                 {
 
+                }
+                <td>
+                    <span style="color: blue; font-size: 15px;">
+                        @String.Format("{0:N0}", @ViewBag.Amount)
+                    </span>
+                </td>
+                @if (null != ViewBag.deliveyDate && ViewBag.deliveyDate != "")
+                {
+                    <td><input style="width:150px;" type="text" class="form-control" name="due_date" id="due_date" value="@ViewBag.deliveyDate"></td>
+                }
+                else
+                {
+                    <td><input style="width:150px;" type="date" class="form-control" name="due_date" id="due_date" value=""></td>
                 }
             </tr>
         </table>
