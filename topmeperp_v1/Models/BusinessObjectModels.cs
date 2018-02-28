@@ -283,6 +283,8 @@ namespace topmeperp.Models
         public string ConRemark { get; set; }
         public Nullable<decimal> PAYMENT_ADVANCE_RATIO { get; set; }
         public Nullable<decimal> PAYMENT_RETENTION_RATIO { get; set; }
+        public Nullable<decimal> MAINTENANCE_BOND { get; set; }
+        public string MB_DUE_DATE { get; set; }
     }
     public class MAP_FP_VIEW : TND_MAP_FP
     {
@@ -661,5 +663,14 @@ namespace topmeperp.Models
         public IEnumerable<PlanFinanceProfile> finProfile { get; set; }
         public IEnumerable<CashFlowFunction> finFlow { get; set; }
         public PlanFinanceProfile totalFinProfile { get; set; }
+        public CashFlowBalance finBalance { get; set; }
+    }
+    public class CashFlowBalance
+    {
+        public Nullable<decimal> curCashFlow { get; set; }
+        public Nullable<decimal> maintBond { get; set; }
+        public Nullable<decimal> loanBalance { get; set; }
+        public Nullable<decimal> futureCashFlow { get; set; }
+        public Nullable<decimal> cashFlowBal { get; set; }
     }
 }

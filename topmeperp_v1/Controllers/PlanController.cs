@@ -312,6 +312,8 @@ namespace topmeperp.Controllers
             ViewBag.advance = contractAmount.PAYMENT_ADVANCE_RATIO;
             ViewBag.retention = contractAmount.PAYMENT_RETENTION_RATIO;
             ViewBag.remark = contractAmount.ConRemark;
+            ViewBag.maintenanceBond = contractAmount.MAINTENANCE_BOND;
+            ViewBag.dueDate = contractAmount.MB_DUE_DATE;
             int i = service.addContractId4Owner(id);
             List<RevenueFromOwner> lstItem = service.getOwnerContractFileByPrjId(id);
             ContractModels viewModel = new ContractModels();
@@ -340,6 +342,22 @@ namespace topmeperp.Controllers
             else
             {
                 con.DELIVERY_DATE = null;
+            }
+            if (Request["due_date"] != "")
+            {
+                con.MB_DUE_DATE = Convert.ToDateTime(Request["due_date"]);
+            }
+            else
+            {
+                con.MB_DUE_DATE = null;
+            }
+            if (Request["mb_amount"] != "")
+            {
+                con.MAINTENANCE_BOND = decimal.Parse(Request["mb_amount"]);
+            }
+            else
+            {
+                con.MAINTENANCE_BOND = null;
             }
             int k = service.AddOwnerContractProcess(con);
             if (k == 0)

@@ -214,7 +214,7 @@ else
             <th style="width:80px;">
                 @String.Format("{0:$#,##0.#}", @Model.totalFinProfile.SiteCost)
             </th>
-            <th style="width:8px;">
+            <th style="width:80px;">
                 @String.Format("{0:$#,##0.#}", @Model.totalFinProfile.MACost)
             </th>
             <th style="width:80px;">
@@ -248,4 +248,74 @@ else
             }
         </tr>
     </table>
+</div>
+<!-- 公司資金餘額-->
+<div style="padding-top:30px;">
+    <h3 class="text-left">公司資金餘額</h3>
+    <table class="table table-bordered">
+        <tr>
+            <th class="bg-danger" style="width:140px;">
+                目前為止金流餘額
+            </th>
+            @if (@Model.finBalance.curCashFlow >= 0)
+            {
+                <th class="text-right" style="width:100px;">
+                    @String.Format("{0:$#,##0.#; ($#,##0.#);-}", @Model.finBalance.curCashFlow)
+                </th>
+            }
+            else
+            {
+                <th class="text-right" style="width:100px;">
+                    <span style="font-weight:bold;color:crimson">
+                        @String.Format("{0:$#,##0.#; ($#,##0.#);-}", @Model.finBalance.curCashFlow)
+                    </span>
+                </th>
+            }
+            <th class="bg-danger" style="width:110px;">
+                未收減未付餘額
+            </th>
+            @if (@Model.finBalance.futureCashFlow >= 0)
+            {
+                <th class="text-right" style="width:100px;">
+                    @String.Format("{0:$#,##0.#; ($#,##0.#);-}", @Model.finBalance.futureCashFlow)
+                </th>
+            }
+            else
+            {
+                <th class="text-right" style="width:100px;">
+                    <span style="font-weight:bold;color:crimson">
+                        @String.Format("{0:$#,##0.#; ($#,##0.#);-}", @Model.finBalance.futureCashFlow)
+                    </span>
+                </th>
+            }
+            <th class="bg-danger" style="width:140px;">
+                履約保固金(保證金)
+            </th>
+            <th class="text-right" style="width:100px;">
+                @String.Format("{0:$#,##0.#}", @Model.finBalance.maintBond)
+            </th>
+            <th class="bg-danger" style="width:70px;">
+                借款餘額
+            </th>
+            <th class="text-right" style="width:120px;">
+                @String.Format("{0:$#,##0.#}", @Model.finBalance.loanBalance * -1)
+            </th>
+            <th class="bg-danger" style="width:50px;">
+                結餘
+            </th>
+            @if (@Model.finBalance.cashFlowBal >= 0)
+            {
+                <th class="text-right" style="width:100px;">
+                    @String.Format("{0:$#,##0.#; ($#,##0.#);-}", @Model.finBalance.cashFlowBal)
+                </th>
+            }
+            else
+            {
+                <th class="text-right" style="width:100px;">
+                    <span style="font-weight:bold;color:crimson">
+                        @String.Format("{0:$#,##0.#; ($#,##0.#);-}", @Model.finBalance.cashFlowBal)
+                    </span>
+                </th>
+            }
+            </table>
 </div>

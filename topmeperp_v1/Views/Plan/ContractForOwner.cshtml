@@ -76,19 +76,19 @@
                 </td>
                 @if (ViewBag.production == "N")
             {
-                    <td><select  class="form-control" id="production" name="production"><option value=""></option><option value="N" selected>❌</option><option value="Y">✔</option><option value="S">⭐</option></select></td>
+                    <td><select class="form-control" id="production" name="production"><option value=""></option><option value="N" selected>❌</option><option value="Y">✔</option><option value="S">⭐</option></select></td>
                 }
                 else if (ViewBag.production == "Y")
                 {
-                    <td><select  class="form-control" id="production" name="production"><option value=""></option><option value="N">❌</option><option value="Y" selected>✔</option><option value="S">⭐</option></select></td>
+                    <td><select class="form-control" id="production" name="production"><option value=""></option><option value="N">❌</option><option value="Y" selected>✔</option><option value="S">⭐</option></select></td>
                 }
                 else if (ViewBag.production == "S")
                 {
-                    <td><select  class="form-control" id="production" name="production"><option value=""></option><option value="N">❌</option><option value="Y">✔</option><option value="S" selected>⭐</option></select></td>
+                    <td><select class="form-control" id="production" name="production"><option value=""></option><option value="N">❌</option><option value="Y">✔</option><option value="S" selected>⭐</option></select></td>
                 }
                 else
                 {
-                    <td><select  class="form-control" id="production" name="production"><option value=""></option><option value="N">❌</option><option value="Y">✔</option><option value="S">⭐</option></select></td>
+                    <td><select class="form-control" id="production" name="production"><option value=""></option><option value="N">❌</option><option value="Y">✔</option><option value="S">⭐</option></select></td>
                 }
                 @if (null != ViewBag.deliveyDate && ViewBag.deliveyDate != "")
                 {
@@ -99,8 +99,8 @@
                     <td><input style="width:150px;" type="date" class="form-control" name="delivery_date" id="delivery_date" value=""></td>
                 }
                 <td>
-                    <textarea class="form-control" rows="5" style="width:200px;" name="remark" id="remark">@ViewBag.remark</textarea>
-</td>
+                    <textarea class="form-control" rows="6" style="width:180px;" name="remark" id="remark">@ViewBag.remark</textarea>
+                </td>
                 @if (null != ViewBag.advance || null != ViewBag.retention)
             {
                     <td>
@@ -113,14 +113,10 @@
                 {
 
                 }
-                <td>
-                    <span style="color: blue; font-size: 15px;">
-                        @String.Format("{0:N0}", @ViewBag.Amount)
-                    </span>
-                </td>
-                @if (null != ViewBag.deliveyDate && ViewBag.deliveyDate != "")
+                <td><input style="width:90px;" type="text" class="form-control" name="mb_amount" id="mb_amount" value="@String.Format("{0:N0}", @ViewBag.maintenanceBond)"></td>
+                @if (null != ViewBag.dueDate && ViewBag.dueDate != "")
                 {
-                    <td><input style="width:150px;" type="text" class="form-control" name="due_date" id="due_date" value="@ViewBag.deliveyDate"></td>
+                    <td><input style="width:150px;" type="text" class="form-control" name="due_date" id="due_date" value="@ViewBag.dueDate"></td>
                 }
                 else
                 {
@@ -137,34 +133,34 @@
 </div>
 <div>
     <h3 class="bg-info">檔案上傳區 : <button class="btn btn-link" data-toggle="modal" data-target="#formUploadFile" type="button">檔案上傳</button></h3>
-        <div class="col-md-12" style="padding-top:10px;">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>No.</th>
-                        <th>檔案名稱</th>
-                        <th>檔案類型</th>
-                        <th>上傳時間</th>
-                        <th>連結</th>
-                        <th>功能</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.ownerConFile)
+    <div class="col-md-12" style="padding-top:10px;">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>檔案名稱</th>
+                    <th>檔案類型</th>
+                    <th>上傳時間</th>
+                    <th>連結</th>
+                    <th>功能</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.ownerConFile)
             {
-                        <tr>
-                            <td>@item.NO</td>
-                            <td>@item.FILE_ACTURE_NAME</td>
-                            <td>@item.FILE_TYPE</td>
-                            <td>@item.CREATE_DATE.Value.ToString("yyyy/MM/dd")</td>
-                            <td><a class="btn btn-link" href="/Plan/downLoadOwnerContractFile?path=@item.fileFound&projectid=@item.PROJECT_ID" target="_blank">下載</a></td>
-                            <td><button type="button" class="btn btn-danger" onclick="delOwnerContractFile('@item.ITEM_UID')">刪除</button></td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                    <tr>
+                        <td>@item.NO</td>
+                        <td>@item.FILE_ACTURE_NAME</td>
+                        <td>@item.FILE_TYPE</td>
+                        <td>@item.CREATE_DATE.Value.ToString("yyyy/MM/dd")</td>
+                        <td><a class="btn btn-link" href="/Plan/downLoadOwnerContractFile?path=@item.fileFound&projectid=@item.PROJECT_ID" target="_blank">下載</a></td>
+                        <td><button type="button" class="btn btn-danger" onclick="delOwnerContractFile('@item.ITEM_UID')">刪除</button></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
+</div>
 <!-- Modal :對話框-->
 <div class="row" style="padding-top:10px;">
     <div class="modal fade" id="paymentInfo" role="dialog">
@@ -364,7 +360,7 @@
                     alert(thrownError);
                 }
             });
-            e.preventDefault(); //Prevent Default action. 
+            e.preventDefault(); //Prevent Default action.
             e.unbind();
         });
         $("#formFileUpload").submit(); //Submit the form

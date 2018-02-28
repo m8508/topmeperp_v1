@@ -250,6 +250,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 plan = context.Database.SqlQuery<PlanRevenue>("SELECT p.PROJECT_ID AS CONTRACT_ID, pcp.CONTRACT_PRODUCTION, CONVERT(char(10), pcp.DELIVERY_DATE, 111) AS DELIVERY_DATE, " +
+                    "ISNULL(pcp.MAINTENANCE_BOND, 0) AS MAINTENANCE_BOND, CONVERT(char(10), pcp.MB_DUE_DATE, 111) AS MB_DUE_DATE, " +
                     "pcp.REMARK AS ConRemark, ppt.PAYMENT_ADVANCE_RATIO, ppt.PAYMENT_RETENTION_RATIO, (SELECT SUM(ITEM_UNIT_PRICE*ITEM_QUANTITY) FROM PLAN_ITEM pi WHERE pi.PROJECT_ID = @pid) AS PLAN_REVENUE " +
                      "FROM TND_PROJECT p LEFT JOIN PLAN_CONTRACT_PROCESS pcp ON p.PROJECT_ID = pcp.CONTRACT_ID LEFT JOIN PLAN_PAYMENT_TERMS ppt ON p.PROJECT_ID = ppt.CONTRACT_ID WHERE p.PROJECT_ID = @pid "
                    , new SqlParameter("pid", prjid)).First();
@@ -5549,6 +5550,37 @@ namespace topmeperp.Service
                     "LEFT JOIN (SELECT PROJECT_ID, COST AS SiteCost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '04_SiteCost')H on p.PROJECT_ID = H.PROJECT_ID " +
                     "LEFT JOIN (SELECT PROJECT_ID, COST AS CompanyCost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '03_CompanyCost')I on p.PROJECT_ID = I.PROJECT_ID " +
                     "GROUP BY p.PROJECT_ID, p.PROJECT_NAME, B.directCost, C.AR, D.AP, E.MinusItem, F.MACost, G.SalesCost, I.CompanyCost, H.SiteCost)a)it ").FirstOrDefault();
+            }
+            return lstAmount;
+        }
+        //取得公司當前現金餘額
+        public CashFlowBalance getCashFlowBalance()
+        {
+            CashFlowBalance lstAmount = null;
+            using (var context = new topmepEntities())
+            {
+                lstAmount = context.Database.SqlQuery<CashFlowBalance>("SELECT *, curCashFlow + maintBond + loanBalance + futureCashFlow AS cashFlowBal FROM " +
+                    "(SELECT (SELECT bankAmt + cashFlow FROM (SELECT (SELECT SUM(CUR_AMOUNT) FROM FIN_BANK_ACCOUNT) AS bankAmt, SUM(AMOUNT *IIF(pa.ISDEBIT = 'N', -1, 1)) AS cashFlow " +
+                    "FROM PLAN_ACCOUNT pa WHERE pa.PAYMENT_DATE >= CONVERT(char(10), getdate(), 111) AND STATUS <> 0)it) AS curCashFlow, (SELECT SUM(MAINTENANCE_BOND) FROM PLAN_CONTRACT_PROCESS) AS maintBond, " +
+                    "(SELECT ISNULL(SUM(AMOUNT * flt.TRANSACTION_TYPE), 0) FROM FIN_LOAN_TRANACTION flt WHERE flt.EVENT_DATE <= CONVERT(char(10), getdate(), 111) OR " +
+                    "flt.PAYBACK_DATE <= CONVERT(char(10), getdate(), 111)) AS loanBalance, (SELECT SUM(ISNULL(uncollectedAR, 0)) - SUM(ISNULL(unpaidAP, 0)) " +
+                    "FROM(SELECT p.PROJECT_ID, p.PROJECT_NAME, ISNULL(B.directCost, 0) AS directCost, ISNULL(C.AR, 0) AS AR, " +
+                    "ISNULL(SUM(pi.ITEM_UNIT_PRICE * pi.ITEM_QUANTITY), 0) - ISNULL(C.AR, 0) AS uncollectedAR, ISNULL(D.AP, 0) - ISNULL(E.MinusItem, 0) AS AP, " +
+                    "ISNULL(B.directCost, 0) - ISNULL(D.AP, 0) + ISNULL(E.MinusItem, 0) AS unpaidAP, ISNULL(SUM(pi.ITEM_UNIT_PRICE * pi.ITEM_QUANTITY), 0) AS PLAN_REVENUE, " +
+                    "ISNULL(F.MACost, 0) AS MACost, ISNULL(G.SalesCost, 0) + ISNULL(I.CompanyCost, 0) AS ManagementCost, ISNULL(H.SiteCost, 0) AS SiteCost " +
+                    "FROM PLAN_ITEM pi LEFT JOIN TND_PROJECT p ON pi.PROJECT_ID = p.PROJECT_ID LEFT JOIN(SELECT main.PROJECT_ID, SUM(sub.directCost) AS directCost " +
+                    "FROM (SELECT pi.INQUIRY_FORM_ID, pi.PROJECT_ID FROM PLAN_ITEM pi union SELECT pi.MAN_FORM_ID, pi.PROJECT_ID FROM PLAN_ITEM pi)main " +
+                    "LEFT JOIN (SELECT psi.INQUIRY_FORM_ID, SUM(psi.ITEM_UNIT_PRICE * psi.ITEM_QTY) AS directCost FROM  PLAN_SUP_INQUIRY_ITEM psi GROUP BY psi.INQUIRY_FORM_ID)sub " +
+                    "ON main.INQUIRY_FORM_ID = sub.INQUIRY_FORM_ID GROUP BY main.PROJECT_ID)B ON p.PROJECT_ID = B.PROJECT_ID " +
+                    "LEFT JOIN (SELECT PROJECT_ID, SUM(ADVANCE_PAYMENT) + SUM(VALUATION_AMOUNT) - SUM(RETENTION_PAYMENT) - SUM(ADVANCE_PAYMENT_REFUND) AS AR " +
+                    "FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID)C ON p.PROJECT_ID = C.PROJECT_ID LEFT JOIN(SELECT PROJECT_ID, SUM(PAYMENT_TRANSFER) - SUM(RETENTION_PAYMENT) AS AP " +
+                    "FROM PLAN_ESTIMATION_FORM GROUP BY PROJECT_ID)D ON p.PROJECT_ID = D.PROJECT_ID LEFT JOIN(SELECT PROJECT_ID, SUM(pop.AMOUNT) AS MinusItem FROM PLAN_ESTIMATION_FORM pef " +
+                    "LEFT JOIN PLAN_OTHER_PAYMENT pop ON pef.EST_FORM_ID = pop.EST_FORM_ID WHERE pop.TYPE  in ('A', 'B', 'C', 'F') GROUP BY PROJECT_ID)E ON p.PROJECT_ID = E.PROJECT_ID " +
+                    "LEFT JOIN(SELECT PROJECT_ID, COST AS MACost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '01_MACost')F on p.PROJECT_ID = F.PROJECT_ID " +
+                    "LEFT JOIN(SELECT PROJECT_ID, COST AS SalesCost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '02_SalesCost')G on p.PROJECT_ID = G.PROJECT_ID " +
+                    "LEFT JOIN(SELECT PROJECT_ID, COST AS SiteCost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '04_SiteCost')H on p.PROJECT_ID = H.PROJECT_ID " +
+                    "LEFT JOIN(SELECT PROJECT_ID, COST AS CompanyCost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '03_CompanyCost')I on p.PROJECT_ID = I.PROJECT_ID " +
+                    "GROUP BY p.PROJECT_ID, p.PROJECT_NAME, B.directCost, C.AR, D.AP, E.MinusItem, F.MACost, G.SalesCost, I.CompanyCost, H.SiteCost)a)  AS futureCashFlow)cash ").FirstOrDefault();
             }
             return lstAmount;
         }

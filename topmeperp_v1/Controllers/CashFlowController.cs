@@ -26,13 +26,16 @@ namespace topmeperp.Controllers
             List<CashFlowFunction> lstCashFlow = null;
             List<PlanFinanceProfile> lstFinProfile = null;
             PlanFinanceProfile totalFinProfile = null;
+            CashFlowBalance cashFlowBalance = null;
             lstCashFlow = service.getCashFlow();
             lstFinProfile = service.getPlanFinProfile();
             totalFinProfile = service.getFinProfile();
+            cashFlowBalance = service.getCashFlowBalance();
             CashFlowModel viewModel = new CashFlowModel();
             viewModel.finFlow = lstCashFlow;
             viewModel.finProfile = lstFinProfile;
             viewModel.totalFinProfile = totalFinProfile;
+            viewModel.finBalance = cashFlowBalance;
             return View(viewModel);
         }
 
