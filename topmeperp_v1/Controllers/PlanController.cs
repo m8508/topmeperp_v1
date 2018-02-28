@@ -312,8 +312,14 @@ namespace topmeperp.Controllers
             ViewBag.advance = contractAmount.PAYMENT_ADVANCE_RATIO;
             ViewBag.retention = contractAmount.PAYMENT_RETENTION_RATIO;
             ViewBag.remark = contractAmount.ConRemark;
+            ViewBag.maintenanceBond = contractAmount.MAINTENANCE_BOND;
+            ViewBag.dueDate = contractAmount.MB_DUE_DATE;
             int i = service.addContractId4Owner(id);
-            return View();
+            List<RevenueFromOwner> lstItem = service.getOwnerContractFileByPrjId(id);
+            ContractModels viewModel = new ContractModels();
+            viewModel.ownerConFile = lstItem;
+            logger.Debug("contract project id = " + id);
+            return View(viewModel);
         }
         public String UpdateConStatus(PLAN_CONTRACT_PROCESS con)
         {
@@ -335,7 +341,23 @@ namespace topmeperp.Controllers
             }
             else
             {
-                con.DELIVERY_DATE = null; 
+                con.DELIVERY_DATE = null;
+            }
+            if (Request["due_date"] != "")
+            {
+                con.MB_DUE_DATE = Convert.ToDateTime(Request["due_date"]);
+            }
+            else
+            {
+                con.MB_DUE_DATE = null;
+            }
+            if (Request["mb_amount"] != "")
+            {
+                con.MAINTENANCE_BOND = decimal.Parse(Request["mb_amount"]);
+            }
+            else
+            {
+                con.MAINTENANCE_BOND = null;
             }
             int k = service.AddOwnerContractProcess(con);
             if (k == 0)
@@ -908,7 +930,8 @@ namespace topmeperp.Controllers
                 if (Request[prefix + item.PLAN_ITEM_ID].Trim() != "")
                 {
                     item.ITEM_QUANTITY = int.Parse(Request[prefix + item.PLAN_ITEM_ID]);
-                }else
+                }
+                else
                 {
                     item.ITEM_QUANTITY = 0;
                 }
@@ -1094,7 +1117,7 @@ namespace topmeperp.Controllers
                     //logger.Info("item info=" + itemJson);
                     //2.3 寫入資料
                     CostChangeService s = new CostChangeService();
-                    if (null== poiService.costChangeForm.FORM_ID || poiService.costChangeForm.FORM_ID == "")
+                    if (null == poiService.costChangeForm.FORM_ID || poiService.costChangeForm.FORM_ID == "")
                     {
                         s.createChangeOrder(poiService.costChangeForm, poiService.lstItem);
                     }
@@ -1112,6 +1135,69 @@ namespace topmeperp.Controllers
             }
             return "匯入成功!!";
 
+        }
+        //上傳業主合約檔案
+        public String uploadFile4Owner(HttpPostedFileBase file)
+        {
+
+            string msg = "新增檔案成功!!";
+            string k = null;
+            //若使用者有上傳檔案，則增加檔案資料
+            if (null != file && file.ContentLength != 0)
+            {
+                //2.解析檔案
+                logger.Info("Parser file data:" + file.FileName);
+                //2.1 設定檔案名稱,實體位址,附檔名
+                string projectid = Request["projectid"];
+                string keyName = "業主合約";
+                logger.Info("file upload namme =" + keyName);
+                var fileName = Path.GetFileName(file.FileName);
+                var path = Path.Combine(ContextService.strUploadPath + "/" + Request["projectid"], fileName);
+                var fileType = Path.GetExtension(file.FileName);
+                string createDate = DateTime.Now.ToString("yyyy/MM/dd");
+                logger.Info("createDate = " + createDate);
+                UserService us = new UserService();
+                SYS_USER u = (SYS_USER)Session["user"];
+                SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+                string createId = uInfo.USER_ID;
+                FileManage fs = new FileManage();
+                k = fs.addFile(projectid, keyName, fileName, fileType, path, createId, createDate);
+                //2.2 將上傳檔案存檔
+                logger.Info("save upload file:" + path);
+                file.SaveAs(path);
+            }
+            if (k == "" || null == k) { msg = service.message; }
+            return msg;
+        }
+        /// <summary>
+        ///  業主合約檔案
+        /// </summary>
+        public FileResult downLoadOwnerContractFile()
+        {
+            //要下載的檔案位置與檔名
+            string filepath = Request["path"];
+            //取得檔案名稱
+            string filename = System.IO.Path.GetFileName(filepath);
+            //var mime = Path.GetExtension(filepath);
+            //讀成串流
+            Stream iStream = new FileStream(ContextService.strUploadPath + "/" + Request["projectid"], FileMode.Open, FileAccess.Read, FileShare.Read);
+            //回傳檔案
+            return File(iStream, filename);
+            //return File(file[0] + "/" + Request["projectid"], mime, filename);
+        }
+
+        //刪除單一附檔資料
+        public String delOwnerContractFile()
+        {
+            long itemUid = long.Parse(Request["itemid"]);
+            SYS_USER loginUser = (SYS_USER)Session["user"];
+            logger.Info(loginUser.USER_ID + " remove data:va file uid=" + itemUid);
+            FileManage fs = new FileManage();
+            TND_FILE f = fs.getFileByItemId(long.Parse(Request["itemid"]));
+            var path = Path.Combine(ContextService.strUploadPath + "/" + f.PROJECT_ID, f.FILE_ACTURE_NAME);
+            System.IO.File.Delete(path);
+            int i = fs.delFile(itemUid);
+            return "檔案已刪除(" + i + ")";
         }
     }
 }

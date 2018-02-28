@@ -816,35 +816,39 @@ namespace topmeperp.Controllers
             ViewBag.supplier = lstSupplier.COMPANY_NAME;
             ViewBag.companyid = lstSupplier.COMPANY_ID;
             ContractModels singleForm = new ContractModels();
-            service.getESTByEstId(id);
-            singleForm.planEST = service.formEST;
-            try
+            int EstCount = service.getEstCountById(id);
+            ViewBag.type = "不檢查發票";
+            ViewBag.tax = "其他";
+            if (EstCount > 1)
             {
-                ViewBag.type = "不檢查發票";
-                if (singleForm.planEST.INVOICE == "E")
+                service.getESTByEstId(id);
+                singleForm.planEST = service.formEST;
+                try
                 {
-                    ViewBag.type = "發票含保留款";
+                    if (singleForm.planEST.INVOICE == "E")
+                    {
+                        ViewBag.type = "發票含保留款";
+                    }
+                    else if (singleForm.planEST.INVOICE == "I")
+                    {
+                        ViewBag.type = "發票不含保留款";
+                    }
                 }
-                else if (singleForm.planEST.INVOICE == "I")
+                catch (Exception ex)
                 {
-                    ViewBag.type = "發票不含保留款";
+                    logger.Error(ex.StackTrace);
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex.StackTrace);
-            }
-            try
-            {
-                ViewBag.tax = "其他";
-                if (singleForm.planEST.PLUS_TAX == "E")
+                try
                 {
-                    ViewBag.tax = "外加稅 " + singleForm.planEST.TAX_RATIO + "  %";
+                    if (singleForm.planEST.PLUS_TAX == "E")
+                    {
+                        ViewBag.tax = "外加稅 " + singleForm.planEST.TAX_RATIO + "  %";
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex.StackTrace);
+                catch (Exception ex)
+                {
+                    logger.Error(ex.StackTrace);
+                }
             }
             List<PLAN_INVOICE> lstInvoice = null;
             lstInvoice = service.getInvoiceById(id);
@@ -2295,7 +2299,8 @@ namespace topmeperp.Controllers
                 string createDate = DateTime.Now.ToString("yyyy/MM/dd");
                 logger.Info("createDate = " + createDate);
                 string createId = uInfo.USER_ID;
-                string k = service.addVAFile(projectid, keyName, fileName, fileType, path, createId, createDate);
+                FileManage fs = new FileManage();
+                string k = fs.addFile(projectid, keyName, fileName, fileType, path, createId, createDate);
                 //int j = service.refreshVAFile(saveF);
                 //2.2 將上傳檔案存檔
                 logger.Info("save upload file:" + path);
@@ -2400,9 +2405,11 @@ namespace topmeperp.Controllers
             long itemUid = long.Parse(Request["itemid"]);
             SYS_USER loginUser = (SYS_USER)Session["user"];
             logger.Info(loginUser.USER_ID + " remove data:va file uid=" + itemUid);
-            TND_FILE f = service.getVAFileByItemId(long.Parse(Request["itemid"]));
-            System.IO.File.Delete(ContextService.strUploadPath + "/" + f.PROJECT_ID + f.FILE_ACTURE_NAME);
-            int i = service.delVAFile(itemUid);
+            FileManage fs = new FileManage();
+            TND_FILE f = fs.getFileByItemId(long.Parse(Request["itemid"]));
+            var path = Path.Combine(ContextService.strUploadPath + "/" + f.PROJECT_ID, f.FILE_ACTURE_NAME);
+            System.IO.File.Delete(path);
+            int i = fs.delFile(itemUid);
             return "檔案已刪除(" + i + ")";
         }
     }

@@ -264,7 +264,7 @@ namespace topmeperp.Models
         public PLAN_ESTIMATION_FORM planEST { get; set; }
         public IEnumerable<EstimationForm> planESTItem { get; set; }
         public IEnumerable<PURCHASE_ORDER> planOrder { get; set; }
-        
+        public IEnumerable<RevenueFromOwner> ownerConFile { get; set; }
     }
     public class CostForBudget
     {
@@ -283,6 +283,8 @@ namespace topmeperp.Models
         public string ConRemark { get; set; }
         public Nullable<decimal> PAYMENT_ADVANCE_RATIO { get; set; }
         public Nullable<decimal> PAYMENT_RETENTION_RATIO { get; set; }
+        public Nullable<decimal> MAINTENANCE_BOND { get; set; }
+        public string MB_DUE_DATE { get; set; }
     }
     public class MAP_FP_VIEW : TND_MAP_FP
     {
@@ -479,6 +481,7 @@ namespace topmeperp.Models
         public Nullable<decimal> AMOUNT_OUTFLOW { get; set; }
         public Nullable<decimal> BALANCE { get; set; }
         public Nullable<decimal> RUNNING_TOTAL { get; set; }
+        public Nullable<decimal> AMOUNT_BANK { get; set; }
     }
     public class ExpenseBudgetSummary : FIN_EXPENSE_ITEM
     {
@@ -639,5 +642,35 @@ namespace topmeperp.Models
     {
         public string finishDate { get; set; }
         public string createDate { get; set; }
+    }
+    public class PlanFinanceProfile 
+    {
+        public Nullable<decimal> directCost { get; set; }
+        public Nullable<decimal> AP { get; set; }
+        public Nullable<decimal> AR { get; set; }
+        public Nullable<decimal> ManagementCost { get; set; }
+        public Nullable<decimal> planProfit { get; set; }
+        public Nullable<decimal> MACost { get; set; }
+        public Nullable<decimal> PLAN_REVENUE { get; set; }
+        public Nullable<decimal> SiteCost { get; set; }
+        public Nullable<decimal> uncollectedAR { get; set; }
+        public Nullable<decimal> unpaidAP { get; set; }
+        public string PROJECT_ID { get; set; }
+        public string PROJECT_NAME { get; set; }
+    }
+    public class CashFlowModel
+    {
+        public IEnumerable<PlanFinanceProfile> finProfile { get; set; }
+        public IEnumerable<CashFlowFunction> finFlow { get; set; }
+        public PlanFinanceProfile totalFinProfile { get; set; }
+        public CashFlowBalance finBalance { get; set; }
+    }
+    public class CashFlowBalance
+    {
+        public Nullable<decimal> curCashFlow { get; set; }
+        public Nullable<decimal> maintBond { get; set; }
+        public Nullable<decimal> loanBalance { get; set; }
+        public Nullable<decimal> futureCashFlow { get; set; }
+        public Nullable<decimal> cashFlowBal { get; set; }
     }
 }

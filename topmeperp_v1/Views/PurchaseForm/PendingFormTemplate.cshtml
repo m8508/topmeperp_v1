@@ -18,6 +18,8 @@
 </div>
 <div style="padding-top:10px;">@ViewBag.SearchResult</div>
 <div class="row">
+    <label class="col-md-9"></label>
+    <label class="col-md-3  pull-right">製作中 / 跑流程 : ⭐ 確定 : ✔ 無 : ❌</label>
     <form id="formContract" name="formContract" action="UpdateConStatus" method="post">
         <input type="hidden" name="projectid" id="projectid" value="@ViewBag.projectid">
         <table class="table">

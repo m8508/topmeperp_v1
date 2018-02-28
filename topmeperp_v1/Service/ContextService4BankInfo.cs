@@ -83,7 +83,7 @@ namespace topmeperp.Service
             {
                 try
                 {
-                    string sql = "SELECT * , (SELECT SUM(TRANSACTION_TYPE * AMOUNT) FROM FIN_LOAN_TRANACTION T WHERE T.BL_ID = B.BL_ID) SumTransactionAmount  FROM FIN_BANK_LOAN B";
+                    string sql = "SELECT * , (SELECT ISNULL(SUM(TRANSACTION_TYPE * AMOUNT), 0) FROM FIN_LOAN_TRANACTION T WHERE T.BL_ID = B.BL_ID) SumTransactionAmount  FROM FIN_BANK_LOAN B";
 
                     lstBankLoan = context.Database.SqlQuery<BankLoanInfoExt>(sql).ToList();
                     logger.Info("new bank loan records=" + lstBankLoan.Count);
