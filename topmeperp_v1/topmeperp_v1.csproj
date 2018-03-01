@@ -406,6 +406,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\BankInfoController.cs" />
     <Compile Include="Controllers\CashFlowController.cs" />
+    <Compile Include="Controllers\DeptManageController.cs" />
     <Compile Include="Controllers\EstimationController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InquiryController.cs" />
@@ -427,6 +428,9 @@
     </Compile>
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\BO4CashFlow.cs" />
+    <Compile Include="Models\ENT_DEPARTMENT.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\FIN_BANK_ACCOUNT.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
@@ -463,13 +467,7 @@
     <Compile Include="Models\PLAN_SITE_BUDGET.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\PLAN_VALUATION_4OWNER.cs">
-      <DependentUpon>topmep.tt</DependentUpon>
-    </Compile>
     <Compile Include="Models\PLAN_VALUATION_FORM.cs">
-      <DependentUpon>topmep.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\PLAN_VALUATION_FORM_ITEM.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\PurchaseBO.cs" />

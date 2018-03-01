@@ -24,5 +24,7 @@ namespace topmeperp.Models
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public Nullable<decimal> MAINTENANCE_BOND { get; set; }
         public Nullable<System.DateTime> MB_DUE_DATE { get; set; }
+        public string MB_REMARK { get; set; }
+        public Nullable<System.DateTime> MB_PAYBACK_DATE { get; set; }
     }
 }
