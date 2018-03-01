@@ -17,7 +17,11 @@ namespace topmeperp.Models
         public long DEP_ID { get; set; }
         public string DEPT_CODE { get; set; }
         public string DEPT_NAME { get; set; }
-        public long PARENT_D { get; set; }
+        public long PARENT_ID { get; set; }
         public string DESC { get; set; }
+        public string CREATE_ID { get; set; }
+        public Nullable<System.DateTime> CREATE_DATE { get; set; }
+        public string MODIFY_ID { get; set; }
+        public Nullable<System.DateTime> MODIFY_DATE { get; set; }
     }
 }
