@@ -2,39 +2,26 @@
     ViewBag.Title = "部門資料管理";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
+<link href="../../Content/bootstrap-treeview.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../../Scripts/bootstrap-treeview.js"></script>
 <!--搜尋條件區域-->
 <div class="jumbotron">
-    <div class="row"><h5>@ViewBag.Title</h5></div>
     <div class="row form-group">
-        <form name="formSearch" id="formSearch">
+        <form name="formSearch" id="formSearch" class="form-inline">
             <div class="col-md-12">
-                <div class="col-md-3">
-                    帳號: <input id="userid" name="userid" type="text" class="form-control" />
+                    <label for="deptName">部門名稱:</label>
+                    <input id="deptName" name="deptName" type="text" class="form-control" />
+                    <button class="btn btn-info" id="btnQuery" name="btnQuery">查詢</button>
+                    <div id="divProcessing">
+                        <img src="~/Content/ajax-loader.gif">
+                    </div>
+                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#deptInfo" onclick="clearDialog()">新增</button>
                 </div>
-                <div class="col-md-3">
-                    姓名: <input id="username" name="username" type="text" class="form-control" />
-                </div>
-                <div class="col-md-3">
-                    電話: <input id="tel" name="tel" type="text" class="form-control" />
-                </div>
-                <div class="col-md-3">
-                    角色: @Html.DropDownList("roles", null, String.Empty, new { @class = "form-control" })
-                </div>
-            </div>
         </form>
     </div>
 
-    <div class="row" style="padding-top:10px;">
-        <div class="col-md-12">
-            <button class="btn btn-info" id="btnQuery" name="btnQuery">查詢</button>
-            <div id="divProcessing">
-                <img src="~/Content/ajax-loader.gif">
-            </div>
-            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#userInfo" onclick="clearDialog()">新增使用者</button>
-        </div>
-    </div>
     <!-- Modal :對話框-->
-    <div class="modal fade" id="userInfo" role="dialog">
+    <div class="modal fade" id="deptInfo" role="dialog">
         <div class="modal-dialog" id="userInfoDialog">
             <!-- Modal content-->
             @Html.Partial("_Dept");
@@ -42,22 +29,47 @@
     </div>
 </div>
 <!--帳號資料清單，透過AJAX 更新相關頁面資料-->
-<div class="container">
-    <div id="userList" name="userList">
-    </div>
+
+<!--樹狀圖區塊-->
+
+<div class="col-md-12">
+    <h2 id="deptTree">部門樹狀圖</h2>
+    <div id="treeview" style="height:500px;overflow-x:auto;"></div>
 </div>
 
 <script type="text/javascript">
-    $("#saveUser").click(function () {
+    var chkNodeId;
+    var defaultData = [@Html.Raw(ViewBag.TreeString)];
+    $('#treeview').treeview({
+        data: defaultData,
+        showIcon: false,
+        showCheckbox: true,
+        showTags: true,
+        onNodeChecked: function (event, node) {
+            $('#treeview').treeview('uncheckAll', { silent: true });
+            $('#checkable-output').prepend('<p>' + node.text + ' was checked</p>');
+            $('#treeview').treeview('checkNode', [node.nodeId, { silent: true }]);
+            // chkNodeId = node.href;
+            $('#checkNodeId').val(node.href);
+            node.expanded= true;
+        },
+        onNodeUnchecked: function (event, node) {
+            $('#checkable-output').prepend('<p>' + node.text + ' was unchecked</p>');
+            $('#checkNodeId').val("");
+        }
+    });
+    $('#treeview').treeview('expandAll', { levels: 3, silent: $('#chk-expand-silent').is(':checked') });
+
+
+    $("#saveDept").click(function () {
         //Ajax 功能範例
-        // alert($('#formUser').serialize());
-        //alert($('#formSearch').serialize());
+        alert($('#formDept').serialize());
         //特殊JQuery 選擇器
-        if ($("form[name='formUser'] select[name='roles']").val() == "") { alert("請設定使用者角色!!"); return false; }
-        var URLs = "addUser";
+        // if ($("form[name='formUser'] select[name='roles']").val() == "") { alert("請設定使用者角色!!"); return false; }
+        var URLs = "addDepartment";
         $.ajax({
             url: URLs,
-            data: $('#formUser').serialize(),
+            data: $('#formDept').serialize(),
             type: "POST",
             dataType: 'text',
             success: function (msg) {
@@ -84,7 +96,7 @@
             type: "POST",
             dataType: 'html',
             success: function (result) {
-                $("#userList").html(result);
+                $("#deptList").html(result);
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);
@@ -120,15 +132,10 @@
         });
     }
     function clearDialog() {
-        $('#u_userid').val('');
-        $('#u_name').val('');
-        $('#u_password').val('');
-        $('#u_confirmpwd').val('');
-        $('#u_email').val('');
-        $('#u_tel').val('');
-        $('#u_tel_ext').val('');
-        $('#u_mobile').val('');
+        $('#d_deptCode').val('');
+        $('#d_deptName').val('');
+        $('#d_desc').val('');
         //使用Jqery selector 選定對話框內的droplist
-        $('#formUser #roles').val('');
+        $('#formDept #d_parentId').val('');
     }
 </script>

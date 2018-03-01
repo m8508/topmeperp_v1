@@ -1271,7 +1271,6 @@
           <EntitySet Name="TND_FILE" EntityType="topmepModel.TND_FILE" />
           <EntitySet Name="PLAN_CONTRACT_PROCESS" EntityType="topmepModel.PLAN_CONTRACT_PROCESS" />
           <EntitySet Name="PLAN_PURCHASE_REQUISITION_ITEM" EntityType="topmepModel.PLAN_PURCHASE_REQUISITION_ITEM" />
-          <EntitySet Name="ENT_DEPARTMENT" EntityType="topmepModel.ENT_DEPARTMENT" />
         </EntityContainer>
         <EntityType Name="FIN_EXPENSE_BUDGET">
           <Key>
