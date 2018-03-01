@@ -947,6 +947,7 @@ namespace topmeperp.Controllers
             string msg = "更新成功!!";
 
             PLAN_COSTCHANGE_ITEM item = new PLAN_COSTCHANGE_ITEM();
+            item.PROJECT_ID = form["dia_project_id"];
             item.FORM_ID = form["dia_form_id"];
             item.PLAN_ITEM_ID = form["dia_plan_item_id"];
             item.ITEM_ID = form["item_id"];

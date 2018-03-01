@@ -1206,7 +1206,6 @@
           <EntitySet Name="PLAN_OTHER_PAYMENT" EntityType="topmepModel.PLAN_OTHER_PAYMENT" />
           <EntitySet Name="PLAN_PAYMENT_TERMS" EntityType="topmepModel.PLAN_PAYMENT_TERMS" />
           <EntitySet Name="PLAN_PURCHASE_REQUISITION" EntityType="topmepModel.PLAN_PURCHASE_REQUISITION" />
-          <EntitySet Name="PLAN_PURCHASE_REQUISITION_ITEM" EntityType="topmepModel.PLAN_PURCHASE_REQUISITION_ITEM" />
           <EntitySet Name="PLAN_SITE_BUDGET" EntityType="topmepModel.PLAN_SITE_BUDGET" />
           <EntitySet Name="PLAN_SUP_INQUIRY" EntityType="topmepModel.PLAN_SUP_INQUIRY" />
           <EntitySet Name="PLAN_SUP_INQUIRY_ITEM" EntityType="topmepModel.PLAN_SUP_INQUIRY_ITEM" />
@@ -1271,6 +1270,7 @@
           <EntitySet Name="PLAN_ESTIMATION_FORM" EntityType="topmepModel.PLAN_ESTIMATION_FORM" />
           <EntitySet Name="TND_FILE" EntityType="topmepModel.TND_FILE" />
           <EntitySet Name="PLAN_CONTRACT_PROCESS" EntityType="topmepModel.PLAN_CONTRACT_PROCESS" />
+          <EntitySet Name="PLAN_PURCHASE_REQUISITION_ITEM" EntityType="topmepModel.PLAN_PURCHASE_REQUISITION_ITEM" />
           <EntitySet Name="ENT_DEPARTMENT" EntityType="topmepModel.ENT_DEPARTMENT" />
         </EntityContainer>
         <EntityType Name="FIN_EXPENSE_BUDGET">
@@ -1575,8 +1575,6 @@
           <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
           <Property Name="ORDER_QTY" Type="Decimal" Precision="18" Scale="3" />
           <Property Name="RECEIPT_QTY" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="ITEM_DESC" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="ITEM_UNIT" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="PLAN_SITE_BUDGET">
           <Key>
@@ -2368,18 +2366,6 @@
           <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
           <Property Name="MAINTENANCE_BOND" Type="Decimal" Precision="18" Scale="3" />
           <Property Name="MB_DUE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="MB_REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="MB_PAYBACK_DATE" Type="DateTime" Precision="3" />
-        </EntityType>
-        <EntityType Name="ENT_DEPARTMENT">
-          <Key>
-            <PropertyRef Name="DEP_ID" />
-          </Key>
-          <Property Name="DEP_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="DEPT_CODE" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="DEPT_NAME" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="PARENT_D" Type="Int64" Nullable="false" />
-          <Property Name="DESC" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -2696,8 +2682,6 @@
           <EntitySetMapping Name="PLAN_PURCHASE_REQUISITION_ITEM">
             <EntityTypeMapping TypeName="topmepModel.PLAN_PURCHASE_REQUISITION_ITEM">
               <MappingFragment StoreEntitySet="PLAN_PURCHASE_REQUISITION_ITEM">
-                <ScalarProperty Name="ITEM_UNIT" ColumnName="ITEM_UNIT" />
-                <ScalarProperty Name="ITEM_DESC" ColumnName="ITEM_DESC" />
                 <ScalarProperty Name="RECEIPT_QTY" ColumnName="RECEIPT_QTY" />
                 <ScalarProperty Name="ORDER_QTY" ColumnName="ORDER_QTY" />
                 <ScalarProperty Name="REMARK" ColumnName="REMARK" />
@@ -3455,17 +3439,6 @@
                 <ScalarProperty Name="MATERIAL_BRAND" ColumnName="MATERIAL_BRAND" />
                 <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
                 <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="ENT_DEPARTMENT">
-            <EntityTypeMapping TypeName="topmepModel.ENT_DEPARTMENT">
-              <MappingFragment StoreEntitySet="ENT_DEPARTMENT">
-                <ScalarProperty Name="DESC" ColumnName="DESC" />
-                <ScalarProperty Name="PARENT_D" ColumnName="PARENT_D" />
-                <ScalarProperty Name="DEPT_NAME" ColumnName="DEPT_NAME" />
-                <ScalarProperty Name="DEPT_CODE" ColumnName="DEPT_CODE" />
-                <ScalarProperty Name="DEP_ID" ColumnName="DEP_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

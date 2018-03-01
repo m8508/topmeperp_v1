@@ -48,7 +48,7 @@
             <input type="hidden" name="prjuid" id="prjuid" value="@Model.planPR.PRJ_UID">
             <input type="hidden" name="status" id="status" value="@Model.planPR.STATUS">
         </div>
-
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addPRItem" onclick="addPRFormItem()">新增物料品項</button>
         <div class="contailer" style="page-break-before: always">
             <table class="table">
                 <thead>
@@ -194,13 +194,100 @@ else
     </div>
 </div>
 
+<!--新增品項對話框-->
+<div class="modal fade" id="addPRItem" role="dialog">
+    <div class="modal-dialog" id="addPRItem">
+        <div class="modal-content">
+            <form id="formAddPRItem" name="formAddPRItem" action="/MaterialManage/addPRFormItem" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">物料品項資料</h4>
+                </div>
+                <div class="modal-body">
+                    <!--異動品項基本屬性-->
+                    <input type="hidden" id="dia_form_id" name="dia_form_id" value="@Model.planPR.PR_ID" />
+                    <div class="form-horizontal">
+                       
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="dia_item_desc">品項名稱<span class="label label-danger">*必填</span></label>
+                            <div class="col-sm-8">
+                                <input type="text" id="dia_item_desc" name="dia_item_desc" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="dia_item_remark">備註</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="dia_item_remark" name="dia_item_remark" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="dia_item_unit">單位<span class="label label-danger">*必填</span></label>
+                            <div class="col-sm-8">
+                                <input type="text" id="dia_item_unit" name="dia_item_unit" class="form-control" />
+                            </div>
+                        </div>
 
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="dia_need_quantity">申購數量<span class="label label-danger">*必填</span></label>
+                            <div class="col-sm-8">
+                                <input type="text" id="dia_need_quantity" name="dia_need_quantity" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" for="dia_need_date">需求日期<span class="label label-danger">*必填</span></label>
+                            <div class="col-sm-8">
+                                <input type="text" id="dia_need_date" name="dia_need_date" class="form-control" />
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">關閉</button>
+                        <button type="submit" class="btn btn-default" data-dismiss="modal" id="saveAddPRItem">儲存</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <script language="javascript" type="text/javascript">
 
     $(function () {
         var date = { index: new Date().getTime() };
         $("input[id$=need_date]").datetimepicker({
-            format: 'YYYY/MM/DD'
+            format: 'YYYY/MM/DD',
+            locale: 'zh-tw'
+        });
+        $('#dia_need_date').datetimepicker({
+            format: 'YYYY/MM/DD',
+            locale: 'zh-tw'
+        });
+    });
+
+    //開啟對話框時清空欄位
+    function addPRFormItem() {
+        $('#dia_item_desc').val("");
+        $('#dia_item_unit').val("");
+        $('#dia_need_quantity').val("");
+        $('#dia_need_date').val("");
+        $('#dia_item_remark').val("");
+    }
+    //將對話框Form 送出
+    $("#saveAddPRItem").click(function () {
+        var s = $('#formAddPRItem').serialize();
+        var URLs = "/MaterialManage/addPRFormItem";
+        $.ajax({
+            url: URLs,
+            data: $('#formAddPRItem').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+                location.reload();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
         });
     });
     $("#updatePR").click(function () {

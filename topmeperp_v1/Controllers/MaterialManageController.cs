@@ -443,7 +443,7 @@ namespace topmeperp.Controllers
                 lstItem.Add(items);
             }
             int k = service.refreshPR(prid, pr, lstItem);
-            return Redirect("PurchaseRequisition?id=" + pr.PROJECT_ID);
+            return Redirect("SinglePR?id=" + prid + "&prjid=" + pr.PROJECT_ID);
         }
         //申購單查詢
         public ActionResult PurchaseRequisition(string id)
@@ -454,7 +454,7 @@ namespace topmeperp.Controllers
             TND_PROJECT p = tndservice.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
             int status = -10;
-            if(null != Request["status"] && Request["status"] != 10.ToString() && Request["status"] != 20.ToString() && Request["status"] != 30.ToString() && Request["status"] != 5.ToString())
+            if (null != Request["status"] && Request["status"] != 10.ToString() && Request["status"] != 20.ToString() && Request["status"] != 30.ToString() && Request["status"] != 5.ToString())
             {
                 status = 0;
             }
@@ -470,7 +470,7 @@ namespace topmeperp.Controllers
             {
                 status = 30;
             }
-            else if(null != Request["status"])
+            else if (null != Request["status"])
             {
                 status = 5;
             }
@@ -494,7 +494,7 @@ namespace topmeperp.Controllers
             log.Info("http get mehtod:" + id);
             PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
             string parentId = "";
-            if(null== prjid)
+            if (null == prjid)
             {
                 prjid = "";
             }
@@ -504,6 +504,37 @@ namespace topmeperp.Controllers
             singleForm.prj = service.getProjectById(singleForm.planPR.PROJECT_ID);
             log.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
             return View(singleForm);
+        }
+
+        //新增申購單物料品項
+        public String addPRFormItem(FormCollection form)
+        {
+            log.Info("form:" + form.Count);
+            string msg = "更新成功!!";
+
+            PLAN_PURCHASE_REQUISITION_ITEM item = new PLAN_PURCHASE_REQUISITION_ITEM();
+            item.PR_ID = form["dia_form_id"];
+            item.ITEM_DESC = form["dia_item_desc"];
+            item.ITEM_UNIT = form["dia_item_unit"];
+            try
+            {
+                item.NEED_QTY = decimal.Parse(form["dia_need_quantity"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.ITEM_DESC + " not need qty:" + ex.Message);
+            }
+            try
+            {
+                item.NEED_DATE = Convert.ToDateTime(form["dia_need_date"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.NEED_DATE + " not need date:" + ex.Message);
+            }
+            item.REMARK = form["dia_item_remark"];
+            int i = service.addPRItem(item);
+            return msg + "(" + i + ")";
         }
 
         //更新申購單草稿
@@ -522,7 +553,14 @@ namespace topmeperp.Controllers
             pr.LOCATION = form.Get("location").Trim();
             pr.REMARK = form.Get("caution").Trim();
             pr.MEMO = form.Get("memo").Trim();
-            pr.MESSAGE = form.Get("message").Trim();
+            try
+            {
+                pr.MESSAGE = form.Get("message").Trim();
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex.StackTrace);
+            }
             pr.CREATE_USER_ID = loginUser.USER_ID;
             pr.MODIFY_DATE = DateTime.Now;
             try
@@ -1321,7 +1359,7 @@ namespace topmeperp.Controllers
             PlanService pservice = new PlanService();
             pservice.getProject(projectid);
             service.getPRByPrId(formid, parentId, projectid);
-            if (formid.Substring(0,1) != "D")
+            if (formid.Substring(0, 1) != "D")
             {
                 isOrder = true;
             }
