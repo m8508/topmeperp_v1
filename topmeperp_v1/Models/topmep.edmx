@@ -165,6 +165,8 @@
           <Property Name="CREATE_DATE" Type="datetime" />
           <Property Name="MAINTENANCE_BOND" Type="decimal" Precision="18" Scale="3" />
           <Property Name="MB_DUE_DATE" Type="datetime" />
+          <Property Name="MB_REMARK" Type="varchar" MaxLength="1000" />
+          <Property Name="MB_PAYBACK_DATE" Type="datetime" />
         </EntityType>
         <EntityType Name="PLAN_COSTCHANGE_FORM">
           <Key>
@@ -483,6 +485,8 @@
           <Property Name="REMARK" Type="varchar" MaxLength="1000" />
           <Property Name="ORDER_QTY" Type="decimal" Precision="18" Scale="3" />
           <Property Name="RECEIPT_QTY" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="ITEM_DESC" Type="varchar" MaxLength="1000" />
+          <Property Name="ITEM_UNIT" Type="varchar" MaxLength="10" />
         </EntityType>
         <EntityType Name="PLAN_SITE_BUDGET">
           <Key>
@@ -1217,7 +1221,6 @@
           <EntitySet Name="PLAN_OTHER_PAYMENT" EntityType="topmepModel.PLAN_OTHER_PAYMENT" />
           <EntitySet Name="PLAN_PAYMENT_TERMS" EntityType="topmepModel.PLAN_PAYMENT_TERMS" />
           <EntitySet Name="PLAN_PURCHASE_REQUISITION" EntityType="topmepModel.PLAN_PURCHASE_REQUISITION" />
-          <EntitySet Name="PLAN_PURCHASE_REQUISITION_ITEM" EntityType="topmepModel.PLAN_PURCHASE_REQUISITION_ITEM" />
           <EntitySet Name="PLAN_SITE_BUDGET" EntityType="topmepModel.PLAN_SITE_BUDGET" />
           <EntitySet Name="PLAN_SUP_INQUIRY" EntityType="topmepModel.PLAN_SUP_INQUIRY" />
           <EntitySet Name="PLAN_SUP_INQUIRY_ITEM" EntityType="topmepModel.PLAN_SUP_INQUIRY_ITEM" />
@@ -1284,6 +1287,7 @@
           <EntitySet Name="PLAN_ESTIMATION_FORM" EntityType="topmepModel.PLAN_ESTIMATION_FORM" />
           <EntitySet Name="TND_FILE" EntityType="topmepModel.TND_FILE" />
           <EntitySet Name="PLAN_CONTRACT_PROCESS" EntityType="topmepModel.PLAN_CONTRACT_PROCESS" />
+          <EntitySet Name="PLAN_PURCHASE_REQUISITION_ITEM" EntityType="topmepModel.PLAN_PURCHASE_REQUISITION_ITEM" />
         </EntityContainer>
         <EntityType Name="FIN_EXPENSE_BUDGET">
           <Key>
@@ -1574,19 +1578,6 @@
           <Property Name="MEMO" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
           <Property Name="MESSAGE" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
           <Property Name="CAUTION" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="PLAN_PURCHASE_REQUISITION_ITEM">
-          <Key>
-            <PropertyRef Name="PR_ITEM_ID" />
-          </Key>
-          <Property Name="PR_ITEM_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="PR_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PLAN_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="NEED_QTY" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="NEED_DATE" Type="DateTime" Precision="3" />
-          <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="ORDER_QTY" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="RECEIPT_QTY" Type="Decimal" Precision="18" Scale="3" />
         </EntityType>
         <EntityType Name="PLAN_SITE_BUDGET">
           <Key>
@@ -2402,6 +2393,23 @@
           <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
           <Property Name="MAINTENANCE_BOND" Type="Decimal" Precision="18" Scale="3" />
           <Property Name="MB_DUE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="MB_REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="MB_PAYBACK_DATE" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="PLAN_PURCHASE_REQUISITION_ITEM">
+          <Key>
+            <PropertyRef Name="PR_ITEM_ID" />
+          </Key>
+          <Property Name="PR_ITEM_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PR_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PLAN_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="NEED_QTY" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="NEED_DATE" Type="DateTime" Precision="3" />
+          <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="ORDER_QTY" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="RECEIPT_QTY" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="ITEM_DESC" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="ITEM_UNIT" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -2712,20 +2720,6 @@
                 <ScalarProperty Name="PRJ_UID" ColumnName="PRJ_UID" />
                 <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
                 <ScalarProperty Name="PR_ID" ColumnName="PR_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_PURCHASE_REQUISITION_ITEM">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_PURCHASE_REQUISITION_ITEM">
-              <MappingFragment StoreEntitySet="PLAN_PURCHASE_REQUISITION_ITEM">
-                <ScalarProperty Name="RECEIPT_QTY" ColumnName="RECEIPT_QTY" />
-                <ScalarProperty Name="ORDER_QTY" ColumnName="ORDER_QTY" />
-                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
-                <ScalarProperty Name="NEED_DATE" ColumnName="NEED_DATE" />
-                <ScalarProperty Name="NEED_QTY" ColumnName="NEED_QTY" />
-                <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
-                <ScalarProperty Name="PR_ID" ColumnName="PR_ID" />
-                <ScalarProperty Name="PR_ITEM_ID" ColumnName="PR_ITEM_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -3488,6 +3482,8 @@
           <EntitySetMapping Name="PLAN_CONTRACT_PROCESS">
             <EntityTypeMapping TypeName="topmepModel.PLAN_CONTRACT_PROCESS">
               <MappingFragment StoreEntitySet="PLAN_CONTRACT_PROCESS">
+                <ScalarProperty Name="MB_PAYBACK_DATE" ColumnName="MB_PAYBACK_DATE" />
+                <ScalarProperty Name="MB_REMARK" ColumnName="MB_REMARK" />
                 <ScalarProperty Name="MB_DUE_DATE" ColumnName="MB_DUE_DATE" />
                 <ScalarProperty Name="MAINTENANCE_BOND" ColumnName="MAINTENANCE_BOND" />
                 <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
@@ -3498,6 +3494,22 @@
                 <ScalarProperty Name="MATERIAL_BRAND" ColumnName="MATERIAL_BRAND" />
                 <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
                 <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_PURCHASE_REQUISITION_ITEM">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_PURCHASE_REQUISITION_ITEM">
+              <MappingFragment StoreEntitySet="PLAN_PURCHASE_REQUISITION_ITEM">
+                <ScalarProperty Name="ITEM_UNIT" ColumnName="ITEM_UNIT" />
+                <ScalarProperty Name="ITEM_DESC" ColumnName="ITEM_DESC" />
+                <ScalarProperty Name="RECEIPT_QTY" ColumnName="RECEIPT_QTY" />
+                <ScalarProperty Name="ORDER_QTY" ColumnName="ORDER_QTY" />
+                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
+                <ScalarProperty Name="NEED_DATE" ColumnName="NEED_DATE" />
+                <ScalarProperty Name="NEED_QTY" ColumnName="NEED_QTY" />
+                <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
+                <ScalarProperty Name="PR_ID" ColumnName="PR_ID" />
+                <ScalarProperty Name="PR_ITEM_ID" ColumnName="PR_ITEM_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

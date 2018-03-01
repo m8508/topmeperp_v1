@@ -22,5 +22,7 @@ namespace topmeperp.Models
         public string REMARK { get; set; }
         public Nullable<decimal> ORDER_QTY { get; set; }
         public Nullable<decimal> RECEIPT_QTY { get; set; }
+        public string ITEM_DESC { get; set; }
+        public string ITEM_UNIT { get; set; }
     }
 }
