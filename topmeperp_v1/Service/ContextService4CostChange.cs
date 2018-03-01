@@ -51,7 +51,7 @@ namespace topmeperp.Service
                 it.MODIFY_ID = userid;
                 it.MODIFY_DATE = DateTime.Now;
                 // System.Convert.ToDoublSystem.Math.Round(1.235, 2, MidpointRounding.AwayFromZero)
-                it.COST = Convert.ToDecimal(Math.Round(Convert.ToDouble(CostInfo.Revenue.PLAN_REVENUE * decimal.Parse(p.KEY_FIELD)), 0, MidpointRounding.AwayFromZero));
+                it.COST = Convert.ToDecimal(Math.Round(Convert.ToDouble(CostInfo.Revenue.PLAN_REVENUE * decimal.Parse(p.KEY_FIELD)/100), 0, MidpointRounding.AwayFromZero));
                 logger.Debug(p.VALUE_FIELD + " Indirect Cost=" + it.COST + ",per=" + p.KEY_FIELD);
                 lstIndirectCostItem.Add(it);
             }
