@@ -9,7 +9,7 @@
     <div style="padding-top:10px;">
         <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
         <input type="button" class="btn btn-danger" onclick="closeProject()" value="結案">
-        
+
     </div>
     <div style="padding-top:10px;">
         <h3 class="bg-info">備標作業功能區</h3>
@@ -58,7 +58,10 @@
                 <div class="form-group">
                     <label for="" class="col-md-2 control-label center-block" style="padding-top:20px;">預定報價完成日: </label>
                     <div class="col-md-4" style="padding-top:20px;">
-                        @Html.DisplayFor(m => m.tndProject.SCHDL_OFFER_DATE, "LongDateTime")
+                        @if (null != Model.tndProject.SCHDL_OFFER_DATE)
+                        {
+                            @Html.DisplayFor(m => m.tndProject.SCHDL_OFFER_DATE, "LongDateTime")
+                        }
                     </div>
                 </div>
             </div>
@@ -129,7 +132,7 @@
                                         <td><input type="text" style="width:500px" id="task_item" name="task_item" value="@item.TASK_ITEM" /></td>
                                         @if (null != item.FINISH_DATE)
                                         {
-                                        <td><input type="text" style="width:100px" id="finish_date" name="finish_date" value="@item.FINISH_DATE.Value.ToString("yyyy/MM/dd")" /></td>
+                                            <td><input type="text" style="width:100px" id="finish_date" name="finish_date" value="@item.FINISH_DATE.Value.ToString("yyyy/MM/dd")" /></td>
                                         }
                                         else
                                         {

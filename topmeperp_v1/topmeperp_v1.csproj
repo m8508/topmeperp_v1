@@ -624,6 +624,7 @@
       <DependentUpon>topmep.edmx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service\ContextDeptService.cs" />
     <Compile Include="Service\ContextService4BankInfo.cs" />
     <Compile Include="Service\ContextService4CostChange.cs" />
     <Compile Include="Service\EMailService.cs" />
@@ -1073,6 +1074,9 @@
     <Content Include="Views\Tender\_TaskAssignItem.cshtml" />
     <Content Include="Views\Estimation\_PaymentInfo.cshtml" />
     <Content Include="UploadFile\expense_form.xlsx" />
+    <Content Include="Views\DeptManage\DeptList.cshtml" />
+    <Content Include="Views\DeptManage\Index.cshtml" />
+    <Content Include="Views\DeptManage\_Dept.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

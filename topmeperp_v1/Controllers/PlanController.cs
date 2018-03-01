@@ -1152,7 +1152,7 @@ namespace topmeperp.Controllers
                 string keyName = "業主合約";
                 logger.Info("file upload namme =" + keyName);
                 var fileName = Path.GetFileName(file.FileName);
-                var path = Path.Combine(ContextService.strUploadPath + "/" + Request["projectid"], fileName);
+                var path = Path.Combine(ContextService.strUploadPath + "\\" + Request["projectid"], fileName);
                 var fileType = Path.GetExtension(file.FileName);
                 string createDate = DateTime.Now.ToString("yyyy/MM/dd");
                 logger.Info("createDate = " + createDate);
@@ -1175,15 +1175,17 @@ namespace topmeperp.Controllers
         public FileResult downLoadOwnerContractFile()
         {
             //要下載的檔案位置與檔名
-            string filepath = Request["path"];
+           // string filepath = Request["itemUid"];
             //取得檔案名稱
-            string filename = System.IO.Path.GetFileName(filepath);
-            //var mime = Path.GetExtension(filepath);
+            FileManage fs = new FileManage();
+            TND_FILE f = fs.getFileByItemId(long.Parse(Request["itemid"]));
+            string filename = System.IO.Path.GetFileName(f.FILE_LOCATIOM);
             //讀成串流
-            Stream iStream = new FileStream(ContextService.strUploadPath + "/" + Request["projectid"], FileMode.Open, FileAccess.Read, FileShare.Read);
-            //回傳檔案
-            return File(iStream, filename);
-            //return File(file[0] + "/" + Request["projectid"], mime, filename);
+            Stream iStream = new FileStream(f.FILE_LOCATIOM, FileMode.Open, FileAccess.Read, FileShare.Read);
+            //回傳出檔案
+            return File(iStream, "application/unknown", filename);
+           // return File(iStream, "application/zip", filename);//application/unknown
+
         }
 
         //刪除單一附檔資料
