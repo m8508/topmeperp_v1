@@ -639,6 +639,7 @@
     <Compile Include="Service\ReportContextService.cs" />
     <Compile Include="Service\UIComponetService.cs" />
     <Compile Include="Service\UtilService.cs" />
+    <Compile Include="Service\WorkFlowService.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -1075,6 +1076,7 @@
     <Content Include="Views\DeptManage\DeptList.cshtml" />
     <Content Include="Views\DeptManage\Index.cshtml" />
     <Content Include="Views\DeptManage\_Dept.cshtml" />
+    <Content Include="Views\CashFlow\PlanAccountOfForm.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
