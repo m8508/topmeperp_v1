@@ -76,12 +76,11 @@ namespace topmeperp.Models
         public virtual DbSet<FIN_BANK_ACCOUNT> FIN_BANK_ACCOUNT { get; set; }
         public virtual DbSet<FIN_BANK_LOAN> FIN_BANK_LOAN { get; set; }
         public virtual DbSet<FIN_LOAN_TRANACTION> FIN_LOAN_TRANACTION { get; set; }
-        public virtual DbSet<PLAN_VALUATION_4OWNER> PLAN_VALUATION_4OWNER { get; set; }
-        public virtual DbSet<PLAN_VALUATION_FORM_ITEM> PLAN_VALUATION_FORM_ITEM { get; set; }
         public virtual DbSet<PLAN_VALUATION_FORM> PLAN_VALUATION_FORM { get; set; }
         public virtual DbSet<PLAN_ACCOUNT> PLAN_ACCOUNT { get; set; }
         public virtual DbSet<PLAN_ESTIMATION_FORM> PLAN_ESTIMATION_FORM { get; set; }
         public virtual DbSet<TND_FILE> TND_FILE { get; set; }
+        public virtual DbSet<ENT_DEPARTMENT> ENT_DEPARTMENT { get; set; }
         public virtual DbSet<PLAN_CONTRACT_PROCESS> PLAN_CONTRACT_PROCESS { get; set; }
         public virtual DbSet<PLAN_PURCHASE_REQUISITION_ITEM> PLAN_PURCHASE_REQUISITION_ITEM { get; set; }
     }

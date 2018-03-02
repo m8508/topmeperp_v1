@@ -297,6 +297,41 @@ namespace topmeperp.Models
             nodes.AddLast(childTask);
         }
     }
+    #region 公司組織
+    public class DEPTARTMENT_TREE_NODE
+    {
+        public ENT_DEPARTMENT Dept { get; set; }
+        public LinkedList<ENT_DEPARTMENT> ChildDept { get; set; }
+        public ENT_DEPARTMENT ParentDept { get; set; }
+        //加入下一級部門
+        public void addChild(ENT_DEPARTMENT childdept)
+        {
+            if (null == ChildDept)
+            {
+                ChildDept = new LinkedList<ENT_DEPARTMENT>();
+            }
+            ChildDept.AddLast(childdept);
+        }
+    }
+    public class DEPARTMENT_TREE4SHOW
+    {
+        public string text { get; set; }
+        public string href { get; set; }
+        public List<string> state;
+        public List<string> tags = new List<string>();
+
+        public LinkedList<DEPARTMENT_TREE4SHOW> nodes { get; set; }
+
+        public void addChild(DEPARTMENT_TREE4SHOW childTask)
+        {
+            if (null == nodes)
+            {
+                nodes = new LinkedList<DEPARTMENT_TREE4SHOW>();
+            }
+            nodes.AddLast(childTask);
+        }
+    }
+    #endregion
 
     #region Tree Stucture
     public abstract class TreeNode<T>
