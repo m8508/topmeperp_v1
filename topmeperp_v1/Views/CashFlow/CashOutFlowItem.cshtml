@@ -1,4 +1,4 @@
-﻿@model IEnumerable<topmeperp.Models.PLAN_ACCOUNT>
+﻿@model IEnumerable<topmeperp.Models.CashFlowBalance>
 
 @{
     ViewBag.Title = "支出明細";
@@ -7,12 +7,12 @@
 <div class="container">
     <h2 class="text-center" style="padding-top:10px;">支出明細</h2>
 </div>
-    <div class="col-md-1">
-        <input type="button" value="修改" class="btn btn-warning" id="updateForm" />
-    </div>
-    <div class="col-md-1">
-        <input type="button" class="btn btn-success" onclick="closewin();" value="關閉">
-    </div>
+<div class="col-md-1">
+    <input type="button" value="修改" class="btn btn-warning" id="updateForm" />
+</div>
+<div class="col-md-1">
+    <input type="button" class="btn btn-success" onclick="closewin();" value="關閉">
+</div>
 
 <div style="padding-top:50px;">
     <form id="formAccount" name="formAccount" action="UpdateAccountStatus" method="post">
@@ -54,18 +54,24 @@
                         }
                         else
                         {
-                            <td>業外費用</td>
+                            <td>償還貸款</td>
                         }
-                        @if (item.ACCOUNT_TYPE != "P")
+                        @if (item.ACCOUNT_TYPE == "O" || item.ACCOUNT_TYPE == "E")
                         {
-                        <td>
-                            <a href="/CashFlow/SingleEXPForm?id=@item.ACCOUNT_FORM_ID" target="_blank">@Html.TextBox("formid", item.ACCOUNT_FORM_ID, new { style = "width:150px", @readonly = "readonly" })</a>
-                        </td>
+                            <td>
+                                <a href="/CashFlow/SingleEXPForm?id=@item.ACCOUNT_FORM_ID" target="_blank">@Html.TextBox("formid", item.ACCOUNT_FORM_ID, new { style = "width:150px", @readonly = "readonly" })</a>
+                            </td>
+                        }
+                        else if (item.ACCOUNT_TYPE == "P")
+                        {
+                            <td>
+                                <a href="/Estimation/SingleEST?id=@item.ACCOUNT_FORM_ID" target="_blank">@Html.TextBox("formid", item.ACCOUNT_FORM_ID, new { style = "width:150px", @readonly = "readonly" })</a>
+                            </td>
                         }
                         else
                         {
                             <td>
-                            <a href="/Estimation/SingleEST?id=@item.ACCOUNT_FORM_ID" target="_blank">@Html.TextBox("formid", item.ACCOUNT_FORM_ID, new { style = "width:150px", @readonly = "readonly" })</a>
+                                缺
                             </td>
                         }
                         <td>
@@ -77,15 +83,20 @@
                         @if (item.STATUS == 10)
                 {
                             <td>
-                                <input type="checkbox" id="status" name="status" value="0"/>
+                                <input type="checkbox" id="status" name="status" value="0" />
                             </td>
                         }
-                        else
+                        else if (item.STATUS == 0)
                         {
                             <td>
                                 <input type="checkbox" id="status" name="status" value="0" checked />
                             </td>
                         }
+                        else
+                        {
+                            <td>-</td>
+                        }
+                        <td><input type="hidden" id="plan_account_id" name="plan_account_id" value="@item.PLAN_ACCOUNT_ID" /></td>
                     </tr>
                 }
             </tbody>

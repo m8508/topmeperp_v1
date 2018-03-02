@@ -21,7 +21,7 @@
                         <td>@item.FILE_ACTURE_NAME</td>
                         <td>@item.FILE_TYPE</td>
                         <td>@item.CREATE_DATE.Value.ToString("yyyy/MM/dd")</td>
-                        <td><a class="btn btn-link" href="/Estimation/downLoadVAFile?path=@item.fileFound&projectid=@item.PROJECT_ID" target="_blank">下載</a></td>
+                        <td><a class="btn btn-link" href="/Estimation/downLoadVAFile?itemid=@item.ITEM_UID" target="_blank">下載</a></td>
                         <td><button type="button" class="btn btn-danger" onclick="delVAFile('@item.ITEM_UID')">刪除</button></td>
                     </tr>
                 }

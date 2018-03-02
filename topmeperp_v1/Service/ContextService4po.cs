@@ -4211,13 +4211,16 @@ namespace topmeperp.Service
         }
 
         //取得特定日期之支出(Credit)
-        public List<PLAN_ACCOUNT> getCreditByDate(string date)
+        public List<CashFlowBalance> getCreditByDate(string date)
         {
-            List<PLAN_ACCOUNT> lstCredit = new List<PLAN_ACCOUNT>();
+            List<CashFlowBalance> lstCredit = new List<CashFlowBalance>();
+            int plan_account_id = 0;
+            string account_type = "L";
             using (var context = new topmepEntities())
             {
-                lstCredit = context.PLAN_ACCOUNT.SqlQuery("select a.* from PLAN_ACCOUNT a "
-                    + "where a.ISDEBIT = 'N' AND CONVERT(char(10),a.PAYMENT_DATE,111) = @date "
+                lstCredit = context.Database.SqlQuery<CashFlowBalance>("select a.PLAN_ACCOUNT_ID, a.ACCOUNT_TYPE, a.ACCOUNT_FORM_ID, a.PAYMENT_DATE, a.AMOUNT, a.STATUS from PLAN_ACCOUNT a " +
+                    "where a.ISDEBIT = 'N' AND CONVERT(char(10), a.PAYMENT_DATE, 111) = @date UNION select " + plan_account_id + ", '" + account_type + "', CONVERT(VARCHAR,flt.TID),flt.PAYBACK_DATE, " +
+                    "flt.AMOUNT, flt.TRANSACTION_TYPE  from FIN_LOAN_TRANACTION flt where CONVERT(char(10),flt.PAYBACK_DATE,111) =@date "
                    , new SqlParameter("date", date)).ToList();
             }
             return lstCredit;

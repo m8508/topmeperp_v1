@@ -50,7 +50,7 @@ namespace topmeperp.Controllers
         //取得特定日期支出明細
         public ActionResult CashOutFlowItem(string id)
         {
-            List<PLAN_ACCOUNT> CashOutFlow = null;
+            List<CashFlowBalance> CashOutFlow = null;
             CashOutFlow = service.getCreditByDate(id);
             return View(CashOutFlow);
         }

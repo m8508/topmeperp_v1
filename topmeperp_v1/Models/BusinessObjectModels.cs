@@ -665,7 +665,7 @@ namespace topmeperp.Models
         public PlanFinanceProfile totalFinProfile { get; set; }
         public CashFlowBalance finBalance { get; set; }
     }
-    public class CashFlowBalance
+    public class CashFlowBalance: PLAN_ACCOUNT
     {
         public Nullable<decimal> curCashFlow { get; set; }
         public Nullable<decimal> maintBond { get; set; }
