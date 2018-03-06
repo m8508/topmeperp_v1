@@ -580,6 +580,7 @@ namespace topmeperp.Service
                             try
                             {
                                 decimal dUnitPrice = decimal.Parse(row.Cells[4].ToString());
+                                logger.Warn("RowId=" + iRowIndex +"," + item.ITEM_DESC + ", Unprice=" + dUnitPrice);
                                 item.ITEM_UNIT_PRICE = dUnitPrice;
                             }
                             catch (Exception ex)

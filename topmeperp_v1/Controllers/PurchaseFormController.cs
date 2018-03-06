@@ -426,6 +426,7 @@ namespace topmeperp.Controllers
             log.Info("Upload purchase form from supplier:" + Request["projectid"]);
             string projectid = Request["projectid"];
             string iswage = "N";
+            string warringMsg = "";
             if (null != Request["isWage"])
             {
                 log.Debug("isWage:" + Request["isWage"]);
@@ -450,9 +451,10 @@ namespace topmeperp.Controllers
                 int i = 0;
                 //如果詢價單編號為空白，新增詢價單資料，否則更新相關詢價單資料-new
                 log.Debug("Parser Excel File Finish!");
+
                 if (service.getSupplierContractByFormId(quoteFormService.form.INQUIRY_FORM_ID) != false)
                 {
-                    return "此詢價單編號已被發包採購使用，不可重覆匯入!!";
+                    warringMsg= "(此詢價單編號已被發包採購使用，資料已強制更新)";
                 }
                 if (null != quoteFormService.form.INQUIRY_FORM_ID && quoteFormService.form.INQUIRY_FORM_ID != "")
                 {
@@ -466,7 +468,7 @@ namespace topmeperp.Controllers
                 }
                 log.Info("add plan supplier form record count=" + i);
             }
-            return "檔案匯入成功!!";
+            return "檔案匯入成功!!" + warringMsg;
         }
         //含工帶料報價單
         public string UploadInquiryAll()
