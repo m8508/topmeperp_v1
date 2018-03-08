@@ -21,6 +21,7 @@ namespace topmeperp.Models
         public IEnumerable<TND_TASKASSIGN> tndTaskAssign { get; set; }
         //專案相關檔案
         public IEnumerable<TND_FILE> tndFile { get; set; }
+        public IEnumerable<TND_PROJECT> planList { get; set; }
     }
     #region 系統管理相關
     public class UserManageModels

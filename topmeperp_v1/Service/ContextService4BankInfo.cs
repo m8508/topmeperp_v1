@@ -14,6 +14,8 @@ namespace topmeperp.Service
     public class ContextService4BankInfo : ContextService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        //封裝供前端頁面調用
+        public TndProjectModels tndProjectModels = new TndProjectModels();
         public ContextService4BankInfo()
         {
 
@@ -94,6 +96,25 @@ namespace topmeperp.Service
                 }
             }
             return lstBankLoan;
+        }
+        //取得專案執行階段之專案
+        public void getAllPlan()
+        {
+            List<TND_PROJECT> lstPlans = null;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    lstPlans = context.TND_PROJECT.SqlQuery("SELECT * FROM TND_PROJECT WHERE STATUS = '專案執行' ").ToList();
+                    logger.Debug("get records=" + lstPlans.Count);
+                    //將專案執行階段所有專案封裝供前端頁面調用
+                    tndProjectModels.planList = lstPlans;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("fail:" + e.StackTrace);
+                }
+            }
         }
         //取得貸款帳戶交易資料
         public BankLoanInfo getBankLoan(string bl_id)
