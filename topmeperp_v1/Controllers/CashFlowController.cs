@@ -23,6 +23,34 @@ namespace topmeperp.Controllers
         [topmeperp.Filter.AuthFilter]
         public ActionResult Index()
         {
+            List<ProjectList> lstProject = SearchProjectByName("", "專案執行");
+            ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
+
+            return View(lstProject);
+        }
+
+        private List<ProjectList> SearchProjectByName(string projectname, string status)
+        {
+            if (projectname != null)
+            {
+                logger.Info("search project by 名稱 =" + projectname);
+                List<ProjectList> lstProject = new List<ProjectList>();
+                using (var context = new topmepEntities())
+                {
+                    lstProject = context.Database.SqlQuery<ProjectList>("select DISTINCT p.*, convert(varchar, pi.CREATE_DATE , 111) as PLAN_CREATE_DATE from TND_PROJECT p left join PLAN_ITEM pi "
+                        + "on p.PROJECT_ID = pi.PROJECT_ID where p.PROJECT_NAME Like '%' + @projectname + '%' AND STATUS=@status;",
+                         new SqlParameter("projectname", projectname), new SqlParameter("status", status)).ToList();
+                }
+                logger.Info("get project count=" + lstProject.Count);
+                return lstProject;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        public ActionResult CashFlowManage()
+        {
             List<CashFlowFunction> lstCashFlow = null;
             List<PlanFinanceProfile> lstFinProfile = null;
             PlanFinanceProfile totalFinProfile = null;
@@ -38,12 +66,13 @@ namespace topmeperp.Controllers
             viewModel.finBalance = cashFlowBalance;
             return View(viewModel);
         }
-
         //取得特定日期收入明細
-        public ActionResult CashInFlowItem(string id)
+        public ActionResult CashInFlowItem(string paymentDate)
         {
-            List<PLAN_ACCOUNT> CashInFlow = null;
-            CashInFlow = service.getDebitByDate(id);
+            List<PlanAccountFunction> CashInFlow = null;
+            string projectname = ""; 
+            string account_type = "R";
+            CashInFlow = service.getPlanAccount(paymentDate, projectname, projectname, account_type);
             return View(CashInFlow);
         }
 
@@ -357,8 +386,12 @@ namespace topmeperp.Controllers
         {
             logger.Info("form:" + form.Count);
             string[] lstSubject = form.Get("subjectid").Split(',');
-            string[] lstAmount = form.Get("input_amount").Split(',');
+            //可處理千分位符號!!
+            string[] lstAmount = (string[])form.GetValue("input_amount").RawValue;
+            string[] lstPrice = (string[])form.GetValue("unit_price").RawValue;
             string[] lstRemark = form.Get("item_remark").Split(',');
+            string[] lstUnit = form.Get("unit").Split(',');
+            string[] lstQty = form.Get("item_quantity").Split(',');
             string[] SubjectList = form.Get("subjectlist").Split(',');
             logger.Debug("SubjectList = " + SubjectList);
             //建立公司費用單號
@@ -372,6 +405,7 @@ namespace topmeperp.Controllers
             ef.CREATE_DATE = DateTime.Now;
             ef.CREATE_ID = uInfo.USER_ID;
             ef.REMARK = Request["remark"];
+            ef.PAYEE = Request["supplier"];
             ef.STATUS = 10;
             string fid = service.newExpenseForm(ef);
             //建立公司費用單明細
@@ -381,6 +415,7 @@ namespace topmeperp.Controllers
                 FIN_EXPENSE_ITEM item = new FIN_EXPENSE_ITEM();
                 item.FIN_SUBJECT_ID = SubjectList[int.Parse(lstSubject[j])];
                 item.ITEM_REMARK = lstRemark[j];
+                item.ITEM_UNIT = lstUnit[j];
                 if (lstAmount[j].ToString() == "")
                 {
                     item.AMOUNT = null;
@@ -388,6 +423,22 @@ namespace topmeperp.Controllers
                 else
                 {
                     item.AMOUNT = decimal.Parse(lstAmount[j]);
+                }
+                if (lstPrice[j].ToString() == "")
+                {
+                    item.ITEM_UNIT_PRICE = null;
+                }
+                else
+                {
+                    item.ITEM_UNIT_PRICE = decimal.Parse(lstPrice[j]);
+                }
+                if (lstQty[j].ToString() == "")
+                {
+                    item.ITEM_QUANTITY = null;
+                }
+                else
+                {
+                    item.ITEM_QUANTITY = decimal.Parse(lstQty[j]);
                 }
                 logger.Info("Operating Expense Subject =" + item.FIN_SUBJECT_ID + "， and Amount = " + item.AMOUNT);
                 item.EXP_FORM_ID = fid;
@@ -429,9 +480,14 @@ namespace topmeperp.Controllers
             ef.MODIFY_DATE = DateTime.Now;
             ef.EXP_FORM_ID = form.Get("formnumber").Trim();
             ef.PROJECT_ID = form.Get("projectid").Trim();
+            ef.PAYEE = form.Get("supplier").Trim();
             string[] lstSubject = form.Get("subject").Split(',');
             string[] lstRemark = form.Get("item_remark").Split(',');
-            string[] lstAmount = form.Get("amount").Split(',');
+            string[] lstUnit = form.Get("unit").Split(',');
+            string[] lstQty = form.Get("item_quantity").Split(',');
+            //可處理千分位符號!!
+            string[] lstAmount = (string[])form.GetValue("amount").RawValue;
+            string[] lstPrice = (string[])form.GetValue("unit_price").RawValue;
             string[] lstExpItemId = form.Get("exp_item_id").Split(',');
             string formid = form.Get("formnumber").Trim();
             List<FIN_EXPENSE_ITEM> lstItem = new List<FIN_EXPENSE_ITEM>();
@@ -455,6 +511,30 @@ namespace topmeperp.Controllers
                 else
                 {
                     item.AMOUNT = decimal.Parse(lstAmount[j]);
+                }
+                if (lstPrice[j].ToString() == "")
+                {
+                    item.ITEM_UNIT_PRICE = null;
+                }
+                else
+                {
+                    item.ITEM_UNIT_PRICE = decimal.Parse(lstPrice[j]);
+                }
+                if (lstQty[j].ToString() == "")
+                {
+                    item.ITEM_QUANTITY = null;
+                }
+                else
+                {
+                    item.ITEM_QUANTITY = decimal.Parse(lstQty[j]);
+                }
+                if (lstUnit[j].ToString() == "")
+                {
+                    item.ITEM_UNIT = null;
+                }
+                else
+                {
+                    item.ITEM_UNIT = lstUnit[j];
                 }
                 logger.Debug("Expense Item Id =" + item.EXP_ITEM_ID + ", Subject Id =" + item.FIN_SUBJECT_ID + ", Amount =" + item.AMOUNT);
                 lstItem.Add(item);
@@ -493,9 +573,14 @@ namespace topmeperp.Controllers
             ef.MODIFY_DATE = DateTime.Now;
             ef.EXP_FORM_ID = form.Get("formnumber").Trim();
             ef.PROJECT_ID = form.Get("projectid").Trim();
+            ef.PAYEE = form.Get("supplier").Substring(0, 7);
             string[] lstSubject = form.Get("subject").Split(',');
             string[] lstRemark = form.Get("item_remark").Split(',');
-            string[] lstAmount = form.Get("amount").Split(',');
+            string[] lstUnit = form.Get("unit").Split(',');
+            string[] lstQty = form.Get("item_quantity").Split(',');
+            //可處理千分位符號!!
+            string[] lstAmount = (string[])form.GetValue("amount").RawValue;
+            string[] lstPrice = (string[])form.GetValue("unit_price").RawValue;
             string[] lstExpItemId = form.Get("exp_item_id").Split(',');
             string formid = form.Get("formnumber").Trim();
             List<FIN_EXPENSE_ITEM> lstItem = new List<FIN_EXPENSE_ITEM>();
@@ -519,6 +604,30 @@ namespace topmeperp.Controllers
                 else
                 {
                     item.AMOUNT = decimal.Parse(lstAmount[j]);
+                }
+                if (lstPrice[j].ToString() == "")
+                {
+                    item.ITEM_UNIT_PRICE = null;
+                }
+                else
+                {
+                    item.ITEM_UNIT_PRICE = decimal.Parse(lstPrice[j]);
+                }
+                if (lstQty[j].ToString() == "")
+                {
+                    item.ITEM_QUANTITY = null;
+                }
+                else
+                {
+                    item.ITEM_QUANTITY = decimal.Parse(lstQty[j]);
+                }
+                if (lstUnit[j].ToString() == "")
+                {
+                    item.ITEM_UNIT = null;
+                }
+                else
+                {
+                    item.ITEM_UNIT = lstUnit[j];
                 }
                 logger.Debug("Expense Item Id =" + item.EXP_ITEM_ID + ", Subject Id =" + item.FIN_SUBJECT_ID + ", Amount =" + item.AMOUNT);
                 lstItem.Add(item);
@@ -686,6 +795,8 @@ namespace topmeperp.Controllers
             string msg = "";
             int i = 0;
             string[] lstForm = form.Get("plan_account_id").Split(',');
+            string[] lstDate = form.Get("payment_date").Split(',');
+            string[] lstCheck = form.Get("check_no").Split(',');
             List<PLAN_ACCOUNT> lstItem = new List<PLAN_ACCOUNT>();
             if (form.Get("status") != null)
             {
@@ -694,6 +805,8 @@ namespace topmeperp.Controllers
                 {
                     PLAN_ACCOUNT item = new PLAN_ACCOUNT();
                     item.PLAN_ACCOUNT_ID = int.Parse(lstForm[j]);
+                    item.PAYMENT_DATE = Convert.ToDateTime(lstDate[j]);
+                    item.CHECK_NO = lstCheck[j];
                     item.MODIFY_DATE = DateTime.Now;
                     if (lstStatus[j].ToString() == "")
                     {
@@ -713,6 +826,8 @@ namespace topmeperp.Controllers
                 {
                     PLAN_ACCOUNT item = new PLAN_ACCOUNT();
                     item.PLAN_ACCOUNT_ID = int.Parse(lstForm[j]);
+                    item.PAYMENT_DATE = Convert.ToDateTime(lstDate[j]);
+                    item.CHECK_NO = lstCheck[j];
                     item.STATUS = 10;
                     item.MODIFY_DATE = DateTime.Now;
                     logger.Debug("Plan Acount Id =" + item.PLAN_ACCOUNT_ID + ", Status =" + item.STATUS);
@@ -793,11 +908,19 @@ namespace topmeperp.Controllers
             item.PAYMENT_DATE = Convert.ToDateTime(form.Get("date"));
             try
             {
-                item.AMOUNT = decimal.Parse(form["amount"]);
+                item.AMOUNT_PAID = decimal.Parse(form["amount_paid"]);
             }
             catch (Exception ex)
             {
-                logger.Error(item.PLAN_ACCOUNT_ID + " not amount:" + ex.Message);
+                logger.Error(item.PLAN_ACCOUNT_ID + " not paid amount:" + ex.Message);
+            }
+            try
+            {
+                item.AMOUNT_PAYABLE = decimal.Parse(form["amount_payable"]);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(item.PLAN_ACCOUNT_ID + " not payable amount:" + ex.Message);
             }
             item.ACCOUNT_TYPE = form["type"];
             logger.Debug("account type = " + form["type"]);

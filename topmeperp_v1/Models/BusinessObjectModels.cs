@@ -503,14 +503,16 @@ namespace topmeperp.Models
         public string BUDGET_YEAR { get; set; }
         public Nullable<decimal> TOTAL_BUDGET { get; set; }
         public Nullable<decimal> BUDGET_AMOUNT { get; set; }
-        public Nullable<decimal> MONTH_RATIO { get; set; }
-        public Nullable<decimal> YEAR_RATIO { get; set; }
-        public Nullable<decimal> CUM_YEAR_AMOUNT { get; set; }
         public Nullable<decimal> CUM_BUDGET { get; set; }
         public Int64 NO { get; set; }
         public Int64 SUB_NO { get; set; }
         public Nullable<decimal> TOTAL_OPERATION_EXP { get; set; }
-
+        public Nullable<decimal> CUM_AMOUNT { get; set; }
+        public Nullable<decimal> CUR_CUM_AMOUNT { get; set; }
+        public Nullable<decimal> CUR_CUM_RATIO { get; set; }
+        public Nullable<decimal> MONTH_RATIO { get; set; }
+        public Nullable<decimal> YEAR_RATIO { get; set; }
+        public Nullable<decimal> CUM_YEAR_AMOUNT { get; set; }
     }
     public class OperatingExpenseModel
     {
@@ -531,8 +533,10 @@ namespace topmeperp.Models
         public string PROJECT_NAME { get; set; }
         public string PAYEE { get; set; }
         public string RECORDED_DATE { get; set; }
-        public string RECORDED_AMOUNT { get; set; }
+        public string RECORDED_AMOUNT_PAYABLE { get; set; }
         public Int64 NO { get; set; }
+        public string RECORDED_AMOUNT_PAID { get; set; }
+        
 
     }
     public class SiteBudgetModels
@@ -619,7 +623,9 @@ namespace topmeperp.Models
         public string FILE_ACTURE_NAME { get; set; }
         public string FILE_TYPE { get; set; }
         public long ITEM_UID { get; set; }
+        public string RECORDED_INVOICE_DATE { get; set; }
         
+
     }
     public class PaymentTermsFunction : PLAN_PAYMENT_TERMS
     {
@@ -664,6 +670,7 @@ namespace topmeperp.Models
         public IEnumerable<CashFlowFunction> finFlow { get; set; }
         public PlanFinanceProfile totalFinProfile { get; set; }
         public CashFlowBalance finBalance { get; set; }
+        public IEnumerable<FIN_BANK_LOAN> finLoan { get; set; }
     }
     public class CashFlowBalance: PLAN_ACCOUNT
     {

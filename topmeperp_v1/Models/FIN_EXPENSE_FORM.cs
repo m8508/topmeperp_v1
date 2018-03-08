@@ -30,5 +30,6 @@ namespace topmeperp.Models
         public Nullable<System.DateTime> APPROVE_CREATE_DATE { get; set; }
         public string JOURNAL_CREATE_ID { get; set; }
         public Nullable<System.DateTime> JOURNAL_CREATE_DATE { get; set; }
+        public string PAYEE { get; set; }
     }
 }

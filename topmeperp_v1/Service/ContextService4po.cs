@@ -23,7 +23,6 @@ namespace topmeperp.Service
         public TND_PROJECT project = null;
         public TND_PROJECT budgetTable = null;
 
-
         #region 得標標單項目處理
         public TND_PROJECT getProject(string prjid)
         {
@@ -448,6 +447,7 @@ namespace topmeperp.Service
         public Dictionary<string, COMPARASION_DATA_4PLAN> dirSupplierQuo = null;
         public PurchaseFormModel POFormData = null;
         public List<FIN_SUBJECT> ExpBudgetItem = null;
+        public CashFlowModel cashFlowModel = new CashFlowModel();
 
         #region 取得得標標單項目內容
         //取得標單品項資料
@@ -1028,7 +1028,7 @@ namespace topmeperp.Service
                             existItem.REMARK = item.REMARK;
                             existItem.CREATE_ID = item.CREATE_ID;
                             existItem.CREATE_DATE = DateTime.Now;
-                            context.PLAN_CONTRACT_PROCESS.Add(existItem); 
+                            context.PLAN_CONTRACT_PROCESS.Add(existItem);
                         }
                     }
                     j = context.SaveChanges();
@@ -2311,7 +2311,7 @@ namespace topmeperp.Service
                     "FROM (SELECT pri.*, pi.ITEM_ID, pi.SUPPLIER_ID, pr.CREATE_DATE, pr.PROJECT_ID FROM PLAN_PURCHASE_REQUISITION_ITEM pri " +
                     "JOIN PLAN_ITEM pi ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID =@projectid " +
                     "AND pr.SUPPLIER_ID IS NULL AND pr.STATUS > 5 AND pr.PR_ID LIKE 'PR%') A WHERE A.PR_ID + ISNULL(A.SUPPLIER_ID,'') NOT IN (SELECT DISTINCT(pr.PARENT_PR_ID + pr.SUPPLIER_ID) AS ORDER_RECORD " +
-                    "FROM PLAN_PURCHASE_REQUISITION pr WHERE pr.PR_ID LIKE 'PPO%'))B GROUP BY CONVERT(char(10), B.CREATE_DATE, 111), B.PR_ID, B.SUPPLIER_ID, B.PROJECT_ID ORDER BY NEED_DATE "; 
+                    "FROM PLAN_PURCHASE_REQUISITION pr WHERE pr.PR_ID LIKE 'PPO%'))B GROUP BY CONVERT(char(10), B.CREATE_DATE, 111), B.PR_ID, B.SUPPLIER_ID, B.PROJECT_ID ORDER BY NEED_DATE ";
 
                 logger.Info("sql = " + sql);
                 var parameters = new List<SqlParameter>();
@@ -2992,13 +2992,13 @@ namespace topmeperp.Service
         //取得新增的領料單號
         //public PLAN_PURCHASE_REQUISITION getNewDeliveryOrderId(string prid, DateTime createDate)
         //{
-            //using (var context = new topmepEntities())
-            //{
-                //PRform = context.PLAN_PURCHASE_REQUISITION.SqlQuery("SELECT * FROM PLAN_PURCHASE_REQUISITION pr WHERE pr.PARENT_PR_ID =@prid " +
-                    //"AND pr.PR_ID LIKE 'DF%' AND pr.CREATE_DATE = @createDate "
-                   //, new SqlParameter("prid", prid), new SqlParameter("createDate", createDate)).FirstOrDefault();
-            //}
-            //return PRform;
+        //using (var context = new topmepEntities())
+        //{
+        //PRform = context.PLAN_PURCHASE_REQUISITION.SqlQuery("SELECT * FROM PLAN_PURCHASE_REQUISITION pr WHERE pr.PARENT_PR_ID =@prid " +
+        //"AND pr.PR_ID LIKE 'DF%' AND pr.CREATE_DATE = @createDate "
+        //, new SqlParameter("prid", prid), new SqlParameter("createDate", createDate)).FirstOrDefault();
+        //}
+        //return PRform;
         //}
 
         //取得領料單資料
@@ -3729,7 +3729,7 @@ namespace topmeperp.Service
             db = null;
             return i;
         }
-        
+
         public int delESTByESTId(string estid)
         {
             logger.Info("remove EST form detail by EST FORM ID =" + estid);
@@ -4175,19 +4175,19 @@ namespace topmeperp.Service
             //處理SQL 預先填入ID,設定集合處理參數
             using (var context = new topmepEntities())
             {
-                lstItem = context.Database.SqlQuery<CashFlowFunction>("SELECT C.DATE_CASHFLOW AS DATE_CASHFLOW, C.AMOUNT_BANK AS AMOUNT_BANK, C.AMOUNT_INFLOW AS AMOUNT_INFLOW, C.AMOUNT_OUTFLOW AS AMOUNT_OUTFLOW, C.BALANCE AS BALANCE, C.RUNNING_TOTAL AS RUNNING_TOTAL " + 
+                lstItem = context.Database.SqlQuery<CashFlowFunction>("SELECT C.DATE_CASHFLOW AS DATE_CASHFLOW, C.AMOUNT_BANK AS AMOUNT_BANK, C.AMOUNT_INFLOW AS AMOUNT_INFLOW, C.AMOUNT_OUTFLOW AS AMOUNT_OUTFLOW, C.BALANCE AS BALANCE, C.RUNNING_TOTAL AS RUNNING_TOTAL " +
                     "FROM(SELECT CASHFLOW_1.DATE_CASHFLOW, CASHFLOW_1.AMOUNT_BANK, CASHFLOW_1.AMOUNT_INFLOW, CASHFLOW_1.AMOUNT_OUTFLOW, CASHFLOW_1.BALANCE, SUM(CASHFLOW_2.BALANCE) RUNNING_TOTAL FROM(SELECT DISTINCT CONVERT(char(10), pa.PAYMENT_DATE, 111) AS DATE_CASHFLOW, " +
                     "ISNULL(bank.BankAmt, 0) AS AMOUNT_BANK, ISNULL(A.AMOUNT_INFLOW, 0) AS AMOUNT_INFLOW, ISNULL(B.AMOUNT_OUTFLOW, 0) AS AMOUNT_OUTFLOW, ISNULL(bank.BankAmt, 0) + ISNULL(A.AMOUNT_INFLOW, 0) - ISNULL(B.AMOUNT_OUTFLOW, 0) AS BALANCE FROM(SELECT PAYMENT_DATE " +
                     "FROM PLAN_ACCOUNT UNION SELECT CONVERT(char(10), GETDATE(), 111) AS DATE_CASHFLOW FROM FIN_BANK_ACCOUNT)pa LEFT JOIN(SELECT CONVERT(char(10), GETDATE(), 111) AS DATE_CASHFLOW, SUM(CUR_AMOUNT) AS BankAmt FROM FIN_BANK_ACCOUNT WHERE CUR_DATE < GETDATE())bank " +
-                    "ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = bank.DATE_CASHFLOW LEFT JOIN(SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_INFLOW, SUM(pla.AMOUNT) AS AMOUNT_INFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'Y' AND STATUS <> 0 " +
+                    "ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = bank.DATE_CASHFLOW LEFT JOIN(SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_INFLOW, SUM(pla.AMOUNT_PAID) AS AMOUNT_INFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'Y' AND STATUS <> 0 " +
                     "AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYMENT_DATE, 111))A ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = A.DATE_INFLOW LEFT JOIN(SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_OUTFLOW, " +
-                    "SUM(pla.AMOUNT) AS AMOUNT_OUTFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'N' AND STATUS <> 0 AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYMENT_DATE, 111) UNION SELECT CONVERT(char(10), PAYBACK_DATE, 111), " +
+                    "SUM(pla.AMOUNT_PAID) AS AMOUNT_OUTFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'N' AND STATUS <> 0 AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYMENT_DATE, 111) UNION SELECT CONVERT(char(10), PAYBACK_DATE, 111), " +
                     "SUM(AMOUNT) FROM FIN_LOAN_TRANACTION WHERE TRANSACTION_TYPE = '1' AND PAYBACK_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYBACK_DATE, 111))B " +
                     "ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = B.DATE_OUTFLOW)CASHFLOW_1, (SELECT DISTINCT CONVERT(char(10), pa.PAYMENT_DATE, 111) AS DATE_CASHFLOW, ISNULL(bank.BankAmt, 0) AS AMOUNT_BANK, ISNULL(A.AMOUNT_INFLOW, 0) AS AMOUNT_INFLOW, ISNULL(B.AMOUNT_OUTFLOW, 0) AS AMOUNT_OUTFLOW, " +
                     "ISNULL(bank.BankAmt, 0) + ISNULL(A.AMOUNT_INFLOW, 0) - ISNULL(B.AMOUNT_OUTFLOW, 0) AS BALANCE FROM(SELECT PAYMENT_DATE FROM PLAN_ACCOUNT UNION SELECT CONVERT(varchar, GETDATE(), 111) AS DATE_CASHFLOW FROM FIN_BANK_ACCOUNT)pa " +
                     "LEFT JOIN(SELECT CONVERT(char(10), GETDATE(), 111) AS DATE_CASHFLOW, SUM(CUR_AMOUNT) AS BankAmt  FROM FIN_BANK_ACCOUNT WHERE CUR_DATE < GETDATE())bank ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = bank.DATE_CASHFLOW " +
-                    "LEFT JOIN(SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_INFLOW, SUM(pla.AMOUNT) AS AMOUNT_INFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'Y' AND STATUS <> 0 AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 " +
-                    "GROUP BY CONVERT(char(10), PAYMENT_DATE, 111))A ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = A.DATE_INFLOW LEFT JOIN (SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_OUTFLOW, SUM(pla.AMOUNT) AS AMOUNT_OUTFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'N' AND STATUS <> 0 " +
+                    "LEFT JOIN(SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_INFLOW, SUM(pla.AMOUNT_PAID) AS AMOUNT_INFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'Y' AND STATUS <> 0 AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 " +
+                    "GROUP BY CONVERT(char(10), PAYMENT_DATE, 111))A ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = A.DATE_INFLOW LEFT JOIN (SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_OUTFLOW, SUM(pla.AMOUNT_PAID) AS AMOUNT_OUTFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'N' AND STATUS <> 0 " +
                     "AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYMENT_DATE, 111) UNION SELECT CONVERT(char(10), PAYBACK_DATE, 111), SUM(AMOUNT) FROM FIN_LOAN_TRANACTION WHERE TRANSACTION_TYPE = '1' AND PAYBACK_DATE " +
                     "BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYBACK_DATE, 111))B ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = B.DATE_OUTFLOW)CASHFLOW_2 WHERE CASHFLOW_1.DATE_CASHFLOW >= CASHFLOW_2.DATE_CASHFLOW " +
                     "GROUP BY CASHFLOW_1.DATE_CASHFLOW, CASHFLOW_1.AMOUNT_INFLOW, CASHFLOW_1.AMOUNT_OUTFLOW, CASHFLOW_1.BALANCE, CASHFLOW_1.AMOUNT_BANK)C WHERE C.AMOUNT_BANK <> 0 OR C.AMOUNT_INFLOW <> 0 OR C.AMOUNT_OUTFLOW <> 0 ORDER BY C.DATE_CASHFLOW ASC; ").ToList();
@@ -4218,7 +4218,7 @@ namespace topmeperp.Service
             string account_type = "L";
             using (var context = new topmepEntities())
             {
-                lstCredit = context.Database.SqlQuery<CashFlowBalance>("select a.PLAN_ACCOUNT_ID, a.ACCOUNT_TYPE, a.ACCOUNT_FORM_ID, a.PAYMENT_DATE, a.AMOUNT, a.STATUS from PLAN_ACCOUNT a " +
+                lstCredit = context.Database.SqlQuery<CashFlowBalance>("select a.PLAN_ACCOUNT_ID, a.ACCOUNT_TYPE, a.ACCOUNT_FORM_ID, a.PAYMENT_DATE, a.AMOUNT_PAYABLE, a.AMOUNT_PAID, a.STATUS from PLAN_ACCOUNT a " +
                     "where a.ISDEBIT = 'N' AND CONVERT(char(10), a.PAYMENT_DATE, 111) = @date UNION select " + plan_account_id + ", '" + account_type + "', CONVERT(VARCHAR,flt.TID),flt.PAYBACK_DATE, " +
                     "flt.AMOUNT, flt.TRANSACTION_TYPE  from FIN_LOAN_TRANACTION flt where CONVERT(char(10),flt.PAYBACK_DATE,111) =@date "
                    , new SqlParameter("date", date)).ToList();
@@ -4447,47 +4447,48 @@ namespace topmeperp.Service
             {
                 //取得費用單檔頭資訊
                 string sql = "SELECT fef.EXP_FORM_ID, fef.PROJECT_ID, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH, fef.PAYMENT_DATE, fef.STATUS, fef.CREATE_ID, fef.CREATE_DATE, fef.REMARK, fef.MODIFY_DATE, fef.PASS_CREATE_ID, fef.PASS_CREATE_DATE, fef.APPROVE_CREATE_ID, fef.APPROVE_CREATE_DATE, " +
-                    "fef.JOURNAL_CREATE_ID, fef.JOURNAL_CREATE_DATE, p.PROJECT_NAME FROM FIN_EXPENSE_FORM fef LEFT JOIN TND_PROJECT p ON fef.PROJECT_ID = p.PROJECT_ID WHERE fef.EXP_FORM_ID =@expid ";
+                    "fef.JOURNAL_CREATE_ID, fef.JOURNAL_CREATE_DATE, fef.PAYEE, p.PROJECT_NAME FROM FIN_EXPENSE_FORM fef LEFT JOIN TND_PROJECT p ON fef.PROJECT_ID = p.PROJECT_ID WHERE fef.EXP_FORM_ID =@expid ";
                 formEXP = context.Database.SqlQuery<ExpenseFormFunction>(sql, new SqlParameter("expid", expid)).First();
                 //取得公司營業費用單明細
-                EXPItem = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT G.*, C.CUM_BUDGET, D.CUM_YEAR_AMOUNT, G.AMOUNT / G.BUDGET_AMOUNT *100 AS MONTH_RATIO, D.CUM_YEAR_AMOUNT / C.CUM_BUDGET *100 AS YEAR_RATIO, ROW_NUMBER() OVER(ORDER BY G.EXP_ITEM_ID) AS NO " +
-                    "FROM (SELECT A.*, B.AMOUNT AS BUDGET_AMOUNT FROM (SELECT fei.*, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH, fef.STATUS, fs.SUBJECT_NAME FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs " +
+                EXPItem = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT G.*, C.CUM_BUDGET, ISNULL(D.CUM_AMOUNT, 0) AS CUM_AMOUNT, ISNULL(G.AMOUNT, 0) + ISNULL(D.CUM_AMOUNT, 0) AS CUR_CUM_AMOUNT, (ISNULL(G.AMOUNT, 0) + ISNULL(D.CUM_AMOUNT, 0)) / IIF(G.BUDGET_AMOUNT IS NULL, 1, G.BUDGET_AMOUNT) *100 AS CUR_CUM_RATIO, " +
+                    "ROW_NUMBER() OVER(ORDER BY G.EXP_ITEM_ID) AS NO FROM (SELECT A.*, B.AMOUNT AS BUDGET_AMOUNT FROM (SELECT fei.*, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH, fef.STATUS, fs.SUBJECT_NAME FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs " +
                     "ON fei.FIN_SUBJECT_ID = fs.FIN_SUBJECT_ID WHERE fei.EXP_FORM_ID = @expid)A " +
                     "LEFT JOIN (SELECT F.*, feb.AMOUNT FROM (SELECT fei.FIN_SUBJECT_ID, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID WHERE fei.EXP_FORM_ID = @expid " +
-                    "GROUP BY fei.FIN_SUBJECT_ID, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH)F LEFT JOIN FIN_EXPENSE_BUDGET feb ON F.FIN_SUBJECT_ID + CONVERT(varchar, OCCURRED_YEAR) + CONVERT(varchar, OCCURRED_MONTH) = feb.SUBJECT_ID + CONVERT(varchar, CURRENT_YEAR) + CONVERT(varchar, BUDGET_MONTH))B ON A.FIN_SUBJECT_ID = B.FIN_SUBJECT_ID)G " +
+                    "GROUP BY fei.FIN_SUBJECT_ID, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH)F LEFT JOIN (SELECT SUBJECT_ID, SUM(AMOUNT) AS AMOUNT FROM FIN_EXPENSE_BUDGET WHERE BUDGET_YEAR = IIF(" + formEXP.OCCURRED_MONTH + "< 7," + (formEXP.OCCURRED_YEAR - 1) + "," + formEXP.OCCURRED_YEAR + ")" +
+                    "GROUP BY SUBJECT_ID)feb ON F.FIN_SUBJECT_ID = feb.SUBJECT_ID)B ON A.FIN_SUBJECT_ID = B.FIN_SUBJECT_ID)G " +
                     "LEFT JOIN (SELECT SUBJECT_ID, SUM(AMOUNT) AS CUM_BUDGET FROM FIN_EXPENSE_BUDGET WHERE CURRENT_YEAR = " + formEXP.OCCURRED_YEAR + "AND BUDGET_MONTH <= IIF(" + formEXP.OCCURRED_MONTH + "< 7," + formEXP.OCCURRED_MONTH + ", 0) OR BUDGET_YEAR = " +
                     "IIF(" + formEXP.OCCURRED_MONTH + "< 7," + (formEXP.OCCURRED_YEAR - 1) + "," + formEXP.OCCURRED_YEAR + ") AND BUDGET_MONTH BETWEEN 7 AND IIF(" + formEXP.OCCURRED_MONTH + "< 7, 12," + formEXP.OCCURRED_MONTH + ") GROUP BY SUBJECT_ID) C ON G.FIN_SUBJECT_ID = C.SUBJECT_ID " +
-                    "LEFT JOIN (SELECT fei.FIN_SUBJECT_ID, SUM(AMOUNT) AS CUM_YEAR_AMOUNT FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID " +
-                    "WHERE fef.OCCURRED_YEAR = " + formEXP.OCCURRED_YEAR + "AND fef.OCCURRED_MONTH <= IIF(" + formEXP.OCCURRED_MONTH + "< 7," + formEXP.OCCURRED_MONTH + ", 0) AND fef.STATUS >= 20 AND fef.CREATE_DATE <= CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) " +
+                    "LEFT JOIN (SELECT fei.FIN_SUBJECT_ID, SUM(AMOUNT) AS CUM_AMOUNT FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID " +
+                    "WHERE fef.OCCURRED_YEAR = " + formEXP.OCCURRED_YEAR + "AND fef.OCCURRED_MONTH <= IIF(" + formEXP.OCCURRED_MONTH + "< 7," + formEXP.OCCURRED_MONTH + ", 0) AND fef.STATUS >= 50 AND fef.CREATE_DATE <= CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) " +
                     "OR fef.OCCURRED_YEAR = IIF(" + formEXP.OCCURRED_MONTH + "< 7," + (formEXP.OCCURRED_YEAR - 1) + "," + (formEXP.OCCURRED_YEAR) + ") " +
-                    "AND fef.OCCURRED_MONTH BETWEEN 7 AND IIF(" + formEXP.OCCURRED_MONTH + "< 7, 12," + formEXP.OCCURRED_MONTH + ") AND fef.STATUS >= 20 AND fef.CREATE_DATE <= CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) GROUP BY fei.FIN_SUBJECT_ID)D ON G.FIN_SUBJECT_ID = D.FIN_SUBJECT_ID ", new SqlParameter("expid", expid)).ToList();
+                    "AND fef.OCCURRED_MONTH BETWEEN 7 AND IIF(" + formEXP.OCCURRED_MONTH + "< 7, 12," + formEXP.OCCURRED_MONTH + ") AND fef.STATUS >= 50 AND fef.CREATE_DATE <= CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) GROUP BY fei.FIN_SUBJECT_ID)D ON G.FIN_SUBJECT_ID = D.FIN_SUBJECT_ID ", new SqlParameter("expid", expid)).ToList();
                 logger.Debug("get query year of operating expense:" + formEXP.OCCURRED_YEAR);
                 logger.Debug("get operating expense item count:" + EXPItem.Count);
                 ExpAmt = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT SUM(AMOUNT) AS AMOUNT FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM ef ON fei.EXP_FORM_ID = ef.EXP_FORM_ID WHERE ef.EXP_FORM_ID = @expid ", new SqlParameter("expid", expid)).FirstOrDefault();
                 EarlyCumAmt = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT SUM(AMOUNT) AS AMOUNT FROM FIN_SUBJECT fs LEFT JOIN FIN_EXPENSE_ITEM fei ON fs.FIN_SUBJECT_ID = fei.FIN_SUBJECT_ID LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID " +
-                    "WHERE fs.CATEGORY = '公司營業費用' AND fef.OCCURRED_YEAR = " + formEXP.OCCURRED_YEAR + "AND fef.OCCURRED_MONTH <= IIF(" + formEXP.OCCURRED_MONTH + " < 7, " + formEXP.OCCURRED_MONTH + ", 0) AND fef.STATUS >= 20 AND fef.CREATE_DATE < CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) " +
+                    "WHERE fs.CATEGORY = '公司營業費用' AND fef.OCCURRED_YEAR = " + formEXP.OCCURRED_YEAR + "AND fef.OCCURRED_MONTH <= IIF(" + formEXP.OCCURRED_MONTH + " < 7, " + formEXP.OCCURRED_MONTH + ", 0) AND fef.STATUS >= 50 AND fef.CREATE_DATE < CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) " +
                     "OR fs.CATEGORY = '公司營業費用' AND fef.OCCURRED_YEAR = IIF(" + formEXP.OCCURRED_MONTH + " < 7, " + (formEXP.OCCURRED_YEAR - 1) + ", " + (formEXP.OCCURRED_YEAR) + ") " +
-                    "AND fef.OCCURRED_MONTH BETWEEN 7 AND IIF(" + formEXP.OCCURRED_MONTH + " < 7, 12, " + formEXP.OCCURRED_MONTH + ") AND fef.STATUS >= 20 AND fef.CREATE_DATE < CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) ").FirstOrDefault();
+                    "AND fef.OCCURRED_MONTH BETWEEN 7 AND IIF(" + formEXP.OCCURRED_MONTH + " < 7, 12, " + formEXP.OCCURRED_MONTH + ") AND fef.STATUS >= 50 AND fef.CREATE_DATE < CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) ").FirstOrDefault();
                 logger.Debug("get query create date of operating expense:" + formEXP.CREATE_DATE);
                 //取得工地費用單明細
                 if (null != formEXP.PROJECT_ID && formEXP.PROJECT_ID != "")
                 {
-                    siteEXPItem = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT G.*, C.CUM_BUDGET, D.CUM_YEAR_AMOUNT, G.AMOUNT / G.BUDGET_AMOUNT *100 AS MONTH_RATIO, D.CUM_YEAR_AMOUNT / C.CUM_BUDGET *100 AS YEAR_RATIO, ROW_NUMBER() OVER(ORDER BY G.EXP_ITEM_ID) AS NO " +
-                        "FROM (SELECT A.*, B.AMOUNT AS BUDGET_AMOUNT FROM (SELECT fei.*, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH, fef.STATUS, fs.SUBJECT_NAME FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs " +
+                    siteEXPItem = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT G.*, C.CUM_BUDGET, ISNULL(D.CUM_AMOUNT, 0) AS CUM_AMOUNT, ISNULL(G.AMOUNT, 0) + ISNULL(D.CUM_AMOUNT, 0) AS CUR_CUM_AMOUNT, (ISNULL(G.AMOUNT, 0) + ISNULL(D.CUM_AMOUNT, 0)) / IIF(G.BUDGET_AMOUNT IS NULL, 1, G.BUDGET_AMOUNT) *100 AS CUR_CUM_RATIO, " +
+                        "ROW_NUMBER() OVER(ORDER BY G.EXP_ITEM_ID) AS NO FROM (SELECT A.*, B.AMOUNT AS BUDGET_AMOUNT FROM (SELECT fei.*, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH, fef.STATUS, fs.SUBJECT_NAME FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs " +
                         "ON fei.FIN_SUBJECT_ID = fs.FIN_SUBJECT_ID WHERE fei.EXP_FORM_ID = @expid)A " +
                         "LEFT JOIN (SELECT F.*, psb.AMOUNT FROM (SELECT fei.FIN_SUBJECT_ID, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH, fef.PROJECT_ID FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID WHERE fei.EXP_FORM_ID = @expid " +
-                        "GROUP BY fei.FIN_SUBJECT_ID, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH, fef.PROJECT_ID)F LEFT JOIN PLAN_SITE_BUDGET psb ON F.PROJECT_ID + F.FIN_SUBJECT_ID + CONVERT(varchar, OCCURRED_YEAR) + CONVERT(varchar, OCCURRED_MONTH) = psb.PROJECT_ID + psb.SUBJECT_ID + CONVERT(varchar, BUDGET_YEAR) + CONVERT(varchar, BUDGET_MONTH))B ON A.FIN_SUBJECT_ID = B.FIN_SUBJECT_ID)G " +
+                        "GROUP BY fei.FIN_SUBJECT_ID, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH, fef.PROJECT_ID)F LEFT JOIN (SELECT SUBJECT_ID, SUM(AMOUNT) BUDGET FROM PLAN_SITE_BUDGET WHERE PROJECT_ID = '" + formEXP.PROJECT_ID + "' GROUP BY SUBJECT_ID)psb ON F.FIN_SUBJECT_ID = psb.SUBJECT_ID)B ON A.FIN_SUBJECT_ID = B.FIN_SUBJECT_ID)G " +
                         "LEFT OUTER JOIN (SELECT SUBJECT_ID, SUM(AMOUNT) AS CUM_BUDGET FROM PLAN_SITE_BUDGET WHERE PROJECT_ID = '" + formEXP.PROJECT_ID + "' AND BUDGET_YEAR = " + formEXP.OCCURRED_YEAR + " AND BUDGET_MONTH <= " + formEXP.OCCURRED_MONTH + " OR PROJECT_ID = '" + formEXP.PROJECT_ID + "' AND BUDGET_YEAR < " + formEXP.OCCURRED_YEAR + " GROUP BY SUBJECT_ID) C ON G.FIN_SUBJECT_ID = C.SUBJECT_ID " +
-                        "LEFT OUTER JOIN (SELECT fei.FIN_SUBJECT_ID, SUM(AMOUNT) AS CUM_YEAR_AMOUNT FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID " +
-                        "WHERE fef.PROJECT_ID = '" + formEXP.PROJECT_ID + "' AND fef.OCCURRED_YEAR = " + formEXP.OCCURRED_YEAR + " AND fef.OCCURRED_MONTH <=" + formEXP.OCCURRED_MONTH + " AND fef.STATUS >= 20 AND fef.CREATE_DATE <= CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) " +
+                        "LEFT OUTER JOIN (SELECT fei.FIN_SUBJECT_ID, SUM(AMOUNT) AS CUM_AMOUNT FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID " +
+                        "WHERE fef.PROJECT_ID = '" + formEXP.PROJECT_ID + "' AND fef.OCCURRED_YEAR = " + formEXP.OCCURRED_YEAR + " AND fef.OCCURRED_MONTH <=" + formEXP.OCCURRED_MONTH + " AND fef.STATUS >= 50 AND fef.CREATE_DATE <= CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) " +
                         "OR fef.PROJECT_ID = '" + formEXP.PROJECT_ID + "' AND fef.OCCURRED_YEAR < " + formEXP.OCCURRED_YEAR + " AND  " +
-                        "fef.STATUS >= 20 AND fef.CREATE_DATE <= CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) GROUP BY fei.FIN_SUBJECT_ID)D ON G.FIN_SUBJECT_ID = D.FIN_SUBJECT_ID ", new SqlParameter("expid", expid)).ToList();
+                        "fef.STATUS >= 50 AND fef.CREATE_DATE <= CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) GROUP BY fei.FIN_SUBJECT_ID)D ON G.FIN_SUBJECT_ID = D.FIN_SUBJECT_ID ", new SqlParameter("expid", expid)).ToList();
                     logger.Debug("get query year of plan site expense:" + formEXP.OCCURRED_YEAR);
                     logger.Debug("get plan site expense item count:" + siteEXPItem.Count);
                     SiteEarlyCumAmt = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT SUM(AMOUNT) AS AMOUNT FROM FIN_SUBJECT fs LEFT JOIN FIN_EXPENSE_ITEM fei ON fs.FIN_SUBJECT_ID = fei.FIN_SUBJECT_ID LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID " +
-                        "WHERE fs.CATEGORY = '工地費用' AND fef.PROJECT_ID = '" + formEXP.PROJECT_ID + "' AND fef.OCCURRED_YEAR = " + formEXP.OCCURRED_YEAR + " AND fef.OCCURRED_MONTH <= " + formEXP.OCCURRED_MONTH + " AND fef.STATUS >= 20 AND fef.CREATE_DATE < CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) " +
+                        "WHERE fs.CATEGORY = '工地費用' AND fef.PROJECT_ID = '" + formEXP.PROJECT_ID + "' AND fef.OCCURRED_YEAR = " + formEXP.OCCURRED_YEAR + " AND fef.OCCURRED_MONTH <= " + formEXP.OCCURRED_MONTH + " AND fef.STATUS >= 50 AND fef.CREATE_DATE < CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) " +
                         "OR fs.CATEGORY = '工地費用' AND fef.PROJECT_ID = '" + formEXP.PROJECT_ID + "' AND fef.OCCURRED_YEAR < " + formEXP.OCCURRED_YEAR + " AND  " +
-                        "fef.STATUS >= 20 AND fef.CREATE_DATE < CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) ").FirstOrDefault();
+                        "fef.STATUS >= 50 AND fef.CREATE_DATE < CONVERT(VARCHAR,CONVERT(datetime, REPLACE(REPLACE('" + formEXP.CREATE_DATE + "','上午',''),'下午','')+case when charindex('上午','" + formEXP.CREATE_DATE + "')>0 then 'AM' when charindex('下午','" + formEXP.CREATE_DATE + "')>0 then 'PM' end),120) ").FirstOrDefault();
                 }
             }
         }
@@ -4528,6 +4529,9 @@ namespace topmeperp.Service
                         logger.Debug("find exist item=" + existItem.FIN_SUBJECT_ID);
                         existItem.AMOUNT = item.AMOUNT;
                         existItem.ITEM_REMARK = item.ITEM_REMARK;
+                        existItem.ITEM_QUANTITY = item.ITEM_QUANTITY;
+                        existItem.ITEM_UNIT = item.ITEM_UNIT;
+                        existItem.ITEM_UNIT_PRICE = item.ITEM_UNIT_PRICE;
                         context.FIN_EXPENSE_ITEM.AddOrUpdate(existItem);
                     }
                     j = context.SaveChanges();
@@ -4803,9 +4807,9 @@ namespace topmeperp.Service
             {
                 List<PLAN_ACCOUNT> lstItem = new List<PLAN_ACCOUNT>();
 
-                string sql = "INSERT INTO PLAN_ACCOUNT (ACCOUNT_FORM_ID, PAYMENT_DATE, AMOUNT, "
+                string sql = "INSERT INTO PLAN_ACCOUNT (ACCOUNT_FORM_ID, PAYMENT_DATE, AMOUNT_PAID, "
                     + "ACCOUNT_TYPE, ISDEBIT, STATUS, CREATE_ID) "
-                    + "SELECT ef.EXP_FORM_ID AS ACCOUNT_FORM_ID, ef.PAYMENT_DATE, SUM(ei.AMOUNT) AS AMOUNT, 'O' AS ACCOUNT_TYPE, 'N' AS ISDEBIT, 10 AS STATUS, '" + createid + "' AS CREATE_ID "
+                    + "SELECT ef.EXP_FORM_ID AS ACCOUNT_FORM_ID, ef.PAYMENT_DATE, SUM(ei.AMOUNT) AS AMOUNT_PAID, 'O' AS ACCOUNT_TYPE, 'N' AS ISDEBIT, 10 AS STATUS, '" + createid + "' AS CREATE_ID "
                     + "FROM FIN_EXPENSE_FORM ef LEFT JOIN FIN_EXPENSE_ITEM ei ON ef.EXP_FORM_ID = ei.EXP_FORM_ID " +
                     "WHERE ef.EXP_FORM_ID = '" + formid + "' GROUP BY ef.EXP_FORM_ID, ef.PAYMENT_DATE ";
                 logger.Info("sql =" + sql);
@@ -4841,6 +4845,8 @@ namespace topmeperp.Service
 
                     }
                     logger.Debug("find exist item=" + existItem.ACCOUNT_FORM_ID);
+                    existItem.CHECK_NO = item.CHECK_NO;
+                    existItem.PAYMENT_DATE = item.PAYMENT_DATE;
                     existItem.STATUS = item.STATUS;
                     context.PLAN_ACCOUNT.AddOrUpdate(existItem);
                 }
@@ -4856,8 +4862,8 @@ namespace topmeperp.Service
             logger.Info("search plan account by " + paymentdate + ", 受款人 =" + payee + ", 專案名稱 =" + projectname + ", 帳款類型 =" + accounttype);
             List<PlanAccountFunction> lstForm = new List<PlanAccountFunction>();
             //處理SQL 預先填入專案代號,設定集合處理參數
-            string sql = "SELECT pa.AMOUNT, pa.ACCOUNT_TYPE, CONVERT(char(10), pa.PAYMENT_DATE, 111) AS RECORDED_DATE, pa.PLAN_ACCOUNT_ID, pa.STATUS, pa.CHECK_NO, p.PROJECT_NAME, s.COMPANY_NAME AS PAYEE FROM PLAN_ACCOUNT pa " +
-                "LEFT JOIN TND_PROJECT p ON pa.PROJECT_ID = p.PROJECT_ID LEFT JOIN TND_SUPPLIER s ON SUBSTRING(pa.CONTRACT_ID, 7, 7) = s.SUPPLIER_ID WHERE pa.ACCOUNT_TYPE = @accounttype ";
+            string sql = "SELECT pa.AMOUNT_PAYABLE, pa.AMOUNT_PAID, pa.ACCOUNT_TYPE, CONVERT(char(10), pa.PAYMENT_DATE, 111) AS RECORDED_DATE, pa.PLAN_ACCOUNT_ID, pa.STATUS, pa.CHECK_NO, p.PROJECT_NAME, s.COMPANY_NAME AS PAYEE, ROW_NUMBER() OVER(ORDER BY pa.PAYMENT_DATE) AS NO " +
+                "FROM PLAN_ACCOUNT pa LEFT JOIN TND_PROJECT p ON pa.PROJECT_ID = p.PROJECT_ID LEFT JOIN TND_SUPPLIER s ON SUBSTRING(pa.CONTRACT_ID, 7, 7) = s.SUPPLIER_ID WHERE pa.ACCOUNT_TYPE = @accounttype ";
 
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("accounttype", accounttype));
@@ -4898,7 +4904,8 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 //條件篩選
-                aitem = context.Database.SqlQuery<PlanAccountFunction>("SELECT PARSENAME(Convert(varchar,Convert(money,pa.AMOUNT),1),2) AS RECORDED_AMOUNT, pa.ACCOUNT_TYPE, CONVERT(char(10), pa.PAYMENT_DATE, 111) AS RECORDED_DATE, " +
+                aitem = context.Database.SqlQuery<PlanAccountFunction>("SELECT PARSENAME(Convert(varchar,Convert(money,ISNULL(pa.AMOUNT_PAYABLE, 0)),1),2) AS RECORDED_AMOUNT_PAYABLE, PARSENAME(Convert(varchar,Convert(money,ISNULL(pa.AMOUNT_PAID, 0)),1),2) AS RECORDED_AMOUNT_PAID, " +
+                    "pa.ACCOUNT_TYPE, CONVERT(char(10), pa.PAYMENT_DATE, 111) AS RECORDED_DATE, " +
                     "pa.PLAN_ACCOUNT_ID, pa.CONTRACT_ID, pa.ACCOUNT_TYPE, pa.ACCOUNT_FORM_ID, pa.ISDEBIT, pa.STATUS, pa.CREATE_ID, pa.PROJECT_ID, pa.CHECK_NO, p.PROJECT_NAME FROM PLAN_ACCOUNT pa LEFT JOIN TND_PROJECT p ON pa.PROJECT_ID = p.PROJECT_ID " +
                     "WHERE pa.PLAN_ACCOUNT_ID=@itemid ",
                 new SqlParameter("itemid", itemid)).First();
@@ -4913,7 +4920,8 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 //條件篩選
-                lstForm = context.Database.SqlQuery<PlanAccountFunction>("SELECT PARSENAME(Convert(varchar,Convert(money,pa.AMOUNT),1),2) AS RECORDED_AMOUNT, pa.ACCOUNT_TYPE, CONVERT(char(10), pa.PAYMENT_DATE, 111) AS RECORDED_DATE, " +
+                lstForm = context.Database.SqlQuery<PlanAccountFunction>("SELECT PARSENAME(Convert(varchar,Convert(money,ISNULL(pa.AMOUNT_PAYABLE, 0)),1),2) AS RECORDED_AMOUNT_PAYABLE, PARSENAME(Convert(varchar,Convert(money,ISNULL(pa.AMOUNT_PAID, 0)),1),2) AS RECORDED_AMOUNT_PAID, " +
+                    "pa.ACCOUNT_TYPE, CONVERT(char(10), pa.PAYMENT_DATE, 111) AS RECORDED_DATE, " +
                     "pa.PLAN_ACCOUNT_ID, pa.CONTRACT_ID, pa.ACCOUNT_TYPE, pa.ACCOUNT_FORM_ID, pa.ISDEBIT, pa.STATUS, pa.CREATE_ID, pa.PROJECT_ID, pa.CHECK_NO, p.PROJECT_NAME, ROW_NUMBER() OVER(ORDER BY pa.PAYMENT_DATE) AS NO " +
                     "FROM PLAN_ACCOUNT pa LEFT JOIN TND_PROJECT p ON pa.PROJECT_ID = p.PROJECT_ID WHERE pa.ACCOUNT_FORM_ID=@formid ",
                 new SqlParameter("formid", formid)).ToList();
@@ -5396,7 +5404,7 @@ namespace topmeperp.Service
             }
             return form.VA_FORM_ID;
         }
-        
+
         public RevenueFromOwner getVAPayItemById(string formid)
         {
             RevenueFromOwner payment = null;
@@ -5442,7 +5450,7 @@ namespace topmeperp.Service
                     "- ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) - ISNULL(vf.OTHER_PAYMENT, 0) - ISNULL(vf.REPAYMENT, 0) AS AR, " +
                     "ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + ISNULL(vf.TAX_AMOUNT, 0) - ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) " +
                     "- ISNULL(vf.OTHER_PAYMENT, 0) - ISNULL(vf.REPAYMENT, 0) - account.AR_PAID AS AR_UNPAID, " +
-                    "ROW_NUMBER() OVER(ORDER BY vf.CREATE_DATE) AS NO FROM PLAN_VALUATION_FORM vf LEFT JOIN (SELECT pa.ACCOUNT_FORM_ID, SUM(pa.AMOUNT) AS AR_PAID FROM PLAN_ACCOUNT pa " +
+                    "ROW_NUMBER() OVER(ORDER BY vf.CREATE_DATE) AS NO FROM PLAN_VALUATION_FORM vf LEFT JOIN (SELECT pa.ACCOUNT_FORM_ID, SUM(pa.AMOUNT_PAYABLE) AS AR_PAID FROM PLAN_ACCOUNT pa " +
                     "WHERE pa.ACCOUNT_TYPE = 'R' AND pa.PROJECT_ID =@projectid AND pa.STATUS = 10 GROUP BY pa.ACCOUNT_FORM_ID)account ON vf.VA_FORM_ID = account.ACCOUNT_FORM_ID " +
                     "LEFT JOIN (SELECT FILE_UPLOAD_NAME FROM TND_FILE GROUP BY FILE_UPLOAD_NAME)f ON vf.VA_FORM_ID = f.FILE_UPLOAD_NAME WHERE vf.PROJECT_ID =@projectid "
                    , new SqlParameter("projectid", projectid)).ToList();
@@ -5454,7 +5462,8 @@ namespace topmeperp.Service
             RevenueFromOwner detail = null;
             using (var context = new topmepEntities())
             {
-                detail = context.Database.SqlQuery<RevenueFromOwner>("SELECT vf.*, CONVERT(varchar, vf.CREATE_DATE, 120) AS RECORDED_DATE, ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + ISNULL(vf.TAX_AMOUNT, 0) " +
+                detail = context.Database.SqlQuery<RevenueFromOwner>("SELECT vf.*, CONVERT(varchar, vf.CREATE_DATE, 120) AS RECORDED_DATE, " +
+                    "CONVERT(varchar, vf.INVOICE_DATE, 111) AS RECORDED_INVOICE_DATE, ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + ISNULL(vf.TAX_AMOUNT, 0) " +
                     "- ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) - ISNULL(vf.OTHER_PAYMENT, 0) - ISNULL(vf.REPAYMENT, 0) AS AR, " +
                     "ROW_NUMBER() OVER(ORDER BY vf.CREATE_DATE) AS NO FROM PLAN_VALUATION_FORM vf WHERE vf.VA_FORM_ID =@formid  "
                    , new SqlParameter("formid", formid)).FirstOrDefault();
@@ -5468,9 +5477,9 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 summaryAmt = context.Database.SqlQuery<RevenueFromOwner>("SELECT (SELECT SUM(ITEM_UNIT_PRICE*ITEM_QUANTITY) FROM PLAN_ITEM pi WHERE pi.PROJECT_ID =@pid) AS contractAtm, " +
-                    "(SELECT SUM(pa.AMOUNT) FROM PLAN_ACCOUNT pa WHERE pa.ACCOUNT_TYPE = 'R' AND pa.PROJECT_ID =@pid AND pa.STATUS = 10) AS AR_PAID, " +
-                    "SUM(VALUATION_AMOUNT) AS VALUATION_AMOUNT, SUM(TAX_AMOUNT) AS TAX_AMOUNT, SUM(RETENTION_PAYMENT) AS RETENTION_PAYMENT, SUM(ADVANCE_PAYMENT) - SUM(ADVANCE_PAYMENT_REFUND) AS advancePaymentBalance, " +
-                    "SUM(ADVANCE_PAYMENT) + SUM(VALUATION_AMOUNT) + SUM(TAX_AMOUNT) - SUM(RETENTION_PAYMENT) - SUM(ADVANCE_PAYMENT_REFUND) - SUM(OTHER_PAYMENT) - SUM(REPAYMENT) AS AR " +
+                    "(SELECT SUM(pa.AMOUNT_PAYABLE) FROM PLAN_ACCOUNT pa WHERE pa.ACCOUNT_TYPE = 'R' AND pa.PROJECT_ID =@pid AND pa.STATUS = 10) AS AR_PAID, " +
+                    "SUM(VALUATION_AMOUNT) AS VALUATION_AMOUNT, SUM(TAX_AMOUNT) AS TAX_AMOUNT, SUM(RETENTION_PAYMENT) AS RETENTION_PAYMENT, isnull(SUM(ADVANCE_PAYMENT), 0) - isnull(SUM(ADVANCE_PAYMENT_REFUND), 0) AS advancePaymentBalance, " +
+                    "isnull(SUM(ADVANCE_PAYMENT), 0) + isnull(SUM(VALUATION_AMOUNT), 0) + isnull(SUM(TAX_AMOUNT),0) - isnull(SUM(RETENTION_PAYMENT), 0) - isnull(SUM(ADVANCE_PAYMENT_REFUND), 0) - isnull(SUM(OTHER_PAYMENT), 0) - isnull(SUM(REPAYMENT), 0) AS AR " +
                     "FROM PLAN_VALUATION_FORM WHERE PROJECT_ID =@pid GROUP BY PROJECT_ID "
                    , new SqlParameter("pid", prjid)).FirstOrDefault();
             }
@@ -5496,6 +5505,80 @@ namespace topmeperp.Service
 
             }
             return i;
+        }
+        //取得特定專案銀行貸款資料
+        public void getAllBankLoan(string projectid)
+        {
+            List<FIN_BANK_LOAN> lstLoans = null;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    lstLoans = context.FIN_BANK_LOAN.SqlQuery("SELECT bl.*, flt.AMOUNT AS LOAN FROM FIN_BANK_LOAN bl LEFT JOIN FIN_LOAN_TRANACTION flt " +
+                        "ON bl.BL_ID = flt.BL_ID WHERE bl.PROJECT_ID = @projectid AND flt.TRANSACTION_TYPE = -1 ", new SqlParameter("projectid", projectid)).ToList();
+                    logger.Debug("get records=" + lstLoans.Count);
+                    //將系統所有角色封裝供前端頁面調用
+                    cashFlowModel.finLoan = lstLoans;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("fail:" + e.StackTrace);
+                }
+            }
+        }
+        public FIN_BANK_LOAN getPaybackRatioById(int blid)
+        {
+            FIN_BANK_LOAN loan = null;
+            using (var context = new topmepEntities())
+            {
+                loan = context.FIN_BANK_LOAN.SqlQuery("select loan.* from FIN_BANK_LOAN loan "
+                    + "where loan.BL_ID = @blid "
+                   , new SqlParameter("blid", blid)).FirstOrDefault();
+            }
+            return loan;
+        }
+        //取得貸款還款次數
+        public int getPaybackCountByBlId(int blid)
+        {
+            int count = 0;
+            using (var context = new topmepEntities())
+            {
+                count = context.Database.SqlQuery<int>("SELECT ISNULL((SELECT COUNT(*) FROM FIN_LOAN_TRANACTION " +
+                    "WHERE BL_ID = @blid AND TRANSACTION_TYPE = 1),0)+1 AS paybackCount  "
+                   , new SqlParameter("blid", blid)).First();
+            }
+            return count;
+        }
+        //取得借款還款餘額
+        public decimal getLoanBalanceByBlId(int blid)
+        {
+            decimal balance = 0;
+            using (var context = new topmepEntities())
+            {
+                balance = context.Database.SqlQuery<decimal>("SELECT ISNULL(SUM(AMOUNT * flt.TRANSACTION_TYPE), 0) AS loanBalance FROM FIN_LOAN_TRANACTION flt WHERE BL_ID =@blid  "
+                   , new SqlParameter("blid", blid)).First();
+            }
+            return balance;
+        }
+        //更新償還貸款金額以入各專案之備償專戶
+        public int addLoanTransaction(int loanid, decimal atm, DateTime paybackDate, string createId, int period)
+        {
+            int i = 0;
+            logger.Info("pay back to loan account by loan id" + loanid);
+            string sql = "INSERT INTO FIN_LOAN_TRANACTION (BL_ID, TRANSACTION_TYPE, AMOUNT, PAYBACK_DATE, CREATE_ID, CREATE_DATE, PERIOD, REMARK) VALUES (@loanid, 1, @atm, @paybackDate,@createId, getdate(),@period, '備償款') ";
+            logger.Debug("batch sql:" + sql);
+            db = new topmepEntities();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("loanid", loanid));
+            parameters.Add(new SqlParameter("atm", atm));
+            parameters.Add(new SqlParameter("paybackDate", paybackDate));
+            parameters.Add(new SqlParameter("createId", createId));
+            parameters.Add(new SqlParameter("period", period));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            logger.Info("Update Record:" + i);
+            db = null;
+            return 1;
         }
         //取得上傳的計價檔案紀錄
         public List<RevenueFromOwner> getVAFileByFormId(string formid)
@@ -5533,7 +5616,7 @@ namespace topmeperp.Service
                     "ISNULL(B.directCost, 0) - ISNULL(D.AP, 0) + ISNULL(E.MinusItem, 0) AS unpaidAP, ISNULL(SUM(pi.ITEM_UNIT_PRICE * pi.ITEM_QUANTITY), 0) AS PLAN_REVENUE, " +
                     "ISNULL(F.MACost, 0) AS MACost, ISNULL(G.SalesCost, 0) + ISNULL(I.CompanyCost, 0) AS ManagementCost, ISNULL(H.SiteCost, 0) AS SiteCost " +
                     "FROM PLAN_ITEM pi LEFT JOIN TND_PROJECT p ON pi.PROJECT_ID = p.PROJECT_ID LEFT JOIN (SELECT main.PROJECT_ID, SUM(sub.directCost) AS directCost " +
-                    "FROM(SELECT pi.INQUIRY_FORM_ID, pi.PROJECT_ID FROM PLAN_ITEM pi union SELECT pi.MAN_FORM_ID, pi.PROJECT_ID FROM PLAN_ITEM pi)main "+
+                    "FROM(SELECT pi.INQUIRY_FORM_ID, pi.PROJECT_ID FROM PLAN_ITEM pi union SELECT pi.MAN_FORM_ID, pi.PROJECT_ID FROM PLAN_ITEM pi)main " +
                     "LEFT JOIN(SELECT psi.INQUIRY_FORM_ID, SUM(psi.ITEM_UNIT_PRICE * psi.ITEM_QTY) AS directCost FROM  PLAN_SUP_INQUIRY_ITEM psi GROUP BY psi.INQUIRY_FORM_ID)sub " +
                     "ON main.INQUIRY_FORM_ID = sub.INQUIRY_FORM_ID GROUP BY main.PROJECT_ID)B ON p.PROJECT_ID = B.PROJECT_ID " +
                     "LEFT JOIN(SELECT PROJECT_ID, SUM(ADVANCE_PAYMENT) + SUM(VALUATION_AMOUNT) - SUM(RETENTION_PAYMENT) - SUM(ADVANCE_PAYMENT_REFUND) AS AR " +
@@ -5586,7 +5669,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 lstAmount = context.Database.SqlQuery<CashFlowBalance>("SELECT *, curCashFlow + maintBond + loanBalance + futureCashFlow AS cashFlowBal FROM " +
-                    "(SELECT (SELECT bankAmt + cashFlow FROM (SELECT (SELECT SUM(CUR_AMOUNT) FROM FIN_BANK_ACCOUNT) AS bankAmt, SUM(AMOUNT *IIF(pa.ISDEBIT = 'N', -1, 1)) AS cashFlow " +
+                    "(SELECT (SELECT bankAmt + cashFlow FROM (SELECT (SELECT SUM(CUR_AMOUNT) FROM FIN_BANK_ACCOUNT) AS bankAmt, SUM(AMOUNT_PAID *IIF(pa.ISDEBIT = 'N', -1, 1)) AS cashFlow " +
                     "FROM PLAN_ACCOUNT pa WHERE pa.PAYMENT_DATE >= CONVERT(char(10), getdate(), 111) AND STATUS <> 0)it) AS curCashFlow, (SELECT SUM(MAINTENANCE_BOND) FROM PLAN_CONTRACT_PROCESS) AS maintBond, " +
                     "(SELECT ISNULL(SUM(AMOUNT * flt.TRANSACTION_TYPE), 0) FROM FIN_LOAN_TRANACTION flt WHERE flt.EVENT_DATE <= CONVERT(char(10), getdate(), 111) OR " +
                     "flt.PAYBACK_DATE <= CONVERT(char(10), getdate(), 111)) AS loanBalance, (SELECT SUM(ISNULL(uncollectedAR, 0)) - SUM(ISNULL(unpaidAP, 0)) " +

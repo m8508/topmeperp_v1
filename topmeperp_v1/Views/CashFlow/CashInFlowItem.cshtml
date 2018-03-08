@@ -1,13 +1,10 @@
-﻿@model IEnumerable<topmeperp.Models.PLAN_ACCOUNT>
+﻿@model IEnumerable<topmeperp.Models.PlanAccountFunction>
 @{
     ViewBag.Title = "收入明細";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <div class="container">
     <h2 class="text-center" style="padding-top:10px;">收入明細</h2>
-</div>
-<div class="col-md-1">
-    <input type="button" value="修改" class="btn btn-warning" id="updateForm" />
 </div>
 <div class="col-md-1">
     <input type="button" class="btn btn-success" onclick="closewin();" value="關閉">
@@ -18,16 +15,25 @@
         <table class="table">
             <tr>
                 <th>
-                    帳款類別
+                   修改
                 </th>
                 <th>
-                    帳款單據編號(可點選連結)
+                    No.
+                </th>
+                <th>
+                    專案名稱/摘要說明
+                </th>
+                <th>
+                    應收金額
+                </th>
+                <th>
+                    實收金額
                 </th>
                 <th>
                     預計入帳日期
                 </th>
                 <th>
-                    金額
+                    支票號碼
                 </th>
                 <th>
                     暫不入帳
@@ -37,60 +43,84 @@
             @foreach (var item in Model)
             {
                 <tr>
-                    @if (item.ACCOUNT_TYPE == "R")
-                {
-                        <td>業內收入</td>
-                    }
-                    else
-                    {
-                        <td>業外收入</td>
-                    }
-                    @if (item.ACCOUNT_TYPE == "R")
-                    {
-                        <td><a href="/Estimation/Valuation4Owner?id=@item.PROJECT_ID" target="_blank">@item.ACCOUNT_FORM_ID</a></td>
-                    }
-                    else
-                    {
-                        <td></td>
-                    }
                     <td>
-                        @Html.DisplayFor(modelItem => item.PAYMENT_DATE, "LongDateTime")
+                        <button type="button" class="btn btn-default btn-xs" onclick="getPlanAccountItem('@item.PLAN_ACCOUNT_ID')">
+                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                        </button>
                     </td>
-                    <td>
-                        @String.Format("{0:$#,##0.#}", item.AMOUNT)
-                    </td>
-                    @if (item.STATUS == 10)
-                {
-                        <td>
-                            <input type="checkbox" id="status" name="status" value="0" />
-                        </td>
+                    <td>@item.NO</td>
+                    <td>@item.PROJECT_NAME</td>
+                    <td>@String.Format("{0:$#,##0.#}", item.AMOUNT_PAYABLE)</td>
+                    <td>@String.Format("{0:$#,##0.#}", item.AMOUNT_PAID)</td>
+                    <td>@item.RECORDED_DATE</td>
+                    <td>@item.CHECK_NO</td>
+                    @if (item.STATUS != 10)
+                    {
+                        <td><span style="color: red; font-size: 15px;">是</span></td>
                     }
                     else
                     {
-                        <td>
-                            <input type="checkbox" id="status" name="status" value="0" checked />
-                        </td>
+                        <td>否</td>
                     }
-                    <td><input type="hidden" id="plan_account_id" name="plan_account_id" value="@item.PLAN_ACCOUNT_ID" /></td>
                 </tr>
             }
         </table>
     </form>
+</div>
+<!-- Modal :對話框-->
+<div class="modal fade" id="planAcountItem" role="dialog">
+    <div class="modal-dialog" id="planAcountItemDialog">
+        <!-- Modal content-->
+        @ViewBag.SearchResult
+        @Html.Partial("_PlanAccountItem");
+    </div>
 </div>
 <script type="text/javascript">
     function closewin() {
         window.open('', '_self', ''); window.close();
     }
 
-    $("#updateForm").click(function () {
+    //由ID 取得資料填入表單
+    function getPlanAccountItem(itemid) {
+        //alert(userid);
         $.ajax({
-            url: '@Url.Action("UpdateAccountStatus", "CashFlow")',
-            data: $('#formAccount').serialize(),
+            url: "/CashFlow/getPlanAccountItem",
+            type: "GET",
+            data: { itemid: itemid },
+            dataType: "JSON",
+            success: function (data) {
+                $('#project_name').val(data.PROJECT_NAME);
+                $('#plan_account_id').val(data.PLAN_ACCOUNT_ID);
+                $('#contract_id').val(data.CONTRACT_ID);
+                $('#type').val(data.ACCOUNT_TYPE);
+                $('#isdebit').val(data.ISDEBIT);
+                $('#create_id').val(data.CREATE_ID);
+                $('#check_no').val(data.CHECK_NO);
+                $('#account_form_id').val(data.ACCOUNT_FORM_ID);
+                $('#amount').val(data.RECORDED_AMOUNT);
+                $('#date').val(data.RECORDED_DATE);
+                $('#project_id').val(data.PROJECT_ID);
+                $('#unRecordedFlag').val(data.STATUS);
+                $('#planAcountItem').modal('show'); // show bootstrap modal when complete loaded
+                //$('.modal-title').text('編輯設定資料'); // Set title to Bootstrap modal title
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('Error get data from ajax');
+            }
+        });
+    }
+
+    //更新plan acount item
+    $("#savePlanAccountItem").click(function () {
+        var s = $('#formAccountItem').serialize();
+        var URLs = "/CashFlow/updatePlanAccountItem";
+        $.ajax({
+            url: URLs,
+            data: $('#formAccountItem').serialize(),
             type: "POST",
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
-                window.location.reload()
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);

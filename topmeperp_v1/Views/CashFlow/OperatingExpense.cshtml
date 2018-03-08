@@ -46,10 +46,17 @@
                         <select id="subjectid" name="subjectid" style="height:27px" ng-model="m.SUBJECT" ng-options="(key.FIN_SUBJECT_ID + ' - ' + key.SUBJECT_NAME) for key in keys" required>
                             <option value="" required>-- 請選擇 --</option>
                         </select>
+                        品名/摘要：
+                        <input type="text" style="width:500px" id="item_remark" name="item_remark" ng-model="m.REMARK">
+                        單位：
+                        <input type="text" style="width:110px" id="unit" name="unit" ng-model="m.ITEM_UNIT" required>
+                        數量：
+                        <input type="text" style="width:90px" id="item_quantity" name="item_quantity" ng-model="m.ITEM_QUANTITY"  required>
+                        單價：
+                        <input type="text" style="width:140px" id="unit_price" name="unit_price" ng-model="m.ITEM_UNIT_PRICE" onblur="thousands(this)" required>
                         金額：
                         <input type="text" id="input_amount" name="input_amount" ng-model="m.AMOUNT" onblur="thousands(this)"required>
-                        備註：
-                        <input type="text" style="width:500px" id="item_remark" name="item_remark" ng-model="m.REMARK">
+                        
 
                         <br />
                     </ng-form>
@@ -101,7 +108,7 @@
   
         if(/^-?\d+\.?\d+$/.test(num)){  //判断输入内容是否为整数或小数  
             if(/^-?\d+$/.test(num)){    //判断输入内容是否为整数 包含负数和正数  
-                num =num + ",00";   //将整数转为精度为2的小数，并将小数点换成逗号  
+              num =num + ",00";   //将整数转为精度为2的小数，并将小数点换成逗号  
             }else{  
                 num = num.toString().replace(/\./,',');    //将小数的小数点换成逗号  
             }  
