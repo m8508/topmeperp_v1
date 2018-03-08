@@ -41,6 +41,7 @@ namespace topmeperp.Controllers
             ENT_DEPARTMENT d = new ENT_DEPARTMENT();
             d.DEPT_CODE = form.Get("d_deptCode").Trim();
             d.DEPT_NAME = form.Get("d_deptName").Trim();
+            d.MANAGER = form.Get("d_Manager").Trim();
             d.DESC = form.Get("d_desc").Trim();
             if (null != form.Get("d_parentId") && "" != form.Get("d_parentId").Trim())
             {

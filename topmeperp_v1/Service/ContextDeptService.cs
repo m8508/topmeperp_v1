@@ -59,7 +59,7 @@ namespace topmeperp.Service
         /// <returns></returns>
         public List<ENT_DEPARTMENT> getDepartmentOrg(int depid)
         {
-              string sql = @"WITH Dep_CTE (DEP_ID,DEPT_CODE,DEPT_NAME,PARENT_ID,DEP_LEVEL) AS
+            string sql = @"WITH Dep_CTE (DEP_ID,DEPT_CODE,DEPT_NAME,PARENT_ID,DEP_LEVEL) AS
                 (    
                     --頂層
                     select DEP_ID,DEPT_CODE,DEPT_NAME,PARENT_ID,0 AS DT_LEVEL
@@ -113,7 +113,7 @@ namespace topmeperp.Service
                 if (t.PARENT_ID == 0 || dicTree.Count == 0)
                 {
                     rootnode.href = t.DEP_ID.ToString();
-                    rootnode.text = t.DEPT_NAME;
+                    rootnode.text = t.DEP_ID + "-" + t.DEPT_CODE + "-" + t.DEPT_NAME;
                     dicTree.Add(Convert.ToInt32(t.DEP_ID), rootnode);
                     logger.Info("add root node :" + t.DEP_ID);
                 }
@@ -124,8 +124,8 @@ namespace topmeperp.Service
                     DEPARTMENT_TREE4SHOW node = new DEPARTMENT_TREE4SHOW();
 
                     node.href = t.DEP_ID.ToString();
-                    node.text = t.DEPT_NAME;
-                    
+                    node.text = t.DEP_ID + "-" + t.DEPT_CODE + "-" + t.DEPT_NAME;
+                    node.tags.Add("主管:" + t.MANAGER);
                     parentnode.addChild(node);
                     //將結點資料記錄至dic 內
                     dicTree.Add(Convert.ToInt32(t.DEP_ID), node);

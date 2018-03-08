@@ -27,6 +27,7 @@ namespace topmeperp.Models
         public string CREATE_ID { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
         public string MODIFY_ID { get; set; }
+        public Nullable<long> DEP_ID { get; set; }
     
         public virtual SYS_ROLE SYS_ROLE { get; set; }
     }
