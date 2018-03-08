@@ -66,7 +66,6 @@ namespace topmeperp.Models
         public virtual DbSet<SYS_PARA> SYS_PARA { get; set; }
         public virtual DbSet<SYS_PRIVILEGE> SYS_PRIVILEGE { get; set; }
         public virtual DbSet<SYS_ROLE> SYS_ROLE { get; set; }
-        public virtual DbSet<SYS_USER> SYS_USER { get; set; }
         public virtual DbSet<TND_FILE> TND_FILE { get; set; }
         public virtual DbSet<TND_MAP_DEVICE> TND_MAP_DEVICE { get; set; }
         public virtual DbSet<TND_MAP_FP> TND_MAP_FP { get; set; }
@@ -83,5 +82,10 @@ namespace topmeperp.Models
         public virtual DbSet<TND_SUPPLIER> TND_SUPPLIER { get; set; }
         public virtual DbSet<TND_TASKASSIGN> TND_TASKASSIGN { get; set; }
         public virtual DbSet<TND_WAGE> TND_WAGE { get; set; }
+        public virtual DbSet<SYS_USER> SYS_USER { get; set; }
+        public virtual DbSet<WF_PROCESS> WF_PROCESS { get; set; }
+        public virtual DbSet<WF_PROCESS_ACTIVITY> WF_PROCESS_ACTIVITY { get; set; }
+        public virtual DbSet<WF_PROCESS_REQUEST> WF_PROCESS_REQUEST { get; set; }
+        public virtual DbSet<WF_PORCESS_TASK> WF_PORCESS_TASK { get; set; }
     }
 }

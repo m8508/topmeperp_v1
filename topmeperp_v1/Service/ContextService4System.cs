@@ -140,7 +140,7 @@ namespace topmeperp.Service
             List<SYS_USER> lstUser = new List<SYS_USER>();
             //處理SQL，預先埋入條件減少後續處理作業
             string sql = "SELECT USER_ID,USER_NAME,EMAIL,TEL,TEL_EXT,PASSWORD,FAX,MOBILE,CREATE_ID,CREATE_DATE,MODIFY_ID,MODIFY_DATE,"
-                + "(SELECT ROLE_NAME FROM SYS_ROLE r WHERE r.ROLE_ID = u.ROLE_ID) ROLE_ID "
+                + "(SELECT ROLE_NAME FROM SYS_ROLE r WHERE r.ROLE_ID = u.ROLE_ID) ROLE_ID,DEP_CODE "
                 + " FROM SYS_USER u WHERE 1=1 ";
             //定義參數: User ID , User Name, Tel,Roleid
             var parameters = new List<SqlParameter>();

@@ -1,20 +1,21 @@
 ﻿
-@model IEnumerable<topmeperp.Models.OperatingExpenseFunction>
+@model IEnumerable<topmeperp.Models.ExpenseFlowTask>
 <div class="container">
     <div class="row" style="padding-top:5px;">
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>項次</th>
                     @if (ViewBag.forJournal == "會計立帳")
                     {
                         <th>專案名稱</th>
                     }
-                    <th>費用發生年月</th>
                     <th>編號</th>
+                    <th>費用發生年月</th>
                     <th>費用項目名稱</th>
+                    <th>申請人</th>
+                    <th>受款人</th>
                     <th>支付日期</th>
-                    <th>估驗單狀態</th>
+                    <th>下一步</th>
                     <th>選項連結</th>
                 </tr>
             </thead>
@@ -23,56 +24,29 @@
                 @foreach (var item in Model)
             {
                     <tr>
-                        <td>@item.NO</td>
                         @if (ViewBag.forJournal == "會計立帳")
                         {
                             if (item.PROJECT_ID != "")
                             {
-                                <td>@item.PROJECT_NAME</td>
+
                             }
                             else
                             {
                                 <td>公司營業費用</td>
                             }
                         }
-                        <td>@item.OCCURRED_DATE</td>
                         <td><a href="/CashFlow/SingleEXPForm/@item.EXP_FORM_ID" target="_blank">@item.EXP_FORM_ID</a></td>
-                        <td>@item.SUBJECT_NAME</td>
-                        <td>@item.PAYMENT_DATE.Value.ToLongDateString()</td>
-                        @if (item.STATUS == 0)
-                        {
-
-                            <td><span style="color: red; font-size: 15px;">退件</span></td>
-
-                        }
-                        else if (item.STATUS == 10)
-                        {
-                            <td>草稿</td>
-                        }
-                        else if (item.STATUS == 20)
-                        {
-                            <td>已送審</td>
-                        }
-                        else if (item.STATUS == 30)
-                        {
-                            <td><span style="color: blue; font-size: 15px;">主管已通過</span></td>
-                        }
-                        else if (item.STATUS == 40)
-                        {
-                            <td><span style="color:darkseagreen; font-size: 15px;">已立帳</span></td>
-                        }
-                        else
-                        {
-                            <td><span style="color: red; font-size: 15px;">已核可</span></td>
-                        }
-                        @if (item.STATUS >= 20)
-                        {
-                            <td><a class="btn btn-link" href="/CashFlow/downLoadExpenseForm?formid=@item.EXP_FORM_ID" target="_blank">下載</a></td>
-                        }
-                        else
-                        {
-                            <td></td>
-                        }
+                        <td>@item.OCCURRED_YEAR / @item.OCCURRED_MONTH</td>
+                        <td>@item.REQ_DESC</td>
+                        <td>@item.REQ_USER_ID</td>
+                        <td>@item.PAYEE </td>
+                        <td>
+                            @item.PAYMENT_DATE
+                        </td>
+                        <td>
+                            <a href='@(item.FORM_URL+"id="+item.EXP_FORM_ID)'>@item.NOTE</a>
+                        </td>
+                        <td></td>
                     </tr>
                 }
             </tbody>

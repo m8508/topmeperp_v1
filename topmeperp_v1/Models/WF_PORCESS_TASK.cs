@@ -12,23 +12,20 @@ namespace topmeperp.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class SYS_USER
+    public partial class WF_PORCESS_TASK
     {
-        public string USER_ID { get; set; }
-        public string ROLE_ID { get; set; }
-        public string USER_NAME { get; set; }
-        public string EMAIL { get; set; }
-        public string TEL { get; set; }
-        public string TEL_EXT { get; set; }
-        public string PASSWORD { get; set; }
-        public string FAX { get; set; }
-        public string MOBILE { get; set; }
-        public Nullable<System.DateTime> CREATE_DATE { get; set; }
-        public string CREATE_ID { get; set; }
+        public long RID { get; set; }
+        public long ID { get; set; }
+        public string MODIFY_USER_ID { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
-        public string MODIFY_ID { get; set; }
+        public string CREATE_USER_ID { get; set; }
+        public Nullable<System.DateTime> CREATE_DATE { get; set; }
+        public string NOTE { get; set; }
+        public Nullable<long> ACTIVITY_ID { get; set; }
+        public string STATUS { get; set; }
+        public string REMARK { get; set; }
+        public Nullable<int> SEQ_ID { get; set; }
         public string DEP_CODE { get; set; }
-    
-        public virtual SYS_ROLE SYS_ROLE { get; set; }
+        public string DECISION_USER_ID { get; set; }
     }
 }

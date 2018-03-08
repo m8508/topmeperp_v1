@@ -428,6 +428,7 @@
     </Compile>
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\BO4CashFlow.cs" />
+    <Compile Include="Models\BusinessObject4Expense.cs" />
     <Compile Include="Models\ENT_DEPARTMENT.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
@@ -620,6 +621,18 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>topmep.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Models\WF_PORCESS_TASK.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\WF_PROCESS.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\WF_PROCESS_ACTIVITY.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\WF_PROCESS_REQUEST.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service\ContextDeptService.cs" />
