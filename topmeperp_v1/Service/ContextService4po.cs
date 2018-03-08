@@ -1742,7 +1742,7 @@ namespace topmeperp.Service
                 "FROM(select i.plan_item_id, fi.ITEM_UNIT_PRICE, fi.INQUIRY_FORM_ID, pf.SUPPLIER_ID, pf.FORM_NAME from PLAN_ITEM i " +
                 ", PLAN_SUP_INQUIRY_ITEM fi, PLAN_SUP_INQUIRY pf " +
                "where i.PLAN_ITEM_ID = fi.PLAN_ITEM_ID and fi.INQUIRY_FORM_ID = pf.INQUIRY_FORM_ID and fi.INQUIRY_FORM_ID = @formid) i " +
-                "WHERE  i.plan_item_id = PLAN_ITEM.PLAN_ITEM_ID AND PLAN_ITEM.ITEM_UNIT_COST IS NULL ";
+                "WHERE  i.plan_item_id = PLAN_ITEM.PLAN_ITEM_ID  ";
 
             //將工資報價單更新工資報價欄位
             if (iswage == "Y")
@@ -1751,7 +1751,7 @@ namespace topmeperp.Service
                 + "FROM (select i.plan_item_id, fi.ITEM_UNIT_PRICE, fi.INQUIRY_FORM_ID, pf.SUPPLIER_ID, pf.FORM_NAME from PLAN_ITEM i "
                 + ", PLAN_SUP_INQUIRY_ITEM fi, PLAN_SUP_INQUIRY pf "
                 + "where i.PLAN_ITEM_ID = fi.PLAN_ITEM_ID and fi.INQUIRY_FORM_ID = pf.INQUIRY_FORM_ID and fi.INQUIRY_FORM_ID = @formid) i "
-                + "WHERE  i.plan_item_id = PLAN_ITEM.PLAN_ITEM_ID AND PLAN_ITEM.MAN_PRICE IS NULL ";
+                + "WHERE  i.plan_item_id = PLAN_ITEM.PLAN_ITEM_ID  ";
             }
             logger.Debug("batch sql:" + sql);
             db = new topmepEntities();
