@@ -11,7 +11,7 @@
             <div class="col-md-12">
                     <label for="deptName">部門名稱:</label>
                     <input id="deptName" name="deptName" type="text" class="form-control" />
-                    <button class="btn btn-info" id="btnQuery" name="btnQuery">查詢</button>
+                    <!--<button class="btn btn-info" id="btnQuery" name="btnQuery">查詢</button>-->
                     <div id="divProcessing">
                         <img src="~/Content/ajax-loader.gif">
                     </div>
@@ -42,20 +42,24 @@
     var defaultData = [@Html.Raw(ViewBag.TreeString)];
     $('#treeview').treeview({
         data: defaultData,
-        showIcon: false,
+        showIcon: true,
         showCheckbox: true,
         showTags: true,
+        nodeIcon: "glyphicon glyphicon-user",
+        //uncheckedIcon: "glyphicon glyphicon-user",
         onNodeChecked: function (event, node) {
             $('#treeview').treeview('uncheckAll', { silent: true });
             $('#checkable-output').prepend('<p>' + node.text + ' was checked</p>');
             $('#treeview').treeview('checkNode', [node.nodeId, { silent: true }]);
             // chkNodeId = node.href;
             $('#checkNodeId').val(node.href);
-            node.expanded= true;
         },
         onNodeUnchecked: function (event, node) {
             $('#checkable-output').prepend('<p>' + node.text + ' was unchecked</p>');
             $('#checkNodeId').val("");
+        },
+        onNodeSelected: function (event, data) {
+            alert(data.text);
         }
     });
     $('#treeview').treeview('expandAll', { levels: 3, silent: $('#chk-expand-silent').is(':checked') });
@@ -63,7 +67,6 @@
 
     $("#saveDept").click(function () {
         //Ajax 功能範例
-        alert($('#formDept').serialize());
         //特殊JQuery 選擇器
         // if ($("form[name='formUser'] select[name='roles']").val() == "") { alert("請設定使用者角色!!"); return false; }
         var URLs = "addDepartment";
@@ -74,6 +77,7 @@
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
+                location.reload();
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);
@@ -82,27 +86,23 @@
     });
     // Hide the "busy" Gif at load:
     $("#divProcessing").hide();
-    // Attach click handler to the submit button:
-    $('#login').click(function () {
-        $("#divProcessing").show();
-    });
+
     //設定查詢Form
-    $("#btnQuery").click(function () {
-        //Ajax 功能範例
-        var URLs = "Query";
-        $.ajax({
-            url: URLs,
-            data: $('#formSearch').serialize(),
-            type: "POST",
-            dataType: 'html',
-            success: function (result) {
-                $("#deptList").html(result);
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert(thrownError);
-            }
-        });
-    });
+    //$("#btnQuery").click(function () {
+    //    //Ajax 功能範例
+    //    var URLs = "Query";
+    //    $.ajax({
+    //        url: URLs,
+    //        data: $('#formSearch').serialize(),
+    //        type: "POST",
+    //        dataType: 'html',
+    //        success: function (result) {
+    //        },
+    //        error: function (xhr, ajaxOptions, thrownError) {
+    //            alert(thrownError);
+    //        }
+    //    });
+    //});
     //由ID 取得資料填入表單
     function getUser(userid) {
         //alert(userid);
