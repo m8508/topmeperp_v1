@@ -5517,7 +5517,7 @@ namespace topmeperp.Service
                     lstLoans = context.FIN_BANK_LOAN.SqlQuery("SELECT bl.*, flt.AMOUNT AS LOAN FROM FIN_BANK_LOAN bl LEFT JOIN FIN_LOAN_TRANACTION flt " +
                         "ON bl.BL_ID = flt.BL_ID WHERE bl.PROJECT_ID = @projectid AND flt.TRANSACTION_TYPE = -1 ", new SqlParameter("projectid", projectid)).ToList();
                     logger.Debug("get records=" + lstLoans.Count);
-                    //將系統所有角色封裝供前端頁面調用
+                    //將特定專案之貸款封裝供前端頁面調用
                     cashFlowModel.finLoan = lstLoans;
                 }
                 catch (Exception e)

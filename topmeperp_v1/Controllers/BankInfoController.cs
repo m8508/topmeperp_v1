@@ -88,6 +88,18 @@ namespace topmeperp.Controllers
         {
             ContextService4BankInfo service = new ContextService4BankInfo();
             List<BankLoanInfoExt> lstBankLoan = service.getAllBankLoan();
+            service.getAllPlan();
+
+            ViewData.Add("plans", service.tndProjectModels.planList);
+            if (service.tndProjectModels.planList != null)
+            {
+                SelectList plans = new SelectList(service.tndProjectModels.planList, "PROJECT_ID", "PROJECT_NAME");
+
+                ViewBag.plans = plans;
+                //將資料存入TempData 減少不斷讀取資料庫
+                TempData.Remove("plans");
+                TempData.Add("plans", service.tndProjectModels.planList);
+            }
             return View(lstBankLoan);
         }
         /// <summary>
@@ -109,21 +121,21 @@ namespace topmeperp.Controllers
 
             bankloanInfo.PERIOD_COUNT = int.Parse(Request["PERIOD_COUNT"]);
             decimal quota = decimal.Parse(Request["QUOTA"]);
-            decimal paybackRatio = decimal.Parse(Request["AR_PAYBACK_RATIO"]);
-            decimal cumRatio = decimal.Parse(Request["CUM_AR_RATIO"]);
             bankloanInfo.QUOTA = quota;
             if(Request["AR_PAYBACK_RATIO"] != "")
             {
-                bankloanInfo.AR_PAYBACK_RATIO = paybackRatio;
+                bankloanInfo.AR_PAYBACK_RATIO = decimal.Parse(Request["AR_PAYBACK_RATIO"]);
             }
             if (Request["CUM_AR_RATIO"] != "")
             {
-                bankloanInfo.CUM_AR_RATIO = cumRatio;
+                bankloanInfo.CUM_AR_RATIO = decimal.Parse(Request["CUM_AR_RATIO"]);
             }
             bankloanInfo.REMARK = Request["REMARK"];
             bankloanInfo.ACCOUNT_NAME = Request["ACCOUNT_NAME"];
-            bankloanInfo.PROJECT_ID = Request["PROJECT_ID"];
-
+            if (Request["plans"] != "")
+            {
+                bankloanInfo.PROJECT_ID = Request["plans"];
+            }
             bankloanInfo.CREATE_ID = u.USER_ID;
             bankloanInfo.CREATE_DATE = DateTime.Now;
             ContextService4BankInfo service = new ContextService4BankInfo();

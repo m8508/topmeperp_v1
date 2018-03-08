@@ -13,7 +13,11 @@
                 <div class="row form-group"><div class="col-md-2">分行名稱</div><div class="col-md-8"><input type="text" id="BRANCH_NAME" name="BRANCH_NAME" class="form-control" /></div></div>
              -->
             <div class="row form-group"><div class="col-md-2">帳戶名稱</div><div class="col-md-8"><input type="text" id="ACCOUNT_NAME" name="ACCOUNT_NAME" class="form-control" /></div></div>
-            <div class="row form-group"><div class="col-md-2">專案代碼</div><div class="col-md-8"><input type="text" id="PROJECT_ID" name="PROJECT_ID" class="form-control" /></div></div>
+            <div class="row form-group">
+                <div class="col-md-2">專案名稱</div><div class="col-md-8">
+                    @Html.DropDownList("plans", null, String.Empty, new { @class = "form-control" })
+                </div>
+            </div>
             <!--
                  <div class="row form-group"><div class="col-md-2">帳號</div><div class="col-md-8"><input type="text" id="ACCOUNT_NO" name="ACCOUNT_NO" class="form-control" /></div></div>
             -->
