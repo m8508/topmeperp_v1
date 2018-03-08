@@ -17,12 +17,12 @@ namespace topmeperp.Models
         public long PKID { get; set; }
         public string PROJECT_ID { get; set; }
         public string FIELD_ID { get; set; }
+        public string FIELD_DESC { get; set; }
         public Nullable<decimal> COST { get; set; }
         public Nullable<decimal> PERCENTAGE { get; set; }
         public string NOTE { get; set; }
         public string MODIFY_ID { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
-        public string FIELD_DESC { get; set; }
     
         public virtual TND_PROJECT TND_PROJECT { get; set; }
     }
