@@ -20,5 +20,8 @@ namespace topmeperp.Models
         public Nullable<decimal> AMOUNT { get; set; }
         public string ITEM_REMARK { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
+        public string ITEM_UNIT { get; set; }
+        public Nullable<decimal> ITEM_UNIT_PRICE { get; set; }
+        public Nullable<decimal> ITEM_QUANTITY { get; set; }
     }
 }

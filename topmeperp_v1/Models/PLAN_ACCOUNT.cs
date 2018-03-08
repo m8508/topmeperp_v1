@@ -19,7 +19,7 @@ namespace topmeperp.Models
         public string CONTRACT_ID { get; set; }
         public string ACCOUNT_FORM_ID { get; set; }
         public Nullable<System.DateTime> PAYMENT_DATE { get; set; }
-        public Nullable<decimal> AMOUNT { get; set; }
+        public Nullable<decimal> AMOUNT_PAID { get; set; }
         public string ACCOUNT_TYPE { get; set; }
         public string ISDEBIT { get; set; }
         public Nullable<int> STATUS { get; set; }
@@ -27,5 +27,7 @@ namespace topmeperp.Models
         public string MODIFY_ID { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
         public string CHECK_NO { get; set; }
+        public Nullable<decimal> AMOUNT_PAYABLE { get; set; }
+        public Nullable<decimal> AMOUNT { get; set; }
     }
 }

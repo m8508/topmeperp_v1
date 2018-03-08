@@ -48,8 +48,8 @@
                 <th>預付款餘額</th>
                 <th>保留款總額</th>
                 <th>營業稅總額</th>
-                <th>實付總額</th>
-                <th>應付未付</th>
+                <th>實收總額</th>
+                <th>應收未收</th>
             </tr>
         </thead>
         <tbody>
@@ -101,7 +101,10 @@
                 +營業稅
             </th>
             <th>
-                實付金額
+                實收金額
+            </th>
+            <th>
+                發票
             </th>
             <th>
                 已入帳
@@ -147,15 +150,26 @@
                 <td>
                     @String.Format("{0:#,##0.#}", item.AR)
                 </td>
-                @if (item.AR_UNPAID > 0)
+                
+                    @if (null != item.INVOICE_NO)
+                    {
+                        <td><span style="color: blue; font-size: 15px;">✔</span></td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+
+                @if  (null == item.AR_PAID)
                 {
-                    <td>
-                        <a href="/CashFlow/PlanAccountOfForm?formid=@item.VA_FORM_ID" target="_blank">查看</a>
-                    </td>
+                   <td></td>
                 }
-                else if (null == item.AR_PAID)
+                else if (item.AR_UNPAID != 0)
                 {
-                    <td></td>
+                    
+                    <td>
+                        <a href="/CashFlow/PlanAccountOfForm?formid=@item.VA_FORM_ID" target="_blank">帳款不符</a>
+                    </td>
                 }
                 else
                 {
@@ -210,6 +224,10 @@ else
                 format: 'YYYY/MM/DD',
                 locale: 'zh-tw'
             });
+            $('#invoice_date').datetimepicker({
+                format: 'YYYY/MM/DD',
+                locale: 'zh-tw'
+            });
         });
     })
 
@@ -231,6 +249,8 @@ else
                 $('#other_payment_remark').val();
                 $('#repayment').val();
                 $('#remark').val();
+                $('#invoice_number').val();
+                $('#invoice_date').val();
                 $('#VAItemInfo').modal('show'); // show bootstrap modal when complete loaded
                 $('#no').hide();
                 $('#taxAmount').hide();
@@ -300,6 +320,8 @@ else
                 $('#create_date').val(data.RECORDED_DATE);
                 $('#create_id').val(data.CREATE_ID);
                 $('#status').val(data.STATUS);
+                $('#invoice_number').val(data.INVOICE_NO);
+                $('#invoice_date').val(data.RECORDED_INVOICE_DATE);
                 $('#VAItemInfo').modal('show'); // show bootstrap modal when complete loaded
                 $('#count').hide();
                 //$('.modal-title').text('編輯設定資料'); // Set title to Bootstrap modal title
@@ -323,6 +345,7 @@ else
                 $('#va_form_id').val(data.VA_FORM_ID);
                 $('#number').val(data.NO);
                 $('#payment_amount').val(data.AR);
+                $('#paid_amount').val();
                 $('#payment_date').val();
                 $('#check_no').val();
                 $('#paymentInfo').modal('show'); // show bootstrap modal when complete loaded

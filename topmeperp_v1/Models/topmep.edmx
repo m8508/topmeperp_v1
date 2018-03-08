@@ -1197,8 +1197,6 @@
       <Schema Namespace="topmepModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityContainer Name="topmepEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="FIN_EXPENSE_BUDGET" EntityType="topmepModel.FIN_EXPENSE_BUDGET" />
-          <EntitySet Name="FIN_EXPENSE_FORM" EntityType="topmepModel.FIN_EXPENSE_FORM" />
-          <EntitySet Name="FIN_EXPENSE_ITEM" EntityType="topmepModel.FIN_EXPENSE_ITEM" />
           <EntitySet Name="FIN_SUBJECT" EntityType="topmepModel.FIN_SUBJECT" />
           <EntitySet Name="PLAN_BUDGET" EntityType="topmepModel.PLAN_BUDGET" />
           <EntitySet Name="PLAN_DALIY_REPORT" EntityType="topmepModel.PLAN_DALIY_REPORT" />
@@ -1264,20 +1262,22 @@
             <End Role="PLAN_COSTCHANGE_ITEM" EntitySet="PLAN_COSTCHANGE_ITEM" />
           </AssociationSet>
           <EntitySet Name="PLAN_ITEM_DELIVERY" EntityType="topmepModel.PLAN_ITEM_DELIVERY" />
-          <EntitySet Name="FIN_BANK_ACCOUNT" EntityType="topmepModel.FIN_BANK_ACCOUNT" />
-          <EntitySet Name="FIN_BANK_LOAN" EntityType="topmepModel.FIN_BANK_LOAN" />
           <EntitySet Name="FIN_LOAN_TRANACTION" EntityType="topmepModel.FIN_LOAN_TRANACTION" />
+          <EntitySet Name="PLAN_ESTIMATION_FORM" EntityType="topmepModel.PLAN_ESTIMATION_FORM" />
+          <EntitySet Name="TND_FILE" EntityType="topmepModel.TND_FILE" />
+          <EntitySet Name="PLAN_CONTRACT_PROCESS" EntityType="topmepModel.PLAN_CONTRACT_PROCESS" />
+          <EntitySet Name="PLAN_PURCHASE_REQUISITION_ITEM" EntityType="topmepModel.PLAN_PURCHASE_REQUISITION_ITEM" />
+          <EntitySet Name="FIN_BANK_LOAN" EntityType="topmepModel.FIN_BANK_LOAN" />
           <AssociationSet Name="FK_FIN_LOAN_REFERENCE_FIN_BANK" Association="topmepModel.FK_FIN_LOAN_REFERENCE_FIN_BANK">
             <End Role="FIN_BANK_LOAN" EntitySet="FIN_BANK_LOAN" />
             <End Role="FIN_LOAN_TRANACTION" EntitySet="FIN_LOAN_TRANACTION" />
           </AssociationSet>
-          <EntitySet Name="PLAN_VALUATION_FORM" EntityType="topmepModel.PLAN_VALUATION_FORM" />
+          <EntitySet Name="FIN_EXPENSE_FORM" EntityType="topmepModel.FIN_EXPENSE_FORM" />
+          <EntitySet Name="FIN_EXPENSE_ITEM" EntityType="topmepModel.FIN_EXPENSE_ITEM" />
           <EntitySet Name="PLAN_ACCOUNT" EntityType="topmepModel.PLAN_ACCOUNT" />
-          <EntitySet Name="PLAN_ESTIMATION_FORM" EntityType="topmepModel.PLAN_ESTIMATION_FORM" />
-          <EntitySet Name="TND_FILE" EntityType="topmepModel.TND_FILE" />
+          <EntitySet Name="PLAN_VALUATION_FORM" EntityType="topmepModel.PLAN_VALUATION_FORM" />
+          <EntitySet Name="FIN_BANK_ACCOUNT" EntityType="topmepModel.FIN_BANK_ACCOUNT" />
           <EntitySet Name="ENT_DEPARTMENT" EntityType="topmepModel.ENT_DEPARTMENT" />
-          <EntitySet Name="PLAN_CONTRACT_PROCESS" EntityType="topmepModel.PLAN_CONTRACT_PROCESS" />
-          <EntitySet Name="PLAN_PURCHASE_REQUISITION_ITEM" EntityType="topmepModel.PLAN_PURCHASE_REQUISITION_ITEM" />
         </EntityContainer>
         <EntityType Name="FIN_EXPENSE_BUDGET">
           <Key>
@@ -1292,38 +1292,6 @@
           <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
           <Property Name="CURRENT_YEAR" Type="Int32" />
-        </EntityType>
-        <EntityType Name="FIN_EXPENSE_FORM">
-          <Key>
-            <PropertyRef Name="EXP_FORM_ID" />
-          </Key>
-          <Property Name="EXP_FORM_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="OCCURRED_YEAR" Type="Int32" />
-          <Property Name="OCCURRED_MONTH" Type="Int32" />
-          <Property Name="PAYMENT_DATE" Type="DateTime" Precision="3" />
-          <Property Name="STATUS" Type="Int32" />
-          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
-          <Property Name="REMARK" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="PASS_CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="PASS_CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="APPROVE_CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="APPROVE_CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="JOURNAL_CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="JOURNAL_CREATE_DATE" Type="DateTime" Precision="3" />
-        </EntityType>
-        <EntityType Name="FIN_EXPENSE_ITEM">
-          <Key>
-            <PropertyRef Name="EXP_ITEM_ID" />
-          </Key>
-          <Property Name="EXP_ITEM_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="EXP_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="FIN_SUBJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="AMOUNT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="ITEM_REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="FIN_SUBJECT">
           <Key>
@@ -2200,46 +2168,6 @@
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
           <Property Name="MODIFY_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="FIN_BANK_ACCOUNT">
-          <Key>
-            <PropertyRef Name="BANK_ACCOUNT_ID" />
-          </Key>
-          <Property Name="BANK_ACCOUNT_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="BANK_ID" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
-          <Property Name="BANK_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="BRANCH_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="ACCOUNT_NO" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="ACCOUNT_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="REF_ACCOUNT_CODE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="CUR_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="CUR_DATE" Type="DateTime" Precision="3" />
-          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
-        </EntityType>
-        <EntityType Name="FIN_BANK_LOAN">
-          <Key>
-            <PropertyRef Name="BL_ID" />
-          </Key>
-          <Property Name="BL_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="BANK_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="BANK_NAME" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="BRANCH_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="ACCOUNT_NO" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="ACCOUNT_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="REF_ACCOUNT_CODE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="START_DATE" Type="DateTime" Precision="3" />
-          <Property Name="DUE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="PERIOD_COUNT" Type="Int32" />
-          <Property Name="QUOTA" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
-          <NavigationProperty Name="FIN_LOAN_TRANACTION" Relationship="topmepModel.FK_FIN_LOAN_REFERENCE_FIN_BANK" FromRole="FIN_BANK_LOAN" ToRole="FIN_LOAN_TRANACTION" />
-        </EntityType>
         <EntityType Name="FIN_LOAN_TRANACTION">
           <Key>
             <PropertyRef Name="TID" />
@@ -2257,57 +2185,6 @@
           <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
           <NavigationProperty Name="FIN_BANK_LOAN" Relationship="topmepModel.FK_FIN_LOAN_REFERENCE_FIN_BANK" FromRole="FIN_LOAN_TRANACTION" ToRole="FIN_BANK_LOAN" />
-        </EntityType>
-        <Association Name="FK_FIN_LOAN_REFERENCE_FIN_BANK">
-          <End Type="topmepModel.FIN_BANK_LOAN" Role="FIN_BANK_LOAN" Multiplicity="0..1" />
-          <End Type="topmepModel.FIN_LOAN_TRANACTION" Role="FIN_LOAN_TRANACTION" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="FIN_BANK_LOAN">
-              <PropertyRef Name="BL_ID" />
-            </Principal>
-            <Dependent Role="FIN_LOAN_TRANACTION">
-              <PropertyRef Name="BL_ID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <EntityType Name="PLAN_VALUATION_FORM">
-          <Key>
-            <PropertyRef Name="VA_FORM_ID" />
-          </Key>
-          <Property Name="VA_FORM_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="VALUATION_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="TAX_RATIO" Type="Decimal" Precision="5" Scale="2" />
-          <Property Name="TAX_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="RETENTION_PAYMENT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="ADVANCE_PAYMENT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="ADVANCE_PAYMENT_REFUND" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="OTHER_PAYMENT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="OTHER_PAYMENT_REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="REPAYMENT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
-          <Property Name="STATUS" Type="Int32" />
-        </EntityType>
-        <EntityType Name="PLAN_ACCOUNT">
-          <Key>
-            <PropertyRef Name="PLAN_ACCOUNT_ID" />
-          </Key>
-          <Property Name="PLAN_ACCOUNT_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="CONTRACT_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="ACCOUNT_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PAYMENT_DATE" Type="DateTime" Precision="3" />
-          <Property Name="AMOUNT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="ACCOUNT_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
-          <Property Name="ISDEBIT" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
-          <Property Name="STATUS" Type="Int32" />
-          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
-          <Property Name="CHECK_NO" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="PLAN_ESTIMATION_FORM">
           <Key>
@@ -2346,21 +2223,6 @@
           <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
           <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="ENT_DEPARTMENT">
-          <Key>
-            <PropertyRef Name="DEP_ID" />
-          </Key>
-          <Property Name="DEP_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="DEPT_CODE" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="DEPT_NAME" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="PARENT_ID" Type="Int64" Nullable="false" />
-          <Property Name="DESC" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
-          <Property Name="MANAGER" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-        </EntityType>
         <EntityType Name="PLAN_CONTRACT_PROCESS">
           <Key>
             <PropertyRef Name="CONTRACT_ID" />
@@ -2393,6 +2255,155 @@
           <Property Name="ITEM_DESC" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
           <Property Name="ITEM_UNIT" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
         </EntityType>
+        <EntityType Name="FIN_BANK_LOAN">
+          <Key>
+            <PropertyRef Name="BL_ID" />
+          </Key>
+          <Property Name="BL_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="BANK_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="BANK_NAME" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="BRANCH_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="ACCOUNT_NO" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="ACCOUNT_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="REF_ACCOUNT_CODE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="START_DATE" Type="DateTime" Precision="3" />
+          <Property Name="DUE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="PERIOD_COUNT" Type="Int32" />
+          <Property Name="QUOTA" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="AR_PAYBACK_RATIO" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="CUM_AR_RATIO" Type="Decimal" Precision="18" Scale="3" />
+          <NavigationProperty Name="FIN_LOAN_TRANACTION" Relationship="topmepModel.FK_FIN_LOAN_REFERENCE_FIN_BANK" FromRole="FIN_BANK_LOAN" ToRole="FIN_LOAN_TRANACTION" />
+        </EntityType>
+        <Association Name="FK_FIN_LOAN_REFERENCE_FIN_BANK">
+          <End Type="topmepModel.FIN_BANK_LOAN" Role="FIN_BANK_LOAN" Multiplicity="0..1" />
+          <End Type="topmepModel.FIN_LOAN_TRANACTION" Role="FIN_LOAN_TRANACTION" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="FIN_BANK_LOAN">
+              <PropertyRef Name="BL_ID" />
+            </Principal>
+            <Dependent Role="FIN_LOAN_TRANACTION">
+              <PropertyRef Name="BL_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="FIN_EXPENSE_FORM">
+          <Key>
+            <PropertyRef Name="EXP_FORM_ID" />
+          </Key>
+          <Property Name="EXP_FORM_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="OCCURRED_YEAR" Type="Int32" />
+          <Property Name="OCCURRED_MONTH" Type="Int32" />
+          <Property Name="PAYMENT_DATE" Type="DateTime" Precision="3" />
+          <Property Name="STATUS" Type="Int32" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="REMARK" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="PASS_CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="PASS_CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="APPROVE_CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="APPROVE_CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="JOURNAL_CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="JOURNAL_CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="PAYEE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="FIN_EXPENSE_ITEM">
+          <Key>
+            <PropertyRef Name="EXP_ITEM_ID" />
+          </Key>
+          <Property Name="EXP_ITEM_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="EXP_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="FIN_SUBJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="AMOUNT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="ITEM_REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="ITEM_UNIT" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="ITEM_UNIT_PRICE" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="ITEM_QUANTITY" Type="Decimal" Precision="18" Scale="3" />
+        </EntityType>
+        <EntityType Name="PLAN_ACCOUNT">
+          <Key>
+            <PropertyRef Name="PLAN_ACCOUNT_ID" />
+          </Key>
+          <Property Name="PLAN_ACCOUNT_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="CONTRACT_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ACCOUNT_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PAYMENT_DATE" Type="DateTime" Precision="3" />
+          <Property Name="AMOUNT_PAID" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="ACCOUNT_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="ISDEBIT" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="STATUS" Type="Int32" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="CHECK_NO" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="AMOUNT_PAYABLE" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="AMOUNT" Type="Decimal" Precision="18" Scale="3" />
+        </EntityType>
+        <EntityType Name="PLAN_VALUATION_FORM">
+          <Key>
+            <PropertyRef Name="VA_FORM_ID" />
+          </Key>
+          <Property Name="VA_FORM_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="VALUATION_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="TAX_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="TAX_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="RETENTION_PAYMENT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="ADVANCE_PAYMENT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="ADVANCE_PAYMENT_REFUND" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="OTHER_PAYMENT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="OTHER_PAYMENT_REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="REPAYMENT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="STATUS" Type="Int32" />
+          <Property Name="INVOICE_NO" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="INVOICE_DATE" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="FIN_BANK_ACCOUNT">
+          <Key>
+            <PropertyRef Name="BANK_ACCOUNT_ID" />
+          </Key>
+          <Property Name="BANK_ACCOUNT_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="BANK_ID" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="BANK_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="BRANCH_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="ACCOUNT_NO" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="ACCOUNT_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="REF_ACCOUNT_CODE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="CUR_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="CUR_DATE" Type="DateTime" Precision="3" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="ENT_DEPARTMENT">
+          <Key>
+            <PropertyRef Name="DEP_ID" />
+          </Key>
+          <Property Name="DEP_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DEPT_CODE" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DEPT_NAME" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="PARENT_ID" Type="Int64" Nullable="false" />
+          <Property Name="DESC" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="MANAGER" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2411,40 +2422,6 @@
                 <ScalarProperty Name="BUDGET_MONTH" ColumnName="BUDGET_MONTH" />
                 <ScalarProperty Name="BUDGET_YEAR" ColumnName="BUDGET_YEAR" />
                 <ScalarProperty Name="EXPENSE_BUDGET_ID" ColumnName="EXPENSE_BUDGET_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="FIN_EXPENSE_FORM">
-            <EntityTypeMapping TypeName="topmepModel.FIN_EXPENSE_FORM">
-              <MappingFragment StoreEntitySet="FIN_EXPENSE_FORM">
-                <ScalarProperty Name="JOURNAL_CREATE_DATE" ColumnName="JOURNAL_CREATE_DATE" />
-                <ScalarProperty Name="JOURNAL_CREATE_ID" ColumnName="JOURNAL_CREATE_ID" />
-                <ScalarProperty Name="APPROVE_CREATE_DATE" ColumnName="APPROVE_CREATE_DATE" />
-                <ScalarProperty Name="APPROVE_CREATE_ID" ColumnName="APPROVE_CREATE_ID" />
-                <ScalarProperty Name="PASS_CREATE_DATE" ColumnName="PASS_CREATE_DATE" />
-                <ScalarProperty Name="PASS_CREATE_ID" ColumnName="PASS_CREATE_ID" />
-                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
-                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
-                <ScalarProperty Name="STATUS" ColumnName="STATUS" />
-                <ScalarProperty Name="PAYMENT_DATE" ColumnName="PAYMENT_DATE" />
-                <ScalarProperty Name="OCCURRED_MONTH" ColumnName="OCCURRED_MONTH" />
-                <ScalarProperty Name="OCCURRED_YEAR" ColumnName="OCCURRED_YEAR" />
-                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
-                <ScalarProperty Name="EXP_FORM_ID" ColumnName="EXP_FORM_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="FIN_EXPENSE_ITEM">
-            <EntityTypeMapping TypeName="topmepModel.FIN_EXPENSE_ITEM">
-              <MappingFragment StoreEntitySet="FIN_EXPENSE_ITEM">
-                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
-                <ScalarProperty Name="ITEM_REMARK" ColumnName="ITEM_REMARK" />
-                <ScalarProperty Name="AMOUNT" ColumnName="AMOUNT" />
-                <ScalarProperty Name="FIN_SUBJECT_ID" ColumnName="FIN_SUBJECT_ID" />
-                <ScalarProperty Name="EXP_FORM_ID" ColumnName="EXP_FORM_ID" />
-                <ScalarProperty Name="EXP_ITEM_ID" ColumnName="EXP_ITEM_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -3298,47 +3275,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="FIN_BANK_ACCOUNT">
-            <EntityTypeMapping TypeName="topmepModel.FIN_BANK_ACCOUNT">
-              <MappingFragment StoreEntitySet="FIN_BANK_ACCOUNT">
-                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
-                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
-                <ScalarProperty Name="CUR_DATE" ColumnName="CUR_DATE" />
-                <ScalarProperty Name="CUR_AMOUNT" ColumnName="CUR_AMOUNT" />
-                <ScalarProperty Name="REF_ACCOUNT_CODE" ColumnName="REF_ACCOUNT_CODE" />
-                <ScalarProperty Name="ACCOUNT_NAME" ColumnName="ACCOUNT_NAME" />
-                <ScalarProperty Name="ACCOUNT_NO" ColumnName="ACCOUNT_NO" />
-                <ScalarProperty Name="BRANCH_NAME" ColumnName="BRANCH_NAME" />
-                <ScalarProperty Name="BANK_NAME" ColumnName="BANK_NAME" />
-                <ScalarProperty Name="BANK_ID" ColumnName="BANK_ID" />
-                <ScalarProperty Name="BANK_ACCOUNT_ID" ColumnName="BANK_ACCOUNT_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="FIN_BANK_LOAN">
-            <EntityTypeMapping TypeName="topmepModel.FIN_BANK_LOAN">
-              <MappingFragment StoreEntitySet="FIN_BANK_LOAN">
-                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
-                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
-                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
-                <ScalarProperty Name="QUOTA" ColumnName="QUOTA" />
-                <ScalarProperty Name="PERIOD_COUNT" ColumnName="PERIOD_COUNT" />
-                <ScalarProperty Name="DUE_DATE" ColumnName="DUE_DATE" />
-                <ScalarProperty Name="START_DATE" ColumnName="START_DATE" />
-                <ScalarProperty Name="REF_ACCOUNT_CODE" ColumnName="REF_ACCOUNT_CODE" />
-                <ScalarProperty Name="ACCOUNT_NAME" ColumnName="ACCOUNT_NAME" />
-                <ScalarProperty Name="ACCOUNT_NO" ColumnName="ACCOUNT_NO" />
-                <ScalarProperty Name="BRANCH_NAME" ColumnName="BRANCH_NAME" />
-                <ScalarProperty Name="BANK_NAME" ColumnName="BANK_NAME" />
-                <ScalarProperty Name="BANK_ID" ColumnName="BANK_ID" />
-                <ScalarProperty Name="BL_ID" ColumnName="BL_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="FIN_LOAN_TRANACTION">
             <EntityTypeMapping TypeName="topmepModel.FIN_LOAN_TRANACTION">
               <MappingFragment StoreEntitySet="FIN_LOAN_TRANACTION">
@@ -3354,47 +3290,6 @@
                 <ScalarProperty Name="TRANSACTION_TYPE" ColumnName="TRANSACTION_TYPE" />
                 <ScalarProperty Name="BL_ID" ColumnName="BL_ID" />
                 <ScalarProperty Name="TID" ColumnName="TID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_VALUATION_FORM">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_VALUATION_FORM">
-              <MappingFragment StoreEntitySet="PLAN_VALUATION_FORM">
-                <ScalarProperty Name="STATUS" ColumnName="STATUS" />
-                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
-                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
-                <ScalarProperty Name="REPAYMENT" ColumnName="REPAYMENT" />
-                <ScalarProperty Name="OTHER_PAYMENT_REMARK" ColumnName="OTHER_PAYMENT_REMARK" />
-                <ScalarProperty Name="OTHER_PAYMENT" ColumnName="OTHER_PAYMENT" />
-                <ScalarProperty Name="ADVANCE_PAYMENT_REFUND" ColumnName="ADVANCE_PAYMENT_REFUND" />
-                <ScalarProperty Name="ADVANCE_PAYMENT" ColumnName="ADVANCE_PAYMENT" />
-                <ScalarProperty Name="RETENTION_PAYMENT" ColumnName="RETENTION_PAYMENT" />
-                <ScalarProperty Name="TAX_AMOUNT" ColumnName="TAX_AMOUNT" />
-                <ScalarProperty Name="TAX_RATIO" ColumnName="TAX_RATIO" />
-                <ScalarProperty Name="VALUATION_AMOUNT" ColumnName="VALUATION_AMOUNT" />
-                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
-                <ScalarProperty Name="VA_FORM_ID" ColumnName="VA_FORM_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_ACCOUNT">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_ACCOUNT">
-              <MappingFragment StoreEntitySet="PLAN_ACCOUNT">
-                <ScalarProperty Name="CHECK_NO" ColumnName="CHECK_NO" />
-                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
-                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
-                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
-                <ScalarProperty Name="STATUS" ColumnName="STATUS" />
-                <ScalarProperty Name="ISDEBIT" ColumnName="ISDEBIT" />
-                <ScalarProperty Name="ACCOUNT_TYPE" ColumnName="ACCOUNT_TYPE" />
-                <ScalarProperty Name="AMOUNT" ColumnName="AMOUNT" />
-                <ScalarProperty Name="PAYMENT_DATE" ColumnName="PAYMENT_DATE" />
-                <ScalarProperty Name="ACCOUNT_FORM_ID" ColumnName="ACCOUNT_FORM_ID" />
-                <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
-                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
-                <ScalarProperty Name="PLAN_ACCOUNT_ID" ColumnName="PLAN_ACCOUNT_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -3484,6 +3379,137 @@
                 <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
                 <ScalarProperty Name="PR_ID" ColumnName="PR_ID" />
                 <ScalarProperty Name="PR_ITEM_ID" ColumnName="PR_ITEM_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="FIN_BANK_LOAN">
+            <EntityTypeMapping TypeName="topmepModel.FIN_BANK_LOAN">
+              <MappingFragment StoreEntitySet="FIN_BANK_LOAN">
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
+                <ScalarProperty Name="QUOTA" ColumnName="QUOTA" />
+                <ScalarProperty Name="PERIOD_COUNT" ColumnName="PERIOD_COUNT" />
+                <ScalarProperty Name="DUE_DATE" ColumnName="DUE_DATE" />
+                <ScalarProperty Name="START_DATE" ColumnName="START_DATE" />
+                <ScalarProperty Name="REF_ACCOUNT_CODE" ColumnName="REF_ACCOUNT_CODE" />
+                <ScalarProperty Name="ACCOUNT_NAME" ColumnName="ACCOUNT_NAME" />
+                <ScalarProperty Name="ACCOUNT_NO" ColumnName="ACCOUNT_NO" />
+                <ScalarProperty Name="BRANCH_NAME" ColumnName="BRANCH_NAME" />
+                <ScalarProperty Name="BANK_NAME" ColumnName="BANK_NAME" />
+                <ScalarProperty Name="BANK_ID" ColumnName="BANK_ID" />
+                <ScalarProperty Name="BL_ID" ColumnName="BL_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="FIN_EXPENSE_FORM">
+            <EntityTypeMapping TypeName="topmepModel.FIN_EXPENSE_FORM">
+              <MappingFragment StoreEntitySet="FIN_EXPENSE_FORM">
+                <ScalarProperty Name="JOURNAL_CREATE_DATE" ColumnName="JOURNAL_CREATE_DATE" />
+                <ScalarProperty Name="JOURNAL_CREATE_ID" ColumnName="JOURNAL_CREATE_ID" />
+                <ScalarProperty Name="APPROVE_CREATE_DATE" ColumnName="APPROVE_CREATE_DATE" />
+                <ScalarProperty Name="APPROVE_CREATE_ID" ColumnName="APPROVE_CREATE_ID" />
+                <ScalarProperty Name="PASS_CREATE_DATE" ColumnName="PASS_CREATE_DATE" />
+                <ScalarProperty Name="PASS_CREATE_ID" ColumnName="PASS_CREATE_ID" />
+                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+                <ScalarProperty Name="STATUS" ColumnName="STATUS" />
+                <ScalarProperty Name="PAYMENT_DATE" ColumnName="PAYMENT_DATE" />
+                <ScalarProperty Name="OCCURRED_MONTH" ColumnName="OCCURRED_MONTH" />
+                <ScalarProperty Name="OCCURRED_YEAR" ColumnName="OCCURRED_YEAR" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
+                <ScalarProperty Name="EXP_FORM_ID" ColumnName="EXP_FORM_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="FIN_EXPENSE_ITEM">
+            <EntityTypeMapping TypeName="topmepModel.FIN_EXPENSE_ITEM">
+              <MappingFragment StoreEntitySet="FIN_EXPENSE_ITEM">
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="ITEM_REMARK" ColumnName="ITEM_REMARK" />
+                <ScalarProperty Name="AMOUNT" ColumnName="AMOUNT" />
+                <ScalarProperty Name="FIN_SUBJECT_ID" ColumnName="FIN_SUBJECT_ID" />
+                <ScalarProperty Name="EXP_FORM_ID" ColumnName="EXP_FORM_ID" />
+                <ScalarProperty Name="EXP_ITEM_ID" ColumnName="EXP_ITEM_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_ACCOUNT">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_ACCOUNT">
+              <MappingFragment StoreEntitySet="PLAN_ACCOUNT">
+                <ScalarProperty Name="AMOUNT" ColumnName="AMOUNT" />
+                <ScalarProperty Name="CHECK_NO" ColumnName="CHECK_NO" />
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+                <ScalarProperty Name="STATUS" ColumnName="STATUS" />
+                <ScalarProperty Name="ISDEBIT" ColumnName="ISDEBIT" />
+                <ScalarProperty Name="ACCOUNT_TYPE" ColumnName="ACCOUNT_TYPE" />
+                <ScalarProperty Name="PAYMENT_DATE" ColumnName="PAYMENT_DATE" />
+                <ScalarProperty Name="ACCOUNT_FORM_ID" ColumnName="ACCOUNT_FORM_ID" />
+                <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
+                <ScalarProperty Name="PLAN_ACCOUNT_ID" ColumnName="PLAN_ACCOUNT_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_VALUATION_FORM">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_VALUATION_FORM">
+              <MappingFragment StoreEntitySet="PLAN_VALUATION_FORM">
+                <ScalarProperty Name="STATUS" ColumnName="STATUS" />
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
+                <ScalarProperty Name="REPAYMENT" ColumnName="REPAYMENT" />
+                <ScalarProperty Name="OTHER_PAYMENT_REMARK" ColumnName="OTHER_PAYMENT_REMARK" />
+                <ScalarProperty Name="OTHER_PAYMENT" ColumnName="OTHER_PAYMENT" />
+                <ScalarProperty Name="ADVANCE_PAYMENT_REFUND" ColumnName="ADVANCE_PAYMENT_REFUND" />
+                <ScalarProperty Name="ADVANCE_PAYMENT" ColumnName="ADVANCE_PAYMENT" />
+                <ScalarProperty Name="RETENTION_PAYMENT" ColumnName="RETENTION_PAYMENT" />
+                <ScalarProperty Name="TAX_AMOUNT" ColumnName="TAX_AMOUNT" />
+                <ScalarProperty Name="TAX_RATIO" ColumnName="TAX_RATIO" />
+                <ScalarProperty Name="VALUATION_AMOUNT" ColumnName="VALUATION_AMOUNT" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
+                <ScalarProperty Name="VA_FORM_ID" ColumnName="VA_FORM_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="FIN_BANK_ACCOUNT">
+            <EntityTypeMapping TypeName="topmepModel.FIN_BANK_ACCOUNT">
+              <MappingFragment StoreEntitySet="FIN_BANK_ACCOUNT">
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+                <ScalarProperty Name="CUR_DATE" ColumnName="CUR_DATE" />
+                <ScalarProperty Name="CUR_AMOUNT" ColumnName="CUR_AMOUNT" />
+                <ScalarProperty Name="REF_ACCOUNT_CODE" ColumnName="REF_ACCOUNT_CODE" />
+                <ScalarProperty Name="ACCOUNT_NAME" ColumnName="ACCOUNT_NAME" />
+                <ScalarProperty Name="ACCOUNT_NO" ColumnName="ACCOUNT_NO" />
+                <ScalarProperty Name="BRANCH_NAME" ColumnName="BRANCH_NAME" />
+                <ScalarProperty Name="BANK_NAME" ColumnName="BANK_NAME" />
+                <ScalarProperty Name="BANK_ID" ColumnName="BANK_ID" />
+                <ScalarProperty Name="BANK_ACCOUNT_ID" ColumnName="BANK_ACCOUNT_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ENT_DEPARTMENT">
+            <EntityTypeMapping TypeName="topmepModel.ENT_DEPARTMENT">
+              <MappingFragment StoreEntitySet="ENT_DEPARTMENT">
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+                <ScalarProperty Name="DESC" ColumnName="DESC" />
+                <ScalarProperty Name="PARENT_ID" ColumnName="PARENT_ID" />
+                <ScalarProperty Name="DEPT_NAME" ColumnName="DEPT_NAME" />
+                <ScalarProperty Name="DEPT_CODE" ColumnName="DEPT_CODE" />
+                <ScalarProperty Name="DEP_ID" ColumnName="DEP_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -25,6 +25,7 @@
                                 <th>額度</th>
                                 <th>剩餘額度</th>
                                 <th>期數</th>
+                                <th>應收帳還款比率%</th>
                                 <th>備註</th>
                                 <th>修改日期</th>
                             </tr>
@@ -46,6 +47,7 @@
                                     <td>@string.Format("{0:N0}", item.QUOTA)</td>
                                     <td>@string.Format("{0:N0}", item.QUOTA+item.SumTransactionAmount )</td>
                                     <td>@item.PERIOD_COUNT</td>
+                                    <td>@string.Format("{0:N0}", item.AR_PAYBACK_RATIO)</td>
                                     <td>@item.REMARK</td>
                                     <td>@item.MODIFY_DATE</td>
                                 </tr>

@@ -400,7 +400,7 @@ namespace topmeperp.Controllers
             if (ViewBag.wage != "W")
             {
                 plansummary lstContract = service.getPlanContract4Est(singleForm.planEST.CONTRACT_ID);
-                ViewBag.contractamount = String.Format("{0:#,##0.#}",lstContract.MATERIAL_COST);
+                ViewBag.contractamount = String.Format("{0:#,##0.#}", lstContract.MATERIAL_COST);
             }
             else
             {
@@ -2165,6 +2165,14 @@ namespace topmeperp.Controllers
                 ViewBag.advance = (null == payment.USANCE_ADVANCE_RATIO ? 0 : payment.USANCE_ADVANCE_RATIO);
             }
             else { ViewBag.advance = 0; }
+            service.getAllBankLoan(id);
+
+            ViewData.Add("loans", service.cashFlowModel.finLoan);
+            SelectList loans = new SelectList(service.cashFlowModel.finLoan, "BL_ID", "ACCOUNT_NAME");
+            ViewBag.loans = loans;
+            //將資料存入TempData 減少不斷讀取資料庫
+            TempData.Remove("loans");
+            TempData.Add("loans", service.cashFlowModel.finLoan);
             RevenueFromOwner va = service.getVACount4OwnerById(id);
             ViewBag.VACount = va.isVA;
             if (va.isVA > 1)
@@ -2255,7 +2263,13 @@ namespace topmeperp.Controllers
             {
                 item.RETENTION_PAYMENT = decimal.Parse(Request["retention_amount"]);
             }
+            if (Request["invoice_date"] != "")
+            {
+                item.INVOICE_DATE = Convert.ToDateTime(Request["invoice_date"]);
+            }
+
             item.REMARK = Request["remark"];
+            item.INVOICE_NO = Request["invoice_number"];
             UserService us = new UserService();
             SYS_USER u = (SYS_USER)Session["user"];
             SYS_USER uInfo = us.getUserInfo(u.USER_ID);
@@ -2306,10 +2320,11 @@ namespace topmeperp.Controllers
                 logger.Info("save upload file:" + path);
                 file.SaveAs(path);
             }
+            decimal retention = 0;
             if (null == Request["formid"] || Request["formid"] == "")
             {
                 RevenueFromOwner payment = service.getVAPayItemById(fid);
-                decimal retention = decimal.Parse(payment.RETENTION_PAYMENT.ToString());
+                retention = decimal.Parse(payment.RETENTION_PAYMENT.ToString());
                 decimal advanceRefund = decimal.Parse(payment.ADVANCE_PAYMENT_REFUND.ToString());
                 logger.Debug("advanceRefund = " + advanceRefund);
                 decimal tax = decimal.Parse(payment.TAX_AMOUNT.ToString());
@@ -2318,7 +2333,10 @@ namespace topmeperp.Controllers
             else if (decimal.Parse(Request["advance_refund"]) != Math.Round(decimal.Parse(Request["va_amount"]) * decimal.Parse(Request["advanceRatio"]), 0))
             {
                 decimal advanceRefund = decimal.Parse(Request["advance_refund"]);
-                decimal retention = decimal.Parse(Request["retention_amount"]);
+                if (Request["retention_amount"] != "")
+                {
+                    retention = decimal.Parse(Request["retention_amount"]);
+                }
                 decimal tax = Math.Round((decimal.Parse(Request["va_amount"]) - decimal.Parse(Request["advance_refund"])) * decimal.Parse(Request["tax_ratio"]) / 100, 0);
                 int i = service.refreshVAItem(fid, retention, advanceRefund, tax);
             }
@@ -2351,16 +2369,49 @@ namespace topmeperp.Controllers
             logger.Info("form:" + form.Count);
             string msg = "新增支付資料成功!!";
             PLAN_ACCOUNT item = new PLAN_ACCOUNT();
+            FIN_LOAN_TRANACTION loan = new FIN_LOAN_TRANACTION();
             item.PROJECT_ID = form["projectid"];
             item.CONTRACT_ID = form["projectid"];
             item.ACCOUNT_FORM_ID = form["va_form_id"];
             if (form["payment_amount"] != "")
             {
-                item.AMOUNT = decimal.Parse(form["payment_amount"]);
+                item.AMOUNT_PAYABLE = decimal.Parse(form["payment_amount"]);
             }
             if (form["payment_date"] != "")
             {
                 item.PAYMENT_DATE = Convert.ToDateTime(form.Get("payment_date"));
+            }
+            DateTime paybackDate = DateTime.Now;
+            if (form["payment_date"] != "")
+            {
+                paybackDate = Convert.ToDateTime(form.Get("payment_date"));
+            }
+            decimal paybackRatio = 0;
+            decimal paybackAtm = 0;
+            decimal loanBalance = 0;
+            int period = 0;
+            if (form.Get("loans").Trim() != "")
+            {
+                FIN_BANK_LOAN bl = service.getPaybackRatioById(int.Parse(form.Get("loans").Trim()));
+                loanBalance = service.getLoanBalanceByBlId(int.Parse(form.Get("loans").Trim()));
+                paybackRatio = decimal.Parse(bl.AR_PAYBACK_RATIO.ToString());
+                period = service.getPaybackCountByBlId(int.Parse(form.Get("loans").Trim()));
+            }
+            if (loanBalance < 0 && loanBalance * -1 < decimal.Parse(form["payment_amount"]) * paybackRatio / 100)
+            {
+                paybackAtm = loanBalance * -1;
+            }
+            else
+            {
+                paybackAtm = decimal.Parse(form["payment_amount"]) * paybackRatio / 100;
+            }
+            if (form["payment_amount"] != "")
+            {
+                item.AMOUNT_PAID = decimal.Parse(form["payment_amount"]) - paybackAtm;
+            }
+            if (form["paid_amount"] != "")
+            {
+                item.AMOUNT_PAID = decimal.Parse(form["paid_amount"]) - paybackAtm;
             }
             item.CHECK_NO = form["check_no"];
             UserService us = new UserService();
@@ -2371,6 +2422,10 @@ namespace topmeperp.Controllers
             item.ACCOUNT_TYPE = "R";
             item.STATUS = 10;//已支付
             int i = service.addPlanAccount(item);
+            if (form.Get("loans").Trim() != "")
+            {
+                int k = service.addLoanTransaction(int.Parse(form.Get("loans").Trim()), paybackAtm, paybackDate, uInfo.USER_ID, period);
+            }
             if (i == 0) { msg = service.message; }
             return msg;
         }

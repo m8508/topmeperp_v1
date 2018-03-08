@@ -36,6 +36,9 @@ namespace topmeperp.Models
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public string MODIFY_ID { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
+        public string PROJECT_ID { get; set; }
+        public Nullable<decimal> AR_PAYBACK_RATIO { get; set; }
+        public Nullable<decimal> CUM_AR_RATIO { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<FIN_LOAN_TRANACTION> FIN_LOAN_TRANACTION { get; set; }

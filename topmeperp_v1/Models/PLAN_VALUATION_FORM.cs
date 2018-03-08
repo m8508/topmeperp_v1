@@ -30,5 +30,7 @@ namespace topmeperp.Models
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
         public Nullable<int> STATUS { get; set; }
+        public string INVOICE_NO { get; set; }
+        public Nullable<System.DateTime> INVOICE_DATE { get; set; }
     }
 }

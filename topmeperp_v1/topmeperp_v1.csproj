@@ -1077,6 +1077,8 @@
     <Content Include="Views\DeptManage\Index.cshtml" />
     <Content Include="Views\DeptManage\_Dept.cshtml" />
     <Content Include="Views\CashFlow\PlanAccountOfForm.cshtml" />
+    <Content Include="Views\CashFlow\CashFlowManage.cshtml" />
+    <Content Include="Views\CashFlow\_ProjectList.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -109,9 +109,20 @@ namespace topmeperp.Controllers
 
             bankloanInfo.PERIOD_COUNT = int.Parse(Request["PERIOD_COUNT"]);
             decimal quota = decimal.Parse(Request["QUOTA"]);
+            decimal paybackRatio = decimal.Parse(Request["AR_PAYBACK_RATIO"]);
+            decimal cumRatio = decimal.Parse(Request["CUM_AR_RATIO"]);
             bankloanInfo.QUOTA = quota;
+            if(Request["AR_PAYBACK_RATIO"] != "")
+            {
+                bankloanInfo.AR_PAYBACK_RATIO = paybackRatio;
+            }
+            if (Request["CUM_AR_RATIO"] != "")
+            {
+                bankloanInfo.CUM_AR_RATIO = cumRatio;
+            }
             bankloanInfo.REMARK = Request["REMARK"];
             bankloanInfo.ACCOUNT_NAME = Request["ACCOUNT_NAME"];
+            bankloanInfo.PROJECT_ID = Request["PROJECT_ID"];
 
             bankloanInfo.CREATE_ID = u.USER_ID;
             bankloanInfo.CREATE_DATE = DateTime.Now;

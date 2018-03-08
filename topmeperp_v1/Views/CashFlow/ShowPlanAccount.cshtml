@@ -13,7 +13,8 @@
                     </th>
                     <th>專案名稱</th>
                     <th>支付日期</th>
-                    <th>帳款金額</th>
+                    <th>應收(付)金額</th>
+                    <th>實收(付)金額</th>
                     <th>帳款類型</th>
                     <th>受款人</th>
                     <th>支票號碼</th>
@@ -32,7 +33,8 @@
                         </td>
                         <td>@item.PROJECT_NAME</td>
                         <td>@item.RECORDED_DATE</td>
-                        <td>@String.Format("{0:#,##0.#}", item.AMOUNT)</td>
+                        <td>@String.Format("{0:#,##0.#}", item.AMOUNT_PAYABLE)</td>
+                        <td>@String.Format("{0:#,##0.#}", item.AMOUNT_PAID)</td>
                         @if (item.ACCOUNT_TYPE == "R")
                         {
                             <td>業主帳款</td>

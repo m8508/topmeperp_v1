@@ -9,7 +9,14 @@
             <input type="hidden" id="projectid" name="projectid" value="@ViewBag.projectid" />
             <div class="row form-group"><div class="col-md-4">編號</div><div class="col-md-8"><input type="text" id="va_form_id" name="va_form_id" class="form-control" readonly /></div></div>
             <div class="row form-group"><div class="col-md-4">No.</div><div class="col-md-8"><input type="text" id="number" name="number" class="form-control" readonly /></div></div>
-            <div class="row form-group"><div class="col-md-4">帳款金額</div><div class="col-md-8"><input type="text" id="payment_amount" name="payment_amount" class="form-control" /></div></div>
+            <div class="row form-group"><div class="col-md-4">應收金額</div><div class="col-md-8"><input type="text" id="payment_amount" name="payment_amount" class="form-control" /></div></div>
+            <!-- <div class="row form-group"><div class="col-md-4">備償金額</div><div class="col-md-8"><input type="text" id="loan_payback_amount" name="loan_payback_amount" class="form-control" /></div></div>-->
+            <div class="row form-group"><div class="col-md-4">實收金額</div><div class="col-md-8"><input type="text" id="paid_amount" name="paid_amount" class="form-control" /></div></div>
+            <div class="row form-group">
+                <div class="col-md-4">備償專戶</div><div class="col-md-8">
+                    @Html.DropDownList("loans", null, String.Empty, new { @class = "form-control" })
+                </div>
+            </div>
             <div class="row form-group"><div class="col-md-4">支付日期</div><div class="col-md-8"><input type="text" id="payment_date" name="payment_date" class="form-control" /></div></div>
             <div class="row form-group"><div class="col-md-4">支票號碼</div><div class="col-md-8"><input type="text" id="check_no" name="check_no" class="form-control" /></div></div>
         </div>
