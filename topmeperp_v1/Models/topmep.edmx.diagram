@@ -63,10 +63,6 @@
         <EntityTypeShape EntityType="topmepModel.PLAN_PURCHASE_REQUISITION_ITEM" Width="1.5" PointX="23.375" PointY="25.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_BANK_LOAN" Width="1.5" PointX="24.375" PointY="29.75" />
         <AssociationConnector Association="topmepModel.FK_FIN_LOAN_REFERENCE_FIN_BANK" />
-        <EntityTypeShape EntityType="topmepModel.FIN_EXPENSE_FORM" Width="1.5" PointX="17.375" PointY="23.75" />
-        <EntityTypeShape EntityType="topmepModel.FIN_EXPENSE_ITEM" Width="1.5" PointX="26.375" PointY="0.75" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_ACCOUNT" Width="1.5" PointX="7.375" PointY="26.75" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_VALUATION_FORM" Width="1.5" PointX="9.375" PointY="26.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_BANK_ACCOUNT" Width="1.5" PointX="11.375" PointY="26.75" />
         <EntityTypeShape EntityType="topmepModel.ENT_DEPARTMENT" Width="1.5" PointX="25.375" PointY="25.75" />
       </Diagram>
