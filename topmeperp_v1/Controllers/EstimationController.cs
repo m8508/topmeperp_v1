@@ -2166,13 +2166,16 @@ namespace topmeperp.Controllers
             }
             else { ViewBag.advance = 0; }
             service.getAllBankLoan(id);
-
             ViewData.Add("loans", service.cashFlowModel.finLoan);
-            SelectList loans = new SelectList(service.cashFlowModel.finLoan, "BL_ID", "ACCOUNT_NAME");
-            ViewBag.loans = loans;
-            //將資料存入TempData 減少不斷讀取資料庫
-            TempData.Remove("loans");
-            TempData.Add("loans", service.cashFlowModel.finLoan);
+            if (service.cashFlowModel.finLoan != null)
+            {
+                SelectList loans = new SelectList(service.cashFlowModel.finLoan, "BL_ID", "ACCOUNT_NAME");
+
+                ViewBag.loans = loans;
+                //將資料存入TempData 減少不斷讀取資料庫
+                TempData.Remove("loans");
+                TempData.Add("loans", service.cashFlowModel.finLoan);
+            }
             RevenueFromOwner va = service.getVACount4OwnerById(id);
             ViewBag.VACount = va.isVA;
             if (va.isVA > 1)
