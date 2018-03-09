@@ -625,7 +625,8 @@ namespace topmeperp.Models
         public string FILE_TYPE { get; set; }
         public long ITEM_UID { get; set; }
         public string RECORDED_INVOICE_DATE { get; set; }
-        
+        public string PROJECT_NAME { get; set; }
+        public string OWNER_NAME { get; set; }
 
     }
     public class PaymentTermsFunction : PLAN_PAYMENT_TERMS

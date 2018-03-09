@@ -101,7 +101,7 @@
                 +營業稅
             </th>
             <th>
-                實收金額
+                應收金額
             </th>
             <th>
                 發票
@@ -150,7 +150,7 @@
                 <td>
                     @String.Format("{0:#,##0.#}", item.AR)
                 </td>
-                <td><a href="/Estimation/Invoice?id=@item.VA_FORM_ID&contractid=''" target="_blank">編輯</a></td>
+                <td><a href="/Estimation/Invoice?id=@item.VA_FORM_ID&contractid=" target="_blank">編輯</a></td>
                 @if (null == item.AR_PAID)
                 {
                     <td></td>

@@ -804,51 +804,61 @@ namespace topmeperp.Controllers
         public ActionResult Invoice(string id, string contractid)
         {
             logger.Info("Access To Invoice By EST Form Id =" + id);
-            service.getInqueryForm(contractid);
-            PLAN_SUP_INQUIRY f = service.formInquiry;
-            ViewBag.projectId = f.PROJECT_ID;
-            TND_PROJECT p = service.getProjectById(f.PROJECT_ID);
-            ViewBag.projectName = p.PROJECT_NAME;
-            ViewBag.formname = f.FORM_NAME;
-            ViewBag.contractid = contractid;
-            ViewBag.formid = id;
-            TND_SUPPLIER lstSupplier = service.getSupplierInfo(f.SUPPLIER_ID);
-            ViewBag.supplier = lstSupplier.COMPANY_NAME;
-            ViewBag.companyid = lstSupplier.COMPANY_ID;
-            ContractModels singleForm = new ContractModels();
-            int EstCount = service.getEstCountById(id);
-            ViewBag.type = "不檢查發票";
-            ViewBag.tax = "其他";
-            if (EstCount > 1)
+            if (contractid != "")
             {
-                service.getESTByEstId(id);
-                singleForm.planEST = service.formEST;
-                try
+                service.getInqueryForm(contractid);
+                PLAN_SUP_INQUIRY f = service.formInquiry;
+                ViewBag.projectId = f.PROJECT_ID;
+                TND_PROJECT p = service.getProjectById(f.PROJECT_ID);
+                ViewBag.projectName = p.PROJECT_NAME;
+                ViewBag.formname = f.FORM_NAME;
+                ViewBag.contractid = contractid;
+                ViewBag.formid = id;
+                TND_SUPPLIER lstSupplier = service.getSupplierInfo(f.SUPPLIER_ID);
+                ViewBag.supplier = lstSupplier.COMPANY_NAME;
+                ViewBag.companyid = lstSupplier.COMPANY_ID;
+                ContractModels singleForm = new ContractModels();
+                int EstCount = service.getEstCountById(id);
+                ViewBag.type = "不檢查發票";
+                ViewBag.tax = "其他";
+                if (EstCount > 1)
                 {
-                    if (singleForm.planEST.INVOICE == "E")
+                    service.getESTByEstId(id);
+                    singleForm.planEST = service.formEST;
+                    try
                     {
-                        ViewBag.type = "發票含保留款";
+                        if (singleForm.planEST.INVOICE == "E")
+                        {
+                            ViewBag.type = "發票含保留款";
+                        }
+                        else if (singleForm.planEST.INVOICE == "I")
+                        {
+                            ViewBag.type = "發票不含保留款";
+                        }
                     }
-                    else if (singleForm.planEST.INVOICE == "I")
+                    catch (Exception ex)
                     {
-                        ViewBag.type = "發票不含保留款";
+                        logger.Error(ex.StackTrace);
                     }
-                }
-                catch (Exception ex)
-                {
-                    logger.Error(ex.StackTrace);
-                }
-                try
-                {
-                    if (singleForm.planEST.PLUS_TAX == "E")
+                    try
                     {
-                        ViewBag.tax = "外加稅 " + singleForm.planEST.TAX_RATIO + "  %";
+                        if (singleForm.planEST.PLUS_TAX == "E")
+                        {
+                            ViewBag.tax = "外加稅 " + singleForm.planEST.TAX_RATIO + "  %";
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error(ex.StackTrace);
                     }
                 }
-                catch (Exception ex)
-                {
-                    logger.Error(ex.StackTrace);
-                }
+            }
+            else
+            {
+                RevenueFromOwner va = service.getVADetailByVAId(id);
+                ViewBag.projectName = va.PROJECT_NAME;
+                ViewBag.supplier = va.OWNER_NAME;
+                ViewBag.formid = va.VA_FORM_ID;
             }
             List<PLAN_INVOICE> lstInvoice = null;
             lstInvoice = service.getInvoiceById(id);
@@ -2267,13 +2277,7 @@ namespace topmeperp.Controllers
             {
                 item.RETENTION_PAYMENT = decimal.Parse(Request["retention_amount"]);
             }
-            if (Request["invoice_date"] != "")
-            {
-                item.INVOICE_DATE = Convert.ToDateTime(Request["invoice_date"]);
-            }
-
             item.REMARK = Request["remark"];
-            item.INVOICE_NO = Request["invoice_number"];
             UserService us = new UserService();
             SYS_USER u = (SYS_USER)Session["user"];
             SYS_USER uInfo = us.getUserInfo(u.USER_ID);

@@ -5462,10 +5462,10 @@ namespace topmeperp.Service
             RevenueFromOwner detail = null;
             using (var context = new topmepEntities())
             {
-                detail = context.Database.SqlQuery<RevenueFromOwner>("SELECT vf.*, CONVERT(varchar, vf.CREATE_DATE, 120) AS RECORDED_DATE, " +
+                detail = context.Database.SqlQuery<RevenueFromOwner>("SELECT vf.*, p.PROJECT_NAME, p.OWNER_NAME, CONVERT(varchar, vf.CREATE_DATE, 120) AS RECORDED_DATE, " +
                     "CONVERT(varchar, vf.INVOICE_DATE, 111) AS RECORDED_INVOICE_DATE, ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + ISNULL(vf.TAX_AMOUNT, 0) " +
                     "- ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) - ISNULL(vf.OTHER_PAYMENT, 0) - ISNULL(vf.REPAYMENT, 0) AS AR, " +
-                    "ROW_NUMBER() OVER(ORDER BY vf.CREATE_DATE) AS NO FROM PLAN_VALUATION_FORM vf WHERE vf.VA_FORM_ID =@formid  "
+                    "ROW_NUMBER() OVER(ORDER BY vf.CREATE_DATE) AS NO FROM PLAN_VALUATION_FORM vf LEFT JOIN TND_PROJECT p ON vf.PROJECT_ID = p.PROJECT_ID WHERE vf.VA_FORM_ID =@formid  "
                    , new SqlParameter("formid", formid)).FirstOrDefault();
             }
             return detail;
