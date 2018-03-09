@@ -16,7 +16,15 @@
             <div class="row form-group"><div class="col-md-4">分機</div><div class="col-md-8"><input type="text" id="u_tel_ext" name="u_tel_ext" class="form-control" /></div></div>
             <div class="row form-group"><div class="col-md-4">傳真</div><div class="col-md-8"><input type="text" id="u_fax" name="u_fax" class="form-control" /></div></div>
             <div class="row form-group"><div class="col-md-4">手機</div><div class="col-md-8"><input type="text" id="u_mobile" name="u_mobile" class="form-control" /></div></div>
+           
             <div class="row form-group">
+                <div class="col-md-4">部門</div><div class="col-md-8">
+                    @Html.DropDownList("Dept", null, String.Empty, new { @class = "form-control" })
+                </div>
+            </div>
+
+
+             <div class="row form-group">
                 <div class="col-md-4">角色(權限)</div><div class="col-md-8">
                     @Html.DropDownList("roles", null, String.Empty, new { @class = "form-control" })
                 </div>

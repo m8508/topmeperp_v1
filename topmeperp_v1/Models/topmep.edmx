@@ -717,7 +717,7 @@
           <Property Name="CREATE_ID" Type="varchar" MaxLength="30" />
           <Property Name="MODIFY_DATE" Type="datetime" />
           <Property Name="MODIFY_ID" Type="varchar" MaxLength="30" />
-          <Property Name="DEP_ID" Type="bigint" />
+          <Property Name="DEP_CODE" Type="varchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="TND_FILE">
           <Key>
@@ -1045,6 +1045,64 @@
           <Property Name="CREATE_ID" Type="varchar" MaxLength="20" />
           <Property Name="CREATE_DATE" Type="datetime" />
         </EntityType>
+        <EntityType Name="WF_PORCESS_TASK">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="RID" Type="bigint" Nullable="false" />
+          <Property Name="ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="MODIFY_USER_ID" Type="varchar" MaxLength="30" />
+          <Property Name="MODIFY_DATE" Type="datetime" />
+          <Property Name="CREATE_USER_ID" Type="varchar" MaxLength="30" />
+          <Property Name="CREATE_DATE" Type="datetime" />
+          <Property Name="NOTE" Type="varchar" MaxLength="20" />
+          <Property Name="ACTIVITY_ID" Type="bigint" />
+          <Property Name="STATUS" Type="varchar" MaxLength="5" />
+          <Property Name="REMARK" Type="varchar" MaxLength="500" />
+          <Property Name="SEQ_ID" Type="int" />
+          <Property Name="DEP_CODE" Type="varchar" MaxLength="50" />
+          <Property Name="DECISION_USER_ID" Type="varchar" MaxLength="30" />
+        </EntityType>
+        <EntityType Name="WF_PROCESS">
+          <Key>
+            <PropertyRef Name="PID" />
+          </Key>
+          <Property Name="PID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PROCESS_CODE" Type="varchar" MaxLength="20" />
+          <Property Name="PROCESS_NAME" Type="varchar" MaxLength="100" />
+          <Property Name="MODIFY_USER_ID" Type="varchar" MaxLength="30" />
+          <Property Name="MODIFY_DATE" Type="datetime" />
+          <Property Name="CREATE_USER_ID" Type="varchar" MaxLength="30" />
+          <Property Name="CREATE_DATE" Type="datetime" />
+          <Property Name="STATUS" Type="varchar" MaxLength="1" />
+          <Property Name="FORM_URL" Type="varchar" MaxLength="200" />
+        </EntityType>
+        <EntityType Name="WF_PROCESS_ACTIVITY">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PID" Type="bigint" />
+          <Property Name="ACTIVITY_NAME" Type="varchar" MaxLength="100" />
+          <Property Name="ACTIVITY_CODE" Type="varchar" MaxLength="20" />
+          <Property Name="ACTIVITY_TYPE" Type="varchar" MaxLength="5" />
+          <Property Name="SEQ_ID" Type="int" />
+          <Property Name="METHOD_URL" Type="varchar" MaxLength="50" />
+          <Property Name="DEP_CODE" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="WF_PROCESS_REQUEST">
+          <Key>
+            <PropertyRef Name="RID" />
+          </Key>
+          <Property Name="RID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="REQ_USER_ID" Type="varchar" MaxLength="30" />
+          <Property Name="MODIFY_USER_ID" Type="varchar" MaxLength="30" />
+          <Property Name="MODIFY_DATE" Type="datetime" />
+          <Property Name="CREATE_DATE" Type="datetime" />
+          <Property Name="PID" Type="bigint" />
+          <Property Name="DATA_KEY" Type="varchar" MaxLength="200" />
+          <Property Name="CURENT_STATE" Type="bigint" />
+        </EntityType>
         <Association Name="FK_PLAN_COS_REFERENCE_PLAN_COS">
           <End Role="PLAN_COSTCHANGE_FORM" Type="Self.PLAN_COSTCHANGE_FORM" Multiplicity="0..1" />
           <End Role="PLAN_COSTCHANGE_ITEM" Type="Self.PLAN_COSTCHANGE_ITEM" Multiplicity="*" />
@@ -1164,6 +1222,10 @@
           <EntitySet Name="TND_SUPPLIER" EntityType="Self.TND_SUPPLIER" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TND_TASKASSIGN" EntityType="Self.TND_TASKASSIGN" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TND_WAGE" EntityType="Self.TND_WAGE" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WF_PORCESS_TASK" EntityType="Self.WF_PORCESS_TASK" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WF_PROCESS" EntityType="Self.WF_PROCESS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WF_PROCESS_ACTIVITY" EntityType="Self.WF_PROCESS_ACTIVITY" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WF_PROCESS_REQUEST" EntityType="Self.WF_PROCESS_REQUEST" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK_PLAN_COS_REFERENCE_PLAN_COS" Association="Self.FK_PLAN_COS_REFERENCE_PLAN_COS">
             <End Role="PLAN_COSTCHANGE_FORM" EntitySet="PLAN_COSTCHANGE_FORM" />
             <End Role="PLAN_COSTCHANGE_ITEM" EntitySet="PLAN_COSTCHANGE_ITEM" />
@@ -1231,7 +1293,6 @@
           <EntitySet Name="SYS_PARA" EntityType="topmepModel.SYS_PARA" />
           <EntitySet Name="SYS_PRIVILEGE" EntityType="topmepModel.SYS_PRIVILEGE" />
           <EntitySet Name="SYS_ROLE" EntityType="topmepModel.SYS_ROLE" />
-          <EntitySet Name="SYS_USER" EntityType="topmepModel.SYS_USER" />
           <EntitySet Name="TND_FILE" EntityType="topmepModel.TND_FILE" />
           <EntitySet Name="TND_MAP_DEVICE" EntityType="topmepModel.TND_MAP_DEVICE" />
           <EntitySet Name="TND_MAP_FP" EntityType="topmepModel.TND_MAP_FP" />
@@ -1264,11 +1325,16 @@
             <End Role="SYS_ROLE" EntitySet="SYS_ROLE" />
             <End Role="SYS_PRIVILEGE" EntitySet="SYS_PRIVILEGE" />
           </AssociationSet>
+          <EntitySet Name="SYS_USER" EntityType="topmepModel.SYS_USER" />
           <AssociationSet Name="FK_SYS_USER_SYS_ROLE" Association="topmepModel.FK_SYS_USER_SYS_ROLE">
             <End Role="SYS_ROLE" EntitySet="SYS_ROLE" />
             <End Role="SYS_USER" EntitySet="SYS_USER" />
           </AssociationSet>
-        </EntityContainer>
+          <EntitySet Name="WF_PROCESS" EntityType="topmepModel.WF_PROCESS" />
+          <EntitySet Name="WF_PROCESS_ACTIVITY" EntityType="topmepModel.WF_PROCESS_ACTIVITY" />
+          <EntitySet Name="WF_PROCESS_REQUEST" EntityType="topmepModel.WF_PROCESS_REQUEST" />
+          <EntitySet Name="WF_PORCESS_TASK" EntityType="topmepModel.WF_PORCESS_TASK" />
+          </EntityContainer>
         <EntityType Name="ENT_DEPARTMENT">
           <Key>
             <PropertyRef Name="DEP_ID" />
@@ -1972,26 +2038,6 @@
           <NavigationProperty Name="SYS_PRIVILEGE" Relationship="topmepModel.FK_SYS_PRIVILEGE_SYS_ROLE" FromRole="SYS_ROLE" ToRole="SYS_PRIVILEGE" />
           <NavigationProperty Name="SYS_USER" Relationship="topmepModel.FK_SYS_USER_SYS_ROLE" FromRole="SYS_ROLE" ToRole="SYS_USER" />
         </EntityType>
-        <EntityType Name="SYS_USER">
-          <Key>
-            <PropertyRef Name="USER_ID" />
-          </Key>
-          <Property Name="USER_ID" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="ROLE_ID" Type="String" MaxLength="32" FixedLength="false" Unicode="false" />
-          <Property Name="USER_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="EMAIL" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="TEL" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="TEL_EXT" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="PASSWORD" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="FAX" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="MOBILE" Type="String" MaxLength="16" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
-          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="DEP_ID" Type="Int64" />
-          <NavigationProperty Name="SYS_ROLE" Relationship="topmepModel.FK_SYS_USER_SYS_ROLE" FromRole="SYS_USER" ToRole="SYS_ROLE" />
-        </EntityType>
         <EntityType Name="TND_FILE">
           <Key>
             <PropertyRef Name="FILE_ID" />
@@ -2367,6 +2413,26 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="SYS_USER">
+          <Key>
+            <PropertyRef Name="USER_ID" />
+          </Key>
+          <Property Name="USER_ID" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="ROLE_ID" Type="String" MaxLength="32" FixedLength="false" Unicode="false" />
+          <Property Name="USER_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="EMAIL" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="TEL" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="TEL_EXT" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="PASSWORD" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="FAX" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="MOBILE" Type="String" MaxLength="16" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="DEP_CODE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="SYS_ROLE" Relationship="topmepModel.FK_SYS_USER_SYS_ROLE" FromRole="SYS_USER" ToRole="SYS_ROLE" />
+        </EntityType>
         <Association Name="FK_SYS_USER_SYS_ROLE">
           <End Type="topmepModel.SYS_ROLE" Role="SYS_ROLE" Multiplicity="0..1" />
           <End Type="topmepModel.SYS_USER" Role="SYS_USER" Multiplicity="*" />
@@ -2379,6 +2445,64 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="WF_PROCESS">
+          <Key>
+            <PropertyRef Name="PID" />
+          </Key>
+          <Property Name="PID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PROCESS_CODE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="PROCESS_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="CREATE_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="STATUS" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="FORM_URL" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="WF_PROCESS_ACTIVITY">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PID" Type="Int64" />
+          <Property Name="ACTIVITY_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="ACTIVITY_CODE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="ACTIVITY_TYPE" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="SEQ_ID" Type="Int32" />
+          <Property Name="METHOD_URL" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DEP_CODE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="WF_PROCESS_REQUEST">
+          <Key>
+            <PropertyRef Name="RID" />
+          </Key>
+          <Property Name="RID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="REQ_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="PID" Type="Int64" />
+          <Property Name="DATA_KEY" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="CURENT_STATE" Type="Int64" />
+        </EntityType>
+        <EntityType Name="WF_PORCESS_TASK">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="RID" Type="Int64" Nullable="false" />
+          <Property Name="ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MODIFY_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="CREATE_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="NOTE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="ACTIVITY_ID" Type="Int64" />
+          <Property Name="STATUS" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="REMARK" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="SEQ_ID" Type="Int32" />
+          <Property Name="DEP_CODE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DECISION_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -3121,26 +3245,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="SYS_USER">
-            <EntityTypeMapping TypeName="topmepModel.SYS_USER">
-              <MappingFragment StoreEntitySet="SYS_USER">
-                <ScalarProperty Name="DEP_ID" ColumnName="DEP_ID" />
-                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
-                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
-                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="MOBILE" ColumnName="MOBILE" />
-                <ScalarProperty Name="FAX" ColumnName="FAX" />
-                <ScalarProperty Name="PASSWORD" ColumnName="PASSWORD" />
-                <ScalarProperty Name="TEL_EXT" ColumnName="TEL_EXT" />
-                <ScalarProperty Name="TEL" ColumnName="TEL" />
-                <ScalarProperty Name="EMAIL" ColumnName="EMAIL" />
-                <ScalarProperty Name="USER_NAME" ColumnName="USER_NAME" />
-                <ScalarProperty Name="ROLE_ID" ColumnName="ROLE_ID" />
-                <ScalarProperty Name="USER_ID" ColumnName="USER_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="TND_FILE">
             <EntityTypeMapping TypeName="topmepModel.TND_FILE">
               <MappingFragment StoreEntitySet="TND_FILE">
@@ -3483,7 +3587,89 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-        </EntityContainerMapping>
+          <EntitySetMapping Name="SYS_USER">
+            <EntityTypeMapping TypeName="topmepModel.SYS_USER">
+              <MappingFragment StoreEntitySet="SYS_USER">
+                <ScalarProperty Name="DEP_CODE" ColumnName="DEP_CODE" />
+                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="MOBILE" ColumnName="MOBILE" />
+                <ScalarProperty Name="FAX" ColumnName="FAX" />
+                <ScalarProperty Name="PASSWORD" ColumnName="PASSWORD" />
+                <ScalarProperty Name="TEL_EXT" ColumnName="TEL_EXT" />
+                <ScalarProperty Name="TEL" ColumnName="TEL" />
+                <ScalarProperty Name="EMAIL" ColumnName="EMAIL" />
+                <ScalarProperty Name="USER_NAME" ColumnName="USER_NAME" />
+                <ScalarProperty Name="ROLE_ID" ColumnName="ROLE_ID" />
+                <ScalarProperty Name="USER_ID" ColumnName="USER_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WF_PROCESS">
+            <EntityTypeMapping TypeName="topmepModel.WF_PROCESS">
+              <MappingFragment StoreEntitySet="WF_PROCESS">
+                <ScalarProperty Name="FORM_URL" ColumnName="FORM_URL" />
+                <ScalarProperty Name="STATUS" ColumnName="STATUS" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_USER_ID" ColumnName="CREATE_USER_ID" />
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="MODIFY_USER_ID" ColumnName="MODIFY_USER_ID" />
+                <ScalarProperty Name="PROCESS_NAME" ColumnName="PROCESS_NAME" />
+                <ScalarProperty Name="PROCESS_CODE" ColumnName="PROCESS_CODE" />
+                <ScalarProperty Name="PID" ColumnName="PID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WF_PROCESS_ACTIVITY">
+            <EntityTypeMapping TypeName="topmepModel.WF_PROCESS_ACTIVITY">
+              <MappingFragment StoreEntitySet="WF_PROCESS_ACTIVITY">
+                <ScalarProperty Name="DEP_CODE" ColumnName="DEP_CODE" />
+                <ScalarProperty Name="METHOD_URL" ColumnName="METHOD_URL" />
+                <ScalarProperty Name="SEQ_ID" ColumnName="SEQ_ID" />
+                <ScalarProperty Name="ACTIVITY_TYPE" ColumnName="ACTIVITY_TYPE" />
+                <ScalarProperty Name="ACTIVITY_CODE" ColumnName="ACTIVITY_CODE" />
+                <ScalarProperty Name="ACTIVITY_NAME" ColumnName="ACTIVITY_NAME" />
+                <ScalarProperty Name="PID" ColumnName="PID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WF_PROCESS_REQUEST">
+            <EntityTypeMapping TypeName="topmepModel.WF_PROCESS_REQUEST">
+              <MappingFragment StoreEntitySet="WF_PROCESS_REQUEST">
+                <ScalarProperty Name="CURENT_STATE" ColumnName="CURENT_STATE" />
+                <ScalarProperty Name="DATA_KEY" ColumnName="DATA_KEY" />
+                <ScalarProperty Name="PID" ColumnName="PID" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="MODIFY_USER_ID" ColumnName="MODIFY_USER_ID" />
+                <ScalarProperty Name="REQ_USER_ID" ColumnName="REQ_USER_ID" />
+                <ScalarProperty Name="RID" ColumnName="RID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WF_PORCESS_TASK">
+            <EntityTypeMapping TypeName="topmepModel.WF_PORCESS_TASK">
+              <MappingFragment StoreEntitySet="WF_PORCESS_TASK">
+                <ScalarProperty Name="DECISION_USER_ID" ColumnName="DECISION_USER_ID" />
+                <ScalarProperty Name="DEP_CODE" ColumnName="DEP_CODE" />
+                <ScalarProperty Name="SEQ_ID" ColumnName="SEQ_ID" />
+                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
+                <ScalarProperty Name="STATUS" ColumnName="STATUS" />
+                <ScalarProperty Name="ACTIVITY_ID" ColumnName="ACTIVITY_ID" />
+                <ScalarProperty Name="NOTE" ColumnName="NOTE" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_USER_ID" ColumnName="CREATE_USER_ID" />
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="MODIFY_USER_ID" ColumnName="MODIFY_USER_ID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="RID" ColumnName="RID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>
   </edmx:Runtime>

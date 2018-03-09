@@ -70,7 +70,7 @@ namespace topmeperp.Controllers
         public ActionResult CashInFlowItem(string paymentDate)
         {
             List<PlanAccountFunction> CashInFlow = null;
-            string projectname = ""; 
+            string projectname = "";
             string account_type = "R";
             CashInFlow = service.getPlanAccount(paymentDate, projectname, projectname, account_type);
             return View(CashInFlow);
@@ -352,7 +352,7 @@ namespace topmeperp.Controllers
             logger.Info("Request:BUDGET_YEAR =" + form["year"]);
             return msg;
         }
-
+        //申請公司費用
         public ActionResult OperatingExpense()
         {
             logger.Info("Access to Operating Expense Page !!");
@@ -384,6 +384,7 @@ namespace topmeperp.Controllers
         [HttpPost]
         public ActionResult AddExpense(FIN_EXPENSE_FORM ef, FormCollection form)
         {
+            //新增公司費用申請單
             logger.Info("form:" + form.Count);
             string[] lstSubject = form.Get("subjectid").Split(',');
             //可處理千分位符號!!
@@ -399,7 +400,10 @@ namespace topmeperp.Controllers
             UserService us = new UserService();
             SYS_USER u = (SYS_USER)Session["user"];
             SYS_USER uInfo = us.getUserInfo(u.USER_ID);
-            ef.PAYMENT_DATE = Convert.ToDateTime(Request["paymentdate"]);
+            if (null != Request["paymentdate"] && "" != Request["paymentdate"])
+            {
+                ef.PAYMENT_DATE = Convert.ToDateTime(Request["paymentdate"]);
+            }
             ef.OCCURRED_YEAR = int.Parse(Request["occurreddate"].Substring(0, 4));
             ef.OCCURRED_MONTH = int.Parse(Request["occurreddate"].Substring(5, 2));
             ef.CREATE_DATE = DateTime.Now;
@@ -446,7 +450,10 @@ namespace topmeperp.Controllers
                 lstItem.Add(item);
             }
             int i = service.AddExpenseItems(lstItem);
+            //建立申請單參考流程
+            Flow4CompanyExpense flowService = new Flow4CompanyExpense();
             logger.Debug("Item Count =" + i);
+            flowService.iniRequest(u, fid);
             return Redirect("SingleEXPForm?id=" + fid);
         }
 
@@ -655,13 +662,6 @@ namespace topmeperp.Controllers
         //費用單查詢
         public ActionResult ExpenseForm(string id)
         {
-            logger.Info("Search For Expense Form !!");
-            //費用單草稿
-            int status = 20;
-            if (Request["status"] == null || Request["status"] == "")
-            {
-                status = 10;
-            }
             if (id != null && id != "")
             {
                 TND_PROJECT p = service.getProjectById(id);
@@ -673,7 +673,8 @@ namespace topmeperp.Controllers
                 id = "";
                 ViewBag.projectid = "";
             }
-            List<OperatingExpenseFunction> lstEXP = service.getEXPListByExpId(Request["occurred_date"], Request["subjectname"], Request["expid"], status, id);
+            Flow4CompanyExpense s = new Flow4CompanyExpense();
+            List<ExpenseFlowTask> lstEXP = s.getCompanyExpenseRequest(Request["occurred_date"], Request["subjectname"], Request["expid"], id);
             return View(lstEXP);
         }
 
@@ -927,7 +928,7 @@ namespace topmeperp.Controllers
             item.ISDEBIT = form["isdebit"];
             item.STATUS = int.Parse(form["unRecordedFlag"]);
             item.CREATE_ID = form["create_id"];
-            item.CHECK_NO = form["check_no"]; 
+            item.CHECK_NO = form["check_no"];
             SYS_USER loginUser = (SYS_USER)Session["user"];
             item.MODIFY_ID = loginUser.USER_ID;
             item.MODIFY_DATE = DateTime.Now;

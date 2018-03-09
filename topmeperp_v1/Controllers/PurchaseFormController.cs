@@ -749,7 +749,7 @@ namespace topmeperp.Controllers
                         if (dr[6].ToString() != "")
                         {
                             log.Debug("data row col 6=" + (decimal)dr[6]);
-                            htmlString = htmlString + "<td><input type='text' id='cost_" + dr[1] + "' name='cost_" + dr[1] + "' size='5' value='" + String.Format("{0:N0}", (decimal)dr[6]) + "' /></td>";
+                            htmlString = htmlString + "<td><input type='text' id='cost_" + dr[1] + "' name='cost_" + dr[1] + "' size='5' value='" + String.Format("{0:N2}", (decimal)dr[6]) + "' /></td>";
                         }
                         else
                         {
@@ -762,7 +762,7 @@ namespace topmeperp.Controllers
                             //<td><button class="btn-link" onclick="clickPrice('@item.INQUIRY_ITEM_ID', '@item.QUOTATION_PRICE')">@item.QUOTATION_PRICE</button> </td>
                             if (dr[i].ToString() != "")
                             {
-                                htmlString = htmlString + "<td><button class='btn-link' onclick=\"clickPrice('" + dr[1] + "', '" + dr[i] + "','" + iswage + "')\">" + String.Format("{0:N0}", (decimal)dr[i]) + "</button> </td>";
+                                htmlString = htmlString + "<td><button class='btn-link' onclick=\"clickPrice('" + dr[1] + "', '" + dr[i] + "','" + iswage + "')\">" + String.Format("{0:N2}", (decimal)dr[i]) + "</button> </td>";
                             }
                             else
                             {
@@ -844,7 +844,7 @@ namespace topmeperp.Controllers
                         if (dr[6].ToString() != "")
                         {
                             log.Debug("data row col 6=" + (decimal)dr[6]);
-                            htmlString = htmlString + "<td><input type='text' id='cost_" + dr[1] + "' name='cost_" + dr[1] + "' size='5' value='" + String.Format("{0:N0}", (decimal)dr[6]) + "' /></td>";
+                            htmlString = htmlString + "<td><input type='text' id='cost_" + dr[1] + "' name='cost_" + dr[1] + "' size='5' value='" + String.Format("{0:N2}", (decimal)dr[6]) + "' /></td>";
                         }
                         else
                         {
@@ -857,7 +857,7 @@ namespace topmeperp.Controllers
                             //<td><button class="btn-link" onclick="clickPrice('@item.INQUIRY_ITEM_ID', '@item.QUOTATION_PRICE')">@item.QUOTATION_PRICE</button> </td>
                             if (dr[i].ToString() != "")
                             {
-                                htmlString = htmlString + "<td><button class='btn-link' onclick=\"clickPrice('" + dr[1] + "', '" + dr[i] + "','" + iswage + "')\">" + String.Format("{0:N0}", (decimal)dr[i]) + "</button> </td>";
+                                htmlString = htmlString + "<td><button class='btn-link' onclick=\"clickPrice('" + dr[1] + "', '" + dr[i] + "','" + iswage + "')\">" + String.Format("{0:N2}", (decimal)dr[i]) + "</button> </td>";
                             }
                             else
                             {
