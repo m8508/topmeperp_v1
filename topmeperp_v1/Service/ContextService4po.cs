@@ -5366,9 +5366,9 @@ namespace topmeperp.Service
             RevenueFromOwner valuation = null;
             using (var context = new topmepEntities())
             {
-                valuation = context.Database.SqlQuery<RevenueFromOwner>("SELECT DISTINCT pi.PROJECT_ID, ISNULL((SELECT COUNT(PROJECT_ID) FROM PLAN_VALUATION_FORM " +
+                valuation = context.Database.SqlQuery<RevenueFromOwner>("SELECT DISTINCT p.PROJECT_ID, ISNULL((SELECT COUNT(PROJECT_ID) FROM PLAN_VALUATION_FORM " +
                     "WHERE VALUATION_AMOUNT IS NOT NULL GROUP BY PROJECT_ID HAVING PROJECT_ID =@projectid),0)+1 AS VACount, ISNULL((SELECT COUNT(PROJECT_ID) FROM PLAN_VALUATION_FORM " +
-                    "GROUP BY PROJECT_ID HAVING PROJECT_ID =@projectid),0)+1 AS isVA FROM PLAN_ITEM pi WHERE pi.PROJECT_ID =@projectid  "
+                    "GROUP BY PROJECT_ID HAVING PROJECT_ID =@projectid),0)+1 AS isVA FROM TND_PROJECT p WHERE p.PROJECT_ID =@projectid "
                    , new SqlParameter("projectid", projectid)).First();
             }
             return valuation;
@@ -5514,8 +5514,9 @@ namespace topmeperp.Service
             {
                 try
                 {
-                    lstLoans = context.FIN_BANK_LOAN.SqlQuery("SELECT bl.*, flt.AMOUNT AS LOAN FROM FIN_BANK_LOAN bl LEFT JOIN FIN_LOAN_TRANACTION flt " +
-                        "ON bl.BL_ID = flt.BL_ID WHERE bl.PROJECT_ID = @projectid AND flt.TRANSACTION_TYPE = -1 ", new SqlParameter("projectid", projectid)).ToList();
+                    lstLoans = context.FIN_BANK_LOAN.SqlQuery("SELECT bl.*, it.loanAmt AS LOAN FROM FIN_BANK_LOAN bl LEFT JOIN " +
+                        "(SELECT flt.BL_ID, ISNULL(SUM(flt.AMOUNT), 0) AS loanAmt FROM FIN_LOAN_TRANACTION flt WHERE flt.TRANSACTION_TYPE = -1 GROUP BY flt.BL_ID)it " +
+                        "ON bl.BL_ID = it.BL_ID WHERE bl.PROJECT_ID = @projectid AND it.loanAmt <> 0 ", new SqlParameter("projectid", projectid)).ToList();
                     logger.Debug("get records=" + lstLoans.Count);
                     //將特定專案之貸款封裝供前端頁面調用
                     cashFlowModel.finLoan = lstLoans;

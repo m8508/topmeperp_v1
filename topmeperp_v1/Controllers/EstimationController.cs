@@ -2191,6 +2191,7 @@ namespace topmeperp.Controllers
                 ViewBag.ARUnPaid = (null == summary.AR ? 0 : summary.AR) - (null == summary.AR_PAID ? 0 : summary.AR_PAID);
                 ViewBag.VABalance = (null == summary.contractAtm ? 0 : summary.contractAtm) - (null == summary.VALUATION_AMOUNT ? 0 : summary.VALUATION_AMOUNT);
                 valuation = service.getVADetailById(id);
+                
                 return View(valuation);
             }
             return View();
@@ -2407,10 +2408,6 @@ namespace topmeperp.Controllers
             else
             {
                 paybackAtm = decimal.Parse(form["payment_amount"]) * paybackRatio / 100;
-            }
-            if (form["payment_amount"] != "")
-            {
-                item.AMOUNT_PAID = decimal.Parse(form["payment_amount"]) - paybackAtm;
             }
             if (form["paid_amount"] != "")
             {

@@ -45,7 +45,7 @@
                 <th>合約金額</th>
                 <th>計價總額</th>
                 <th>計價餘額</th>
-                <th>預付款餘額</th>
+                <th>預收款餘額</th>
                 <th>保留款總額</th>
                 <th>營業稅總額</th>
                 <th>實收總額</th>
@@ -80,22 +80,22 @@
                 No.
             </th>
             <th>
-                預付款
+                預收款
             </th>
             <th>
                 請款金額
             </th>
             <th>
-                -預付扣回
+                -預收扣回
             </th>
             <th>
-                -保留款
+                -保留款(含稅)
             </th>
             <th>
-                -其他付款
+                -其他扣款(未稅)
             </th>
             <th>
-                -墊付款
+                -代墊款(未稅)
             </th>
             <th>
                 +營業稅
@@ -150,23 +150,14 @@
                 <td>
                     @String.Format("{0:#,##0.#}", item.AR)
                 </td>
-                
-                    @if (null != item.INVOICE_NO)
-                    {
-                        <td><span style="color: blue; font-size: 15px;">✔</span></td>
-                    }
-                    else
-                    {
-                        <td></td>
-                    }
-
-                @if  (null == item.AR_PAID)
+                <td><a href="/Estimation/Invoice?id=@item.VA_FORM_ID&contractid=''" target="_blank">編輯</a></td>
+                @if (null == item.AR_PAID)
                 {
-                   <td></td>
+                    <td></td>
                 }
                 else if (item.AR_UNPAID != 0)
                 {
-                    
+
                     <td>
                         <a href="/CashFlow/PlanAccountOfForm?formid=@item.VA_FORM_ID" target="_blank">帳款不符</a>
                     </td>
@@ -290,7 +281,7 @@ else
                     alert(thrownError);
                 }
             });
-            e.preventDefault(); //Prevent Default action. 
+            e.preventDefault(); //Prevent Default action.
             e.unbind();
         });
         $("#formVAItem").submit(); //Submit the form
