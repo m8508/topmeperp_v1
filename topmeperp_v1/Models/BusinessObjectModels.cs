@@ -483,6 +483,8 @@ namespace topmeperp.Models
         public Nullable<decimal> BALANCE { get; set; }
         public Nullable<decimal> RUNNING_TOTAL { get; set; }
         public Nullable<decimal> AMOUNT_BANK { get; set; }
+        public Nullable<decimal> availableQta { get; set; }
+        
     }
     public class ExpenseBudgetSummary : FIN_EXPENSE_ITEM
     {
