@@ -1092,6 +1092,7 @@
     <Content Include="Views\CashFlow\PlanAccountOfForm.cshtml" />
     <Content Include="Views\CashFlow\CashFlowManage.cshtml" />
     <Content Include="Views\CashFlow\_ProjectList.cshtml" />
+    <Content Include="Views\Estimation\VAItem.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

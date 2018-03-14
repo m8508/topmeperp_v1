@@ -94,7 +94,6 @@ namespace topmeperp.Controllers
             if (service.tndProjectModels.planList != null)
             {
                 SelectList plans = new SelectList(service.tndProjectModels.planList, "PROJECT_ID", "PROJECT_NAME");
-
                 ViewBag.plans = plans;
                 //將資料存入TempData 減少不斷讀取資料庫
                 TempData.Remove("plans");

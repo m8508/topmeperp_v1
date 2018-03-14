@@ -11,9 +11,13 @@ namespace topmeperp.Models
         public List<FIN_LOAN_TRANACTION> LoanTransaction { get; set; }
         public long CurPeriod { get; set; }
         public decimal SumTransactionAmount { get; set; }
+        public decimal SurplusQuota { get; set; }
+
     }
     public class BankLoanInfoExt: FIN_BANK_LOAN
     {
         public decimal SumTransactionAmount { get; set; }
+        public decimal vaRatio { get; set; }
+        
     }
 }

@@ -20,8 +20,6 @@
             <input onclick="window.close();" value="關閉" type="button" class="btn btn-default" />
         </div>
         <form id="invoice_form" name="invoice_form" ng-submit="submit()">
-            @if (ViewBag.contractid != null && ViewBag.contractid != "")
-            {
             <div class="row">
                 <div class="col-md-3" style="padding-top:10px">
                     <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
@@ -49,21 +47,7 @@
 
                 <input type="hidden" id="contractid" name="contractid" value="@ViewBag.contractid" />
             </div>
-            }
-            else
-            {
-                <div class="row">
-                    <div class="col-md-3" style="padding-top:10px">
-                        <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
-                    </div>
-                    <div class="col-md-3" style="padding-top:10px">
-                        <label for="supplier">業主名稱:</label><input id="supplier" name="supplier" type="text" value="@ViewBag.supplier" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
-                    </div>
-                    <div class="col-md-3 form-group" style="padding-top:10px">
-                        <label for="formid">計價單編號:</label><input id="formid" name="formid" type="text" value="@ViewBag.formid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
-                    </div>
-                </div>
-            }
+           
             <ng-form ng-repeat="key in keys" name="keyForm">
                 <span class="btn btn-info">
                     <button type="button" class="close" ng-click="remove($index)">&times;</button>
