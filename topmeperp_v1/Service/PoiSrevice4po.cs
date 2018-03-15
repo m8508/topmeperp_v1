@@ -1136,7 +1136,7 @@ namespace topmeperp.Service
                 logger.Debug("Table Head_2=" + sheet.GetRow(1).Cells[9].ToString());
                 sheet.GetRow(1).Cells[9].SetCellValue(ExpTable.EXP_FORM_ID);//費用單編號
                 logger.Debug("Table Head_3=" + sheet.GetRow(1).Cells[14].ToString());
-                sheet.GetRow(1).Cells[14].SetCellValue(ExpTable.CREATE_ID);//請款人
+                sheet.GetRow(1).Cells[14].SetCellValue(ExpTable.PAYEE);//請款人
                 logger.Debug("Table Head_4=" + sheet.GetRow(1).Cells[19].ToString());
                 sheet.GetRow(1).Cells[19].SetCellValue(ExpTable.OCCURRED_YEAR.ToString() + "/" + ExpTable.OCCURRED_MONTH.ToString());//費用發生年月
                 logger.Debug("Table Head_5=" + sheet.GetRow(1).Cells[22].ToString());
@@ -1147,7 +1147,7 @@ namespace topmeperp.Service
                     sheet.GetRow(48).Cells[22].SetCellValue("共" + Convert.ToInt16(Math.Ceiling(page)) + "頁");
                     sheet.GetRow(49).Cells[3].SetCellValue(ExpTable.PROJECT_NAME);//專案名稱
                     sheet.GetRow(49).Cells[9].SetCellValue(ExpTable.EXP_FORM_ID);//費用單編號
-                    sheet.GetRow(49).Cells[14].SetCellValue(ExpTable.CREATE_ID);//請款人
+                    sheet.GetRow(49).Cells[14].SetCellValue(ExpTable.PAYEE);//請款人
                     sheet.GetRow(49).Cells[19].SetCellValue(ExpTable.OCCURRED_YEAR.ToString() + "/" + ExpTable.OCCURRED_MONTH.ToString());//費用發生年月
                     sheet.GetRow(49).Cells[22].SetCellValue(Convert.ToDateTime(ExpTable.CREATE_DATE).ToShortDateString());//請款日期
                 }

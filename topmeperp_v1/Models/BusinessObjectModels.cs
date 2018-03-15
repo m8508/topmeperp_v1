@@ -609,7 +609,7 @@ namespace topmeperp.Models
     {
         public string PLAN_CREATE_DATE { get; set; }
     }
-    
+    //new
     public class RevenueFromOwner : PLAN_VALUATION_FORM
     {
         public Int32 VACount { get; set; }
