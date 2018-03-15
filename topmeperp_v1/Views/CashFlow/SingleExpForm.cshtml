@@ -261,44 +261,7 @@
         </div>
         <div class="row">
             <!--依據流程任務與部門設定功能-->
-            <div class="col-md-12">
-                @if (Model.task.ACTIVITY_TYPE == "C")
-                {
-                    <input type="button" value="儲存" id="updateForm" name="updateForm" class="btn btn-default" />
-                    <input type="button" value="送審" id="SendForm" name="SendForm" class="btn btn-warning" />
-                }
-                @{ 
-                    bool privilegeCheck = false;
-                }
-
-                @if (Model.task.ACTIVITY_TYPE == "D")
-                {
-                    //審核任務需要部門審核，則判斷登入者是部門條件
-                    if (Model.task.DEP_CODE != null)
-                    {
-                        topmeperp.Models.SYS_USER u = (topmeperp.Models.SYS_USER)Session["user"];
-                        if (u.DEP_CODE == Model.task.DEP_CODE)
-                        {
-                            privilegeCheck = true;
-                        }
-                    }else
-                    {
-                        //沒有部門，需要使用者之部門資料
-                        privilegeCheck = true;
-                    }
-                }
-                @if (privilegeCheck)
-                {
-                    @Html.Raw("原因");
-                    <textarea id="RejectDesc" name="RejectDesc" cols="30" rows="3" class="form-control"></textarea>
-                    <input type="button" value="退件" id="RejectExp" name="RejectExp" class="btn btn-warning" />
-                    <input type="button" value="核可" id="SendForm" name="SendForm" class="btn btn-primary" />
-                }
-                @if (Model.task.CREATE_USER_ID == ((topmeperp.Models.SYS_USER)Session["user"]).USER_ID && Model.task.CURENT_STATE != -1)
-                {
-                    <input type="submit" value="中止" id="CancelForm" name="CancelForm" class="btn btn-danger" />
-                }
-            </div>
+            @Html.Partial("~/Views/include/_WorkFlowFunction.cshtml")
         </div>
     </form>
 </div>

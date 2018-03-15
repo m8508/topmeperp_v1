@@ -1093,6 +1093,7 @@
     <Content Include="Views\CashFlow\CashFlowManage.cshtml" />
     <Content Include="Views\CashFlow\_ProjectList.cshtml" />
     <Content Include="Views\Estimation\VAItem.cshtml" />
+    <Content Include="Views\include\_WorkFlowFunction.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
