@@ -21,7 +21,7 @@ namespace topmeperp.Models
         public string CREATE_USER_ID { get; set; }
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public string NOTE { get; set; }
-        public Nullable<long> ACTIVITY_ID { get; set; }
+        public string ACTIVITY_TYPE { get; set; }
         public string STATUS { get; set; }
         public string REMARK { get; set; }
         public Nullable<int> SEQ_ID { get; set; }

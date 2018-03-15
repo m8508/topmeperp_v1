@@ -94,6 +94,7 @@ namespace topmeperp.Controllers
             if (service.tndProjectModels.planList != null)
             {
                 SelectList plans = new SelectList(service.tndProjectModels.planList, "PROJECT_ID", "PROJECT_NAME");
+
                 ViewBag.plans = plans;
                 //將資料存入TempData 減少不斷讀取資料庫
                 TempData.Remove("plans");
@@ -129,15 +130,6 @@ namespace topmeperp.Controllers
             {
                 bankloanInfo.CUM_AR_RATIO = decimal.Parse(Request["CUM_AR_RATIO"]);
             }
-            if (Request["QUOTA_AVAILABLE_RATIO"] != "")
-            {
-            bankloanInfo.QUOTA_AVAILABLE_RATIO = decimal.Parse(Request["QUOTA_AVAILABLE_RATIO"]);
-            }
-            else
-            {
-                bankloanInfo.QUOTA_AVAILABLE_RATIO = 100;
-            }
-            bankloanInfo.QUOTA_RECYCLABLE = Request["QUOTA_RECYCLABLE"];
             bankloanInfo.REMARK = Request["REMARK"];
             bankloanInfo.ACCOUNT_NAME = Request["ACCOUNT_NAME"];
             if (Request["plans"] != "")

@@ -462,12 +462,20 @@ namespace topmeperp.Controllers
         {
             logger.Info("http get mehtod:" + id);
             OperatingExpenseModel singleForm = new OperatingExpenseModel();
+            Flow4CompanyExpense wfs = new Flow4CompanyExpense();
+
             service.getEXPByExpId(id);
             singleForm.finEXP = service.formEXP;
             singleForm.finEXPItem = service.EXPItem;
             singleForm.planEXPItem = service.siteEXPItem;
-            logger.Debug("Expense Year:" + singleForm.finEXP.OCCURRED_YEAR);
-            return View(singleForm);
+
+            logger.Info("get process request by dataId=" + id);
+            wfs.getTask(id);
+            wfs.getRequest(id);
+            wfs.task.FormData = singleForm;
+
+            Session["process"] = wfs.task;
+            return View(wfs.task);
         }
 
         //更新費用單

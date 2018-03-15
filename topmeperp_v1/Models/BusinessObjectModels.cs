@@ -483,8 +483,6 @@ namespace topmeperp.Models
         public Nullable<decimal> BALANCE { get; set; }
         public Nullable<decimal> RUNNING_TOTAL { get; set; }
         public Nullable<decimal> AMOUNT_BANK { get; set; }
-        public Nullable<decimal> availableQta { get; set; }
-        
     }
     public class ExpenseBudgetSummary : FIN_EXPENSE_ITEM
     {
@@ -626,9 +624,7 @@ namespace topmeperp.Models
         public string FILE_ACTURE_NAME { get; set; }
         public string FILE_TYPE { get; set; }
         public long ITEM_UID { get; set; }
-        public Nullable<decimal> otherPay { get; set; }
-        public Nullable<decimal> taxAmt { get; set; }
-        public Nullable<decimal> Amt { get; set; }
+        public string RECORDED_INVOICE_DATE { get; set; }
         
 
     }
