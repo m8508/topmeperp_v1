@@ -27,7 +27,6 @@ namespace topmeperp.Models
     
         public virtual DbSet<ENT_DEPARTMENT> ENT_DEPARTMENT { get; set; }
         public virtual DbSet<FIN_BANK_ACCOUNT> FIN_BANK_ACCOUNT { get; set; }
-        public virtual DbSet<FIN_BANK_LOAN> FIN_BANK_LOAN { get; set; }
         public virtual DbSet<FIN_EXPENSE_BUDGET> FIN_EXPENSE_BUDGET { get; set; }
         public virtual DbSet<FIN_EXPENSE_FORM> FIN_EXPENSE_FORM { get; set; }
         public virtual DbSet<FIN_EXPENSE_ITEM> FIN_EXPENSE_ITEM { get; set; }
@@ -35,7 +34,6 @@ namespace topmeperp.Models
         public virtual DbSet<FIN_SUBJECT> FIN_SUBJECT { get; set; }
         public virtual DbSet<PLAN_ACCOUNT> PLAN_ACCOUNT { get; set; }
         public virtual DbSet<PLAN_BUDGET> PLAN_BUDGET { get; set; }
-        public virtual DbSet<PLAN_CONTRACT_PROCESS> PLAN_CONTRACT_PROCESS { get; set; }
         public virtual DbSet<PLAN_COSTCHANGE_FORM> PLAN_COSTCHANGE_FORM { get; set; }
         public virtual DbSet<PLAN_COSTCHANGE_ITEM> PLAN_COSTCHANGE_ITEM { get; set; }
         public virtual DbSet<PLAN_DALIY_REPORT> PLAN_DALIY_REPORT { get; set; }
@@ -58,7 +56,6 @@ namespace topmeperp.Models
         public virtual DbSet<PLAN_SUP_INQUIRY_ITEM> PLAN_SUP_INQUIRY_ITEM { get; set; }
         public virtual DbSet<PLAN_TASK> PLAN_TASK { get; set; }
         public virtual DbSet<PLAN_TASK2MAPITEM> PLAN_TASK2MAPITEM { get; set; }
-        public virtual DbSet<PLAN_VALUATION_FORM> PLAN_VALUATION_FORM { get; set; }
         public virtual DbSet<REF_TYPE_MAIN> REF_TYPE_MAIN { get; set; }
         public virtual DbSet<REF_TYPE_SUB> REF_TYPE_SUB { get; set; }
         public virtual DbSet<SYS_FUNCTION> SYS_FUNCTION { get; set; }
@@ -87,5 +84,8 @@ namespace topmeperp.Models
         public virtual DbSet<WF_PROCESS_ACTIVITY> WF_PROCESS_ACTIVITY { get; set; }
         public virtual DbSet<WF_PROCESS_REQUEST> WF_PROCESS_REQUEST { get; set; }
         public virtual DbSet<WF_PORCESS_TASK> WF_PORCESS_TASK { get; set; }
+        public virtual DbSet<FIN_BANK_LOAN> FIN_BANK_LOAN { get; set; }
+        public virtual DbSet<PLAN_CONTRACT_PROCESS> PLAN_CONTRACT_PROCESS { get; set; }
+        public virtual DbSet<PLAN_VALUATION_FORM> PLAN_VALUATION_FORM { get; set; }
     }
 }

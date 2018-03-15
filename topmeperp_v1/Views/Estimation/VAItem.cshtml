@@ -26,7 +26,7 @@
             </div>
         </div>
         <form id="invoice_form" name="invoice_form" ng-submit="submit()" action="/Estimation/updateVAItem" method="post" enctype="multipart/form-data">
-            <label for="advance_payment" class="col-md-2 control-label">預收款金額 :</label>
+            <label for="advance_payment" class="col-md-2 control-label">預收款(未稅) :</label>
             <div class="col-md-4" style="padding-top:2px">
                 @if (ViewBag.advance != null)
                 {
@@ -37,7 +37,7 @@
                     <input type="text" class="form-control" name="advance_payment" id="advance_payment" value="">
                 }
             </div>
-            <label for="va_amount" class="col-md-2 control-label">請款金額 :</label>
+            <label for="va_amount" class="col-md-2 control-label">請款金額(未稅) :</label>
             <div class="col-md-4" style="padding-top:2px">
                 @if (ViewBag.vaAmt != null)
                 {
@@ -56,10 +56,10 @@
                 }
                 else
                 {
-                    <input type="text" class="form-control" name="retention_amount" id="retention_amount" value="">
+                    <input type="text" class="form-control" name="retention_amount" id="retention_amount" value="" placeholder="正值為扣款;負值為請款">
                 }
             </div>
-            <label for="advance_refund" class="col-md-2 control-label">預收扣回 :</label>
+            <label for="advance_refund" class="col-md-2 control-label">預收扣回(未稅) :</label>
             <div class="col-md-4" style="padding-top:2px">
                 @if (ViewBag.advanceRefund != null)
                 {

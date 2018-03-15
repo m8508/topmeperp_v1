@@ -2401,37 +2401,40 @@ namespace topmeperp.Controllers
                 {
                     item.TYPE = lstType[j];
                 }
-                if (lstSubType[j].ToString() == "")
+                if (lstType[j] == "折讓單")
+                {
+                    if (lstSubType[j].ToString() == "")
+                    {
+                    item.SUB_TYPE = null;
+                    }
+                    else
+                    {
+                    item.SUB_TYPE = lstSubType[j];
+                    }
+                    item.PLAN_ITEM_ID = lstPlanItem[j];
+                    if (lstDiscountQty[j].ToString() == "")
+                    {
+                        item.DISCOUNT_QTY = null;
+                    }
+                    else
+                    {
+                        item.DISCOUNT_QTY = decimal.Parse(lstDiscountQty[j]);
+                    }
+                    if (lstDiscountPrice[j].ToString() == "")
+                    {
+                        item.DISCOUNT_UNIT_PRICE = null;
+                    }
+                    else
+                    {
+                        item.DISCOUNT_UNIT_PRICE = decimal.Parse(lstDiscountPrice[j]);
+                    }
+                }
+                else
                 {
                     item.SUB_TYPE = null;
-                }
-                else
-                {
-                    item.SUB_TYPE = lstSubType[j];
-                }
-                if (lstPlanItem[j].ToString() == "")
-                {
                     item.PLAN_ITEM_ID = null;
-                }
-                else
-                {
-                    item.PLAN_ITEM_ID = lstPlanItem[j];
-                }
-                if (lstDiscountQty[j].ToString() == "")
-                {
                     item.DISCOUNT_QTY = null;
-                }
-                else
-                {
-                    item.DISCOUNT_QTY = decimal.Parse(lstDiscountQty[j]);
-                }
-                if (lstDiscountPrice[j].ToString() == "")
-                {
                     item.DISCOUNT_UNIT_PRICE = null;
-                }
-                else
-                {
-                    item.DISCOUNT_UNIT_PRICE = decimal.Parse(lstDiscountPrice[j]);
                 }
                 logger.Info("Invoice Number = " + item.INVOICE_NUMBER + "and Invoice Amount =" + item.AMOUNT);
                 //logger.Debug("Item EST form id =" + item.EST_FORM_ID + "且憑證類型為" + item.TYPE);

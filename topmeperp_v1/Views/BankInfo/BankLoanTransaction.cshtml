@@ -60,13 +60,13 @@
                                 @string.Format("{0:yyyy/MM/dd}", @item.PAYBACK_DATE )　</td>
                                 @if (item.TRANSACTION_TYPE == -1)
                                 {
-                                    <td>@item.AMOUNT</td>
+                                    <td>@string.Format("{0:N0}", @item.AMOUNT)</td>
                                     <td></td>
                                 }
                                 else
                                 {
                                     <td></td>
-                                    <td>@item.AMOUNT</td>
+                                    <td>@string.Format("{0:N0}", @item.AMOUNT)</td>
                                 }
                                 <td>@item.REMARK </td>
                             </tr>

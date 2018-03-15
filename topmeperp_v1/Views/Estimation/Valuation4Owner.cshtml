@@ -13,15 +13,18 @@
         <div class="col-md-3">
             <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;width:250px;" readonly="readonly" />
         </div>
-        <div class="col-md-2 form-group">
-            <label for="id">預付款% : </label><input id="advance_ratio" name="advance_ratio" type="text" value="@String.Format("{0:#,##0.#}",ViewBag.advance)" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+        <div class="col-md-1 form-group">
+            <label for="id">預付款%</label><input id="advance_ratio" name="advance_ratio" type="text" value="@String.Format("{0:#,##0.#}",ViewBag.advance)" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
         </div>
-        <div class="col-md-2 form-group">
-            <label for="id">保留款% :</label><input id="retention_ratio" name="retention_ratio" type="text" value="@String.Format("{0:#,##0.#}",ViewBag.retention)" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+        <div class="col-md-1 form-group">
+            <label for="id">保留款%</label><input id="retention_ratio" name="retention_ratio" type="text" value="@String.Format("{0:#,##0.#}",ViewBag.retention)" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
         </div>
         <div class="col-md-2" style="padding-top:22px;">
             <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("VAItem", "Estimation", new { id = ViewBag.projectid, formid = ViewBag.projectid })'">新增計價資料</button>
             <!--<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#VAItemInfo" onclick="getVAItem('@ViewBag.projectid')">新增計價資料</button>-->
+        </div>
+        <div class="col-md-2" style="padding-top:22px;">
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PlanAccount", "CashFlow")'; ">修改入帳資料</button>
         </div>
         <div class="col-md-1" style="padding-top:22px;">
             <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
