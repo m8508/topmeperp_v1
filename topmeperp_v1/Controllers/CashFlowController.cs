@@ -466,6 +466,7 @@ namespace topmeperp.Controllers
             Session["process"] = wfs.task;
             return View(wfs.task);
         }
+
         public String SendForm(FormCollection f)
         {
             logger.Info("http get mehtod:" + f["EXP_FORM_ID"]);
@@ -474,7 +475,18 @@ namespace topmeperp.Controllers
             logger.Info("Data In Session :" + wfs.task.FormData.finEXP.EXP_FORM_ID);
 
             SYS_USER u = (SYS_USER)Session["user"];
-            wfs.Send(u);
+            DateTime? paymentdate = null;//DateTime can not set null
+            string desc = null;
+            if (f["paymentdate"].ToString() !="")
+            {
+                paymentdate = Convert.ToDateTime(f["paymentdate"].ToString());
+            }
+            if (null != f["RejectDesc"] && f["RejectDesc"].ToString() != "")
+            {
+                desc = f["RejectDesc"].ToString().Trim() ;
+            }
+
+            wfs.Send(u, paymentdate, desc);
             return "更新成功!!";
         }
         //更新費用單

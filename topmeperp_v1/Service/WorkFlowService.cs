@@ -58,6 +58,8 @@ namespace topmeperp.Service
         protected string sql4Request = "SELECT * FROM WF_PROCESS_REQUEST WHERE DATA_KEY=@dataKey";
         protected string sql4Task = "SELECT * from WF_PORCESS_TASK WHERE RID=@rid ORDER BY SEQ_ID";
         protected SYS_USER user = null;
+        public string statusChange = null;//More 、 Done、Fail
+        public string Message = null;
         public enum TaskStatus
         {
             O, // Open
@@ -115,12 +117,20 @@ namespace topmeperp.Service
                         {
                             //Has Next Step
                             UpdateTask(task.ProcessTask[idx], task.ProcessTask[idx + 1]);
+                            if (statusChange == null)
+                            {
+                                statusChange = "M";//More
+                            }
                             return;
                         }
                         else
                         {
                             //No More Step
                             UpdateTask(task.ProcessTask[idx], null);
+                            if (statusChange == null)
+                            {
+                                statusChange = "D";//Done
+                            }
                         }
                         break;
                     case "D":
@@ -130,44 +140,60 @@ namespace topmeperp.Service
                 }
             }
         }
+        /// <summary>
+        /// 更新現有任務狀態
+        /// </summary>
+        /// <param name="curTask"></param>
+        /// <param name="nextTask"></param>
         protected void UpdateTask(WF_PORCESS_TASK curTask, WF_PORCESS_TASK nextTask)
         {
             string sql4Task = "UPDATE WF_PORCESS_TASK SET STATUS=@status,REMARK=@remark,MODIFY_USER_ID=@modifyUser,MODIFY_DATE=@modifyDate WHERE ID=@id";
             string sql4Request = "UPDATE WF_PROCESS_REQUEST SET CURENT_STATE=@state,MODIFY_USER_ID=@modifyUser,MODIFY_DATE=@modifyDate WHERE RID=@RID";
             using (var context = new topmepEntities())
             {
-                //Update Task State=Done
-                var parameters = new List<SqlParameter>();
-                parameters.Add(new SqlParameter("status", "D"));
-                if (null != curTask.REMARK)
+                try
                 {
-                    parameters.Add(new SqlParameter("remark", curTask.REMARK));
-                }
-                else
-                {
-                    parameters.Add(new SqlParameter("remark", DBNull.Value));
-                }
-                parameters.Add(new SqlParameter("modifyUser", user.USER_ID));
-                parameters.Add(new SqlParameter("modifyDate", DateTime.Now));
-                parameters.Add(new SqlParameter("id", curTask.ID));
-                //Change Request State
-                int i = context.Database.ExecuteSqlCommand(sql4Task, parameters.ToArray());
-                logger.Debug("i=" + i + "sql" + sql4Task + ",Id" + curTask.ID);
-                parameters = new List<SqlParameter>();
-                if (null != nextTask)
-                {
-                    parameters.Add(new SqlParameter("state", nextTask.SEQ_ID));
-                }
-                else
-                {
-                    parameters.Add(new SqlParameter("state", -1));
-                }
-                parameters.Add(new SqlParameter("modifyUser", user.USER_ID));
-                parameters.Add(new SqlParameter("modifyDate", DateTime.Now));
-                parameters.Add(new SqlParameter("RID", curTask.RID));
+                    //Update Task State=Done
+                    var parameters = new List<SqlParameter>();
+                    parameters.Add(new SqlParameter("status", "D"));
+                    if (null != curTask.REMARK)
+                    {
+                        parameters.Add(new SqlParameter("remark", curTask.REMARK));
+                    }
+                    else
+                    {
+                        parameters.Add(new SqlParameter("remark", DBNull.Value));
+                    }
+                    parameters.Add(new SqlParameter("modifyUser", user.USER_ID));
+                    parameters.Add(new SqlParameter("modifyDate", DateTime.Now));
+                    parameters.Add(new SqlParameter("id", curTask.ID));
+                    //Change Request State
+                    int i = context.Database.ExecuteSqlCommand(sql4Task, parameters.ToArray());
+                    logger.Debug("i=" + i + "sql" + sql4Task + ",Id" + curTask.ID);
+                    parameters = new List<SqlParameter>();
+                    if (null != nextTask)
+                    {
+                        parameters.Add(new SqlParameter("state", nextTask.SEQ_ID));
+                    }
+                    else
+                    {
+                        parameters.Add(new SqlParameter("state", -1));
+                    }
+                    parameters.Add(new SqlParameter("modifyUser", user.USER_ID));
+                    parameters.Add(new SqlParameter("modifyDate", DateTime.Now));
+                    parameters.Add(new SqlParameter("RID", curTask.RID));
 
-                i = context.Database.ExecuteSqlCommand(sql4Request, parameters.ToArray());
-                logger.Debug("i=" + i + "sql" + sql4Task + ",Id" + curTask.ID);
+                    i = context.Database.ExecuteSqlCommand(sql4Request, parameters.ToArray());
+                    logger.Debug("i=" + i + "sql" + sql4Task + ",Id" + curTask.ID);
+                    Message = "處理成功";
+                }
+                catch (Exception ex)
+                {
+                    statusChange = "F";
+                    Message = "處理失敗(" + ex.Message + ")";
+                    logger.Error(ex.Message + ":" + ex.StackTrace);
+                }
+
             }
         }
         //取得表單與對應的流程資料
@@ -187,6 +213,9 @@ namespace topmeperp.Service
             }
         }
     }
+    /// <summary>
+    /// 公司費用申請控制流程
+    /// </summary>
     public class Flow4CompanyExpense : WorkFlowService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -205,6 +234,14 @@ namespace topmeperp.Service
         {
 
         }
+        /// <summary>
+        /// 取得費用申請清單
+        /// </summary>
+        /// <param name="occurreddate"></param>
+        /// <param name="subjectname"></param>
+        /// <param name="expid"></param>
+        /// <param name="projectid"></param>
+        /// <returns></returns>
         public List<ExpenseFlowTask> getCompanyExpenseRequest(string occurreddate, string subjectname, string expid, string projectid)
         {
             logger.Info("search expense form by " + occurreddate + ", 費用單編號 =" + expid + ", 項目名稱 =" + subjectname + ", 專案編號 =" + projectid);
@@ -217,6 +254,10 @@ namespace topmeperp.Service
 
             return lstForm;
         }
+        /// <summary>
+        /// 取的申請程序表單與鄉烏干資料
+        /// </summary>
+        /// <param name="dataKey"></param>
         public void getTask(string dataKey)
         {
             task = new ExpenseTask();
@@ -274,5 +315,53 @@ namespace topmeperp.Service
             }
         }
 
+        //送審
+        public void Send(SYS_USER u, DateTime? paymentdate, string reason)
+        {
+            //STATUS  0   退件
+            //STATUS  10  草稿
+            //STATUS  20  審核中
+            //STATUS  30  通過
+            //STATUS  40  中止
+            //
+            logger.Debug("CompanyExpenseRequest Send" + task.task.ID);
+            string sql = "UPDATE FIN_EXPENSE_FORM SET STATUS=@status,PAYMENT_DATE=@paymentDate,REJECT_DESC=@rejectDesc WHERE EXP_FORM_ID=@formId";
+            int staus = 10;
+            base.Send(u);
+            if (statusChange == "M")
+            {
+                staus = 20;
+            }
+            else if (statusChange == "D")
+            {
+                staus = 30;
+            }
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("status", staus));
+            if (null != paymentdate)
+            {
+                parameters.Add(new SqlParameter("paymentDate", paymentdate));
+            }
+            else
+            {
+                parameters.Add(new SqlParameter("paymentDate", DBNull.Value));
+            }
+
+            if (null != reason)
+            {
+                parameters.Add(new SqlParameter("rejectDesc", reason));
+            }
+            else
+            {
+                parameters.Add(new SqlParameter("rejectDesc", DBNull.Value));
+            }
+            parameters.Add(new SqlParameter("formId", task.task.EXP_FORM_ID));
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("Change CompanyExpenseRequest Status=" + task.task.EXP_FORM_ID + "," + staus);
+                context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            }
+        }
     }
+
 }
