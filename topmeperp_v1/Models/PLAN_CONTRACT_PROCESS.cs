@@ -25,8 +25,6 @@ namespace topmeperp.Models
         public Nullable<decimal> MAINTENANCE_BOND { get; set; }
         public Nullable<System.DateTime> MB_DUE_DATE { get; set; }
         public string MB_REMARK { get; set; }
-        public Nullable<decimal> PERFORMANCE_BOND { get; set; }
-        public Nullable<System.DateTime> PB_DUE_DATE { get; set; }
-        public string PB_REMARK { get; set; }
+        public Nullable<System.DateTime> MB_PAYBACK_DATE { get; set; }
     }
 }

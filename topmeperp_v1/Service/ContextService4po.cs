@@ -448,7 +448,6 @@ namespace topmeperp.Service
         public PurchaseFormModel POFormData = null;
         public List<FIN_SUBJECT> ExpBudgetItem = null;
         public CashFlowModel cashFlowModel = new CashFlowModel();
-        public PLAN_VALUATION_FORM valuation = null;
 
         #region 取得得標標單項目內容
         //取得標單品項資料
@@ -1495,7 +1494,7 @@ namespace topmeperp.Service
             //採購名稱條件
             if (null != formName && "" != formName)
             {
-                string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PLAN_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位,FORMAT(fitem.ITEM_QTY,'#') 數量, " +
+                string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PLAN_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位, fitem.ITEM_QTY 數量, " +
                 "(SELECT SUPPLIER_ID+'|'+ fitem.INQUIRY_FORM_ID +'|' + FORM_NAME FROM PLAN_SUP_INQUIRY f WHERE f.INQUIRY_FORM_ID = fitem.INQUIRY_FORM_ID ) as SUPPLIER_NAME, " +
                 "pitem.ITEM_UNIT_COST 材料單價, " +
                 "(SELECT FORM_NAME FROM PLAN_SUP_INQUIRY f WHERE f.INQUIRY_FORM_ID = fitem.INQUIRY_FORM_ID ) as FORM_NAME, fitem.ITEM_UNIT_PRICE  " +
@@ -1583,7 +1582,7 @@ namespace topmeperp.Service
             }
             else
             {
-                string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PLAN_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位,FORMAT(fitem.ITEM_QTY,'#') 數量, " +
+                string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PLAN_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位,fitem.ITEM_QTY 數量, " +
                 "(SELECT SUPPLIER_ID+'|'+ fitem.INQUIRY_FORM_ID +'|' + FORM_NAME FROM PLAN_SUP_INQUIRY f WHERE f.INQUIRY_FORM_ID = fitem.INQUIRY_FORM_ID ) as SUPPLIER_NAME, " +
                 "pitem.ITEM_UNIT_COST 材料單價, fitem.ITEM_UNIT_PRICE " +
                 "from PLAN_ITEM pitem " +
@@ -4176,33 +4175,22 @@ namespace topmeperp.Service
             //處理SQL 預先填入ID,設定集合處理參數
             using (var context = new topmepEntities())
             {
-                lstItem = context.Database.SqlQuery<CashFlowFunction>("SELECT C.DATE_CASHFLOW AS DATE_CASHFLOW, C.AMOUNT_BANK AS AMOUNT_BANK, C.AMOUNT_INFLOW AS AMOUNT_INFLOW, C.AMOUNT_OUTFLOW AS AMOUNT_OUTFLOW, C.availableQta, C.BALANCE AS BALANCE, C.RUNNING_TOTAL AS RUNNING_TOTAL " +
-                    "FROM(SELECT CASHFLOW_1.DATE_CASHFLOW, CASHFLOW_1.AMOUNT_BANK, CASHFLOW_1.AMOUNT_INFLOW, CASHFLOW_1.AMOUNT_OUTFLOW, CASHFLOW_1.availableQta, CASHFLOW_1.BALANCE, SUM(CASHFLOW_2.BALANCE) RUNNING_TOTAL FROM(SELECT DISTINCT CONVERT(char(10), pa.PAYMENT_DATE, 111) AS DATE_CASHFLOW, " +
-                    "ISNULL(bank.BankAmt, 0) AS AMOUNT_BANK, ISNULL(A.AMOUNT_INFLOW, 0) AS AMOUNT_INFLOW, ISNULL(B.AMOUNT_OUTFLOW, 0) AS AMOUNT_OUTFLOW, ISNULL(availableQta, 0) AS availableQta, ISNULL(bank.BankAmt, 0) + ISNULL(A.AMOUNT_INFLOW, 0) - ISNULL(B.AMOUNT_OUTFLOW, 0) + ISNULL(availableQta, 0) AS BALANCE FROM(SELECT PAYMENT_DATE " +
-                    "FROM PLAN_ACCOUNT UNION SELECT CONVERT(char(10), GETDATE(), 111) AS DATE_CASHFLOW FROM FIN_BANK_ACCOUNT UNION SELECT CONVERT(char(10), IIF(flt.TRANSACTION_TYPE = 1, flt.PAYBACK_DATE, flt.EVENT_DATE), 111) AS EVENT_DATE FROM FIN_LOAN_TRANACTION flt LEFT JOIN FIN_BANK_LOAN fbl ON flt.BL_ID = fbl.BL_ID " +
-                    "WHERE IIF(flt.TRANSACTION_TYPE = 1, flt.PAYBACK_DATE, flt.EVENT_DATE) > CONVERT(char(10), GETDATE(), 111))pa LEFT JOIN(SELECT CONVERT(char(10), GETDATE(), 111) AS DATE_CASHFLOW, SUM(CUR_AMOUNT) AS BankAmt FROM FIN_BANK_ACCOUNT WHERE CUR_DATE < GETDATE())bank " +
+                lstItem = context.Database.SqlQuery<CashFlowFunction>("SELECT C.DATE_CASHFLOW AS DATE_CASHFLOW, C.AMOUNT_BANK AS AMOUNT_BANK, C.AMOUNT_INFLOW AS AMOUNT_INFLOW, C.AMOUNT_OUTFLOW AS AMOUNT_OUTFLOW, C.BALANCE AS BALANCE, C.RUNNING_TOTAL AS RUNNING_TOTAL " +
+                    "FROM(SELECT CASHFLOW_1.DATE_CASHFLOW, CASHFLOW_1.AMOUNT_BANK, CASHFLOW_1.AMOUNT_INFLOW, CASHFLOW_1.AMOUNT_OUTFLOW, CASHFLOW_1.BALANCE, SUM(CASHFLOW_2.BALANCE) RUNNING_TOTAL FROM(SELECT DISTINCT CONVERT(char(10), pa.PAYMENT_DATE, 111) AS DATE_CASHFLOW, " +
+                    "ISNULL(bank.BankAmt, 0) AS AMOUNT_BANK, ISNULL(A.AMOUNT_INFLOW, 0) AS AMOUNT_INFLOW, ISNULL(B.AMOUNT_OUTFLOW, 0) AS AMOUNT_OUTFLOW, ISNULL(bank.BankAmt, 0) + ISNULL(A.AMOUNT_INFLOW, 0) - ISNULL(B.AMOUNT_OUTFLOW, 0) AS BALANCE FROM(SELECT PAYMENT_DATE " +
+                    "FROM PLAN_ACCOUNT UNION SELECT CONVERT(char(10), GETDATE(), 111) AS DATE_CASHFLOW FROM FIN_BANK_ACCOUNT)pa LEFT JOIN(SELECT CONVERT(char(10), GETDATE(), 111) AS DATE_CASHFLOW, SUM(CUR_AMOUNT) AS BankAmt FROM FIN_BANK_ACCOUNT WHERE CUR_DATE < GETDATE())bank " +
                     "ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = bank.DATE_CASHFLOW LEFT JOIN(SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_INFLOW, SUM(pla.AMOUNT_PAID) AS AMOUNT_INFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'Y' AND STATUS <> 0 " +
                     "AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYMENT_DATE, 111))A ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = A.DATE_INFLOW LEFT JOIN(SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_OUTFLOW, " +
                     "SUM(pla.AMOUNT_PAID) AS AMOUNT_OUTFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'N' AND STATUS <> 0 AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYMENT_DATE, 111) UNION SELECT CONVERT(char(10), PAYBACK_DATE, 111), " +
-                    "SUM(AMOUNT) FROM FIN_LOAN_TRANACTION WHERE TRANSACTION_TYPE = '1' AND REMARK <> '備償款' AND PAYBACK_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYBACK_DATE, 111))B " +
-                    "ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = B.DATE_OUTFLOW left join(SELECT CONVERT(char(10), GETDATE(), 111) AS DATE_CASHFLOW, availableQta FROM(SELECT SUM(QUOTA) - SUM(ROUND(ISNULL(QUOTA * (1 - IIF(vaRatio >= CUM_AR_RATIO, 1, QUOTA_AVAILABLE_RATIO / 100)), 0), 0)) + (SELECT ISNULL(SUM(IIF(flt.TRANSACTION_TYPE = -1, -1, IIF(fbl.QUOTA_RECYCLABLE = 'Y', 1, 0)) * flt.AMOUNT), 0) AS Amt " +
-                    "FROM FIN_LOAN_TRANACTION flt LEFT JOIN FIN_BANK_LOAN fbl ON flt.BL_ID = fbl.BL_ID  WHERE IIF(flt.TRANSACTION_TYPE = 1, flt.PAYBACK_DATE, flt.EVENT_DATE) <= CONVERT(char(10), GETDATE(), 111) AND fbl.DUE_DATE >= CONVERT(char(10), GETDATE(), 111)) AS availableQta " +
-                    "FROM(SELECT BL_ID, QUOTA, CUM_AR_RATIO, QUOTA_AVAILABLE_RATIO, VALUATION_AMOUNT / contractAtm * 100 AS vaRatio FROM FIN_BANK_LOAN f LEFT JOIN  (SELECT PROJECT_ID, SUM(ITEM_UNIT_PRICE * ITEM_QUANTITY) AS contractAtm FROM PLAN_ITEM GROUP BY PROJECT_ID)pi ON f.PROJECT_ID = pi.PROJECT_ID " +
-                    "LEFT JOIN(SELECT PROJECT_ID, SUM(VALUATION_AMOUNT)AS VALUATION_AMOUNT FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID)v ON f.PROJECT_ID = v.PROJECT_ID WHERE f.DUE_DATE >= CONVERT(char(10), GETDATE(), 111))it)l UNION SELECT CONVERT(char(10), IIF(flt.TRANSACTION_TYPE = 1, flt.PAYBACK_DATE, flt.EVENT_DATE), 111) AS EVENT_DATE, " +
-                    "flt.TRANSACTION_TYPE * flt.AMOUNT AS AMOUNT FROM FIN_LOAN_TRANACTION flt LEFT JOIN FIN_BANK_LOAN fbl ON flt.BL_ID = fbl.BL_ID  WHERE IIF(flt.TRANSACTION_TYPE = 1, flt.PAYBACK_DATE, flt.EVENT_DATE) > CONVERT(char(10), GETDATE(), 111))loan on CONVERT(char(10), pa.PAYMENT_DATE, 111) = loan.DATE_CASHFLOW)CASHFLOW_1, " +
-                    "(SELECT DISTINCT CONVERT(char(10), pa.PAYMENT_DATE, 111) AS DATE_CASHFLOW, ISNULL(bank.BankAmt, 0) AS AMOUNT_BANK, ISNULL(A.AMOUNT_INFLOW, 0) AS AMOUNT_INFLOW, ISNULL(B.AMOUNT_OUTFLOW, 0) AS AMOUNT_OUTFLOW, ISNULL(availableQta, 0) AS availableQta, ISNULL(bank.BankAmt, 0) + ISNULL(A.AMOUNT_INFLOW, 0) - ISNULL(B.AMOUNT_OUTFLOW, 0) + ISNULL(availableQta, 0) AS BALANCE " +
-                    "FROM(SELECT PAYMENT_DATE FROM PLAN_ACCOUNT UNION SELECT CONVERT(varchar, GETDATE(), 111) AS DATE_CASHFLOW FROM FIN_BANK_ACCOUNT UNION SELECT CONVERT(char(10), IIF(flt.TRANSACTION_TYPE = 1, flt.PAYBACK_DATE, flt.EVENT_DATE), 111) AS EVENT_DATE FROM FIN_LOAN_TRANACTION flt LEFT JOIN FIN_BANK_LOAN fbl ON flt.BL_ID = fbl.BL_ID WHERE IIF(flt.TRANSACTION_TYPE = 1, flt.PAYBACK_DATE, flt.EVENT_DATE) > CONVERT(char(10), GETDATE(), 111))pa " +
-                    "LEFT JOIN(SELECT CONVERT(char(10), GETDATE(), 111) AS DATE_CASHFLOW, SUM(CUR_AMOUNT) AS BankAmt  FROM FIN_BANK_ACCOUNT WHERE CUR_DATE < GETDATE())bank ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = bank.DATE_CASHFLOW LEFT JOIN (SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_INFLOW, " +
-                    "SUM(pla.AMOUNT_PAID) AS AMOUNT_INFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'Y' AND STATUS <> 0 AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYMENT_DATE, 111))A ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = A.DATE_INFLOW " +
-                    "LEFT JOIN(SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_OUTFLOW, SUM(pla.AMOUNT_PAID) AS AMOUNT_OUTFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'N' AND STATUS <> 0 AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYMENT_DATE, 111) " +
-                    "UNION SELECT CONVERT(char(10), PAYBACK_DATE, 111), SUM(AMOUNT) FROM FIN_LOAN_TRANACTION WHERE TRANSACTION_TYPE = '1' AND REMARK <> '備償款' AND PAYBACK_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYBACK_DATE, 111))B ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = B.DATE_OUTFLOW " +
-                    "left join(SELECT CONVERT(char(10), GETDATE(), 111) AS DATE_CASHFLOW, availableQta FROM(SELECT SUM(QUOTA) - SUM(ROUND(ISNULL(QUOTA * (1 - IIF(vaRatio >= CUM_AR_RATIO, 1, QUOTA_AVAILABLE_RATIO / 100)), 0), 0)) + (SELECT ISNULL(SUM(IIF(flt.TRANSACTION_TYPE = -1, -1, IIF(fbl.QUOTA_RECYCLABLE = 'Y', 1, 0)) * flt.AMOUNT), 0) AS Amt " +
-                    "FROM FIN_LOAN_TRANACTION flt LEFT JOIN FIN_BANK_LOAN fbl ON flt.BL_ID = fbl.BL_ID  WHERE IIF(flt.TRANSACTION_TYPE = 1, flt.PAYBACK_DATE, flt.EVENT_DATE) <= CONVERT(char(10), GETDATE(), 111) AND fbl.DUE_DATE >= CONVERT(char(10), GETDATE(), 111)) AS availableQta " +
-                    "FROM(SELECT BL_ID, QUOTA, CUM_AR_RATIO, QUOTA_AVAILABLE_RATIO, VALUATION_AMOUNT / contractAtm * 100 AS vaRatio FROM FIN_BANK_LOAN f LEFT JOIN (SELECT PROJECT_ID, SUM(ITEM_UNIT_PRICE * ITEM_QUANTITY) AS contractAtm FROM PLAN_ITEM GROUP BY PROJECT_ID)pi ON f.PROJECT_ID = pi.PROJECT_ID " +
-                    "LEFT JOIN(SELECT PROJECT_ID, SUM(VALUATION_AMOUNT)AS VALUATION_AMOUNT FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID)v ON f.PROJECT_ID = v.PROJECT_ID WHERE f.DUE_DATE >= CONVERT(char(10), GETDATE(), 111))it)l UNION SELECT CONVERT(char(10), IIF(flt.TRANSACTION_TYPE = 1, flt.PAYBACK_DATE, flt.EVENT_DATE), 111) AS EVENT_DATE, " +
-                    "flt.TRANSACTION_TYPE * flt.AMOUNT AS AMOUNT FROM FIN_LOAN_TRANACTION flt LEFT JOIN FIN_BANK_LOAN fbl ON flt.BL_ID = fbl.BL_ID  WHERE IIF(flt.TRANSACTION_TYPE = 1, flt.PAYBACK_DATE, flt.EVENT_DATE) > CONVERT(char(10), GETDATE(), 111))loan on CONVERT(char(10), pa.PAYMENT_DATE, 111) = loan.DATE_CASHFLOW)CASHFLOW_2 " +
-                    "WHERE CASHFLOW_1.DATE_CASHFLOW >= CASHFLOW_2.DATE_CASHFLOW GROUP BY CASHFLOW_1.DATE_CASHFLOW, CASHFLOW_1.AMOUNT_INFLOW, CASHFLOW_1.AMOUNT_OUTFLOW, CASHFLOW_1.BALANCE, CASHFLOW_1.AMOUNT_BANK, CASHFLOW_1.availableQta)C " +
-                    "WHERE C.AMOUNT_BANK <> 0 OR C.AMOUNT_INFLOW <> 0 OR C.AMOUNT_OUTFLOW <> 0 ORDER BY C.DATE_CASHFLOW ASC; ").ToList();
+                    "SUM(AMOUNT) FROM FIN_LOAN_TRANACTION WHERE TRANSACTION_TYPE = '1' AND PAYBACK_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYBACK_DATE, 111))B " +
+                    "ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = B.DATE_OUTFLOW)CASHFLOW_1, (SELECT DISTINCT CONVERT(char(10), pa.PAYMENT_DATE, 111) AS DATE_CASHFLOW, ISNULL(bank.BankAmt, 0) AS AMOUNT_BANK, ISNULL(A.AMOUNT_INFLOW, 0) AS AMOUNT_INFLOW, ISNULL(B.AMOUNT_OUTFLOW, 0) AS AMOUNT_OUTFLOW, " +
+                    "ISNULL(bank.BankAmt, 0) + ISNULL(A.AMOUNT_INFLOW, 0) - ISNULL(B.AMOUNT_OUTFLOW, 0) AS BALANCE FROM(SELECT PAYMENT_DATE FROM PLAN_ACCOUNT UNION SELECT CONVERT(varchar, GETDATE(), 111) AS DATE_CASHFLOW FROM FIN_BANK_ACCOUNT)pa " +
+                    "LEFT JOIN(SELECT CONVERT(char(10), GETDATE(), 111) AS DATE_CASHFLOW, SUM(CUR_AMOUNT) AS BankAmt  FROM FIN_BANK_ACCOUNT WHERE CUR_DATE < GETDATE())bank ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = bank.DATE_CASHFLOW " +
+                    "LEFT JOIN(SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_INFLOW, SUM(pla.AMOUNT_PAID) AS AMOUNT_INFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'Y' AND STATUS <> 0 AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 " +
+                    "GROUP BY CONVERT(char(10), PAYMENT_DATE, 111))A ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = A.DATE_INFLOW LEFT JOIN (SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_OUTFLOW, SUM(pla.AMOUNT_PAID) AS AMOUNT_OUTFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'N' AND STATUS <> 0 " +
+                    "AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYMENT_DATE, 111) UNION SELECT CONVERT(char(10), PAYBACK_DATE, 111), SUM(AMOUNT) FROM FIN_LOAN_TRANACTION WHERE TRANSACTION_TYPE = '1' AND PAYBACK_DATE " +
+                    "BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYBACK_DATE, 111))B ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = B.DATE_OUTFLOW)CASHFLOW_2 WHERE CASHFLOW_1.DATE_CASHFLOW >= CASHFLOW_2.DATE_CASHFLOW " +
+                    "GROUP BY CASHFLOW_1.DATE_CASHFLOW, CASHFLOW_1.AMOUNT_INFLOW, CASHFLOW_1.AMOUNT_OUTFLOW, CASHFLOW_1.BALANCE, CASHFLOW_1.AMOUNT_BANK)C WHERE C.AMOUNT_BANK <> 0 OR C.AMOUNT_INFLOW <> 0 OR C.AMOUNT_OUTFLOW <> 0 ORDER BY C.DATE_CASHFLOW ASC; ").ToList();
                 logger.Info("Get Cash Flow Count=" + lstItem.Count);
             }
 
@@ -5416,59 +5404,55 @@ namespace topmeperp.Service
             }
             return form.VA_FORM_ID;
         }
-        /*
-       public RevenueFromOwner getVAPayItemById(string formid)
-       {
-           RevenueFromOwner payment = null;
-           using (var context = new topmepEntities())
-           {
-               payment = context.Database.SqlQuery<RevenueFromOwner>("SELECT A.VA_FORM_ID , ROUND(CAST(IIF(ISNULL(A.advancePaymentBalance, 0) - ISNULL(A.VALUATION_AMOUNT , 0)*A.ADVANCE_RATIO/100 > 0, " +
-                   "ISNULL(A.VALUATION_AMOUNT , 0)*A.ADVANCE_RATIO/100, IIF(ISNULL(A.advancePaymentBalance, 0) > 0, A.advancePaymentBalance, 0)) AS decimal(10,1)),0) AS ADVANCE_PAYMENT_REFUND, " +
-                   "ROUND(CAST(ISNULL(A.VALUATION_AMOUNT , 0)*A.RETENTION_RATIO/100 AS decimal(10,1)),0) AS RETENTION_PAYMENT, ROUND(CAST((ISNULL(A.VALUATION_AMOUNT , 0)-ISNULL(A.VALUATION_AMOUNT , 0) " +
-                   "*A.ADVANCE_RATIO/100)*ISNULL(A.TAX_RATIO,0) / 100 AS decimal(10,1)),0) AS TAX_AMOUNT " +
-                   "FROM (SELECT vf.*, B.advancePaymentBalance, ISNULL(IIF(ppt.PAYMENT_TERMS = 'P', ppt.PAYMENT_ADVANCE_RATIO, ppt.USANCE_ADVANCE_RATIO), 0) AS ADVANCE_RATIO, " +
-                   "ISNULL(IIF(ppt.PAYMENT_TERMS = 'P', ppt.PAYMENT_RETENTION_RATIO, ppt.USANCE_RETENTION_RATIO),0) AS RETENTION_RATIO FROM PLAN_VALUATION_FORM vf " +
-                   "LEFT JOIN PLAN_PAYMENT_TERMS ppt ON vf.PROJECT_ID = ppt.CONTRACT_ID LEFT JOIN (SELECT PROJECT_ID, SUM(ADVANCE_PAYMENT) - SUM(ADVANCE_PAYMENT_REFUND) AS advancePaymentBalance " +
-                   "FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID)B ON vf.PROJECT_ID = B.PROJECT_ID WHERE vf.VA_FORM_ID =@formid)A  "
-                  , new SqlParameter("formid", formid)).FirstOrDefault();
-           }
-           return payment;
-       }
 
-       //寫入保留款,預付扣回與營業稅額(舊)
-       public int refreshVAItem(string formid, decimal retention, decimal advanceRefund, decimal tax)
-       {
-           int i = 0;
-           logger.Info("refresh rentention amount, advance refund and tax amount of VA by form id" + formid);
-           string sql = "UPDATE  PLAN_VALUATION_FORM SET RETENTION_PAYMENT =@retention, ADVANCE_PAYMENT_REFUND =@advanceRefund, TAX_AMOUNT =@tax WHERE VA_FORM_ID=@formid ";
-           logger.Debug("refresh items from Quote sql:" + sql);
-           db = new topmepEntities();
-           var parameters = new List<SqlParameter>();
-           parameters.Add(new SqlParameter("formid", formid));
-           parameters.Add(new SqlParameter("retention", retention));
-           parameters.Add(new SqlParameter("advanceRefund", advanceRefund));
-           parameters.Add(new SqlParameter("tax", tax));
-           db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
-           i = db.SaveChanges();
-           logger.Info("Update Record:" + i);
-           db = null;
-           return i;
-       }
-       */
+        public RevenueFromOwner getVAPayItemById(string formid)
+        {
+            RevenueFromOwner payment = null;
+            using (var context = new topmepEntities())
+            {
+                payment = context.Database.SqlQuery<RevenueFromOwner>("SELECT A.VA_FORM_ID , ROUND(CAST(IIF(ISNULL(A.advancePaymentBalance, 0) - ISNULL(A.VALUATION_AMOUNT , 0)*A.ADVANCE_RATIO/100 > 0, " +
+                    "ISNULL(A.VALUATION_AMOUNT , 0)*A.ADVANCE_RATIO/100, IIF(ISNULL(A.advancePaymentBalance, 0) > 0, A.advancePaymentBalance, 0)) AS decimal(10,1)),0) AS ADVANCE_PAYMENT_REFUND, " +
+                    "ROUND(CAST(ISNULL(A.VALUATION_AMOUNT , 0)*A.RETENTION_RATIO/100 AS decimal(10,1)),0) AS RETENTION_PAYMENT, ROUND(CAST((ISNULL(A.VALUATION_AMOUNT , 0)-ISNULL(A.VALUATION_AMOUNT , 0) " +
+                    "*A.ADVANCE_RATIO/100)*ISNULL(A.TAX_RATIO,0) / 100 AS decimal(10,1)),0) AS TAX_AMOUNT " +
+                    "FROM (SELECT vf.*, B.advancePaymentBalance, ISNULL(IIF(ppt.PAYMENT_TERMS = 'P', ppt.PAYMENT_ADVANCE_RATIO, ppt.USANCE_ADVANCE_RATIO), 0) AS ADVANCE_RATIO, " +
+                    "ISNULL(IIF(ppt.PAYMENT_TERMS = 'P', ppt.PAYMENT_RETENTION_RATIO, ppt.USANCE_RETENTION_RATIO),0) AS RETENTION_RATIO FROM PLAN_VALUATION_FORM vf " +
+                    "LEFT JOIN PLAN_PAYMENT_TERMS ppt ON vf.PROJECT_ID = ppt.CONTRACT_ID LEFT JOIN (SELECT PROJECT_ID, SUM(ADVANCE_PAYMENT) - SUM(ADVANCE_PAYMENT_REFUND) AS advancePaymentBalance " +
+                    "FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID)B ON vf.PROJECT_ID = B.PROJECT_ID WHERE vf.VA_FORM_ID =@formid)A  "
+                   , new SqlParameter("formid", formid)).FirstOrDefault();
+            }
+            return payment;
+        }
+        //寫入保留款,預付扣回與營業稅額
+        public int refreshVAItem(string formid, decimal retention, decimal advanceRefund, decimal tax)
+        {
+            int i = 0;
+            logger.Info("refresh rentention amount, advance refund and tax amount of VA by form id" + formid);
+            string sql = "UPDATE  PLAN_VALUATION_FORM SET RETENTION_PAYMENT =@retention, ADVANCE_PAYMENT_REFUND =@advanceRefund, TAX_AMOUNT =@tax WHERE VA_FORM_ID=@formid ";
+            logger.Debug("refresh items from Quote sql:" + sql);
+            db = new topmepEntities();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("formid", formid));
+            parameters.Add(new SqlParameter("retention", retention));
+            parameters.Add(new SqlParameter("advanceRefund", advanceRefund));
+            parameters.Add(new SqlParameter("tax", tax));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            logger.Info("Update Record:" + i);
+            db = null;
+            return i;
+        }
         public List<RevenueFromOwner> getVADetailById(string projectid)
         {
             List<RevenueFromOwner> VAItem = new List<RevenueFromOwner>();
             using (var context = new topmepEntities())
             {
-                VAItem = context.Database.SqlQuery<RevenueFromOwner>("SELECT vf.*, pi.otherPay, pi.taxAmt, account.AR_PAID, f.FILE_UPLOAD_NAME, ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + pi.taxAmt " +
-                    "- ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) - pi.otherPay AS AR, " +
-                    "ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + pi.taxAmt - ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) " +
-                    "- pi.otherPay - account.AR_PAID AS AR_UNPAID, " +
+                VAItem = context.Database.SqlQuery<RevenueFromOwner>("SELECT vf.*, account.AR_PAID, f.FILE_UPLOAD_NAME, ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + ISNULL(vf.TAX_AMOUNT, 0) " +
+                    "- ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) - ISNULL(vf.OTHER_PAYMENT, 0) - ISNULL(vf.REPAYMENT, 0) AS AR, " +
+                    "ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + ISNULL(vf.TAX_AMOUNT, 0) - ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) " +
+                    "- ISNULL(vf.OTHER_PAYMENT, 0) - ISNULL(vf.REPAYMENT, 0) - account.AR_PAID AS AR_UNPAID, " +
                     "ROW_NUMBER() OVER(ORDER BY vf.CREATE_DATE) AS NO FROM PLAN_VALUATION_FORM vf LEFT JOIN (SELECT pa.ACCOUNT_FORM_ID, SUM(pa.AMOUNT_PAYABLE) AS AR_PAID FROM PLAN_ACCOUNT pa " +
                     "WHERE pa.ACCOUNT_TYPE = 'R' AND pa.PROJECT_ID =@projectid AND pa.STATUS = 10 GROUP BY pa.ACCOUNT_FORM_ID)account ON vf.VA_FORM_ID = account.ACCOUNT_FORM_ID " +
-                    "LEFT JOIN (SELECT FILE_UPLOAD_NAME FROM TND_FILE GROUP BY FILE_UPLOAD_NAME)f ON vf.VA_FORM_ID = f.FILE_UPLOAD_NAME " +
-                    "LEFT JOIN (SELECT EST_FORM_ID, ISNULL(SUM(AMOUNT*IIF(TYPE <> '折讓單', 0, 1)), 0) AS otherPay,  ISNULL(SUM(TAX*IIF(TYPE <> '折讓單', 1, 0)), 0) AS taxAmt FROM PLAN_INVOICE GROUP BY EST_FORM_ID)pi " +
-                    "ON pi.EST_FORM_ID = vf.VA_FORM_ID WHERE vf.PROJECT_ID =@projectid "
+                    "LEFT JOIN (SELECT FILE_UPLOAD_NAME FROM TND_FILE GROUP BY FILE_UPLOAD_NAME)f ON vf.VA_FORM_ID = f.FILE_UPLOAD_NAME WHERE vf.PROJECT_ID =@projectid "
                    , new SqlParameter("projectid", projectid)).ToList();
             }
             return VAItem;
@@ -5479,9 +5463,9 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 detail = context.Database.SqlQuery<RevenueFromOwner>("SELECT vf.*, CONVERT(varchar, vf.CREATE_DATE, 120) AS RECORDED_DATE, " +
-                    "ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT, 0) + pi.taxAmt - ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) - pi.otherPay AS AR " +
-                    "FROM PLAN_VALUATION_FORM vf LEFT JOIN (SELECT EST_FORM_ID, ISNULL(SUM(AMOUNT * IIF(TYPE <> '折讓單', 0, 1)), 0) AS otherPay, ISNULL(SUM(TAX * IIF(TYPE <> '折讓單', 1, 0)), 0) AS taxAmt " +
-                    "FROM PLAN_INVOICE GROUP BY EST_FORM_ID)pi ON pi.EST_FORM_ID = vf.VA_FORM_ID WHERE vf.VA_FORM_ID =@formid  "
+                    "CONVERT(varchar, vf.INVOICE_DATE, 111) AS RECORDED_INVOICE_DATE, ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + ISNULL(vf.TAX_AMOUNT, 0) " +
+                    "- ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) - ISNULL(vf.OTHER_PAYMENT, 0) - ISNULL(vf.REPAYMENT, 0) AS AR, " +
+                    "ROW_NUMBER() OVER(ORDER BY vf.CREATE_DATE) AS NO FROM PLAN_VALUATION_FORM vf WHERE vf.VA_FORM_ID =@formid  "
                    , new SqlParameter("formid", formid)).FirstOrDefault();
             }
             return detail;
@@ -5492,14 +5476,11 @@ namespace topmeperp.Service
             RevenueFromOwner summaryAmt = null;
             using (var context = new topmepEntities())
             {
-                summaryAmt = context.Database.SqlQuery<RevenueFromOwner>("SELECT vf.*, pi.otherPay, pi.taxAmt, vf.Amt + pi.taxAmt - pi.otherPay AS AR , " +
-                    "(SELECT SUM(ITEM_UNIT_PRICE*ITEM_QUANTITY) FROM PLAN_ITEM pi WHERE pi.PROJECT_ID =@pid) AS contractAtm, " +
-                    "(SELECT SUM(pa.AMOUNT_PAYABLE) FROM PLAN_ACCOUNT pa WHERE pa.ACCOUNT_TYPE = 'R' AND pa.PROJECT_ID =@pid AND pa.STATUS = 10) AS AR_PAID " +
-                    "FROM (SELECT PROJECT_ID, SUM(VALUATION_AMOUNT) AS VALUATION_AMOUNT, SUM(RETENTION_PAYMENT) AS RETENTION_PAYMENT, " +
-                    "isnull(SUM(ADVANCE_PAYMENT), 0) - isnull(SUM(ADVANCE_PAYMENT_REFUND), 0) AS advancePaymentBalance, " +
-                    "isnull(SUM(ADVANCE_PAYMENT), 0) + isnull(SUM(VALUATION_AMOUNT), 0) - isnull(SUM(RETENTION_PAYMENT), 0) - isnull(SUM(ADVANCE_PAYMENT_REFUND), 0) AS Amt " +
-                    "FROM PLAN_VALUATION_FORM WHERE PROJECT_ID =@pid GROUP BY PROJECT_ID)vf LEFT JOIN(SELECT CONTRACT_ID, ISNULL(SUM(AMOUNT * IIF(TYPE <> '折讓單', 0, 1)), 0) AS otherPay, " +
-                    "ISNULL(SUM(TAX * IIF(TYPE <> '折讓單', 1, 0)), 0) AS taxAmt FROM PLAN_INVOICE WHERE CONTRACT_ID =@pid GROUP BY CONTRACT_ID)pi ON vf.PROJECT_ID = pi.CONTRACT_ID "
+                summaryAmt = context.Database.SqlQuery<RevenueFromOwner>("SELECT (SELECT SUM(ITEM_UNIT_PRICE*ITEM_QUANTITY) FROM PLAN_ITEM pi WHERE pi.PROJECT_ID =@pid) AS contractAtm, " +
+                    "(SELECT SUM(pa.AMOUNT_PAYABLE) FROM PLAN_ACCOUNT pa WHERE pa.ACCOUNT_TYPE = 'R' AND pa.PROJECT_ID =@pid AND pa.STATUS = 10) AS AR_PAID, " +
+                    "SUM(VALUATION_AMOUNT) AS VALUATION_AMOUNT, SUM(TAX_AMOUNT) AS TAX_AMOUNT, SUM(RETENTION_PAYMENT) AS RETENTION_PAYMENT, isnull(SUM(ADVANCE_PAYMENT), 0) - isnull(SUM(ADVANCE_PAYMENT_REFUND), 0) AS advancePaymentBalance, " +
+                    "isnull(SUM(ADVANCE_PAYMENT), 0) + isnull(SUM(VALUATION_AMOUNT), 0) + isnull(SUM(TAX_AMOUNT),0) - isnull(SUM(RETENTION_PAYMENT), 0) - isnull(SUM(ADVANCE_PAYMENT_REFUND), 0) - isnull(SUM(OTHER_PAYMENT), 0) - isnull(SUM(REPAYMENT), 0) AS AR " +
+                    "FROM PLAN_VALUATION_FORM WHERE PROJECT_ID =@pid GROUP BY PROJECT_ID "
                    , new SqlParameter("pid", prjid)).FirstOrDefault();
             }
             return summaryAmt;
@@ -5564,7 +5545,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 count = context.Database.SqlQuery<int>("SELECT ISNULL((SELECT COUNT(*) FROM FIN_LOAN_TRANACTION " +
-                    "WHERE BL_ID = @blid),0)+1 AS paybackCount  "
+                    "WHERE BL_ID = @blid AND TRANSACTION_TYPE = 1),0)+1 AS paybackCount  "
                    , new SqlParameter("blid", blid)).First();
             }
             return count;
@@ -5635,18 +5616,18 @@ namespace topmeperp.Service
                     "ISNULL(SUM(pi.ITEM_UNIT_PRICE * pi.ITEM_QUANTITY), 0) - ISNULL(C.AR, 0) AS uncollectedAR, ISNULL(D.AP, 0) - ISNULL(E.MinusItem, 0) AS AP, " +
                     "ISNULL(B.directCost, 0) - ISNULL(D.AP, 0) + ISNULL(E.MinusItem, 0) AS unpaidAP, ISNULL(SUM(pi.ITEM_UNIT_PRICE * pi.ITEM_QUANTITY), 0) AS PLAN_REVENUE, " +
                     "ISNULL(F.MACost, 0) AS MACost, ISNULL(G.SalesCost, 0) + ISNULL(I.CompanyCost, 0) AS ManagementCost, ISNULL(H.SiteCost, 0) AS SiteCost " +
-                    "FROM TND_PROJECT p LEFT JOIN PLAN_ITEM pi ON pi.PROJECT_ID = p.PROJECT_ID LEFT JOIN (SELECT main.PROJECT_ID, SUM(sub.directCost) AS directCost " +
+                    "FROM PLAN_ITEM pi LEFT JOIN TND_PROJECT p ON pi.PROJECT_ID = p.PROJECT_ID LEFT JOIN (SELECT main.PROJECT_ID, SUM(sub.directCost) AS directCost " +
                     "FROM(SELECT pi.INQUIRY_FORM_ID, pi.PROJECT_ID FROM PLAN_ITEM pi union SELECT pi.MAN_FORM_ID, pi.PROJECT_ID FROM PLAN_ITEM pi)main " +
                     "LEFT JOIN(SELECT psi.INQUIRY_FORM_ID, SUM(psi.ITEM_UNIT_PRICE * psi.ITEM_QTY) AS directCost FROM  PLAN_SUP_INQUIRY_ITEM psi GROUP BY psi.INQUIRY_FORM_ID)sub " +
                     "ON main.INQUIRY_FORM_ID = sub.INQUIRY_FORM_ID GROUP BY main.PROJECT_ID)B ON p.PROJECT_ID = B.PROJECT_ID " +
-                    "LEFT JOIN(SELECT PROJECT_ID, ISNULL(SUM(ADVANCE_PAYMENT), 0) + ISNULL(SUM(VALUATION_AMOUNT), 0) - ISNULL(SUM(RETENTION_PAYMENT), 0) - ISNULL(SUM(ADVANCE_PAYMENT_REFUND), 0) AS AR " +
-                    "FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID)C ON p.PROJECT_ID = C.PROJECT_ID LEFT JOIN(SELECT PROJECT_ID, ISNULL(SUM(PAYMENT_TRANSFER),0) - ISNULL(SUM(RETENTION_PAYMENT),0) AS AP " +
-                    "FROM PLAN_ESTIMATION_FORM GROUP BY PROJECT_ID)D ON p.PROJECT_ID = D.PROJECT_ID LEFT JOIN(SELECT PROJECT_ID, ISNULL(SUM(pop.AMOUNT), 0) AS MinusItem FROM PLAN_ESTIMATION_FORM pef " +
+                    "LEFT JOIN(SELECT PROJECT_ID, SUM(ADVANCE_PAYMENT) + SUM(VALUATION_AMOUNT) - SUM(RETENTION_PAYMENT) - SUM(ADVANCE_PAYMENT_REFUND) AS AR " +
+                    "FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID)C ON p.PROJECT_ID = C.PROJECT_ID LEFT JOIN(SELECT PROJECT_ID, SUM(PAYMENT_TRANSFER) - SUM(RETENTION_PAYMENT) AS AP " +
+                    "FROM PLAN_ESTIMATION_FORM GROUP BY PROJECT_ID)D ON p.PROJECT_ID = D.PROJECT_ID LEFT JOIN(SELECT PROJECT_ID, SUM(pop.AMOUNT) AS MinusItem FROM PLAN_ESTIMATION_FORM pef " +
                     "LEFT JOIN PLAN_OTHER_PAYMENT pop ON pef.EST_FORM_ID = pop.EST_FORM_ID WHERE pop.TYPE  in ('A', 'B', 'C', 'F') GROUP BY PROJECT_ID)E ON p.PROJECT_ID = E.PROJECT_ID " +
                     "LEFT JOIN (SELECT PROJECT_ID, COST AS MACost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '01_MACost')F on p.PROJECT_ID = F.PROJECT_ID " +
                     "LEFT JOIN (SELECT PROJECT_ID, COST AS SalesCost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '02_SalesCost')G on p.PROJECT_ID = G.PROJECT_ID " +
                     "LEFT JOIN (SELECT PROJECT_ID, COST AS SiteCost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '04_SiteCost')H on p.PROJECT_ID = H.PROJECT_ID " +
-                    "LEFT JOIN (SELECT PROJECT_ID, COST AS CompanyCost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '03_CompanyCost')I on p.PROJECT_ID = I.PROJECT_ID WHERE p.STATUS = '專案執行' " +
+                    "LEFT JOIN (SELECT PROJECT_ID, COST AS CompanyCost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '03_CompanyCost')I on p.PROJECT_ID = I.PROJECT_ID " +
                     "GROUP BY p.PROJECT_ID, p.PROJECT_NAME, B.directCost, C.AR, D.AP, E.MinusItem, F.MACost, G.SalesCost, I.CompanyCost, H.SiteCost)a; ").ToList();
                 logger.Info("Get Plan Financial Profile Count=" + lstItem.Count);
             }
@@ -5666,18 +5647,18 @@ namespace topmeperp.Service
                     "ISNULL(SUM(pi.ITEM_UNIT_PRICE * pi.ITEM_QUANTITY), 0) - ISNULL(C.AR, 0) AS uncollectedAR, ISNULL(D.AP, 0) - ISNULL(E.MinusItem, 0) AS AP, " +
                     "ISNULL(B.directCost, 0) - ISNULL(D.AP, 0) + ISNULL(E.MinusItem, 0) AS unpaidAP, ISNULL(SUM(pi.ITEM_UNIT_PRICE * pi.ITEM_QUANTITY), 0) AS PLAN_REVENUE, " +
                     "ISNULL(F.MACost, 0) AS MACost, ISNULL(G.SalesCost, 0) + ISNULL(I.CompanyCost, 0) AS ManagementCost, ISNULL(H.SiteCost, 0) AS SiteCost " +
-                    "FROM TND_PROJECT p LEFT JOIN PLAN_ITEM pi ON pi.PROJECT_ID = p.PROJECT_ID LEFT JOIN (SELECT main.PROJECT_ID, SUM(sub.directCost) AS directCost " +
+                    "FROM PLAN_ITEM pi LEFT JOIN TND_PROJECT p ON pi.PROJECT_ID = p.PROJECT_ID LEFT JOIN (SELECT main.PROJECT_ID, SUM(sub.directCost) AS directCost " +
                     "FROM(SELECT pi.INQUIRY_FORM_ID, pi.PROJECT_ID FROM PLAN_ITEM pi union SELECT pi.MAN_FORM_ID, pi.PROJECT_ID FROM PLAN_ITEM pi)main " +
                     "LEFT JOIN(SELECT psi.INQUIRY_FORM_ID, SUM(psi.ITEM_UNIT_PRICE * psi.ITEM_QTY) AS directCost FROM  PLAN_SUP_INQUIRY_ITEM psi GROUP BY psi.INQUIRY_FORM_ID)sub " +
                     "ON main.INQUIRY_FORM_ID = sub.INQUIRY_FORM_ID GROUP BY main.PROJECT_ID)B ON p.PROJECT_ID = B.PROJECT_ID " +
-                    "LEFT JOIN (SELECT PROJECT_ID, ISNULL(SUM(ADVANCE_PAYMENT), 0) + ISNULL(SUM(VALUATION_AMOUNT), 0) - ISNULL(SUM(RETENTION_PAYMENT), 0) - ISNULL(SUM(ADVANCE_PAYMENT_REFUND), 0) AS AR " +
-                    "FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID)C ON p.PROJECT_ID = C.PROJECT_ID LEFT JOIN (SELECT PROJECT_ID, ISNULL(SUM(PAYMENT_TRANSFER), 0) - ISNULL(SUM(RETENTION_PAYMENT), 0) AS AP " +
-                    "FROM PLAN_ESTIMATION_FORM GROUP BY PROJECT_ID)D ON p.PROJECT_ID = D.PROJECT_ID LEFT JOIN(SELECT PROJECT_ID, ISNULL(SUM(pop.AMOUNT),0) AS MinusItem FROM PLAN_ESTIMATION_FORM pef " +
+                    "LEFT JOIN(SELECT PROJECT_ID, SUM(ADVANCE_PAYMENT) + SUM(VALUATION_AMOUNT) - SUM(RETENTION_PAYMENT) - SUM(ADVANCE_PAYMENT_REFUND) AS AR " +
+                    "FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID)C ON p.PROJECT_ID = C.PROJECT_ID LEFT JOIN(SELECT PROJECT_ID, SUM(PAYMENT_TRANSFER) - SUM(RETENTION_PAYMENT) AS AP " +
+                    "FROM PLAN_ESTIMATION_FORM GROUP BY PROJECT_ID)D ON p.PROJECT_ID = D.PROJECT_ID LEFT JOIN(SELECT PROJECT_ID, SUM(pop.AMOUNT) AS MinusItem FROM PLAN_ESTIMATION_FORM pef " +
                     "LEFT JOIN PLAN_OTHER_PAYMENT pop ON pef.EST_FORM_ID = pop.EST_FORM_ID WHERE pop.TYPE  in ('A', 'B', 'C', 'F') GROUP BY PROJECT_ID)E ON p.PROJECT_ID = E.PROJECT_ID " +
                     "LEFT JOIN (SELECT PROJECT_ID, COST AS MACost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '01_MACost')F on p.PROJECT_ID = F.PROJECT_ID " +
                     "LEFT JOIN (SELECT PROJECT_ID, COST AS SalesCost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '02_SalesCost')G on p.PROJECT_ID = G.PROJECT_ID " +
                     "LEFT JOIN (SELECT PROJECT_ID, COST AS SiteCost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '04_SiteCost')H on p.PROJECT_ID = H.PROJECT_ID " +
-                    "LEFT JOIN (SELECT PROJECT_ID, COST AS CompanyCost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '03_CompanyCost')I on p.PROJECT_ID = I.PROJECT_ID WHERE p.STATUS = '專案執行' " +
+                    "LEFT JOIN (SELECT PROJECT_ID, COST AS CompanyCost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '03_CompanyCost')I on p.PROJECT_ID = I.PROJECT_ID " +
                     "GROUP BY p.PROJECT_ID, p.PROJECT_NAME, B.directCost, C.AR, D.AP, E.MinusItem, F.MACost, G.SalesCost, I.CompanyCost, H.SiteCost)a)it ").FirstOrDefault();
             }
             return lstAmount;
@@ -5688,11 +5669,11 @@ namespace topmeperp.Service
             CashFlowBalance lstAmount = null;
             using (var context = new topmepEntities())
             {
-                lstAmount = context.Database.SqlQuery<CashFlowBalance>("SELECT *, ISNULL(curCashFlow,0) + ISNULL(maintBond, 0) + ISNULL(loanBalance, 0) + ISNULL(futureCashFlow, 0) AS cashFlowBal FROM " +
+                lstAmount = context.Database.SqlQuery<CashFlowBalance>("SELECT *, curCashFlow + maintBond + loanBalance + futureCashFlow AS cashFlowBal FROM " +
                     "(SELECT (SELECT bankAmt + cashFlow FROM (SELECT (SELECT SUM(CUR_AMOUNT) FROM FIN_BANK_ACCOUNT) AS bankAmt, SUM(AMOUNT_PAID *IIF(pa.ISDEBIT = 'N', -1, 1)) AS cashFlow " +
                     "FROM PLAN_ACCOUNT pa WHERE pa.PAYMENT_DATE >= CONVERT(char(10), getdate(), 111) AND STATUS <> 0)it) AS curCashFlow, (SELECT SUM(MAINTENANCE_BOND) FROM PLAN_CONTRACT_PROCESS) AS maintBond, " +
                     "(SELECT ISNULL(SUM(AMOUNT * flt.TRANSACTION_TYPE), 0) FROM FIN_LOAN_TRANACTION flt WHERE flt.EVENT_DATE <= CONVERT(char(10), getdate(), 111) OR " +
-                    "flt.PAYBACK_DATE <= CONVERT(char(10), getdate(), 111) AND REMARK <> '備償款' OR REMARK = '備償款') AS loanBalance, (SELECT SUM(ISNULL(uncollectedAR, 0)) - SUM(ISNULL(unpaidAP, 0)) " +
+                    "flt.PAYBACK_DATE <= CONVERT(char(10), getdate(), 111)) AS loanBalance, (SELECT SUM(ISNULL(uncollectedAR, 0)) - SUM(ISNULL(unpaidAP, 0)) " +
                     "FROM(SELECT p.PROJECT_ID, p.PROJECT_NAME, ISNULL(B.directCost, 0) AS directCost, ISNULL(C.AR, 0) AS AR, " +
                     "ISNULL(SUM(pi.ITEM_UNIT_PRICE * pi.ITEM_QUANTITY), 0) - ISNULL(C.AR, 0) AS uncollectedAR, ISNULL(D.AP, 0) - ISNULL(E.MinusItem, 0) AS AP, " +
                     "ISNULL(B.directCost, 0) - ISNULL(D.AP, 0) + ISNULL(E.MinusItem, 0) AS unpaidAP, ISNULL(SUM(pi.ITEM_UNIT_PRICE * pi.ITEM_QUANTITY), 0) AS PLAN_REVENUE, " +

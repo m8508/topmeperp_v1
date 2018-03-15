@@ -5,9 +5,19 @@ using System.Web;
 
 namespace topmeperp.Models
 {
-    public class BusinessObject4Expense
+    //
+    public class ExpenseTask
     {
+        //任務現況
+        public ExpenseFlowTask task { get; set; }
+        //對應到表單的請求資料
+        public WF_PROCESS_REQUEST ProcessRequest { get; set; }
+        //表單簽核所需的步驟
+        public List<WF_PORCESS_TASK> ProcessTask { get; set; }
+        //表單內容
+        public OperatingExpenseModel FormData { get; set; }
     }
+
     //提供費用申請流程清單所需物件
     public class ExpenseFlowTask: WF_PORCESS_TASK
     {

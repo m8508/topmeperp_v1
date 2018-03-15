@@ -24,9 +24,6 @@
                 現金流出
             </th>
             <th>
-                貸款剩餘額度
-            </th>
-            <th>
                 合計
             </th>
             <th>
@@ -76,45 +73,31 @@
                         @String.Format("{0:$#,##0.#}", item.AMOUNT_OUTFLOW)
                     </td>
                 }
-                @if (item.availableQta >= 0)
-                {
-                    <td>
-                        @String.Format("{0:$#,##0.#; ($#,##0.#)}", item.availableQta)
-                    </td>
-                }
-                else
-                {
-                    <td>
-                        <span style="font-weight:bold;color:crimson">
-                            @String.Format("{0:$#,##0.#; ($#,##0.#)}", item.availableQta)
-                        </span>
-                    </td>
-                }
                 @if (item.BALANCE >= 0)
                 {
                     <td>
-                        @String.Format("{0:$#,##0.#; ($#,##0.#)}", item.BALANCE)
+                        @String.Format("{0:$#,##0.#; ($#,##0.#);-}", item.BALANCE)
                     </td>
                 }
                 else
                 {
                     <td>
                         <span style="font-weight:bold;color:crimson">
-                            @String.Format("{0:$#,##0.#; ($#,##0.#)}", item.BALANCE)
+                            @String.Format("{0:$#,##0.#; ($#,##0.#);-}", item.BALANCE)
                         </span>
                     </td>
                 }
                 @if (item.RUNNING_TOTAL >= 0)
                 {
                     <td>
-                        @String.Format("{0:$#,##0.#; ($#,##0.#)}", item.RUNNING_TOTAL)
+                        @String.Format("{0:$#,##0.#; ($#,##0.#);-}", item.RUNNING_TOTAL)
                     </td>
                 }
                 else
                 {
                     <td>
                         <span style="font-weight:bold;color:crimson">
-                            @String.Format("{0:$#,##0.#; ($#,##0.#)}", item.RUNNING_TOTAL)
+                            @String.Format("{0:$#,##0.#; ($#,##0.#);-}", item.RUNNING_TOTAL)
                         </span>
                     </td>
                 }
