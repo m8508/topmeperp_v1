@@ -263,18 +263,7 @@ namespace topmeperp.Controllers
                 lst6[i] = form.Get("junAmt" + lstsubjectid[i]).Replace(",", "");
                 logger.Debug("get budget jun=" + lst6[i]);
             }
-            // string[] lst1 = form.Get("janAmt").Split(',');
-            //string[] lst2 = form.Get("febAmt").Split(',');
-            //string[] lst3 = form.Get("marAmt").Split(',');
-            //string[] lst4 = form.Get("aprAmt").Split(',');
-            //string[] lst5 = form.Get("mayAmt").Split(',');
-            //string[] lst6 = form.Get("junAmt").Split(',');
-            //string[] lst7 = form.Get("julAmt").Split(',');
-            //string[] lst8 = form.Get("augAmt").Split(',');
-            //string[] lst9 = form.Get("sepAmt").Split(',');
-            //string[] lst10 = form.Get("octAmt").Split(',');
-            //string[] lst11 = form.Get("novAmt").Split(',');
-            //string[] lst12 = form.Get("decAmt").Split(',');
+
             List<string[]> Atm = new List<string[]>();
             Atm.Add(lst7);
             Atm.Add(lst8);
@@ -477,7 +466,17 @@ namespace topmeperp.Controllers
             Session["process"] = wfs.task;
             return View(wfs.task);
         }
+        public String SendForm(FormCollection f)
+        {
+            logger.Info("http get mehtod:" + f["EXP_FORM_ID"]);
+            Flow4CompanyExpense wfs = new Flow4CompanyExpense();
+            wfs.task =(ExpenseTask)Session["process"];
+            logger.Info("Data In Session :" + wfs.task.FormData.finEXP.EXP_FORM_ID);
 
+            SYS_USER u = (SYS_USER)Session["user"];
+            wfs.Send(u);
+            return "更新成功!!";
+        }
         //更新費用單
         public String UpdateEXP(FormCollection form)
         {

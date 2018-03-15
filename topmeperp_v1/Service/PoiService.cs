@@ -2289,6 +2289,10 @@ namespace topmeperp.Service
             {
                 row = sheet.GetRow(iRowIndex);
                 logger.Info("excel rowid=" + iRowIndex + ",phyCount=" + row.PhysicalNumberOfCells + ",cells count" + row.Cells.Count);
+                if (null == row || row.Cells[0].ToString().ToUpper()=="END")
+                {
+                    return;
+                }
                 if (row.Cells.Count < 6)
                 {
                     logger.Info("Row Index=" + iRowIndex + "column count has wrong" + row.Cells.Count);

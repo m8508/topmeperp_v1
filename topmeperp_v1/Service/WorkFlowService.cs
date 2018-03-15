@@ -9,32 +9,19 @@ using topmeperp.Models;
 namespace topmeperp.Service
 {
     //public enum ExecuteState
-
     //{
-
     //    Idle,  //停滯
-
     //    Running, //執行中
-
     //    Complete, //執行完成
-
     //    Fail, //錯誤
-
     //    Cancel, //取消
-
     //    Jump //跳過此Step
-
     //}
     //public interface IFlowContext
-
     //{
-
     //    System.Collections.Generic.Dictionary Parameters { get; }
-
     //    T GetParameter(stringkey);
-
     //    voidSetParameter(stringkey, T value);
-
     //}
     //public interface IFlowStep
     //{
@@ -69,7 +56,8 @@ namespace topmeperp.Service
 
         public ExpenseTask task = null;
         protected string sql4Request = "SELECT * FROM WF_PROCESS_REQUEST WHERE DATA_KEY=@dataKey";
-        protected string sql4Task = "SELECT * from WF_PORCESS_TASK WHERE RID=@rid";
+        protected string sql4Task = "SELECT * from WF_PORCESS_TASK WHERE RID=@rid ORDER BY SEQ_ID";
+        protected SYS_USER user = null;
         public enum TaskStatus
         {
             O, // Open
@@ -93,8 +81,10 @@ namespace topmeperp.Service
             }
         }
         //送審
-        public void Send()
+        public void Send(SYS_USER u)
         {
+            user = u;
+            processTask();
 
         }
         //審核通過
@@ -112,21 +102,75 @@ namespace topmeperp.Service
         {
 
         }
-        protected void processTask(ExpenseTask et, SYS_USER user)
+        protected void processTask()
         {
-            foreach (WF_PORCESS_TASK t in et.ProcessTask)
+            int idx = 0;
+            for (idx = 0; idx < task.ProcessTask.Count; idx++)
             {
-                switch (t.STATUS)
+                switch (task.ProcessTask[idx].STATUS)
                 {
                     case "O":
                         //change request status
+                        if (idx + 1 < task.ProcessTask.Count)
+                        {
+                            //Has Next Step
+                            UpdateTask(task.ProcessTask[idx], task.ProcessTask[idx + 1]);
+                            return;
+                        }
+                        else
+                        {
+                            //No More Step
+                            UpdateTask(task.ProcessTask[idx], null);
+                        }
                         break;
                     case "D":
                         //skip task
+                        logger.Debug("task id=" + task.ProcessTask[idx].ID);
                         break;
                 }
             }
         }
+        protected void UpdateTask(WF_PORCESS_TASK curTask, WF_PORCESS_TASK nextTask)
+        {
+            string sql4Task = "UPDATE WF_PORCESS_TASK SET STATUS=@status,REMARK=@remark,MODIFY_USER_ID=@modifyUser,MODIFY_DATE=@modifyDate WHERE ID=@id";
+            string sql4Request = "UPDATE WF_PROCESS_REQUEST SET CURENT_STATE=@state,MODIFY_USER_ID=@modifyUser,MODIFY_DATE=@modifyDate WHERE RID=@RID";
+            using (var context = new topmepEntities())
+            {
+                //Update Task State=Done
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("status", "D"));
+                if (null != curTask.REMARK)
+                {
+                    parameters.Add(new SqlParameter("remark", curTask.REMARK));
+                }
+                else
+                {
+                    parameters.Add(new SqlParameter("remark", DBNull.Value));
+                }
+                parameters.Add(new SqlParameter("modifyUser", user.USER_ID));
+                parameters.Add(new SqlParameter("modifyDate", DateTime.Now));
+                parameters.Add(new SqlParameter("id", curTask.ID));
+                //Change Request State
+                int i = context.Database.ExecuteSqlCommand(sql4Task, parameters.ToArray());
+                logger.Debug("i=" + i + "sql" + sql4Task + ",Id" + curTask.ID);
+                parameters = new List<SqlParameter>();
+                if (null != nextTask)
+                {
+                    parameters.Add(new SqlParameter("state", nextTask.SEQ_ID));
+                }
+                else
+                {
+                    parameters.Add(new SqlParameter("state", -1));
+                }
+                parameters.Add(new SqlParameter("modifyUser", user.USER_ID));
+                parameters.Add(new SqlParameter("modifyDate", DateTime.Now));
+                parameters.Add(new SqlParameter("RID", curTask.RID));
+
+                i = context.Database.ExecuteSqlCommand(sql4Request, parameters.ToArray());
+                logger.Debug("i=" + i + "sql" + sql4Task + ",Id" + curTask.ID);
+            }
+        }
+        //取得表單與對應的流程資料
         public void getRequest(string datakey)
         {
             using (var context = new topmepEntities())

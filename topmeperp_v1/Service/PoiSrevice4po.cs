@@ -555,7 +555,7 @@ namespace topmeperp.Service
                         logger.Debug("row id=" + iRowIndex + "Cells Count=" + row.Cells.Count + ",purchase form item vllue:" + row.Cells[0].ToString() + ","
                             + row.Cells[1] + "," + row.Cells[2] + "," + row.Cells[3] + "," + ","
                             + row.Cells[4] + "," + "," + row.Cells[5] + "," + row.Cells[6] + ",plan item id=" + row.Cells[row.Cells.Count - 1]);
-                        if (row.Cells[0].ToString() == "" && row.Cells[1].ToString() == "" && row.Cells[row.Cells.Count - 1].ToString() == "")
+                        if (row.Cells[0].ToString().ToUpper() == "END")
                         {
                             //設定結束標記
                             hasMore = false;

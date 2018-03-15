@@ -55,7 +55,7 @@
             @if (Model.FormData.finEXP.PROJECT_ID != null && Model.FormData.finEXP.PROJECT_ID != "")
             {
                 <label for="projectName" class="col-md-2 control-label">專案名稱 :</label>
-                    <label class="col-sm-6 info">@Model.FormData.finEXP.PROJECT_NAME</label>
+                <label class="col-sm-6 info">@Model.FormData.finEXP.PROJECT_NAME</label>
             }
         </div>
         <div class="row" style="padding-top : 10px">
@@ -279,11 +279,15 @@
         }
         @if (Model.task.ACTIVITY_TYPE == "D")
         {
-
+            @Html.Raw("原因");
+            <textarea id="RejectDesc" name="RejectDesc" cols="30" rows="3" class="form-control"></textarea>
             <input type="submit" value="退件" id="RejectExp" name="RejectExp" class="btn btn-warning" />
-            <input type="submit" value="核可" id="PassExp" name="PassExp" class="btn btn-danger" />
+            <input type="submit" value="核可" id="SendForm" name="SendForm" class="btn btn-primary" />
         }
-        <input type="submit" value="中止" id="CancelForm" name="CancelForm" class="btn btn-danger" />
+        @if (Model.task.CREATE_USER_ID == ((topmeperp.Models.SYS_USER)Session["user"]).USER_ID && Model.task.CURENT_STATE != -1)
+        {
+            <input type="submit" value="中止" id="CancelForm" name="CancelForm" class="btn btn-danger" />
+        }
     </div>
 </div>
 
@@ -305,7 +309,7 @@
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
-                window.location.reload()
+                window.location.reload();
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);
@@ -315,13 +319,13 @@
 
     $("#SendForm").click(function () {
         $.ajax({
-            url: '@Url.Action("UpdateEXPStatusById", "CashFlow")',
+            url: '@Url.Action("SendForm", "CashFlow")',
             data: $('#formExpense').serialize(),
             type: "POST",
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
-                window.location.reload()
+                window.location.replace("/CashFlow/ExpenseForm");
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);
@@ -329,22 +333,6 @@
         });
     });
 
-  
-    $("#ApproveExp").click(function () {
-        $.ajax({
-            url: '@Url.Action("ApproveEXPById", "CashFlow")',
-            data: $('#formExpense').serialize(),
-            type: "POST",
-            dataType: 'text',
-            success: function (msg) {
-                alert(msg);
-                window.location.reload()
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert(thrownError);
-            }
-        });
-    });
 
     ///Auto Complete 公司名稱
     $('#supplier').typeahead({

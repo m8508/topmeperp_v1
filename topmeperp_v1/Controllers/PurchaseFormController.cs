@@ -195,25 +195,6 @@ namespace topmeperp.Controllers
             singleForm.prj = service.getProjectById(singleForm.planForm.PROJECT_ID);
             ViewBag.targetSupplier = service.getSupplierContractByFormId(id); //判斷詢價單是否已寫入PLAN_ITEM以供發包採購
             log.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
-            //取得供應商資料
-            SelectListItem empty = new SelectListItem();
-            empty.Value = "";
-            empty.Text = "";
-            List<SelectListItem> selectSupplier = new List<SelectListItem>();
-            InquiryFormService s = new InquiryFormService();
-            foreach (string itm in s.getSupplier())
-            {
-                log.Debug("Supplier=" + itm);
-                SelectListItem selectI = new SelectListItem();
-                selectI.Value = itm;
-                selectI.Text = itm;
-                if (null != itm && "" != itm)
-                {
-                    selectSupplier.Add(selectI);
-                }
-            }
-            // selectSupplier.Add(empty);
-            ViewBag.Supplier = selectSupplier;
             //設定更新標籤 for 空白詢價單
             if (null != Request["update"])
             {
