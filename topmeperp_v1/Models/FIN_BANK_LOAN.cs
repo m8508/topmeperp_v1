@@ -33,5 +33,7 @@ namespace topmeperp.Models
         public string PROJECT_ID { get; set; }
         public Nullable<decimal> AR_PAYBACK_RATIO { get; set; }
         public Nullable<decimal> CUM_AR_RATIO { get; set; }
+        public Nullable<decimal> QUOTA_AVAILABLE_RATIO { get; set; }
+        public string QUOTA_RECYCLABLE { get; set; }
     }
 }

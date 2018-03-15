@@ -61,6 +61,8 @@
           <Property Name="PROJECT_ID" Type="varchar" MaxLength="20" />
           <Property Name="AR_PAYBACK_RATIO" Type="decimal" Precision="18" Scale="3" />
           <Property Name="CUM_AR_RATIO" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="QUOTA_AVAILABLE_RATIO" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="QUOTA_RECYCLABLE" Type="varchar" MaxLength="1" />
         </EntityType>
         <EntityType Name="FIN_EXPENSE_BUDGET">
           <Key>
@@ -190,7 +192,9 @@
           <Property Name="MAINTENANCE_BOND" Type="decimal" Precision="18" Scale="3" />
           <Property Name="MB_DUE_DATE" Type="datetime" />
           <Property Name="MB_REMARK" Type="varchar" MaxLength="1000" />
-          <Property Name="MB_PAYBACK_DATE" Type="datetime" />
+          <Property Name="PERFORMANCE_BOND" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="PB_DUE_DATE" Type="datetime" />
+          <Property Name="PB_REMARK" Type="varchar" MaxLength="1000" />
         </EntityType>
         <EntityType Name="PLAN_COSTCHANGE_FORM">
           <Key>
@@ -621,8 +625,6 @@
           <Property Name="CREATE_DATE" Type="datetime" />
           <Property Name="MODIFY_DATE" Type="datetime" />
           <Property Name="STATUS" Type="int" />
-          <Property Name="INVOICE_NO" Type="varchar" MaxLength="30" />
-          <Property Name="INVOICE_DATE" Type="datetime" />
         </EntityType>
         <EntityType Name="REF_TYPE_MAIN">
           <Key>
@@ -1392,6 +1394,8 @@
           <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="AR_PAYBACK_RATIO" Type="Decimal" Precision="18" Scale="3" />
           <Property Name="CUM_AR_RATIO" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="QUOTA_AVAILABLE_RATIO" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="QUOTA_RECYCLABLE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="FIN_EXPENSE_BUDGET">
           <Key>
@@ -1521,7 +1525,9 @@
           <Property Name="MAINTENANCE_BOND" Type="Decimal" Precision="18" Scale="3" />
           <Property Name="MB_DUE_DATE" Type="DateTime" Precision="3" />
           <Property Name="MB_REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="MB_PAYBACK_DATE" Type="DateTime" Precision="3" />
+          <Property Name="PERFORMANCE_BOND" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="PB_DUE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="PB_REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="PLAN_COSTCHANGE_FORM">
           <Key>
@@ -1955,8 +1961,6 @@
           <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
           <Property Name="STATUS" Type="Int32" />
-          <Property Name="INVOICE_NO" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="INVOICE_DATE" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="REF_TYPE_MAIN">
           <Key>
@@ -2549,6 +2553,8 @@
           <EntitySetMapping Name="FIN_BANK_LOAN">
             <EntityTypeMapping TypeName="topmepModel.FIN_BANK_LOAN">
               <MappingFragment StoreEntitySet="FIN_BANK_LOAN">
+                <ScalarProperty Name="QUOTA_RECYCLABLE" ColumnName="QUOTA_RECYCLABLE" />
+                <ScalarProperty Name="QUOTA_AVAILABLE_RATIO" ColumnName="QUOTA_AVAILABLE_RATIO" />
                 <ScalarProperty Name="CUM_AR_RATIO" ColumnName="CUM_AR_RATIO" />
                 <ScalarProperty Name="AR_PAYBACK_RATIO" ColumnName="AR_PAYBACK_RATIO" />
                 <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
@@ -2694,7 +2700,9 @@
           <EntitySetMapping Name="PLAN_CONTRACT_PROCESS">
             <EntityTypeMapping TypeName="topmepModel.PLAN_CONTRACT_PROCESS">
               <MappingFragment StoreEntitySet="PLAN_CONTRACT_PROCESS">
-                <ScalarProperty Name="MB_PAYBACK_DATE" ColumnName="MB_PAYBACK_DATE" />
+                <ScalarProperty Name="PB_REMARK" ColumnName="PB_REMARK" />
+                <ScalarProperty Name="PB_DUE_DATE" ColumnName="PB_DUE_DATE" />
+                <ScalarProperty Name="PERFORMANCE_BOND" ColumnName="PERFORMANCE_BOND" />
                 <ScalarProperty Name="MB_REMARK" ColumnName="MB_REMARK" />
                 <ScalarProperty Name="MB_DUE_DATE" ColumnName="MB_DUE_DATE" />
                 <ScalarProperty Name="MAINTENANCE_BOND" ColumnName="MAINTENANCE_BOND" />
@@ -3143,8 +3151,6 @@
           <EntitySetMapping Name="PLAN_VALUATION_FORM">
             <EntityTypeMapping TypeName="topmepModel.PLAN_VALUATION_FORM">
               <MappingFragment StoreEntitySet="PLAN_VALUATION_FORM">
-                <ScalarProperty Name="INVOICE_DATE" ColumnName="INVOICE_DATE" />
-                <ScalarProperty Name="INVOICE_NO" ColumnName="INVOICE_NO" />
                 <ScalarProperty Name="STATUS" ColumnName="STATUS" />
                 <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
                 <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
