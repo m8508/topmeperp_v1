@@ -26,12 +26,12 @@
         <div class="row">
             <label class="col-sm-1 control-label">期數:</label><label class="col-sm-1 info">@Model.LoanInfo.PERIOD_COUNT </label>
             <label class="col-sm-1 control-label">額度:</label><label class="col-sm-3 info">@string.Format("{0:N0}", @Model.LoanInfo.QUOTA)</label>
-            <label class="col-sm-1 control-label">剩餘額度:</label><label class="col-sm-3 info">@string.Format("{0:N0}", Model.LoanInfo.QUOTA + Model.SumTransactionAmount)　 </label>
+            <label class="col-sm-1 control-label">剩餘額度:</label><label class="col-sm-3 info">@string.Format("{0:N0}", Model.LoanInfo.QUOTA + Model.SumTransactionAmount - Model.SurplusQuota)</label>
         </div>
         <div class="row">
             <label class="col-sm-1 control-label">備註:</label><label class="col-sm-4 info">@Model.LoanInfo.REMARK </label>
             <a href="/BankInfo/BankLoanList" class="btn btn-success">回上一頁</a>
-          </div>
+        </div>
     </div>
     <div class="contaier">
         <label class="col-sm-1 control-label">交易明細:</label>
@@ -56,17 +56,18 @@
                             <tr>
                                 <td>@item.PERIOD</td>
                                 <td>
-                                @string.Format("{0:yyyy/MM/dd}", @item.EVENT_DATE)
-                                @string.Format("{0:yyyy/MM/dd}", @item.PAYBACK_DATE )　</td>
+                                    @string.Format("{0:yyyy/MM/dd}", @item.EVENT_DATE)
+                                    @string.Format("{0:yyyy/MM/dd}", @item.PAYBACK_DATE)　
+                                </td>
                                 @if (item.TRANSACTION_TYPE == -1)
                                 {
-                                    <td>@item.AMOUNT</td>
+                                    <td>@string.Format("{0:N0}", @item.AMOUNT)</td>
                                     <td></td>
                                 }
                                 else
                                 {
                                     <td></td>
-                                    <td>@item.AMOUNT</td>
+                                    <td>@string.Format("{0:N0}", @item.AMOUNT)</td>
                                 }
                                 <td>@item.REMARK </td>
                             </tr>
@@ -444,4 +445,3 @@
     var hot = new Handsontable(hotElement, hotSettings);
     */
 </script>
-

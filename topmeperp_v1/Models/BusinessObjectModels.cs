@@ -421,10 +421,10 @@ namespace topmeperp.Models
         public Nullable<decimal> CUM_RECPT_QTY { get; set; }
         public Nullable<decimal> mapQty { get; set; }
         public Nullable<decimal> Quota { get; set; }
-        
+
     }
-    
-    public class AdvancePaymentFunction 
+
+    public class AdvancePaymentFunction
     {
         public Nullable<decimal> A_AMOUNT { get; set; }
         public Nullable<decimal> B_AMOUNT { get; set; }
@@ -483,6 +483,8 @@ namespace topmeperp.Models
         public Nullable<decimal> BALANCE { get; set; }
         public Nullable<decimal> RUNNING_TOTAL { get; set; }
         public Nullable<decimal> AMOUNT_BANK { get; set; }
+        public Nullable<decimal> availableQta { get; set; }
+
     }
     public class ExpenseBudgetSummary : FIN_EXPENSE_ITEM
     {
@@ -521,7 +523,7 @@ namespace topmeperp.Models
         public IEnumerable<ExpenseBudgetSummary> finEXPItem { get; set; }
         public IEnumerable<ExpenseBudgetSummary> planEXPItem { get; set; }
     }
-    public class OperatingExpenseFunction: FIN_EXPENSE_FORM
+    public class OperatingExpenseFunction : FIN_EXPENSE_FORM
     {
         public Int64 NO { get; set; }
         public string SUBJECT_NAME { get; set; }
@@ -537,7 +539,7 @@ namespace topmeperp.Models
         public string RECORDED_AMOUNT_PAYABLE { get; set; }
         public Int64 NO { get; set; }
         public string RECORDED_AMOUNT_PAID { get; set; }
-        
+
 
     }
     public class SiteBudgetModels
@@ -565,7 +567,7 @@ namespace topmeperp.Models
         public string formName { get; set; }
         public string formId { get; set; }
     }
-    public class ExpenseBudgetByMonth 
+    public class ExpenseBudgetByMonth
     {
         public Nullable<decimal> JAN { get; set; }
         public Nullable<decimal> FEB { get; set; }
@@ -600,17 +602,16 @@ namespace topmeperp.Models
     public class ExpenseBudgetModel
     {
         public IEnumerable<ExpenseBudgetSummary> summary { get; set; }
-        public IEnumerable<ExpenseBudgetByMonth> budget{ get; set; }
+        public IEnumerable<ExpenseBudgetByMonth> budget { get; set; }
         public IEnumerable<ExpensetFromOPByMonth> expense { get; set; }
     }
-    public class ProjectList: TND_PROJECT
+    public class ProjectList : TND_PROJECT
     {
         public string PLAN_CREATE_DATE { get; set; }
     }
-    //new
+
     public class RevenueFromOwner : PLAN_VALUATION_FORM
     {
-
         public Int32 VACount { get; set; }
         public Int32 isVA { get; set; }
         public Int64 NO { get; set; }
@@ -625,8 +626,10 @@ namespace topmeperp.Models
         public string FILE_ACTURE_NAME { get; set; }
         public string FILE_TYPE { get; set; }
         public long ITEM_UID { get; set; }
-        public string RECORDED_INVOICE_DATE { get; set; }
-        
+        public Nullable<decimal> otherPay { get; set; }
+        public Nullable<decimal> taxAmt { get; set; }
+        public Nullable<decimal> Amt { get; set; }
+
 
     }
     public class PaymentTermsFunction : PLAN_PAYMENT_TERMS
@@ -651,7 +654,7 @@ namespace topmeperp.Models
         public string finishDate { get; set; }
         public string createDate { get; set; }
     }
-    public class PlanFinanceProfile 
+    public class PlanFinanceProfile
     {
         public Nullable<decimal> directCost { get; set; }
         public Nullable<decimal> AP { get; set; }
@@ -674,7 +677,7 @@ namespace topmeperp.Models
         public CashFlowBalance finBalance { get; set; }
         public IEnumerable<FIN_BANK_LOAN> finLoan { get; set; }
     }
-    public class CashFlowBalance: PLAN_ACCOUNT
+    public class CashFlowBalance : PLAN_ACCOUNT
     {
         public Nullable<decimal> curCashFlow { get; set; }
         public Nullable<decimal> maintBond { get; set; }
