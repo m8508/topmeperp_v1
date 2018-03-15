@@ -610,6 +610,7 @@ namespace topmeperp.Models
     //new
     public class RevenueFromOwner : PLAN_VALUATION_FORM
     {
+
         public Int32 VACount { get; set; }
         public Int32 isVA { get; set; }
         public Int64 NO { get; set; }
