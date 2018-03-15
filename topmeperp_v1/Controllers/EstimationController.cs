@@ -2292,7 +2292,7 @@ namespace topmeperp.Controllers
             }
             else
             {
-                //修改專案基本資料
+                //修改業主計價資料
                 vf.MODIFY_DATE = DateTime.Now;
                 vf.CREATE_DATE = Convert.ToDateTime(Request["createDate"]);
                 vf.CREATE_ID = Request["creatId"];

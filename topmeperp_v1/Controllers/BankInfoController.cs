@@ -133,6 +133,10 @@ namespace topmeperp.Controllers
             {
             bankloanInfo.QUOTA_AVAILABLE_RATIO = decimal.Parse(Request["QUOTA_AVAILABLE_RATIO"]);
             }
+            else
+            {
+                bankloanInfo.QUOTA_AVAILABLE_RATIO = 100;
+            }
             bankloanInfo.QUOTA_RECYCLABLE = Request["QUOTA_RECYCLABLE"];
             bankloanInfo.REMARK = Request["REMARK"];
             bankloanInfo.ACCOUNT_NAME = Request["ACCOUNT_NAME"];

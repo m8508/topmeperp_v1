@@ -45,21 +45,25 @@
                                     <td>@string.Format("{0:yyyy/MM/dd}", item.START_DATE)</td>
                                     <td>@string.Format("{0:yyyy/MM/dd}", item.DUE_DATE)</td>
                                     <td>@string.Format("{0:N0}", item.QUOTA)</td>
-                                    @if (item.QUOTA_RECYCLABLE == "Y" && item.vaRatio >= item.CUM_AR_RATIO)
+                                    @if (item.QUOTA_RECYCLABLE == "Y" && item.vaRatio >= item.CUM_AR_RATIO && item.DUE_DATE >= DateTime.Today)
                                     {
                                         <td>@string.Format("{0:N0}", item.QUOTA + item.SumTransactionAmount)</td>
                                     }
-                                    else if (item.QUOTA_RECYCLABLE == "Y")
+                                    else if (item.QUOTA_RECYCLABLE == "Y" && item.DUE_DATE >= DateTime.Today)
                                     {
-                                        <td>@string.Format("{0:N0}", null == item.QUOTA * item.QUOTA_AVAILABLE_RATIO / 100 ? 0 : Math.Round(decimal.Parse((item.QUOTA * item.QUOTA_AVAILABLE_RATIO / 100).ToString()), 0) + item.SumTransactionAmount)</td>
+                                        <td>@string.Format("{0:N0}", null == item.QUOTA * item.QUOTA_AVAILABLE_RATIO  / 100 ? 0 : Math.Round(decimal.Parse((item.QUOTA * item.QUOTA_AVAILABLE_RATIO / 100).ToString()), 0) + item.SumTransactionAmount)</td>
                                     }
-                                    else if (item.vaRatio >= item.CUM_AR_RATIO)
+                                    else if (item.vaRatio >= item.CUM_AR_RATIO && item.DUE_DATE >= DateTime.Today)
                                     {
                                         <td>@string.Format("{0:N0}", item.QUOTA)</td>
                                     }
+                                    else if (item.DUE_DATE >= DateTime.Today)
+                                    {
+                                        <td>@string.Format("{0:N0}", null ==  item.QUOTA  *  item.QUOTA_AVAILABLE_RATIO  / 100 ? 0 : Math.Round(decimal.Parse((item.QUOTA * item.QUOTA_AVAILABLE_RATIO / 100).ToString()), 0))</td>
+                                    }
                                     else
                                     {
-                                        <td>@string.Format("{0:N0}", null == item.QUOTA * item.QUOTA_AVAILABLE_RATIO / 100 ? 0 : Math.Round(decimal.Parse((item.QUOTA * item.QUOTA_AVAILABLE_RATIO / 100).ToString()), 0))</td>
+                                        <td>結案</td>
                                     }
                                     <td>@item.PERIOD_COUNT</td>
                                     <td>@string.Format("{0:N0}", item.AR_PAYBACK_RATIO)</td>
