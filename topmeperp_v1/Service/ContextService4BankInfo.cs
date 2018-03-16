@@ -85,7 +85,9 @@ namespace topmeperp.Service
             {
                 try
                 {
-                    string sql = "SELECT * , (SELECT ISNULL(SUM(TRANSACTION_TYPE * AMOUNT), 0) FROM FIN_LOAN_TRANACTION T WHERE T.BL_ID = B.BL_ID) SumTransactionAmount  FROM FIN_BANK_LOAN B";
+                    string sql = "SELECT B.* , ISNULL(ROUND(V.vaRatio * 100, 0),0) AS vaRatio  , (SELECT ISNULL(SUM(TRANSACTION_TYPE * AMOUNT), 0) FROM FIN_LOAN_TRANACTION T WHERE T.BL_ID = B.BL_ID) SumTransactionAmount " +
+                                 "FROM FIN_BANK_LOAN B LEFT JOIN (SELECT va.PROJECT_ID AS PROJECT_ID, ISNULL(va.VALUATION_AMOUNT, 0) / ISNULL(pi.contractAtm, 1) AS vaRatio FROM(SELECT PROJECT_ID, SUM(VALUATION_AMOUNT) AS VALUATION_AMOUNT " +
+                                 "FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID)va LEFT JOIN(SELECT PROJECT_ID, SUM(ITEM_UNIT_PRICE * ITEM_QUANTITY) AS contractAtm FROM PLAN_ITEM GROUP BY PROJECT_ID)pi ON va.PROJECT_ID = pi.PROJECT_ID)V ON B.PROJECT_ID = V.PROJECT_ID";
 
                     lstBankLoan = context.Database.SqlQuery<BankLoanInfoExt>(sql).ToList();
                     logger.Info("new bank loan records=" + lstBankLoan.Count);
@@ -129,14 +131,19 @@ namespace topmeperp.Service
                     long blid = long.Parse(bl_id);
                     item.LoanTransaction = context.FIN_LOAN_TRANACTION.Where(b => b.BL_ID == blid).ToList();
                     //取得期數與匯總金額
-                    string sql = "SELECT MAX(ISNULL(PERIOD,0)) CUR_PERIOD,SUM(TRANSACTION_TYPE*AMOUNT) AMOUNT  from FIN_LOAN_TRANACTION WHERE BL_ID=@BL_ID";
+                    string sql = "SELECT ISNULL(CUR_PERIOD, 0)CUR_PERIOD , ISNULL(AMOUNT, 0)AMOUNT, ROUND(ISNULL(fbl.QUOTA * (1-IIF(fbl.vaRatio >= fbl.CUM_AR_RATIO , 1, fbl.QUOTA_AVAILABLE_RATIO/100)), 0), 0) AS SURPLUS_AMOUNT " +
+                        "FROM (SELECT BL_ID, QUOTA, CUM_AR_RATIO, QUOTA_AVAILABLE_RATIO, VALUATION_AMOUNT / contractAtm * 100 AS vaRatio FROM FIN_BANK_LOAN f LEFT JOIN " +
+                        "(SELECT PROJECT_ID, SUM(ITEM_UNIT_PRICE * ITEM_QUANTITY) AS contractAtm FROM PLAN_ITEM GROUP BY PROJECT_ID)pi ON f.PROJECT_ID = pi.PROJECT_ID " +
+                        "LEFT JOIN (SELECT PROJECT_ID, SUM(VALUATION_AMOUNT)AS VALUATION_AMOUNT FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID)v ON f.PROJECT_ID = v.PROJECT_ID " +
+                        "WHERE BL_ID=@BL_ID)fbl LEFT JOIN (SELECT BL_ID, MAX(ISNULL(PERIOD,0)) CUR_PERIOD, SUM(TRANSACTION_TYPE*AMOUNT) AMOUNT from FIN_LOAN_TRANACTION GROUP BY BL_ID)flt ON flt.BL_ID = fbl.BL_ID ";
                     Dictionary<string, object> para = new Dictionary<string, object>();
                     para.Add("BL_ID", blid);
-                    DataSet ds =ExecuteStoreQuery(sql, System.Data.CommandType.Text, para);
+                    DataSet ds = ExecuteStoreQuery(sql, System.Data.CommandType.Text, para);
                     if (ds.Tables[0].Rows.Count > 0)
                     {
                         item.CurPeriod = long.Parse(ds.Tables[0].Rows[0]["CUR_PERIOD"].ToString());
                         item.SumTransactionAmount = (decimal)ds.Tables[0].Rows[0]["AMOUNT"];
+                        item.SurplusQuota = (decimal)ds.Tables[0].Rows[0]["SURPLUS_AMOUNT"];
                     }
                 }
                 catch (Exception ex)
