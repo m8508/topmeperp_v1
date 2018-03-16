@@ -311,7 +311,7 @@ namespace topmeperp.Controllers
             ViewBag.deliveyDate = contractAmount.DELIVERY_DATE;
             ViewBag.advance = contractAmount.PAYMENT_ADVANCE_RATIO;
             ViewBag.retention = contractAmount.PAYMENT_RETENTION_RATIO;
-            ViewBag.remark = contractAmount.ConRemark;
+            //ViewBag.remark = contractAmount.ConRemark;
             ViewBag.maintenanceBond = contractAmount.MAINTENANCE_BOND;
             ViewBag.dueDate = contractAmount.MB_DUE_DATE;
             int i = service.addContractId4Owner(id);
@@ -332,7 +332,7 @@ namespace topmeperp.Controllers
             con.CONTRACT_ID = projectId;
             con.PROJECT_ID = projectId;
             con.CONTRACT_PRODUCTION = Request["production"];
-            con.REMARK = Request["remark"];
+            //con.REMARK = Request["remark"];
             con.CREATE_ID = u.USER_ID;
             con.CREATE_DATE = DateTime.Now;
             if (Request["delivery_date"] != "")

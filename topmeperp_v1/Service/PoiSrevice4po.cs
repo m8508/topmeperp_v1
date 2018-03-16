@@ -117,22 +117,30 @@ namespace topmeperp.Service
                 }
                 //材料折扣率 
                 row.CreateCell(5).SetCellValue("");
+                //材料預算
+                ICell cel6 = row.CreateCell(6);
+                cel6.CellFormula = "(E" + (idxRow + 1) + "*F" + (idxRow + 1) + "/100)";
+                cel6.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
                 //工資成本
-                row.CreateCell(6).SetCellValue("");  //圖算*工率
+                row.CreateCell(7).SetCellValue("");  //圖算*工率
                 if (null != item.MAN_DAY_4EXCEL && item.MAN_DAY_4EXCEL.ToString().Trim() != "")
                 {
-                    row.Cells[6].SetCellFormula(item.MAN_DAY_4EXCEL.ToString() + "*G3");
+                    row.Cells[7].SetCellFormula(item.MAN_DAY_4EXCEL.ToString() + "*H3");
                 }
                 //工資折扣率 
-                row.CreateCell(7).SetCellValue("");
+                row.CreateCell(8).SetCellValue("");
                 foreach (ICell c in row.Cells)
                 {
                     c.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
                 }
+                //工資預算
+                ICell cel9 = row.CreateCell(9);
+                cel9.CellFormula = "(H" + (idxRow + 1) + "*I" + (idxRow + 1) + "/100)";
+                cel9.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
                 //預算金額
-                ICell cel8 = row.CreateCell(8);
-                cel8.CellFormula = "(E" + (idxRow + 1) + "*F" + (idxRow + 1) + "/100)+(G" + (idxRow + 1) + "*H" + (idxRow + 1) + "/100)";
-                cel8.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
+                ICell cel10 = row.CreateCell(10);
+                cel10.CellFormula = "(E" + (idxRow + 1) + "*F" + (idxRow + 1) + "/100)+(H" + (idxRow + 1) + "*I" + (idxRow + 1) + "/100)";
+                cel10.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
                 logger.Debug("getBudget cell style rowid=" + idxRow);
                 idxRow++;
             }
@@ -280,32 +288,32 @@ namespace topmeperp.Service
             //    }
 
             //}
-            if (null != row.Cells[row.Cells.Count - 4].ToString().Trim() || row.Cells[row.Cells.Count - 4].ToString().Trim() != "")//5.預算折數
+            if (null != row.Cells[row.Cells.Count - 6].ToString().Trim() || row.Cells[row.Cells.Count - 6].ToString().Trim() != "")//5.預算折數
             {
                 try
                 {
-                    decimal dQty = decimal.Parse(row.Cells[row.Cells.Count - 4].ToString());
-                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[row.Cells.Count - 4].ToString());
+                    decimal dQty = decimal.Parse(row.Cells[row.Cells.Count - 6].ToString());
+                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[row.Cells.Count - 6].ToString());
                     item.BUDGET_RATIO = dQty;
                 }
                 catch (Exception e)
                 {
-                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[6].value=" + row.Cells[row.Cells.Count - 4].ToString());
+                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[6].value=" + row.Cells[row.Cells.Count - 6].ToString());
                     logger.Error(e);
                 }
 
             }
-            if (null != row.Cells[row.Cells.Count - 2].ToString().Trim() || row.Cells[row.Cells.Count - 2].ToString().Trim() != "")//6.工資預算折數
+            if (null != row.Cells[row.Cells.Count - 3].ToString().Trim() || row.Cells[row.Cells.Count - 3].ToString().Trim() != "")//6.工資預算折數
             {
                 try
                 {
-                    decimal dQty = decimal.Parse(row.Cells[row.Cells.Count - 2].ToString());
-                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[row.Cells.Count - 2].ToString());
+                    decimal dQty = decimal.Parse(row.Cells[row.Cells.Count - 3].ToString());
+                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[row.Cells.Count - 3].ToString());
                     item.BUDGET_WAGE_RATIO = dQty;
                 }
                 catch (Exception e)
                 {
-                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[6].value=" + row.Cells[row.Cells.Count - 2].ToString());
+                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[8].value=" + row.Cells[row.Cells.Count - 3].ToString());
                     logger.Error(e);
                 }
 

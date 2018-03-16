@@ -50,13 +50,10 @@
                         合約已製作
                     </th>
                     <th>
-                        交期
+                        合約製作期限
                     </th>
                     <th>付款日期已設定</th>
                     <th>付款條件已設定</th>
-                    <th>
-                        備註
-                    </th>
                     <th></th>
                 </tr>
             </thead>
@@ -110,8 +107,8 @@
                         <td>
                             <a href="/PurchaseForm/SinglePrjForm/@item.INQUIRY_FORM_ID" target="_blank"><span style="color: deeppink; font-size: 15px;">產生</span></a>
                         </td>
-                        <td>@Html.TextBox("supplier", @item.Supplier, new { style = "width:400px", @readonly = "readonly" , @class = "form-control" })</td>
-                        <td><input type="text" class="form-control" style="width:170px" name="brand" id="brand" value="@item.MATERIAL_BRAND"></td>
+                        <td>@Html.TextBox("supplier", @item.Supplier, new { style = "width:110px", @readonly = "readonly" , @class = "form-control" })</td>
+                        <td><input type="text" class="form-control" style="width:120px" name="brand" id="brand" value="@item.MATERIAL_BRAND"></td>
                         @if (null != item.Bargain && item.Bargain != "")
                 {
                             <td>
@@ -184,7 +181,9 @@
                         {
                             <td>未發包</td>
                         }
+                        <!--
                         <td><input style="width:400px" type="text" class="form-control" name="remark" id="remark" value="@item.ConRemark"></td>
+                            -->
                         @if (null != item.ContractId && item.ContractId != "")
                 {
                             <td><input type="hidden" name="contractid" id="contractid" value="@item.ContractId"></td>

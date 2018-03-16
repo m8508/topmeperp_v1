@@ -336,7 +336,8 @@ namespace topmeperp.Service
             List<DirectCost> lstBudget = new List<DirectCost>();
             using (var context = new topmepEntities())
             {
-                string sql = "SELECT C.*, SUM(ISNULL(MATERIAL_COST_INMAP,0) * BUDGET / 100) + SUM(ISNULL(MAN_DAY_INMAP,0) * BUDGET_WAGE / 100) AS AMOUNT_BY_CODE FROM " +
+                string sql = "SELECT C.*, SUM(ISNULL(MATERIAL_COST_INMAP,0) * BUDGET / 100) AS MATERIAL_BUDGET_INMAP, " +
+                    "SUM(ISNULL(MAN_DAY_INMAP,0) * BUDGET_WAGE / 100) AS MAN_DAY_BUDGET_INMAP, SUM(ISNULL(MATERIAL_COST_INMAP,0) * BUDGET / 100) + SUM(ISNULL(MAN_DAY_INMAP,0) * BUDGET_WAGE / 100) AS AMOUNT_BY_CODE FROM " +
                     "(SELECT MAINCODE, MAINCODE_DESC, SUB_CODE, SUB_DESC, MATERIAL_COST_INMAP, MAN_DAY_INMAP, CONTRACT_PRICE, "
                     + "ISNULL(BUDGET_RATIO, 0) as BUDGET, ISNULL(BUDGET_WAGE_RATIO, 0) as BUDGET_WAGE, COST_RATIO FROM (SELECT" +
                     "(select TYPE_CODE_1 + TYPE_CODE_2 from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE, " +

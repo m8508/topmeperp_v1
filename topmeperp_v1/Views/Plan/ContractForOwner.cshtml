@@ -50,10 +50,7 @@
                     合約已製作
                 </th>
                 <th>
-                    交期
-                </th>
-                <th>
-                    備註
+                    合約製作期限
                 </th>
                 <th>付款條件已設定</th>
                 <th>履約保固金</th>
@@ -98,9 +95,11 @@
                 {
                     <td><input style="width:150px;" type="date" class="form-control" name="delivery_date" id="delivery_date" value=""></td>
                 }
+                <!--
                 <td>
                     <textarea class="form-control" rows="6" style="width:180px;" name="remark" id="remark">@ViewBag.remark</textarea>
                 </td>
+                    -->
                 @if (null != ViewBag.advance || null != ViewBag.retention)
             {
                     <td>
@@ -111,7 +110,7 @@
                 }
                 else
                 {
-
+                    <td></td>
                 }
                 <td><input style="width:90px;" type="text" class="form-control" name="mb_amount" id="mb_amount" value="@String.Format("{0:N0}", @ViewBag.maintenanceBond)"></td>
                 @if (null != ViewBag.dueDate && ViewBag.dueDate != "")

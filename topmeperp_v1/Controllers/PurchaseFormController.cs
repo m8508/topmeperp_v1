@@ -1685,7 +1685,7 @@ namespace topmeperp.Controllers
             string[] lstBrand = form.Get("brand").Split(',');
             string[] lstProduction = form.Get("production").Split(',');
             string[] lstDate = form.Get("Date_${index}").Split(',');
-            string[] lstRemark = form.Get("remark").Split(',');
+            //string[] lstRemark = form.Get("remark").Split(',');
             log.Info("select count:" + lstItemId.Count());
             var j = 0;
             for (j = 0; j < lstItemId.Count(); j++)
@@ -1697,14 +1697,14 @@ namespace topmeperp.Controllers
             {
                 PLAN_CONTRACT_PROCESS item = new PLAN_CONTRACT_PROCESS();
                 item.CONTRACT_ID = lstItemId[i];
-                if (lstRemark[i].ToString() == "")
-                {
-                    item.REMARK = null;
-                }
-                else
-                {
-                    item.REMARK = lstRemark[i];
-                }
+                //if (lstRemark[i].ToString() == "")
+                //{
+                    //item.REMARK = null;
+                //}
+                //else
+                //{
+                    //item.REMARK = lstRemark[i];
+                //}
                 if (lstBrand[i].ToString() == "")
                 {
                     item.MATERIAL_BRAND = null;
