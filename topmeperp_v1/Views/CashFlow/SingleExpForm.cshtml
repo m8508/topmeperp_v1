@@ -324,6 +324,22 @@
             }
         });
     });
+    //中止
+    $("#CancelForm").click(function () {
+        $.ajax({
+            url: '@Url.Action("CancelForm", "CashFlow")',
+            data: $('#formExpense').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+                window.location.replace("/CashFlow/ExpenseForm");
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    });
 
 
     ///Auto Complete 公司名稱

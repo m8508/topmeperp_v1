@@ -100,9 +100,11 @@ namespace topmeperp.Service
             RejectTask(reason);
         }
         //中止
-        public void Cancel()
+        public void CancelRequest(SYS_USER u)
         {
-
+            user = u;
+            logger.Debug("USER :" + user.USER_ID + " Cancel :" + task.task.EXP_FORM_ID);
+            CancelRequest();
         }
         protected void processTask()
         {
@@ -236,6 +238,35 @@ namespace topmeperp.Service
                 }
             }
         }
+        /// <summary>
+        /// 取消表單作業流程
+        /// </summary>
+        protected void CancelRequest()
+        {
+            string sql4Task = "DELETE WF_PORCESS_TASK WHERE RID=@RID";
+            string sql4Request = "DELETE WF_PROCESS_REQUEST WHERE RID=@RID";
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    //Update Task State roll back to "O"
+                    var parameters = new List<SqlParameter>();
+                    parameters.Add(new SqlParameter("RID", task.task.RID));
+                    int i = context.Database.ExecuteSqlCommand(sql4Task, parameters.ToArray());
+                    logger.Debug("i=" + i + "sql" + sql4Task + ",Id" + task.task.RID);
+                    i = context.Database.ExecuteSqlCommand(sql4Request, parameters.ToArray());
+                    logger.Debug("i=" + i + "sql" + sql4Task + ",Id" + task.task.ID);
+                    statusChange = "D";
+                    Message = "表單已取消";
+                }
+                catch (Exception ex)
+                {
+                    statusChange = "F";
+                    Message = "取消作業處理失敗(" + ex.Message + ")";
+                    logger.Error(ex.Message + ":" + ex.StackTrace);
+                }
+            }
+        }
         //取得表單與對應的流程資料
         public void getRequest(string datakey)
         {
@@ -319,6 +350,7 @@ namespace topmeperp.Service
         public void iniRequest(SYS_USER u, string DataKey)
         {
             getFlowAcivities(FLOW_KEY);
+            task = new ExpenseTask();
             //建立表單追蹤資料Index
             task.ProcessRequest = new WF_PROCESS_REQUEST();
             task.ProcessRequest.PID = process.PID;
@@ -380,7 +412,7 @@ namespace topmeperp.Service
                 staus = updateForm(paymentdate, reason, staus);
             }
         }
-
+        //更新資料庫資料
         private int updateForm(DateTime? paymentdate, string reason, int staus)
         {
             string sql = "UPDATE FIN_EXPENSE_FORM SET STATUS=@status,PAYMENT_DATE=@paymentDate,REJECT_DESC=@rejectDesc WHERE EXP_FORM_ID=@formId";
@@ -421,6 +453,24 @@ namespace topmeperp.Service
             if (statusChange != "F")
             {
                 updateForm(paymentdate, reason, 0);
+            }
+        }
+        //中止
+        public void Cancel(SYS_USER u)
+        {
+            user = u;
+            logger.Info("USER :" + user.USER_ID + " Cancel :" + task.task.EXP_FORM_ID);
+            base.CancelRequest(u);
+            if (statusChange != "F")
+            {
+                string sql = "DELETE FIN_EXPENSE_ITEM WHERE EXP_FORM_ID=@formId;DELETE FIN_EXPENSE_FORM WHERE EXP_FORM_ID=@formId;";
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("formId", task.task.EXP_FORM_ID));
+                using (var context = new topmepEntities())
+                {
+                    logger.Debug("Cancel CompanyExpenseRequest Status=" + task.task.EXP_FORM_ID);
+                    context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+                }
             }
         }
     }
