@@ -130,15 +130,15 @@ namespace topmeperp.Controllers
             {
                 bankloanInfo.CUM_AR_RATIO = decimal.Parse(Request["CUM_AR_RATIO"]);
             }
-            //if (Request["QUOTA_AVAILABLE_RATIO"] != "")
-            //{
-                //bankloanInfo.QUOTA_AVAILABLE_RATIO = decimal.Parse(Request["QUOTA_AVAILABLE_RATIO"]);
-            //}
-            //else
-            //{
-                //bankloanInfo.QUOTA_AVAILABLE_RATIO = 100;
-            //}
-            //bankloanInfo.QUOTA_RECYCLABLE = Request["QUOTA_RECYCLABLE"];
+            if (Request["QUOTA_AVAILABLE_RATIO"] != "")
+            {
+                bankloanInfo.QUOTA_AVAILABLE_RATIO = decimal.Parse(Request["QUOTA_AVAILABLE_RATIO"]);
+            }
+            else
+            {
+                bankloanInfo.QUOTA_AVAILABLE_RATIO = 100;
+            }
+            bankloanInfo.QUOTA_RECYCLABLE = Request["QUOTA_RECYCLABLE"];
             bankloanInfo.REMARK = Request["REMARK"];
             bankloanInfo.ACCOUNT_NAME = Request["ACCOUNT_NAME"];
             if (Request["plans"] != "")

@@ -5415,54 +5415,59 @@ namespace topmeperp.Service
             return form.VA_FORM_ID;
         }
 
-        public RevenueFromOwner getVAPayItemById(string formid)
-        {
-            RevenueFromOwner payment = null;
-            using (var context = new topmepEntities())
-            {
-                payment = context.Database.SqlQuery<RevenueFromOwner>("SELECT A.VA_FORM_ID , ROUND(CAST(IIF(ISNULL(A.advancePaymentBalance, 0) - ISNULL(A.VALUATION_AMOUNT , 0)*A.ADVANCE_RATIO/100 > 0, " +
-                    "ISNULL(A.VALUATION_AMOUNT , 0)*A.ADVANCE_RATIO/100, IIF(ISNULL(A.advancePaymentBalance, 0) > 0, A.advancePaymentBalance, 0)) AS decimal(10,1)),0) AS ADVANCE_PAYMENT_REFUND, " +
-                    "ROUND(CAST(ISNULL(A.VALUATION_AMOUNT , 0)*A.RETENTION_RATIO/100 AS decimal(10,1)),0) AS RETENTION_PAYMENT, ROUND(CAST((ISNULL(A.VALUATION_AMOUNT , 0)-ISNULL(A.VALUATION_AMOUNT , 0) " +
-                    "*A.ADVANCE_RATIO/100)*ISNULL(A.TAX_RATIO,0) / 100 AS decimal(10,1)),0) AS TAX_AMOUNT " +
-                    "FROM (SELECT vf.*, B.advancePaymentBalance, ISNULL(IIF(ppt.PAYMENT_TERMS = 'P', ppt.PAYMENT_ADVANCE_RATIO, ppt.USANCE_ADVANCE_RATIO), 0) AS ADVANCE_RATIO, " +
-                    "ISNULL(IIF(ppt.PAYMENT_TERMS = 'P', ppt.PAYMENT_RETENTION_RATIO, ppt.USANCE_RETENTION_RATIO),0) AS RETENTION_RATIO FROM PLAN_VALUATION_FORM vf " +
-                    "LEFT JOIN PLAN_PAYMENT_TERMS ppt ON vf.PROJECT_ID = ppt.CONTRACT_ID LEFT JOIN (SELECT PROJECT_ID, SUM(ADVANCE_PAYMENT) - SUM(ADVANCE_PAYMENT_REFUND) AS advancePaymentBalance " +
-                    "FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID)B ON vf.PROJECT_ID = B.PROJECT_ID WHERE vf.VA_FORM_ID =@formid)A  "
-                   , new SqlParameter("formid", formid)).FirstOrDefault();
-            }
-            return payment;
-        }
-        //寫入保留款,預付扣回與營業稅額
-        public int refreshVAItem(string formid, decimal retention, decimal advanceRefund, decimal tax)
-        {
-            int i = 0;
-            logger.Info("refresh rentention amount, advance refund and tax amount of VA by form id" + formid);
-            string sql = "UPDATE  PLAN_VALUATION_FORM SET RETENTION_PAYMENT =@retention, ADVANCE_PAYMENT_REFUND =@advanceRefund, TAX_AMOUNT =@tax WHERE VA_FORM_ID=@formid ";
-            logger.Debug("refresh items from Quote sql:" + sql);
-            db = new topmepEntities();
-            var parameters = new List<SqlParameter>();
-            parameters.Add(new SqlParameter("formid", formid));
-            parameters.Add(new SqlParameter("retention", retention));
-            parameters.Add(new SqlParameter("advanceRefund", advanceRefund));
-            parameters.Add(new SqlParameter("tax", tax));
-            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
-            i = db.SaveChanges();
-            logger.Info("Update Record:" + i);
-            db = null;
-            return i;
-        }
+        /*
+      public RevenueFromOwner getVAPayItemById(string formid)
+      {
+          RevenueFromOwner payment = null;
+          using (var context = new topmepEntities())
+          {
+              payment = context.Database.SqlQuery<RevenueFromOwner>("SELECT A.VA_FORM_ID , ROUND(CAST(IIF(ISNULL(A.advancePaymentBalance, 0) - ISNULL(A.VALUATION_AMOUNT , 0)*A.ADVANCE_RATIO/100 > 0, " +
+                  "ISNULL(A.VALUATION_AMOUNT , 0)*A.ADVANCE_RATIO/100, IIF(ISNULL(A.advancePaymentBalance, 0) > 0, A.advancePaymentBalance, 0)) AS decimal(10,1)),0) AS ADVANCE_PAYMENT_REFUND, " +
+                  "ROUND(CAST(ISNULL(A.VALUATION_AMOUNT , 0)*A.RETENTION_RATIO/100 AS decimal(10,1)),0) AS RETENTION_PAYMENT, ROUND(CAST((ISNULL(A.VALUATION_AMOUNT , 0)-ISNULL(A.VALUATION_AMOUNT , 0) " +
+                  "*A.ADVANCE_RATIO/100)*ISNULL(A.TAX_RATIO,0) / 100 AS decimal(10,1)),0) AS TAX_AMOUNT " +
+                  "FROM (SELECT vf.*, B.advancePaymentBalance, ISNULL(IIF(ppt.PAYMENT_TERMS = 'P', ppt.PAYMENT_ADVANCE_RATIO, ppt.USANCE_ADVANCE_RATIO), 0) AS ADVANCE_RATIO, " +
+                  "ISNULL(IIF(ppt.PAYMENT_TERMS = 'P', ppt.PAYMENT_RETENTION_RATIO, ppt.USANCE_RETENTION_RATIO),0) AS RETENTION_RATIO FROM PLAN_VALUATION_FORM vf " +
+                  "LEFT JOIN PLAN_PAYMENT_TERMS ppt ON vf.PROJECT_ID = ppt.CONTRACT_ID LEFT JOIN (SELECT PROJECT_ID, SUM(ADVANCE_PAYMENT) - SUM(ADVANCE_PAYMENT_REFUND) AS advancePaymentBalance " +
+                  "FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID)B ON vf.PROJECT_ID = B.PROJECT_ID WHERE vf.VA_FORM_ID =@formid)A  "
+                 , new SqlParameter("formid", formid)).FirstOrDefault();
+          }
+          return payment;
+      }
+
+      //寫入保留款,預付扣回與營業稅額(舊)
+      public int refreshVAItem(string formid, decimal retention, decimal advanceRefund, decimal tax)
+      {
+          int i = 0;
+          logger.Info("refresh rentention amount, advance refund and tax amount of VA by form id" + formid);
+          string sql = "UPDATE  PLAN_VALUATION_FORM SET RETENTION_PAYMENT =@retention, ADVANCE_PAYMENT_REFUND =@advanceRefund, TAX_AMOUNT =@tax WHERE VA_FORM_ID=@formid ";
+          logger.Debug("refresh items from Quote sql:" + sql);
+          db = new topmepEntities();
+          var parameters = new List<SqlParameter>();
+          parameters.Add(new SqlParameter("formid", formid));
+          parameters.Add(new SqlParameter("retention", retention));
+          parameters.Add(new SqlParameter("advanceRefund", advanceRefund));
+          parameters.Add(new SqlParameter("tax", tax));
+          db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+          i = db.SaveChanges();
+          logger.Info("Update Record:" + i);
+          db = null;
+          return i;
+      }
+      */
         public List<RevenueFromOwner> getVADetailById(string projectid)
         {
             List<RevenueFromOwner> VAItem = new List<RevenueFromOwner>();
             using (var context = new topmepEntities())
             {
-                VAItem = context.Database.SqlQuery<RevenueFromOwner>("SELECT vf.*, account.AR_PAID, f.FILE_UPLOAD_NAME, ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + ISNULL(vf.TAX_AMOUNT, 0) " +
-                    "- ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) - ISNULL(vf.OTHER_PAYMENT, 0) - ISNULL(vf.REPAYMENT, 0) AS AR, " +
-                    "ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + ISNULL(vf.TAX_AMOUNT, 0) - ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) " +
-                    "- ISNULL(vf.OTHER_PAYMENT, 0) - ISNULL(vf.REPAYMENT, 0) - account.AR_PAID AS AR_UNPAID, " +
+                VAItem = context.Database.SqlQuery<RevenueFromOwner>("SELECT vf.*, pi.otherPay, pi.taxAmt, account.AR_PAID, f.FILE_UPLOAD_NAME, ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + pi.taxAmt " +
+                    "- ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) - pi.otherPay AS AR, " +
+                    "ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + pi.taxAmt - ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) " +
+                    "- pi.otherPay - account.AR_PAID AS AR_UNPAID, " +
                     "ROW_NUMBER() OVER(ORDER BY vf.CREATE_DATE) AS NO FROM PLAN_VALUATION_FORM vf LEFT JOIN (SELECT pa.ACCOUNT_FORM_ID, SUM(pa.AMOUNT_PAYABLE) AS AR_PAID FROM PLAN_ACCOUNT pa " +
                     "WHERE pa.ACCOUNT_TYPE = 'R' AND pa.PROJECT_ID =@projectid AND pa.STATUS = 10 GROUP BY pa.ACCOUNT_FORM_ID)account ON vf.VA_FORM_ID = account.ACCOUNT_FORM_ID " +
-                    "LEFT JOIN (SELECT FILE_UPLOAD_NAME FROM TND_FILE GROUP BY FILE_UPLOAD_NAME)f ON vf.VA_FORM_ID = f.FILE_UPLOAD_NAME WHERE vf.PROJECT_ID =@projectid "
+                    "LEFT JOIN (SELECT FILE_UPLOAD_NAME FROM TND_FILE GROUP BY FILE_UPLOAD_NAME)f ON vf.VA_FORM_ID = f.FILE_UPLOAD_NAME " +
+                    "LEFT JOIN (SELECT EST_FORM_ID, ISNULL(SUM(AMOUNT*IIF(TYPE <> '折讓單', 0, 1)), 0) AS otherPay,  ISNULL(SUM(TAX*IIF(TYPE <> '折讓單', 1, 0)), 0) AS taxAmt FROM PLAN_INVOICE GROUP BY EST_FORM_ID)pi " +
+                    "ON pi.EST_FORM_ID = vf.VA_FORM_ID WHERE vf.PROJECT_ID =@projectid "
                    , new SqlParameter("projectid", projectid)).ToList();
             }
             return VAItem;
@@ -5473,9 +5478,9 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 detail = context.Database.SqlQuery<RevenueFromOwner>("SELECT vf.*, CONVERT(varchar, vf.CREATE_DATE, 120) AS RECORDED_DATE, " +
-                    "CONVERT(varchar, vf.INVOICE_DATE, 111) AS RECORDED_INVOICE_DATE, ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + ISNULL(vf.TAX_AMOUNT, 0) " +
-                    "- ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) - ISNULL(vf.OTHER_PAYMENT, 0) - ISNULL(vf.REPAYMENT, 0) AS AR, " +
-                    "ROW_NUMBER() OVER(ORDER BY vf.CREATE_DATE) AS NO FROM PLAN_VALUATION_FORM vf WHERE vf.VA_FORM_ID =@formid  "
+                    "ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT, 0) + pi.taxAmt - ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) - pi.otherPay AS AR " +
+                    "FROM PLAN_VALUATION_FORM vf LEFT JOIN (SELECT EST_FORM_ID, ISNULL(SUM(AMOUNT * IIF(TYPE <> '折讓單', 0, 1)), 0) AS otherPay, ISNULL(SUM(TAX * IIF(TYPE <> '折讓單', 1, 0)), 0) AS taxAmt " +
+                    "FROM PLAN_INVOICE GROUP BY EST_FORM_ID)pi ON pi.EST_FORM_ID = vf.VA_FORM_ID WHERE vf.VA_FORM_ID =@formid  "
                    , new SqlParameter("formid", formid)).FirstOrDefault();
             }
             return detail;
@@ -5486,11 +5491,14 @@ namespace topmeperp.Service
             RevenueFromOwner summaryAmt = null;
             using (var context = new topmepEntities())
             {
-                summaryAmt = context.Database.SqlQuery<RevenueFromOwner>("SELECT (SELECT SUM(ITEM_UNIT_PRICE*ITEM_QUANTITY) FROM PLAN_ITEM pi WHERE pi.PROJECT_ID =@pid) AS contractAtm, " +
-                    "(SELECT SUM(pa.AMOUNT_PAYABLE) FROM PLAN_ACCOUNT pa WHERE pa.ACCOUNT_TYPE = 'R' AND pa.PROJECT_ID =@pid AND pa.STATUS = 10) AS AR_PAID, " +
-                    "SUM(VALUATION_AMOUNT) AS VALUATION_AMOUNT, SUM(TAX_AMOUNT) AS TAX_AMOUNT, SUM(RETENTION_PAYMENT) AS RETENTION_PAYMENT, isnull(SUM(ADVANCE_PAYMENT), 0) - isnull(SUM(ADVANCE_PAYMENT_REFUND), 0) AS advancePaymentBalance, " +
-                    "isnull(SUM(ADVANCE_PAYMENT), 0) + isnull(SUM(VALUATION_AMOUNT), 0) + isnull(SUM(TAX_AMOUNT),0) - isnull(SUM(RETENTION_PAYMENT), 0) - isnull(SUM(ADVANCE_PAYMENT_REFUND), 0) - isnull(SUM(OTHER_PAYMENT), 0) - isnull(SUM(REPAYMENT), 0) AS AR " +
-                    "FROM PLAN_VALUATION_FORM WHERE PROJECT_ID =@pid GROUP BY PROJECT_ID "
+                summaryAmt = context.Database.SqlQuery<RevenueFromOwner>("SELECT vf.*, pi.otherPay, pi.taxAmt, vf.Amt + pi.taxAmt - pi.otherPay AS AR , " +
+                    "(SELECT SUM(ITEM_UNIT_PRICE*ITEM_QUANTITY) FROM PLAN_ITEM pi WHERE pi.PROJECT_ID =@pid) AS contractAtm, " +
+                    "(SELECT SUM(pa.AMOUNT_PAYABLE) FROM PLAN_ACCOUNT pa WHERE pa.ACCOUNT_TYPE = 'R' AND pa.PROJECT_ID =@pid AND pa.STATUS = 10) AS AR_PAID " +
+                    "FROM (SELECT PROJECT_ID, SUM(VALUATION_AMOUNT) AS VALUATION_AMOUNT, SUM(RETENTION_PAYMENT) AS RETENTION_PAYMENT, " +
+                    "isnull(SUM(ADVANCE_PAYMENT), 0) - isnull(SUM(ADVANCE_PAYMENT_REFUND), 0) AS advancePaymentBalance, " +
+                    "isnull(SUM(ADVANCE_PAYMENT), 0) + isnull(SUM(VALUATION_AMOUNT), 0) - isnull(SUM(RETENTION_PAYMENT), 0) - isnull(SUM(ADVANCE_PAYMENT_REFUND), 0) AS Amt " +
+                    "FROM PLAN_VALUATION_FORM WHERE PROJECT_ID =@pid GROUP BY PROJECT_ID)vf LEFT JOIN(SELECT CONTRACT_ID, ISNULL(SUM(AMOUNT * IIF(TYPE <> '折讓單', 0, 1)), 0) AS otherPay, " +
+                    "ISNULL(SUM(TAX * IIF(TYPE <> '折讓單', 1, 0)), 0) AS taxAmt FROM PLAN_INVOICE WHERE CONTRACT_ID =@pid GROUP BY CONTRACT_ID)pi ON vf.PROJECT_ID = pi.CONTRACT_ID "
                    , new SqlParameter("pid", prjid)).FirstOrDefault();
             }
             return summaryAmt;
@@ -5555,7 +5563,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 count = context.Database.SqlQuery<int>("SELECT ISNULL((SELECT COUNT(*) FROM FIN_LOAN_TRANACTION " +
-                    "WHERE BL_ID = @blid AND TRANSACTION_TYPE = 1),0)+1 AS paybackCount  "
+                    "WHERE BL_ID = @blid),0)+1 AS paybackCount  "
                    , new SqlParameter("blid", blid)).First();
             }
             return count;
