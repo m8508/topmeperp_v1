@@ -290,7 +290,7 @@ namespace topmeperp.Service
     public class Flow4CompanyExpense : WorkFlowService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        static string FLOW_KEY = "EXP01";
+        public string FLOW_KEY = "EXP01";
         //處理SQL 預先填入專案代號,設定集合處理參數
         string sql = @"SELECT F.EXP_FORM_ID,F.PROJECT_ID,F.OCCURRED_YEAR,F.OCCURRED_MONTH,F.PAYEE,F.PAYMENT_DATE,F.REMARK REQ_DESC,F.REJECT_DESC REJECT_DESC,
                         R.REQ_USER_ID,R.CURENT_STATE,R.PID,
@@ -326,7 +326,7 @@ namespace topmeperp.Service
             return lstForm;
         }
         /// <summary>
-        /// 取的申請程序表單與鄉烏干資料
+        /// 取的申請程序表單與相關資料
         /// </summary>
         /// <param name="dataKey"></param>
         public void getTask(string dataKey)
@@ -413,7 +413,7 @@ namespace topmeperp.Service
             }
         }
         //更新資料庫資料
-        private int updateForm(DateTime? paymentdate, string reason, int staus)
+        protected int updateForm(DateTime? paymentdate, string reason, int staus)
         {
             string sql = "UPDATE FIN_EXPENSE_FORM SET STATUS=@status,PAYMENT_DATE=@paymentDate,REJECT_DESC=@rejectDesc WHERE EXP_FORM_ID=@formId";
             var parameters = new List<SqlParameter>();
@@ -474,5 +474,25 @@ namespace topmeperp.Service
             }
         }
     }
-
+    /// <summary>
+    /// 工地費用申請
+    /// </summary>
+    public class Flow4SiteExpense : Flow4CompanyExpense
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        //public new string FLOW_KEY = "EXP02";
+        //處理SQL 預先填入專案代號,設定集合處理參數
+        string sql = @"SELECT F.EXP_FORM_ID,F.PROJECT_ID,F.OCCURRED_YEAR,F.OCCURRED_MONTH,F.PAYEE,F.PAYMENT_DATE,F.REMARK REQ_DESC,F.REJECT_DESC REJECT_DESC,
+                        R.REQ_USER_ID,R.CURENT_STATE,R.PID,
+                        CT.* ,M.FORM_URL + METHOD_URL as FORM_URL
+						FROM FIN_EXPENSE_FORM F,WF_PROCESS_REQUEST R,
+                        WF_PORCESS_TASK CT ,
+		(SELECT P.PID,A.SEQ_ID,FORM_URL,METHOD_URL  FROM WF_PROCESS P,WF_PROCESS_ACTIVITY A WHERE P.PID=A.PID ) M
+                        WHERE F.EXP_FORM_ID= R.DATA_KEY AND R.RID=CT.RID AND R.CURENT_STATE=CT.SEQ_ID
+						AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE";
+        public Flow4SiteExpense()
+        {
+            base.FLOW_KEY = "EXP02";
+        }
+    }
 }
