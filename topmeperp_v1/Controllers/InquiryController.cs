@@ -21,6 +21,15 @@ namespace topmeperp.Controllers
         {
             log.Info("inquiry index : projectid=" + id);
             ViewBag.projectId = id;
+            SelectListItem empty = new SelectListItem();
+            empty.Value = "";
+            empty.Text = "";
+            List<SelectListItem> selectMain = UtilService.getMainSystem(id, service);
+            // selectMain.Add(empty);
+            ViewBag.SystemMain = selectMain;
+            List<SelectListItem> selectSub = UtilService.getSubSystem(id, service);
+            //selectSub.Add(empty);
+            ViewBag.SystemSub = selectSub;
             return View();
         }
         // POST : Search
