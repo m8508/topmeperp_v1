@@ -21,6 +21,11 @@
                     @Html.DropDownList("roles", null, String.Empty, new { @class = "form-control" })
                 </div>
             </div>
+            <div class="row form-group">
+                <div class="col-md-4">部門</div><div class="col-md-8">
+                    @Html.DropDownList("dep_code", null, String.Empty, new { @class = "form-control" })
+                </div>
+            </div>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-primary" data-dismiss="modal">關閉</button>

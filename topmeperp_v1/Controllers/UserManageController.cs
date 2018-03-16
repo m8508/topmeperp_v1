@@ -25,6 +25,11 @@ namespace topmeperp.Controllers
             //將資料存入TempData 減少不斷讀取資料庫
             TempData.Remove("roles");
             TempData.Add("roles", userService.userManageModels.sysRole);
+
+            //DepartmentManage
+            DepartmentManage ds = new DepartmentManage();
+            SelectList dep_code = new SelectList(ds.getDepartmentOrg(1), "DEPT_CODE", "DEPT_NAME");
+            ViewBag.dep_code = dep_code;
             return View();
         }
         [HttpPost]
@@ -56,6 +61,7 @@ namespace topmeperp.Controllers
             u.TEL_EXT = form.Get("u_tel_ext").Trim();
             u.MOBILE = form.Get("u_mobile").Trim();
             u.ROLE_ID = form.Get("roles").Trim();
+            u.DEP_CODE = form.Get("dep_code").Trim();
             SYS_USER loginUser = (SYS_USER)Session["user"];
             u.CREATE_ID = loginUser.USER_ID;
             u.CREATE_DATE = DateTime.Now;
