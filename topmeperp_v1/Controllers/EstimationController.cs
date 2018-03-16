@@ -10,6 +10,7 @@ using topmeperp.Service;
 using System.IO;
 using Newtonsoft.Json;
 using System.Reflection;
+using System.Globalization;
 
 namespace topmeperp.Controllers
 {
@@ -2184,14 +2185,14 @@ namespace topmeperp.Controllers
                 RevenueFromOwner summary = service.getVASummaryAtmById(id);
                 ViewBag.contractAtm = (null == summary.contractAtm ? 0 : summary.contractAtm);
                 ViewBag.advancePaymentBalance = (null == summary.advancePaymentBalance ? 0 : summary.advancePaymentBalance);
-                ViewBag.totalTax = (null == summary.TAX_AMOUNT ? 0 : summary.TAX_AMOUNT);
+                ViewBag.totalTax = (null == summary.taxAmt ? 0 : summary.taxAmt);
                 ViewBag.totalRetention = (null == summary.RETENTION_PAYMENT ? 0 : summary.RETENTION_PAYMENT);
                 ViewBag.VAAtm = (null == summary.VALUATION_AMOUNT ? 0 : summary.VALUATION_AMOUNT);
                 ViewBag.AR = (null == summary.AR ? 0 : summary.AR);
                 ViewBag.ARUnPaid = (null == summary.AR ? 0 : summary.AR) - (null == summary.AR_PAID ? 0 : summary.AR_PAID);
                 ViewBag.VABalance = (null == summary.contractAtm ? 0 : summary.contractAtm) - (null == summary.VALUATION_AMOUNT ? 0 : summary.VALUATION_AMOUNT);
                 valuation = service.getVADetailById(id);
-                
+
                 return View(valuation);
             }
             return View();
@@ -2223,6 +2224,234 @@ namespace topmeperp.Controllers
             return itemJson;
         }
         //新增業主計價資料
+        public ActionResult VAItem(String id, String formid)
+        {
+            logger.Info("get va item for update:project_id=" + id);
+            TND_PROJECT p = service.getProjectById(id);
+            ViewBag.projectName = p.PROJECT_NAME;
+            ViewBag.supplier = p.OWNER_NAME;
+            ViewBag.projectId = id;
+            List<PLAN_INVOICE> lstInvoice = null;
+            lstInvoice = service.getInvoiceById(formid);
+            ViewBag.InvoicePieces = service.getInvoicePiecesById(formid);
+            ViewData["items"] = JsonConvert.SerializeObject(lstInvoice);
+            if (id != formid)
+            {
+                RevenueFromOwner v = service.getVADetailByVAId(formid);
+                ViewBag.vaAmt = v.VALUATION_AMOUNT;
+                ViewBag.advance = v.ADVANCE_PAYMENT;
+                ViewBag.advanceRefund = v.ADVANCE_PAYMENT_REFUND;
+                ViewBag.taxRatio = v.TAX_RATIO;
+                ViewBag.retention = v.RETENTION_PAYMENT;
+                ViewBag.remark = v.REMARK;
+                ViewBag.creatId = v.CREATE_ID;
+                ViewBag.createDate = v.CREATE_DATE;
+                ViewBag.modifyDate = v.MODIFY_DATE;
+                ViewBag.formid = formid;
+            }
+            return View();
+        }
+
+
+        public String updateVAItem(PLAN_VALUATION_FORM vf, HttpPostedFileBase file)
+        {
+            logger.Info("create valuation form process! project =" + Request["projectId"]);
+            UserService us = new UserService();
+            SYS_USER u = (SYS_USER)Session["user"];
+            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            string msg = "新增計價資料成功!!";
+            string Remsg = "修改計價資料成功!!";
+            //1.更新或新增業主計價資料
+            if (Request["va_amount"] != "")
+            {
+                vf.VALUATION_AMOUNT = decimal.Parse(Request["va_amount"]);
+            }
+            if (Request["advance_payment"] != "")
+            {
+                vf.ADVANCE_PAYMENT = decimal.Parse(Request["advance_payment"]);
+            }
+            if (Request["tax_ratio"] != "")
+            {
+                vf.TAX_RATIO = decimal.Parse(Request["tax_ratio"]);
+            }
+            if (Request["advance_refund"] != "")
+            {
+                vf.ADVANCE_PAYMENT_REFUND = decimal.Parse(Request["advance_refund"]);
+            }
+            if (Request["retention_amount"] != "")
+            {
+                vf.RETENTION_PAYMENT = decimal.Parse(Request["retention_amount"]);
+            }
+            vf.REMARK = Request["remark"];
+            vf.PROJECT_ID = Request["projectId"];
+            //新增業主計價資料
+            if (null == Request["formid"] || Request["formid"] == "")
+            {
+                vf.CREATE_ID = uInfo.USER_ID;
+                vf.CREATE_DATE = DateTime.Now;
+            }
+            else
+            {
+                //修改業主計價資料
+                vf.MODIFY_DATE = DateTime.Now;
+                vf.CREATE_DATE = Convert.ToDateTime(Request["createDate"]);
+                vf.CREATE_ID = Request["creatId"];
+            }
+            string fid = service.refreshVA(Request["formid"], vf);
+            //若使用者有上傳計價附檔，則增加檔案資料
+            if (null != file && file.ContentLength != 0)
+            {
+                //TND_FILE saveF = new TND_FILE();
+                //2.解析檔案
+                logger.Info("Parser file data:" + file.FileName);
+                //2.1 設定檔案名稱,實體位址,附檔名
+                string projectid = Request["projectid"];
+                string keyName = null;
+                if (null != Request["formid"] && Request["formid"] != "")
+                {
+                    keyName = Request["formid"];
+                }
+                else
+                {
+                    keyName = fid;
+                }
+                logger.Info("file upload namme =" + keyName);
+                var fileName = Path.GetFileName(file.FileName);
+                var path = Path.Combine(ContextService.strUploadPath + "/" + Request["projectId"], fileName);
+                //saveF.FILE_ACTURE_NAME = fileName;
+                var fileType = Path.GetExtension(file.FileName);
+                //f.FILE_LOCATIOM = path;
+                string createDate = DateTime.Now.ToString("yyyy/MM/dd");
+                logger.Info("createDate = " + createDate);
+                string createId = uInfo.USER_ID;
+                FileManage fs = new FileManage();
+                string k = fs.addFile(projectid, keyName, fileName, fileType, path, createId, createDate);
+                //int j = service.refreshVAFile(saveF);
+                //2.2 將上傳檔案存檔
+                logger.Info("save upload file:" + path);
+                file.SaveAs(path);
+            }
+            // 先刪除原先資料
+            if (null != Request["formid"] && Request["formid"] != "")
+            {
+                logger.Info("EST form id =" + Request["formid"]);
+                logger.Info("Delete PLAN_INVOICE By EST_FORM_ID");
+                service.delInvoiceByESTId(Request["formid"]);
+            }
+            // 取得憑證資料
+            string[] lstDate = Request["invoice_date"].Split(',');
+            string[] lstNumber = Request["invoice_number"].Split(',');
+            string[] lstAmount = Request["input_amount"].Split(',');
+            string[] lstTax = Request["taxamount"].Split(',');
+            string[] lstType = Request["invoicetype"].Split(',');
+            string[] lstSubType = Request["sub_type"].Split(',');
+            string[] lstPlanItem = Request["plan_item_id"].Split(',');
+            string[] lstDiscountQty = Request["discount_qty"].Split(',');
+            string[] lstDiscountPrice = Request["discount_unit_price"].Split(',');
+            List<PLAN_INVOICE> lstItem = new List<PLAN_INVOICE>();
+            for (int j = 0; j < lstAmount.Count(); j++)
+            {
+                PLAN_INVOICE item = new PLAN_INVOICE();
+                if (null != Request["formid"] && Request["formid"] != "")
+                {
+                    item.EST_FORM_ID = Request["formid"];
+                }
+                else
+                {
+                    item.EST_FORM_ID = fid;
+                }
+                item.CONTRACT_ID = Request["projectId"];
+                if (lstNumber[j].ToString() == "")
+                {
+                    item.INVOICE_NUMBER = null;
+                }
+                else
+                {
+                    item.INVOICE_NUMBER = lstNumber[j];
+                }
+                try
+                {
+                    item.INVOICE_DATE = Convert.ToDateTime(lstDate[j]);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.StackTrace);
+                }
+                if (lstAmount[j].ToString() == "")
+                {
+                    item.AMOUNT = null;
+                }
+                else
+                {
+                    item.AMOUNT = decimal.Parse(lstAmount[j]);
+                }
+                if (lstTax[j].ToString() == "")
+                {
+                    item.TAX = null;
+                }
+                else
+                {
+                    item.TAX = decimal.Parse(lstTax[j]);
+                }
+                if (lstType[j].ToString() == "")
+                {
+                    item.TYPE = null;
+                }
+                else
+                {
+                    item.TYPE = lstType[j];
+                }
+                if (lstType[j] == "折讓單")
+                {
+                    if (lstSubType[j].ToString() == "")
+                    {
+                        item.SUB_TYPE = null;
+                    }
+                    else
+                    {
+                        item.SUB_TYPE = lstSubType[j];
+                    }
+                    item.PLAN_ITEM_ID = lstPlanItem[j];
+                    if (lstDiscountQty[j].ToString() == "")
+                    {
+                        item.DISCOUNT_QTY = null;
+                    }
+                    else
+                    {
+                        item.DISCOUNT_QTY = decimal.Parse(lstDiscountQty[j]);
+                    }
+                    if (lstDiscountPrice[j].ToString() == "")
+                    {
+                        item.DISCOUNT_UNIT_PRICE = null;
+                    }
+                    else
+                    {
+                        item.DISCOUNT_UNIT_PRICE = decimal.Parse(lstDiscountPrice[j]);
+                    }
+                }
+                else
+                {
+                    item.SUB_TYPE = null;
+                    item.PLAN_ITEM_ID = null;
+                    item.DISCOUNT_QTY = null;
+                    item.DISCOUNT_UNIT_PRICE = null;
+                }
+                logger.Info("Invoice Number = " + item.INVOICE_NUMBER + "and Invoice Amount =" + item.AMOUNT);
+                //logger.Debug("Item EST form id =" + item.EST_FORM_ID + "且憑證類型為" + item.TYPE);
+                lstItem.Add(item);
+            }
+            int i = service.addInvoice(lstItem);
+            if (fid == "" || null == fid) { msg = service.message; }
+            if (null != Request["formid"] && Request["formid"] != "")
+            {
+                return Remsg;
+            }
+            else
+            {
+                return msg;
+            }
+        }
+        /*
         public String addVAItem(HttpPostedFileBase file)
         {
             //logger.Info("form:" + form.Count);
@@ -2267,13 +2496,7 @@ namespace topmeperp.Controllers
             {
                 item.RETENTION_PAYMENT = decimal.Parse(Request["retention_amount"]);
             }
-            if (Request["invoice_date"] != "")
-            {
-                item.INVOICE_DATE = Convert.ToDateTime(Request["invoice_date"]);
-            }
-
             item.REMARK = Request["remark"];
-            item.INVOICE_NO = Request["invoice_number"];
             UserService us = new UserService();
             SYS_USER u = (SYS_USER)Session["user"];
             SYS_USER uInfo = us.getUserInfo(u.USER_ID);
@@ -2354,6 +2577,7 @@ namespace topmeperp.Controllers
                 return msg;
             }
         }
+        */
         /// <summary>
         /// 取得業主計價次數
         /// </summary>
@@ -2394,21 +2618,22 @@ namespace topmeperp.Controllers
             decimal paybackAtm = 0;
             decimal loanBalance = 0;
             int period = 0;
-            if (form.Get("loans").Trim() != "")
+            if (null != form.Get("loans").Trim() && form.Get("loans").Trim() != "")
             {
                 FIN_BANK_LOAN bl = service.getPaybackRatioById(int.Parse(form.Get("loans").Trim()));
                 loanBalance = service.getLoanBalanceByBlId(int.Parse(form.Get("loans").Trim()));
                 paybackRatio = decimal.Parse(bl.AR_PAYBACK_RATIO.ToString());
                 period = service.getPaybackCountByBlId(int.Parse(form.Get("loans").Trim()));
             }
-            if (loanBalance < 0 && loanBalance * -1 < decimal.Parse(form["payment_amount"]) * paybackRatio / 100)
+            if (loanBalance < 0 && loanBalance * -1 < Math.Round(decimal.Parse(form["payment_amount"]) * paybackRatio / 100))
             {
                 paybackAtm = loanBalance * -1;
             }
             else
             {
-                paybackAtm = decimal.Parse(form["payment_amount"]) * paybackRatio / 100;
+                paybackAtm = Math.Round(decimal.Parse(form["payment_amount"]) * paybackRatio / 100);
             }
+            logger.Info("paybackAtm = " + paybackAtm);
             if (form["paid_amount"] != "")
             {
                 item.AMOUNT_PAID = decimal.Parse(form["paid_amount"]) - paybackAtm;
