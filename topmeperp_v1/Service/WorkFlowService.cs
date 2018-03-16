@@ -313,7 +313,7 @@ namespace topmeperp.Service
         /// <param name="expid"></param>
         /// <param name="projectid"></param>
         /// <returns></returns>
-        public List<ExpenseFlowTask> getCompanyExpenseRequest(string occurreddate, string subjectname, string expid, string projectid)
+        public List<ExpenseFlowTask> getCompanyExpenseRequest(string occurreddate, string subjectname, string expid, string projectid,string status)
         {
             logger.Info("search expense form by " + occurreddate + ", 費用單編號 =" + expid + ", 項目名稱 =" + subjectname + ", 專案編號 =" + projectid);
             List<ExpenseFlowTask> lstForm = new List<ExpenseFlowTask>();
@@ -343,6 +343,12 @@ namespace topmeperp.Service
                 {
                     sql = sql + " AND  F.PROJECT_ID = @projectid ";
                     parameters.Add(new SqlParameter("projectid", projectid));
+                }
+                //表單狀態
+                if (null != status && status != "")
+                {
+                    sql = sql + " AND  F.STATUS = @status ";
+                    parameters.Add(new SqlParameter("status", status));
                 }
 
                 lstForm = context.Database.SqlQuery<ExpenseFlowTask>(sql, parameters.ToArray()).ToList();

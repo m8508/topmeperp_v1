@@ -727,8 +727,11 @@ namespace topmeperp.Controllers
                 id = "";
                 ViewBag.projectid = "";
             }
+            //取得表單狀態參考資料
+            SelectList status = new SelectList(SystemParameter.getSystemPara("ExpenseForm"), "KEY_FIELD", "VALUE_FIELD");
+            ViewData.Add("status", status);
             Flow4CompanyExpense s = new Flow4CompanyExpense();
-            List<ExpenseFlowTask> lstEXP = s.getCompanyExpenseRequest(Request["occurred_date"], Request["subjectname"], Request["expid"], id);
+            List<ExpenseFlowTask> lstEXP = s.getCompanyExpenseRequest(Request["occurred_date"], Request["subjectname"], Request["expid"], id,null);
             return View(lstEXP);
         }
 
@@ -736,16 +739,18 @@ namespace topmeperp.Controllers
         public ActionResult SearchEXP()
         {
             string id = Request["id"];
-
+            string status = Request["status"];
             if (id != null && id != "")
             {
                 TND_PROJECT p = service.getProjectById(id);
                 ViewBag.projectName = p.PROJECT_NAME;
                 ViewBag.projectid = id;
             }
-
+            SelectList LstStatus = new SelectList(SystemParameter.getSystemPara("ExpenseForm"), "KEY_FIELD", "VALUE_FIELD");
+            ViewData.Add("status", LstStatus);
             Flow4CompanyExpense s = new Flow4CompanyExpense();
-            List<ExpenseFlowTask> lstEXP = s.getCompanyExpenseRequest(Request["occurred_date"], Request["subjectname"], Request["expid"], id);
+
+            List<ExpenseFlowTask> lstEXP = s.getCompanyExpenseRequest(Request["occurred_date"], Request["subjectname"], Request["expid"], id, status);
             ViewBag.SearchResult = "共取得" + lstEXP.Count + "筆資料";
             return View("ExpenseForm", lstEXP);
         }

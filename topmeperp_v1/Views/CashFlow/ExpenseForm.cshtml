@@ -44,9 +44,7 @@ else
                 <input id="subjectname" name="subjectname" class="form-control" />
             </div>
             <div class="col-md-6 form-group" style="padding-top:10px">
-                <input type="radio" value="15" id="status" name="status" checked />已送審
-                <input type="radio" value="20" id="status" name="status" />待主管簽核
-                <input type="radio" value="40" id="status" name="status" />待最後核准
+                <label for="status">狀態 : </label> @Html.DropDownList("status", null, String.Empty, new { @class = "form-control" })
                 <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
             </div>
             <input type="hidden" id="id" name="id" value="@ViewBag.projectid" />
