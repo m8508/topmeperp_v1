@@ -319,7 +319,33 @@ namespace topmeperp.Service
             List<ExpenseFlowTask> lstForm = new List<ExpenseFlowTask>();
             using (var context = new topmepEntities())
             {
-                lstForm = context.Database.SqlQuery<ExpenseFlowTask>(sql, new SqlParameter("id", projectid)).ToList();
+                var parameters = new List<SqlParameter>();
+                //申請日期
+                if (null!= occurreddate &&  occurreddate != "")
+                {
+                    sql = sql + " AND F.PAYMENT_DATE=@occurreddate ";
+                    parameters.Add(new SqlParameter("occurreddate", occurreddate));
+                }
+                //申請主旨內容
+                if (null != subjectname  && subjectname != "")
+                {
+                    sql = sql + " AND F.REMARK Like @subjectname ";
+                    parameters.Add(new SqlParameter("subjectname", "'%" + subjectname + "%'"));
+                }
+                //申請單號
+                if (null!=expid && expid != "")
+                {
+                    sql = sql + " AND  F.EXP_FORM_ID Like @expid ";
+                    parameters.Add(new SqlParameter("expid", "'%"+ expid + "%'"));
+                }
+                //工地費用
+                if (null != projectid && projectid != "")
+                {
+                    sql = sql + " AND  F.PROJECT_ID = @projectid ";
+                    parameters.Add(new SqlParameter("projectid", projectid));
+                }
+
+                lstForm = context.Database.SqlQuery<ExpenseFlowTask>(sql, parameters.ToArray()).ToList();
             }
             logger.Info("get expense form count=" + lstForm.Count);
 
