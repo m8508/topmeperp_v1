@@ -88,20 +88,20 @@ namespace topmeperp.Controllers
             SelectListItem empty = new SelectListItem();
             empty.Value = "";
             empty.Text = "";
-            List<SelectListItem> selectSupplier = new List<SelectListItem>();
-            foreach (string itm in service.getSupplier())
-            {
-                log.Debug("Supplier=" + itm);
-                SelectListItem selectI = new SelectListItem();
-                selectI.Value = itm;
-                selectI.Text = itm;
-                if (null != itm && "" != itm)
-                {
-                    selectSupplier.Add(selectI);
-                }
-            }
+            //List<SelectListItem> selectSupplier = new List<SelectListItem>();
+            //foreach (string itm in service.getSupplier())
+            //{
+            //    log.Debug("Supplier=" + itm);
+            //    SelectListItem selectI = new SelectListItem();
+            //    selectI.Value = itm;
+            //    selectI.Text = itm;
+            //    if (null != itm && "" != itm)
+            //    {
+            //        selectSupplier.Add(selectI);
+            //    }
+            //}
             // selectSupplier.Add(empty);
-            ViewBag.Supplier = selectSupplier;
+           // ViewBag.Supplier = selectSupplier;
             return View(singleForm);
         }
 
