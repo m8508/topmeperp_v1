@@ -87,17 +87,17 @@ namespace topmeperp.Service
         {
             user = u;
             processTask();
-
         }
         //審核通過
-        public void Approve()
-        {
+        //public void Approve()
+        //{
 
-        }
+        //}
         //退件
-        public void Reject()
+        public void Reject(SYS_USER u, string reason)
         {
-
+            user = u;
+            RejectTask(reason);
         }
         //中止
         public void Cancel()
@@ -193,7 +193,47 @@ namespace topmeperp.Service
                     Message = "處理失敗(" + ex.Message + ")";
                     logger.Error(ex.Message + ":" + ex.StackTrace);
                 }
+            }
+        }
+        /// <summary>
+        /// 退件相關狀態處理
+        /// </summary>
+        protected void RejectTask(string reason)
+        {
+            string sql4Task = "UPDATE WF_PORCESS_TASK SET STATUS=@status,REMARK=@remark,MODIFY_USER_ID=@modifyUser,MODIFY_DATE=@modifyDate WHERE RID=@RID";
+            string sql4Request = "UPDATE WF_PROCESS_REQUEST SET CURENT_STATE=@state,MODIFY_USER_ID=@modifyUser,MODIFY_DATE=@modifyDate WHERE RID=@RID";
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    //Update Task State roll back to "O"
+                    var parameters = new List<SqlParameter>();
+                    parameters.Add(new SqlParameter("status", "O"));
+                    parameters.Add(new SqlParameter("remark", reason));
 
+                    parameters.Add(new SqlParameter("modifyUser", user.USER_ID));
+                    parameters.Add(new SqlParameter("modifyDate", DateTime.Now));
+                    parameters.Add(new SqlParameter("RID", task.task.RID));
+                    int i = context.Database.ExecuteSqlCommand(sql4Task, parameters.ToArray());
+                    logger.Debug("i=" + i + "sql" + sql4Task + ",Id" + task.task.RID);
+
+                    //Change Request State
+                    parameters = new List<SqlParameter>();
+                    parameters.Add(new SqlParameter("state", 1));
+                    parameters.Add(new SqlParameter("modifyUser", user.USER_ID));
+                    parameters.Add(new SqlParameter("modifyDate", DateTime.Now));
+                    parameters.Add(new SqlParameter("RID", task.task.RID));
+                    i = context.Database.ExecuteSqlCommand(sql4Request, parameters.ToArray());
+                    logger.Debug("i=" + i + "sql" + sql4Task + ",Id" + task.task.ID);
+                    statusChange = "D";
+                    Message = "退件作業完成";
+                }
+                catch (Exception ex)
+                {
+                    statusChange = "F";
+                    Message = "退件作業處理失敗(" + ex.Message + ")";
+                    logger.Error(ex.Message + ":" + ex.StackTrace);
+                }
             }
         }
         //取得表單與對應的流程資料
@@ -221,7 +261,7 @@ namespace topmeperp.Service
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         static string FLOW_KEY = "EXP01";
         //處理SQL 預先填入專案代號,設定集合處理參數
-        string sql = @"SELECT F.EXP_FORM_ID,F.PROJECT_ID,F.OCCURRED_YEAR,F.OCCURRED_MONTH,F.PAYEE,F.PAYMENT_DATE,F.REMARK REQ_DESC,
+        string sql = @"SELECT F.EXP_FORM_ID,F.PROJECT_ID,F.OCCURRED_YEAR,F.OCCURRED_MONTH,F.PAYEE,F.PAYMENT_DATE,F.REMARK REQ_DESC,F.REJECT_DESC REJECT_DESC,
                         R.REQ_USER_ID,R.CURENT_STATE,R.PID,
                         CT.* ,M.FORM_URL + METHOD_URL as FORM_URL
 						FROM FIN_EXPENSE_FORM F,WF_PROCESS_REQUEST R,
@@ -325,17 +365,25 @@ namespace topmeperp.Service
             //STATUS  40  中止
             //
             logger.Debug("CompanyExpenseRequest Send" + task.task.ID);
-            string sql = "UPDATE FIN_EXPENSE_FORM SET STATUS=@status,PAYMENT_DATE=@paymentDate,REJECT_DESC=@rejectDesc WHERE EXP_FORM_ID=@formId";
-            int staus = 10;
             base.Send(u);
-            if (statusChange == "M")
+            if (statusChange != "F")
             {
-                staus = 20;
+                int staus = 10;
+                if (statusChange == "M")
+                {
+                    staus = 20;
+                }
+                else if (statusChange == "D")
+                {
+                    staus = 30;
+                }
+                staus = updateForm(paymentdate, reason, staus);
             }
-            else if (statusChange == "D")
-            {
-                staus = 30;
-            }
+        }
+
+        private int updateForm(DateTime? paymentdate, string reason, int staus)
+        {
+            string sql = "UPDATE FIN_EXPENSE_FORM SET STATUS=@status,PAYMENT_DATE=@paymentDate,REJECT_DESC=@rejectDesc WHERE EXP_FORM_ID=@formId";
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("status", staus));
             if (null != paymentdate)
@@ -360,6 +408,19 @@ namespace topmeperp.Service
             {
                 logger.Debug("Change CompanyExpenseRequest Status=" + task.task.EXP_FORM_ID + "," + staus);
                 context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            }
+
+            return staus;
+        }
+
+        //退件
+        public void Reject(SYS_USER u, DateTime? paymentdate, string reason)
+        {
+            logger.Debug("CompanyExpenseRequest Reject:" + task.task.RID);
+            base.Reject(u, reason);
+            if (statusChange != "F")
+            {
+                updateForm(paymentdate, reason, 0);
             }
         }
     }

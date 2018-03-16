@@ -466,7 +466,7 @@ namespace topmeperp.Controllers
             Session["process"] = wfs.task;
             return View(wfs.task);
         }
-
+        //送審、通過
         public String SendForm(FormCollection f)
         {
             logger.Info("http get mehtod:" + f["EXP_FORM_ID"]);
@@ -488,6 +488,16 @@ namespace topmeperp.Controllers
 
             wfs.Send(u, paymentdate, desc);
             return "更新成功!!";
+        }
+        //退件
+        public String RejectForm(FormCollection form)//須設定角色來鎖定每個button的權限(目前還未處理)
+        {
+            //取得表單資料 from Session
+            Flow4CompanyExpense wfs = new Flow4CompanyExpense();
+            wfs.task = (ExpenseTask)Session["process"];
+            SYS_USER u = (SYS_USER)Session["user"];
+            wfs.Reject(u, null,form["RejectDesc"]);
+            return wfs.Message;
         }
         //更新費用單
         public String UpdateEXP(FormCollection form)
@@ -697,6 +707,7 @@ namespace topmeperp.Controllers
             return View(lstEXP);
         }
 
+
         public ActionResult SearchEXP()
         {
             //logger.Info("occurred_date =" + Request["occurred_date"] + "subjectname =" + Request["subjectname"] + ", expid =" + Request["expid"] + ", status =" + int.Parse(Request["status"] + ", projectid =" + Request["id"]));
@@ -711,26 +722,6 @@ namespace topmeperp.Controllers
             return View("ExpenseForm", lstEXP);
         }
 
-        public String RejectEXPById(FormCollection form)//須設定角色來鎖定每個button的權限(目前還未處理)
-        {
-            //取得費用單編號
-            logger.Info("EXP form Id:" + form["formnumber"]);
-            //更新費用單狀態
-            logger.Info("Reject Expense Form ");
-            string formid = form.Get("formnumber").Trim();
-            //費用單(已退件) STATUS = 0
-            string msg = "";
-            int i = service.RejectEXPByExpId(formid);
-            if (i == 0)
-            {
-                msg = service.message;
-            }
-            else
-            {
-                msg = "費用單已退回";
-            }
-            return msg;
-        }
 
         public String PassEXPById(FormCollection form)
         {

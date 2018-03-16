@@ -27,8 +27,9 @@ namespace topmeperp.Models
         public Int32 OCCURRED_YEAR { get; set; }
         public Int32 OCCURRED_MONTH { get; set; }
         public string PAYEE { get; set; }
-        public string PAYMENT_DATE { get; set; }
+        public DateTime? PAYMENT_DATE { get; set; }
         public string REQ_DESC { get; set; }
+        public string REJECT_DESC { get; set; }
         //WF_PROCESS_REQUEST
         public string REQ_USER_ID { get; set; }
         public Int64 CURENT_STATE { get; set; }
