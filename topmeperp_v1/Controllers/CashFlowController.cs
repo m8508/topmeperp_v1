@@ -466,28 +466,47 @@ namespace topmeperp.Controllers
             Session["process"] = wfs.task;
             return View(wfs.task);
         }
-
+        //送審、通過
         public String SendForm(FormCollection f)
         {
             logger.Info("http get mehtod:" + f["EXP_FORM_ID"]);
             Flow4CompanyExpense wfs = new Flow4CompanyExpense();
-            wfs.task =(ExpenseTask)Session["process"];
+            wfs.task = (ExpenseTask)Session["process"];
             logger.Info("Data In Session :" + wfs.task.FormData.finEXP.EXP_FORM_ID);
 
             SYS_USER u = (SYS_USER)Session["user"];
             DateTime? paymentdate = null;//DateTime can not set null
             string desc = null;
-            if (f["paymentdate"].ToString() !="")
+            if (f["paymentdate"].ToString() != "")
             {
                 paymentdate = Convert.ToDateTime(f["paymentdate"].ToString());
             }
             if (null != f["RejectDesc"] && f["RejectDesc"].ToString() != "")
             {
-                desc = f["RejectDesc"].ToString().Trim() ;
+                desc = f["RejectDesc"].ToString().Trim();
             }
 
             wfs.Send(u, paymentdate, desc);
             return "更新成功!!";
+        }
+        //退件
+        public String RejectForm(FormCollection form)
+        {
+            //取得表單資料 from Session
+            Flow4CompanyExpense wfs = new Flow4CompanyExpense();
+            wfs.task = (ExpenseTask)Session["process"];
+            SYS_USER u = (SYS_USER)Session["user"];
+            wfs.Reject(u, null, form["RejectDesc"]);
+            return wfs.Message;
+        }
+        //取消
+        public String CancelForm(FormCollection form)
+        {
+            Flow4CompanyExpense wfs = new Flow4CompanyExpense();
+            wfs.task = (ExpenseTask)Session["process"];
+            SYS_USER u = (SYS_USER)Session["user"];
+            wfs.Cancel(u);
+            return wfs.Message;
         }
         //更新費用單
         public String UpdateEXP(FormCollection form)
@@ -500,7 +519,9 @@ namespace topmeperp.Controllers
             ef.OCCURRED_MONTH = int.Parse(form.Get("month").Trim());
             ef.REMARK = form.Get("remark").Trim();
             ef.CREATE_ID = form.Get("createid").Trim();
-            ef.PAYMENT_DATE = Convert.ToDateTime(form.Get("paymentdate"));
+            if ("" !=form.Get("paymentdate")){
+                ef.PAYMENT_DATE = Convert.ToDateTime(form.Get("paymentdate"));
+            }
             ef.CREATE_DATE = Convert.ToDateTime(form.Get("createdate"));
             ef.STATUS = int.Parse(form.Get("status").Trim());
             ef.MODIFY_DATE = DateTime.Now;
@@ -697,40 +718,24 @@ namespace topmeperp.Controllers
             return View(lstEXP);
         }
 
+
         public ActionResult SearchEXP()
         {
-            //logger.Info("occurred_date =" + Request["occurred_date"] + "subjectname =" + Request["subjectname"] + ", expid =" + Request["expid"] + ", status =" + int.Parse(Request["status"] + ", projectid =" + Request["id"]));
-            List<OperatingExpenseFunction> lstEXP = service.getEXPListByExpId(Request["occurred_date"], Request["subjectname"], Request["expid"], int.Parse(Request["status"]), Request["id"]);
-            ViewBag.SearchResult = "共取得" + lstEXP.Count + "筆資料";
-            if (Request["id"] != null && Request["id"] != "")
+            string id = Request["id"];
+
+            if (id != null && id != "")
             {
-                TND_PROJECT p = service.getProjectById(Request["id"]);
+                TND_PROJECT p = service.getProjectById(id);
                 ViewBag.projectName = p.PROJECT_NAME;
-                ViewBag.projectid = Request["id"];
+                ViewBag.projectid = id;
             }
+
+            Flow4CompanyExpense s = new Flow4CompanyExpense();
+            List<ExpenseFlowTask> lstEXP = s.getCompanyExpenseRequest(Request["occurred_date"], Request["subjectname"], Request["expid"], id);
+            ViewBag.SearchResult = "共取得" + lstEXP.Count + "筆資料";
             return View("ExpenseForm", lstEXP);
         }
 
-        public String RejectEXPById(FormCollection form)//須設定角色來鎖定每個button的權限(目前還未處理)
-        {
-            //取得費用單編號
-            logger.Info("EXP form Id:" + form["formnumber"]);
-            //更新費用單狀態
-            logger.Info("Reject Expense Form ");
-            string formid = form.Get("formnumber").Trim();
-            //費用單(已退件) STATUS = 0
-            string msg = "";
-            int i = service.RejectEXPByExpId(formid);
-            if (i == 0)
-            {
-                msg = service.message;
-            }
-            else
-            {
-                msg = "費用單已退回";
-            }
-            return msg;
-        }
 
         public String PassEXPById(FormCollection form)
         {

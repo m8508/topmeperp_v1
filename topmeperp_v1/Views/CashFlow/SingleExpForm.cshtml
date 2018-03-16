@@ -292,10 +292,42 @@
             }
         });
     });
-
+    //送審、通過
     $("#SendForm").click(function () {
         $.ajax({
             url: '@Url.Action("SendForm", "CashFlow")',
+            data: $('#formExpense').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+                window.location.replace("/CashFlow/ExpenseForm");
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    });
+    //退件
+    $("#RejectForm").click(function () {
+        $.ajax({
+            url: '@Url.Action("RejectForm", "CashFlow")',
+            data: $('#formExpense').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+                window.location.replace("/CashFlow/ExpenseForm");
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    });
+    //中止
+    $("#CancelForm").click(function () {
+        $.ajax({
+            url: '@Url.Action("CancelForm", "CashFlow")',
             data: $('#formExpense').serialize(),
             type: "POST",
             dataType: 'text',

@@ -15,8 +15,8 @@
                     <th>申請人</th>
                     <th>受款人</th>
                     <th>支付日期</th>
+                    <th>備註</th>
                     <th>下一步</th>
-                    <th>選項連結</th>
                 </tr>
             </thead>
             <tbody>
@@ -41,12 +41,13 @@
                         <td>@item.REQ_USER_ID</td>
                         <td>@item.PAYEE </td>
                         <td>
-                            @item.PAYMENT_DATE
+                            @(null==item.PAYMENT_DATE ? "" : item.PAYMENT_DATE.Value.ToString("yyyy/MM/dd"))                         
                         </td>
+                        <td>@item.REJECT_DESC</td>
                         <td>
                             <a href='@(item.FORM_URL+"id="+item.EXP_FORM_ID)'>@item.NOTE</a>
                         </td>
-                        <td></td>
+
                     </tr>
                 }
             </tbody>
