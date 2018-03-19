@@ -39,9 +39,19 @@ namespace topmeperp.Controllers
             TnderProject s = new TnderProject();
             log.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"]);
             //加入刪除註記 預設 "N"
-            List<topmeperp.Models.TND_PROJECT_ITEM> lstProject = s.getProjectItem(null, Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"],"N");
+            List<topmeperp.Models.TND_PROJECT_ITEM> lstProject = s.getProjectItem(null, Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], "N");
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             ViewBag.projectId = Request["projectid"];
+            //加入系統次系統
+            SelectListItem empty = new SelectListItem();
+            empty.Value = "";
+            empty.Text = "";
+            List<SelectListItem> selectMain = UtilService.getMainSystem(Request["projectid"], service);
+            // selectMain.Add(empty);
+            ViewBag.SystemMain = selectMain;
+            List<SelectListItem> selectSub = UtilService.getSubSystem(Request["projectid"], service);
+            //selectSub.Add(empty);
+            ViewBag.SystemSub = selectSub;
             return View("Index", lstProject);
         }
         //Create Project Form
@@ -76,12 +86,7 @@ namespace topmeperp.Controllers
             qf.OWNER_FAX = uInfo.FAX;
             TND_PROJECT_FORM_ITEM item = new TND_PROJECT_FORM_ITEM();
             string fid = s.newForm(qf, lstItemId);
-            //產生詢價單實體檔案-old
-            service.getInqueryForm(fid);
-            InquiryFormToExcel poi = new InquiryFormToExcel();
-            poi.exportExcel(service.formInquiry, service.formInquiryItem, false);
-            return Redirect("InquiryMainPage?id=" + qf.PROJECT_ID);
-            //return RedirectToAction("InquiryMainPage","Inquiry", qf.PROJECT_ID);
+            return Redirect("SinglePrjForm/" + fid);
         }
         //顯示單一詢價單、報價單功能
         public ActionResult SinglePrjForm(string id)
@@ -97,20 +102,6 @@ namespace topmeperp.Controllers
             SelectListItem empty = new SelectListItem();
             empty.Value = "";
             empty.Text = "";
-            //List<SelectListItem> selectSupplier = new List<SelectListItem>();
-            //foreach (string itm in service.getSupplier())
-            //{
-            //    log.Debug("Supplier=" + itm);
-            //    SelectListItem selectI = new SelectListItem();
-            //    selectI.Value = itm;
-            //    selectI.Text = itm;
-            //    if (null != itm && "" != itm)
-            //    {
-            //        selectSupplier.Add(selectI);
-            //    }
-            //}
-            // selectSupplier.Add(empty);
-           // ViewBag.Supplier = selectSupplier;
             return View(singleForm);
         }
 
@@ -121,9 +112,18 @@ namespace topmeperp.Controllers
             // 取得供應商詢價單資料
             TND_PROJECT_FORM fm = new TND_PROJECT_FORM();
             SYS_USER loginUser = (SYS_USER)Session["user"];
-            fm.SUPPLIER_ID = form.Get("Supplier").Substring(7).Trim();
+
             fm.PROJECT_ID = form.Get("projectid").Trim();
-            fm.DUEDATE = Convert.ToDateTime(form.Get("inputdateline"));
+            //廠商資料
+            if (null == form.Get("Supplier") || "" == form.Get("Supplier"))
+            {
+                fm.SUPPLIER_ID = form.Get("Supplier").Substring(7).Trim();
+                fm.DUEDATE = Convert.ToDateTime(form.Get("inputdateline"));
+                TND_SUPPLIER s = service.getSupplierInfo(form.Get("Supplier").Substring(0, 7).Trim());
+                fm.CONTACT_NAME = s.CONTACT_NAME;
+                fm.CONTACT_EMAIL = s.CONTACT_EMAIL;
+            }
+            //業務區塊
             fm.OWNER_NAME = form.Get("inputowner").Trim();
             fm.OWNER_TEL = form.Get("inputphone").Trim();
             fm.OWNER_FAX = form.Get("inputownerfax").Trim();
@@ -134,11 +134,10 @@ namespace topmeperp.Controllers
             {
                 fm.ISWAGE = form.Get("isWage").Trim();
             }
-            TND_SUPPLIER s = service.getSupplierInfo(form.Get("Supplier").Substring(0, 7).Trim());
-            fm.CONTACT_NAME = s.CONTACT_NAME;
-            fm.CONTACT_EMAIL = s.CONTACT_EMAIL;
+
             fm.CREATE_ID = loginUser.USER_ID;
             fm.CREATE_DATE = DateTime.Now;
+            //明細區塊
             string[] lstItemId = form.Get("formitemid").Split(',');
             log.Info("select count:" + lstItemId.Count());
             var j = 0;
@@ -176,19 +175,19 @@ namespace topmeperp.Controllers
             }
             int k = service.refreshSupplierFormItem(fid, lstItem);
             //產生廠商詢價單實體檔案
-            service.getInqueryForm(fid);
-            InquiryFormToExcel poi = new InquiryFormToExcel();
-            poi.exportExcel(service.formInquiry, service.formInquiryItem, false);
+            //service.getInqueryForm(fid);
+            //InquiryFormToExcel poi = new InquiryFormToExcel();
+            //poi.exportExcel(service.formInquiry, service.formInquiryItem, false);
             if (fid == "")
             {
                 msg = service.message;
             }
             else
             {
-                msg = "新增供應商詢價單成功";
+                msg = "新增詢價單成功";
             }
 
-            log.Info("Request:FORM_NAME=" + form["formname"] + "SUPPLIER_NAME =" + form["Supplier"]);
+            log.Info("Request:FORM_NAME=" + form["formname"]);
             return msg;
         }
         //更新廠商詢價單資料

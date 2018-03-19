@@ -435,7 +435,7 @@ namespace topmeperp.Controllers
 
                 if (service.getSupplierContractByFormId(quoteFormService.form.INQUIRY_FORM_ID) != false)
                 {
-                    warringMsg= "(此詢價單編號已被發包採購使用，資料已強制更新)";
+                    warringMsg = "(此詢價單編號已被發包採購使用，資料已強制更新)";
                 }
                 if (null != quoteFormService.form.INQUIRY_FORM_ID && quoteFormService.form.INQUIRY_FORM_ID != "")
                 {
@@ -597,7 +597,7 @@ namespace topmeperp.Controllers
             //ViewBag.isWage = Request["isWage"];
             //if (null != Request["isWage"])
             //{
-                //iswage = Request["isWage"];
+            //iswage = Request["isWage"];
             //}
             List<purchasesummary> lstforms = service.getPurchaseForm4Offer(id, formname, iswage);
             BudgetDataService bs = new BudgetDataService();
@@ -607,7 +607,7 @@ namespace topmeperp.Controllers
             ViewBag.SearchResult = "共取得" + lstforms.Count + "筆資料";
             return View(lstforms);
         }
-        
+
         //採購比價功能資料頁
         public ActionResult Comparison(string id)
         {
@@ -801,8 +801,18 @@ namespace topmeperp.Controllers
                         log.Debug("column name=" + dt.Columns[i].ColumnName);
                         string[] tmpString = dt.Columns[i].ColumnName.Split('|');
                         //<a href="/PurchaseForm/SinglePrjForm/@item.INQUIRY_FORM_ID" target="_blank">@item.INQUIRY_FORM_ID</a>
-                        decimal tAmount = (decimal)dirSupplierQuo[tmpString[1]].TAmount;
-                        string strAmout = string.Format("{0:C0}", tAmount);
+                        decimal tAmount = 0;
+                        string strAmout = "0";
+                        try
+                        {
+                            tAmount = (decimal)dirSupplierQuo[tmpString[1]].TAmount;
+                            strAmout = string.Format("{0:C0}", tAmount);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error(dt.Columns[i].ColumnName + " not have Budget" + ex.Message);
+                            log.Debug(ex.StackTrace);
+                        }
 
                         htmlString = htmlString + "<th><table><tr><td>" + tmpString[0] + '(' + tmpString[2] + ')' +
                             "</td><button type='button' class='btn-xs' " + @ViewBag.F10006 + " onclick=\"clickSupplier('" + tmpString[1] + "','" + iswage + "')\"><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>" +
@@ -860,7 +870,7 @@ namespace topmeperp.Controllers
             }
             catch (Exception e)
             {
-                log.Error("Ex" + e.Message);
+                log.Error("Ex" + e.Message + "," + e.StackTrace);
                 ViewBag.htmlString = e.Message;
             }
             return PartialView();
@@ -1699,11 +1709,11 @@ namespace topmeperp.Controllers
                 item.CONTRACT_ID = lstItemId[i];
                 //if (lstRemark[i].ToString() == "")
                 //{
-                    //item.REMARK = null;
+                //item.REMARK = null;
                 //}
                 //else
                 //{
-                    //item.REMARK = lstRemark[i];
+                //item.REMARK = lstRemark[i];
                 //}
                 if (lstBrand[i].ToString() == "")
                 {

@@ -30,11 +30,11 @@
                         <label for="systemSub">次系統:</label>
                         @Html.DropDownList("systemSub", (IEnumerable<SelectListItem>)ViewBag.SystemSub, String.Empty, new { @class = "form-control selectpicker" })
                     </div>
-                    <div id="divProcessing" class="col-md-1">
-                        <img src="~/Content/ajax-loader.gif">
-                    </div>
                     <div class="col-md-1 pull-left">
                         <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
+                    </div>
+                    <div id="divProcessing" class="col-md-1">
+                        <img src="~/Content/ajax-loader.gif">
                     </div>
                 </div>
             </form>

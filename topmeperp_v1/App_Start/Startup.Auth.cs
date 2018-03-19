@@ -24,6 +24,6 @@ namespace topmeperp
     }
     public class AppInfo
     {
-        public static string Version="1.0.28";
+        public static string Version="1.0.29";
     }
 }
