@@ -607,39 +607,16 @@ namespace topmeperp.Controllers
             SelectListItem empty = new SelectListItem();
             empty.Value = "";
             empty.Text = "";
-            //取得主系統資料
-            List<SelectListItem> selectMain = new List<SelectListItem>();
-            foreach (string itm in service.getSystemMain(id))
-            {
-                logger.Debug("Main System=" + itm);
-                SelectListItem selectI = new SelectListItem();
-                selectI.Value = itm;
-                selectI.Text = itm;
-                if (null != itm && "" != itm)
-                {
-                    selectMain.Add(selectI);
-                }
-            }
+            List<SelectListItem> selectMain = UtilService.getMainSystem(id, service);
             // selectMain.Add(empty);
             ViewBag.SystemMain = selectMain;
-            //取得次系統資料
-            List<SelectListItem> selectSub = new List<SelectListItem>();
-            foreach (string itm in service.getSystemSub(id))
-            {
-                logger.Debug("Sub System=" + itm);
-                SelectListItem selectI = new SelectListItem();
-                selectI.Value = itm;
-                selectI.Text = itm;
-                if (null != itm && "" != itm)
-                {
-                    selectSub.Add(selectI);
-                }
-            }
+            List<SelectListItem> selectSub = UtilService.getSubSystem(id, service);
             //selectSub.Add(empty);
             ViewBag.SystemSub = selectSub;
             //設定查詢條件
             return View();
         }
+
         /// <summary>
         /// 取得標單明細資料
         /// </summary>

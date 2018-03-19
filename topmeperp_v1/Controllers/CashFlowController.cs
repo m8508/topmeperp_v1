@@ -384,11 +384,13 @@ namespace topmeperp.Controllers
             string[] lstQty = form.Get("item_quantity").Split(',');
             string[] SubjectList = form.Get("subjectlist").Split(',');
             logger.Debug("SubjectList = " + SubjectList);
-            //建立公司費用單號
+            //建立公司/工地費用單號
             logger.Info("create new Operating Expense Form");
-            UserService us = new UserService();
-            SYS_USER u = (SYS_USER)Session["user"];
-            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            if (null != form["projectid"] || form["projectid"] != "")
+            {
+                ef.PROJECT_ID = form["projectid"];
+            }
+            SYS_USER uInfo = (SYS_USER)Session["user"];
             if (null != Request["paymentdate"] && "" != Request["paymentdate"])
             {
                 ef.PAYMENT_DATE = Convert.ToDateTime(Request["paymentdate"]);
@@ -401,7 +403,7 @@ namespace topmeperp.Controllers
             ef.PAYEE = Request["supplier"];
             ef.STATUS = 10;
             string fid = service.newExpenseForm(ef);
-            //建立公司費用單明細
+            //建立公司/工費用單明細
             List<FIN_EXPENSE_ITEM> lstItem = new List<FIN_EXPENSE_ITEM>();
             for (int j = 0; j < lstSubject.Count(); j++)
             {
@@ -439,10 +441,21 @@ namespace topmeperp.Controllers
                 lstItem.Add(item);
             }
             int i = service.AddExpenseItems(lstItem);
-            //建立申請單參考流程
-            Flow4CompanyExpense flowService = new Flow4CompanyExpense();
-            logger.Debug("Item Count =" + i);
-            flowService.iniRequest(u, fid);
+            //建立公司費用申請參考流程
+            if (null == form["projectid"] || form["projectid"] == "")
+            {
+                Flow4CompanyExpense flowService = new Flow4CompanyExpense();
+                logger.Debug("Item Count =" + i);
+                flowService.iniRequest(uInfo, fid);
+            }
+            else
+            {
+                //建立工地費用申請參考流程
+                Flow4SiteExpense flowService = new Flow4SiteExpense();
+                logger.Debug("Item Count =" + i);
+                flowService.iniRequest(uInfo, fid);
+
+            }
             return Redirect("SingleEXPForm?id=" + fid);
         }
 
@@ -519,7 +532,8 @@ namespace topmeperp.Controllers
             ef.OCCURRED_MONTH = int.Parse(form.Get("month").Trim());
             ef.REMARK = form.Get("remark").Trim();
             ef.CREATE_ID = form.Get("createid").Trim();
-            if ("" !=form.Get("paymentdate")){
+            if ("" != form.Get("paymentdate"))
+            {
                 ef.PAYMENT_DATE = Convert.ToDateTime(form.Get("paymentdate"));
             }
             ef.CREATE_DATE = Convert.ToDateTime(form.Get("createdate"));
@@ -713,8 +727,11 @@ namespace topmeperp.Controllers
                 id = "";
                 ViewBag.projectid = "";
             }
+            //取得表單狀態參考資料
+            SelectList status = new SelectList(SystemParameter.getSystemPara("ExpenseForm"), "KEY_FIELD", "VALUE_FIELD");
+            ViewData.Add("status", status);
             Flow4CompanyExpense s = new Flow4CompanyExpense();
-            List<ExpenseFlowTask> lstEXP = s.getCompanyExpenseRequest(Request["occurred_date"], Request["subjectname"], Request["expid"], id);
+            List<ExpenseFlowTask> lstEXP = s.getCompanyExpenseRequest(Request["occurred_date"], Request["subjectname"], Request["expid"], id,null);
             return View(lstEXP);
         }
 
@@ -722,16 +739,18 @@ namespace topmeperp.Controllers
         public ActionResult SearchEXP()
         {
             string id = Request["id"];
-
+            string status = Request["status"];
             if (id != null && id != "")
             {
                 TND_PROJECT p = service.getProjectById(id);
                 ViewBag.projectName = p.PROJECT_NAME;
                 ViewBag.projectid = id;
             }
-
+            SelectList LstStatus = new SelectList(SystemParameter.getSystemPara("ExpenseForm"), "KEY_FIELD", "VALUE_FIELD");
+            ViewData.Add("status", LstStatus);
             Flow4CompanyExpense s = new Flow4CompanyExpense();
-            List<ExpenseFlowTask> lstEXP = s.getCompanyExpenseRequest(Request["occurred_date"], Request["subjectname"], Request["expid"], id);
+
+            List<ExpenseFlowTask> lstEXP = s.getCompanyExpenseRequest(Request["occurred_date"], Request["subjectname"], Request["expid"], id, status);
             ViewBag.SearchResult = "共取得" + lstEXP.Count + "筆資料";
             return View("ExpenseForm", lstEXP);
         }

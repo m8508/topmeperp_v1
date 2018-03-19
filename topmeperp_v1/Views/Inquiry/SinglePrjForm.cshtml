@@ -51,11 +51,11 @@
                 <div class="col-md-4">
                     @if (Model.prjForm.FORM_NAME != null)
                     {
-                    <input type="text" class="form-control" name="formname" id="formname" value="@Model.prjForm.FORM_NAME" readonly="readonly">
+                        <input type="text" class="form-control" name="formname" id="formname" value="@Model.prjForm.FORM_NAME" readonly="readonly">
                     }
                     else
                     {
-                    <input type="text" id="formname" name="formname" class="form-control" />
+                        <input type="text" id="formname" name="formname" class="form-control" />
                     }
                 </div>
             </div>
@@ -106,11 +106,11 @@
                 <div class="col-md-4">
                     @if (Model.prjForm.DUEDATE != null)
                     {
-                    <input type="text" class="form-control" name="inputdateline" id="inputdateline" value="@Model.prjForm.DUEDATE.Value.ToString("yyyy/MM/dd")">
+                        <input type="text" class="form-control" name="inputdateline" id="inputdateline" value="@Model.prjForm.DUEDATE.Value.ToString("yyyy/MM/dd")">
                     }
                     else
                     {
-                    <input type="text" class="form-control" name="inputdateline" id="inputdateline" value="">
+                        <input type="text" class="form-control" name="inputdateline" id="inputdateline" value="">
                     }
                 </div>
             </div>
@@ -193,18 +193,18 @@
                         <td>
                             @if (@item.ITEM_UNIT_PRICE != null)
                             {
-                            <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="@item.ITEM_UNIT_PRICE" style="width:100px">
+                                <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="@item.ITEM_UNIT_PRICE" style="width:100px">
                             }
                             else
                             {
-                            <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="" style="width:100px">
+                                <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="" style="width:100px">
                             }
                         </td>
 
                         <td></td>
-                        <td>@Html.TextBox("remark", @item.ITEM_REMARK, new { style = "width:500px", @class="form-control"})</td>
+                        <td>@Html.TextBox("remark", @item.ITEM_REMARK, new { style = "width:500px", @class = "form-control" })</td>
                         <td>
-                            <input type="hidden"  name="project_item_id" id="project_item_id" value="@item.PROJECT_ITEM_ID" >
+                            <input type="hidden" name="project_item_id" id="project_item_id" value="@item.PROJECT_ITEM_ID">
                         </td>
                     </tr>
                 }
@@ -217,19 +217,19 @@
     <div class="" col-md-12">
         @if (Model.prjForm.DUEDATE != null)
         {
-        <input type="button" value="更新" class="btn btn-default" id="updateForm" />
+            <input type="button" value="更新" class="btn btn-default" id="updateForm" />
         }
         else
         {
-        <input type="button" value="新增" class="btn btn-default" id="saveForm" />
+            <input type="button" value="新增" class="btn btn-default" id="saveForm" />
         }
         @if (Model.prjForm.STATUS != "有效")
         {
-        <input type="button" value="回復" class="btn btn-info" id="disableBtn" onclick="chaneFormStatus('有效')" />
+            <input type="button" value="回復" class="btn btn-info" id="disableBtn" onclick="chaneFormStatus('有效')" />
         }
         else
         {
-        <input type="button" value="註銷" class="btn btn-warning" id="disableBtn" onclick="chaneFormStatus('註銷')" />
+            <input type="button" value="註銷" class="btn btn-warning" id="disableBtn" onclick="chaneFormStatus('註銷')" />
         }
 
     </div>
@@ -283,12 +283,12 @@
 </script>
 <script type="text/javascript">
     $("#saveForm").click(function () {
-        if ($("#Supplier").val() == "") { alert("廠商名稱欄位不可空白，請輸入廠商名稱!!"); return false; }
-        if ($("#inputdateline").val() == "") { alert("報價期限欄位不可為空白!!"); return false; }
+        //if ($("#Supplier").val() == "") { alert("廠商名稱欄位不可空白，請輸入廠商名稱!!"); return false; }
+        //if ($("#inputdateline").val() == "") { alert("報價期限欄位不可為空白!!"); return false; }
         if ($("#formname").val() == "") { alert("採購項目欄位不可為空白!!"); return false; }
-        if ($("#inputownerfax").val() == "") { alert("承辦人傳真欄位不可為空白!!"); return false; }
-        if ($("#inputowneremail").val() == "") { alert("承辦人E-mail欄位不可為空白!!"); return false; }
-        if ($("#inputphone").val() == "") { alert("聯絡電話欄位不可為空白!!"); return false; }
+        //if ($("#inputownerfax").val() == "") { alert("承辦人傳真欄位不可為空白!!"); return false; }
+        //if ($("#inputowneremail").val() == "") { alert("承辦人E-mail欄位不可為空白!!"); return false; }
+        //if ($("#inputphone").val() == "") { alert("聯絡電話欄位不可為空白!!"); return false; }
         $.ajax({
             url: '@Url.Action("UpdatePrjForm", "Inquiry")',
             data: $('#formSupplier').serialize(),
@@ -318,6 +318,7 @@
             }
         });
     });
+
     function chaneFormStatus(status) {
         $.ajax({
             url: '@Url.Action("changeStatus", "Inquiry")',

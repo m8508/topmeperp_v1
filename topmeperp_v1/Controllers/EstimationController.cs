@@ -1332,7 +1332,10 @@ namespace topmeperp.Controllers
                 lstItem.Add(item);
             }
             int i = service.AddExpenseItems(lstItem);
+            //建立申請單參考流程
+            Flow4SiteExpense flowService = new Flow4SiteExpense();
             logger.Debug("Item Count =" + i);
+            flowService.iniRequest(u, fid);
             return RedirectToAction("SingleEXPForm", "CashFlow", new { id = fid });
         }
 
