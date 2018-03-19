@@ -345,7 +345,7 @@ namespace topmeperp.Service
                     "(select SUB_TYPE_ID from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) T_SUB_CODE, " +
                     "TYPE_CODE_2 SUB_CODE," +
                     "(select TYPE_DESC from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) SUB_DESC, " +
-                    "SUM(MapQty * tndPrice) MATERIAL_COST_INMAP, SUM(MapQty * RATIO * WagePrice) MAN_DAY_INMAP, SUM(ITEM_UNIT_PRICE * tndPrice) CONTRACT_PRICE, count(*) ITEM_COUNT " +
+                    "SUM(MapQty * tndPrice) MATERIAL_COST_INMAP, SUM(MapQty * RATIO * WagePrice) MAN_DAY_INMAP, SUM(ITEM_UNIT_PRICE * ITEM_QUANTITY) CONTRACT_PRICE, count(*) ITEM_COUNT " +
                     "FROM (SELECT pi.*, w.RATIO, w.PRICE, map.QTY MapQty, ISNULL(p.WAGE_MULTIPLIER, 0) AS WagePrice, it.ITEM_UNIT_PRICE AS tndPrice, it.ITEM_QUANTITY AS tndQTY FROM PLAN_ITEM pi LEFT OUTER JOIN TND_WAGE w " +
                     "ON pi.PLAN_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT OUTER JOIN TND_PROJECT_ITEM it ON it.PROJECT_ITEM_ID = pi.PLAN_ITEM_ID " +
                     "LEFT JOIN TND_PROJECT p ON pi.PROJECT_ID = p.PROJECT_ID WHERE it.project_id = @projectid) A " +
@@ -1332,7 +1332,7 @@ namespace topmeperp.Service
                     "SUM(A.ITEM_QUANTITY * ISNULL(A.ITEM_UNIT_PRICE, 0)) REVENUE, SUM(A.MapQty * A.TndFormPrice * ISNULL(A.BUDGET_RATIO, 100) / 100) BUDGET, " +
                     "(SUM(A.MapQty * A.ITEM_UNIT_COST) + SUM(A.MapQty * ISNULL(A.MAN_PRICE, 0))) COST, (SUM(A.ITEM_QUANTITY * ISNULL(A.ITEM_UNIT_PRICE, 0)) - " +
                     "SUM(A.MapQty * A.ITEM_UNIT_COST) - SUM(A.MapQty * ISNULL(A.MAN_PRICE, 0))) PROFIT, " +
-                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.SUPPLIER_ID) AS NO, A.INQUIRY_FORM_ID FROM(SELECT pi.*, s.SUPPLIER_ID AS ID, map.QTY AS MapQty, " +
+                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.FORM_NAME) AS NO, A.INQUIRY_FORM_ID FROM(SELECT pi.*, s.SUPPLIER_ID AS ID, map.QTY AS MapQty, " +
                     "tpi.ITEM_UNIT_PRICE AS TndFormPrice FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON " +
                     "pi.SUPPLIER_ID = s.COMPANY_NAME LEFT JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT JOIN TND_PROJECT_ITEM tpi ON pi.PLAN_ITEM_ID = tpi.PROJECT_ITEM_ID  " +
                     ")A WHERE A.PROJECT_ID = @projectid AND A.INQUIRY_FORM_ID IS NOT NULL " +
@@ -4461,7 +4461,7 @@ namespace topmeperp.Service
                     "fef.JOURNAL_CREATE_ID, fef.JOURNAL_CREATE_DATE, fef.PAYEE, p.PROJECT_NAME FROM FIN_EXPENSE_FORM fef LEFT JOIN TND_PROJECT p ON fef.PROJECT_ID = p.PROJECT_ID WHERE fef.EXP_FORM_ID =@expid ";
                 formEXP = context.Database.SqlQuery<ExpenseFormFunction>(sql, new SqlParameter("expid", expid)).First();
                 //取得公司營業費用單明細
-                EXPItem = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT G.*, C.CUM_BUDGET, ISNULL(D.CUM_AMOUNT, 0) AS CUM_AMOUNT, ISNULL(G.AMOUNT, 0) + ISNULL(D.CUM_AMOUNT, 0) AS CUR_CUM_AMOUNT, (ISNULL(G.AMOUNT, 0) + ISNULL(D.CUM_AMOUNT, 0)) / IIF(G.BUDGET_AMOUNT IS NULL, 1, G.BUDGET_AMOUNT) *100 AS CUR_CUM_RATIO, " +
+                EXPItem = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT G.*, C.CUM_BUDGET, ISNULL(D.CUM_AMOUNT, 0) AS CUM_AMOUNT, ISNULL(G.AMOUNT, 0) + ISNULL(D.CUM_AMOUNT, 0) AS CUR_CUM_AMOUNT, (ISNULL(G.AMOUNT, 0) + ISNULL(D.CUM_AMOUNT, 0)) / IIF(G.BUDGET_AMOUNT IS NULL, 1, G.BUDGET_AMOUNT) * 100 AS CUR_CUM_RATIO, " +
                     "ROW_NUMBER() OVER(ORDER BY G.EXP_ITEM_ID) AS NO FROM (SELECT A.*, B.AMOUNT AS BUDGET_AMOUNT FROM (SELECT fei.*, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH, fef.STATUS, fs.SUBJECT_NAME FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID LEFT JOIN FIN_SUBJECT fs " +
                     "ON fei.FIN_SUBJECT_ID = fs.FIN_SUBJECT_ID WHERE fei.EXP_FORM_ID = @expid)A " +
                     "LEFT JOIN (SELECT F.*, feb.AMOUNT FROM (SELECT fei.FIN_SUBJECT_ID, fef.OCCURRED_YEAR, fef.OCCURRED_MONTH FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID WHERE fei.EXP_FORM_ID = @expid " +
@@ -5467,7 +5467,8 @@ namespace topmeperp.Service
                     "ROW_NUMBER() OVER(ORDER BY vf.CREATE_DATE) AS NO FROM PLAN_VALUATION_FORM vf LEFT JOIN (SELECT pa.ACCOUNT_FORM_ID, SUM(pa.AMOUNT_PAYABLE) AS AR_PAID FROM PLAN_ACCOUNT pa " +
                     "WHERE pa.ACCOUNT_TYPE = 'R' AND pa.PROJECT_ID =@projectid AND pa.STATUS = 10 GROUP BY pa.ACCOUNT_FORM_ID)account ON vf.VA_FORM_ID = account.ACCOUNT_FORM_ID " +
                     "LEFT JOIN (SELECT FILE_UPLOAD_NAME FROM TND_FILE GROUP BY FILE_UPLOAD_NAME)f ON vf.VA_FORM_ID = f.FILE_UPLOAD_NAME " +
-                    "LEFT JOIN (SELECT EST_FORM_ID, ISNULL(SUM(AMOUNT*IIF(TYPE <> '折讓單', 0, 1)), 0) AS otherPay,  ISNULL(SUM(TAX*IIF(TYPE <> '折讓單', 1, 0)), 0) AS taxAmt FROM PLAN_INVOICE GROUP BY EST_FORM_ID)pi " +
+                    "LEFT JOIN (SELECT EST_FORM_ID, ISNULL(SUM(AMOUNT*IIF(TYPE <> '折讓單', 0, 1)), 0) + ISNULL(SUM(TAX * IIF(TYPE <> '折讓單', 0, 1)), 0) AS otherPay, " +
+                    "ISNULL(SUM(TAX*IIF(TYPE <> '折讓單', 1, 0)), 0) AS taxAmt FROM PLAN_INVOICE GROUP BY EST_FORM_ID)pi " +
                     "ON pi.EST_FORM_ID = vf.VA_FORM_ID WHERE vf.PROJECT_ID =@projectid "
                    , new SqlParameter("projectid", projectid)).ToList();
             }
@@ -5480,7 +5481,7 @@ namespace topmeperp.Service
             {
                 detail = context.Database.SqlQuery<RevenueFromOwner>("SELECT vf.*, CONVERT(varchar, vf.CREATE_DATE, 120) AS RECORDED_DATE, " +
                     "ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT, 0) + pi.taxAmt - ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) - pi.otherPay AS AR " +
-                    "FROM PLAN_VALUATION_FORM vf LEFT JOIN (SELECT EST_FORM_ID, ISNULL(SUM(AMOUNT * IIF(TYPE <> '折讓單', 0, 1)), 0) AS otherPay, ISNULL(SUM(TAX * IIF(TYPE <> '折讓單', 1, 0)), 0) AS taxAmt " +
+                    "FROM PLAN_VALUATION_FORM vf LEFT JOIN (SELECT EST_FORM_ID, ISNULL(SUM(AMOUNT * IIF(TYPE <> '折讓單', 0, 1)), 0) + ISNULL(SUM(TAX * IIF(TYPE <> '折讓單', 0, 1)), 0) AS otherPay, ISNULL(SUM(TAX * IIF(TYPE <> '折讓單', 1, 0)), 0) AS taxAmt " +
                     "FROM PLAN_INVOICE GROUP BY EST_FORM_ID)pi ON pi.EST_FORM_ID = vf.VA_FORM_ID WHERE vf.VA_FORM_ID =@formid  "
                    , new SqlParameter("formid", formid)).FirstOrDefault();
             }
@@ -5498,7 +5499,7 @@ namespace topmeperp.Service
                     "FROM (SELECT PROJECT_ID, SUM(VALUATION_AMOUNT) AS VALUATION_AMOUNT, SUM(RETENTION_PAYMENT) AS RETENTION_PAYMENT, " +
                     "isnull(SUM(ADVANCE_PAYMENT), 0) - isnull(SUM(ADVANCE_PAYMENT_REFUND), 0) AS advancePaymentBalance, " +
                     "isnull(SUM(ADVANCE_PAYMENT), 0) + isnull(SUM(VALUATION_AMOUNT), 0) - isnull(SUM(RETENTION_PAYMENT), 0) - isnull(SUM(ADVANCE_PAYMENT_REFUND), 0) AS Amt " +
-                    "FROM PLAN_VALUATION_FORM WHERE PROJECT_ID =@pid GROUP BY PROJECT_ID)vf LEFT JOIN(SELECT CONTRACT_ID, ISNULL(SUM(AMOUNT * IIF(TYPE <> '折讓單', 0, 1)), 0) AS otherPay, " +
+                    "FROM PLAN_VALUATION_FORM WHERE PROJECT_ID =@pid GROUP BY PROJECT_ID)vf LEFT JOIN(SELECT CONTRACT_ID, ISNULL(SUM(AMOUNT * IIF(TYPE <> '折讓單', 0, 1)), 0) + ISNULL(SUM(TAX * IIF(TYPE <> '折讓單', 0, 1)), 0) AS otherPay, " +
                     "ISNULL(SUM(TAX * IIF(TYPE <> '折讓單', 1, 0)), 0) AS taxAmt FROM PLAN_INVOICE WHERE CONTRACT_ID =@pid GROUP BY CONTRACT_ID)pi ON vf.PROJECT_ID = pi.CONTRACT_ID "
                    , new SqlParameter("pid", prjid)).FirstOrDefault();
             }
@@ -5581,11 +5582,11 @@ namespace topmeperp.Service
             return balance;
         }
         //更新償還貸款金額以入各專案之備償專戶
-        public int addLoanTransaction(int loanid, decimal atm, DateTime paybackDate, string createId, int period)
+        public int addLoanTransaction(int loanid, decimal atm, DateTime paybackDate, string createId, int period, string loanRemark)
         {
             int i = 0;
             logger.Info("pay back to loan account by loan id" + loanid);
-            string sql = "INSERT INTO FIN_LOAN_TRANACTION (BL_ID, TRANSACTION_TYPE, AMOUNT, PAYBACK_DATE, CREATE_ID, CREATE_DATE, PERIOD, REMARK) VALUES (@loanid, 1, @atm, @paybackDate,@createId, getdate(),@period, '備償款') ";
+            string sql = "INSERT INTO FIN_LOAN_TRANACTION (BL_ID, TRANSACTION_TYPE, AMOUNT, PAYBACK_DATE, CREATE_ID, CREATE_DATE, PERIOD, REMARK) VALUES (@loanid, 1, @atm, @paybackDate,@createId, getdate(),@period, @loanRemark) ";
             logger.Debug("batch sql:" + sql);
             db = new topmepEntities();
             var parameters = new List<SqlParameter>();

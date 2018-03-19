@@ -1120,7 +1120,10 @@ namespace topmeperp.Service
                 budgetYear = int.Parse((ExpTable.OCCURRED_YEAR - 1).ToString());
             }
             Budget = service.getTotalExpBudgetAmount(budgetYear);
-            siteBudget = service.getTotalSiteBudgetAmount(ExpTable.PROJECT_ID);
+            if (null != ExpTable.PROJECT_ID && ExpTable.PROJECT_ID != "")
+            {
+                siteBudget = service.getTotalSiteBudgetAmount(ExpTable.PROJECT_ID);
+            }
             //1.讀取費用表格檔案
             InitializeWorkbook(expenseFile);
             if (null != ExpTable.PROJECT_ID && ExpTable.PROJECT_ID != "")
@@ -1138,6 +1141,7 @@ namespace topmeperp.Service
                 }
                 //2.填入表頭資料
                 logger.Debug("Table Head_1=" + sheet.GetRow(1).Cells[0].ToString());
+                sheet.GetRow(0).Cells[4].SetCellValue("協成水電工程事業有限公司 工地費用單");
                 sheet.GetRow(1).Cells[3].SetCellValue(ExpTable.PROJECT_NAME);//專案名稱
                 sheet.GetRow(0).Cells[20].SetCellValue("第 1 頁");
                 sheet.GetRow(0).Cells[22].SetCellValue("共" + Convert.ToInt16(Math.Ceiling(page)) + "頁");
@@ -1151,6 +1155,7 @@ namespace topmeperp.Service
                 sheet.GetRow(1).Cells[22].SetCellValue(Convert.ToDateTime(ExpTable.CREATE_DATE).ToShortDateString());//請款日期
                 if (float.Parse(EXPTableItem.Count.ToString()) / 47 > 1)
                 {
+                    sheet.GetRow(48).Cells[4].SetCellValue("協成水電工程事業有限公司 工地費用單");
                     sheet.GetRow(48).Cells[20].SetCellValue("第 2 頁");
                     sheet.GetRow(48).Cells[22].SetCellValue("共" + Convert.ToInt16(Math.Ceiling(page)) + "頁");
                     sheet.GetRow(49).Cells[3].SetCellValue(ExpTable.PROJECT_NAME);//專案名稱
@@ -1179,7 +1184,9 @@ namespace topmeperp.Service
                     }
                     logger.Debug("Table Head_9=" + sheet.GetRow(90).Cells[12].ToString());
                     sheet.GetRow(90).Cells[13].SetCellValue(double.Parse(ExpAmt.AMOUNT.ToString()));//本期金額
-                    logger.Debug("Table Head_10=" + sheet.GetRow(92).Cells[13].ToString());
+                    logger.Debug("Table Head_10=" + sheet.GetRow(91).Cells[12].ToString());                                                                              //工資預算
+                    sheet.GetRow(91).Cells[13].CellFormula = "(N90+N91)";
+                    logger.Debug("Table Head_11=" + sheet.GetRow(92).Cells[12].ToString());
                     sheet.GetRow(92).Cells[13].SetCellValue(Convert.ToDateTime(ExpTable.PAYMENT_DATE).ToShortDateString());//支付日期
                 }
                 else
@@ -1202,7 +1209,9 @@ namespace topmeperp.Service
                     }
                     logger.Debug("Table Head_9=" + sheet.GetRow(44).Cells[12].ToString());
                     sheet.GetRow(44).Cells[13].SetCellValue(double.Parse(ExpAmt.AMOUNT.ToString()));//本期金額
-                    logger.Debug("Table Head_10=" + sheet.GetRow(46).Cells[13].ToString());
+                    logger.Debug("Table Head_10=" + sheet.GetRow(45).Cells[12].ToString());                                                                              //工資預算
+                    sheet.GetRow(45).Cells[13].CellFormula = "(N44+N45)";
+                    logger.Debug("Table Head_11=" + sheet.GetRow(46).Cells[12].ToString());
                     sheet.GetRow(46).Cells[13].SetCellValue(Convert.ToDateTime(ExpTable.PAYMENT_DATE).ToShortDateString());//支付日期
                 }
                 //3.填入資料
@@ -1211,59 +1220,61 @@ namespace topmeperp.Service
                 {
                     IRow row = sheet.GetRow(idxRow);//.CreateRow(idxRow);
                     logger.Info("Row Id=" + idxRow);
-                    //項次、費用項目、金額、當月預算金額、當月預算占比、累計預算金額、累計預算占比、備註
-                    //項次
+                    //項次、品名/摘要、單位、預算(合約)金額、前期累計金額、本期金額、累計金額、累計金額比率、會計名稱
                     row.Cells[0].SetCellValue(item.NO);
-                    //費用項目名稱
-                    logger.Debug("SUBJECT_NAM=" + item.SUBJECT_NAME);
-                    row.Cells[1].SetCellValue(item.SUBJECT_NAME);
-                    //金額
-                    if (null != item.AMOUNT && item.AMOUNT.ToString().Trim() != "")
-                    {
-                        row.Cells[5].SetCellValue(double.Parse(item.AMOUNT.ToString()));
-                    }
-                    else
-                    {
-                        row.Cells[5].SetCellValue("");
-                    }
-                    //當月預算金額
+                    //品名或摘要
+                    logger.Debug("ITEM_REMARK=" + item.ITEM_REMARK);
+                    row.Cells[1].SetCellValue(item.ITEM_REMARK);
+                    //單位
+                    row.Cells[7].SetCellValue(item.ITEM_UNIT);
+                    //預算(合約)金額
                     if (null != item.BUDGET_AMOUNT && item.BUDGET_AMOUNT.ToString().Trim() != "")
                     {
-                        row.Cells[8].SetCellValue(double.Parse(item.BUDGET_AMOUNT.ToString()));
+                        row.Cells[9].SetCellValue(double.Parse(item.BUDGET_AMOUNT.ToString()));
                     }
                     else
                     {
-                        row.Cells[8].SetCellValue("");
+                        row.Cells[9].SetCellValue("");
                     }
-                    //當月預算占比
-                    if (null != item.MONTH_RATIO && item.MONTH_RATIO.ToString().Trim() != "")
+                    //前期累計金額
+                    if (null != item.CUM_AMOUNT && item.CUM_AMOUNT.ToString().Trim() != "")
                     {
-                        row.Cells[11].SetCellValue(double.Parse(item.MONTH_RATIO.ToString()));
-                    }
-                    else
-                    {
-                        row.Cells[11].SetCellValue("");
-                    }
-                    //累計預算金額
-                    if (null != item.CUM_YEAR_AMOUNT && item.CUM_YEAR_AMOUNT.ToString().Trim() != "")
-                    {
-                        row.Cells[12].SetCellValue(double.Parse(item.CUM_YEAR_AMOUNT.ToString()));
-                    }
-                    else
-                    {
-                        row.Cells[12].SetCellValue("");
-                    }
-                    //累計預算占比 
-                    if (null != item.YEAR_RATIO && item.YEAR_RATIO.ToString().Trim() != "")
-                    {
-                        row.Cells[14].SetCellValue(double.Parse(item.YEAR_RATIO.ToString()));
+                        row.Cells[14].SetCellValue(double.Parse(item.CUM_AMOUNT.ToString()));
                     }
                     else
                     {
                         row.Cells[14].SetCellValue("");
                     }
-                    //備註
-                    row.Cells[17].SetCellValue(item.ITEM_REMARK);
+                    //本期金額
+                    if (null != item.AMOUNT && item.AMOUNT.ToString().Trim() != "")
+                    {
+                        row.Cells[16].SetCellValue(double.Parse(item.AMOUNT.ToString()));
+                    }
+                    else
+                    {
+                        row.Cells[16].SetCellValue("");
+                    }
+                    //累計金額
+                    if (null != item.CUR_CUM_AMOUNT && item.CUR_CUM_AMOUNT.ToString().Trim() != "")
+                    {
+                        row.Cells[18].SetCellValue(double.Parse(item.CUR_CUM_AMOUNT.ToString()));
+                    }
+                    else
+                    {
+                        row.Cells[18].SetCellValue("");
+                    }
+                    //累計占比 
+                    if (null != item.CUR_CUM_RATIO && item.CUR_CUM_RATIO.ToString().Trim() != "")
+                    {
+                        row.Cells[19].SetCellValue(double.Parse((item.CUR_CUM_RATIO / 100).ToString()));
+                    }
+                    else
+                    {
+                        row.Cells[19].SetCellValue("");
+                    }
+                    //會計科目名稱
+                    logger.Debug("SUBJECT_NAM=" + item.SUBJECT_NAME);
+                    row.Cells[20].SetCellValue(item.SUBJECT_NAME);
                     logger.Debug("get Site Expense Form cell style rowid=" + idxRow);
                     if (idxRow == 47)
                     {
@@ -1286,25 +1297,27 @@ namespace topmeperp.Service
                     sheet = (XSSFSheet)hssfworkbook.GetSheet("費用表");
                 }
                 //2.填入表頭資料
+                sheet.GetRow(0).Cells[4].SetCellValue("協成水電工程事業有限公司 公司費用單");
                 sheet.GetRow(1).Cells[3].SetCellValue("公司營業費用");
                 sheet.GetRow(0).Cells[20].SetCellValue("第 1 頁");
                 sheet.GetRow(0).Cells[22].SetCellValue("共" + Convert.ToInt16(Math.Ceiling(page)) + "頁");
                 logger.Debug("Table Head_2=" + sheet.GetRow(1).Cells[9].ToString());
                 sheet.GetRow(1).Cells[9].SetCellValue(ExpTable.EXP_FORM_ID);//費用單編號
                 logger.Debug("Table Head_3=" + sheet.GetRow(1).Cells[14].ToString());
-                sheet.GetRow(1).Cells[14].SetCellValue(ExpTable.CREATE_ID);//請款人
+                sheet.GetRow(1).Cells[14].SetCellValue(ExpTable.PAYEE);//請款人(受款人)
                 logger.Debug("Table Head_4=" + sheet.GetRow(1).Cells[19].ToString());
-                sheet.GetRow(1).Cells[19].SetCellValue(ExpTable.OCCURRED_YEAR.ToString() + "/" + ExpTable.OCCURRED_MONTH.ToString());//費用發生年月
+                sheet.GetRow(1).Cells[18].SetCellValue(ExpTable.OCCURRED_YEAR.ToString() + "/" + ExpTable.OCCURRED_MONTH.ToString());//費用發生年月
                 logger.Debug("Table Head_5=" + sheet.GetRow(1).Cells[22].ToString());
                 sheet.GetRow(1).Cells[22].SetCellValue(Convert.ToDateTime(ExpTable.CREATE_DATE).ToShortDateString());//請款日期
                 if (float.Parse(EXPTableItem.Count.ToString()) / 47 > 1)
                 {
+                    sheet.GetRow(48).Cells[4].SetCellValue("協成水電工程事業有限公司 公司費用單");
                     sheet.GetRow(48).Cells[20].SetCellValue("第 2 頁");
                     sheet.GetRow(48).Cells[22].SetCellValue("共" + Convert.ToInt16(Math.Ceiling(page)) + "頁");
                     sheet.GetRow(49).Cells[3].SetCellValue("公司營業費用");
                     sheet.GetRow(49).Cells[9].SetCellValue(ExpTable.EXP_FORM_ID);//費用單編號
-                    sheet.GetRow(49).Cells[14].SetCellValue(ExpTable.CREATE_ID);//請款人
-                    sheet.GetRow(49).Cells[19].SetCellValue(ExpTable.OCCURRED_YEAR.ToString() + "/" + ExpTable.OCCURRED_MONTH.ToString());//費用發生年月
+                    sheet.GetRow(49).Cells[14].SetCellValue(ExpTable.PAYEE);//請款人(受款人)
+                    sheet.GetRow(49).Cells[18].SetCellValue(ExpTable.OCCURRED_YEAR.ToString() + "/" + ExpTable.OCCURRED_MONTH.ToString());//費用發生年月
                     sheet.GetRow(49).Cells[22].SetCellValue(Convert.ToDateTime(ExpTable.CREATE_DATE).ToShortDateString());//請款日期
                 }
                 if (float.Parse(EXPTableItem.Count.ToString()) / 47 > 1)
@@ -1327,7 +1340,9 @@ namespace topmeperp.Service
                     }
                     logger.Debug("Table Head_9=" + sheet.GetRow(90).Cells[12].ToString());
                     sheet.GetRow(90).Cells[13].SetCellValue(double.Parse(ExpAmt.AMOUNT.ToString()));//本期金額
-                    logger.Debug("Table Head_10=" + sheet.GetRow(92).Cells[13].ToString());
+                    logger.Debug("Table Head_10=" + sheet.GetRow(91).Cells[12].ToString());                                                                              //工資預算
+                    sheet.GetRow(91).Cells[13].CellFormula = "(N90+N91)";
+                    logger.Debug("Table Head_11=" + sheet.GetRow(92).Cells[12].ToString());
                     sheet.GetRow(92).Cells[13].SetCellValue(Convert.ToDateTime(ExpTable.PAYMENT_DATE).ToShortDateString());//支付日期
                 }
                 else
@@ -1350,7 +1365,9 @@ namespace topmeperp.Service
                     }
                     logger.Debug("Table Head_9=" + sheet.GetRow(44).Cells[12].ToString());
                     sheet.GetRow(44).Cells[13].SetCellValue(double.Parse(ExpAmt.AMOUNT.ToString()));//本期金額
-                    logger.Debug("Table Head_10=" + sheet.GetRow(46).Cells[13].ToString());
+                    logger.Debug("Table Head_10=" + sheet.GetRow(45).Cells[12].ToString());                                                                              //工資預算
+                    sheet.GetRow(45).Cells[13].CellFormula = "(N44+N45)";
+                    logger.Debug("Table Head_11=" + sheet.GetRow(46).Cells[12].ToString());
                     sheet.GetRow(46).Cells[13].SetCellValue(Convert.ToDateTime(ExpTable.PAYMENT_DATE).ToShortDateString());//支付日期
                 }
                 //3.填入資料
@@ -1359,59 +1376,63 @@ namespace topmeperp.Service
                 {
                     IRow row = sheet.GetRow(idxRow);//.CreateRow(idxRow);
                     logger.Info("Row Id=" + idxRow);
-                    //項次、費用項目、金額、當月預算金額、當月預算占比、累計預算金額、累計預算占比、備註
+                    //項次、品名/摘要、單位、預算(合約)金額、前期累計金額、本期金額、累計金額、累計金額比率、會計名稱
                     //項次
                     row.Cells[0].SetCellValue(item.NO);
-                    //費用項目名稱
-                    logger.Debug("SUBJECT_NAM=" + item.SUBJECT_NAME);
-                    row.Cells[1].SetCellValue(item.SUBJECT_NAME);
-                    //金額
-                    if (null != item.AMOUNT && item.AMOUNT.ToString().Trim() != "")
-                    {
-                        row.Cells[5].SetCellValue(double.Parse(item.AMOUNT.ToString()));
-                    }
-                    else
-                    {
-                        row.Cells[5].SetCellValue("");
-                    }
-                    //當月預算金額
+                    //品名或摘要
+                    logger.Debug("ITEM_REMARK=" + item.ITEM_REMARK);
+                    row.Cells[1].SetCellValue(item.ITEM_REMARK);
+                    //單位
+                    row.Cells[7].SetCellValue(item.ITEM_UNIT);
+                    //預算(合約)金額
                     if (null != item.BUDGET_AMOUNT && item.BUDGET_AMOUNT.ToString().Trim() != "")
                     {
-                        row.Cells[8].SetCellValue(double.Parse(item.BUDGET_AMOUNT.ToString()));
+                        row.Cells[9].SetCellValue(double.Parse(item.BUDGET_AMOUNT.ToString()));
                     }
                     else
                     {
-                        row.Cells[8].SetCellValue("");
+                        row.Cells[9].SetCellValue("");
                     }
-                    //當月預算占比
-                    if (null != item.MONTH_RATIO && item.MONTH_RATIO.ToString().Trim() != "")
+                    //前期累計金額
+                    if (null != item.CUM_AMOUNT && item.CUM_AMOUNT.ToString().Trim() != "")
                     {
-                        row.Cells[11].SetCellValue(double.Parse(item.MONTH_RATIO.ToString()));
-                    }
-                    else
-                    {
-                        row.Cells[11].SetCellValue("");
-                    }
-                    //累計費用金額
-                    if (null != item.CUM_YEAR_AMOUNT && item.CUM_YEAR_AMOUNT.ToString().Trim() != "")
-                    {
-                        row.Cells[12].SetCellValue(double.Parse(item.CUM_YEAR_AMOUNT.ToString()));
-                    }
-                    else
-                    {
-                        row.Cells[12].SetCellValue("");
-                    }
-                    //累計預算占比 
-                    if (null != item.YEAR_RATIO && item.YEAR_RATIO.ToString().Trim() != "")
-                    {
-                        row.Cells[14].SetCellValue(double.Parse(item.YEAR_RATIO.ToString()));
+                        row.Cells[14].SetCellValue(double.Parse(item.CUM_AMOUNT.ToString()));
                     }
                     else
                     {
                         row.Cells[14].SetCellValue("");
                     }
-                    //備註
-                    row.Cells[17].SetCellValue(item.ITEM_REMARK);
+                    //本期金額
+                    if (null != item.AMOUNT && item.AMOUNT.ToString().Trim() != "")
+                    {
+                        row.Cells[16].SetCellValue(double.Parse(item.AMOUNT.ToString()));
+                    }
+                    else
+                    {
+                        row.Cells[16].SetCellValue("");
+                    }
+                    //累計金額
+                    if (null != item.CUR_CUM_AMOUNT && item.CUR_CUM_AMOUNT.ToString().Trim() != "")
+                    {
+                        row.Cells[18].SetCellValue(double.Parse(item.CUR_CUM_AMOUNT.ToString()));
+                    }
+                    else
+                    {
+                        row.Cells[18].SetCellValue("");
+                    }
+                    
+                    //累計占比 
+                    if (null != item.CUR_CUM_RATIO && item.CUR_CUM_RATIO.ToString().Trim() != "")
+                    {
+                        row.Cells[19].SetCellValue(double.Parse((item.CUR_CUM_RATIO / 100).ToString()));
+                    }
+                    else
+                    {
+                        row.Cells[19].SetCellValue("");
+                    }
+                    //會計科目名稱
+                    logger.Debug("SUBJECT_NAM=" + item.SUBJECT_NAME);
+                    row.Cells[20].SetCellValue(item.SUBJECT_NAME);
                     logger.Debug("get Expense Form cell style rowid=" + idxRow);
                     if (idxRow == 47)
                     {

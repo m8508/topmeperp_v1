@@ -2609,6 +2609,11 @@ namespace topmeperp.Controllers
             {
                 item.PAYMENT_DATE = Convert.ToDateTime(form.Get("payment_date"));
             }
+            string loanRemark = "備償款";
+            if (form["loan_remark"] != "")
+            {
+                loanRemark = "備償款-" + form["loan_remark"];
+            }
             DateTime paybackDate = DateTime.Now;
             if (form["payment_date"] != "")
             {
@@ -2649,7 +2654,7 @@ namespace topmeperp.Controllers
             int i = service.addPlanAccount(item);
             if (form.Get("loans").Trim() != "")
             {
-                int k = service.addLoanTransaction(int.Parse(form.Get("loans").Trim()), paybackAtm, paybackDate, uInfo.USER_ID, period);
+                int k = service.addLoanTransaction(int.Parse(form.Get("loans").Trim()), paybackAtm, paybackDate, uInfo.USER_ID, period, loanRemark);
             }
             if (i == 0) { msg = service.message; }
             return msg;

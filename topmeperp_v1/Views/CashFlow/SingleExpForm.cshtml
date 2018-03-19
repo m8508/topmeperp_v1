@@ -5,7 +5,7 @@
 }
 
 <div class="page-header">
-    @if (Model.FormData.finEXP.STATUS >= 20)
+    @if (Model.FormData.finEXP.STATUS >= 10)
     {
         <div class="col-sm-3">
             <a class="btn btn-link" href="/CashFlow/downLoadExpenseForm?formid=@Model.FormData.finEXP.EXP_FORM_ID" target="_blank">下載費用表</a>
@@ -153,7 +153,7 @@
                         累計金額
                     </th>
                     <th>
-                        累計比率%
+                        累計比率
                     </th>
                     <th></th>
                 </tr>
@@ -193,7 +193,7 @@
                             {
                                 <td>
                                     <span style="color: orangered; font-size: 15px;">
-                                        @String.Format("{0:###0.#}", item.CUR_CUM_RATIO)
+                                        @String.Format("{0:#,##0.##}", item.CUR_CUM_RATIO) %
                                     </span>
                                 </td>
                             }
@@ -201,7 +201,7 @@
                             {
                                 <td>
                                     <span style="color: cornflowerblue; font-size: 15px;">
-                                        @String.Format("{0:###0.#}", item.CUR_CUM_RATIO)
+                                        @String.Format("{0:#,##0.##}", item.CUR_CUM_RATIO) %
                                     </span>
                                 </td>
                             }
