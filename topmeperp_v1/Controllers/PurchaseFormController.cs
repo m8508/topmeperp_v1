@@ -1707,14 +1707,6 @@ namespace topmeperp.Controllers
             {
                 PLAN_CONTRACT_PROCESS item = new PLAN_CONTRACT_PROCESS();
                 item.CONTRACT_ID = lstItemId[i];
-                //if (lstRemark[i].ToString() == "")
-                //{
-                //item.REMARK = null;
-                //}
-                //else
-                //{
-                //item.REMARK = lstRemark[i];
-                //}
                 if (lstBrand[i].ToString() == "")
                 {
                     item.MATERIAL_BRAND = null;
