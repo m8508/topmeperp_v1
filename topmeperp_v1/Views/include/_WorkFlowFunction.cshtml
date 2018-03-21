@@ -10,24 +10,28 @@
     }
     @if (Model.task.ACTIVITY_TYPE == "D")
     {
-        //審核任務需要部門審核，則判斷登入者是部門條件
-        if (Model.task.DEP_CODE != null)
+        //審核任務需要部門主管，則判斷登入者是是否為申請者之部門管理者
+        if (Model.task.DEP_CODE == null)
         {
             SYS_USER u = (SYS_USER)Session["user"];
-            if (u.DEP_CODE == Model.task.DEP_CODE)
+            if (Model.DeptInfo.MANAGER == u.USER_ID)
             {
                 privilegeCheck = true;
             }
         }
-        else
+        //審核任務需要部門審核，則判斷登入者是部門主管
+        if (Model.task.DEP_CODE != null)
         {
-            //沒有部門，需要使用者之部門資料
-            privilegeCheck = true;
+            SYS_USER u = (SYS_USER)Session["user"];
+            if (u.USER_ID == Model.task.MANAGER)
+            {
+                privilegeCheck = true;
+            }
         }
     }
     @if (privilegeCheck)
     {
-        @Html.Raw("原因");
+        @Html.Raw("退件原因:");
         <textarea id="RejectDesc" name="RejectDesc" cols="30" rows="3" class="form-control"></textarea>
         <input type="button" value="退件" id="RejectForm" name="RejectForm" class="btn btn-warning" />
                     <input type="button" value="核可" id="SendForm" name="SendForm" class="btn btn-primary" />

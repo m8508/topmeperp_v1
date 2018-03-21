@@ -16,6 +16,8 @@ namespace topmeperp.Models
         public List<WF_PORCESS_TASK> ProcessTask { get; set; }
         //表單內容
         public OperatingExpenseModel FormData { get; set; }
+        //申請者部門資料
+        public RequestUserDeptInfo DeptInfo { get; set; }
     }
 
     //提供費用申請流程清單所需物件
@@ -36,5 +38,18 @@ namespace topmeperp.Models
         public Int64 PID { get; set; } //可關聯至WF_PROCESS
         // FROM URL
         public string FORM_URL { get; set; }
+        //DE     
+        public string DEPT_CODE { get; set; } //申請者部門
+        public string MANAGER { get; set; }//申請部門主管
+    }
+    //申請者部門資料
+    public class RequestUserDeptInfo
+    {
+        public string REQ_USER_ID { get; set; }
+        public string REQ_USER_NAME { get; set; }
+        public string DEPT_CODE { get; set; }
+        public string DEPT_NAME { get; set; }
+        public string MANAGER { get; set; }
+        public string MANAGER_NAME { get; set; }
     }
 }
