@@ -39,6 +39,10 @@ namespace topmeperp.Controllers
             string msg = "";
             //懶得把Form綁SYS_USER 直接先把Form 值填滿
             ENT_DEPARTMENT d = new ENT_DEPARTMENT();
+            if (form.Get("d_depId").Trim() != "")
+            {
+                d.DEP_ID = Convert.ToInt64(form.Get("d_depId").Trim());
+            }
             d.DEPT_CODE = form.Get("d_deptCode").Trim();
             d.DEPT_NAME = form.Get("d_deptName").Trim();
             d.MANAGER = form.Get("d_Manager").Trim();
@@ -55,17 +59,38 @@ namespace topmeperp.Controllers
             //logger.Info("Request:user_ID=" + form["u_userid"]);
             return msg;
         }
-        //取得某一Dept 基本資料
-        public string getDept(string deptid)
-        {
-            logger.Info("get Dept id=" + deptid);
 
-            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            string userJson = objSerializer.Serialize("");
-            logger.Info("user info=" + userJson);
-            return userJson;
+        //刪除部門
+        public String delDepartment(FormCollection form)
+        {
+            long depId = Convert.ToInt64(form.Get("d_depId").Trim());
+            SYS_USER loginUser = (SYS_USER)Session["user"];
+            logger.Info("User " + loginUser.USER_ID + " delete departnt :" + depId + ",Name" + form.Get("d_deptName"));
+            string msg = "";
+            try
+            {
+                service.delDepartment(depId);
+                msg = "刪除部門成功";
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex.Message + ":" + ex.StackTrace);
+                msg = "刪除部門失敗";
+            }
+            return msg;
         }
 
+        //取得某一Dept 基本資料
+        public string getDept()
+        {
+            string deptString = Request["deptid"];
+            logger.Info("get Dept id=" + deptString);
+            string[] deptId = deptString.Split('-');
 
+            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            string deptJson = objSerializer.Serialize(service.getDepartmentById(deptId[0]));
+            logger.Info("dept info=" + deptJson);
+            return deptJson;
+        }
     }
 }

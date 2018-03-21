@@ -22,7 +22,7 @@
 
     <!-- Modal :對話框-->
     <div class="modal fade" id="deptInfo" role="dialog">
-        <div class="modal-dialog" id="userInfoDialog">
+        <div class="modal-dialog" id="deptInfoDialog">
             <!-- Modal content-->
             @Html.Partial("_Dept");
         </div>
@@ -51,7 +51,6 @@
             $('#treeview').treeview('uncheckAll', { silent: true });
             $('#checkable-output').prepend('<p>' + node.text + ' was checked</p>');
             $('#treeview').treeview('checkNode', [node.nodeId, { silent: true }]);
-            // chkNodeId = node.href;
             $('#checkNodeId').val(node.href);
         },
         onNodeUnchecked: function (event, node) {
@@ -59,16 +58,14 @@
             $('#checkNodeId').val("");
         },
         onNodeSelected: function (event, data) {
-            alert(data.text);
+            getDept(data.text);
         }
     });
     $('#treeview').treeview('expandAll', { levels: 3, silent: $('#chk-expand-silent').is(':checked') });
 
-
+    //新增部門
     $("#saveDept").click(function () {
         //Ajax 功能範例
-        //特殊JQuery 選擇器
-        // if ($("form[name='formUser'] select[name='roles']").val() == "") { alert("請設定使用者角色!!"); return false; }
         var URLs = "addDepartment";
         $.ajax({
             url: URLs,
@@ -84,54 +81,58 @@
             }
         });
     });
+    ///刪除部門
+    $("#delDept").click(function () {
+        var dep = $("#d_depId").val();
+        if (dep == '') {
+            alert("部門不存在!!");
+            return;
+        }
+        var URLs = "delDepartment";
+        $.ajax({
+            url: URLs,
+            data: $('#formDept').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+                location.reload();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    });
+
+    
     // Hide the "busy" Gif at load:
     $("#divProcessing").hide();
 
-    //設定查詢Form
-    //$("#btnQuery").click(function () {
-    //    //Ajax 功能範例
-    //    var URLs = "Query";
-    //    $.ajax({
-    //        url: URLs,
-    //        data: $('#formSearch').serialize(),
-    //        type: "POST",
-    //        dataType: 'html',
-    //        success: function (result) {
-    //        },
-    //        error: function (xhr, ajaxOptions, thrownError) {
-    //            alert(thrownError);
-    //        }
-    //    });
-    //});
     //由ID 取得資料填入表單
-    function getUser(userid) {
-        //alert(userid);
+    function getDept(deptid) {
         $.ajax({
-            url: "getUser",
+            url: "getDept",
             type: "GET",
-            data: { userid: userid },
+            data: { deptid: deptid },
             dataType: "JSON",
             success: function (data) {
-                $('#u_userid').val(data.USER_ID);
-                $('#u_name').val(data.USER_NAME);
-                $('#u_password').val(data.PASSWORD);
-                $('#u_confirmpwd').val(data.PASSWORD);
-                $('#u_email').val(data.EMAIL);
-                $('#u_tel').val(data.TEL);
-                $('#u_tel_ext').val(data.TEL_EXT);
-                $('#u_fax').val(data.FAX);
-                $('#u_mobile').val(data.MOBILE);
+                $('#d_depId').val(data.DEP_ID);
+                $('#d_deptCode').val(data.DEPT_CODE);
+                $('#d_deptName').val(data.DEPT_NAME);
+                $('#d_Manager').val(data.MANAGER);
+                $('#d_desc').val(data.DESC);
                 //使用Jqery selector 選定對話框內的droplist
-                $('#formUser #roles').val(data.ROLE_ID);
-                $('#userInfo').modal('show'); // show bootstrap modal when complete loaded
+                $('#formDept #d_parentId').val(data.PARENT_ID);
+                $('#deptInfo').modal('show'); // show bootstrap modal when complete loaded
                 //$('.modal-title').text('編輯設定資料'); // Set title to Bootstrap modal title
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                alert('Error get data from ajax');
+                alert('讀取資料失敗!!');
             }
         });
     }
     function clearDialog() {
+        $('#d_depId').val('');
         $('#d_deptCode').val('');
         $('#d_deptName').val('');
         $('#d_desc').val('');
