@@ -251,7 +251,7 @@ namespace topmeperp.Controllers
             }
         }
 
-        public String ConfirmEst(PLAN_ESTIMATION_FORM est)
+        public String ConfirmEst(PLAN_ESTIMATION_FORM est, HttpPostedFileBase file)
         {
             //取得專案編號
             logger.Info("Project Id:" + Request["id"]);
@@ -271,6 +271,7 @@ namespace topmeperp.Controllers
             }
             else
             {
+                /*
                 // 先刪除原先資料
                 logger.Info("EST form id =" + Request["formid"]);
                 logger.Info("Delete PLAN_ESTIMATION_FORM By EST_FORM_ID");
@@ -285,6 +286,7 @@ namespace topmeperp.Controllers
                     logger.Info("item_list return No.:" + lstItemId[i]);
                 }
                 string[] lstQty = Request["evaluated_qty"].Split(',');
+                */
                 //建立估驗單
                 logger.Info("create new Estimation Form");
                 UserService us = new UserService();
@@ -298,6 +300,7 @@ namespace topmeperp.Controllers
                 est.PLUS_TAX = Request["tax"];
                 est.REMARK = Request["remark"];
                 est.INVOICE = Request["invoice"];
+                est.STATUS= -10;
                 if (Request["tax"] == "E")
                 {
                     est.TAX_RATIO = decimal.Parse(Request["taxratio"]);
@@ -315,7 +318,42 @@ namespace topmeperp.Controllers
                     logger.Error(est.FOREIGN_PAYMENT + " not foreign_payment:" + ex.Message);
                 }
                 est.TYPE = Request["type"];
-                string estid = service.newEST(Request["formid"], est, lstItemId);
+                try
+                {
+                    est.PAYMENT_TRANSFER = decimal.Parse(Request["sub_amount"]);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(est.PAYMENT_TRANSFER + " not payment_transfer:" + ex.Message);
+                }
+                //若使用者有上傳計價附檔，則增加檔案資料
+                if (null != file && file.ContentLength != 0)
+                {
+                    //TND_FILE saveF = new TND_FILE();
+                    //2.解析檔案
+                    logger.Info("Parser file data:" + file.FileName);
+                    //2.1 設定檔案名稱,實體位址,附檔名
+                    string projectid = Request["id"];
+                    string keyName = Request["formid"];
+                    logger.Info("file upload namme =" + keyName);
+                    var fileName = Path.GetFileName(file.FileName);
+                    var path = Path.Combine(ContextService.strUploadPath + "/" + Request["id"], fileName);
+                    //saveF.FILE_ACTURE_NAME = fileName;
+                    var fileType = Path.GetExtension(file.FileName);
+                    //f.FILE_LOCATIOM = path;
+                    string createDate = DateTime.Now.ToString("yyyy/MM/dd");
+                    logger.Info("createDate = " + createDate);
+                    string createId = uInfo.USER_ID;
+                    FileManage fs = new FileManage();
+                    string k = fs.addFile(projectid, keyName, fileName, fileType, path, createId, createDate);
+                    //int j = service.refreshVAFile(saveF);
+                    //2.2 將上傳檔案存檔
+                    logger.Info("save upload file:" + path);
+                    file.SaveAs(path);
+                }
+
+                string estid = service.newEST(Request["formid"], est);//, lstItemId);
+                /*
                 List<PLAN_ESTIMATION_ITEM> lstItem = new List<PLAN_ESTIMATION_ITEM>();
                 for (int j = 0; j < lstItemId.Count(); j++)
                 {
@@ -333,10 +371,11 @@ namespace topmeperp.Controllers
                     lstItem.Add(items);
                 }
                 int k = service.refreshEST(estid, est, lstItem);
+                */
                 int m = service.UpdateRetentionAmountById(Request["formid"], Request["contractid"]);
-                //寫入小計金額(PAYMENT_TRANSFER 欄位)與實付金額(PAID_AMOUNT 欄位)
+                //寫入實付金額(PAID_AMOUNT 欄位)
                 PaymentDetailsFunction amountPaid = service.getDetailsPayById(Request["formid"], Request["contractid"]);
-                int t = service.UpdatePaidAmountById(Request["formid"], decimal.Parse(amountPaid.SUB_AMOUNT.ToString()), decimal.Parse(amountPaid.PAID_AMOUNT.ToString()));
+                int t = service.UpdatePaidAmountById(Request["formid"], decimal.Parse(amountPaid.PAID_AMOUNT.ToString()));
                 System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
                 string itemJson = objSerializer.Serialize(service.getDetailsPayById(Request["formid"], Request["contractid"]));
                 logger.Info("EST form details payment amount=" + itemJson);
@@ -432,7 +471,7 @@ namespace topmeperp.Controllers
                 TempData["balance"] = "本合約目前尚有 " + string.Format("{0:C0}", balance) + "的代付支出款項，仍未扣回!";
             }
             //轉成Json字串
-            ViewData["items"] = JsonConvert.SerializeObject(singleForm.planESTItem);
+            //ViewData["items"] = JsonConvert.SerializeObject(singleForm.planESTItem);
             ViewData["summary"] = JsonConvert.SerializeObject(lstSummary);
             return View(singleForm);
         }
@@ -536,7 +575,7 @@ namespace topmeperp.Controllers
             }
             return msg;
         }
-
+        /*
         //更新估驗數量與稅率
         public String UpdateESTQty(FormCollection form)
         {
@@ -581,7 +620,7 @@ namespace topmeperp.Controllers
             logger.Info("Request: 更新數量訊息 = " + msg);
             return msg;
         }
-
+        */
         //更新估驗單
         public String UpdateEST(FormCollection form)
         {
@@ -590,22 +629,24 @@ namespace topmeperp.Controllers
             decimal foreign_payment = decimal.Parse(form.Get("t_foreign").Trim());
             decimal original_foreign_payment = decimal.Parse(form.Get("original_t_foreign").Trim());
             decimal retention = decimal.Parse(form.Get("t_retention").Trim());
-            decimal totalAmount = decimal.Parse(form.Get("totalAmount").Trim());
+            decimal subAmount = decimal.Parse(form.Get("sub_amount").Trim());
+            decimal repayment = decimal.Parse(form.Get("t_repayment").Trim());
+            //decimal totalAmount = decimal.Parse(form.Get("totalAmount").Trim());
             decimal tax_ratio = decimal.Parse(form.Get("taxratio").Trim());
             decimal tax_amount = 0;
             if (foreign_payment != original_foreign_payment)
             {
-                tax_amount = Math.Round((totalAmount - foreign_payment) * tax_ratio / 100, 0);
+                tax_amount = Math.Round((subAmount - repayment) * tax_ratio / 100, 0);
             }
             else
             {
                 tax_amount = decimal.Parse(form.Get("tax_amount").Trim());
             }
             string remark = form.Get("remark").Trim();
-            int i = service.RefreshESTAmountByEstId(form["estid"], foreign_payment, retention, tax_amount, remark);
+            int i = service.RefreshESTAmountByEstId(form["estid"], subAmount, foreign_payment, retention, tax_amount, remark);
             //修改小計金額(PAYMENT_TRANSFER 欄位)與實付金額(PAID_AMOUNT 欄位)
             PaymentDetailsFunction amountPaid = service.getDetailsPayById(form["estid"], form["contractid"]);
-            int t = service.UpdatePaidAmountById(form["estid"], decimal.Parse(amountPaid.SUB_AMOUNT.ToString()), decimal.Parse(amountPaid.PAID_AMOUNT.ToString()));
+            int t = service.UpdatePaidAmountById(form["estid"], decimal.Parse(amountPaid.PAID_AMOUNT.ToString()));
             if (i == 0)
             {
                 msg = service.message;
@@ -730,22 +771,24 @@ namespace topmeperp.Controllers
             decimal foreign_payment = decimal.Parse(form.Get("t_foreign").Trim());
             decimal original_foreign_payment = decimal.Parse(form.Get("original_t_foreign").Trim());
             decimal retention = decimal.Parse(form.Get("t_retention").Trim());
-            decimal totalAmount = decimal.Parse(form.Get("totalAmount").Trim());
+            //decimal totalAmount = decimal.Parse(form.Get("totalAmount").Trim());
+            decimal subAmount = decimal.Parse(form.Get("sub_amount").Trim());
+            decimal repayment = decimal.Parse(form.Get("t_repayment").Trim());
             decimal tax_ratio = decimal.Parse(form.Get("taxratio").Trim());
             decimal tax_amount = 0;
             if (foreign_payment != original_foreign_payment)
             {
-                tax_amount = Math.Round((totalAmount - foreign_payment) * tax_ratio / 100, 0);
+                tax_amount = Math.Round((subAmount - repayment) * tax_ratio / 100, 0);
             }
             else
             {
                 tax_amount = decimal.Parse(form.Get("tax_amount").Trim());
             }
             string remark = form.Get("remark").Trim();
-            int i = service.RefreshESTAmountByEstId(form["estid"], foreign_payment, retention, tax_amount, remark);
+            int i = service.RefreshESTAmountByEstId(form["estid"], subAmount, foreign_payment, retention, tax_amount, remark);
             //修改小計金額(PAYMENT_TRANSFER 欄位)與實付金額(PAID_AMOUNT 欄位)
             PaymentDetailsFunction amountPaid = service.getDetailsPayById(form["estid"], form["contractid"]);
-            int t = service.UpdatePaidAmountById(form["estid"], decimal.Parse(amountPaid.SUB_AMOUNT.ToString()), decimal.Parse(amountPaid.PAID_AMOUNT.ToString()));
+            int t = service.UpdatePaidAmountById(form["estid"], decimal.Parse(amountPaid.PAID_AMOUNT.ToString()));
             //更新估驗單狀態
             logger.Info("Update Estimation Form Status");
             //估驗單(已送審) STATUS = 20
@@ -852,11 +895,13 @@ namespace topmeperp.Controllers
                 }
             }
             List<PLAN_INVOICE> lstInvoice = null;
+            List<PLAN_INVOICE> allInvoice = null;
             lstInvoice = service.getInvoiceById(id);
             ViewBag.key = lstInvoice.Count;
             logger.Debug("this invoice record =" + ViewBag.key + "筆");
             ViewData["items"] = JsonConvert.SerializeObject(lstInvoice);
-            return View();
+            allInvoice = service.getInvoiceByContractId(id, contractid);
+            return View(allInvoice);
         }
 
         public String AddInvoice(FormCollection form)
@@ -880,7 +925,14 @@ namespace topmeperp.Controllers
                 item.EST_FORM_ID = form["formid"];
                 item.CONTRACT_ID = form["contractid"];
                 item.INVOICE_NUMBER = lstNumber[j];
-                item.INVOICE_DATE = Convert.ToDateTime(lstDate[j]);
+                try
+                {
+                    item.INVOICE_DATE = Convert.ToDateTime(lstDate[j]);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.StackTrace);
+                }
                 if (lstAmount[j].ToString() == "")
                 {
                     item.AMOUNT = null;
@@ -897,8 +949,22 @@ namespace topmeperp.Controllers
                 {
                     item.TAX = decimal.Parse(lstTax[j]);
                 }
-                item.TYPE = lstType[j];
-                item.SUB_TYPE = lstSubType[j];
+                if (lstType[j].ToString() == "")
+                {
+                    item.TYPE = null;
+                }
+                else
+                {
+                    item.TYPE = lstType[j];
+                }
+                if (lstSubType[j].ToString() == "")
+                {
+                    item.SUB_TYPE = null;
+                }
+                else
+                {
+                    item.SUB_TYPE = lstSubType[j];
+                }
                 item.PLAN_ITEM_ID = lstPlanItem[j];
                 if (lstDiscountQty[j].ToString() == "")
                 {
@@ -957,7 +1023,14 @@ namespace topmeperp.Controllers
                 item.EST_FORM_ID = form["formid"];
                 item.CONTRACT_ID = form["contractid"];
                 item.INVOICE_NUMBER = lstNumber[j];
-                item.INVOICE_DATE = Convert.ToDateTime(lstDate[j]);
+                try
+                {
+                    item.INVOICE_DATE = Convert.ToDateTime(lstDate[j]);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.StackTrace);
+                }
                 if (lstAmount[j].ToString() == "")
                 {
                     item.AMOUNT = null;
@@ -974,10 +1047,24 @@ namespace topmeperp.Controllers
                 {
                     item.TAX = decimal.Parse(lstTax[j]);
                 }
-                item.TYPE = lstType[j];
+                if (lstType[j].ToString() == "")
+                {
+                    item.TYPE = null;
+                }
+                else
+                {
+                    item.TYPE = lstType[j];
+                }
                 if (lstType[j] == "折讓單")
                 {
-                    item.SUB_TYPE = lstSubType[j];
+                    if (lstSubType[j].ToString() == "")
+                    {
+                        item.SUB_TYPE = null;
+                    }
+                    else
+                    {
+                        item.SUB_TYPE = lstSubType[j];
+                    }
                     item.PLAN_ITEM_ID = lstPlanItem[j];
                     if (lstDiscountQty[j].ToString() == "")
                     {
@@ -2700,6 +2787,40 @@ namespace topmeperp.Controllers
             System.IO.File.Delete(path);
             int i = fs.delFile(itemUid);
             return "檔案已刪除(" + i + ")";
+        }
+
+        //上傳廠商計價檔案
+        public String uploadFile4Supplier(HttpPostedFileBase file)
+        {
+
+            string msg = "新增檔案成功!!";
+            string k = null;
+            //若使用者有上傳檔案，則增加檔案資料
+            if (null != file && file.ContentLength != 0)
+            {
+                //2.解析檔案
+                logger.Info("Parser file data:" + file.FileName);
+                //2.1 設定檔案名稱,實體位址,附檔名
+                string projectid = Request["projectId"];
+                string keyName = Request["uploadName"]; 
+                logger.Info("file upload namme =" + keyName);
+                var fileName = Path.GetFileName(file.FileName);
+                var path = Path.Combine(ContextService.strUploadPath + "\\" + Request["projectId"], fileName);
+                var fileType = Path.GetExtension(file.FileName);
+                string createDate = DateTime.Now.ToString("yyyy/MM/dd");
+                logger.Info("createDate = " + createDate);
+                UserService us = new UserService();
+                SYS_USER u = (SYS_USER)Session["user"];
+                SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+                string createId = uInfo.USER_ID;
+                FileManage fs = new FileManage();
+                k = fs.addFile(projectid, keyName, fileName, fileType, path, createId, createDate);
+                //2.2 將上傳檔案存檔
+                logger.Info("save upload file:" + path);
+                file.SaveAs(path);
+            }
+            if (k == "" || null == k) { msg = service.message; }
+            return msg;
         }
     }
 }

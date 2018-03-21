@@ -1,4 +1,6 @@
-﻿@{
+﻿@model IEnumerable<topmeperp.Models.PLAN_INVOICE>
+
+@{
     ViewBag.Title = "憑證明細 : ";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
@@ -53,8 +55,16 @@
                 </span>
                 No.{{$index +1}}
                 <div class="alert alert-info">
-                    <input type="date" id="invoice_date" name="invoice_date" ng-model="key.INVOICE_DATE" value="{{key.INVOICE_DATE | date: 'yyyy 年 MM 月 dd 日'}}" required>
-                    憑證日期: {{ key.INVOICE_DATE | date :'yyyy 年 MM 月 dd 日' }}
+                    憑證日期:
+                    @if (ViewBag.key > 0)
+                    {
+                        <input type="text" id="invoice_date" name="invoice_date" value="{{ key.INVOICE_DATE | date :'yyyy/MM/dd' }}" required>
+                    }
+                    else
+                    {
+                        <input type="date" id="invoice_date" name="invoice_date" ng-model="key.INVOICE_DATE" required>
+                        <lable>{{ key.INVOICE_DATE | date :'yyyy 年 MM 月 dd 日' }}</lable>
+                    }
                     憑證號碼:
                     <input type="text" id="invoice_number" name="invoice_number" style="width:200px" ng-model="key.INVOICE_NUMBER" required>
                     銷售金額：
@@ -80,10 +90,34 @@
             </ng-form>
             <div style="padding-top : 20px">
                 <input type="submit" value="新增" ng-click="addKey()" class="btn btn-warning" />
-
             </div>
-
         </form>
+    </div>
+    <div style="padding-top:20px;">
+        <h3 style="height:10px;line-height:5px">歷史憑證資料:</h3><br />
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>憑證日期</th>
+                    <th>憑證號碼</th>
+                    <th>銷售金額</th>
+                    <th>營業稅</th>
+                    <th>憑證類型</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+            {
+                    <tr>
+                        <td>@string.Format("{0:yyyy/MM/dd}", item.INVOICE_DATE)</td>
+                    <td>@item.INVOICE_NUMBER</td>
+                    <td>@String.Format("{0:#,##0.#}", item.AMOUNT)</td>
+                    <td>@String.Format("{0:#,##0.#}", item.TAX)</td>
+                    <td>@String.Format("{0:#,##0.#}", item.TYPE)</td>
+                </tr>
+                }
+            </tbody>
+        </table>
     </div>
 </div>
 <script>

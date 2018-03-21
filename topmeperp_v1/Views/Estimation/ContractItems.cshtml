@@ -6,9 +6,9 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0rc1/angular.min.js"></script>
 
- <!--<h3 style="height:10px;line-height:5px">@ViewBag.Title</h3>-->
+<!--<h3 style="height:10px;line-height:5px">@ViewBag.Title</h3>-->
 <div class="page-header" ng-app="">
-    <form id="formESTMain" name="formESTMain">
+    <form id="formESTMain" name="formESTMain" action="/Estimation/ConfirmEst" method="post" enctype="multipart/form-data">
         <div class="row">
             <div class="col-md-3 form-group">
                 <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.projectId" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
@@ -79,7 +79,17 @@
         <input type="hidden" name="contractid" id="contractid" value="@ViewBag.contractid">
         <input type="hidden" name="keyid" id="keyid" value="@ViewBag.keyid">
         <input type="hidden" name="type" id="type" value="@ViewBag.type">
-         <!--
+        <div style="padding-top: 30px;">
+            <input type="button" value="更新" class="btn btn-success" onclick="saveVA()" />
+            <!-- <input type="submit" value="計算" id="saveForm" name="saveForm" class="btn btn-success" />-->
+        </div>
+        <div style="padding-top: 30px;">
+            <label class="col-md-2 control-label">上傳計價檔案: </label>
+            <div class='col-md-10'>
+                <input type="file" name="file" id="file" />
+            </div>
+        </div>
+        <!--
         <div class="contailer" ng-controller="myController">
            @ViewBag.SearchResult
             <table class="table" align="left">
@@ -106,7 +116,7 @@
                         <th>
                             本期數量
                         </th>
-                       
+
                         <th>
                             本期金額
                         </th>
@@ -156,7 +166,7 @@
                         <td>
                             <input style="width:80px" type="text" class="form-control" ng-model="row.evaluated_qty" id="evaluated_qty" ng-init="row.evaluated_qty =''" name="evaluated_qty">
                         </td>
-                        
+
                         <td>
                             @if (ViewBag.wage == "N")
                             {
@@ -214,11 +224,14 @@
                 }
                 <span>%</span>
             </div>
-               
+
         </div>
-           -->      
+           -->
         <hr />
+        <!--
         <input type="submit" value="計算" id="saveForm" name="saveForm" class="btn btn-success"/>
+        -->
+
         <div class="row" style="padding-top:10px;">
             @{
                 Html.RenderPartial("PaymentDetails");
@@ -342,12 +355,10 @@
                 if ((data.advanceCash) == null && (data.retentionCash) == null) {
                     $('#paid_amount_cash').val(data.estCash.ToString("#,##0"));
                 }
-                else if ((data.estCash) == null && (data.retentionCash) == null)
-                {
+                else if ((data.estCash) == null && (data.retentionCash) == null) {
                     $('#paid_amount_cash').val(data.advanceCash);
                 }
-                else
-                {
+                else {
                     $('#paid_amount_cash').val(data.retentionCash);
                 }
                 if ((data.advanceAmt1) == null && (data.retentionAmt1) == null) {
@@ -505,5 +516,70 @@
         });
     });
 
-
+    function saveVA() {
+        $("#formESTMain").submit(function (e) {
+            var formObj = $(this);
+            var formURL = formObj.attr("action");
+            var formData = new FormData(this);
+            //var URLs = "/Estimation/addVAItem";
+            $.ajax({
+                url: formURL,
+                type: 'POST',
+                data: formData,
+                mimeType: "multipart/form-data",
+                contentType: false,
+                cache: false,
+                processData: false,
+                //url: URLs,
+                //data: $('#formVAItem').serialize(),
+                //type: "POST",
+                dataType: 'JSON',
+                success: function (data) {
+                    $('#cum_t_foreign').val(data.CUM_T_FOREIGN);
+                    $('#cum_sub_amount').val(data.CUM_SUB_AMOUNT);
+                    $('#cum_t_retention').val(data.CUM_T_RETENTION);
+                    $('#cum_t_advance').val(data.CUM_T_ADVANCE);
+                    $('#cum_t_other').val(data.CUM_T_OTHER);
+                    $('#cum_payable_amount').val(data.CUM_PAYABLE_AMOUNT);
+                    $('#cum_t_repayment').val(data.CUM_T_REPAYMENT);
+                    $('#cum_t_refund').val(data.CUM_T_REFUND);
+                    $('#t_foreign').val(data.T_FOREIGN);
+                    $('#sub_amount').val(data.SUB_AMOUNT);
+                    $('#t_retention').val(data.T_RETENTION);
+                    $('#t_advance').val(data.T_ADVANCE);
+                    $('#t_other').val(data.T_OTHER);
+                    $('#t_repayment').val(data.T_REPAYMENT);
+                    $('#t_refund').val(data.T_REFUND);
+                    $('#payable_amount').val(data.PAYABLE_AMOUNT);
+                    $('#tax_amount').val(data.TAX_AMOUNT);
+                    $('#cum_tax_amount').val(data.CUM_TAX_AMOUNT);
+                    $('#cum_paid_amount').val(data.CUM_PAID_AMOUNT);
+                    $('#paid_amount').val(data.PAID_AMOUNT);
+                    $('#total_paid_amount').val(data.TOTAL_PAID_AMOUNT);
+                    $('#total_payable_amount').val(data.TOTAL_PAYABLE_AMOUNT);
+                    $('#total_foreign').val(data.TOTAL_FOREIGN);
+                    $('#total_sub_amount').val(data.TOTAL_SUB_AMOUNT);
+                    $('#total_retention').val(data.TOTAL_RETENTION);
+                    $('#total_advance').val(data.TOTAL_ADVANCE);
+                    $('#total_other').val(data.TOTAL_OTHER);
+                    $('#total_tax_amount').val(data.TOTAL_TAX_AMOUNT);
+                    $('#total_repayment').val(data.TOTAL_REPAYMENT);
+                    $('#total_refund').val(data.TOTAL_REFUND);
+                    if (data.PAYABLE_AMOUNT == null || data.PAYABLE_AMOUNT == '') {
+                        alert("目前尚有未核准的估驗單，估驗單編號為" + data + "，待此單核准後再新增估驗單!");
+                    }
+                    else {
+                        alert("更新成功，若資料無誤請按下儲存或提交鍵 !");
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                }
+            });
+            e.preventDefault(); //Prevent Default action.
+            e.unbind();
+        });
+        $("#formESTMain").submit(); //Submit the form
+        // document.forms["formFileUpload"].submit();
+    }
 </script>

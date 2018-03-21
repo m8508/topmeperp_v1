@@ -39,7 +39,9 @@
                 <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("Valuation4Owner", "Estimation", new { id = item.PROJECT_ID })'; ">收入管理</button>
             </td>
             <td data-th="廠商帳款管理">
-                 <!--<button type="button" class="btn btn-info" onclick="location.href='@Url.Action("Valuation4Sup", "Estimation", new { id = item.PROJECT_ID })'; ">廠商帳款管理</button>-->
+              <button type="button" class="btn btn-info" onclick="location.href='@Url.Action("Valuation", "Estimation", new { id = item.PROJECT_ID })'; ">廠商計價</button>
+                <button type="button" class="btn btn-info" @ViewBag.F10005 onclick="location.href='@Url.Action("EstimationForm", "Estimation", new { id = item.PROJECT_ID })'">廠商計價單查詢與簽核
+                </button>
             </td>
         </tr>
     }
