@@ -65,22 +65,29 @@ namespace topmeperp.Controllers
                 var path = Path.Combine(ContextService.strUploadPath + "/" + projectid, fileName);
                 logger.Info("save excel file:" + path);
                 file.SaveAs(path);
-                //2.2 解析Excel 檔案
                 ProjectItemFromExcel poiservice = new ProjectItemFromExcel();
                 TnderProject tndService = new TnderProject();
-                tndService.project = p;
-                poiservice.InitializeWorkbook(path);
-                poiservice.ConvertDataForPlan(projectid);
-                //2.3 記錄錯誤訊息
-                message = message + "得標標單品項:共" + poiservice.lstPlanItem.Count + "筆資料，";
-                message = message + "<a target=\"_blank\" href=\"/Plan/ManagePlanItem?id=" + projectid + "\"> 標單明細檢視畫面單</a><br/>" + poiservice.errorMessage;
-                //        < button type = "button" class="btn btn-primary" onclick="location.href='@Url.Action("ManagePlanItem","Plan", new { id = @Model.tndProject.PROJECT_ID})'; ">標單明細</button>
-                //2.4
-                logger.Info("Delete PLAN_ITEM By Project ID");
-                tndService.delAllItemByPlan();
-                //2.5
-                logger.Info("Add All PLAN_ITEM to DB");
-                tndService.refreshPlanItem(poiservice.lstPlanItem);
+                //2.2 解析Excel 檔案
+                try
+                {
+                    tndService.project = p;
+                    poiservice.InitializeWorkbook(path);
+                    poiservice.ConvertDataForPlan(projectid);
+                    //2.3 記錄錯誤訊息
+                    message = message + "得標標單品項:共" + poiservice.lstPlanItem.Count + "筆資料，";
+                    message = message + "<a target=\"_blank\" href=\"/Plan/ManagePlanItem?id=" + projectid + "\"> 標單明細檢視畫面單</a><br/>" + poiservice.errorMessage;
+                    //2.4
+                    logger.Info("Delete PLAN_ITEM By Project ID");
+                    tndService.delAllItemByPlan();
+                    //2.5
+                    logger.Info("Add All PLAN_ITEM to DB");
+                    tndService.refreshPlanItem(poiservice.lstPlanItem);
+                }
+                catch (Exception ex)
+                {
+                    message = ex.Message;
+                    logger.Error(ex.Message + "," + ex.StackTrace);
+                }
             }
             TempData["result"] = message;
             //PlanService ps = new PlanService();
@@ -1176,7 +1183,7 @@ namespace topmeperp.Controllers
         public FileResult downLoadOwnerContractFile()
         {
             //要下載的檔案位置與檔名
-           // string filepath = Request["itemUid"];
+            // string filepath = Request["itemUid"];
             //取得檔案名稱
             FileManage fs = new FileManage();
             TND_FILE f = fs.getFileByItemId(long.Parse(Request["itemid"]));
@@ -1185,7 +1192,7 @@ namespace topmeperp.Controllers
             Stream iStream = new FileStream(f.FILE_LOCATIOM, FileMode.Open, FileAccess.Read, FileShare.Read);
             //回傳出檔案
             return File(iStream, "application/unknown", filename);
-           // return File(iStream, "application/zip", filename);//application/unknown
+            // return File(iStream, "application/zip", filename);//application/unknown
 
         }
 

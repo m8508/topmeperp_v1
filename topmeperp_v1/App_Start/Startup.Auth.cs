@@ -3,6 +3,8 @@ using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
 using Owin;
 using log4net;
+using System.Diagnostics;
+using System.Reflection;
 
 namespace topmeperp
 {
@@ -24,6 +26,6 @@ namespace topmeperp
     }
     public class AppInfo
     {
-        public static string Version="1.0.32";
+        public static string Version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion.ToString();
     }
 }

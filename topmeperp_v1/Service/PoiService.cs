@@ -405,7 +405,7 @@ namespace topmeperp.Service
                 logger.Debug("Cells Count=" + row.Cells.Count + ",Excel Value:" + row.Cells[0].ToString());
                 //將各Row 資料寫入物件內
                 //代碼,項次,名稱,單位,標單數量,採購數量,單價,複價,備註,九宮格,次九宮格,主系統,次系統
-                if (row.Cells[0].ToString().ToUpper() != "")//代碼欄位有值才匯入
+                if (row.Cells[0].ToString().ToUpper() != "" && row.Cells[0].ToString().ToUpper() != "END")//代碼欄位有值才匯入
                 {
                     lstPlanItem.Add(convertRow2PlanItem(itemId, row, iRowIndex));
                 }
