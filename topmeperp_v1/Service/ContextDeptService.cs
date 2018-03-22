@@ -15,42 +15,55 @@ using topmeperp.Models;
 
 namespace topmeperp.Service
 {
-
     #region 部門資料管理管理區塊
     /*
      *部門資料管理管理 */
 
     public class DepartmentManage : ContextService
-{
-    static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-    public ENT_DEPARTMENT department = null;
-    public List<ENT_DEPARTMENT> Org_department = null;
-
-    //取得部門資料
-    public ENT_DEPARTMENT getDepartmentById(string depid)
     {
-        using (var context = new topmepEntities())
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        public ENT_DEPARTMENT department = null;
+        public List<ENT_DEPARTMENT> Org_department = null;
+
+        //取得部門資料
+        public ENT_DEPARTMENT getDepartmentById(string depid)
         {
-            department = context.ENT_DEPARTMENT.SqlQuery("select dep.* from ENT_DEPARTMENT dep "
-                + "where dep.DEP_ID = @depid "
-               , new SqlParameter("depid", depid)).First();
+            using (var context = new topmepEntities())
+            {
+                department = context.ENT_DEPARTMENT.SqlQuery("select dep.* from ENT_DEPARTMENT dep "
+                    + "where dep.DEP_ID = @depid "
+                   , new SqlParameter("depid", depid)).First();
+            }
+            return department;
         }
-        return department;
-    }
-    //新增部門資料
-    public long addDepartment(ENT_DEPARTMENT dep)
-    {
-        logger.Info("create new Department ");
-
-        using (var context = new topmepEntities())
+        //新增部門資料
+        public long addDepartment(ENT_DEPARTMENT dep)
         {
-            //2.取得供應商編號
-
-                context.ENT_DEPARTMENT.Add(dep);
+            logger.Info("create new Department ");
+            using (var context = new topmepEntities())
+            {
+                //2.取得供應商編號
+                context.ENT_DEPARTMENT.AddOrUpdate(dep);
                 int i = context.SaveChanges();
                 logger.Debug("Add dep=" + i);
             }
             return dep.DEP_ID;
+        }
+        /// <summary>
+        /// 刪除部門資料
+        /// </summary>
+        /// <param name="depId"></param>
+        public void delDepartment(long depId)
+        {
+            using (var context = new topmepEntities())
+            {
+                //2.取得
+                ENT_DEPARTMENT d= context.ENT_DEPARTMENT.Find(depId);
+                logger.Info("del Department =" + d.DEPT_NAME +"," +d.DEP_ID);
+                context.ENT_DEPARTMENT.Remove(d);
+                int i = context.SaveChanges();
+                logger.Debug("remove dep=" + i);
+            }
         }
         /// <summary>
         /// 取得所有部門資料(CTE)
@@ -138,6 +151,4 @@ namespace topmeperp.Service
         }
     }
     #endregion
-
-
 }

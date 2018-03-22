@@ -294,12 +294,20 @@ namespace topmeperp.Service
         //處理SQL 預先填入專案代號,設定集合處理參數
         string sql = @"SELECT F.EXP_FORM_ID,F.PROJECT_ID,F.OCCURRED_YEAR,F.OCCURRED_MONTH,F.PAYEE,F.PAYMENT_DATE,F.REMARK REQ_DESC,F.REJECT_DESC REJECT_DESC,
                         R.REQ_USER_ID,R.CURENT_STATE,R.PID,
+						(SELECT TOP 1 MANAGER FROM ENT_DEPARTMENT WHERE DEPT_CODE=CT.DEP_CODE) MANAGER,
                         CT.* ,M.FORM_URL + METHOD_URL as FORM_URL
 						FROM FIN_EXPENSE_FORM F,WF_PROCESS_REQUEST R,
                         WF_PORCESS_TASK CT ,
-		(SELECT P.PID,A.SEQ_ID,FORM_URL,METHOD_URL  FROM WF_PROCESS P,WF_PROCESS_ACTIVITY A WHERE P.PID=A.PID ) M
+		                (SELECT P.PID,A.SEQ_ID,FORM_URL,METHOD_URL  FROM WF_PROCESS P,WF_PROCESS_ACTIVITY A WHERE P.PID=A.PID ) M
                         WHERE F.EXP_FORM_ID= R.DATA_KEY AND R.RID=CT.RID AND R.CURENT_STATE=CT.SEQ_ID
 						AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE";
+        string sqlDeptInfo = @"SELECT R.REQ_USER_ID REQ_USER_ID,U.USER_NAME REQ_USER_NAME,
+                        U.DEP_CODE DEPT_CODE,D.DEPT_NAME DEPT_NAME,
+                        D.MANAGER,(SELECT TOP 1 USER_NAME FROM SYS_USER  WHERE USER_ID=D.MANAGER) MANAGER_NAME
+                         FROM WF_PROCESS_REQUEST r LEFT JOIN 
+                        SYS_USER u  ON r.REQ_USER_ID=u.USER_ID LEFT OUTER JOIN
+                        ENT_DEPARTMENT D ON u.DEP_CODE=D.DEPT_CODE
+                        WHERE R.DATA_KEY=@datakey";
 
         public Flow4CompanyExpense()
         {
@@ -369,7 +377,13 @@ namespace topmeperp.Service
             {
                 try
                 {
+                    //取得現有任務資訊
+                    logger.Debug("sql=" + sql + ",Data Key=" + dataKey);
                     task.task = context.Database.SqlQuery<ExpenseFlowTask>(sql, new SqlParameter("datakey", dataKey)).First();
+                    //取得申請者部門資料
+                    logger.Debug("sqlDeptInfo=" + sqlDeptInfo + ",Data Key=" + dataKey);
+                    task.DeptInfo = context.Database.SqlQuery<RequestUserDeptInfo>(sqlDeptInfo, new SqlParameter("datakey", dataKey)).First();
+               
                 }
                 catch (Exception ex)
                 {
