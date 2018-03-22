@@ -23,13 +23,18 @@
                 <input id="contractid" name="contractid" class="form-control" />
             </div>
             <div class='col-md-4 form-group' style="padding-top:5px">
-                <label for="supplier">供應商名稱 :</label>
-                <input id="supplier" name="supplier" type="text" value="" class="form-control" />
+                <label for="payee">供應商名稱 :</label>
+                <input id="payee" name="payee" type="text" value="" class="form-control" />
             </div>
             <div class='col-md-4 form-group' style="padding-top:5px">
                 <label for="estid">估驗單編號 :</label>
                 <input id="estid" name="estid" type="text" value="" class="form-control" />
             </div>
+            <div class="col-md-6 form-group" style="padding-top:10px">
+                <label for="status">狀態 : </label> @Html.DropDownList("status", null, String.Empty, new { @class = "form-control" })
+                <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
+            </div>
+            <!--
             <div class="col-md-8 form-group" style="padding-top:10px">
                 <input type="checkbox" value="20" id="status" name="status" checked />估驗單(已送審)
                 <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
@@ -38,7 +43,8 @@
                 <div id="divProcessing">
                     <img src="~/Content/ajax-loader.gif">
                 </div>
-            </div>
+               
+            </div> -->
                 <div class="col-md-2 form-group" style="padding-top:10px">
                     <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "Estimation")'" value="回上一頁">
                 </div>

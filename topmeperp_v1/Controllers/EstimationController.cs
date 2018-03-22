@@ -104,7 +104,7 @@ namespace topmeperp.Controllers
             TND_PROJECT p = service.getProjectById(projectid);
             ViewBag.projectName = p.PROJECT_NAME;
             ViewBag.wage = type;
-            ContractModels contract = new ContractModels();
+            ExpenseTask contract = new ExpenseTask();
             ViewBag.formid = formid;
             ViewBag.contractid = id;
             ViewBag.paymentTermsId = id + '/' + formid;
@@ -207,6 +207,9 @@ namespace topmeperp.Controllers
             logger.Info("Project Id:" + Request["projectid"]);
             logger.Info("get EST No of un Approval By contractid:" + Request["contractid"]);
             string contractid = Request["contractid"];
+            UserService us = new UserService();
+            SYS_USER u = (SYS_USER)Session["user"];
+            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
             string UnApproval = null;
             UnApproval = service.getEstNoByContractId(contractid);
             if (UnApproval != null && "" != UnApproval)
@@ -218,8 +221,10 @@ namespace topmeperp.Controllers
             {
                 //更新估驗單
                 logger.Info("update Estimation Form");
-                //估驗單草稿(未送審) STATUS = 10
+                //估驗單草稿 STATUS = 10
                 int k = service.UpdateESTStatusById(Request["formid"]);
+                Flow4Estimation flowService = new Flow4Estimation();
+                flowService.iniRequest(uInfo, Request["formid"]);
                 return RedirectToAction("SingleEST", "Estimation", new { id = Request["formid"] });
             }
         }
@@ -390,20 +395,30 @@ namespace topmeperp.Controllers
             TnderProject tndservice = new TnderProject();
             TND_PROJECT p = tndservice.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
+            //取得表單狀態參考資料
+            SelectList status = new SelectList(SystemParameter.getSystemPara("EstimationForm"), "KEY_FIELD", "VALUE_FIELD");
+            ViewData.Add("status", status);
+            Flow4Estimation s = new Flow4Estimation();
+            List<ExpenseFlowTask> lstEST = s.getEstimationFormRequest(Request["contractid"], Request["payee"], Request["estid"], id, null);
             //估驗單草稿
-            int status = 20;
-            if (Request["status"] == null || Request["status"] == "")
-            {
-                status = 10;
-            }
-            List<ESTFunction> lstEST = service.getESTListByEstId(id, Request["contractid"], Request["estid"], status, Request["supplier"]);
+            //int status = 20;
+            //if (Request["status"] == null || Request["status"] == "")
+            //{
+                //status = 10;
+            //}
+           //List<ESTFunction> lstEST = service.getESTListByEstId(id, Request["contractid"], Request["estid"], status, Request["supplier"]);
             return View(lstEST);
         }
 
         public ActionResult SearchEST()
         {
             //logger.Info("projectid=" + Request["id"] + ", contractid =" + Request["contractid"] + ", estid =" + Request["estid"] + ", status =" + int.Parse(Request["status"]));
-            List<ESTFunction> lstEST = service.getESTListByEstId(Request["id"], Request["contractid"], Request["estid"], int.Parse(Request["status"]), Request["supplier"]);
+            string id = Request["id"];
+            string status = Request["status"];
+            SelectList LstStatus = new SelectList(SystemParameter.getSystemPara("EstimationForm"), "KEY_FIELD", "VALUE_FIELD");
+            ViewData.Add("status", LstStatus);
+            Flow4Estimation s = new Flow4Estimation();
+            List<ExpenseFlowTask> lstEST = s.getEstimationFormRequest(Request["contractid"], Request["payee"], Request["estid"], id, null);
             ViewBag.SearchResult = "共取得" + lstEST.Count + "筆資料";
             ViewBag.projectId = Request["id"];
             ViewBag.projectName = Request["projectName"];
@@ -427,6 +442,7 @@ namespace topmeperp.Controllers
         {
             logger.Info("http get mehtod:" + id);
             ContractModels singleForm = new ContractModels();
+            Flow4Estimation wfs = new Flow4Estimation();
             service.getESTByEstId(id);
             singleForm.planEST = service.formEST;
             ViewBag.formid = id;
@@ -473,7 +489,57 @@ namespace topmeperp.Controllers
             //轉成Json字串
             //ViewData["items"] = JsonConvert.SerializeObject(singleForm.planESTItem);
             ViewData["summary"] = JsonConvert.SerializeObject(lstSummary);
-            return View(singleForm);
+
+            logger.Info("get process request by dataId=" + id);
+            wfs.getTask(id);
+            wfs.getRequest(id);
+            wfs.task.EstData = singleForm;
+
+            Session["process"] = wfs.task;
+            return View(wfs.task);
+        }
+
+        //送審、通過
+        public String SendForm(FormCollection f)
+        {
+            logger.Info("http get mehtod:" + f["EST_FORM_ID"]);
+            Flow4Estimation wfs = new Flow4Estimation();
+            wfs.task = (ExpenseTask)Session["process"];
+            logger.Info("Data In Session :" + wfs.task.EstData.planEST.EST_FORM_ID);
+
+            SYS_USER u = (SYS_USER)Session["user"];
+            DateTime? date = null;//DateTime can not set null
+            string desc = null;
+            if (f["date"].ToString() != "")
+            {
+                date = Convert.ToDateTime(f["date"].ToString());
+            }
+            if (null != f["RejectDesc"] && f["RejectDesc"].ToString() != "")
+            {
+                desc = f["RejectDesc"].ToString().Trim();
+            }
+
+            wfs.Send(u, date, desc);
+            return "更新成功!!";
+        }
+        //退件
+        public String RejectForm(FormCollection form)
+        {
+            //取得表單資料 from Session
+            Flow4Estimation wfs = new Flow4Estimation();
+            wfs.task = (ExpenseTask)Session["process"];
+            SYS_USER u = (SYS_USER)Session["user"];
+            wfs.Reject(u,form["RejectDesc"]);
+            return wfs.Message;
+        }
+        //取消
+        public String CancelForm(FormCollection form)
+        {
+            Flow4Estimation wfs = new Flow4Estimation();
+            wfs.task = (ExpenseTask)Session["process"];
+            SYS_USER u = (SYS_USER)Session["user"];
+            wfs.Cancel(u);
+            return wfs.Message;
         }
         //其他扣款
         public ActionResult OtherPayment(string id, string contractid)
@@ -626,9 +692,17 @@ namespace topmeperp.Controllers
         {
             logger.Info("form:" + form.Count);
             string msg = "";
-            decimal foreign_payment = decimal.Parse(form.Get("t_foreign").Trim());
+            decimal foreign_payment = 0;
+            if (null!= form["t_foreign"] && form["t_foreign"] != "")
+            {
+                foreign_payment = decimal.Parse(form.Get("t_foreign").Trim());
+            }
             decimal original_foreign_payment = decimal.Parse(form.Get("original_t_foreign").Trim());
-            decimal retention = decimal.Parse(form.Get("t_retention").Trim());
+            decimal retention = 0;
+            if (null != form["t_retention"] && form["t_retention"] != "")
+            {
+                retention = decimal.Parse(form.Get("t_retention").Trim());
+            }
             decimal subAmount = decimal.Parse(form.Get("sub_amount").Trim());
             decimal repayment = decimal.Parse(form.Get("t_repayment").Trim());
             //decimal totalAmount = decimal.Parse(form.Get("totalAmount").Trim());
@@ -804,6 +878,7 @@ namespace topmeperp.Controllers
             return msg;
         }
 
+        /*
         public String RejectESTById(FormCollection form)
         {
             //取得估驗單編號
@@ -843,7 +918,7 @@ namespace topmeperp.Controllers
             }
             return msg;
         }
-
+        */
         //憑證
         public ActionResult Invoice(string id, string contractid)
         {
@@ -870,7 +945,7 @@ namespace topmeperp.Controllers
                 try
                 {
                     if (singleForm.planEST.INVOICE == "E")
-                    {
+                    {   
                         ViewBag.type = "發票含保留款";
                     }
                     else if (singleForm.planEST.INVOICE == "I")

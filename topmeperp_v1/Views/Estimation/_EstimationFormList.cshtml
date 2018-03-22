@@ -1,17 +1,19 @@
 ﻿
-@model IEnumerable<topmeperp.Models.ESTFunction>
+@model IEnumerable<topmeperp.Models.ExpenseFlowTask>
 <div class="container">
     <div class="row" style="padding-top:5px;">
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>項次</th>
                     <th>估驗日期</th>
                     <th>編號</th>
                     <th>發包項目名稱</th>
                     <th>供應商名稱</th>
-                    <th>估驗單狀態</th>
+                    <th>備註</th>
+                    <th>下一步</th>
+                    <!--
                     <th>選項連結</th>
+                        -->
                 </tr>
             </thead>
             <tbody>
@@ -19,34 +21,17 @@
                 @foreach (var item in Model)
             {
                     <tr>
-                        <td>@item.NO</td>
-                        <td>@item.CREATE_DATE</td>
+                        <td>
+                            @(null == item.PAYMENT_DATE ? "" : item.PAYMENT_DATE.Value.ToString("yyyy/MM/dd"))
+                        </td>
                         <td><a href="/Estimation/SingleEST/@item.EST_FORM_ID" target="_blank">@item.EST_FORM_ID</a></td>
-                        <td>@item.CONTRACT_NAME</td>
-                        <td>@item.SUPPLIER_NAME</td>
-                        @if (item.STATUS == 0)
-                        {
-
-                            <td><span style="color: red; font-size: 15px;">退件</span></td>
-
-                        }
-                        else if (item.STATUS == 10)
-                        {
-                            <td>草稿</td>
-                        }
-                        else if (item.STATUS == 20)
-                        {
-                            <td>已送審</td>
-                        }
-                        else if (item.STATUS == 30)
-                        {
-                            <td><span style="color: blue; font-size: 15px;">已核可</span></td>
-                        }
-                        else
-                        {
-                            <td><span style="color: red; font-size: 15px;">已結帳</span></td>
-                        }
-                        <td><a href='@("../../UploadFile/" + ViewBag.projectid + "/Estimation/" + item.EST_FORM_ID + ".xlsx")'>下載</a></td>
+                        <td>@item.FORM_NAME</td>
+                        <td>@item.PAYEE</td>
+                        <td>@item.REJECT_DESC</td>
+                        <td>
+                            <a href='@(item.FORM_URL+"id="+item.EXP_FORM_ID)'>@item.NOTE</a>
+                        </td>
+                         <!--<td><a href='@("../../UploadFile/" + ViewBag.projectid + "/Estimation/" + item.EST_FORM_ID + ".xlsx")'>下載</a></td> -->
                     </tr>
                 }
             </tbody>
