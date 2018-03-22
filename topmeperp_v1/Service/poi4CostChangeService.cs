@@ -38,7 +38,10 @@ namespace topmeperp.Service
             //填入異動單資料
             row = sheet.GetRow(2);
             row.Cells[1].SetCellValue(form.FORM_ID);
-            row.Cells[3].SetCellValue(form.REMARK);
+            row.Cells[3].SetCellValue(form.REMARK_ITEM);
+            //row.Cells[3].SetCellValue(form.REMARK_ITEM);
+            //row.Cells[3].SetCellValue(form.REMARK_ITEM);
+            //row.Cells[3].SetCellValue(form.REMARK_ITEM);
             //填入明細資料
             ConverObjectTotExcel(lstItem, 4);
             //令存新檔至專案所屬目錄
@@ -161,8 +164,8 @@ namespace topmeperp.Service
             }
             //未送審前狀態不變
             costChangeForm.STATUS = "新建立";
-            costChangeForm.REMARK = row.Cells[3].ToString();
-            logger.Debug("FORM id=" + costChangeForm.FORM_ID + ",REMARK=" + costChangeForm.REMARK);
+            costChangeForm.REMARK_ITEM = row.Cells[3].ToString();
+            logger.Debug("FORM id=" + costChangeForm.FORM_ID);
             ConvertExcel2Object();
         }
         //將Excel Row 轉製成物件

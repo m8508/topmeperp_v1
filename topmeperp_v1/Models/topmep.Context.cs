@@ -36,8 +36,6 @@ namespace topmeperp.Models
         public virtual DbSet<PLAN_ACCOUNT> PLAN_ACCOUNT { get; set; }
         public virtual DbSet<PLAN_BUDGET> PLAN_BUDGET { get; set; }
         public virtual DbSet<PLAN_CONTRACT_PROCESS> PLAN_CONTRACT_PROCESS { get; set; }
-        public virtual DbSet<PLAN_COSTCHANGE_FORM> PLAN_COSTCHANGE_FORM { get; set; }
-        public virtual DbSet<PLAN_COSTCHANGE_ITEM> PLAN_COSTCHANGE_ITEM { get; set; }
         public virtual DbSet<PLAN_DALIY_REPORT> PLAN_DALIY_REPORT { get; set; }
         public virtual DbSet<PLAN_DR_ITEM> PLAN_DR_ITEM { get; set; }
         public virtual DbSet<PLAN_DR_NOTE> PLAN_DR_NOTE { get; set; }
@@ -87,5 +85,7 @@ namespace topmeperp.Models
         public virtual DbSet<WF_PROCESS> WF_PROCESS { get; set; }
         public virtual DbSet<WF_PROCESS_ACTIVITY> WF_PROCESS_ACTIVITY { get; set; }
         public virtual DbSet<WF_PROCESS_REQUEST> WF_PROCESS_REQUEST { get; set; }
+        public virtual DbSet<PLAN_COSTCHANGE_FORM> PLAN_COSTCHANGE_FORM { get; set; }
+        public virtual DbSet<PLAN_COSTCHANGE_ITEM> PLAN_COSTCHANGE_ITEM { get; set; }
     }
 }

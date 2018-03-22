@@ -1,5 +1,4 @@
-﻿@model IEnumerable<topmeperp.Models.PLAN_COSTCHANGE_ITEM>
-
+﻿@model topmeperp.Models.CostChangeFormTask
 <table class="rwd-table">
     <tr>
         <th>
@@ -23,11 +22,8 @@
         <th>
             備註說明
         </th>
-        <th>
-            追加減
-        </th>
     </tr>
-    @foreach (var item in Model)
+    @foreach (var item in Model.lstItem)
     {
         <tr>
             <td data-th="編號">
@@ -55,18 +51,6 @@
             <td data-th="備註說明">
                 <input type="text" id="itemRemark" name="itemRemark" size="20" value="@item.ITEM_REMARK" />
             </td>
-            <td data-th="追加減">
-                @if (item.TRANSFLAG == "1")
-                {
-                    <input type="checkbox" id='transFlg.@item.ITEM_UID' name='transFlg.@item.ITEM_UID' value="1" checked="@item.TRANSFLAG" />
-                }
-                else
-                {
-                    <input type="checkbox" id='transFlg.@item.ITEM_UID' name='transFlg.@item.ITEM_UID' value="1" />
-                }
-            </td>
-
-
         </tr>
     }
 </table>
