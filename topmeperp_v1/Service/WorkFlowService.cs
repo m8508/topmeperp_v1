@@ -550,7 +550,7 @@ namespace topmeperp.Service
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public new string FLOW_KEY = "EST01";
         //處理SQL 預先填入專案代號,設定集合處理參數
-        string sql = @"SELECT F.EST_FORM_ID,F.PROJECT_ID,F.CONTRACT_ID,P.SUPPLIER_ID PAYEE,P.FORM_NAME,F.CREATE_DATE PAYMENT_DATE,F.REMARK REQ_DESC,F.REJECT_DESC REJECT_DESC,
+        string sql = @"SELECT F.EST_FORM_ID EXP_FORM_ID,F.PROJECT_ID,F.CONTRACT_ID,P.SUPPLIER_ID PAYEE,P.FORM_NAME,F.CREATE_DATE PAYMENT_DATE,F.REMARK REQ_DESC,F.REJECT_DESC REJECT_DESC,
                         R.REQ_USER_ID,R.CURENT_STATE,R.PID,
                         CT.* ,M.FORM_URL + METHOD_URL as FORM_URL
 						FROM PLAN_ESTIMATION_FORM F,WF_PROCESS_REQUEST R,
@@ -715,10 +715,10 @@ namespace topmeperp.Service
             {
                 parameters.Add(new SqlParameter("rejectDesc", DBNull.Value));
             }
-            parameters.Add(new SqlParameter("formId", task.task.EST_FORM_ID));
+            parameters.Add(new SqlParameter("formId", task.task.EXP_FORM_ID));
             using (var context = new topmepEntities())
             {
-                logger.Debug("Change EstimationFormRequest Status=" + task.task.EST_FORM_ID + "," + staus);
+                logger.Debug("Change EstimationFormRequest Status=" + task.task.EXP_FORM_ID + "," + staus);
                 context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
             }
 
@@ -726,7 +726,7 @@ namespace topmeperp.Service
         }
 
         //退件
-        public void Reject(SYS_USER u, string reason)
+        public new void Reject(SYS_USER u, string reason)
         {
             logger.Debug("EstimationFormRequest Reject:" + task.task.RID);
             base.Reject(u, reason);
@@ -739,16 +739,16 @@ namespace topmeperp.Service
         public void Cancel(SYS_USER u)
         {
             user = u;
-            logger.Info("USER :" + user.USER_ID + " Cancel :" + task.task.EST_FORM_ID);
+            logger.Info("USER :" + user.USER_ID + " Cancel :" + task.task.EXP_FORM_ID);
             base.CancelRequest(u);
             if (statusChange != "F")
             {
                 string sql = "DELETE PLAN_ESTIMATION_FORM WHERE EST_FORM_ID=@formId;DELETE PLAN_ESTIMATION_FORM WHERE EST_FORM_ID=@formId;";
                 var parameters = new List<SqlParameter>();
-                parameters.Add(new SqlParameter("formId", task.task.EST_FORM_ID));
+                parameters.Add(new SqlParameter("formId", task.task.EXP_FORM_ID));
                 using (var context = new topmepEntities())
                 {
-                    logger.Debug("Cancel EstimationFormRequest Status=" + task.task.EST_FORM_ID);
+                    logger.Debug("Cancel EstimationFormRequest Status=" + task.task.EXP_FORM_ID);
                     context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
                 }
             }

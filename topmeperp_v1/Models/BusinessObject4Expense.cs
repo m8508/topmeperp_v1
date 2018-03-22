@@ -16,6 +16,7 @@ namespace topmeperp.Models
         public List<WF_PORCESS_TASK> ProcessTask { get; set; }
         //表單內容
         public OperatingExpenseModel FormData { get; set; }
+        public ContractModels EstData { get; set; }
         //申請者部門資料
         public RequestUserDeptInfo DeptInfo { get; set; }
     }
@@ -51,5 +52,8 @@ namespace topmeperp.Models
         public string DEPT_NAME { get; set; }
         public string MANAGER { get; set; }
         public string MANAGER_NAME { get; set; }
+    }
+    public class EstmTask:ExpenseTask {
+        public new ContractModels FormData { get; set; }
     }
 }
