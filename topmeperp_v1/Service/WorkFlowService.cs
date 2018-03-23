@@ -286,7 +286,7 @@ namespace topmeperp.Service
             }
         }
         //建立對應的流程的相關任務
-        protected void createFlow(SYS_USER u,string DataKey)
+        protected void createFlow(SYS_USER u, string DataKey)
         {
             task = new ExpenseTask();
             //建立表單追蹤資料Index
@@ -750,7 +750,7 @@ namespace topmeperp.Service
     public class Flow4CostChange : WorkFlowService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        public string FLOW_KEY = "EXP01";
+        public string FLOW_KEY = "CCH01";
         public new CostChangeFormTask task;//CostChangeFormTask
         //處理SQL 預先填入專案代號,設定集合處理參數
         string sql = @"SELECT F.FORM_ID,F.PROJECT_ID,F.REJECT_DESC REJECT_DESC,
@@ -814,7 +814,7 @@ namespace topmeperp.Service
         }
 
         //送審
-        public void Send(SYS_USER u, DateTime? paymentdate, string reason)
+        public void Send(SYS_USER u, string reason, string methodCode, DateTime? settlementDate)
         {
             logger.Debug("CostChange Request Send" + task.task.ID);
             base.Send(u);
@@ -829,21 +829,40 @@ namespace topmeperp.Service
                 {
                     staus = 30;
                 }
-                staus = updateForm(paymentdate, reason, staus);
+                staus = updateForm(reason, staus, methodCode, settlementDate);
             }
         }
         //更新資料庫資料
-        protected int updateForm(DateTime? paymentdate, string reason, int staus)
+        protected int updateForm(string reason, int staus, string method, DateTime? settlementDate)
         {
-            string sql = "UPDATE PLAN_COSTCHANGE_FORM SET STATUS=@status,REJECT_DESC=@rejectDesc WHERE FORM_ID=@formId";
+            string sql = @"UPDATE PLAN_COSTCHANGE_FORM SET STATUS=@status,REJECT_DESC=@rejectDesc,METHOD_CODE=@Methodcode, SETTLEMENT_DATE=@settlementDate 
+                            WHERE FORM_ID=@formId";
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("status", staus));
-            using (var context = new topmepEntities())
+            parameters.Add(new SqlParameter("rejectDesc", reason));
+            if (null == settlementDate)
             {
-                logger.Debug("Change CostChange Status=" + task.task.EXP_FORM_ID + "," + staus);
-                context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+                parameters.Add(new SqlParameter("settlementDate", DBNull.Value));
+            }
+            else
+            {
+                parameters.Add(new SqlParameter("settlementDate", settlementDate));
+            }
+            if (null == method)
+            {
+                parameters.Add(new SqlParameter("Methodcode", DBNull.Value));
+            }
+            else
+            {
+                parameters.Add(new SqlParameter("Methodcode", method));
             }
 
+
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("Change CostChange Status=" + task.FormData.FORM_ID + "," + staus);
+                context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            }
             return staus;
         }
 
@@ -854,7 +873,7 @@ namespace topmeperp.Service
             base.Reject(u, reason);
             if (statusChange != "F")
             {
-                updateForm(paymentdate, reason, 0);
+                updateForm(reason, 0, null, null);
             }
         }
         //中止

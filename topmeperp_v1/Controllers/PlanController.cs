@@ -804,9 +804,12 @@ namespace topmeperp.Controllers
             wfs.getTask(formId);
             wfs.task.FormData= cs.form;
             wfs.task.lstItem = cs.lstItem;
-            Session["task"] = wfs.task;
+            Session["process"] = wfs.task;
             SelectList reasoncode = new SelectList(SystemParameter.getSystemPara("COSTHANGE", "REASON"), "KEY_FIELD", "VALUE_FIELD",cs.form.REASON_CODE);
             ViewData.Add("reasoncode", reasoncode);
+            //財務處理區塊
+            SelectList methodcode = new SelectList(SystemParameter.getSystemPara("COSTHANGE", "METHOD"), "KEY_FIELD", "VALUE_FIELD", cs.form.METHOD_CODE);
+            ViewData.Add("methodcode", methodcode);
             return View(wfs.task);
         }
         //建立與修改異動單--加入審核功能
@@ -998,7 +1001,33 @@ namespace topmeperp.Controllers
             int i = cs.delChangeOrderItem(itemUid);
             return "資料已刪除(" + i + ")";
         }
+        //送審、通過
+        public string SendForm(FormCollection f)
+        {
+            Flow4CostChange wfs = new Flow4CostChange();
+            wfs.task = (CostChangeFormTask)Session["process"];
+            logger.Info("http get mehtod: " + f["txtFormId"] + ",Data In Session :" + wfs.task.FormData.FORM_ID);
 
+            SYS_USER u = (SYS_USER)Session["user"];
+
+            string desc = null;
+            string method = null;
+            DateTime? settlementDate = null;
+            if (null != f["RejectDesc"] && f["RejectDesc"].ToString() != "")
+            {
+                desc = f["RejectDesc"].ToString().Trim();
+            }
+            if (null != f["methodcode"] && f["methodcode"].ToString() != "")
+            {
+                method = f["methodcode"].ToString().Trim();
+            }
+            if (null != f["settlementDate"] && f["settlementDate"].ToString() != "")
+            {
+                settlementDate = Convert.ToDateTime(f["methodcode"].ToString().Trim());
+            }
+            wfs.Send(u,  desc, method, settlementDate);
+            return "更新成功!!";
+        }
         //下載異動單
         public void downloadCostChangeForm()
         {

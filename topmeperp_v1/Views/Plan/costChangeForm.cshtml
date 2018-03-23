@@ -53,28 +53,22 @@
         </div>
 
         <div class="row body-content">
-            <!--退件或草稿可進行增修-->
             @if (null != Model)
             {
                 Html.RenderPartial("_ChangeOrderItemList");
             }
         </div>
         <div class="row">
-
+            <!--退件或草稿可進行增修-->
             @if (Model.FormData.STATUS == "10" || Model.FormData.STATUS == "0")
             {
                 <div class="col-sm-1">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#changeOrderItem" onclick="addChangeOrderItem()">新增</button>
                 </div>
             }
-            else if (ViewBag.formStatus == "送審")
+            else if (ViewBag.formStatus == "20")
             {
-                <div class="col-sm-4">
-                    <select id="status" name="status_next" class="form-control">
-                        <option value="進行採購">進行採購</option>
-                        <option value="刪除">刪除</option>
-                    </select>
-                </div>
+                @Html.DropDownList("methodcode", null, String.Empty, new { @class = "form-control" })
                 <div class="col-sm-4">
                     <input name="settlementDate" class="form-control" id="settlementDate" type="text" value="@ViewBag.settlementDate" placeholder="結算日期">
                 </div>
@@ -84,7 +78,7 @@
         </div>
     </form>
 </div>
-</div>
+
 <!--新增品項對話框-->
 <div class="modal fade" id="changeOrderItem" role="dialog">
     <div class="modal-dialog" id="changeOrderItem">
@@ -247,27 +241,9 @@
         $('#dia_item_remark').val("");
         $('#dia_transFlag').val("0");
     }
-    //將對話框Form 送出
-    $("#saveChangeOrderItem").click(function () {
-        var s = $('#formChangeOrderItem').serialize();
-        var URLs = "/Plan/addChangeOrderItem";
-        $.ajax({
-            url: URLs,
-            data: $('#formChangeOrderItem').serialize(),
-            type: "POST",
-            dataType: 'text',
-            success: function (msg) {
-                alert(msg);
-                location.reload();
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert(thrownError);
-            }
-        });
-    });
     //將ProjectItem 註記刪除
     function delChangeOrderItem(itemid) {
-        if ($("#status").val() != "新建立") {
+        if ($("#status").val() != "") {
             alert("此異動單不可再調整內容!!");
             return;
         }
@@ -285,23 +261,84 @@
             }
         });
     }
-    function sent2Audit() {
+    //將對話框Form 送出
+    $("#updateForm").click(function () {
+        var s = $('#formChangeOrderItem').serialize();
+        var URLs = "/Plan/addChangeOrderItem";
         $.ajax({
-            url: "/Plan/send2Audit",
+            url: URLs,
+            data: $('#formChangeOrderItem').serialize(),
             type: "POST",
-            data: { formId: $("#txtFormId").val() },
-            dataType: "text",
-            success: function (data) {
-                alert(data);
-                window.opener.location.reload(false);
-                window.opener = null;
-                window.close();
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+                location.reload();
             },
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert('Error del data by ajax');
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
             }
         });
-    }
+    });
+    /**
+    //作業流程功能區塊
+    */
+    //儲存
+    $("#updateForm").click(function () {
+        document.getElementById("CostChangeForm").submit();
+    });
+
+    //送審、通過
+    $("#SendForm").click(function () {
+        $.ajax({
+            url: '@Url.Action("SendForm", "Plan")',
+            data: $('#CostChangeForm').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+                window.close();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    });
+    //退件
+    $("#RejectForm").click(function () {
+        $.ajax({
+            url: '@Url.Action("RejectForm", "CashFlow")',
+            data: $('#formExpense').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+                window.location.replace("/CashFlow/ExpenseForm");
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    });
+    //中止
+    $("#CancelForm").click(function () {
+        $.ajax({
+            url: '@Url.Action("CancelForm", "CashFlow")',
+            data: $('#formExpense').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+                window.location.replace("/CashFlow/ExpenseForm");
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    });
+    /**
+    //作業流程功能區塊
+    ****/
+
     function cancelTrans() {
         window.opener = null;
         window.close();

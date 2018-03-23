@@ -122,7 +122,7 @@ namespace topmeperp.Service
                             (SELECT SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) FROM PLAN_COSTCHANGE_ITEM WHERE FORM_ID = f.FORM_ID AND TRANSFLAG='1') RecognizeAmt,
                             (SELECT SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) FROM[PLAN_COSTCHANGE_ITEM] WHERE FORM_ID = f.FORM_ID AND ITEM_QUANTITY> 0 AND TRANSFLAG='1') AddAmt,
                             (SELECT SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) FROM[PLAN_COSTCHANGE_ITEM] WHERE FORM_ID = f.FORM_ID AND ITEM_QUANTITY< 0 AND TRANSFLAG='1') CutAmt
-                            FROM PLAN_COSTCHANGE_FORM f WHERE PROJECT_ID=@projectId AND STATUS IN ('進行採購'); ";
+                            FROM PLAN_COSTCHANGE_FORM f WHERE PROJECT_ID=@projectId AND STATUS IN ('01','02'); ";
                 var parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("projectId", projectId));
                 logger.Debug("SQL:" + sql);
@@ -192,7 +192,6 @@ namespace topmeperp.Service
         public List<PLAN_COSTCHANGE_FORM> getChangeOrders(string projectId, string remark, string status)
         {
             List<PLAN_COSTCHANGE_FORM> lstForms = new List<PLAN_COSTCHANGE_FORM>();
-            //2.將預算資料寫入 
             using (var context = new topmepEntities())
             {
                 logger.Debug("query by project and remark:" + projectId + "," + remark);
@@ -201,8 +200,8 @@ namespace topmeperp.Service
                 parameters.Add(new SqlParameter("projectId", projectId));
                 if (null != remark && remark != "")
                 {
-                    sql = sql + " AND REMARK Like @remark";
-                    parameters.Add(new SqlParameter("remark", "%" + remark + "%"));
+                    sql = sql + " AND (REMARK_ITEM Like @remark OR REMARK_QTY Like @remark OR REMARK_PRICE Like @remark OR REMARK_OTHER Like @remark) ";
+                    parameters.Add(new SqlParameter("remark", "'%" + remark + "%'"));
                 }
                 if (null != status && status != "")
                 {
@@ -235,9 +234,9 @@ namespace topmeperp.Service
         public string updateChangeOrder(PLAN_COSTCHANGE_FORM form, List<PLAN_COSTCHANGE_ITEM> lstItem)
         {
             int i = 0;
-            string sqlForm = @"UPDATE PLAN_COSTCHANGE_FORM SET REASON_CODE=@Reasoncode,METHOD_CODE=@Methodcode,
+            string sqlForm = @"UPDATE PLAN_COSTCHANGE_FORM SET REASON_CODE=@Reasoncode,
                             REMARK_ITEM=@RemarkItem,REMARK_QTY=@RemarkQty,REMARK_PRICE=@RemarkPrice,REMARK_OTHER=@RemarkOther,
-                            SETTLEMENT_DATE=@settlementDate,STATUS=@status,MODIFY_USER_ID=@userId,MODIFY_DATE=@modifyDate WHERE FORM_ID=@formId;";
+                            MODIFY_USER_ID=@userId,MODIFY_DATE=@modifyDate WHERE FORM_ID=@formId;";
             string sqlItem = @"UPDATE PLAN_COSTCHANGE_ITEM SET ITEM_DESC=@itemdesc,ITEM_UNIT=@unit,ITEM_UNIT_PRICE=@unitPrice,
                               ITEM_QUANTITY=@Qty,ITEM_REMARK=@remark,TRANSFLAG=@transFlag,MODIFY_USER_ID=@userId,MODIFY_DATE=@modifyDate WHERE ITEM_UID=@uid";
             //2.將資料寫入 
@@ -250,20 +249,10 @@ namespace topmeperp.Service
                     context.Database.BeginTransaction();
                     var parameters = new List<SqlParameter>();
                     parameters.Add(new SqlParameter("Reasoncode", form.REASON_CODE));
-                    parameters.Add(new SqlParameter("Methodcode", form.METHOD_CODE));
                     parameters.Add(new SqlParameter("RemarkItem", form.REMARK_ITEM));
                     parameters.Add(new SqlParameter("RemarkQty", form.REMARK_QTY));
                     parameters.Add(new SqlParameter("RemarkPrice", form.REMARK_PRICE));
                     parameters.Add(new SqlParameter("RemarkOther", form.REMARK_OTHER));
-                    if (null != form.SETTLEMENT_DATE)
-                    {
-                        parameters.Add(new SqlParameter("settlementDate", form.SETTLEMENT_DATE));
-                    }
-                    else
-                    {
-                        parameters.Add(new SqlParameter("settlementDate", DBNull.Value));
-                    }
-                    parameters.Add(new SqlParameter("status", form.STATUS));
                     parameters.Add(new SqlParameter("userId", form.MODIFY_USER_ID));
                     parameters.Add(new SqlParameter("modifyDate", form.MODIFY_DATE));
                     parameters.Add(new SqlParameter("formId", form.FORM_ID));
@@ -352,36 +341,5 @@ namespace topmeperp.Service
             }
             return i;
         }
-        public string updateChangeOrderStatus(PLAN_COSTCHANGE_FORM form)
-        {
-            int i = 0;
-            string sqlForm = "UPDATE PLAN_COSTCHANGE_FORM SET STATUS=@status,MODIFY_USER_ID=@userId,MODIFY_DATE=@modifyDate WHERE FORM_ID=@formId;";
-            //2.將資料寫入 
-            using (var context = new topmepEntities())
-            {
-                try
-                {
-                    //更新表頭
-                    context.Database.BeginTransaction();
-                    var parameters = new List<SqlParameter>();
-                    parameters.Add(new SqlParameter("status", form.STATUS));
-                    parameters.Add(new SqlParameter("userId", form.MODIFY_USER_ID));
-                    parameters.Add(new SqlParameter("modifyDate", form.MODIFY_DATE));
-                    parameters.Add(new SqlParameter("formId", form.FORM_ID));
-                    i = context.Database.ExecuteSqlCommand(sqlForm, parameters.ToArray());
-                    logger.Debug("create COSTCHANGE_FORM:" + sqlForm);
-                    context.Database.CurrentTransaction.Commit();
-                }
-                catch (Exception ex)
-                {
-                    context.Database.CurrentTransaction.Rollback();
-                    logger.Error(ex.Message + ":" + ex.StackTrace);
-                    return "資料更新失敗!!(" + ex.Message + ")";
-                }
-            }
-
-            return "資料更新成功!(" + i + ")";
-        }
-
     }
 }
