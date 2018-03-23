@@ -57,6 +57,13 @@ namespace topmeperp.Service
         public ExpenseTask task = null;
         protected string sql4Request = "SELECT * FROM WF_PROCESS_REQUEST WHERE DATA_KEY=@dataKey";
         protected string sql4Task = "SELECT * from WF_PORCESS_TASK WHERE RID=@rid ORDER BY SEQ_ID";
+        protected string sqlDeptInfo = @"SELECT R.REQ_USER_ID REQ_USER_ID,U.USER_NAME REQ_USER_NAME,
+                        U.DEP_CODE DEPT_CODE,D.DEPT_NAME DEPT_NAME,
+                        D.MANAGER,(SELECT TOP 1 USER_NAME FROM SYS_USER  WHERE USER_ID=D.MANAGER) MANAGER_NAME
+                         FROM WF_PROCESS_REQUEST r LEFT JOIN 
+                        SYS_USER u  ON r.REQ_USER_ID=u.USER_ID LEFT OUTER JOIN
+                        ENT_DEPARTMENT D ON u.DEP_CODE=D.DEPT_CODE
+                        WHERE R.DATA_KEY=@datakey";
         protected SYS_USER user = null;
         public string statusChange = null;//More 、 Done、Fail
         public string Message = null;
@@ -88,11 +95,6 @@ namespace topmeperp.Service
             user = u;
             processTask();
         }
-        //審核通過
-        //public void Approve()
-        //{
-
-        //}
         //退件
         public void Reject(SYS_USER u, string reason)
         {
@@ -283,6 +285,44 @@ namespace topmeperp.Service
                 task.ProcessTask = context.WF_PORCESS_TASK.SqlQuery(sql4Task, new SqlParameter("rid", task.ProcessRequest.RID)).ToList();
             }
         }
+        //建立對應的流程的相關任務
+        protected void createFlow(SYS_USER u,string DataKey)
+        {
+            task = new ExpenseTask();
+            //建立表單追蹤資料Index
+            task.ProcessRequest = new WF_PROCESS_REQUEST();
+            task.ProcessRequest.PID = process.PID;
+            task.ProcessRequest.REQ_USER_ID = u.USER_ID;
+            task.ProcessRequest.CREATE_DATE = DateTime.Now;
+            task.ProcessRequest.DATA_KEY = DataKey;
+            task.ProcessRequest.CURENT_STATE = 1;
+            //建立簽核任務追蹤要項
+            task.ProcessTask = new List<WF_PORCESS_TASK>();
+            foreach (WF_PROCESS_ACTIVITY activity in activitys)
+            {
+                WF_PORCESS_TASK t = new WF_PORCESS_TASK();
+                t.ACTIVITY_TYPE = activity.ACTIVITY_TYPE;
+                t.CREATE_DATE = DateTime.Now;
+                t.CREATE_USER_ID = u.USER_ID;
+                t.NOTE = activity.ACTIVITY_NAME;
+                t.STATUS = "O";//參考TaskStatus
+                t.SEQ_ID = activity.SEQ_ID;
+                t.DEP_CODE = activity.DEP_CODE;
+                task.ProcessTask.Add(t);
+            }
+            using (var context = new topmepEntities())
+            {
+                context.WF_PROCESS_REQUEST.Add(task.ProcessRequest);
+                int i = context.SaveChanges();
+                foreach (WF_PORCESS_TASK t in task.ProcessTask)
+                {
+                    t.RID = task.ProcessRequest.RID;
+                }
+                context.WF_PORCESS_TASK.AddRange(task.ProcessTask);
+                i = context.SaveChanges();
+                logger.Debug("Create Task Records =" + i);
+            }
+        }
     }
     /// <summary>
     /// 公司費用申請控制流程
@@ -301,13 +341,6 @@ namespace topmeperp.Service
 		                (SELECT P.PID,A.SEQ_ID,FORM_URL,METHOD_URL  FROM WF_PROCESS P,WF_PROCESS_ACTIVITY A WHERE P.PID=A.PID ) M
                         WHERE F.EXP_FORM_ID= R.DATA_KEY AND R.RID=CT.RID AND R.CURENT_STATE=CT.SEQ_ID
 						AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE";
-        string sqlDeptInfo = @"SELECT R.REQ_USER_ID REQ_USER_ID,U.USER_NAME REQ_USER_NAME,
-                        U.DEP_CODE DEPT_CODE,D.DEPT_NAME DEPT_NAME,
-                        D.MANAGER,(SELECT TOP 1 USER_NAME FROM SYS_USER  WHERE USER_ID=D.MANAGER) MANAGER_NAME
-                         FROM WF_PROCESS_REQUEST r LEFT JOIN 
-                        SYS_USER u  ON r.REQ_USER_ID=u.USER_ID LEFT OUTER JOIN
-                        ENT_DEPARTMENT D ON u.DEP_CODE=D.DEPT_CODE
-                        WHERE R.DATA_KEY=@datakey";
 
         public Flow4CompanyExpense()
         {
@@ -321,7 +354,7 @@ namespace topmeperp.Service
         /// <param name="expid"></param>
         /// <param name="projectid"></param>
         /// <returns></returns>
-        public List<ExpenseFlowTask> getCompanyExpenseRequest(string occurreddate, string subjectname, string expid, string projectid,string status)
+        public List<ExpenseFlowTask> getCompanyExpenseRequest(string occurreddate, string subjectname, string expid, string projectid, string status)
         {
             logger.Info("search expense form by " + occurreddate + ", 費用單編號 =" + expid + ", 項目名稱 =" + subjectname + ", 專案編號 =" + projectid);
             List<ExpenseFlowTask> lstForm = new List<ExpenseFlowTask>();
@@ -329,22 +362,22 @@ namespace topmeperp.Service
             {
                 var parameters = new List<SqlParameter>();
                 //申請日期
-                if (null!= occurreddate &&  occurreddate != "")
+                if (null != occurreddate && occurreddate != "")
                 {
                     sql = sql + " AND F.PAYMENT_DATE=@occurreddate ";
                     parameters.Add(new SqlParameter("occurreddate", occurreddate));
                 }
                 //申請主旨內容
-                if (null != subjectname  && subjectname != "")
+                if (null != subjectname && subjectname != "")
                 {
                     sql = sql + " AND F.REMARK Like @subjectname ";
                     parameters.Add(new SqlParameter("subjectname", "'%" + subjectname + "%'"));
                 }
                 //申請單號
-                if (null!=expid && expid != "")
+                if (null != expid && expid != "")
                 {
                     sql = sql + " AND  F.EXP_FORM_ID Like @expid ";
-                    parameters.Add(new SqlParameter("expid", "'%"+ expid + "%'"));
+                    parameters.Add(new SqlParameter("expid", "'%" + expid + "%'"));
                 }
                 //工地費用
                 if (null != projectid && projectid != "")
@@ -383,7 +416,7 @@ namespace topmeperp.Service
                     //取得申請者部門資料
                     logger.Debug("sqlDeptInfo=" + sqlDeptInfo + ",Data Key=" + dataKey);
                     task.DeptInfo = context.Database.SqlQuery<RequestUserDeptInfo>(sqlDeptInfo, new SqlParameter("datakey", dataKey)).First();
-               
+
                 }
                 catch (Exception ex)
                 {
@@ -396,41 +429,7 @@ namespace topmeperp.Service
         public void iniRequest(SYS_USER u, string DataKey)
         {
             getFlowAcivities(FLOW_KEY);
-            task = new ExpenseTask();
-            //建立表單追蹤資料Index
-            task.ProcessRequest = new WF_PROCESS_REQUEST();
-            task.ProcessRequest.PID = process.PID;
-            task.ProcessRequest.REQ_USER_ID = u.USER_ID;
-            task.ProcessRequest.CREATE_DATE = DateTime.Now;
-            task.ProcessRequest.DATA_KEY = DataKey;
-            task.ProcessRequest.CURENT_STATE = 1;
-            //建立簽核任務追蹤要項
-            task.ProcessTask = new List<WF_PORCESS_TASK>();
-            foreach (WF_PROCESS_ACTIVITY activity in activitys)
-            {
-                WF_PORCESS_TASK t = new WF_PORCESS_TASK();
-                t.ACTIVITY_TYPE = activity.ACTIVITY_TYPE;
-                t.CREATE_DATE = DateTime.Now;
-                t.CREATE_USER_ID = u.USER_ID;
-                t.NOTE = activity.ACTIVITY_NAME;
-                t.STATUS = "O";//參考TaskStatus
-                t.SEQ_ID = activity.SEQ_ID;
-                t.DEP_CODE = activity.DEP_CODE;
-                task.ProcessTask.Add(t);
-            }
-            using (var context = new topmepEntities())
-            {
-                context.WF_PROCESS_REQUEST.Add(task.ProcessRequest);
-                int i = context.SaveChanges();
-                foreach (WF_PORCESS_TASK t in task.ProcessTask)
-                {
-                    //t.ID = DBNull.Value;
-                    t.RID = task.ProcessRequest.RID;
-                }
-                context.WF_PORCESS_TASK.AddRange(task.ProcessTask);
-                i = context.SaveChanges();
-                logger.Debug("Create Task Records =" + i);
-            }
+            createFlow(u, DataKey);
         }
 
         //送審
@@ -527,15 +526,6 @@ namespace topmeperp.Service
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         //public new string FLOW_KEY = "EXP02";
-        //處理SQL 預先填入專案代號,設定集合處理參數
-        string sql = @"SELECT F.EXP_FORM_ID,F.PROJECT_ID,F.OCCURRED_YEAR,F.OCCURRED_MONTH,F.PAYEE,F.PAYMENT_DATE,F.REMARK REQ_DESC,F.REJECT_DESC REJECT_DESC,
-                        R.REQ_USER_ID,R.CURENT_STATE,R.PID,
-                        CT.* ,M.FORM_URL + METHOD_URL as FORM_URL
-						FROM FIN_EXPENSE_FORM F,WF_PROCESS_REQUEST R,
-                        WF_PORCESS_TASK CT ,
-		(SELECT P.PID,A.SEQ_ID,FORM_URL,METHOD_URL  FROM WF_PROCESS P,WF_PROCESS_ACTIVITY A WHERE P.PID=A.PID ) M
-                        WHERE F.EXP_FORM_ID= R.DATA_KEY AND R.RID=CT.RID AND R.CURENT_STATE=CT.SEQ_ID
-						AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE";
         public Flow4SiteExpense()
         {
             base.FLOW_KEY = "EXP02";
@@ -717,7 +707,7 @@ namespace topmeperp.Service
             string sql = "UPDATE PLAN_ESTIMATION_FORM SET STATUS=@status, REJECT_DESC=@rejectDesc WHERE EST_FORM_ID=@formId";
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("status", staus));
-            
+
             if (null != reason)
             {
                 parameters.Add(new SqlParameter("rejectDesc", reason));
@@ -885,5 +875,136 @@ namespace topmeperp.Service
             }
         }
     }
+    /// <summary>
+    /// 成本異動流程
+    /// </summary>
+    public class Flow4CostChange : WorkFlowService
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        public string FLOW_KEY = "EXP01";
+        public new CostChangeFormTask task;//CostChangeFormTask
+        //處理SQL 預先填入專案代號,設定集合處理參數
+        string sql = @"SELECT F.FORM_ID,F.PROJECT_ID,F.REJECT_DESC REJECT_DESC,
+                        R.REQ_USER_ID,R.CURENT_STATE,R.PID,
+						(SELECT TOP 1 MANAGER FROM ENT_DEPARTMENT WHERE DEPT_CODE=CT.DEP_CODE) MANAGER,
+                        CT.* ,M.FORM_URL + METHOD_URL as FORM_URL
+						FROM PLAN_COSTCHANGE_FORM F,WF_PROCESS_REQUEST R,
+                        WF_PORCESS_TASK CT ,
+		                (SELECT P.PID,A.SEQ_ID,FORM_URL,METHOD_URL  FROM WF_PROCESS P,WF_PROCESS_ACTIVITY A WHERE P.PID=A.PID ) M
+                        WHERE F.FORM_ID= R.DATA_KEY AND R.RID=CT.RID AND R.CURENT_STATE=CT.SEQ_ID
+						AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE";
+        /// <summary>
+        /// 取得成本異動單據
+        /// </summary>
+        public List<CostChangeTask> getCostChangeRequest(string projectId)
+        {
+            logger.Info("search costchagefor form by " + projectId);
+            List<CostChangeTask> lstForm = new List<CostChangeTask>();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("projectid", projectId));
+            using (var context = new topmepEntities())
+            {
+                lstForm = context.Database.SqlQuery<CostChangeTask>(sql, parameters.ToArray()).ToList();
+            }
+            logger.Info("get expense form count=" + lstForm.Count);
 
+            return lstForm;
+        }
+        /// <summary>
+        /// 取得成本異動申請程序表單與相關資料
+        /// </summary>
+        /// <param name="dataKey"></param>
+        public void getTask(string dataKey)
+        {
+            task = new CostChangeFormTask();
+            sql = sql + " AND R.DATA_KEY=@datakey";
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    //取得現有任務資訊
+                    logger.Debug("sql=" + sql + ",Data Key=" + dataKey);
+                    task.task = context.Database.SqlQuery<ExpenseFlowTask>(sql, new SqlParameter("datakey", dataKey)).First();
+                    //取得申請者部門資料
+                    logger.Debug("sqlDeptInfo=" + sqlDeptInfo + ",Data Key=" + dataKey);
+                    task.DeptInfo = context.Database.SqlQuery<RequestUserDeptInfo>(sqlDeptInfo, new SqlParameter("datakey", dataKey)).First();
+
+                }
+                catch (Exception ex)
+                {
+                    logger.Warn("not task!! ex=" + ex.Message + "," + ex.StackTrace);
+                }
+            }
+        }
+
+        //表單送審後，啟動對應程序
+        public void iniRequest(SYS_USER u, string DataKey)
+        {
+            getFlowAcivities(FLOW_KEY);
+            createFlow(u, DataKey);
+        }
+
+        //送審
+        public void Send(SYS_USER u, DateTime? paymentdate, string reason)
+        {
+            logger.Debug("CostChange Request Send" + task.task.ID);
+            base.Send(u);
+            if (statusChange != "F")
+            {
+                int staus = 10;
+                if (statusChange == "M")
+                {
+                    staus = 20;
+                }
+                else if (statusChange == "D")
+                {
+                    staus = 30;
+                }
+                staus = updateForm(paymentdate, reason, staus);
+            }
+        }
+        //更新資料庫資料
+        protected int updateForm(DateTime? paymentdate, string reason, int staus)
+        {
+            string sql = "UPDATE PLAN_COSTCHANGE_FORM SET STATUS=@status,REJECT_DESC=@rejectDesc WHERE FORM_ID=@formId";
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("status", staus));
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("Change CostChange Status=" + task.task.EXP_FORM_ID + "," + staus);
+                context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            }
+
+            return staus;
+        }
+
+        //退件
+        public void Reject(SYS_USER u, DateTime? paymentdate, string reason)
+        {
+            logger.Debug("CostChangeRequest Reject:" + task.task.RID);
+            base.Reject(u, reason);
+            if (statusChange != "F")
+            {
+                updateForm(paymentdate, reason, 0);
+            }
+        }
+        //中止
+        public void Cancel(SYS_USER u)
+        {
+            user = u;
+            logger.Info("USER :" + user.USER_ID + " Cancel :" + task.task.EXP_FORM_ID);
+            base.CancelRequest(u);
+            if (statusChange != "F")
+            {
+                string sql = "DELETE PLAN_COSTCHANGE_FORM WHERE FORM_ID=@formId;DELETE PLAN_COSTCHANGE_ITEM WHERE FORM_ID=@formId;";
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("formId", task.task.EXP_FORM_ID));
+                using (var context = new topmepEntities())
+                {
+                    logger.Debug("Cancel CostChangeRequest Status=" + task.task.EXP_FORM_ID);
+                    context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+                }
+            }
+        }
+    }
 }

@@ -1,12 +1,14 @@
-﻿@{
+﻿@model topmeperp.Models.CostChangeFormTask
+
+@{
     ViewBag.Title = "專案執行-成本異動單";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <!--標單項目搜尋區條件區域-->
 <div class="page-header">
     <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
-    <div class="container">
-        <form name="CostChangeForm" id="CostChangeForm" action="/Plan/creatOrModifyChangeForm" method="post">
+    <form name="CostChangeForm" id="CostChangeForm" action="/Plan/creatOrModifyChangeForm" method="post">
+        <div class="container">
             <div class="row form-group">
                 <label class="col-sm-1 control-label">專案編號:</label>
                 <div class="col-sm-2">
@@ -21,60 +23,67 @@
                 <div class="col-sm-2">
                     <input class="form-control" type="text" id="txtFormId" name="txtFormId" value="@ViewBag.FormId" readonly />
                 </div>
+                <div class="col-sm-2">
+                    @Html.DropDownList("reasoncode", null, String.Empty, new { @class = "form-control" })
+                </div>
                 <div class="col-sm-3">
                     <a class="btn btn-link" href="/Plan/downloadCostChangeForm?formId=@ViewBag.FormId" target="_blank">下載</a>
-                    @if (ViewBag.formStatus == "新建立")
+                    @if (ViewBag.formStatus == "10")
                     {
                         <button class="btn btn-link" data-toggle="modal" data-target="#formUploadItem" type="button">上傳</button>
                     }
                 </div>
             </div>
-            <div class="row form-group">
-                <label class="col-sm-1 control-label">說明</label>
-                <div class="col-sm-4">
-                    <textarea class="form-control" rows="3" id="remark" name="remark">@ViewBag.Remark</textarea>
-                </div>
-                <div class="col-sm-6">
-                    <!--依據狀態設定不同權限，需要再細化-->
-                    @if (ViewBag.formStatus == "新建立")
-                    {
-                        <button id="btnSave" class="btn btn-default" type="submit">儲存</button>
-                        <button id="btnSent" class="btn btn-info" type="button" onclick="sent2Audit()">送審</button>
-                    }
-                    else if (ViewBag.formStatus == "送審")
-                    {
-                        <div class="col-sm-4">
-                            <select id="status" name="status_next" class="form-control">
-                                <option value="進行採購">進行採購</option>
-                                <option value="刪除">刪除</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-4">
-                            <input name="settlementDate" class="form-control" id="settlementDate" type="text" value="@ViewBag.settlementDate" placeholder="結算日期">
-                        </div>
-                        <div class="col-sm-4">
-                            <div id="divProcessing">
-                                <img src="~/Content/ajax-loader.gif">
-                            </div>
-                            <button id="btnSave" class="btn btn-primary" type="submit">儲存</button>
-                            <button id="btnSave" class="btn btn-default" type="button" onclick="cancelTrans()">取消</button>
-                        </div>
-                    }
+            <div class="row form-inline">
+                <div class="col-md-12">
+                    <label class="control-label" for="remarkItem">項目增減說明</label>
+                    <textarea class="form-control" rows="3" cols="60" id="remarkItem" name="remarkItem">@Html.DisplayFor(model => model.FormData.REMARK_ITEM)</textarea>
+                    <label class="control-label" for="remarkQty">數量增減說明</label>
+                    <textarea class="form-control" rows="3" cols="60" id="remarkQty" name="remarkQty">@Html.DisplayFor(model => model.FormData.REMARK_QTY)</textarea>
                 </div>
             </div>
+            <div class="row form-inline">
+                <div class="col-md-12">
+                    <label class="control-label" for="remarkQty">價格增減說明</label>
+                    <textarea class="form-control" rows="3" cols="60" id="remarkPrice" name="remarkPrice">@Html.DisplayFor(model => model.FormData.REMARK_PRICE)</textarea>
+                    <label class="control-label" for="remarkQty">其他說明事項</label>
+                    <textarea class="form-control" rows="3" cols="60" id="remarkOther" name="remarkOther">@Html.DisplayFor(model => model.FormData.REMARK_OTHER)</textarea>
+                </div>
+            </div>
+        </div>
 
-            <div class="row body-content">
-                @if (ViewBag.formStatus == "新建立")
-                {
-                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#changeOrderItem" onclick="addChangeOrderItem()">新增</button>
-                }
-                @if (null != Model)
-                {
-                    Html.RenderPartial("_ChangeOrderItemList");
-                }
-            </div>
-        </form>
-    </div>
+        <div class="row body-content">
+            <!--退件或草稿可進行增修-->
+            @if (null != Model)
+            {
+                Html.RenderPartial("_ChangeOrderItemList");
+            }
+        </div>
+        <div class="row">
+
+            @if (Model.FormData.STATUS == "10" || Model.FormData.STATUS == "0")
+            {
+                <div class="col-sm-1">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#changeOrderItem" onclick="addChangeOrderItem()">新增</button>
+                </div>
+            }
+            else if (ViewBag.formStatus == "送審")
+            {
+                <div class="col-sm-4">
+                    <select id="status" name="status_next" class="form-control">
+                        <option value="進行採購">進行採購</option>
+                        <option value="刪除">刪除</option>
+                    </select>
+                </div>
+                <div class="col-sm-4">
+                    <input name="settlementDate" class="form-control" id="settlementDate" type="text" value="@ViewBag.settlementDate" placeholder="結算日期">
+                </div>
+            }
+
+            @Html.Partial("~/Views/include/_WorkFlowFunction.cshtml")
+        </div>
+    </form>
+</div>
 </div>
 <!--新增品項對話框-->
 <div class="modal fade" id="changeOrderItem" role="dialog">

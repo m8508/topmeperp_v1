@@ -4,8 +4,8 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="a7c7dccd404c413991f0ed2a1ca31c76" Name="Diagram1" ZoomLevel="47">
-        <EntityTypeShape EntityType="topmepModel.ENT_DEPARTMENT" Width="1.5" PointX="0.75" PointY="7.75" />
+      <Diagram DiagramId="a7c7dccd404c413991f0ed2a1ca31c76" Name="Diagram1" ZoomLevel="52">
+        <EntityTypeShape EntityType="topmepModel.ENT_DEPARTMENT" Width="2.5" PointX="0.75" PointY="7.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_BANK_ACCOUNT" Width="1.5" PointX="10.75" PointY="6.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_BANK_LOAN" Width="1.5" PointX="0.75" PointY="11.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_EXPENSE_BUDGET" Width="1.5" PointX="10.75" PointY="11.75" />
@@ -16,8 +16,6 @@
         <EntityTypeShape EntityType="topmepModel.PLAN_ACCOUNT" Width="1.5" PointX="12.75" PointY="10.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_BUDGET" Width="1.5" PointX="13.75" PointY="0.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_CONTRACT_PROCESS" Width="1.5" PointX="4.75" PointY="13.75" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_COSTCHANGE_FORM" Width="1.5" PointX="8.75" PointY="1.625" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_COSTCHANGE_ITEM" Width="1.5" PointX="11" PointY="1" />
         <EntityTypeShape EntityType="topmepModel.PLAN_DALIY_REPORT" Width="1.5" PointX="14.75" PointY="5.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_DR_ITEM" Width="1.5" PointX="14.75" PointY="9.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_DR_NOTE" Width="1.5" PointX="14.75" PointY="13.75" />
@@ -51,7 +49,7 @@
         <EntityTypeShape EntityType="topmepModel.TND_MAP_DEVICE" Width="1.5" PointX="20.75" PointY="18.75" />
         <EntityTypeShape EntityType="topmepModel.TND_MAP_FP" Width="1.5" PointX="10.75" PointY="21.75" />
         <EntityTypeShape EntityType="topmepModel.TND_MAP_FW" Width="1.5" PointX="22.75" PointY="0.75" />
-        <EntityTypeShape EntityType="topmepModel.TND_MAP_LCP" Width="1.5" PointX="0.75" PointY="22.75" />
+        <EntityTypeShape EntityType="topmepModel.TND_MAP_LCP" Width="1.5" PointX="23.375" PointY="24.75" />
         <EntityTypeShape EntityType="topmepModel.TND_MAP_PEP" Width="1.5" PointX="2.75" PointY="22.75" />
         <EntityTypeShape EntityType="topmepModel.TND_MAP_PLU" Width="1.5" PointX="22.75" PointY="5.75" />
         <EntityTypeShape EntityType="topmepModel.TND_PROJECT" Width="1.5" PointX="5.75" PointY="7.125" />
@@ -67,11 +65,13 @@
         <EntityTypeShape EntityType="topmepModel.WF_PROCESS" Width="1.5" PointX="6.75" PointY="24.75" />
         <EntityTypeShape EntityType="topmepModel.WF_PROCESS_ACTIVITY" Width="1.5" PointX="24.75" PointY="8.75" />
         <EntityTypeShape EntityType="topmepModel.WF_PROCESS_REQUEST" Width="1.5" PointX="24.75" PointY="12.75" />
-        <AssociationConnector Association="topmepModel.FK_PLAN_COS_REFERENCE_PLAN_COS" />
         <AssociationConnector Association="topmepModel.FK_PLAN_IND_REFERENCE_TND_PROJ" />
         <AssociationConnector Association="topmepModel.FK_SYS_PRIVILEGE_SYS_FUNCTION" />
         <AssociationConnector Association="topmepModel.FK_SYS_PRIVILEGE_SYS_ROLE" />
         <AssociationConnector Association="topmepModel.FK_SYS_USER_SYS_ROLE" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_COSTCHANGE_FORM" Width="1.5" PointX="8.5" PointY="1.5" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_COSTCHANGE_ITEM" Width="1.5" PointX="10.75" PointY="1.25" />
+        <AssociationConnector Association="topmepModel.FK_PLAN_COS_REFERENCE_PLAN_COS" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -25,7 +25,10 @@
                 <a href='costChangeForm/@item.FORM_ID' target="_blank"> @item.FORM_ID </a>
             </td>
             <td data-th="說明">
-                @Html.DisplayFor(modelItem => item.REMARK)
+                @item.REMARK_ITEM
+                @item.REMARK_QTY
+                @item.REMARK_PRICE
+                @item.REMARK_OTHER
             </td>
             <td data-th="處理狀態">
                 @Html.DisplayFor(modelItem => item.STATUS)

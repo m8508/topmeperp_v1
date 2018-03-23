@@ -791,16 +791,23 @@ namespace topmeperp.Controllers
         {
             string formId = id;
             logger.Debug("formId=" + formId);
-            //fm3
+            //先取得資料
             CostChangeService cs = new CostChangeService();
             cs.getChangeOrderForm(formId);
+
             ViewBag.FormId = formId;
-            ViewBag.Remark = cs.form.REMARK;
             ViewBag.projectId = cs.project.PROJECT_ID;
             ViewBag.projectName = cs.project.PROJECT_NAME;
-            ViewBag.formStatus = cs.form.STATUS;
             ViewBag.settlementDate = cs.form.SETTLEMENT_DATE;
-            return View(cs.lstItem);
+            //取得表單資料存入Session
+            Flow4CostChange wfs = new Flow4CostChange();
+            wfs.getTask(formId);
+            wfs.task.FormData= cs.form;
+            wfs.task.lstItem = cs.lstItem;
+            Session["task"] = wfs.task;
+            SelectList reasoncode = new SelectList(SystemParameter.getSystemPara("COSTHANGE", "REASON"), "KEY_FIELD", "VALUE_FIELD",cs.form.REASON_CODE);
+            ViewData.Add("reasoncode", reasoncode);
+            return View(wfs.task);
         }
         //建立與修改異動單--加入審核功能
         public string creatOrModifyChangeForm(FormCollection f)
@@ -808,13 +815,7 @@ namespace topmeperp.Controllers
             SYS_USER u = (SYS_USER)Session["user"];
             string formId = f["txtFormId"].Trim();
             string projectId = f["projectId"].Trim();
-            string remark = null;
-            if (null != f["remark"])
-            {
-                remark = f["remark"].Trim();
-            }
-
-            logger.Debug("projectId=" + projectId + ",formID=" + formId + ",remak=" + remark);
+            logger.Debug("projectId=" + projectId + ",formID=" + formId);
             string reurnMsg = "";
 
             PLAN_COSTCHANGE_FORM formCostChange = new PLAN_COSTCHANGE_FORM();
@@ -824,15 +825,13 @@ namespace topmeperp.Controllers
             {
                 //直接新增時使用者尚未建立明細
                 logger.Debug("Modify Change Order:" + formId);
+
                 formCostChange.FORM_ID = formId;
-                formCostChange.REMARK = remark;
-                formCostChange.STATUS = f["status"];
-                if (null != f["status_next"])
-                {
-                    //審核通過或刪除
-                    formCostChange.STATUS = f["status_next"];
-                    formCostChange.SETTLEMENT_DATE = DateTime.Parse(f["settlementDate"]);
-                }
+                formCostChange.REASON_CODE = f["reasoncode"];                
+                formCostChange.REMARK_ITEM = f["remarkItem"];
+                formCostChange.REMARK_QTY = f["remarkQty"];
+                formCostChange.REMARK_PRICE = f["remarkPrice"];
+                formCostChange.REMARK_OTHER = f["remarkOther"];
                 formCostChange.MODIFY_DATE = DateTime.Now;
                 formCostChange.MODIFY_USER_ID = u.USER_ID;
                 logger.Debug("Item Id=" + f["uid"] + "," + f["itemdesc"]);
@@ -881,7 +880,6 @@ namespace topmeperp.Controllers
             {
                 //新增異動單
                 formCostChange.PROJECT_ID = projectId;
-                formCostChange.REMARK = remark;
                 formCostChange.CREATE_DATE = DateTime.Now;
                 formCostChange.CREATE_USER_ID = u.USER_ID;
                 //設備
@@ -922,6 +920,9 @@ namespace topmeperp.Controllers
                 }
                 CostChangeService s = new CostChangeService();
                 reurnMsg = s.createChangeOrder(formCostChange, lstItemId);
+                //建立審核程序
+                Flow4CostChange wfs = new Flow4CostChange();
+                wfs.iniRequest(u, reurnMsg);
             }
             return reurnMsg;
         }
@@ -983,12 +984,8 @@ namespace topmeperp.Controllers
             SYS_USER loginUser = (SYS_USER)Session["user"];
             item.CREATE_USER_ID = loginUser.USER_ID;
             item.CREATE_DATE = DateTime.Now;
-            // InquiryFormService service = new InquiryFormService();
-
             CostChangeService cs = new CostChangeService();
             int i = cs.addChangeOrderItem(item);
-
-            //  if (i == 0) { msg = service.message; }
             return msg + "(" + i + ")";
         }
         //刪除單一品項資料
@@ -1001,28 +998,7 @@ namespace topmeperp.Controllers
             int i = cs.delChangeOrderItem(itemUid);
             return "資料已刪除(" + i + ")";
         }
-        //將異動單送審
-        public string send2Audit()
-        {
-            string strFormID = null;
-            string returnMsg = null;
-            SYS_USER loginUser = (SYS_USER)Session["user"];
-            if (null != Request["formId"])
-            {
-                strFormID = Request["formId"];
-                logger.Info(loginUser.USER_ID + " set form to audit:" + strFormID);
 
-                PLAN_COSTCHANGE_FORM formCostChange = new PLAN_COSTCHANGE_FORM();
-                formCostChange.FORM_ID = strFormID;
-                formCostChange.REMARK = ""; //如果需要可透過Remark 補充資料
-                formCostChange.STATUS = "送審";
-                formCostChange.MODIFY_DATE = DateTime.Now;
-                formCostChange.MODIFY_USER_ID = loginUser.USER_ID;
-                CostChangeService cs = new CostChangeService();
-                returnMsg = cs.updateChangeOrderStatus(formCostChange);
-            }
-            return returnMsg;
-        }
         //下載異動單
         public void downloadCostChangeForm()
         {
@@ -1195,7 +1171,6 @@ namespace topmeperp.Controllers
             // return File(iStream, "application/zip", filename);//application/unknown
 
         }
-
         //刪除單一附檔資料
         public String delOwnerContractFile()
         {

@@ -22,7 +22,12 @@ namespace topmeperp.Models
     
         public string FORM_ID { get; set; }
         public string PROJECT_ID { get; set; }
-        public string REMARK { get; set; }
+        public string REASON_CODE { get; set; }
+        public string METHOD_CODE { get; set; }
+        public string REMARK_ITEM { get; set; }
+        public string REMARK_QTY { get; set; }
+        public string REMARK_PRICE { get; set; }
+        public string REMARK_OTHER { get; set; }
         public Nullable<System.DateTime> SETTLEMENT_DATE { get; set; }
         public string MODIFY_USER_ID { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
