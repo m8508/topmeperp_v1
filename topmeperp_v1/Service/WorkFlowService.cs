@@ -270,7 +270,7 @@ namespace topmeperp.Service
             }
         }
         //取得表單與對應的流程資料
-        public void getRequest(string datakey)
+        public virtual void getRequest(string datakey)
         {
             using (var context = new topmepEntities())
             {
@@ -279,12 +279,25 @@ namespace topmeperp.Service
                     logger.Warn("task is null");
                     task = new ExpenseTask();
                 }
-                logger.Debug("get Request =" + datakey + ",sql=" + sql4Request);
-                task.ProcessRequest = context.WF_PROCESS_REQUEST.SqlQuery(sql4Request, new SqlParameter("dataKey", datakey)).First();
-                logger.Debug("get task rid=" + task.ProcessRequest.RID + ",sql=" + sql4Task);
-                task.ProcessTask = context.WF_PORCESS_TASK.SqlQuery(sql4Task, new SqlParameter("rid", task.ProcessRequest.RID)).ToList();
+                WF_PROCESS_REQUEST r = getRequest(datakey, context);
+                task.ProcessRequest = r;
+                task.ProcessTask = getRequestTask(r.RID, context);
             }
         }
+
+        protected WF_PROCESS_REQUEST getRequest(string datakey, topmepEntities context)
+        {
+            logger.Debug("get Request =" + datakey + ",sql=" + sql4Request);
+            WF_PROCESS_REQUEST r= context.WF_PROCESS_REQUEST.SqlQuery(sql4Request, new SqlParameter("dataKey", datakey)).First();
+            return r;
+        }
+        protected List<WF_PORCESS_TASK> getRequestTask(long rid, topmepEntities context)
+        {     
+            logger.Debug("get task rid=" + rid + ",sql=" + sql4Task);
+            List<WF_PORCESS_TASK> lstTask = context.WF_PORCESS_TASK.SqlQuery(sql4Task, new SqlParameter("rid", rid)).ToList();
+            return lstTask;
+        }
+
         //建立對應的流程的相關任務
         protected void createFlow(SYS_USER u, string DataKey)
         {
@@ -928,7 +941,6 @@ namespace topmeperp.Service
                     //取得申請者部門資料
                     logger.Debug("sqlDeptInfo=" + sqlDeptInfo + ",Data Key=" + dataKey);
                     task.DeptInfo = context.Database.SqlQuery<RequestUserDeptInfo>(sqlDeptInfo, new SqlParameter("datakey", dataKey)).First();
-
                 }
                 catch (Exception ex)
                 {
@@ -943,11 +955,26 @@ namespace topmeperp.Service
             getFlowAcivities(FLOW_KEY);
             createFlow(u, DataKey);
         }
-
+        //取得表單與對應的流程資料
+        public override void getRequest(string datakey)
+        {
+            using (var context = new topmepEntities())
+            {
+                if (task == null)
+                {
+                    logger.Warn("task is null");
+                    task = new CostChangeFormTask();
+                }
+                WF_PROCESS_REQUEST r = getRequest(datakey, context);
+                task.ProcessRequest = r;
+                task.ProcessTask = getRequestTask(r.RID, context);
+            }
+        }
         //送審
         public void Send(SYS_USER u, string reason, string methodCode, DateTime? settlementDate)
         {
             logger.Debug("CostChange Request Send" + task.task.ID);
+            base.task = task;
             base.Send(u);
             if (statusChange != "F")
             {
@@ -969,8 +996,19 @@ namespace topmeperp.Service
             string sql = @"UPDATE PLAN_COSTCHANGE_FORM SET STATUS=@status,REJECT_DESC=@rejectDesc,METHOD_CODE=@Methodcode, SETTLEMENT_DATE=@settlementDate 
                             WHERE FORM_ID=@formId";
             var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("formId", task.FormData.FORM_ID));
             parameters.Add(new SqlParameter("status", staus));
-            parameters.Add(new SqlParameter("rejectDesc", reason));
+
+
+            if (null == reason)
+            {
+                parameters.Add(new SqlParameter("rejectDesc", DBNull.Value));
+            }
+            else
+            {
+                parameters.Add(new SqlParameter("rejectDesc", reason));
+            }
+
             if (null == settlementDate)
             {
                 parameters.Add(new SqlParameter("settlementDate", DBNull.Value));

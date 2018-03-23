@@ -804,6 +804,7 @@ namespace topmeperp.Controllers
             wfs.getTask(formId);
             wfs.task.FormData= cs.form;
             wfs.task.lstItem = cs.lstItem;
+            wfs.getRequest(id);
             Session["process"] = wfs.task;
             SelectList reasoncode = new SelectList(SystemParameter.getSystemPara("COSTHANGE", "REASON"), "KEY_FIELD", "VALUE_FIELD",cs.form.REASON_CODE);
             ViewData.Add("reasoncode", reasoncode);

@@ -202,18 +202,19 @@
           </Key>
           <Property Name="FORM_ID" Type="varchar" MaxLength="20" Nullable="false" />
           <Property Name="PROJECT_ID" Type="varchar" MaxLength="20" />
-          <Property Name="REASON_CODE" Type="varchar" MaxLength="2" />
-          <Property Name="METHOD_CODE" Type="varchar" MaxLength="2" />
-          <Property Name="REMARK_ITEM" Type="nvarchar" MaxLength="1000" />
-          <Property Name="REMARK_QTY" Type="nvarchar" MaxLength="500" />
-          <Property Name="REMARK_PRICE" Type="nvarchar" MaxLength="500" />
-          <Property Name="REMARK_OTHER" Type="nvarchar" MaxLength="500" />
+          <Property Name="REMARK_ITEM" Type="varchar" MaxLength="500" />
+          <Property Name="REMARK_QTY" Type="varchar" MaxLength="500" />
+          <Property Name="REMARK_PRICE" Type="varchar" MaxLength="500" />
+          <Property Name="REMARK_OTHER" Type="varchar" MaxLength="500" />
+          <Property Name="REASON_CODE" Type="varchar" MaxLength="3" />
+          <Property Name="METHOD_CODE" Type="varchar" MaxLength="3" />
           <Property Name="SETTLEMENT_DATE" Type="datetime" />
+          <Property Name="REJECT_DESC" Type="varchar" MaxLength="1000" />
           <Property Name="MODIFY_USER_ID" Type="varchar" MaxLength="30" />
           <Property Name="MODIFY_DATE" Type="datetime" />
           <Property Name="CREATE_USER_ID" Type="varchar" MaxLength="30" />
           <Property Name="CREATE_DATE" Type="datetime" />
-          <Property Name="STATUS" Type="varchar" MaxLength="5" />
+          <Property Name="STATUS" Type="varchar" MaxLength="3" />
         </EntityType>
         <EntityType Name="PLAN_COSTCHANGE_ITEM">
           <Key>
@@ -222,7 +223,7 @@
           <Property Name="ITEM_UID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="FORM_ID" Type="varchar" MaxLength="20" />
           <Property Name="PLAN_ITEM_ID" Type="varchar" MaxLength="50" />
-          <Property Name="PROJECT_ID" Type="varchar" MaxLength="20" />
+          <Property Name="PROJECT_ID" Type="varchar" MaxLength="20" Nullable="false" />
           <Property Name="ITEM_ID" Type="varchar" MaxLength="50" />
           <Property Name="ITEM_DESC" Type="varchar" MaxLength="1000" />
           <Property Name="ITEM_UNIT" Type="varchar" MaxLength="10" />
@@ -318,6 +319,7 @@
           <Property Name="TAX_RATIO" Type="decimal" Precision="5" Scale="2" />
           <Property Name="MODIFY_DATE" Type="datetime" />
           <Property Name="INVOICE" Type="varchar" MaxLength="1" />
+          <Property Name="REJECT_DESC" Type="varchar" MaxLength="500" />
         </EntityType>
         <EntityType Name="PLAN_ESTIMATION_ITEM">
           <Key>
@@ -1616,6 +1618,7 @@
           <Property Name="TAX_RATIO" Type="Decimal" Precision="5" Scale="2" />
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
           <Property Name="INVOICE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="REJECT_DESC" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="PLAN_ESTIMATION_ITEM">
           <Key>
@@ -2471,18 +2474,19 @@
           </Key>
           <Property Name="FORM_ID" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="REASON_CODE" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
-          <Property Name="METHOD_CODE" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
-          <Property Name="REMARK_ITEM" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <Property Name="REMARK_QTY" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="REMARK_PRICE" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="REMARK_OTHER" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="REMARK_ITEM" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="REMARK_QTY" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="REMARK_PRICE" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="REMARK_OTHER" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="REASON_CODE" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="METHOD_CODE" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
           <Property Name="SETTLEMENT_DATE" Type="DateTime" Precision="3" />
+          <Property Name="REJECT_DESC" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
           <Property Name="MODIFY_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
           <Property Name="CREATE_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="STATUS" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="STATUS" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="PLAN_COSTCHANGE_ITEM" Relationship="topmepModel.FK_PLAN_COS_REFERENCE_PLAN_COS" FromRole="PLAN_COSTCHANGE_FORM" ToRole="PLAN_COSTCHANGE_ITEM" />
         </EntityType>
         <EntityType Name="PLAN_COSTCHANGE_ITEM">
@@ -2492,7 +2496,7 @@
           <Property Name="ITEM_UID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="FORM_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="PLAN_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="PROJECT_ID" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="ITEM_DESC" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
           <Property Name="ITEM_UNIT" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
@@ -2795,6 +2799,7 @@
           <EntitySetMapping Name="PLAN_ESTIMATION_FORM">
             <EntityTypeMapping TypeName="topmepModel.PLAN_ESTIMATION_FORM">
               <MappingFragment StoreEntitySet="PLAN_ESTIMATION_FORM">
+                <ScalarProperty Name="REJECT_DESC" ColumnName="REJECT_DESC" />
                 <ScalarProperty Name="INVOICE" ColumnName="INVOICE" />
                 <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
                 <ScalarProperty Name="TAX_RATIO" ColumnName="TAX_RATIO" />
@@ -3659,13 +3664,14 @@
                 <ScalarProperty Name="CREATE_USER_ID" ColumnName="CREATE_USER_ID" />
                 <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
                 <ScalarProperty Name="MODIFY_USER_ID" ColumnName="MODIFY_USER_ID" />
+                <ScalarProperty Name="REJECT_DESC" ColumnName="REJECT_DESC" />
                 <ScalarProperty Name="SETTLEMENT_DATE" ColumnName="SETTLEMENT_DATE" />
+                <ScalarProperty Name="METHOD_CODE" ColumnName="METHOD_CODE" />
+                <ScalarProperty Name="REASON_CODE" ColumnName="REASON_CODE" />
                 <ScalarProperty Name="REMARK_OTHER" ColumnName="REMARK_OTHER" />
                 <ScalarProperty Name="REMARK_PRICE" ColumnName="REMARK_PRICE" />
                 <ScalarProperty Name="REMARK_QTY" ColumnName="REMARK_QTY" />
                 <ScalarProperty Name="REMARK_ITEM" ColumnName="REMARK_ITEM" />
-                <ScalarProperty Name="METHOD_CODE" ColumnName="METHOD_CODE" />
-                <ScalarProperty Name="REASON_CODE" ColumnName="REASON_CODE" />
                 <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
                 <ScalarProperty Name="FORM_ID" ColumnName="FORM_ID" />
               </MappingFragment>
@@ -3693,7 +3699,7 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-        </EntityContainerMapping>
+          </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>
   </edmx:Runtime>

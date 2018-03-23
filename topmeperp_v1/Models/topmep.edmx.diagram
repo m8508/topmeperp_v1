@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="a7c7dccd404c413991f0ed2a1ca31c76" Name="Diagram1" ZoomLevel="52">
+      <Diagram DiagramId="a7c7dccd404c413991f0ed2a1ca31c76" Name="Diagram1" ZoomLevel="29">
         <EntityTypeShape EntityType="topmepModel.ENT_DEPARTMENT" Width="2.5" PointX="0.75" PointY="7.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_BANK_ACCOUNT" Width="1.5" PointX="10.75" PointY="6.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_BANK_LOAN" Width="1.5" PointX="0.75" PointY="11.75" />
@@ -69,10 +69,10 @@
         <AssociationConnector Association="topmepModel.FK_SYS_PRIVILEGE_SYS_FUNCTION" />
         <AssociationConnector Association="topmepModel.FK_SYS_PRIVILEGE_SYS_ROLE" />
         <AssociationConnector Association="topmepModel.FK_SYS_USER_SYS_ROLE" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_COSTCHANGE_FORM" Width="1.5" PointX="8.5" PointY="1.5" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_COSTCHANGE_ITEM" Width="1.5" PointX="10.75" PointY="1.25" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_COSTCHANGE_FORM" Width="1.5" PointX="25.375" PointY="17.125" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_COSTCHANGE_ITEM" Width="1.5" PointX="27.625" PointY="17" />
         <AssociationConnector Association="topmepModel.FK_PLAN_COS_REFERENCE_PLAN_COS" />
-      </Diagram>
+        </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
 </edmx:Edmx>
