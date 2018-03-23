@@ -1836,27 +1836,27 @@ namespace topmeperp.Service
                           "IIF(ef.PAYMENT_TRANSFER > 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * PAYMENT_ESTIMATED_1_RATIO / 100, ef.PAID_AMOUNT * USANCE_GOODS_1_RATIO / 100) AS estAmt1, " +
                           "IIF(ef.PAYMENT_TRANSFER > 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * PAYMENT_ESTIMATED_2_RATIO / 100, ef.PAID_AMOUNT * USANCE_GOODS_2_RATIO / 100) AS estAmt2, " +
                           "IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3) AS dateBase1, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null) AS dateBase2, " +
-                          "IIF(DAY(ef.MODIFY_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3),IIF(IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null) is null,IIF(MONTH(ef.MODIFY_DATE) > 11, CONVERT(varchar, YEAR(ef.MODIFY_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
-                          "CONVERT(varchar, YEAR(ef.MODIFY_DATE)) + '/' + CONVERT(varchar, MONTH(ef.MODIFY_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))),IIF(DAY(ef.MODIFY_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null), IIF(MONTH(ef.MODIFY_DATE) > 11, CONVERT(varchar, YEAR(ef.MODIFY_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
-                          "CONVERT(varchar, YEAR(ef.MODIFY_DATE)) + '/' + CONVERT(varchar, MONTH(ef.MODIFY_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), CONVERT(varchar, YEAR(ef.MODIFY_DATE)) + '/' + CONVERT(varchar, MONTH(ef.MODIFY_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)))), " +
-                          "CONVERT(varchar, YEAR(ef.MODIFY_DATE)) + '/' + CONVERT(varchar, MONTH(ef.MODIFY_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, DATE_3))) AS paidDateCash, " +
-                          "IIF(DAY(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.MODIFY_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3),IIF(IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null) is null,IIF(MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.MODIFY_DATE) > 11, " +
-                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.MODIFY_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
-                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.MODIFY_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.MODIFY_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
-                          "IIF(DAY(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.MODIFY_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null), IIF(MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.MODIFY_DATE) > 11, " +
-                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.MODIFY_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
-                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.MODIFY_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.MODIFY_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
-                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.MODIFY_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.MODIFY_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)))), " +
-                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.MODIFY_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.MODIFY_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, DATE_3))) AS paidDate1, " +
-                          "IIF(DAY(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.MODIFY_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3),IIF(IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null) is null,IIF(MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.MODIFY_DATE) > 11, " +
-                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.MODIFY_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
-                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.MODIFY_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.MODIFY_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
-                          "IIF(DAY(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.MODIFY_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null), IIF(MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.MODIFY_DATE) > 11, " +
-                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.MODIFY_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
-                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.MODIFY_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.MODIFY_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
-                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.MODIFY_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.MODIFY_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)))), " +
-                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.MODIFY_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.MODIFY_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, DATE_3))) AS paidDate2 " +
-                          "FROM PLAN_PAYMENT_TERMS ppt LEFT JOIN(SELECT ef.CONTRACT_ID, pop.advanceAmt, ef.RETENTION_PAYMENT, ef.PAID_AMOUNT, ef.PAYMENT_TRANSFER, ef.MODIFY_DATE FROM PLAN_ESTIMATION_FORM ef LEFT JOIN(SELECT EST_FORM_ID, SUM(AMOUNT) AS advanceAmt FROM PLAN_OTHER_PAYMENT WHERE TYPE IN('A', 'B', 'C') GROUP BY EST_FORM_ID HAVING EST_FORM_ID =@estid)pop " +
+                          "IIF(DAY(ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3),IIF(IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null) is null,IIF(MONTH(ef.CREATE_DATE) > 11, CONVERT(varchar, YEAR(ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                          "CONVERT(varchar, YEAR(ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))),IIF(DAY(ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null), IIF(MONTH(ef.CREATE_DATE) > 11, CONVERT(varchar, YEAR(ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                          "CONVERT(varchar, YEAR(ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), CONVERT(varchar, YEAR(ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)))), " +
+                          "CONVERT(varchar, YEAR(ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, DATE_3))) AS paidDateCash, " +
+                          "IIF(DAY(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3),IIF(IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null) is null,IIF(MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) > 11, " +
+                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
+                          "IIF(DAY(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null), IIF(MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) > 11, " +
+                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
+                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)))), " +
+                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, DATE_3))) AS paidDate1, " +
+                          "IIF(DAY(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3),IIF(IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null) is null,IIF(MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) > 11, " +
+                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
+                          "IIF(DAY(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null), IIF(MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) > 11, " +
+                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
+                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)))), " +
+                          "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, DATE_3))) AS paidDate2 " +
+                          "FROM PLAN_PAYMENT_TERMS ppt LEFT JOIN(SELECT ef.CONTRACT_ID, pop.advanceAmt, ef.RETENTION_PAYMENT, ef.PAID_AMOUNT, ef.PAYMENT_TRANSFER, ef.CREATE_DATE FROM PLAN_ESTIMATION_FORM ef LEFT JOIN(SELECT EST_FORM_ID, SUM(AMOUNT) AS advanceAmt FROM PLAN_OTHER_PAYMENT WHERE TYPE IN('A', 'B', 'C') GROUP BY EST_FORM_ID HAVING EST_FORM_ID =@estid)pop " +
                           "ON ef.EST_FORM_ID = pop.EST_FORM_ID WHERE ef.EST_FORM_ID =@estid)ef ON ppt.CONTRACT_ID = ef.CONTRACT_ID WHERE ppt.CONTRACT_ID =@contractid ",
                 new SqlParameter("contractid", contractid), new SqlParameter("estid", estid)).FirstOrDefault();
             }
@@ -3743,7 +3743,18 @@ namespace topmeperp.Service
             db = null;
             return i;
         }
-
+        //取得估驗單之狀態
+        int status = 0;
+        public int getEstStatusByESTId(string estid)
+        {
+            using (var context = new topmepEntities())
+            {
+                estcount = context.Database.SqlQuery<int>("SELECT STATUS FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @estid "
+                   , new SqlParameter("estid", estid)).First();
+            }
+            return status;
+        }
+        
         public int delESTByESTId(string estid)
         {
             logger.Info("remove EST form detail by EST FORM ID =" + estid);
@@ -3786,22 +3797,7 @@ namespace topmeperp.Service
             return 1;
         }
 
-        //更新估驗單狀態為送審
-        public int RefreshESTStatusById(string estid)
-        {
-            int i = 0;
-            logger.Info("update the status of EST form by estid" + estid);
-            string sql = "UPDATE  PLAN_ESTIMATION_FORM SET STATUS = 20 WHERE EST_FORM_ID = @estid ";
-            logger.Debug("batch sql:" + sql);
-            db = new topmepEntities();
-            var parameters = new List<SqlParameter>();
-            parameters.Add(new SqlParameter("estid", estid));
-            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
-            i = db.SaveChanges();
-            logger.Info("Update Record:" + i);
-            db = null;
-            return 1;
-        }
+        
 
         //修改估驗單內容
         public int RefreshESTByEstId(string estid, string tax, decimal taxratio)
@@ -3842,7 +3838,23 @@ namespace topmeperp.Service
             db = null;
             return 1;
         }
-
+        /*
+        //更新估驗單狀態為送審
+        public int RefreshESTStatusById(string estid)
+        {
+            int i = 0;
+            logger.Info("update the status of EST form by estid" + estid);
+            string sql = "UPDATE  PLAN_ESTIMATION_FORM SET STATUS = 20 WHERE EST_FORM_ID = @estid ";
+            logger.Debug("batch sql:" + sql);
+            db = new topmepEntities();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("estid", estid));
+            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            i = db.SaveChanges();
+            logger.Info("Update Record:" + i);
+            db = null;
+            return 1;
+        }
         //更新估驗單狀態為退件
         public int RejectESTByEstId(string estid)
         {
@@ -3876,6 +3888,7 @@ namespace topmeperp.Service
             db = null;
             return 1;
         }
+        */
         //取得估驗單憑證資料
         public List<PLAN_INVOICE> getInvoiceById(string id)
         {
@@ -4209,9 +4222,9 @@ namespace topmeperp.Service
                     "ISNULL(bank.BankAmt, 0) AS AMOUNT_BANK, ISNULL(A.AMOUNT_INFLOW, 0) AS AMOUNT_INFLOW, ISNULL(B.AMOUNT_OUTFLOW, 0) AS AMOUNT_OUTFLOW, ISNULL(availableQta, 0) AS availableQta, ISNULL(bank.BankAmt, 0) + ISNULL(A.AMOUNT_INFLOW, 0) - ISNULL(B.AMOUNT_OUTFLOW, 0) + ISNULL(availableQta, 0) AS BALANCE FROM(SELECT PAYMENT_DATE " +
                     "FROM PLAN_ACCOUNT UNION SELECT CONVERT(char(10), GETDATE(), 111) AS DATE_CASHFLOW FROM FIN_BANK_ACCOUNT UNION SELECT CONVERT(char(10), IIF(flt.TRANSACTION_TYPE = 1, flt.PAYBACK_DATE, flt.EVENT_DATE), 111) AS EVENT_DATE FROM FIN_LOAN_TRANACTION flt LEFT JOIN FIN_BANK_LOAN fbl ON flt.BL_ID = fbl.BL_ID " +
                     "WHERE IIF(flt.TRANSACTION_TYPE = 1, flt.PAYBACK_DATE, flt.EVENT_DATE) > CONVERT(char(10), GETDATE(), 111))pa LEFT JOIN(SELECT CONVERT(char(10), GETDATE(), 111) AS DATE_CASHFLOW, SUM(CUR_AMOUNT) AS BankAmt FROM FIN_BANK_ACCOUNT WHERE CUR_DATE < GETDATE())bank " +
-                    "ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = bank.DATE_CASHFLOW LEFT JOIN(SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_INFLOW, SUM(pla.AMOUNT_PAID) AS AMOUNT_INFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'Y' AND STATUS <> 0 " +
+                    "ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = bank.DATE_CASHFLOW LEFT JOIN(SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_INFLOW, SUM(pla.AMOUNT_PAID) AS AMOUNT_INFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'Y' AND ISNULL(STATUS, 10) <> 0 " +
                     "AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYMENT_DATE, 111))A ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = A.DATE_INFLOW LEFT JOIN(SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_OUTFLOW, " +
-                    "SUM(pla.AMOUNT_PAID) AS AMOUNT_OUTFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'N' AND STATUS <> 0 AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYMENT_DATE, 111) UNION SELECT CONVERT(char(10), PAYBACK_DATE, 111), " +
+                    "SUM(pla.AMOUNT_PAID) AS AMOUNT_OUTFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'N' AND ISNULL(STATUS, 10) <> 0 AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYMENT_DATE, 111) UNION SELECT CONVERT(char(10), PAYBACK_DATE, 111), " +
                     "SUM(AMOUNT) FROM FIN_LOAN_TRANACTION WHERE TRANSACTION_TYPE = '1' AND REMARK <> '備償款' AND PAYBACK_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYBACK_DATE, 111))B " +
                     "ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = B.DATE_OUTFLOW left join(SELECT CONVERT(char(10), GETDATE(), 111) AS DATE_CASHFLOW, availableQta FROM(SELECT SUM(QUOTA) - SUM(ROUND(ISNULL(QUOTA * (1 - IIF(vaRatio >= CUM_AR_RATIO, 1, QUOTA_AVAILABLE_RATIO / 100)), 0), 0)) + (SELECT ISNULL(SUM(IIF(flt.TRANSACTION_TYPE = -1, -1, IIF(fbl.QUOTA_RECYCLABLE = 'Y', 1, 0)) * flt.AMOUNT), 0) AS Amt " +
                     "FROM FIN_LOAN_TRANACTION flt LEFT JOIN FIN_BANK_LOAN fbl ON flt.BL_ID = fbl.BL_ID  WHERE IIF(flt.TRANSACTION_TYPE = 1, flt.PAYBACK_DATE, flt.EVENT_DATE) <= CONVERT(char(10), GETDATE(), 111) AND fbl.DUE_DATE >= CONVERT(char(10), GETDATE(), 111)) AS availableQta " +
@@ -4221,8 +4234,8 @@ namespace topmeperp.Service
                     "(SELECT DISTINCT CONVERT(char(10), pa.PAYMENT_DATE, 111) AS DATE_CASHFLOW, ISNULL(bank.BankAmt, 0) AS AMOUNT_BANK, ISNULL(A.AMOUNT_INFLOW, 0) AS AMOUNT_INFLOW, ISNULL(B.AMOUNT_OUTFLOW, 0) AS AMOUNT_OUTFLOW, ISNULL(availableQta, 0) AS availableQta, ISNULL(bank.BankAmt, 0) + ISNULL(A.AMOUNT_INFLOW, 0) - ISNULL(B.AMOUNT_OUTFLOW, 0) + ISNULL(availableQta, 0) AS BALANCE " +
                     "FROM(SELECT PAYMENT_DATE FROM PLAN_ACCOUNT UNION SELECT CONVERT(varchar, GETDATE(), 111) AS DATE_CASHFLOW FROM FIN_BANK_ACCOUNT UNION SELECT CONVERT(char(10), IIF(flt.TRANSACTION_TYPE = 1, flt.PAYBACK_DATE, flt.EVENT_DATE), 111) AS EVENT_DATE FROM FIN_LOAN_TRANACTION flt LEFT JOIN FIN_BANK_LOAN fbl ON flt.BL_ID = fbl.BL_ID WHERE IIF(flt.TRANSACTION_TYPE = 1, flt.PAYBACK_DATE, flt.EVENT_DATE) > CONVERT(char(10), GETDATE(), 111))pa " +
                     "LEFT JOIN(SELECT CONVERT(char(10), GETDATE(), 111) AS DATE_CASHFLOW, SUM(CUR_AMOUNT) AS BankAmt  FROM FIN_BANK_ACCOUNT WHERE CUR_DATE < GETDATE())bank ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = bank.DATE_CASHFLOW LEFT JOIN (SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_INFLOW, " +
-                    "SUM(pla.AMOUNT_PAID) AS AMOUNT_INFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'Y' AND STATUS <> 0 AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYMENT_DATE, 111))A ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = A.DATE_INFLOW " +
-                    "LEFT JOIN(SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_OUTFLOW, SUM(pla.AMOUNT_PAID) AS AMOUNT_OUTFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'N' AND STATUS <> 0 AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYMENT_DATE, 111) " +
+                    "SUM(pla.AMOUNT_PAID) AS AMOUNT_INFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'Y' AND ISNULL(STATUS, 10) <> 0 AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYMENT_DATE, 111))A ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = A.DATE_INFLOW " +
+                    "LEFT JOIN(SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_OUTFLOW, SUM(pla.AMOUNT_PAID) AS AMOUNT_OUTFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'N' AND ISNULL(STATUS, 10) <> 0 AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYMENT_DATE, 111) " +
                     "UNION SELECT CONVERT(char(10), PAYBACK_DATE, 111), SUM(AMOUNT) FROM FIN_LOAN_TRANACTION WHERE TRANSACTION_TYPE = '1' AND REMARK <> '備償款' AND PAYBACK_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYBACK_DATE, 111))B ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = B.DATE_OUTFLOW " +
                     "left join(SELECT CONVERT(char(10), GETDATE(), 111) AS DATE_CASHFLOW, availableQta FROM(SELECT SUM(QUOTA) - SUM(ROUND(ISNULL(QUOTA * (1 - IIF(vaRatio >= CUM_AR_RATIO, 1, QUOTA_AVAILABLE_RATIO / 100)), 0), 0)) + (SELECT ISNULL(SUM(IIF(flt.TRANSACTION_TYPE = -1, -1, IIF(fbl.QUOTA_RECYCLABLE = 'Y', 1, 0)) * flt.AMOUNT), 0) AS Amt " +
                     "FROM FIN_LOAN_TRANACTION flt LEFT JOIN FIN_BANK_LOAN fbl ON flt.BL_ID = fbl.BL_ID  WHERE IIF(flt.TRANSACTION_TYPE = 1, flt.PAYBACK_DATE, flt.EVENT_DATE) <= CONVERT(char(10), GETDATE(), 111) AND fbl.DUE_DATE >= CONVERT(char(10), GETDATE(), 111)) AS availableQta " +
@@ -5743,5 +5756,7 @@ namespace topmeperp.Service
             }
             return lstAmount;
         }
+
+
     }
 }

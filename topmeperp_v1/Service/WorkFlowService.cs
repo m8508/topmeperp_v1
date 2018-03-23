@@ -540,14 +540,22 @@ namespace topmeperp.Service
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public new string FLOW_KEY = "EST01";
         //處理SQL 預先填入專案代號,設定集合處理參數
-        string sql = @"SELECT F.EST_FORM_ID EXP_FORM_ID,F.PROJECT_ID,F.CONTRACT_ID,P.SUPPLIER_ID PAYEE,P.FORM_NAME,F.CREATE_DATE PAYMENT_DATE,F.REMARK REQ_DESC,F.REJECT_DESC REJECT_DESC,
+        string sql = @"SELECT F.EST_FORM_ID,F.PROJECT_ID,F.CONTRACT_ID,P.SUPPLIER_ID PAYEE,P.FORM_NAME,F.CREATE_DATE PAYMENT_DATE,F.REMARK REQ_DESC,F.REJECT_DESC REJECT_DESC,
                         R.REQ_USER_ID,R.CURENT_STATE,R.PID,
+(SELECT TOP 1 MANAGER FROM ENT_DEPARTMENT WHERE DEPT_CODE=CT.DEP_CODE) MANAGER,
                         CT.* ,M.FORM_URL + METHOD_URL as FORM_URL
 						FROM PLAN_ESTIMATION_FORM F,WF_PROCESS_REQUEST R,
                         WF_PORCESS_TASK CT , PLAN_SUP_INQUIRY P,
 		(SELECT P.PID,A.SEQ_ID,FORM_URL,METHOD_URL  FROM WF_PROCESS P,WF_PROCESS_ACTIVITY A WHERE P.PID=A.PID ) M
                         WHERE F.EST_FORM_ID= R.DATA_KEY AND R.RID=CT.RID AND R.CURENT_STATE=CT.SEQ_ID
 						AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE AND F.CONTRACT_ID = P.INQUIRY_FORM_ID";
+        string sqlDeptInfo = @"SELECT R.REQ_USER_ID REQ_USER_ID,U.USER_NAME REQ_USER_NAME,
+                        U.DEP_CODE DEPT_CODE,D.DEPT_NAME DEPT_NAME,
+                        D.MANAGER,(SELECT TOP 1 USER_NAME FROM SYS_USER  WHERE USER_ID=D.MANAGER) MANAGER_NAME
+                         FROM WF_PROCESS_REQUEST r LEFT JOIN 
+                        SYS_USER u  ON r.REQ_USER_ID=u.USER_ID LEFT OUTER JOIN
+                        ENT_DEPARTMENT D ON u.DEP_CODE=D.DEPT_CODE
+                        WHERE R.DATA_KEY=@datakey";
         public Flow4Estimation()
         {
             //base.FLOW_KEY = "EST01";
@@ -617,6 +625,9 @@ namespace topmeperp.Service
                 try
                 {
                     task.task = context.Database.SqlQuery<ExpenseFlowTask>(sql, new SqlParameter("datakey", dataKey)).First();
+                    //取得申請者部門資料
+                    logger.Debug("sqlDeptInfo=" + sqlDeptInfo + ",Data Key=" + dataKey);
+                    task.DeptInfo = context.Database.SqlQuery<RequestUserDeptInfo>(sqlDeptInfo, new SqlParameter("datakey", dataKey)).First();
                 }
                 catch (Exception ex)
                 {
@@ -705,16 +716,136 @@ namespace topmeperp.Service
             {
                 parameters.Add(new SqlParameter("rejectDesc", DBNull.Value));
             }
-            parameters.Add(new SqlParameter("formId", task.task.EXP_FORM_ID));
+            parameters.Add(new SqlParameter("formId", task.task.EST_FORM_ID));
             using (var context = new topmepEntities())
             {
-                logger.Debug("Change EstimationFormRequest Status=" + task.task.EXP_FORM_ID + "," + staus);
+                logger.Debug("Change EstimationFormRequest Status=" + task.task.EST_FORM_ID + "," + staus);
                 context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
             }
-
+            if (staus == 30)
+            {
+                staus = addAccountFromEst(task.task.EST_FORM_ID, task.task.CONTRACT_ID);
+            }
             return staus;
         }
+        //將廠商計價付款資料寫入帳款
+        public int addAccountFromEst(string formid, string contractid)
+        {
 
+            logger.Info("add plan account detail from est form,est form id =" + formid);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                string sql = "INSERT INTO PLAN_ACCOUNT (PROJECT_ID, CONTRACT_ID, ACCOUNT_FORM_ID, AMOUNT_PAID, PAYMENT_DATE, ISDEBIT) " +
+                                   "SELECT a.PROJECT_ID, a.CONTRACT_ID, a.EST_FORM_ID AS ACCOUNT_FORM_ID,ISNULL(advanceAmt2, ISNULL(retentionAmt2, estAmt2)) AS AMOUNT_PAID, paidDate2 AS PAYMENT_DATE, 'N' AS ISDEBIT FROM ( " +
+                                   "SELECT ppt.*, ef.EST_FORM_ID, IIF(ef.advanceAmt < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_ADVANCE_CASH_RATIO / 100, ef.PAID_AMOUNT * USANCE_ADVANCE_CASH_RATIO / 100) AS advanceCash, " +
+                                   "IIF(ef.advanceAmt < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_ADVANCE_1_RATIO / 100, ef.PAID_AMOUNT * USANCE_ADVANCE_1_RATIO / 100) AS advanceAmt1, " +
+                                   "IIF(ef.advanceAmt < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_ADVANCE_2_RATIO / 100, ef.PAID_AMOUNT * USANCE_ADVANCE_2_RATIO / 100) AS advanceAmt2, " +
+                                   "IIF(ef.RETENTION_PAYMENT < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_RETENTION_CASH_RATIO / 100, ef.PAID_AMOUNT * USANCE_RETENTION_CASH_RATIO / 100) AS retentionCash, " +
+                                   "IIF(ef.RETENTION_PAYMENT < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_RETENTION_1_RATIO / 100, ef.PAID_AMOUNT * USANCE_RETENTION_1_RATIO / 100) AS retentionAmt1, " +
+                                   "IIF(ef.RETENTION_PAYMENT < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_RETENTION_2_RATIO / 100, ef.PAID_AMOUNT * USANCE_RETENTION_2_RATIO / 100) AS retentionAmt2, " +
+                                   "IIF(ef.PAYMENT_TRANSFER > 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * PAYMENT_ESTIMATED_CASH_RATIO / 100, ef.PAID_AMOUNT * USANCE_GOODS_CASH_RATIO / 100) AS estCash, " +
+                                   "IIF(ef.PAYMENT_TRANSFER > 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * PAYMENT_ESTIMATED_1_RATIO / 100, ef.PAID_AMOUNT * USANCE_GOODS_1_RATIO / 100) AS estAmt1, " +
+                                   "IIF(ef.PAYMENT_TRANSFER > 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * PAYMENT_ESTIMATED_2_RATIO / 100, ef.PAID_AMOUNT * USANCE_GOODS_2_RATIO / 100) AS estAmt2, " +
+                                   "IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3) AS dateBase1, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null) AS dateBase2, " +
+                                   "IIF(DAY(ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3), IIF(IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null) is null, IIF(MONTH(ef.CREATE_DATE) > 11, CONVERT(varchar, YEAR(ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                                   "CONVERT(varchar, YEAR(ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), IIF(DAY(ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null), IIF(MONTH(ef.CREATE_DATE) > 11, CONVERT(varchar, YEAR(ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                                   "CONVERT(varchar, YEAR(ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), CONVERT(varchar, YEAR(ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)))), " +
+                                   "CONVERT(varchar, YEAR(ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, DATE_3))) AS paidDateCash, " +
+                                   "IIF(DAY(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3), IIF(IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null) is null, IIF(MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) > 11, " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
+                                   "IIF(DAY(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null), IIF(MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) > 11, " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)))), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, DATE_3))) AS paidDate1, " +
+                                   "IIF(DAY(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3), IIF(IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null) is null, IIF(MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) > 11, " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
+                                   "IIF(DAY(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null), IIF(MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) > 11," +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)))), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, DATE_3))) AS paidDate2 " +
+                                   "FROM PLAN_PAYMENT_TERMS ppt LEFT JOIN(SELECT ef.CONTRACT_ID, ef.EST_FORM_ID, ef.CREATE_ID, pop.advanceAmt, ef.RETENTION_PAYMENT, ef.PAID_AMOUNT, ef.PAYMENT_TRANSFER, ef.CREATE_DATE FROM PLAN_ESTIMATION_FORM ef LEFT JOIN(SELECT EST_FORM_ID, SUM(AMOUNT) AS advanceAmt FROM PLAN_OTHER_PAYMENT WHERE TYPE IN('A', 'B', 'C') GROUP BY EST_FORM_ID HAVING EST_FORM_ID ='" + task.task.EST_FORM_ID + "')pop " +
+                                   "ON ef.EST_FORM_ID = pop.EST_FORM_ID WHERE ef.EST_FORM_ID ='" + task.task.EST_FORM_ID + "')ef ON ppt.CONTRACT_ID = ef.CONTRACT_ID WHERE ppt.CONTRACT_ID ='" + task.task.CONTRACT_ID + "')a WHERE ISNULL(advanceAmt2, ISNULL(retentionAmt2, estAmt2)) IS NOT NULL UNION " +
+
+                                   "SELECT a.PROJECT_ID, a.CONTRACT_ID, a.EST_FORM_ID,ISNULL(advanceCash, ISNULL(retentionCash, estCash))amtCash, paidDateCash, 'N' AS ISDEBIT FROM ( " +
+                                   "SELECT ppt.*, ef.EST_FORM_ID, IIF(ef.advanceAmt < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_ADVANCE_CASH_RATIO / 100, ef.PAID_AMOUNT * USANCE_ADVANCE_CASH_RATIO / 100) AS advanceCash, " +
+                                   "IIF(ef.advanceAmt < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_ADVANCE_1_RATIO / 100, ef.PAID_AMOUNT * USANCE_ADVANCE_1_RATIO / 100) AS advanceAmt1, " +
+                                   "IIF(ef.advanceAmt < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_ADVANCE_2_RATIO / 100, ef.PAID_AMOUNT * USANCE_ADVANCE_2_RATIO / 100) AS advanceAmt2, " +
+                                   "IIF(ef.RETENTION_PAYMENT < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_RETENTION_CASH_RATIO / 100, ef.PAID_AMOUNT * USANCE_RETENTION_CASH_RATIO / 100) AS retentionCash, " +
+                                   "IIF(ef.RETENTION_PAYMENT < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_RETENTION_1_RATIO / 100, ef.PAID_AMOUNT * USANCE_RETENTION_1_RATIO / 100) AS retentionAmt1, " +
+                                   "IIF(ef.RETENTION_PAYMENT < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_RETENTION_2_RATIO / 100, ef.PAID_AMOUNT * USANCE_RETENTION_2_RATIO / 100) AS retentionAmt2, " +
+                                   "IIF(ef.PAYMENT_TRANSFER > 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * PAYMENT_ESTIMATED_CASH_RATIO / 100, ef.PAID_AMOUNT * USANCE_GOODS_CASH_RATIO / 100) AS estCash, " +
+                                   "IIF(ef.PAYMENT_TRANSFER > 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * PAYMENT_ESTIMATED_1_RATIO / 100, ef.PAID_AMOUNT * USANCE_GOODS_1_RATIO / 100) AS estAmt1, " +
+                                   "IIF(ef.PAYMENT_TRANSFER > 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * PAYMENT_ESTIMATED_2_RATIO / 100, ef.PAID_AMOUNT * USANCE_GOODS_2_RATIO / 100) AS estAmt2, " +
+                                   "IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3) AS dateBase1, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null) AS dateBase2, " +
+                                   "IIF(DAY(ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3), IIF(IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null) is null, IIF(MONTH(ef.CREATE_DATE) > 11, CONVERT(varchar, YEAR(ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                                   "CONVERT(varchar, YEAR(ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), IIF(DAY(ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null), IIF(MONTH(ef.CREATE_DATE) > 11, CONVERT(varchar, YEAR(ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                                   "CONVERT(varchar, YEAR(ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), CONVERT(varchar, YEAR(ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)))), " +
+                                   "CONVERT(varchar, YEAR(ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, DATE_3))) AS paidDateCash, " +
+                                   "IIF(DAY(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3), IIF(IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null) is null, IIF(MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) > 11, " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
+                                   "IIF(DAY(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null), IIF(MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) > 11, " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)))), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, DATE_3))) AS paidDate1, " +
+                                   "IIF(DAY(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3), IIF(IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null) is null, IIF(MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) > 11, " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
+                                   "IIF(DAY(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null), IIF(MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) > 11," +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)))), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, DATE_3))) AS paidDate2 " +
+                                   "FROM PLAN_PAYMENT_TERMS ppt LEFT JOIN(SELECT ef.CONTRACT_ID, ef.EST_FORM_ID,ef.CREATE_ID, pop.advanceAmt, ef.RETENTION_PAYMENT, ef.PAID_AMOUNT, ef.PAYMENT_TRANSFER, ef.CREATE_DATE FROM PLAN_ESTIMATION_FORM ef LEFT JOIN(SELECT EST_FORM_ID, SUM(AMOUNT) AS advanceAmt FROM PLAN_OTHER_PAYMENT WHERE TYPE IN('A', 'B', 'C') GROUP BY EST_FORM_ID HAVING EST_FORM_ID ='" + task.task.EST_FORM_ID + "')pop " +
+                                   "ON ef.EST_FORM_ID = pop.EST_FORM_ID WHERE ef.EST_FORM_ID ='" + task.task.EST_FORM_ID + "')ef ON ppt.CONTRACT_ID = ef.CONTRACT_ID WHERE ppt.CONTRACT_ID ='" + task.task.CONTRACT_ID + "')a WHERE ISNULL(advanceCash, ISNULL(retentionCash, estCash)) IS NOT NULL UNION " +
+
+                                   "SELECT a.PROJECT_ID, a.CONTRACT_ID, a.EST_FORM_ID,ISNULL(advanceAmt1, ISNULL(retentionAmt1, estAmt1))amt1, paidDate1, 'N' AS ISDEBIT FROM ( " +
+                                   "SELECT ppt.*, ef.EST_FORM_ID, IIF(ef.advanceAmt < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_ADVANCE_CASH_RATIO / 100, ef.PAID_AMOUNT * USANCE_ADVANCE_CASH_RATIO / 100) AS advanceCash, " +
+                                   "IIF(ef.advanceAmt < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_ADVANCE_1_RATIO / 100, ef.PAID_AMOUNT * USANCE_ADVANCE_1_RATIO / 100) AS advanceAmt1, " +
+                                   "IIF(ef.advanceAmt < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_ADVANCE_2_RATIO / 100, ef.PAID_AMOUNT * USANCE_ADVANCE_2_RATIO / 100) AS advanceAmt2, " +
+                                   "IIF(ef.RETENTION_PAYMENT < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_RETENTION_CASH_RATIO / 100, ef.PAID_AMOUNT * USANCE_RETENTION_CASH_RATIO / 100) AS retentionCash, " +
+                                   "IIF(ef.RETENTION_PAYMENT < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_RETENTION_1_RATIO / 100, ef.PAID_AMOUNT * USANCE_RETENTION_1_RATIO / 100) AS retentionAmt1, " +
+                                   "IIF(ef.RETENTION_PAYMENT < 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * ppt.PAYMENT_RETENTION_2_RATIO / 100, ef.PAID_AMOUNT * USANCE_RETENTION_2_RATIO / 100) AS retentionAmt2, " +
+                                   "IIF(ef.PAYMENT_TRANSFER > 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * PAYMENT_ESTIMATED_CASH_RATIO / 100, ef.PAID_AMOUNT * USANCE_GOODS_CASH_RATIO / 100) AS estCash, " +
+                                   "IIF(ef.PAYMENT_TRANSFER > 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * PAYMENT_ESTIMATED_1_RATIO / 100, ef.PAID_AMOUNT * USANCE_GOODS_1_RATIO / 100) AS estAmt1, " +
+                                   "IIF(ef.PAYMENT_TRANSFER > 0 AND ppt.PAYMENT_TERMS = 'P', ef.PAID_AMOUNT * PAYMENT_ESTIMATED_2_RATIO / 100, ef.PAID_AMOUNT * USANCE_GOODS_2_RATIO / 100) AS estAmt2, " +
+                                   "IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3) AS dateBase1, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null) AS dateBase2, " +
+                                   "IIF(DAY(ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3), IIF(IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null) is null, IIF(MONTH(ef.CREATE_DATE) > 11, CONVERT(varchar, YEAR(ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                                   "CONVERT(varchar, YEAR(ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), IIF(DAY(ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null), IIF(MONTH(ef.CREATE_DATE) > 11, CONVERT(varchar, YEAR(ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                                   "CONVERT(varchar, YEAR(ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), CONVERT(varchar, YEAR(ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)))), " +
+                                   "CONVERT(varchar, YEAR(ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, DATE_3))) AS paidDateCash, " +
+                                   "IIF(DAY(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3), IIF(IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null) is null, IIF(MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) > 11, " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
+                                   "IIF(DAY(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null), IIF(MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) > 11, " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)))), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE1, USANCE_UP_TO_U_DATE1) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, DATE_3))) AS paidDate1, " +
+                                   "IIF(DAY(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3), IIF(IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null) is null, IIF(MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) > 11, " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
+                                   "IIF(DAY(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) > IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, null), IIF(MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) > 11," +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) + 1) + '/' + '01' + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE) + 1) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3))), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_1, DATE_3)))), " +
+                                   "CONVERT(varchar, YEAR(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, MONTH(IIF(ppt.PAYMENT_TERMS = 'P', PAYMENT_UP_TO_U_DATE2, USANCE_UP_TO_U_DATE2) + ef.CREATE_DATE)) + '/' + CONVERT(varchar, IIF(ppt.PAYMENT_FREQUENCY = 'O', DATE_2, DATE_3))) AS paidDate2 " +
+                                   "FROM PLAN_PAYMENT_TERMS ppt LEFT JOIN(SELECT ef.CONTRACT_ID, ef.EST_FORM_ID,ef.CREATE_ID, pop.advanceAmt, ef.RETENTION_PAYMENT, ef.PAID_AMOUNT, ef.PAYMENT_TRANSFER, ef.CREATE_DATE FROM PLAN_ESTIMATION_FORM ef LEFT JOIN(SELECT EST_FORM_ID, SUM(AMOUNT) AS advanceAmt FROM PLAN_OTHER_PAYMENT WHERE TYPE IN('A', 'B', 'C') GROUP BY EST_FORM_ID HAVING EST_FORM_ID ='" + task.task.EST_FORM_ID + "')pop " +
+                                   "ON ef.EST_FORM_ID = pop.EST_FORM_ID WHERE ef.EST_FORM_ID ='" + task.task.EST_FORM_ID + "')ef ON ppt.CONTRACT_ID = ef.CONTRACT_ID WHERE ppt.CONTRACT_ID ='" + task.task.CONTRACT_ID + "' )a WHERE ISNULL(advanceAmt1, ISNULL(retentionAmt1, estAmt1)) IS NOT NULL ";
+                logger.Info("sql =" + sql);
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("formid", formid));
+                parameters.Add(new SqlParameter("contractid", contractid));
+                i = context.Database.ExecuteSqlCommand(sql);
+                return i;
+            }
+        }
         //退件
         public new void Reject(SYS_USER u, string reason)
         {
@@ -729,16 +860,16 @@ namespace topmeperp.Service
         public void Cancel(SYS_USER u)
         {
             user = u;
-            logger.Info("USER :" + user.USER_ID + " Cancel :" + task.task.EXP_FORM_ID);
+            logger.Info("USER :" + user.USER_ID + " Cancel :" + task.task.EST_FORM_ID);
             base.CancelRequest(u);
             if (statusChange != "F")
             {
                 string sql = "DELETE PLAN_ESTIMATION_FORM WHERE EST_FORM_ID=@formId;DELETE PLAN_ESTIMATION_FORM WHERE EST_FORM_ID=@formId;";
                 var parameters = new List<SqlParameter>();
-                parameters.Add(new SqlParameter("formId", task.task.EXP_FORM_ID));
+                parameters.Add(new SqlParameter("formId", task.task.EST_FORM_ID));
                 using (var context = new topmepEntities())
                 {
-                    logger.Debug("Cancel EstimationFormRequest Status=" + task.task.EXP_FORM_ID);
+                    logger.Debug("Cancel EstimationFormRequest Status=" + task.task.EST_FORM_ID);
                     context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
                 }
             }

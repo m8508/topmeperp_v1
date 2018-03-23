@@ -531,7 +531,7 @@
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
-                window.location.replace("/Estimation/EstimationForm");
+                window.location.replace("/Estimation/EstimationForm/@Model.EstData.prj.PROJECT_ID");
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);
@@ -547,7 +547,7 @@
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
-                window.location.replace("/Estimation/EstimationForm");
+                window.location.replace("/Estimation/EstimationForm/@Model.EstData.prj.PROJECT_ID");
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);
@@ -563,7 +563,7 @@
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
-                window.location.replace("/Estimation/EstimationForm");
+                window.location.replace("/Estimation/EstimationForm/@Model.EstData.prj.PROJECT_ID");
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);
@@ -651,9 +651,18 @@
                 $('#usanceretention_cash').val(data.USANCE_RETENTION_CASH_RATIO);
                 $('#usanceretention_1').val(data.USANCE_RETENTION_1_RATIO);
                 $('#usanceretention_2').val(data.USANCE_RETENTION_2_RATIO);
-                $('#payment_date_cash').val(data.paidDateCash);
-                $('#payment_date_1').val(data.paidDate1);
-                $('#payment_date_2').val(data.paidDate2);
+                if ((data.estCash) != null && (data.retentionCash) != null  && (data.advanceCash) != null)
+                {
+                    $('#payment_date_cash').val(data.paidDateCash);
+                }
+                if ((data.advanceAmt1) != null && (data.retentionAmt1) != null  && (data.estAmt1) != null)
+                {
+                    $('#payment_date_1').val(data.paidDate1);
+                }
+                if ((data.advanceAmt2) != null && (data.retentionAmt2) != null  && (data.estAmt2) != null)
+                {
+                    $('#payment_date_2').val(data.paidDate2);
+                }
                 if ((data.DATE_3) == null) {
                     $("input[name=payfrequency][value='O']").attr('checked', true);
                 }
