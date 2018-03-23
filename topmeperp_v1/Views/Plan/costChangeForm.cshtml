@@ -75,27 +75,27 @@
                 Html.RenderPartial("_ChangeOrderItemList");
             }
         </div>
-    </form>
 
 
-    <div class="row">
-        <!--退件或草稿可進行增修-->
-        @if (Model.FormData.STATUS == "10" || Model.FormData.STATUS == "0")
+        <div class="row">
+            <!--退件或草稿可進行增修-->
+            @if (Model.FormData.STATUS == "10" || Model.FormData.STATUS == "0")
             {
-            <div class="col-sm-1">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#changeOrderItem" onclick="addChangeOrderItem()">新增</button>
-            </div>
-        }
-        else if (Model.FormData.STATUS == "20")
-        {
-            @Html.Raw("<label class=control-label' for='methodcode'>財務處理</label>")
-            @Html.DropDownList("methodcode", null, String.Empty, new { @class = "form-control" })
-            <div class="col-sm-4">
-                <input name="settlementDate" class="form-control" id="settlementDate" type="text" value="@ViewBag.settlementDate" placeholder="結算日期">
-            </div>
-        }
-        @Html.Partial("~/Views/include/_WorkFlowFunction.cshtml")
-    </div>
+                <div class="col-sm-1">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#changeOrderItem" onclick="addChangeOrderItem()">新增品項</button>
+                </div>
+            }
+            else if (Model.FormData.STATUS == "20")
+            {
+                @Html.Raw("<label class=control-label' for='methodcode'>財務處理</label>")
+                @Html.DropDownList("methodcode", null, String.Empty, new { @class = "form-control" })
+                <div class="col-sm-4">
+                    <input name="settlementDate" class="form-control" id="settlementDate" type="text" value="@ViewBag.settlementDate" placeholder="結算日期">
+                </div>
+            }
+            @Html.Partial("~/Views/include/_WorkFlowFunction.cshtml")
+        </div>
+    </form>
 </div>
 
 <!--新增品項對話框-->
@@ -326,13 +326,14 @@
     //退件
     $("#RejectForm").click(function () {
         $.ajax({
-            url: '@Url.Action("RejectForm", "CashFlow")',
-            data: $('#formExpense').serialize(),
+            url: '@Url.Action("RejectForm", "Plan")',
+            data: $('#CostChangeForm').serialize(),
             type: "POST",
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
-                window.location.replace("/CashFlow/ExpenseForm");
+                window.close();
+                //window.location.replace("/CashFlow/ExpenseForm");
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);
@@ -342,13 +343,14 @@
     //中止
     $("#CancelForm").click(function () {
         $.ajax({
-            url: '@Url.Action("CancelForm", "CashFlow")',
-            data: $('#formExpense').serialize(),
+            url: '@Url.Action("CancelForm", "Plan")',
+            data: $('#CostChangeForm').serialize(),
             type: "POST",
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
-                window.location.replace("/CashFlow/ExpenseForm");
+                window.close();
+                // window.location.replace("/CashFlow/ExpenseForm");
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);

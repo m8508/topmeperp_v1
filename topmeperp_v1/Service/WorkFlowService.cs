@@ -96,17 +96,17 @@ namespace topmeperp.Service
             processTask();
         }
         //退件
-        public void Reject(SYS_USER u, string reason)
+        public void Reject(SYS_USER u, string reason,long rid)
         {
             user = u;
-            RejectTask(reason);
+            RejectTask(reason,rid);
         }
         //中止
-        public void CancelRequest(SYS_USER u)
+        public void CancelRequest(SYS_USER u,long rid)
         {
             user = u;
-            logger.Debug("USER :" + user.USER_ID + " Cancel :" + task.task.EXP_FORM_ID);
-            CancelRequest();
+            logger.Debug("USER :" + user.USER_ID + " Cancel :" + rid);
+            CancelRequest(rid);
         }
         protected void processTask()
         {
@@ -202,7 +202,7 @@ namespace topmeperp.Service
         /// <summary>
         /// 退件相關狀態處理
         /// </summary>
-        protected void RejectTask(string reason)
+        protected void RejectTask(string reason ,long rid)
         {
             string sql4Task = "UPDATE WF_PORCESS_TASK SET STATUS=@status,REMARK=@remark,MODIFY_USER_ID=@modifyUser,MODIFY_DATE=@modifyDate WHERE RID=@RID";
             string sql4Request = "UPDATE WF_PROCESS_REQUEST SET CURENT_STATE=@state,MODIFY_USER_ID=@modifyUser,MODIFY_DATE=@modifyDate WHERE RID=@RID";
@@ -217,18 +217,18 @@ namespace topmeperp.Service
 
                     parameters.Add(new SqlParameter("modifyUser", user.USER_ID));
                     parameters.Add(new SqlParameter("modifyDate", DateTime.Now));
-                    parameters.Add(new SqlParameter("RID", task.task.RID));
+                    parameters.Add(new SqlParameter("RID", rid));
                     int i = context.Database.ExecuteSqlCommand(sql4Task, parameters.ToArray());
-                    logger.Debug("i=" + i + "sql" + sql4Task + ",Id" + task.task.RID);
+                    logger.Debug("i=" + i + "sql" + sql4Task + ",Id" + rid);
 
                     //Change Request State
                     parameters = new List<SqlParameter>();
                     parameters.Add(new SqlParameter("state", 1));
                     parameters.Add(new SqlParameter("modifyUser", user.USER_ID));
                     parameters.Add(new SqlParameter("modifyDate", DateTime.Now));
-                    parameters.Add(new SqlParameter("RID", task.task.RID));
+                    parameters.Add(new SqlParameter("RID", rid));
                     i = context.Database.ExecuteSqlCommand(sql4Request, parameters.ToArray());
-                    logger.Debug("i=" + i + "sql" + sql4Task + ",Id" + task.task.ID);
+                    logger.Debug("i=" + i + "sql" + sql4Task + ",Id" + rid);
                     statusChange = "D";
                     Message = "退件作業完成";
                 }
@@ -243,7 +243,7 @@ namespace topmeperp.Service
         /// <summary>
         /// 取消表單作業流程
         /// </summary>
-        protected void CancelRequest()
+        protected void CancelRequest(long rid)
         {
             string sql4Task = "DELETE WF_PORCESS_TASK WHERE RID=@RID";
             string sql4Request = "DELETE WF_PROCESS_REQUEST WHERE RID=@RID";
@@ -253,11 +253,11 @@ namespace topmeperp.Service
                 {
                     //Update Task State roll back to "O"
                     var parameters = new List<SqlParameter>();
-                    parameters.Add(new SqlParameter("RID", task.task.RID));
+                    parameters.Add(new SqlParameter("RID", rid));
                     int i = context.Database.ExecuteSqlCommand(sql4Task, parameters.ToArray());
-                    logger.Debug("i=" + i + "sql" + sql4Task + ",Id" + task.task.RID);
+                    logger.Debug("i=" + i + "sql" + sql4Task + ",Id" + rid);
                     i = context.Database.ExecuteSqlCommand(sql4Request, parameters.ToArray());
-                    logger.Debug("i=" + i + "sql" + sql4Task + ",Id" + task.task.ID);
+                    logger.Debug("i=" + i + "sql" + sql4Task + ",Id" + rid);
                     statusChange = "D";
                     Message = "表單已取消";
                 }
@@ -507,7 +507,7 @@ namespace topmeperp.Service
         public void Reject(SYS_USER u, DateTime? paymentdate, string reason)
         {
             logger.Debug("CompanyExpenseRequest Reject:" + task.task.RID);
-            base.Reject(u, reason);
+            base.Reject(u, reason,task.task.RID);
             if (statusChange != "F")
             {
                 updateForm(paymentdate, reason, 0);
@@ -518,7 +518,7 @@ namespace topmeperp.Service
         {
             user = u;
             logger.Info("USER :" + user.USER_ID + " Cancel :" + task.task.EXP_FORM_ID);
-            base.CancelRequest(u);
+            base.CancelRequest(u,task.task.RID);
             if (statusChange != "F")
             {
                 string sql = "DELETE FIN_EXPENSE_ITEM WHERE EXP_FORM_ID=@formId;DELETE FIN_EXPENSE_FORM WHERE EXP_FORM_ID=@formId;";
@@ -551,7 +551,7 @@ namespace topmeperp.Service
     public class Flow4Estimation : WorkFlowService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        public new string FLOW_KEY = "EST01";
+        public string FLOW_KEY = "EST01";
         //處理SQL 預先填入專案代號,設定集合處理參數
         string sql = @"SELECT F.EST_FORM_ID,F.PROJECT_ID,F.CONTRACT_ID,P.SUPPLIER_ID PAYEE,P.FORM_NAME,F.CREATE_DATE PAYMENT_DATE,F.REMARK REQ_DESC,F.REJECT_DESC REJECT_DESC,
                         R.REQ_USER_ID,R.CURENT_STATE,R.PID,
@@ -562,13 +562,7 @@ namespace topmeperp.Service
 		(SELECT P.PID,A.SEQ_ID,FORM_URL,METHOD_URL  FROM WF_PROCESS P,WF_PROCESS_ACTIVITY A WHERE P.PID=A.PID ) M
                         WHERE F.EST_FORM_ID= R.DATA_KEY AND R.RID=CT.RID AND R.CURENT_STATE=CT.SEQ_ID
 						AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE AND F.CONTRACT_ID = P.INQUIRY_FORM_ID";
-        string sqlDeptInfo = @"SELECT R.REQ_USER_ID REQ_USER_ID,U.USER_NAME REQ_USER_NAME,
-                        U.DEP_CODE DEPT_CODE,D.DEPT_NAME DEPT_NAME,
-                        D.MANAGER,(SELECT TOP 1 USER_NAME FROM SYS_USER  WHERE USER_ID=D.MANAGER) MANAGER_NAME
-                         FROM WF_PROCESS_REQUEST r LEFT JOIN 
-                        SYS_USER u  ON r.REQ_USER_ID=u.USER_ID LEFT OUTER JOIN
-                        ENT_DEPARTMENT D ON u.DEP_CODE=D.DEPT_CODE
-                        WHERE R.DATA_KEY=@datakey";
+
         public Flow4Estimation()
         {
             //base.FLOW_KEY = "EST01";
@@ -860,10 +854,10 @@ namespace topmeperp.Service
             }
         }
         //退件
-        public new void Reject(SYS_USER u, string reason)
+        public void Reject(SYS_USER u, string reason)
         {
             logger.Debug("EstimationFormRequest Reject:" + task.task.RID);
-            base.Reject(u, reason);
+            base.Reject(u, reason,task.task.RID);
             if (statusChange != "F")
             {
                 updateForm(reason, 0);
@@ -874,7 +868,7 @@ namespace topmeperp.Service
         {
             user = u;
             logger.Info("USER :" + user.USER_ID + " Cancel :" + task.task.EST_FORM_ID);
-            base.CancelRequest(u);
+            base.CancelRequest(u,task.task.RID);
             if (statusChange != "F")
             {
                 string sql = "DELETE PLAN_ESTIMATION_FORM WHERE EST_FORM_ID=@formId;DELETE PLAN_ESTIMATION_FORM WHERE EST_FORM_ID=@formId;";
@@ -998,8 +992,6 @@ namespace topmeperp.Service
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("formId", task.FormData.FORM_ID));
             parameters.Add(new SqlParameter("status", staus));
-
-
             if (null == reason)
             {
                 parameters.Add(new SqlParameter("rejectDesc", DBNull.Value));
@@ -1036,10 +1028,10 @@ namespace topmeperp.Service
         }
 
         //退件
-        public void Reject(SYS_USER u, DateTime? paymentdate, string reason)
+        public void Reject(SYS_USER u, string reason)
         {
             logger.Debug("CostChangeRequest Reject:" + task.task.RID);
-            base.Reject(u, reason);
+            base.Reject(u, reason,task.task.RID);
             if (statusChange != "F")
             {
                 updateForm(reason, 0, null, null);
@@ -1050,12 +1042,12 @@ namespace topmeperp.Service
         {
             user = u;
             logger.Info("USER :" + user.USER_ID + " Cancel :" + task.task.EXP_FORM_ID);
-            base.CancelRequest(u);
+            base.CancelRequest(u,task.task.RID);
             if (statusChange != "F")
             {
-                string sql = "DELETE PLAN_COSTCHANGE_FORM WHERE FORM_ID=@formId;DELETE PLAN_COSTCHANGE_ITEM WHERE FORM_ID=@formId;";
+                string sql = "DELETE PLAN_COSTCHANGE_ITEM WHERE FORM_ID=@formId;DELETE PLAN_COSTCHANGE_FORM WHERE FORM_ID=@formId;";
                 var parameters = new List<SqlParameter>();
-                parameters.Add(new SqlParameter("formId", task.task.EXP_FORM_ID));
+                parameters.Add(new SqlParameter("formId", task.FormData.FORM_ID));
                 using (var context = new topmepEntities())
                 {
                     logger.Debug("Cancel CostChangeRequest Status=" + task.task.EXP_FORM_ID);
