@@ -251,7 +251,7 @@ namespace topmeperp.Controllers
                 //更新估驗單
                 logger.Info("update Estimation Form");
                 //估驗單(已送審) STATUS = 20
-                int k = service.RefreshESTStatusById(Request["formid"]);
+                //int k = service.RefreshESTStatusById(Request["formid"]);
                 return RedirectToAction("SingleEST", "Estimation", new { id = Request["formid"] });
             }
         }
@@ -520,6 +520,7 @@ namespace topmeperp.Controllers
             }
 
             wfs.Send(u, date, desc);
+            
             return "更新成功!!";
         }
         //退件
@@ -835,90 +836,90 @@ namespace topmeperp.Controllers
             }
             return msg;
         }
-
-        public String UpdateESTStatusById(FormCollection form)
-        {
-            //取得估驗單編號
-            logger.Info("form:" + form.Count);
-            logger.Info("EST form Id:" + form["estid"]);
-            string msg = "";
-            decimal foreign_payment = decimal.Parse(form.Get("t_foreign").Trim());
-            decimal original_foreign_payment = decimal.Parse(form.Get("original_t_foreign").Trim());
-            decimal retention = decimal.Parse(form.Get("t_retention").Trim());
-            //decimal totalAmount = decimal.Parse(form.Get("totalAmount").Trim());
-            decimal subAmount = decimal.Parse(form.Get("sub_amount").Trim());
-            decimal repayment = decimal.Parse(form.Get("t_repayment").Trim());
-            decimal tax_ratio = decimal.Parse(form.Get("taxratio").Trim());
-            decimal tax_amount = 0;
-            if (foreign_payment != original_foreign_payment)
-            {
-                tax_amount = Math.Round((subAmount - repayment) * tax_ratio / 100, 0);
-            }
-            else
-            {
-                tax_amount = decimal.Parse(form.Get("tax_amount").Trim());
-            }
-            string remark = form.Get("remark").Trim();
-            int i = service.RefreshESTAmountByEstId(form["estid"], subAmount, foreign_payment, retention, tax_amount, remark);
-            //修改小計金額(PAYMENT_TRANSFER 欄位)與實付金額(PAID_AMOUNT 欄位)
-            PaymentDetailsFunction amountPaid = service.getDetailsPayById(form["estid"], form["contractid"]);
-            int t = service.UpdatePaidAmountById(form["estid"], decimal.Parse(amountPaid.PAID_AMOUNT.ToString()));
-            //更新估驗單狀態
-            logger.Info("Update Estimation Form Status");
-            //估驗單(已送審) STATUS = 20
-            int j = service.RefreshESTStatusById(form["estid"]);
-            if (j == 0)
-            {
-                msg = service.message;
-            }
-            else
-            {
-                msg = "估驗單已送審";
-            }
-            return msg;
-        }
-
         /*
-        public String RejectESTById(FormCollection form)
-        {
-            //取得估驗單編號
-            logger.Info("EST form Id:" + form["estid"]);
-            //更新估驗單狀態
-            logger.Info("Reject Estimation Form ");
-            //估驗單(已退件) STATUS = 0
-            string msg = "";
-            int i = service.RejectESTByEstId(form["estid"]);
-            if (i == 0)
-            {
-                msg = service.message;
-            }
-            else
-            {
-                msg = "估驗單已退回";
-            }
-            return msg;
-        }
+       public String UpdateESTStatusById(FormCollection form)
+       {
+           //取得估驗單編號
+           logger.Info("form:" + form.Count);
+           logger.Info("EST form Id:" + form["estid"]);
+           string msg = "";
+           decimal foreign_payment = decimal.Parse(form.Get("t_foreign").Trim());
+           decimal original_foreign_payment = decimal.Parse(form.Get("original_t_foreign").Trim());
+           decimal retention = decimal.Parse(form.Get("t_retention").Trim());
+           //decimal totalAmount = decimal.Parse(form.Get("totalAmount").Trim());
+           decimal subAmount = decimal.Parse(form.Get("sub_amount").Trim());
+           decimal repayment = decimal.Parse(form.Get("t_repayment").Trim());
+           decimal tax_ratio = decimal.Parse(form.Get("taxratio").Trim());
+           decimal tax_amount = 0;
+           if (foreign_payment != original_foreign_payment)
+           {
+               tax_amount = Math.Round((subAmount - repayment) * tax_ratio / 100, 0);
+           }
+           else
+           {
+               tax_amount = decimal.Parse(form.Get("tax_amount").Trim());
+           }
+           string remark = form.Get("remark").Trim();
+           int i = service.RefreshESTAmountByEstId(form["estid"], subAmount, foreign_payment, retention, tax_amount, remark);
+           //修改小計金額(PAYMENT_TRANSFER 欄位)與實付金額(PAID_AMOUNT 欄位)
+           PaymentDetailsFunction amountPaid = service.getDetailsPayById(form["estid"], form["contractid"]);
+           int t = service.UpdatePaidAmountById(form["estid"], decimal.Parse(amountPaid.PAID_AMOUNT.ToString()));
+           //更新估驗單狀態
+           logger.Info("Update Estimation Form Status");
+           //估驗單(已送審) STATUS = 20
+           int j = service.RefreshESTStatusById(form["estid"]);
+           if (j == 0)
+           {
+               msg = service.message;
+           }
+           else
+           {
+               msg = "估驗單已送審";
+           }
+           return msg;
+       }
 
-        public String ApproveESTById(FormCollection form)
-        {
-            //取得估驗單編號
-            logger.Info("EST form Id:" + form["estid"]);
-            //更新估驗單狀態
-            logger.Info("Confirm Estimation Form ");
-            //估驗單(已核可) STATUS = 30
-            string msg = "";
-            int i = service.ApproveESTByEstId(form["estid"]);
-            if (i == 0)
-            {
-                msg = service.message;
-            }
-            else
-            {
-                msg = "估驗單已核可";
-            }
-            return msg;
-        }
-        */
+
+       public String RejectESTById(FormCollection form)
+       {
+           //取得估驗單編號
+           logger.Info("EST form Id:" + form["estid"]);
+           //更新估驗單狀態
+           logger.Info("Reject Estimation Form ");
+           //估驗單(已退件) STATUS = 0
+           string msg = "";
+           int i = service.RejectESTByEstId(form["estid"]);
+           if (i == 0)
+           {
+               msg = service.message;
+           }
+           else
+           {
+               msg = "估驗單已退回";
+           }
+           return msg;
+       }
+
+       public String ApproveESTById(FormCollection form)
+       {
+           //取得估驗單編號
+           logger.Info("EST form Id:" + form["estid"]);
+           //更新估驗單狀態
+           logger.Info("Confirm Estimation Form ");
+           //估驗單(已核可) STATUS = 30
+           string msg = "";
+           int i = service.ApproveESTByEstId(form["estid"]);
+           if (i == 0)
+           {
+               msg = service.message;
+           }
+           else
+           {
+               msg = "估驗單已核可";
+           }
+           return msg;
+       }
+       */
         //憑證
         public ActionResult Invoice(string id, string contractid)
         {
