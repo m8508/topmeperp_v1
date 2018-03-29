@@ -32,5 +32,9 @@ namespace topmeperp.Models
         public Nullable<decimal> TAX_RATIO { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
         public string INVOICE { get; set; }
+        public string REJECT_DESC { get; set; }
+        public string PROJECT_NAME { get; set; }
+        public string PAYEE { get; set; }
+        public Nullable<System.DateTime> PAYMENT_DATE { get; set; }
     }
 }

@@ -43,8 +43,9 @@ namespace topmeperp.Models
         public string DEPT_CODE { get; set; } //申請者部門
         public string MANAGER { get; set; }//申請部門主管
         public string EST_FORM_ID { get; set; }
+        public decimal PAID_AMOUNT { get; set; }
         public string FORM_NAME { get; set; }
-        public string CONTRACT_ID { get; set; }
+        public string PROJECT_NAME { get; set; }
     }
     //申請者部門資料
     public class RequestUserDeptInfo

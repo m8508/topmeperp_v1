@@ -1,9 +1,9 @@
 ﻿@model IEnumerable<topmeperp.Models.BankLoanInfoExt>
 @{
-    ViewBag.Title = "財務管理-貸款管理";
+    ViewBag.Title = "財務管理-廠商借支管理";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
-<!--直接顯示貸款-->
+<!--直接顯示廠商借支-->
 <div class="container">
     <div class="row">
         <div class="col-md-12 form-group">
@@ -18,14 +18,7 @@
                             <tr>
                                 <th>No</th>
                                 <th>明細</th>
-                                <th>銀行代號</th>
-                                <th>銀行名稱</th>
-                                <th>帳戶名稱</th>
-                                <th colspan="2" style="text-align:center">貸款期間</th>
-                                <th>額度</th>
-                                <th>可用額度</th>
-                                <th>期數</th>
-                                <th style="text-align:center">應收帳還款比率%</th>
+                                <th>廠商名稱</th>
                                 <th>備註</th>
                                 <th>修改日期</th>
                             </tr>
@@ -39,26 +32,7 @@
                                         <input type="hidden" id="BL_ID" name="BL_ID" value="@item.BL_ID" />
                                     </td>
                                     <td><a href="/BankInfo/BankLoanTransaction?BL_ID=@item.BL_ID&IS_SUPPLIER=@item.IS_SUPPLIER">明細</a></td>
-                                    <td>@item.BANK_ID</td>
                                     <td>@item.BANK_NAME</td>
-                                    <td>@item.ACCOUNT_NAME</td>
-                                    <td>@string.Format("{0:yyyy/MM/dd}", item.START_DATE)</td>
-                                    <td>@string.Format("{0:yyyy/MM/dd}", item.DUE_DATE)</td>
-                                    <td>@string.Format("{0:N0}", item.QUOTA)</td>
-                                    @if (item.vaRatio >= item.CUM_AR_RATIO && item.DUE_DATE >= DateTime.Today)
-                                    {
-                                        <td>@string.Format("{0:N0}", item.QUOTA + item.SumTransactionAmount)</td>
-                                    }
-                                    else if (item.DUE_DATE >= DateTime.Today)
-                                    {
-                                        <td>@string.Format("{0:N0}", null == item.QUOTA * item.QUOTA_AVAILABLE_RATIO / 100 ? 0 : Math.Round(decimal.Parse((item.QUOTA * item.QUOTA_AVAILABLE_RATIO / 100).ToString()), 0) + item.SumTransactionAmount)</td>
-                                    }
-                                    else
-                                    {
-                                        <td>結案</td>
-                                    }
-                                    <td>@item.PERIOD_COUNT</td>
-                                    <td>@string.Format("{0:N0}", item.AR_PAYBACK_RATIO)</td>
                                     <td>@item.REMARK</td>
                                     <td>@item.MODIFY_DATE</td>
                                 </tr>
@@ -77,26 +51,15 @@
 <div class="modal fade" id="bankLoanInfo" role="dialog">
     <div class="modal-dialog" id="bankLoanInfoDialog">
         <!-- Modal content-->
-        @Html.Partial("_BankLoanInfo");
+        @Html.Partial("_SupplierLoanInfo");
     </div>
 </div>
-
 <script type="text/javascript">
-    $(function () {
-        $('#START_DATE').datetimepicker({
-            format: 'YYYY/MM/DD',
-            locale: 'zh-tw'
-        });
-        $('#DUE_DATE').datetimepicker({
-            format: 'YYYY/MM/DD',
-            locale: 'zh-tw'
-        });
-    });
-    //管理貸還款資料
+    //管理借還款資料
     $("#submit").click(function () {
         //alert("submit click!!");
-        var s = $('#formAddBankLoan').serialize();
-        var URLs = "/BankInfo/addBankLoan";
+        var s = $('#formAddSupplierLoan').serialize();
+        var URLs = "/BankInfo/addSupplierLoan";
         $.ajax({
             url: URLs,
             data: s,
@@ -115,3 +78,4 @@
         alert("edit:" + id);
     }
 </script>
+

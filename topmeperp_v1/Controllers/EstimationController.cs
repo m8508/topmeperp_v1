@@ -97,19 +97,24 @@ namespace topmeperp.Controllers
             return RedirectToAction("ContractItems", "Estimation", new { id = id, formid = formid, projectid = projectid, type = type });
         }
 
-        public ActionResult ContractItems(string id, string formid, string projectid, string type)
+        //public ActionResult ContractItems(string id, string formid, string projectid, string type)
+        public ActionResult ContractItems(string projectid)
         {
-            logger.Info("Access To Contract Item By Contract Id =" + id);
+            //logger.Info("Access To Contract Item By Contract Id =" + id);
+            logger.Info("Access To Est Form By Project Id =" + projectid);
+            string formid = service.getEstNo();
             ViewBag.projectId = projectid;
             TND_PROJECT p = service.getProjectById(projectid);
             ViewBag.projectName = p.PROJECT_NAME;
-            ViewBag.wage = type;
+            //ViewBag.wage = type;
             ExpenseTask contract = new ExpenseTask();
             ViewBag.formid = formid;
-            ViewBag.contractid = id;
-            ViewBag.paymentTermsId = id + '/' + formid;
+            ViewBag.date = DateTime.Now;
+            //ViewBag.contractid = id;
+            //ViewBag.paymentTermsId = id + '/' + formid;
             //ViewBag.keyid = id; //使用供應商名稱的contractid
             //取得合約金額與供應商名稱,採購項目等資料
+            /*
             if (ViewBag.wage != "Y")
             {
                 plansummary lstContract = service.getPlanContract4Est(id);
@@ -167,7 +172,6 @@ namespace topmeperp.Controllers
                     TempData["balance"] = "本合約目前尚有 " + string.Format("{0:C0}", balance) + "的代付支出款項，仍未扣回!";
                 }
             }
-            ViewBag.date = DateTime.Now;
             //ViewBag.paymentkey = ViewBag.formid + ViewBag.contractid;
             ViewBag.InvoicePieces = service.getInvoicePiecesById(formid);
             List<EstimationForm> lstContractItem = null;
@@ -176,6 +180,7 @@ namespace topmeperp.Controllers
             ViewBag.SearchResult = "共取得" + lstContractItem.Count + "筆資料";
             //轉成Json字串
             ViewData["items"] = JsonConvert.SerializeObject(lstContractItem);
+            */
             return View("ContractItems", contract);
         }
 
@@ -261,131 +266,145 @@ namespace topmeperp.Controllers
             //取得專案編號
             logger.Info("Project Id:" + Request["id"]);
             //取得專案名稱
-            logger.Info("Project Name:" + Request["projectName"]);
             //logger.Info("ContractId:" + Request["keyid"]);
-            logger.Info("get EST No of un Approval By contractid:" + Request["contractid"]);
-            string contractid = Request["contractid"];
-            string UnApproval = null;
-            UnApproval = service.getEstNoByContractId(contractid);
-            if (UnApproval != null && "" != UnApproval)
+            //logger.Info("get EST No of un Approval By contractid:" + Request["contractid"]);
+            //string contractid = Request["contractid"];
+            //string UnApproval = null;
+            //UnApproval = service.getEstNoByContractId(contractid);
+            //if (UnApproval != null && "" != UnApproval)
+            //{
+            //System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            //string itemJson = objSerializer.Serialize(service.getEstNoByContractId(contractid));
+            //logger.Info("EST form No of UnApproval =" + itemJson);
+            //return itemJson;
+            //}
+            //else
+            //{
+            /*
+            // 先刪除原先資料
+            logger.Info("EST form id =" + Request["formid"]);
+            logger.Info("Delete PLAN_ESTIMATION_FORM By EST_FORM_ID");
+            service.delESTByESTId(Request["formid"]);
+            logger.Info("Delete PLAN_ESTIMATION_ITEM By EST_FORM_ID");
+            service.delESTItemsByESTId(Request["formid"]);
+            //取得合約估驗品項ID
+            string[] lstItemId = Request["planitemid"].Split(',');
+            var i = 0;
+            for (i = 0; i < lstItemId.Count(); i++)
             {
-                System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-                string itemJson = objSerializer.Serialize(service.getEstNoByContractId(contractid));
-                logger.Info("EST form No of UnApproval =" + itemJson);
-                return itemJson;
+                logger.Info("item_list return No.:" + lstItemId[i]);
             }
+            string[] lstQty = Request["evaluated_qty"].Split(',');
+            */
+            //建立估驗單
+            logger.Info("create new Estimation Form");
+            UserService us = new UserService();
+            SYS_USER u = (SYS_USER)Session["user"];
+            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            est.PROJECT_ID = Request["id"];
+            est.CREATE_ID = u.USER_ID;
+            est.CREATE_DATE = DateTime.Now;
+            est.EST_FORM_ID = Request["estid"];
+            est.PROJECT_NAME = Request["projectName"];
+            est.PAYEE = Request["supplier"];
+            if (Request["paymentDate"] != "")
+            {
+                est.PAYMENT_DATE = Convert.ToDateTime(Request["paymentDate"]);
+            }
+            //est.CONTRACT_ID = Request["contractid"];
+            //est.PLUS_TAX = Request["tax"];
+            est.REMARK = Request["remark"];
+            //est.INVOICE = Request["invoice"];
+            est.STATUS = -10;
+            //if (Request["tax"] == "E")
+            //{
+            //est.TAX_RATIO = decimal.Parse(Request["taxratio"]);
+            //}
+            //else
+            //{
+            //est.TAX_RATIO = 0;
+            //}
+            //try
+            //{
+            //est.FOREIGN_PAYMENT = int.Parse(Request["t_foreign"]);
+            //}
+            //catch (Exception ex)
+            //{
+            //logger.Error(est.FOREIGN_PAYMENT + " not foreign_payment:" + ex.Message);
+            //}
+            //est.TYPE = Request["type"];
+            try
+            {
+                est.PAYMENT_TRANSFER = decimal.Parse(Request["paid_amount"]);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(est.PAYMENT_TRANSFER + " not payment_transfer:" + ex.Message);
+            }
+            try
+            {
+                est.PAID_AMOUNT = decimal.Parse(Request["paid_amount"]);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(est.PAID_AMOUNT + " not paid_amount:" + ex.Message);
+            }
+            //若使用者有上傳計價附檔，則增加檔案資料
+            if (null != file && file.ContentLength != 0)
+            {
+                //TND_FILE saveF = new TND_FILE();
+                //2.解析檔案
+                logger.Info("Parser file data:" + file.FileName);
+                //2.1 設定檔案名稱,實體位址,附檔名
+                string projectid = Request["id"];
+                string keyName = Request["estid"];
+                logger.Info("file upload namme =" + keyName);
+                var fileName = Path.GetFileName(file.FileName);
+                var path = Path.Combine(ContextService.strUploadPath + "/" + Request["id"], fileName);
+                //saveF.FILE_ACTURE_NAME = fileName;
+                var fileType = Path.GetExtension(file.FileName);
+                //f.FILE_LOCATIOM = path;
+                string createDate = DateTime.Now.ToString("yyyy/MM/dd");
+                logger.Info("createDate = " + createDate);
+                string createId = uInfo.USER_ID;
+                FileManage fs = new FileManage();
+                string k = fs.addFile(projectid, keyName, fileName, fileType, path, createId, createDate);
+                //int j = service.refreshVAFile(saveF);
+                //2.2 將上傳檔案存檔
+                logger.Info("save upload file:" + path);
+                file.SaveAs(path);
+            }
+            //string estid = service.newEST(Request["formid"], est, lstItemId);
+            string estid = service.newEST(Request["formid"], est);
+            /*
+            List<PLAN_ESTIMATION_ITEM> lstItem = new List<PLAN_ESTIMATION_ITEM>();
+            for (int j = 0; j < lstItemId.Count(); j++)
+           {
+             PLAN_ESTIMATION_ITEM items = new PLAN_ESTIMATION_ITEM();
+             items.PLAN_ITEM_ID = lstItemId[j];
+             if (lstQty[j].ToString() == "")
+           {
+             items.EST_QTY = null;
+           }
             else
-            {
-                /*
-                // 先刪除原先資料
-                logger.Info("EST form id =" + Request["formid"]);
-                logger.Info("Delete PLAN_ESTIMATION_FORM By EST_FORM_ID");
-                service.delESTByESTId(Request["formid"]);
-                logger.Info("Delete PLAN_ESTIMATION_ITEM By EST_FORM_ID");
-                service.delESTItemsByESTId(Request["formid"]);
-                //取得合約估驗品項ID
-                string[] lstItemId = Request["planitemid"].Split(',');
-                var i = 0;
-                for (i = 0; i < lstItemId.Count(); i++)
-                {
-                    logger.Info("item_list return No.:" + lstItemId[i]);
-                }
-                string[] lstQty = Request["evaluated_qty"].Split(',');
-                */
-                //建立估驗單
-                logger.Info("create new Estimation Form");
-                UserService us = new UserService();
-                SYS_USER u = (SYS_USER)Session["user"];
-                SYS_USER uInfo = us.getUserInfo(u.USER_ID);
-                est.PROJECT_ID = Request["id"];
-                est.CREATE_ID = u.USER_ID;
-                est.CREATE_DATE = DateTime.Now;
-                est.EST_FORM_ID = Request["formid"];
-                est.CONTRACT_ID = Request["contractid"];
-                est.PLUS_TAX = Request["tax"];
-                est.REMARK = Request["remark"];
-                est.INVOICE = Request["invoice"];
-                est.STATUS= -10;
-                if (Request["tax"] == "E")
-                {
-                    est.TAX_RATIO = decimal.Parse(Request["taxratio"]);
-                }
-                else
-                {
-                    est.TAX_RATIO = 0;
-                }
-                try
-                {
-                    est.FOREIGN_PAYMENT = int.Parse(Request["t_foreign"]);
-                }
-                catch (Exception ex)
-                {
-                    logger.Error(est.FOREIGN_PAYMENT + " not foreign_payment:" + ex.Message);
-                }
-                est.TYPE = Request["type"];
-                try
-                {
-                    est.PAYMENT_TRANSFER = decimal.Parse(Request["sub_amount"]);
-                }
-                catch (Exception ex)
-                {
-                    logger.Error(est.PAYMENT_TRANSFER + " not payment_transfer:" + ex.Message);
-                }
-                //若使用者有上傳計價附檔，則增加檔案資料
-                if (null != file && file.ContentLength != 0)
-                {
-                    //TND_FILE saveF = new TND_FILE();
-                    //2.解析檔案
-                    logger.Info("Parser file data:" + file.FileName);
-                    //2.1 設定檔案名稱,實體位址,附檔名
-                    string projectid = Request["id"];
-                    string keyName = Request["formid"];
-                    logger.Info("file upload namme =" + keyName);
-                    var fileName = Path.GetFileName(file.FileName);
-                    var path = Path.Combine(ContextService.strUploadPath + "/" + Request["id"], fileName);
-                    //saveF.FILE_ACTURE_NAME = fileName;
-                    var fileType = Path.GetExtension(file.FileName);
-                    //f.FILE_LOCATIOM = path;
-                    string createDate = DateTime.Now.ToString("yyyy/MM/dd");
-                    logger.Info("createDate = " + createDate);
-                    string createId = uInfo.USER_ID;
-                    FileManage fs = new FileManage();
-                    string k = fs.addFile(projectid, keyName, fileName, fileType, path, createId, createDate);
-                    //int j = service.refreshVAFile(saveF);
-                    //2.2 將上傳檔案存檔
-                    logger.Info("save upload file:" + path);
-                    file.SaveAs(path);
-                }
-
-                string estid = service.newEST(Request["formid"], est);//, lstItemId);
-                /*
-                List<PLAN_ESTIMATION_ITEM> lstItem = new List<PLAN_ESTIMATION_ITEM>();
-                for (int j = 0; j < lstItemId.Count(); j++)
-                {
-                    PLAN_ESTIMATION_ITEM items = new PLAN_ESTIMATION_ITEM();
-                    items.PLAN_ITEM_ID = lstItemId[j];
-                    if (lstQty[j].ToString() == "")
-                    {
-                        items.EST_QTY = null;
-                    }
-                    else
-                    {
-                        items.EST_QTY = decimal.Parse(lstQty[j]);
-                    }
-                    logger.Debug("Item No=" + items.PLAN_ITEM_ID + ", Qty =" + items.EST_QTY);
-                    lstItem.Add(items);
-                }
-                int k = service.refreshEST(estid, est, lstItem);
-                */
-                int m = service.UpdateRetentionAmountById(Request["formid"], Request["contractid"]);
-                //寫入實付金額(PAID_AMOUNT 欄位)
-                PaymentDetailsFunction amountPaid = service.getDetailsPayById(Request["formid"], Request["contractid"]);
-                int t = service.UpdatePaidAmountById(Request["formid"], decimal.Parse(amountPaid.PAID_AMOUNT.ToString()));
-                System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-                string itemJson = objSerializer.Serialize(service.getDetailsPayById(Request["formid"], Request["contractid"]));
-                logger.Info("EST form details payment amount=" + itemJson);
-                return itemJson;
-            }
+           {
+             items.EST_QTY = decimal.Parse(lstQty[j]);
+           }
+             logger.Debug("Item No=" + items.PLAN_ITEM_ID + ", Qty =" + items.EST_QTY);
+             lstItem.Add(items);
+           }
+             int k = service.refreshEST(estid, est, lstItem);
+           */
+            //int m = service.UpdateRetentionAmountById(Request["formid"], Request["contractid"]);
+            //寫入實付金額(PAID_AMOUNT 欄位)
+            //PaymentDetailsFunction amountPaid = service.getDetailsPayById(Request["formid"], Request["contractid"]);
+            //int t = service.UpdatePaidAmountById(Request["formid"], decimal.Parse(amountPaid.PAID_AMOUNT.ToString()));
+            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            //string itemJson = objSerializer.Serialize(service.getDetailsPayById(Request["formid"], Request["contractid"]));
+            string itemJson = objSerializer.Serialize(service.getDetailsPayById(Request["estid"], Request["estid"]));
+            logger.Info("EST form details payment amount=" + itemJson);
+            return itemJson;
+            //}
         }
         //估驗單查詢
         public ActionResult EstimationForm(string id)
@@ -404,9 +423,9 @@ namespace topmeperp.Controllers
             //int status = 20;
             //if (Request["status"] == null || Request["status"] == "")
             //{
-                //status = 10;
+            //status = 10;
             //}
-           //List<ESTFunction> lstEST = service.getESTListByEstId(id, Request["contractid"], Request["estid"], status, Request["supplier"]);
+            //List<ESTFunction> lstEST = service.getESTListByEstId(id, Request["contractid"], Request["estid"], status, Request["supplier"]);
             return View(lstEST);
         }
 
@@ -446,13 +465,14 @@ namespace topmeperp.Controllers
             service.getESTByEstId(id);
             singleForm.planEST = service.formEST;
             ViewBag.formid = id;
-            ViewBag.wage = singleForm.planEST.TYPE;
-            ViewBag.contractid = singleForm.planEST.CONTRACT_ID;
-            ViewBag.paymentTermsId = singleForm.planEST.CONTRACT_ID + '/' + id;
-            service.getInqueryForm(singleForm.planEST.CONTRACT_ID);
-            PLAN_SUP_INQUIRY f = service.formInquiry;
-            TND_SUPPLIER s = service.getSupplierInfo(f.SUPPLIER_ID.Trim());
-            ViewBag.supplier = s.COMPANY_NAME;
+            //ViewBag.wage = singleForm.planEST.TYPE;
+            //ViewBag.contractid = singleForm.planEST.CONTRACT_ID;
+            //ViewBag.paymentTermsId = singleForm.planEST.CONTRACT_ID + '/' + id;
+            //service.getInqueryForm(singleForm.planEST.CONTRACT_ID);
+            //PLAN_SUP_INQUIRY f = service.formInquiry;
+            //TND_SUPPLIER s = service.getSupplierInfo(f.SUPPLIER_ID.Trim());
+            //ViewBag.supplier = s.COMPANY_NAME;
+            /*
             if (ViewBag.wage != "W")
             {
                 plansummary lstContract = service.getPlanContract4Est(singleForm.planEST.CONTRACT_ID);
@@ -473,19 +493,21 @@ namespace topmeperp.Controllers
                 ViewBag.retention = payment.USANCE_RETENTION_RATIO;
             }
             ViewBag.paymentTerms = service.getTermsByContractId(singleForm.planEST.CONTRACT_ID);
-            ViewBag.estCount = service.getEstCountByESTId(id);
-            ViewBag.formname = f.FORM_NAME.Trim();
-            ViewBag.InvoicePieces = service.getInvoicePiecesById(id);
+            */
+            //ViewBag.estCount = service.getEstCountByESTId(id);
+            //ViewBag.formname = f.FORM_NAME.Trim();
+            //ViewBag.InvoicePieces = service.getInvoicePiecesById(id);
             //ViewBag.paymentkey = id + singleForm.planEST.CONTRACT_ID;
             singleForm.planESTItem = service.ESTItem;
             singleForm.prj = service.getProjectById(singleForm.planEST.PROJECT_ID);
             logger.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
-            PaymentDetailsFunction lstSummary = service.getDetailsPayById(id, singleForm.planEST.CONTRACT_ID);
-            var balance = service.getBalanceOfRefundById(singleForm.planEST.CONTRACT_ID);
-            if (balance > 0)
-            {
-                TempData["balance"] = "本合約目前尚有 " + string.Format("{0:C0}", balance) + "的代付支出款項，仍未扣回!";
-            }
+            //PaymentDetailsFunction lstSummary = service.getDetailsPayById(id, singleForm.planEST.CONTRACT_ID);
+            PaymentDetailsFunction lstSummary = service.getDetailsPayById(id, id);
+            //var balance = service.getBalanceOfRefundById(singleForm.planEST.CONTRACT_ID);
+            //if (balance > 0)
+            //{
+                //TempData["balance"] = "本合約目前尚有 " + string.Format("{0:C0}", balance) + "的代付支出款項，仍未扣回!";
+            //}
             //轉成Json字串
             //ViewData["items"] = JsonConvert.SerializeObject(singleForm.planESTItem);
             ViewData["summary"] = JsonConvert.SerializeObject(lstSummary);
@@ -510,17 +532,26 @@ namespace topmeperp.Controllers
             SYS_USER u = (SYS_USER)Session["user"];
             DateTime? date = null;//DateTime can not set null
             string desc = null;
-            if (f["date"].ToString() != "")
+            string payee = null;
+            string remark = null;
+            if (f["paymentDate"].ToString() != "")
             {
-                date = Convert.ToDateTime(f["date"].ToString());
+                date = Convert.ToDateTime(f["paymentDate"].ToString());
             }
             if (null != f["RejectDesc"] && f["RejectDesc"].ToString() != "")
             {
                 desc = f["RejectDesc"].ToString().Trim();
             }
+            if (null != f["supplier"] && f["supplier"].ToString() != "")
+            {
+                payee = f["supplier"].ToString().Trim();
+            }
+            if (null != f["remark"] && f["remark"].ToString() != "")
+            {
+                remark = f["remark"].ToString().Trim();
+            }
+            wfs.Send(u, date, desc, payee, remark);
 
-            wfs.Send(u, date, desc);
-            
             return "更新成功!!";
         }
         //退件
@@ -530,7 +561,7 @@ namespace topmeperp.Controllers
             Flow4Estimation wfs = new Flow4Estimation();
             wfs.task = (ExpenseTask)Session["process"];
             SYS_USER u = (SYS_USER)Session["user"];
-            wfs.Reject(u,form["RejectDesc"]);
+            wfs.Reject(u, form["RejectDesc"]);
             return wfs.Message;
         }
         //取消
@@ -693,8 +724,10 @@ namespace topmeperp.Controllers
         {
             logger.Info("form:" + form.Count);
             string msg = "";
+            /*
             decimal foreign_payment = 0;
-            if (null!= form["t_foreign"] && form["t_foreign"] != "")
+            
+            if (null != form["t_foreign"] && form["t_foreign"] != "")
             {
                 foreign_payment = decimal.Parse(form.Get("t_foreign").Trim());
             }
@@ -717,11 +750,22 @@ namespace topmeperp.Controllers
             {
                 tax_amount = decimal.Parse(form.Get("tax_amount").Trim());
             }
+            */
+            decimal paidAmount = decimal.Parse(form.Get("paid_amount").Trim());
             string remark = form.Get("remark").Trim();
-            int i = service.RefreshESTAmountByEstId(form["estid"], subAmount, foreign_payment, retention, tax_amount, remark);
+            string payee = form.Get("supplier").Trim();
+            string projectName = form.Get("projectName").Trim();
+            DateTime? paymentDate = null;
+            if (form.Get("paymentDate").Trim() != "")
+            {
+                paymentDate = Convert.ToDateTime(form.Get("paymentDate").Trim());
+            }
+            //int i = service.RefreshESTAmountByEstId(form["estid"], subAmount, foreign_payment, retention, tax_amount, remark);
+            //int i = service.RefreshESTAmountByEstId(form["estid"], paidAmount, 0, 0, 0, remark);
+            int i = service.RefreshESTAmountByEstId(form["estid"], paidAmount, payee, projectName, paymentDate, remark);
             //修改小計金額(PAYMENT_TRANSFER 欄位)與實付金額(PAID_AMOUNT 欄位)
-            PaymentDetailsFunction amountPaid = service.getDetailsPayById(form["estid"], form["contractid"]);
-            int t = service.UpdatePaidAmountById(form["estid"], decimal.Parse(amountPaid.PAID_AMOUNT.ToString()));
+            //PaymentDetailsFunction amountPaid = service.getDetailsPayById(form["estid"], form["contractid"]);
+            int t = service.UpdatePaidAmountById(form["estid"], paidAmount);
             if (i == 0)
             {
                 msg = service.message;
@@ -946,7 +990,7 @@ namespace topmeperp.Controllers
                 try
                 {
                     if (singleForm.planEST.INVOICE == "E")
-                    {   
+                    {
                         ViewBag.type = "發票含保留款";
                     }
                     else if (singleForm.planEST.INVOICE == "I")
@@ -2767,10 +2811,6 @@ namespace topmeperp.Controllers
             item.PROJECT_ID = form["projectid"];
             item.CONTRACT_ID = form["projectid"];
             item.ACCOUNT_FORM_ID = form["va_form_id"];
-            if (form["payment_amount"] != "")
-            {
-                item.AMOUNT_PAYABLE = decimal.Parse(form["payment_amount"]);
-            }
             if (form["payment_date"] != "")
             {
                 item.PAYMENT_DATE = Convert.ToDateTime(form.Get("payment_date"));
@@ -2788,6 +2828,7 @@ namespace topmeperp.Controllers
             decimal paybackRatio = 0;
             decimal paybackAtm = 0;
             decimal loanBalance = 0;
+            decimal bankingFee = 0;
             int period = 0;
             if (null != form.Get("loans").Trim() && form.Get("loans").Trim() != "")
             {
@@ -2800,14 +2841,24 @@ namespace topmeperp.Controllers
             {
                 paybackAtm = loanBalance * -1;
             }
+            else if (loanBalance >= 0)
+            {
+                return "此備償戶借款已償還完畢，請重新入帳。";
+            }
             else
             {
                 paybackAtm = Math.Round(decimal.Parse(form["payment_amount"]) * paybackRatio / 100);
             }
             logger.Info("paybackAtm = " + paybackAtm);
-            if (form["paid_amount"] != "")
+            if (form["fee"] != "")
             {
-                item.AMOUNT_PAID = decimal.Parse(form["paid_amount"]) - paybackAtm;
+                //item.BANKING_FEE = decimal.Parse(form["fee"]);
+                bankingFee = decimal.Parse(form["fee"]);
+            }
+            if (form["payment_amount"] != "")
+            {
+                item.AMOUNT_PAID = decimal.Parse(form["payment_amount"]) - paybackAtm - bankingFee;
+                item.AMOUNT_PAYABLE = decimal.Parse(form["payment_amount"]) - paybackAtm - bankingFee + paybackAtm + bankingFee;
             }
             item.CHECK_NO = form["check_no"];
             UserService us = new UserService();
@@ -2820,7 +2871,7 @@ namespace topmeperp.Controllers
             int i = service.addPlanAccount(item);
             if (form.Get("loans").Trim() != "")
             {
-                int k = service.addLoanTransaction(int.Parse(form.Get("loans").Trim()), paybackAtm, paybackDate, uInfo.USER_ID, period, loanRemark);
+                int k = service.addLoanTransaction(int.Parse(form.Get("loans").Trim()), paybackAtm, paybackDate, uInfo.USER_ID, period, loanRemark, form["va_form_id"]);
             }
             if (i == 0) { msg = service.message; }
             return msg;
@@ -2878,7 +2929,7 @@ namespace topmeperp.Controllers
                 logger.Info("Parser file data:" + file.FileName);
                 //2.1 設定檔案名稱,實體位址,附檔名
                 string projectid = Request["projectId"];
-                string keyName = Request["uploadName"]; 
+                string keyName = Request["uploadName"];
                 logger.Info("file upload namme =" + keyName);
                 var fileName = Path.GetFileName(file.FileName);
                 var path = Path.Combine(ContextService.strUploadPath + "\\" + Request["projectId"], fileName);

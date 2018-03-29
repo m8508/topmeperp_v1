@@ -10,27 +10,52 @@
 -->
 <form name="formLoanTransaction" id="formLoanTransaction" action="addBankLoanTransaction" method="Post">
     <div class="page-header">
-        <div class="row">
-            <label class="col-sm-1 control-label">編號:</label>
-            <div class="col-sm-1">
-                <input class="form-control" type="text" id="bl_id" name="bl_id" value="@Model.LoanInfo.BL_ID" readonly />
-                <input type="hidden" name="period" id="period" value="@Model.CurPeriod" />
+        @if (Model.LoanInfo.IS_SUPPLIER == "Y")
+        {
+            <div class="row">
+                <label class="col-sm-1 control-label">編號:</label>
+                <div class="col-sm-3">
+                    <input class="form-control" type="text" id="bl_id" name="bl_id" value="@Model.LoanInfo.BL_ID" readonly />
+                    <input type="hidden" name="period" id="period" value="@Model.CurPeriod" />
+                    <input type="hidden" name="supplier" id="supplier" value="@Model.LoanInfo.IS_SUPPLIER" />
+                </div>
+                <label class="col-sm-1 control-label">廠商名稱:</label>
+                <label class="col-sm-4 info">@Model.LoanInfo.BANK_NAME </label>
+                <a href="/BankInfo/SupplierLoanList" class="btn btn-success">回上一頁</a>
             </div>
-            <label class="col-sm-1 control-label">銀行代號:</label>
-            <label class="col-sm-2 info">@Model.LoanInfo.BANK_ID </label>
-            <label class="col-sm-1 control-label">銀行名稱:</label>
-            <label class="col-sm-2 info">@Model.LoanInfo.BANK_NAME </label>
-            <label class="col-sm-1 control-label">貸款期間:</label>
-            <label class="col-sm-3 info">@string.Format("{0:yyyy/MM/dd}", @Model.LoanInfo.START_DATE)~@string.Format("{0:yyyy/MM/dd}", @Model.LoanInfo.DUE_DATE)</label>
-        </div>
-        <div class="row">
-            <label class="col-sm-1 control-label">期數:</label><label class="col-sm-1 info">@Model.LoanInfo.PERIOD_COUNT </label>
-            <label class="col-sm-1 control-label">額度:</label><label class="col-sm-3 info">@string.Format("{0:N0}", @Model.LoanInfo.QUOTA)</label>
-            <label class="col-sm-1 control-label">可用額度:</label><label class="col-sm-3 info">@string.Format("{0:N0}", Model.LoanInfo.QUOTA + Model.SumTransactionAmount - Model.SurplusQuota)</label>
-        </div>
+        }
+        else
+        {
+            <div class="row">
+                <label class="col-sm-1 control-label">編號:</label>
+                <div class="col-sm-1">
+                    <input class="form-control" type="text" id="bl_id" name="bl_id" value="@Model.LoanInfo.BL_ID" readonly />
+                    <input type="hidden" name="period" id="period" value="@Model.CurPeriod" />
+                    <input type="hidden" name="supplier" id="supplier" value="@Model.LoanInfo.IS_SUPPLIER" />
+                </div>
+                <label class="col-sm-1 control-label">銀行代號:</label>
+                <label class="col-sm-2 info">@Model.LoanInfo.BANK_ID </label>
+                <label class="col-sm-1 control-label">銀行名稱:</label>
+                <label class="col-sm-2 info">@Model.LoanInfo.BANK_NAME </label>
+                <label class="col-sm-1 control-label">貸款期間:</label>
+                <label class="col-sm-3 info">@string.Format("{0:yyyy/MM/dd}", @Model.LoanInfo.START_DATE)~@string.Format("{0:yyyy/MM/dd}", @Model.LoanInfo.DUE_DATE)</label>
+            </div>
+            <div class="row">
+                <label class="col-sm-1 control-label">期數:</label><label class="col-sm-1 info">@Model.LoanInfo.PERIOD_COUNT </label>
+                <label class="col-sm-1 control-label">額度:</label><label class="col-sm-3 info">@string.Format("{0:N0}", @Model.LoanInfo.QUOTA)</label>
+                @if (Model.LoanInfo.DUE_DATE >= DateTime.Today)
+                {
+                    <label class="col-sm-1 control-label">可用額度:</label><label class="col-sm-3 info"><input class="form-control" type="text" id="available_quota" name="available_quota" value="@string.Format("{0:N0}", Model.LoanInfo.QUOTA + Model.SumTransactionAmount - Model.SurplusQuota)" readonly /></label>
+                }
+                else
+                {
+                    <label class="col-sm-1 control-label">可用額度:</label><label class="col-sm-3 info"><input class="form-control" type="text" id="available_quota" name="available_quota" value="0" readonly /></label>
+                }
+            </div>
+        }
         <div class="row">
             <label class="col-sm-1 control-label">備註:</label><label class="col-sm-4 info">@Model.LoanInfo.REMARK </label>
-            <a href="/BankInfo/BankLoanList" class="btn btn-success">回上一頁</a>
+            
         </div>
     </div>
     <div class="contaier">
@@ -57,7 +82,7 @@
                                 <td>@item.PERIOD</td>
                                 <td>
                                     @string.Format("{0:yyyy/MM/dd}", @item.EVENT_DATE)
-                                    @string.Format("{0:yyyy/MM/dd}", @item.PAYBACK_DATE)　
+                                    @string.Format("{0:yyyy/MM/dd}", @item.PAYBACK_DATE)
                                 </td>
                                 @if (item.TRANSACTION_TYPE == -1)
                                 {

@@ -7,7 +7,9 @@
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0rc1/angular.min.js"></script>
 <div class="page-header">
     <h3 class="text-center">@ViewBag.Title</h3>
+    <!--
     <div class="row">
+
         <div class="col-md-3 form-group" style="padding-top:10px">
             <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@Model.EstData.prj.PROJECT_ID" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
         </div>
@@ -38,14 +40,17 @@
             <label for="id">估驗單編號:</label><input type="text" id="formid" name="formid" value="@Model.EstData.planEST.EST_FORM_ID" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
         </div>
     </div>
+            -->
     <div ng-app="">
         <form id="formEST" name="formEST">
             <div class="row">
-                <div class="col-md-3">
-                    <label for="paymentTerms">現金 • 期票比率:</label><button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@ViewBag.paymentTermsId')">查看</button>
-                    <label for="attachment">附檔 :</label><a href="/Estimation/VAFileList/@Model.EstData.planEST.EST_FORM_ID" target="_blank">檢視</a>
-                    <label for="uploadFile">檔案上傳區 :</label> <button class="btn btn-link" data-toggle="modal" data-target="#formUploadFile" type="button">檔案上傳</button>
-</div>
+                <!--
+                                    <div class="col-md-3">
+                                        <label for="paymentTerms">現金 • 期票比率:</label><button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@ViewBag.paymentTermsId')">查看</button>
+                                        <label for="attachment">附檔 :</label><a href="/Estimation/VAFileList/@Model.EstData.planEST.EST_FORM_ID" target="_blank">檢視</a>
+                                        <label for="uploadFile">檔案上傳區 :</label> <button class="btn btn-link" data-toggle="modal" data-target="#formUploadFile" type="button">檔案上傳</button>
+                     </div>
+
                 @if (Model.EstData.planEST.INVOICE == "E")
                 {
                     <div class="col-md-4">
@@ -80,7 +85,17 @@
                     </div>
                 }
                 <div class="col-md-1 form-group">
-                    <label for="id">結帳:</label><br /><input type="radio" id="turnToFin" name="turnToFin" value="" />Y   <input type="radio" id="turnToFin" name="turnToFin" value="O" />N
+                    <label for="id">結帳:</label><br /><input type="radio" id="turnToFin" name="turnToFin" value="" />Y<input type="radio" id="turnToFin" name="turnToFin" value="O" />N
+                </div>
+                         -->
+                <div class="col-md-3" style="padding-top:10px">
+                    <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@Model.EstData.planEST.PROJECT_NAME" class="form-control" />
+                </div>
+                <div class="col-md-3" style="padding-top:10px">
+                    <label for="projectName">付款對象:</label><input id="supplier" name="supplier" type="text" value="@Model.EstData.planEST.PAYEE" class="form-control" />
+                </div>
+                <div class="col-md-3" style="padding-top:10px">
+                    <label for="projectName">付款日期:</label><input id="paymentDate" name="paymentDate" type="text" value="@Model.EstData.planEST.PAYMENT_DATE" class="form-control" />
                 </div>
                 <div class="col-md-2 alert-warning">
                     @if (Model.EstData.planEST.STATUS == 0)
@@ -106,13 +121,12 @@
                 </div>
             </div>
             <input type="hidden" name="estid" id="estid" value="@Model.EstData.planEST.EST_FORM_ID">
-            <input type="hidden" id="contractid" name="contractid" value="@Model.EstData.planEST.CONTRACT_ID" />
+            <input type="hidden" name="id" id="id" value="@Model.EstData.planEST.PROJECT_ID">
             <input type="hidden" id="date" name="date" value="@Model.EstData.planEST.CREATE_DATE" />
             <hr />
             <!--
             <div class="contailer" ng-controller="myController">
                 @ViewBag.SearchResult
-                <input type="hidden" name="estid" id="estid" value="@Model.EstData.planEST.EST_FORM_ID">
                 <input type="hidden" id="contractid" name="contractid" value="@Model.EstData.planEST.CONTRACT_ID" />
                 <table class="table">
                     <thead>
@@ -138,11 +152,11 @@
                             <th>
                                 本期數量
                             </th>
-                            
+
                             <th>
                                 計價比率 %
                             </th>
-                                 
+
                             <th>
                                 金額
                             </th>
@@ -201,11 +215,11 @@
                                 <span ng-hide="row.EditMode">{{row.EST_QTY  | number : 0}}</span>
                                 <input type="text" ng-show="row.EditMode" ng-model="row.Qty2" id="evaluated_qty" name="evaluated_qty" style="width:80px">
                             </td>
-                
+
                             <td>
                                 <input style="width:80px" type="text" class="form-control" ng-model="row.evaluated_ratio" id="evaluated_ration" name="evaluated_ration">
                             </td>
-                                
+
                             <td>
                                 @if (ViewBag.wage != "W")
                                 {
@@ -265,7 +279,7 @@
                 </div>
 
             </div>
-      -->
+            -->
             <hr />
             <div class="row" style="padding-top:10px;" ng-controller="SummaryController">
                 <table class="table table-bordered">
@@ -301,15 +315,15 @@
                         <tr>
                             <td>本期金額</td>
                             <td><input type="text" id="t_repayment" name="t_repayment" value="{{key.T_REPAYMENT}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
-                            <td><input type="text" id="t_foreign" name="t_foreign" value="{{key.T_FOREIGN}}" style="width:80px;" /></td>
-                            <td><input type="text" id="sub_amount" name="sub_amount" value="{{key.SUB_AMOUNT}}" style="width:80px;" /></td>
+                            <td><input type="text" id="t_foreign" name="t_foreign" value="{{key.T_FOREIGN}}" readonly="readonly" style="background-color:#cccccc;width:80px;" /></td>
+                            <td><input type="text" id="sub_amount" name="sub_amount" value="{{key.SUB_AMOUNT}}" readonly="readonly" style="background-color:#cccccc;width:80px;" /></td>
                             <td><input type="text" id="t_retention" name="t_retention" value="{{key.T_RETENTION}}" style="width:80px;" /></td>
                             <td><input type="text" id="t_advance" name="t_advance" value="{{key.T_ADVANCE}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="t_refund" name="t_refund" value="{{key.T_REFUND}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="t_other" name="t_other" value="{{key.T_OTHER}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
                             <td><input type="text" id="payable_amount" name="payable_amount" value="{{key.PAYABLE_AMOUNT}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
-                            <td><input type="text" id="tax_amount" name="tax_amount" value="{{key.TAX_AMOUNT}}" style="width:80px;" /></td>
-                            <td><input type="text" id="paid_amount" name="paid_amount" value="{{key.PAID_AMOUNT}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
+                            <td><input type="text" id="tax_amount" name="tax_amount" value="{{key.TAX_AMOUNT}}" readonly="readonly" style="background-color:#cccccc; width:80px;" /></td>
+                            <td><input type="text" id="paid_amount" name="paid_amount" value="{{key.PAID_AMOUNT}}" style="width:80px;" /></td>
                         </tr>
                         <tr>
                             <td>累計金額</td>
@@ -327,7 +341,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <input type="hidden" id="original_t_foreign" name="original_t_foreign" value="{{key.T_FOREIGN}}"/>
+                <input type="hidden" id="original_t_foreign" name="original_t_foreign" value="{{key.T_FOREIGN}}" />
             </div>
             <div class="col-md-12" style="padding-bottom:30px;">
                 <div class="col-md-6">
@@ -346,6 +360,7 @@
 </div>
 <!--
 <div class="row" style="padding-top:10px">
+
     <div class="col-md-12">
         @if (Model.EstData.planEST.STATUS < 20)
         {
@@ -359,359 +374,349 @@
         }
     </div>
 </div>
-    -->
+   -->
 
-<!-- Modal :票期對話框-->
-<div class="row" style="padding-top:10px;">
-    @if (ViewBag.paymentTerms == "P")
-    {
-        <div class="modal fade" id="paymentInfo" role="dialog">
-            <div class="modal-dialog" id="paymentInfoDialog">
-                <!-- Modal content-->
-                @Html.Partial("_PaymentTerms");
+    <!-- Modal :對話框 上傳檔案-->
+    <div class="modal fade" id="formUploadFile" role="dialog">
+        <div class="modal-dialog" id="formUploadFile">
+            <div class="modal-content">
+                <form id="formFileUpload" name="formFileUpload" action="/Estimation/uploadFile4Supplier" method="post" enctype="multipart/form-data">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">上傳檔案</h4>
+                    </div>
+                    <div class="modal-body form-group">
+                        <input id="uploadName" name="uploadName" type="text" value="@Model.EstData.planEST.EST_FORM_ID" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                        <input id="projectId" name="projectId" type="hidden" value="@Model.EstData.prj.PROJECT_ID" />
+                        <input type="file" name="file" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">關閉</button>
+                        <input type="button" class="btn btn-default" data-dismiss="modal" value="上傳" id="upload" onclick="uploadFile4Sup()" />
+                    </div>
+                </form>
             </div>
-        </div>
-    }
-    else
-    {
-        <div class="modal fade" id="paymentInfo" role="dialog">
-            <div class="modal-dialog" id="paymentInfoDialog">
-                <!-- Modal content-->
-                @Html.Partial("_PaymentTerms4S");
-            </div>
-        </div>
-    }
-</div>
-<!-- Modal :對話框 上傳檔案-->
-<div class="modal fade" id="formUploadFile" role="dialog">
-    <div class="modal-dialog" id="formUploadFile">
-        <div class="modal-content">
-            <form id="formFileUpload" name="formFileUpload" action="/Estimation/uploadFile4Supplier" method="post" enctype="multipart/form-data">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">上傳檔案</h4>
-                </div>
-                <div class="modal-body form-group">
-                    <input id="uploadName" name="uploadName" type="text" value="@Model.EstData.planEST.EST_FORM_ID" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
-                    <input id="projectId" name="projectId" type="hidden" value="@Model.EstData.prj.PROJECT_ID" />
-                    <input type="file" name="file" />
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">關閉</button>
-                    <input type="button" class="btn btn-default" data-dismiss="modal" value="上傳" id="upload" onclick="uploadFile4Sup()" />
-                </div>
-            </form>
         </div>
     </div>
-</div>
-<script type="text/javascript">
+    <script type="text/javascript">
 
-    function myController($scope, $http) {
+        function myController($scope, $http) {
 
-        //若資料量很多的話，則改用$http的Ajax方法撈資料指派給$scope的items成員
-        $scope.items = @Html.Raw(ViewData["items"])
-        //取得估驗總金額
-        $scope.GetTotalNum = function () {
-            var sum = 0;
-            for (var i = 0; i < $scope.items.length; i++) {
-                sum += parseFloat($scope.items[i].ITEM_UNIT_COST * $scope.items[i].EST_QTY);
+            //若資料量很多的話，則改用$http的Ajax方法撈資料指派給$scope的items成員
+            $scope.items = @Html.Raw(ViewData["items"])
+            //取得估驗總金額
+            $scope.GetTotalNum = function () {
+                var sum = 0;
+                for (var i = 0; i < $scope.items.length; i++) {
+                    sum += parseFloat($scope.items[i].ITEM_UNIT_COST * $scope.items[i].EST_QTY);
+                }
+                return sum;
             }
-            return sum;
+            $scope.GetTotalNum4Wage = function () {
+                var sumWage = 0;
+                for (var i = 0; i < $scope.items.length; i++) {
+                    sumWage += parseFloat($scope.items[i].MAN_PRICE * $scope.items[i].EST_QTY);
+                }
+                return sumWage;
+            }
+
+            $scope.GetTotalSum = function () {
+                var cumsum = 0;
+                for (var i = 0; i < $scope.items.length; i++) {
+                    cumsum += parseFloat($scope.items[i].ITEM_UNIT_COST * $scope.items[i].CUM_EST_QTY);
+                }
+                return cumsum;
+            }
+            $scope.GetTotalSum4Wage = function () {
+                var cumsum = 0;
+                for (var i = 0; i < $scope.items.length; i++) {
+                    cumsum += parseFloat($scope.items[i].MAN_PRICE * $scope.items[i].CUM_EST_QTY);
+                }
+                return cumsum;
+            }
+            $scope.GetTotalRatio = function () {
+                var cumsum = 0;
+                var totalamount = 0;
+                for (var i = 0; i < $scope.items.length; i++) {
+                    cumsum += parseFloat($scope.items[i].ITEM_UNIT_COST * $scope.items[i].CUM_EST_QTY);
+                    totalamount += parseFloat($scope.items[i].ITEM_UNIT_COST * $scope.items[i].mapQty);
+                }
+                return parseInt(cumsum / totalamount * 100);
+            }
+            $scope.GetTotalRatio4Wage = function () {
+                var cumsum = 0;
+                var totalamount = 0;
+                for (var i = 0; i < $scope.items.length; i++) {
+                    cumsum += parseFloat($scope.items[i].MAN_PRICE * $scope.items[i].CUM_EST_QTY);
+                    totalamount += parseFloat($scope.items[i].MAN_PRICE * $scope.items[i].mapQty);
+                }
+                return parseInt(cumsum / totalamount * 100);
+            }
+
+            $scope.EnterEdit = function (row) {
+                row.Qty2 = $scope.items.EST_QTY;
+                row.EditMode = true;
+            };
+
+            $scope.ConfirmEdit = function (row) {
+                $scope.items.EST_QTY = row.Qty2;
+                delete row.Qty2;
+                row.EditMode = false;
+            };
+
+            $scope.CancelEdit = function (row) {
+                delete row.Qty2;
+                row.EditMode = false;
+            };
+
+            $scope.save = function () {
+                $http.post('/Estimation/UpdateESTQty', $scope.items)
+                .success(function (data) {
+                    console.log(data);
+                });
+            };
         }
-        $scope.GetTotalNum4Wage = function () {
-            var sumWage = 0;
-            for (var i = 0; i < $scope.items.length; i++) {
-                sumWage += parseFloat($scope.items[i].MAN_PRICE * $scope.items[i].EST_QTY);
-            }
-            return sumWage;
+    </script>
+    <script type="text/javascript">
+
+        function SummaryController($scope) {
+            $scope.key = @Html.Raw(ViewData["summary"]);
+
         }
 
-        $scope.GetTotalSum = function () {
-            var cumsum = 0;
-            for (var i = 0; i < $scope.items.length; i++) {
-                cumsum += parseFloat($scope.items[i].ITEM_UNIT_COST * $scope.items[i].CUM_EST_QTY);
-            }
-            return cumsum;
-        }
-        $scope.GetTotalSum4Wage = function () {
-            var cumsum = 0;
-            for (var i = 0; i < $scope.items.length; i++) {
-                cumsum += parseFloat($scope.items[i].MAN_PRICE * $scope.items[i].CUM_EST_QTY);
-            }
-            return cumsum;
-        }
-        $scope.GetTotalRatio = function () {
-            var cumsum = 0;
-            var totalamount = 0;
-            for (var i = 0; i < $scope.items.length; i++) {
-                cumsum += parseFloat($scope.items[i].ITEM_UNIT_COST * $scope.items[i].CUM_EST_QTY);
-                totalamount += parseFloat($scope.items[i].ITEM_UNIT_COST * $scope.items[i].mapQty);
-            }
-            return parseInt(cumsum / totalamount * 100);
-        }
-        $scope.GetTotalRatio4Wage = function () {
-            var cumsum = 0;
-            var totalamount = 0;
-            for (var i = 0; i < $scope.items.length; i++) {
-                cumsum += parseFloat($scope.items[i].MAN_PRICE * $scope.items[i].CUM_EST_QTY);
-                totalamount += parseFloat($scope.items[i].MAN_PRICE * $scope.items[i].mapQty);
-            }
-            return parseInt(cumsum / totalamount * 100);
-        }
-
-        $scope.EnterEdit = function (row) {
-            row.Qty2 = $scope.items.EST_QTY;
-            row.EditMode = true;
-        };
-
-        $scope.ConfirmEdit = function (row) {
-            $scope.items.EST_QTY = row.Qty2;
-            delete row.Qty2;
-            row.EditMode = false;
-        };
-
-        $scope.CancelEdit = function (row) {
-            delete row.Qty2;
-            row.EditMode = false;
-        };
-
-        $scope.save = function () {
-            $http.post('/Estimation/UpdateESTQty', $scope.items)
-            .success(function (data) {
-                console.log(data);
-            });
-        };
-    }
-</script>
-<script type="text/javascript">
-
-    function SummaryController($scope) {
-        $scope.key = @Html.Raw(ViewData["summary"]);
-
-    }
-
-    $("#saveQty").click(function () {
-        $.ajax({
-            url: '@Url.Action("UpdateESTQty", "Estimation")',
-            data: $('#formEST').serialize(),
-            type: "POST",
-            dataType: 'text',
-            success: function (msg) {
-                alert(msg);
-                window.location.reload()
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert(thrownError);
-            }
-        });
-    });
-
-    $("#updateForm").click(function () {
-        $.ajax({
-            url: '@Url.Action("UpdateEST", "Estimation")',
-            data: $('#formEST').serialize(),
-            type: "POST",
-            dataType: 'text',
-            success: function (msg) {
-                alert(msg);
-                window.location.reload()
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert(thrownError);
-            }
-        });
-    });
-
-    //送審、通過
-    $("#SendForm").click(function () {
-        $.ajax({
-            url: '@Url.Action("SendForm", "Estimation")',
-            data: $('#formEST').serialize(),
-            type: "POST",
-            dataType: 'text',
-            success: function (msg) {
-                alert(msg);
-                window.location.replace("/Estimation/EstimationForm/@Model.EstData.prj.PROJECT_ID");
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert(thrownError);
-            }
-        });
-    });
-    //退件
-    $("#RejectForm").click(function () {
-        $.ajax({
-            url: '@Url.Action("RejectForm", "Estimation")',
-            data: $('#formEST').serialize(),
-            type: "POST",
-            dataType: 'text',
-            success: function (msg) {
-                alert(msg);
-                window.location.replace("/Estimation/EstimationForm/@Model.EstData.prj.PROJECT_ID");
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert(thrownError);
-            }
-        });
-    });
-    //中止
-    $("#CancelForm").click(function () {
-        $.ajax({
-            url: '@Url.Action("CancelForm", "Estimation")',
-            data: $('#formEST').serialize(),
-            type: "POST",
-            dataType: 'text',
-            success: function (msg) {
-                alert(msg);
-                window.location.replace("/Estimation/EstimationForm/@Model.EstData.prj.PROJECT_ID");
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert(thrownError);
-            }
-        });
-    });
-
-    function uploadFile4Sup() {
-        $("#formFileUpload").submit(function (e) {
-            var formObj = $(this);
-            var formURL = formObj.attr("action");
-            var formData = new FormData(this);
+        $("#saveQty").click(function () {
             $.ajax({
-                url: formURL,
-                type: 'POST',
-                data: formData,
-                mimeType: "multipart/form-data",
-                contentType: false,
-                cache: false,
-                processData: false,
+                url: '@Url.Action("UpdateESTQty", "Estimation")',
+                data: $('#formEST').serialize(),
+                type: "POST",
+                dataType: 'text',
                 success: function (msg) {
                     alert(msg);
-                    window.location.reload();
+                    window.location.reload()
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     alert(thrownError);
                 }
             });
-            e.preventDefault(); //Prevent Default action.
-            e.unbind();
-        });
-        $("#formFileUpload").submit(); //Submit the form
-        // document.forms["formFileUpload"].submit();
-    }
-    //由ID 取得資料填入表單
-    function getPaymentTerm(contractid) {
-        //alert(contractid);
-        $.ajax({
-            url: "/Estimation/getPaymentTerms",
-            type: "GET",
-            data: { contractid: contractid },
-            dataType: "JSON",
-            success: function (data) {
-                $('#project_id').val(data.PROJECT_ID);
-                $('#contract_id').val(data.CONTRACT_ID);
-                $('#date1').val(data.DATE_1);
-                $('#date2').val(data.DATE_2);
-                $('#date3').val(data.DATE_3);
-                $('#paymenttype').val(data.PAYMENT_TYPE);
-                $('#paymentcash').val(data.PAYMENT_CASH);
-                $('#payment_date1').val(data.PAYMENT_UP_TO_U_DATE1);
-                $('#payment_date2').val(data.PAYMENT_UP_TO_U_DATE2);
-                $('#payment_1').val(data.PAYMENT_UP_TO_U_1);
-                $('#payment_2').val(data.PAYMENT_UP_TO_U_2);
-                $('#paymentadvance').val(data.PAYMENT_ADVANCE_RATIO);
-                $('#paymentadvance_cash').val(data.PAYMENT_ADVANCE_CASH_RATIO);
-                $('#paymentadvance_1').val(data.PAYMENT_ADVANCE_1_RATIO);
-                $('#paymentadvance_2').val(data.PAYMENT_ADVANCE_2_RATIO);
-                $('#paymentestimated').val(data.PAYMENT_ESTIMATED_RATIO);
-                $('#paymentestimated_cash').val(data.PAYMENT_ESTIMATED_CASH_RATIO);
-                $('#paymentestimated_1').val(data.PAYMENT_ESTIMATED_1_RATIO);
-                $('#paymentestimated_2').val(data.PAYMENT_ESTIMATED_2_RATIO);
-                $('#paymentretention').val(data.PAYMENT_RETENTION_RATIO);
-                $('#paymentretention_cash').val(data.PAYMENT_RETENTION_CASH_RATIO);
-                $('#paymentretention_1').val(data.PAYMENT_RETENTION_1_RATIO);
-                $('#paymentretention_2').val(data.PAYMENT_RETENTION_2_RATIO);
-                $('#usancecash').val(data.USANCE_CASH);
-                $('#usance_date1').val(data.USANCE_UP_TO_U_DATE1);
-                $('#usance_date2').val(data.USANCE_UP_TO_U_DATE2);
-                $('#usance_1').val(data.USANCE_UP_TO_U_1);
-                $('#usance_2').val(data.USANCE_UP_TO_U_2);
-                $('#usanceadvance').val(data.USANCE_ADVANCE_RATIO);
-                $('#usanceadvance_cash').val(data.USANCE_ADVANCE_CASH_RATIO);
-                $('#usanceadvance_1').val(data.USANCE_ADVANCE_1_RATIO);
-                $('#usanceadvance_2').val(data.USANCE_ADVANCE_2_RATIO);
-                $('#usancegoods').val(data.USANCE_GOODS_RATIO);
-                $('#usancegoods_cash').val(data.USANCE_GOODS_CASH_RATIO);
-                $('#usancegoods_1').val(data.USANCE_GOODS_1_RATIO);
-                $('#usancegoods_2').val(data.USANCE_GOODS_2_RATIO);
-                $('#usancefinished').val(data.USANCE_FINISHED_RATIO);
-                $('#usancefinished_cash').val(data.USANCE_FINISHED_CASH_RATIO);
-                $('#usancefinished_1').val(data.USANCE_FINISHED_1_RATIO);
-                $('#usancefinished_2').val(data.USANCE_FINISHED_2_RATIO);
-                $('#usanceretention').val(data.USANCE_RETENTION_RATIO);
-                $('#usanceretention_cash').val(data.USANCE_RETENTION_CASH_RATIO);
-                $('#usanceretention_1').val(data.USANCE_RETENTION_1_RATIO);
-                $('#usanceretention_2').val(data.USANCE_RETENTION_2_RATIO);
-                if ((data.estCash) != null && (data.retentionCash) != null  && (data.advanceCash) != null)
-                {
-                    $('#payment_date_cash').val(data.paidDateCash);
-                }
-                if ((data.advanceAmt1) != null && (data.retentionAmt1) != null  && (data.estAmt1) != null)
-                {
-                    $('#payment_date_1').val(data.paidDate1);
-                }
-                if ((data.advanceAmt2) != null && (data.retentionAmt2) != null  && (data.estAmt2) != null)
-                {
-                    $('#payment_date_2').val(data.paidDate2);
-                }
-                if ((data.DATE_3) == null) {
-                    $("input[name=payfrequency][value='O']").attr('checked', true);
-                }
-                else {
-                    $("input[name=payfrequency][value='T']").attr('checked', true)
-                }
-                if ((data.PAYMENT_TYPE) != null && (data.PAYMENT_TYPE) != "") {
-                    $("input[name=payterms][value='P']").attr('checked', true);
-                }
-                else {
-                    $("input[name=payterms][value='S']").attr('checked', true);
-                }
-                if ((data.advanceCash) == null && (data.retentionCash) == null) {
-                    $('#paid_amount_cash').val(data.estCash);
-                }
-                else if ((data.estCash) == null && (data.retentionCash) == null)
-                {
-                    $('#paid_amount_cash').val(data.advanceCash);
-                }
-                else
-                {
-                    $('#paid_amount_cash').val(data.retentionCash);
-                }
-                if ((data.advanceAmt1) == null && (data.retentionAmt1) == null) {
-                    $('#paid_amount_1').val(data.estAmt1);
-                }
-                else if ((data.estAmt1) == null && (data.retentionAmt1) == null) {
-                    $('#paid_amount_1').val(data.advanceAmt1);
-                }
-                else {
-                    $('#paid_amount_1').val(data.retentionAmt1);
-                }
-                if ((data.advanceAmt2) == null && (data.retentionAmt2) == null) {
-                    $('#paid_amount_2').val(data.estAmt2);
-                }
-                else if ((data.estAmt2) == null && (data.retentionAmt2) == null) {
-                    $('#paid_amount_2').val(data.advanceAmt2);
-                }
-                else {
-                    $('#paid_amount_2').val(data.retentionAmt2);
-                }
-                $('#paymentInfo').modal('show'); // show bootstrap modal when complete loaded
-                //$('.modal-title').text('編輯設定資料'); // Set title to Bootstrap modal title
-
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert('Error get data from ajax');
-            }
         });
 
-    }
-</script>
+        $("#updateForm").click(function () {
+            $.ajax({
+                url: '@Url.Action("UpdateEST", "Estimation")',
+                data: $('#formEST').serialize(),
+                type: "POST",
+                dataType: 'text',
+                success: function (msg) {
+                    alert(msg);
+                    window.location.reload()
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                }
+            });
+        });
+
+        //送審、通過
+        $("#SendForm").click(function () {
+            $.ajax({
+                url: '@Url.Action("SendForm", "Estimation")',
+                data: $('#formEST').serialize(),
+                type: "POST",
+                dataType: 'text',
+                success: function (msg) {
+                    alert(msg);
+                    window.location.replace("/Estimation/EstimationForm/@Model.EstData.prj.PROJECT_ID");
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                }
+            });
+        });
+        //退件
+        $("#RejectForm").click(function () {
+            $.ajax({
+                url: '@Url.Action("RejectForm", "Estimation")',
+                data: $('#formEST').serialize(),
+                type: "POST",
+                dataType: 'text',
+                success: function (msg) {
+                    alert(msg);
+                    window.location.replace("/Estimation/EstimationForm/@Model.EstData.prj.PROJECT_ID");
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                }
+            });
+        });
+        //中止
+        $("#CancelForm").click(function () {
+            $.ajax({
+                url: '@Url.Action("CancelForm", "Estimation")',
+                data: $('#formEST').serialize(),
+                type: "POST",
+                dataType: 'text',
+                success: function (msg) {
+                    alert(msg);
+                    window.location.replace("/Estimation/EstimationForm/@Model.EstData.prj.PROJECT_ID");
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                }
+            });
+        });
+
+        function uploadFile4Sup() {
+            $("#formFileUpload").submit(function (e) {
+                var formObj = $(this);
+                var formURL = formObj.attr("action");
+                var formData = new FormData(this);
+                $.ajax({
+                    url: formURL,
+                    type: 'POST',
+                    data: formData,
+                    mimeType: "multipart/form-data",
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success: function (msg) {
+                        alert(msg);
+                        window.location.reload();
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert(thrownError);
+                    }
+                });
+                e.preventDefault(); //Prevent Default action.
+                e.unbind();
+            });
+            $("#formFileUpload").submit(); //Submit the form
+            // document.forms["formFileUpload"].submit();
+        }
+        //由ID 取得資料填入表單
+        function getPaymentTerm(contractid) {
+            //alert(contractid);
+            $.ajax({
+                url: "/Estimation/getPaymentTerms",
+                type: "GET",
+                data: { contractid: contractid },
+                dataType: "JSON",
+                success: function (data) {
+                    $('#project_id').val(data.PROJECT_ID);
+                    $('#contract_id').val(data.CONTRACT_ID);
+                    $('#date1').val(data.DATE_1);
+                    $('#date2').val(data.DATE_2);
+                    $('#date3').val(data.DATE_3);
+                    $('#paymenttype').val(data.PAYMENT_TYPE);
+                    $('#paymentcash').val(data.PAYMENT_CASH);
+                    $('#payment_date1').val(data.PAYMENT_UP_TO_U_DATE1);
+                    $('#payment_date2').val(data.PAYMENT_UP_TO_U_DATE2);
+                    $('#payment_1').val(data.PAYMENT_UP_TO_U_1);
+                    $('#payment_2').val(data.PAYMENT_UP_TO_U_2);
+                    $('#paymentadvance').val(data.PAYMENT_ADVANCE_RATIO);
+                    $('#paymentadvance_cash').val(data.PAYMENT_ADVANCE_CASH_RATIO);
+                    $('#paymentadvance_1').val(data.PAYMENT_ADVANCE_1_RATIO);
+                    $('#paymentadvance_2').val(data.PAYMENT_ADVANCE_2_RATIO);
+                    $('#paymentestimated').val(data.PAYMENT_ESTIMATED_RATIO);
+                    $('#paymentestimated_cash').val(data.PAYMENT_ESTIMATED_CASH_RATIO);
+                    $('#paymentestimated_1').val(data.PAYMENT_ESTIMATED_1_RATIO);
+                    $('#paymentestimated_2').val(data.PAYMENT_ESTIMATED_2_RATIO);
+                    $('#paymentretention').val(data.PAYMENT_RETENTION_RATIO);
+                    $('#paymentretention_cash').val(data.PAYMENT_RETENTION_CASH_RATIO);
+                    $('#paymentretention_1').val(data.PAYMENT_RETENTION_1_RATIO);
+                    $('#paymentretention_2').val(data.PAYMENT_RETENTION_2_RATIO);
+                    $('#usancecash').val(data.USANCE_CASH);
+                    $('#usance_date1').val(data.USANCE_UP_TO_U_DATE1);
+                    $('#usance_date2').val(data.USANCE_UP_TO_U_DATE2);
+                    $('#usance_1').val(data.USANCE_UP_TO_U_1);
+                    $('#usance_2').val(data.USANCE_UP_TO_U_2);
+                    $('#usanceadvance').val(data.USANCE_ADVANCE_RATIO);
+                    $('#usanceadvance_cash').val(data.USANCE_ADVANCE_CASH_RATIO);
+                    $('#usanceadvance_1').val(data.USANCE_ADVANCE_1_RATIO);
+                    $('#usanceadvance_2').val(data.USANCE_ADVANCE_2_RATIO);
+                    $('#usancegoods').val(data.USANCE_GOODS_RATIO);
+                    $('#usancegoods_cash').val(data.USANCE_GOODS_CASH_RATIO);
+                    $('#usancegoods_1').val(data.USANCE_GOODS_1_RATIO);
+                    $('#usancegoods_2').val(data.USANCE_GOODS_2_RATIO);
+                    $('#usancefinished').val(data.USANCE_FINISHED_RATIO);
+                    $('#usancefinished_cash').val(data.USANCE_FINISHED_CASH_RATIO);
+                    $('#usancefinished_1').val(data.USANCE_FINISHED_1_RATIO);
+                    $('#usancefinished_2').val(data.USANCE_FINISHED_2_RATIO);
+                    $('#usanceretention').val(data.USANCE_RETENTION_RATIO);
+                    $('#usanceretention_cash').val(data.USANCE_RETENTION_CASH_RATIO);
+                    $('#usanceretention_1').val(data.USANCE_RETENTION_1_RATIO);
+                    $('#usanceretention_2').val(data.USANCE_RETENTION_2_RATIO);
+                    if ((data.estCash) != null && (data.retentionCash) != null  && (data.advanceCash) != null)
+                    {
+                        $('#payment_date_cash').val(data.paidDateCash);
+                    }
+                    if ((data.advanceAmt1) != null && (data.retentionAmt1) != null  && (data.estAmt1) != null)
+                    {
+                        $('#payment_date_1').val(data.paidDate1);
+                    }
+                    if ((data.advanceAmt2) != null && (data.retentionAmt2) != null  && (data.estAmt2) != null)
+                    {
+                        $('#payment_date_2').val(data.paidDate2);
+                    }
+                    if ((data.DATE_3) == null) {
+                        $("input[name=payfrequency][value='O']").attr('checked', true);
+                    }
+                    else {
+                        $("input[name=payfrequency][value='T']").attr('checked', true)
+                    }
+                    if ((data.PAYMENT_TYPE) != null && (data.PAYMENT_TYPE) != "") {
+                        $("input[name=payterms][value='P']").attr('checked', true);
+                    }
+                    else {
+                        $("input[name=payterms][value='S']").attr('checked', true);
+                    }
+                    if ((data.advanceCash) == null && (data.retentionCash) == null) {
+                        $('#paid_amount_cash').val(data.estCash);
+                    }
+                    else if ((data.estCash) == null && (data.retentionCash) == null)
+                    {
+                        $('#paid_amount_cash').val(data.advanceCash);
+                    }
+                    else
+                    {
+                        $('#paid_amount_cash').val(data.retentionCash);
+                    }
+                    if ((data.advanceAmt1) == null && (data.retentionAmt1) == null) {
+                        $('#paid_amount_1').val(data.estAmt1);
+                    }
+                    else if ((data.estAmt1) == null && (data.retentionAmt1) == null) {
+                        $('#paid_amount_1').val(data.advanceAmt1);
+                    }
+                    else {
+                        $('#paid_amount_1').val(data.retentionAmt1);
+                    }
+                    if ((data.advanceAmt2) == null && (data.retentionAmt2) == null) {
+                        $('#paid_amount_2').val(data.estAmt2);
+                    }
+                    else if ((data.estAmt2) == null && (data.retentionAmt2) == null) {
+                        $('#paid_amount_2').val(data.advanceAmt2);
+                    }
+                    else {
+                        $('#paid_amount_2').val(data.retentionAmt2);
+                    }
+                    $('#paymentInfo').modal('show'); // show bootstrap modal when complete loaded
+                    //$('.modal-title').text('編輯設定資料'); // Set title to Bootstrap modal title
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert('Error get data from ajax');
+                }
+            });
+
+        }
+    </script>
+    <script type="text/javascript">
+    $(document).ready(function () {
+
+        $(function () {
+            $('#paymentDate').datetimepicker({
+                format: 'YYYY/MM/DD',
+                locale: 'zh-tw'
+            });
+        });
+    })
+    </script>

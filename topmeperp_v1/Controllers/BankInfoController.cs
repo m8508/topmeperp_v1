@@ -165,8 +165,14 @@ namespace topmeperp.Controllers
         public ActionResult BankLoanTransaction()
         {
             string blid = Request["BL_ID"];
+            string supplier = "N";
+            if (null != Request["IS_SUPPLIER"] && Request["IS_SUPPLIER"] != "")
+            {
+                supplier = Request["IS_SUPPLIER"];
+            }
+            logger.Info("IS_SUPPLIER =" + supplier);
             ContextService4BankInfo service = new ContextService4BankInfo();
-            BankLoanInfo loanInfo = service.getBankLoan(blid);
+            BankLoanInfo loanInfo = service.getBankLoan(blid, supplier);
             logger.Debug("Bank Loan Transaction:" + blid);
             return View(loanInfo);
         }
@@ -175,6 +181,7 @@ namespace topmeperp.Controllers
         /// </summary>
         public void addBankLoanTransaction()
         {
+
             logger.Info("bl_id=" + Request["bl_id"]);
             long blid = long.Parse(Request["bl_id"]);
             int period = int.Parse(Request["period"]);
@@ -191,6 +198,7 @@ namespace topmeperp.Controllers
             }
             //處理借款紀錄
             SYS_USER u = (SYS_USER)Session["user"];
+            //decimal totalAmt = 0;
             foreach (string key in lstFormKey)
             {
                 string[] keyAry = key.Split('.');
@@ -208,7 +216,18 @@ namespace topmeperp.Controllers
 
                     loanTransaction.CREATE_ID = u.USER_ID;
                     loanTransaction.CREATE_DATE = DateTime.Now;
-                    lstLoanTransaction.Add(loanTransaction);
+                    if (Request["supplier"] == "Y" )
+                    {
+                        lstLoanTransaction.Add(loanTransaction);
+                    }
+                    else
+                    {
+                        if (decimal.Parse(Request["available_quota"]) >= (decimal.Parse(Request["LOAN_AMOUNT." + keyAry[1]])))
+                        {
+                            lstLoanTransaction.Add(loanTransaction);
+                        }
+                    }
+                    //totalAmt = totalAmt + decimal.Parse(Request["LOAN_AMOUNT." + keyAry[1]]);
                     period++;
                 }
                 //還款記錄
@@ -233,9 +252,45 @@ namespace topmeperp.Controllers
                     ContextService4BankInfo service = new ContextService4BankInfo();
                     service.addBankLoanTransaction(lstLoanTransaction);
                 }
+
             }
 
             Response.Redirect("/BankInfo/BankLoanTransaction?BL_ID=" + Request["bl_id"]);
+        }
+        /// <summary>
+        /// 取得廠商借支資料
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult SupplierLoanList()
+        {
+            ContextService4BankInfo service = new ContextService4BankInfo();
+            List<BankLoanInfoExt> lstSupplierLoan = service.getAllSupplierLoan();
+            return View(lstSupplierLoan);
+        }
+        /// <summary>
+        /// 增加廠商借支基本資料
+        /// </summary>
+        /// <returns></returns>
+        public string addSupplierLoan(FormCollection f)
+        {
+            SYS_USER u = (SYS_USER)Session["user"];
+            FIN_BANK_LOAN bankloanInfo = new FIN_BANK_LOAN();
+
+            bankloanInfo.BANK_NAME = Request["BANK_NAME"];
+            bankloanInfo.REMARK = Request["REMARK"];
+            //bankloanInfo.IS_SUPPLIER = "Y";
+            bankloanInfo.CREATE_ID = u.USER_ID;
+            bankloanInfo.CREATE_DATE = DateTime.Now;
+            ContextService4BankInfo service = new ContextService4BankInfo();
+            int i = service.addBankLoan(bankloanInfo);
+            if (i > 0)
+            {
+                return "更新成功(" + bankloanInfo.BL_ID + ")!!";
+            }
+            else
+            {
+                return "更新失敗!!";
+            }
         }
     }
 }

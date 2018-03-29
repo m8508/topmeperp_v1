@@ -24,6 +24,9 @@
                 現金流出
             </th>
             <th>
+                金流小計
+            </th>
+            <th>
                 貸款可用額度
             </th>
             <th>
@@ -76,6 +79,20 @@
                         @String.Format("{0:$#,##0.#}", item.AMOUNT_OUTFLOW)
                     </td>
                 }
+                @if (item.SUB_BALANCE >= 0)
+                {
+                    <td>
+                        @String.Format("{0:$#,##0.#; ($#,##0.#)}", item.SUB_BALANCE)
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        <span style="font-weight:bold;color:crimson">
+                            @String.Format("{0:$#,##0.#; ($#,##0.#)}", item.SUB_BALANCE)
+                        </span>
+                    </td>
+                }
                 @if (item.availableQta >= 0)
                 {
                     <td>
@@ -122,9 +139,9 @@
         }
     </table>
 </div>
-<!-- 專案執行之收支進度報表-->
+<!-- 專案損益-->
 <div style="padding-top:30px;">
-    <h3 class="text-left">專案收支進度</h3>
+    <h3 class="text-left">專案損益</h3>
     <table class="table table-bordered table-striped bg-info">
         <thead>
             <tr>
@@ -138,19 +155,19 @@
                     直接成本
                 </th>
                 <th style="width:80px;">
-                    工地費用
+                    工地管理費
                 </th>
                 <th style="width:80px;">
-                    界面維保費用
+                    界面維保費
                 </th>
                 <th style="width:80px;">
                     業務與公司費用分擔
                 </th>
                 <th style="width:100px;">
-                    累計實付
+                    累計成本
                 </th>
                 <th style="width:100px;">
-                    累計實收
+                    累計收入
                 </th>
                 <th style="width:100px;">
                     業主未請款
@@ -159,7 +176,7 @@
                     廠商未請款
                 </th>
                 <th style="width:70px;">
-                    專案執行毛利
+                    專案毛利
                 </th>
             </tr>
         </thead>
@@ -266,13 +283,13 @@
         </tr>
     </table>
 </div>
-<!-- 公司資金餘額-->
+<!-- 公司損益-->
 <div style="padding-top:30px;">
-    <h3 class="text-left">公司資金餘額</h3>
+    <h3 class="text-left">公司損益</h3>
     <table class="table table-bordered">
         <tr>
             <th class="bg-danger" style="width:140px;">
-                目前為止金流餘額
+                金流餘額
             </th>
             @if (@Model.finBalance.curCashFlow >= 0)
             {
@@ -289,7 +306,7 @@
                 </th>
             }
             <th class="bg-danger" style="width:110px;">
-                未收減未付餘額
+                專案毛利
             </th>
             @if (@Model.finBalance.futureCashFlow >= 0)
             {
@@ -306,19 +323,19 @@
                 </th>
             }
             <th class="bg-danger" style="width:140px;">
-                履約保固金(保證金)
+                廠商借支
             </th>
             <th class="text-right" style="width:100px;">
-                @String.Format("{0:$#,##0.#}", @Model.finBalance.maintBond)
+                @String.Format("{0:$#,##0.#}", @Model.finBalance.loanBalance_sup * -1)
             </th>
             <th class="bg-danger" style="width:70px;">
-                借款餘額
+                借款
             </th>
             <th class="text-right" style="width:120px;">
-                @String.Format("{0:$#,##0.#}", @Model.finBalance.loanBalance * -1)
+                @String.Format("{0:$#,##0.#}", @Model.finBalance.loanBalance_bank * -1)
             </th>
             <th class="bg-danger" style="width:50px;">
-                結餘
+                損益
             </th>
             @if (@Model.finBalance.cashFlowBal >= 0)
             {

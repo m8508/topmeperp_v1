@@ -85,9 +85,9 @@ namespace topmeperp.Service
             {
                 try
                 {
-                    string sql = "SELECT B.* , ISNULL(ROUND(V.vaRatio * 100, 0),0) AS vaRatio  , (SELECT ISNULL(SUM(TRANSACTION_TYPE * AMOUNT), 0) FROM FIN_LOAN_TRANACTION T WHERE T.BL_ID = B.BL_ID) SumTransactionAmount " +
+                    string sql = "SELECT B.* , ISNULL(ROUND(V.vaRatio * 100, 0),0) AS vaRatio  , (SELECT ISNULL(IIF(QUOTA_RECYCLABLE = 'Y', SUM(TRANSACTION_TYPE*AMOUNT),(SUM(IIF(TRANSACTION_TYPE = 1,0,-1)*AMOUNT))), 0) FROM FIN_LOAN_TRANACTION T WHERE T.BL_ID = B.BL_ID) SumTransactionAmount " +
                                  "FROM FIN_BANK_LOAN B LEFT JOIN (SELECT va.PROJECT_ID AS PROJECT_ID, ISNULL(va.VALUATION_AMOUNT, 0) / ISNULL(pi.contractAtm, 1) AS vaRatio FROM(SELECT PROJECT_ID, SUM(VALUATION_AMOUNT) AS VALUATION_AMOUNT " +
-                                 "FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID)va LEFT JOIN(SELECT PROJECT_ID, SUM(ITEM_UNIT_PRICE * ITEM_QUANTITY) AS contractAtm FROM PLAN_ITEM GROUP BY PROJECT_ID)pi ON va.PROJECT_ID = pi.PROJECT_ID)V ON B.PROJECT_ID = V.PROJECT_ID";
+                                 "FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID)va LEFT JOIN(SELECT PROJECT_ID, SUM(ITEM_UNIT_PRICE * ITEM_QUANTITY) AS contractAtm FROM PLAN_ITEM GROUP BY PROJECT_ID)pi ON va.PROJECT_ID = pi.PROJECT_ID)V ON B.PROJECT_ID = V.PROJECT_ID WHERE ISNULL(IS_SUPPLIER, 'N') <> 'Y'";
 
                     lstBankLoan = context.Database.SqlQuery<BankLoanInfoExt>(sql).ToList();
                     logger.Info("new bank loan records=" + lstBankLoan.Count);
@@ -99,6 +99,7 @@ namespace topmeperp.Service
             }
             return lstBankLoan;
         }
+        
         //取得專案執行階段之專案
         public void getAllPlan()
         {
@@ -119,7 +120,7 @@ namespace topmeperp.Service
             }
         }
         //取得貸款帳戶交易資料
-        public BankLoanInfo getBankLoan(string bl_id)
+        public BankLoanInfo getBankLoan(string bl_id, string supplier)
         {
             BankLoanInfo item = new BankLoanInfo();
             using (var context = new topmepEntities())
@@ -130,12 +131,24 @@ namespace topmeperp.Service
                     item.LoanInfo = context.FIN_BANK_LOAN.Find(long.Parse(bl_id));
                     long blid = long.Parse(bl_id);
                     item.LoanTransaction = context.FIN_LOAN_TRANACTION.Where(b => b.BL_ID == blid).ToList();
+                    string sql = "";
                     //取得期數與匯總金額
-                    string sql = "SELECT ISNULL(CUR_PERIOD, 0)CUR_PERIOD , ISNULL(AMOUNT, 0)AMOUNT, ROUND(ISNULL(fbl.QUOTA * (1-IIF(fbl.vaRatio >= fbl.CUM_AR_RATIO , 1, fbl.QUOTA_AVAILABLE_RATIO/100)), 0), 0) AS SURPLUS_AMOUNT " +
-                        "FROM (SELECT BL_ID, QUOTA, CUM_AR_RATIO, QUOTA_AVAILABLE_RATIO, VALUATION_AMOUNT / contractAtm * 100 AS vaRatio FROM FIN_BANK_LOAN f LEFT JOIN " +
-                        "(SELECT PROJECT_ID, SUM(ITEM_UNIT_PRICE * ITEM_QUANTITY) AS contractAtm FROM PLAN_ITEM GROUP BY PROJECT_ID)pi ON f.PROJECT_ID = pi.PROJECT_ID " +
-                        "LEFT JOIN (SELECT PROJECT_ID, SUM(VALUATION_AMOUNT)AS VALUATION_AMOUNT FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID)v ON f.PROJECT_ID = v.PROJECT_ID " +
-                        "WHERE BL_ID=@BL_ID)fbl LEFT JOIN (SELECT BL_ID, MAX(ISNULL(PERIOD,0)) CUR_PERIOD, SUM(TRANSACTION_TYPE*AMOUNT) AMOUNT from FIN_LOAN_TRANACTION GROUP BY BL_ID)flt ON flt.BL_ID = fbl.BL_ID ";
+                    if (supplier == "Y")
+                    {
+                        sql = "SELECT ISNULL(CUR_PERIOD, 0)CUR_PERIOD , ISNULL(AMOUNT, 0)AMOUNT FROM FIN_BANK_LOAN f " +
+                            "LEFT JOIN (SELECT BL_ID, MAX(ISNULL(PERIOD, 0)) CUR_PERIOD, SUM(TRANSACTION_TYPE * AMOUNT) AMOUNT " +
+                            "FROM FIN_LOAN_TRANACTION GROUP BY BL_ID)flt ON flt.BL_ID = f.BL_ID WHERE f.BL_ID =@BL_ID ";
+                    }
+                    else
+                    {
+                        sql = "SELECT ISNULL(CUR_PERIOD, 0)CUR_PERIOD , ISNULL(AMOUNT, 0)AMOUNT, ROUND(ISNULL(fbl.QUOTA * (1-IIF(fbl.vaRatio >= fbl.CUM_AR_RATIO , 1, fbl.QUOTA_AVAILABLE_RATIO/100)), 0), 0) AS SURPLUS_AMOUNT " +
+                            "FROM (SELECT BL_ID, QUOTA, CUM_AR_RATIO, QUOTA_AVAILABLE_RATIO, VALUATION_AMOUNT / contractAtm * 100 AS vaRatio FROM FIN_BANK_LOAN f LEFT JOIN " +
+                            "(SELECT PROJECT_ID, SUM(ITEM_UNIT_PRICE * ITEM_QUANTITY) AS contractAtm FROM PLAN_ITEM GROUP BY PROJECT_ID)pi ON f.PROJECT_ID = pi.PROJECT_ID " +
+                            "LEFT JOIN (SELECT PROJECT_ID, SUM(VALUATION_AMOUNT)AS VALUATION_AMOUNT FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID)v ON f.PROJECT_ID = v.PROJECT_ID " +
+                            "WHERE BL_ID=@BL_ID)fbl LEFT JOIN (SELECT lt.BL_ID, MAX(ISNULL(PERIOD,0)) CUR_PERIOD, IIF(QUOTA_RECYCLABLE = 'Y',SUM(TRANSACTION_TYPE*AMOUNT), SUM(IIF(TRANSACTION_TYPE = 1,0,-1)*AMOUNT)) AMOUNT " +
+                            "from FIN_LOAN_TRANACTION lt LEFT JOIN FIN_BANK_LOAN bl ON lt.BL_ID = bl.BL_ID GROUP BY lt.BL_ID, bl.QUOTA_RECYCLABLE)flt ON flt.BL_ID = fbl.BL_ID ";
+                    }
+                    logger.Debug("sql=" + sql);
                     Dictionary<string, object> para = new Dictionary<string, object>();
                     para.Add("BL_ID", blid);
                     DataSet ds = ExecuteStoreQuery(sql, System.Data.CommandType.Text, para);
@@ -143,7 +156,10 @@ namespace topmeperp.Service
                     {
                         item.CurPeriod = long.Parse(ds.Tables[0].Rows[0]["CUR_PERIOD"].ToString());
                         item.SumTransactionAmount = (decimal)ds.Tables[0].Rows[0]["AMOUNT"];
-                        item.SurplusQuota = (decimal)ds.Tables[0].Rows[0]["SURPLUS_AMOUNT"];
+                        if (supplier != "Y")
+                        {
+                            item.SurplusQuota = (decimal)ds.Tables[0].Rows[0]["SURPLUS_AMOUNT"];
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -195,6 +211,26 @@ namespace topmeperp.Service
                 }
             }
             return i;
+        }
+        //取得廠商借支資料
+        public List<BankLoanInfoExt> getAllSupplierLoan()
+        {
+            List<BankLoanInfoExt> lstSupplierLoan = null;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    string sql = "SELECT * , (SELECT ISNULL(SUM(TRANSACTION_TYPE * AMOUNT), 0) FROM FIN_LOAN_TRANACTION T WHERE T.BL_ID = B.BL_ID) SumTransactionAmount  FROM FIN_BANK_LOAN B WHERE ISNULL(B.IS_SUPPLIER, 'N') = 'Y'";
+
+                    lstSupplierLoan = context.Database.SqlQuery<BankLoanInfoExt>(sql).ToList();
+                    logger.Info("new supplier loan records=" + lstSupplierLoan.Count);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.Message + ":StackTrace=" + ex.StackTrace);
+                }
+            }
+            return lstSupplierLoan;
         }
     }
 }

@@ -18,6 +18,7 @@
                     <th>帳款類型</th>
                     <th>受款人</th>
                     <th>支票號碼</th>
+                    <th>備註</th>
                     <th>入帳與否</th>
                 </tr>
             </thead>
@@ -53,6 +54,7 @@
                         }
                         <td>@item.PAYEE</td>
                         <td>@item.CHECK_NO</td>
+                        <td>@item.REMARK</td>
                         @if (item.STATUS == 10)
                         {
                             <td>是</td>

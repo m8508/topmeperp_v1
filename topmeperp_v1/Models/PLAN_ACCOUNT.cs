@@ -28,5 +28,8 @@ namespace topmeperp.Models
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
         public string CHECK_NO { get; set; }
         public Nullable<decimal> AMOUNT_PAYABLE { get; set; }
+        public Nullable<decimal> BANKING_FEE { get; set; }
+        public string PAYEE { get; set; }
+        public string REMARK { get; set; }
     }
 }

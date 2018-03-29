@@ -341,7 +341,7 @@ namespace topmeperp.Service
 		                (SELECT P.PID,A.SEQ_ID,FORM_URL,METHOD_URL  FROM WF_PROCESS P,WF_PROCESS_ACTIVITY A WHERE P.PID=A.PID ) M
                         WHERE F.EXP_FORM_ID= R.DATA_KEY AND R.RID=CT.RID AND R.CURENT_STATE=CT.SEQ_ID
 						AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE";
-
+        
         public Flow4CompanyExpense()
         {
 
@@ -486,10 +486,36 @@ namespace topmeperp.Service
                 logger.Debug("Change CompanyExpenseRequest Status=" + task.task.EXP_FORM_ID + "," + staus);
                 context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
             }
-
+            if (staus == 30)
+            {
+                staus = addAccountFromExp(task.task.EXP_FORM_ID, task.task.PAYEE, task.task.PAYMENT_DATE, task.task.PROJECT_ID, task.task.PAID_AMOUNT);
+            }
             return staus;
         }
+        //將費用資料寫入帳款(暫時)
+        public int addAccountFromExp(string formid, string payee, DateTime? paymentdate, string projectid, decimal Amt)
+        {
 
+            logger.Info("add plan account detail from exp form,exp form id =" + formid);
+            int i = 0;
+            string sql = "";
+            using (var context = new topmepEntities())
+            {
+                if (null != projectid && projectid != "")
+                {
+                    sql = "INSERT INTO PLAN_ACCOUNT (PROJECT_ID, PAYEE, ACCOUNT_FORM_ID, AMOUNT_PAID, PAYMENT_DATE, ISDEBIT, ACCOUNT_TYPE) " +
+                          "VALUES ('" + task.task.PROJECT_ID + "','" + task.task.PAYEE + "', '" + task.task.EXP_FORM_ID + "'," + task.task.PAID_AMOUNT + ", CONVERT(datetime, REPLACE(REPLACE('" + task.task.PAYMENT_DATE + "', '上午', ''), '下午', '') +case when charindex('上午', '" + task.task.PAYMENT_DATE + "')> 0 then 'AM' when charindex('下午', '" + task.task.PAYMENT_DATE + "')> 0 then 'PM' end), 'N', 'E') ";
+                }
+                else
+                {
+                    sql = "INSERT INTO PLAN_ACCOUNT (PAYEE, ACCOUNT_FORM_ID, AMOUNT_PAID, PAYMENT_DATE, ISDEBIT, ACCOUNT_TYPE) " +
+                          "VALUES ('" + task.task.PAYEE + "', '" + task.task.EXP_FORM_ID + "'," + task.task.PAID_AMOUNT + ", CONVERT(datetime, REPLACE(REPLACE('" + task.task.PAYMENT_DATE + "', '上午', ''), '下午', '') +case when charindex('上午', '" + task.task.PAYMENT_DATE + "')> 0 then 'AM' when charindex('下午', '" + task.task.PAYMENT_DATE + "')> 0 then 'PM' end), 'N', 'O') ";
+                }
+                logger.Info("sql =" + sql);
+                i = context.Database.ExecuteSqlCommand(sql);
+                return i;
+            }
+        }
         //退件
         public void Reject(SYS_USER u, DateTime? paymentdate, string reason)
         {
@@ -540,22 +566,22 @@ namespace topmeperp.Service
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public new string FLOW_KEY = "EST01";
         //處理SQL 預先填入專案代號,設定集合處理參數
-        string sql = @"SELECT F.EST_FORM_ID,F.PROJECT_ID,F.CONTRACT_ID,P.SUPPLIER_ID PAYEE,P.FORM_NAME,F.CREATE_DATE PAYMENT_DATE,F.REMARK REQ_DESC,F.REJECT_DESC REJECT_DESC,
+        string sql = @"SELECT F.EST_FORM_ID,F.PROJECT_NAME,F.PROJECT_ID,F.PAYEE,F.PAYMENT_DATE, F.PAID_AMOUNT,F.REMARK REQ_DESC,F.REJECT_DESC REJECT_DESC,
                         R.REQ_USER_ID,R.CURENT_STATE,R.PID,
 (SELECT TOP 1 MANAGER FROM ENT_DEPARTMENT WHERE DEPT_CODE=CT.DEP_CODE) MANAGER,
                         CT.* ,M.FORM_URL + METHOD_URL as FORM_URL
 						FROM PLAN_ESTIMATION_FORM F,WF_PROCESS_REQUEST R,
-                        WF_PORCESS_TASK CT , PLAN_SUP_INQUIRY P,
+                        WF_PORCESS_TASK CT , 
 		(SELECT P.PID,A.SEQ_ID,FORM_URL,METHOD_URL  FROM WF_PROCESS P,WF_PROCESS_ACTIVITY A WHERE P.PID=A.PID ) M
                         WHERE F.EST_FORM_ID= R.DATA_KEY AND R.RID=CT.RID AND R.CURENT_STATE=CT.SEQ_ID
-						AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE AND F.CONTRACT_ID = P.INQUIRY_FORM_ID";
-        string sqlDeptInfo = @"SELECT R.REQ_USER_ID REQ_USER_ID,U.USER_NAME REQ_USER_NAME,
-                        U.DEP_CODE DEPT_CODE,D.DEPT_NAME DEPT_NAME,
-                        D.MANAGER,(SELECT TOP 1 USER_NAME FROM SYS_USER  WHERE USER_ID=D.MANAGER) MANAGER_NAME
-                         FROM WF_PROCESS_REQUEST r LEFT JOIN 
-                        SYS_USER u  ON r.REQ_USER_ID=u.USER_ID LEFT OUTER JOIN
-                        ENT_DEPARTMENT D ON u.DEP_CODE=D.DEPT_CODE
-                        WHERE R.DATA_KEY=@datakey";
+						AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE ";
+        //string sqlDeptInfo = @"SELECT R.REQ_USER_ID REQ_USER_ID,U.USER_NAME REQ_USER_NAME,
+        //U.DEP_CODE DEPT_CODE,D.DEPT_NAME DEPT_NAME,
+        //D.MANAGER,(SELECT TOP 1 USER_NAME FROM SYS_USER  WHERE USER_ID=D.MANAGER) MANAGER_NAME
+        //FROM WF_PROCESS_REQUEST r LEFT JOIN 
+        //SYS_USER u  ON r.REQ_USER_ID=u.USER_ID LEFT OUTER JOIN
+        //ENT_DEPARTMENT D ON u.DEP_CODE=D.DEPT_CODE
+        //WHERE R.DATA_KEY=@datakey";
         public Flow4Estimation()
         {
             //base.FLOW_KEY = "EST01";
@@ -570,17 +596,11 @@ namespace topmeperp.Service
         /// <returns></returns>
         public List<ExpenseFlowTask> getEstimationFormRequest(string contractid, string payee, string estid, string projectid, string status)
         {
-            logger.Info("search est form by 合約編號 " + contractid + ", 計價單編號 =" + estid + ", 受款人 =" + payee + ", 專案編號 =" + projectid);
+            logger.Info("search est form by 計價單編號 =" + estid + ", 受款人 =" + payee + ", 專案編號 =" + projectid);
             List<ExpenseFlowTask> lstForm = new List<ExpenseFlowTask>();
             using (var context = new topmepEntities())
             {
                 var parameters = new List<SqlParameter>();
-                //合約編號
-                if (null != contractid && contractid != "")
-                {
-                    sql = sql + " AND F.CONTRACT_ID Like @contractid ";
-                    parameters.Add(new SqlParameter("contractid", "'%" + contractid + "%'"));
-                }
                 //廠商名稱(受款人)
                 if (null != payee && payee != "")
                 {
@@ -677,7 +697,7 @@ namespace topmeperp.Service
             }
         }
         //送審
-        public void Send(SYS_USER u, DateTime? paymentdate, string reason)
+        public void Send(SYS_USER u, DateTime? paymentdate, string reason, string payee, string remark)
         {
             //STATUS  0   退件
             //STATUS  10  草稿
@@ -698,16 +718,23 @@ namespace topmeperp.Service
                 {
                     staus = 30;
                 }
-                staus = updateForm(reason, staus);
+                staus = updateForm(paymentdate, reason, staus, payee, remark);
             }
         }
         //更新資料庫資料
-        protected int updateForm(string reason, int staus)
+        protected int updateForm(DateTime? paymentdate, string reason, int staus, string payee, string remark)
         {
-            string sql = "UPDATE PLAN_ESTIMATION_FORM SET STATUS=@status, REJECT_DESC=@rejectDesc WHERE EST_FORM_ID=@formId";
+            string sql = "UPDATE PLAN_ESTIMATION_FORM SET STATUS=@status, PAYMENT_DATE=@paymentDate, REJECT_DESC=@rejectDesc, PAYEE=@payee, REMARK=@remark WHERE EST_FORM_ID=@formId";
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("status", staus));
-
+            if (null != paymentdate)
+            {
+                parameters.Add(new SqlParameter("paymentDate", paymentdate));
+            }
+            else
+            {
+                parameters.Add(new SqlParameter("paymentDate", DBNull.Value));
+            }
             if (null != reason)
             {
                 parameters.Add(new SqlParameter("rejectDesc", reason));
@@ -715,6 +742,22 @@ namespace topmeperp.Service
             else
             {
                 parameters.Add(new SqlParameter("rejectDesc", DBNull.Value));
+            }
+            if (null != payee)
+            {
+                parameters.Add(new SqlParameter("payee", payee));
+            }
+            else
+            {
+                parameters.Add(new SqlParameter("payee", DBNull.Value));
+            }
+            if (null != remark)
+            {
+                parameters.Add(new SqlParameter("remark", remark));
+            }
+            else
+            {
+                parameters.Add(new SqlParameter("remark", DBNull.Value));
             }
             parameters.Add(new SqlParameter("formId", task.task.EST_FORM_ID));
             using (var context = new topmepEntities())
@@ -724,10 +767,27 @@ namespace topmeperp.Service
             }
             if (staus == 30)
             {
-                staus = addAccountFromEst(task.task.EST_FORM_ID, task.task.CONTRACT_ID);
+                staus = addAccountFromEst(task.task.EST_FORM_ID, task.task.PAYEE, task.task.PAYMENT_DATE, task.task.PROJECT_ID, task.task.PAID_AMOUNT);
             }
             return staus;
         }
+        //將廠商計價付款資料寫入帳款(暫時)
+        public int addAccountFromEst(string formid, string payee, DateTime? paymentdate, string projectid, decimal Amt)
+        {
+
+            logger.Info("add plan account detail from est form,est form id =" + formid);
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                string sql = "INSERT INTO PLAN_ACCOUNT (PROJECT_ID, PAYEE, ACCOUNT_FORM_ID, AMOUNT_PAID, PAYMENT_DATE, ISDEBIT, ACCOUNT_TYPE) " +
+                              "VALUES ('" + task.task.PROJECT_ID + "','" + task.task.PAYEE + "', '" + task.task.EST_FORM_ID + "'," + task.task.PAID_AMOUNT + ", CONVERT(datetime, REPLACE(REPLACE('" + task.task.PAYMENT_DATE + "', '上午', ''), '下午', '') +case when charindex('上午', '" + task.task.PAYMENT_DATE + "')> 0 then 'AM' when charindex('下午', '" + task.task.PAYMENT_DATE + "')> 0 then 'PM' end), 'N', 'P') ";
+                logger.Info("sql =" + sql);
+                i = context.Database.ExecuteSqlCommand(sql);
+                return i;
+            }
+        }
+
+        /*
         //將廠商計價付款資料寫入帳款
         public int addAccountFromEst(string formid, string contractid)
         {
@@ -846,14 +906,15 @@ namespace topmeperp.Service
                 return i;
             }
         }
+        */
         //退件
-        public new void Reject(SYS_USER u, string reason)
+        public void Reject(SYS_USER u, DateTime? paymentdate, string reason, string payee)
         {
             logger.Debug("EstimationFormRequest Reject:" + task.task.RID);
             base.Reject(u, reason);
             if (statusChange != "F")
             {
-                updateForm(reason, 0);
+                updateForm(paymentdate, reason, 0, payee, null);
             }
         }
         //中止

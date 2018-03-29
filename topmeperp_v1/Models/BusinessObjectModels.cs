@@ -486,6 +486,7 @@ namespace topmeperp.Models
         public Nullable<decimal> RUNNING_TOTAL { get; set; }
         public Nullable<decimal> AMOUNT_BANK { get; set; }
         public Nullable<decimal> availableQta { get; set; }
+        public Nullable<decimal> SUB_BALANCE { get; set; }
 
     }
     public class ExpenseBudgetSummary : FIN_EXPENSE_ITEM
@@ -536,7 +537,6 @@ namespace topmeperp.Models
     public class PlanAccountFunction : PLAN_ACCOUNT
     {
         public string PROJECT_NAME { get; set; }
-        public string PAYEE { get; set; }
         public string RECORDED_DATE { get; set; }
         public string RECORDED_AMOUNT_PAYABLE { get; set; }
         public Int64 NO { get; set; }
@@ -683,8 +683,9 @@ namespace topmeperp.Models
     {
         public Nullable<decimal> curCashFlow { get; set; }
         public Nullable<decimal> maintBond { get; set; }
-        public Nullable<decimal> loanBalance { get; set; }
+        public Nullable<decimal> loanBalance_bank { get; set; }
         public Nullable<decimal> futureCashFlow { get; set; }
         public Nullable<decimal> cashFlowBal { get; set; }
+        public Nullable<decimal> loanBalance_sup { get; set; }
     }
 }

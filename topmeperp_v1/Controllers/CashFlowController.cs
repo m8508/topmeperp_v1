@@ -972,6 +972,7 @@ namespace topmeperp.Controllers
             item.STATUS = int.Parse(form["unRecordedFlag"]);
             item.CREATE_ID = form["create_id"];
             item.CHECK_NO = form["check_no"];
+            item.REMARK = form["remark"];
             SYS_USER loginUser = (SYS_USER)Session["user"];
             item.MODIFY_ID = loginUser.USER_ID;
             item.MODIFY_DATE = DateTime.Now;
