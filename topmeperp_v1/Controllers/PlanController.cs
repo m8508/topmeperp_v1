@@ -804,6 +804,7 @@ namespace topmeperp.Controllers
             wfs.getTask(formId);
             wfs.task.FormData= cs.form;
             wfs.task.lstItem = cs.lstItem;
+            wfs.getRequest(id);
             Session["process"] = wfs.task;
             SelectList reasoncode = new SelectList(SystemParameter.getSystemPara("COSTHANGE", "REASON"), "KEY_FIELD", "VALUE_FIELD",cs.form.REASON_CODE);
             ViewData.Add("reasoncode", reasoncode);
@@ -1001,33 +1002,6 @@ namespace topmeperp.Controllers
             int i = cs.delChangeOrderItem(itemUid);
             return "資料已刪除(" + i + ")";
         }
-        //送審、通過
-        public string SendForm(FormCollection f)
-        {
-            Flow4CostChange wfs = new Flow4CostChange();
-            wfs.task = (CostChangeFormTask)Session["process"];
-            logger.Info("http get mehtod: " + f["txtFormId"] + ",Data In Session :" + wfs.task.FormData.FORM_ID);
-
-            SYS_USER u = (SYS_USER)Session["user"];
-
-            string desc = null;
-            string method = null;
-            DateTime? settlementDate = null;
-            if (null != f["RejectDesc"] && f["RejectDesc"].ToString() != "")
-            {
-                desc = f["RejectDesc"].ToString().Trim();
-            }
-            if (null != f["methodcode"] && f["methodcode"].ToString() != "")
-            {
-                method = f["methodcode"].ToString().Trim();
-            }
-            if (null != f["settlementDate"] && f["settlementDate"].ToString() != "")
-            {
-                settlementDate = Convert.ToDateTime(f["methodcode"].ToString().Trim());
-            }
-            wfs.Send(u,  desc, method, settlementDate);
-            return "更新成功!!";
-        }
         //下載異動單
         public void downloadCostChangeForm()
         {
@@ -1213,6 +1187,55 @@ namespace topmeperp.Controllers
             int i = fs.delFile(itemUid);
             return "檔案已刪除(" + i + ")";
         }
+
+        #region workflow function area
+        //送審、通過
+        public string SendForm(FormCollection f)
+        {
+            Flow4CostChange wfs = new Flow4CostChange();
+            wfs.task = (CostChangeFormTask)Session["process"];
+            logger.Info("http get mehtod: " + f["txtFormId"] + ",Data In Session :" + wfs.task.FormData.FORM_ID);
+
+            SYS_USER u = (SYS_USER)Session["user"];
+
+            string desc = null;
+            string method = null;
+            DateTime? settlementDate = null;
+            if (null != f["RejectDesc"] && f["RejectDesc"].ToString() != "")
+            {
+                desc = f["RejectDesc"].ToString().Trim();
+            }
+            if (null != f["methodcode"] && f["methodcode"].ToString() != "")
+            {
+                method = f["methodcode"].ToString().Trim();
+            }
+            if (null != f["settlementDate"] && f["settlementDate"].ToString() != "")
+            {
+                settlementDate = Convert.ToDateTime(f["methodcode"].ToString().Trim());
+            }
+            wfs.Send(u, desc, method, settlementDate);
+            return "更新成功!!";
+        }
+        //退件
+        public String RejectForm(FormCollection form)
+        {
+            //取得表單資料 from Session
+            Flow4CostChange wfs = new Flow4CostChange();
+            wfs.task = (CostChangeFormTask)Session["process"];
+            SYS_USER u = (SYS_USER)Session["user"];
+            wfs.Reject(u, form["RejectDesc"]);
+            return wfs.Message;
+        }
+        //取消
+        public String CancelForm(FormCollection form)
+        {
+            Flow4CostChange wfs = new Flow4CostChange();
+            wfs.task = (CostChangeFormTask)Session["process"];
+            SYS_USER u = (SYS_USER)Session["user"];
+            wfs.Cancel(u);
+            return wfs.Message;
+        }
+        #endregion
     }
 }
 

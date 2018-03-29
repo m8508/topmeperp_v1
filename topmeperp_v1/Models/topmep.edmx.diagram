@@ -4,13 +4,16 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="a7c7dccd404c413991f0ed2a1ca31c76" Name="Diagram1" ZoomLevel="52">
+      <Diagram DiagramId="a7c7dccd404c413991f0ed2a1ca31c76" Name="Diagram1" ZoomLevel="29">
         <EntityTypeShape EntityType="topmepModel.ENT_DEPARTMENT" Width="2.5" PointX="0.75" PointY="7.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_BANK_ACCOUNT" Width="1.5" PointX="10.75" PointY="6.75" />
+        <EntityTypeShape EntityType="topmepModel.FIN_BANK_LOAN" Width="1.5" PointX="0.75" PointY="11.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_EXPENSE_BUDGET" Width="1.5" PointX="10.75" PointY="11.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_EXPENSE_FORM" Width="1.5" PointX="2.75" PointY="12.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_EXPENSE_ITEM" Width="1.5" PointX="12.75" PointY="6.75" />
+        <EntityTypeShape EntityType="topmepModel.FIN_LOAN_TRANACTION" Width="1.5" PointX="7.75" PointY="12.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_SUBJECT" Width="1.5" PointX="5.75" PointY="0.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_ACCOUNT" Width="1.5" PointX="12.75" PointY="10.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_BUDGET" Width="1.5" PointX="13.75" PointY="0.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_CONTRACT_PROCESS" Width="1.5" PointX="4.75" PointY="13.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_DALIY_REPORT" Width="1.5" PointX="14.75" PointY="5.75" />
@@ -18,6 +21,7 @@
         <EntityTypeShape EntityType="topmepModel.PLAN_DR_NOTE" Width="1.5" PointX="14.75" PointY="13.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_DR_TASK" Width="1.5" PointX="15.75" PointY="0.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_DR_WORKER" Width="1.5" PointX="9.75" PointY="15.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_FORM" Width="1.5" PointX="11.75" PointY="15.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_ITEM" Width="1.5" PointX="16.75" PointY="3.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_INDIRECT_COST" Width="1.5" PointX="8" PointY="8.125" />
         <EntityTypeShape EntityType="topmepModel.PLAN_INVOICE" Width="1.5" PointX="16.75" PointY="6.75" />
@@ -65,15 +69,10 @@
         <AssociationConnector Association="topmepModel.FK_SYS_PRIVILEGE_SYS_FUNCTION" />
         <AssociationConnector Association="topmepModel.FK_SYS_PRIVILEGE_SYS_ROLE" />
         <AssociationConnector Association="topmepModel.FK_SYS_USER_SYS_ROLE" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_COSTCHANGE_ITEM" Width="1.5" PointX="10.75" PointY="1.25" />
-        <EntityTypeShape EntityType="topmepModel.FIN_BANK_LOAN" Width="1.5" PointX="5.5" PointY="29.875" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_COSTCHANGE_FORM" Width="1.5" PointX="8.5" PointY="1.375" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_COSTCHANGE_FORM" Width="1.5" PointX="25.375" PointY="17.125" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_COSTCHANGE_ITEM" Width="1.5" PointX="27.625" PointY="17" />
         <AssociationConnector Association="topmepModel.FK_PLAN_COS_REFERENCE_PLAN_COS" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_FORM" Width="1.5" PointX="25.375" PointY="16.75" />
-        <EntityTypeShape EntityType="topmepModel.FIN_LOAN_TRANACTION" Width="1.5" PointX="7.75" PointY="30.75" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_ACCOUNT" Width="1.5" PointX="25.375" PointY="22.75" />
-        <AssociationConnector Association="topmepModel.FK_FIN_LOAN_REFERENCE_FIN_BANK" />
-      </Diagram>
+        </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
 </edmx:Edmx>

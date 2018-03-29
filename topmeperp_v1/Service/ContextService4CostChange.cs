@@ -117,7 +117,7 @@ namespace topmeperp.Service
             {
                 //僅針對追加減部分列入 TRANSFLAG='1'
                 logger.Debug("query by project and remark:" + projectId);
-                string sql = @"SELECT FORM_ID,REMARK,SETTLEMENT_DATE,
+                string sql = @"SELECT FORM_ID,(REMARK_ITEM + REMARK_QTY + REMARK_PRICE + REMARK_OTHER) REMARK,SETTLEMENT_DATE,
                             (SELECT SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) FROM PLAN_COSTCHANGE_ITEM WHERE FORM_ID = f.FORM_ID ) TotalAmt,
                             (SELECT SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) FROM PLAN_COSTCHANGE_ITEM WHERE FORM_ID = f.FORM_ID AND TRANSFLAG='1') RecognizeAmt,
                             (SELECT SUM(ITEM_QUANTITY * ITEM_UNIT_PRICE) FROM[PLAN_COSTCHANGE_ITEM] WHERE FORM_ID = f.FORM_ID AND ITEM_QUANTITY> 0 AND TRANSFLAG='1') AddAmt,
