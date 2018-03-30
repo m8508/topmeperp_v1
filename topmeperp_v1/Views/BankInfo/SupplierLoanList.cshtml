@@ -24,18 +24,21 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var item in Model)
+                            @if (null != Model)
                             {
-                                <tr>
-                                    <td>
-                                        <a href="#" onclick="editBankLoan('@item.BL_ID')"> @item.BL_ID</a>
-                                        <input type="hidden" id="BL_ID" name="BL_ID" value="@item.BL_ID" />
-                                    </td>
-                                    <td><a href="/BankInfo/BankLoanTransaction?BL_ID=@item.BL_ID&IS_SUPPLIER=@item.IS_SUPPLIER">明細</a></td>
-                                    <td>@item.BANK_NAME</td>
-                                    <td>@item.REMARK</td>
-                                    <td>@item.MODIFY_DATE</td>
-                                </tr>
+                                foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a href="#" onclick="editBankLoan('@item.BL_ID')"> @item.BL_ID</a>
+                                            <input type="hidden" id="BL_ID" name="BL_ID" value="@item.BL_ID" />
+                                        </td>
+                                        <td><a href="/BankInfo/BankLoanTransaction?BL_ID=@item.BL_ID&IS_SUPPLIER=@item.IS_SUPPLIER">明細</a></td>
+                                        <td>@item.BANK_NAME</td>
+                                        <td>@item.REMARK</td>
+                                        <td>@item.MODIFY_DATE</td>
+                                    </tr>
+                                }
                             }
                         </tbody>
                         <tfoot>
