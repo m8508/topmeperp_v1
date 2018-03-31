@@ -339,8 +339,9 @@ else
             success: function (data) {
                 $('#va_form_id').val(data.VA_FORM_ID);
                 $('#number').val(data.NO);
-                $('#payment_amount').val(data.AR);
-                $('#paid_amount').val();
+                $('#payment_amount').val();
+                $('#fee').val();
+                $('#loan_remark').val();
                 $('#payment_date').val();
                 $('#check_no').val();
                 $('#paymentInfo').modal('show'); // show bootstrap modal when complete loaded

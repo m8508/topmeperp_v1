@@ -5701,7 +5701,7 @@ namespace topmeperp.Service
                     "FROM (SELECT p.PROJECT_ID, p.PROJECT_NAME, ISNULL(B.directCost, 0) AS directCost, ISNULL(C.AR, 0) AS AR, " +
                     "ISNULL(SUM(pi.ITEM_UNIT_PRICE * pi.ITEM_QUANTITY), 0) - ISNULL(C.AR, 0) AS uncollectedAR, ISNULL(D.AP, 0) - ISNULL(E.MinusItem, 0) AS AP, " +
                     "ISNULL(B.directCost, 0) - ISNULL(D.AP, 0) + ISNULL(E.MinusItem, 0) AS unpaidAP, ISNULL(SUM(pi.ITEM_UNIT_PRICE * pi.ITEM_QUANTITY), 0) AS PLAN_REVENUE, " +
-                    "ISNULL(F.MACost, 0) AS MACost, ISNULL(G.SalesCost, 0) + ISNULL(I.CompanyCost, 0) AS ManagementCost, ISNULL(H.SiteCost, 0) AS SiteCost " +
+                    "ISNULL(F.MACost, 0) AS MACost, ISNULL(G.SalesCost, 0) AS SalesCost, ISNULL(I.CompanyCost, 0) AS ManagementCost, ISNULL(H.SiteCost, 0) AS SiteCost " +
                     "FROM TND_PROJECT p LEFT JOIN PLAN_ITEM pi ON pi.PROJECT_ID = p.PROJECT_ID LEFT JOIN (SELECT main.PROJECT_ID, SUM(sub.directCost) AS directCost " +
                     "FROM(SELECT pi.INQUIRY_FORM_ID, pi.PROJECT_ID FROM PLAN_ITEM pi union SELECT pi.MAN_FORM_ID, pi.PROJECT_ID FROM PLAN_ITEM pi)main " +
                     "LEFT JOIN(SELECT psi.INQUIRY_FORM_ID, SUM(psi.ITEM_UNIT_PRICE * psi.ITEM_QTY) AS directCost FROM  PLAN_SUP_INQUIRY_ITEM psi GROUP BY psi.INQUIRY_FORM_ID)sub " +
@@ -5727,12 +5727,12 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 lstAmount = context.Database.SqlQuery<PlanFinanceProfile>("SELECT SUM(PLAN_REVENUE) AS PLAN_REVENUE, SUM(directCost) AS directCost, " +
-                    "SUM(AP) AS AP, SUM(AR) AS AR, SUM(uncollectedAR) AS uncollectedAR, SUM(unpaidAP) AS unpaidAP, SUM(MACost) AS MACost, SUM(SiteCost) AS SiteCost, " +
+                    "SUM(AP) AS AP, SUM(AR) AS AR, SUM(uncollectedAR) AS uncollectedAR, SUM(unpaidAP) AS unpaidAP, SUM(MACost) AS MACost, SUM(SiteCost) AS SiteCost, SUM(SalesCost) AS SalesCost, " +
                     "SUM(ManagementCost) AS ManagementCost, SUM(planProfit) AS planProfit FROM (SELECT *, PLAN_REVENUE - directCost - SiteCost - ManagementCost - MACost AS planProfit " +
                     "FROM (SELECT p.PROJECT_ID, p.PROJECT_NAME, ISNULL(B.directCost, 0) AS directCost, ISNULL(C.AR, 0) AS AR, " +
                     "ISNULL(SUM(pi.ITEM_UNIT_PRICE * pi.ITEM_QUANTITY), 0) - ISNULL(C.AR, 0) AS uncollectedAR, ISNULL(D.AP, 0) - ISNULL(E.MinusItem, 0) AS AP, " +
                     "ISNULL(B.directCost, 0) - ISNULL(D.AP, 0) + ISNULL(E.MinusItem, 0) AS unpaidAP, ISNULL(SUM(pi.ITEM_UNIT_PRICE * pi.ITEM_QUANTITY), 0) AS PLAN_REVENUE, " +
-                    "ISNULL(F.MACost, 0) AS MACost, ISNULL(G.SalesCost, 0) + ISNULL(I.CompanyCost, 0) AS ManagementCost, ISNULL(H.SiteCost, 0) AS SiteCost " +
+                    "ISNULL(F.MACost, 0) AS MACost, ISNULL(G.SalesCost, 0) AS SalesCost, ISNULL(I.CompanyCost, 0) AS ManagementCost, ISNULL(H.SiteCost, 0) AS SiteCost " +
                     "FROM TND_PROJECT p LEFT JOIN PLAN_ITEM pi ON pi.PROJECT_ID = p.PROJECT_ID LEFT JOIN (SELECT main.PROJECT_ID, SUM(sub.directCost) AS directCost " +
                     "FROM(SELECT pi.INQUIRY_FORM_ID, pi.PROJECT_ID FROM PLAN_ITEM pi union SELECT pi.MAN_FORM_ID, pi.PROJECT_ID FROM PLAN_ITEM pi)main " +
                     "LEFT JOIN(SELECT psi.INQUIRY_FORM_ID, SUM(psi.ITEM_UNIT_PRICE * psi.ITEM_QTY) AS directCost FROM  PLAN_SUP_INQUIRY_ITEM psi GROUP BY psi.INQUIRY_FORM_ID)sub " +
@@ -5755,12 +5755,13 @@ namespace topmeperp.Service
             CashFlowBalance lstAmount = null;
             using (var context = new topmepEntities())
             {
-                lstAmount = context.Database.SqlQuery<CashFlowBalance>("SELECT *, ISNULL(curCashFlow,0) - ISNULL(loanBalance_sup, 0) + ISNULL(loanBalance_bank, 0) + ISNULL(futureCashFlow, 0) AS cashFlowBal FROM " +
+                lstAmount = context.Database.SqlQuery<CashFlowBalance>("SELECT *, ISNULL(curCashFlow,0) - ISNULL(loanBalance_sup, 0) + ISNULL(loanBalance_bank, 0) + ISNULL(futureCashFlow, 0) - ISNULL(CompanyCost, 0) AS cashFlowBal FROM " +
                     "(SELECT (SELECT ISNULL(bankAmt, 0) + ISNULL(cashFlow, 0) + ISNULL(loanFlowFactor, 0) FROM (SELECT (SELECT SUM(CUR_AMOUNT) FROM FIN_BANK_ACCOUNT) AS bankAmt, " +
                     "(SELECT SUM(IIF(ISNULL(IS_SUPPLIER, 'N') = 'Y', IIF(TRANSACTION_TYPE = 1, 1 ,-1),IIF(TRANSACTION_TYPE = 1, -1 ,1)) * AMOUNT) " +
                     "FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID WHERE CONVERT(char(10), IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE),111) > " +
                     "CONVERT(char(10), getdate(),111) AND t.REMARK NOT LIKE '%備償款%') AS loanFlowFactor, SUM(AMOUNT_PAID *IIF(pa.ISDEBIT = 'N', -1, 1)) AS cashFlow " +
                     "FROM PLAN_ACCOUNT pa WHERE pa.PAYMENT_DATE >= CONVERT(char(10), getdate(), 111) AND ISNULL(STATUS, 10) <> 0)it) AS curCashFlow, (SELECT SUM(MAINTENANCE_BOND) FROM PLAN_CONTRACT_PROCESS) AS maintBond, " +
+                    "(SELECT SUM(AMOUNT) FROM FIN_EXPENSE_BUDGET WHERE BUDGET_YEAR = IIF(MONTH(GETDATE()) > 6, YEAR(GETDATE()), YEAR(GETDATE())-1)) AS CompanyCost," +
                     "(SELECT ISNULL(SUM(AMOUNT * flt.TRANSACTION_TYPE), 0) FROM FIN_LOAN_TRANACTION flt LEFT JOIN FIN_BANK_LOAN fbl ON flt.BL_ID = fbl.BL_ID WHERE ISNULL(IS_SUPPLIER, 'N') <> 'Y') AS loanBalance_bank, " +
                     "(SELECT ISNULL(SUM(AMOUNT * flt.TRANSACTION_TYPE), 0) FROM FIN_LOAN_TRANACTION flt LEFT JOIN FIN_BANK_LOAN fbl ON flt.BL_ID = fbl.BL_ID WHERE ISNULL(IS_SUPPLIER, 'N') = 'Y') AS loanBalance_sup, " +
                     "(SELECT SUM(ISNULL(PLAN_REVENUE, 0)) - SUM(directCost) - SUM(ISNULL(MACost, 0)) - SUM(ISNULL(ManagementCost, 0)) - SUM(ISNULL(SiteCost, 0))  " +

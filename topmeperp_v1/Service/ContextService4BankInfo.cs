@@ -135,13 +135,18 @@ namespace topmeperp.Service
                     //取得期數與匯總金額
                     if (supplier == "Y")
                     {
-                        sql = "SELECT ISNULL(CUR_PERIOD, 0)CUR_PERIOD , ISNULL(AMOUNT, 0)AMOUNT FROM FIN_BANK_LOAN f " +
+                        sql = "SELECT ISNULL(CUR_PERIOD, 0)CUR_PERIOD , ISNULL(AMOUNT, 0)AMOUNT, (SELECT ISNULL(SUM(AMOUNT), 0) FROM FIN_BANK_LOAN f " +
+                            "LEFT JOIN FIN_LOAN_TRANACTION t ON f.BL_ID = t.BL_ID WHERE t.TRANSACTION_TYPE = 1 AND f.BL_ID =@BL_ID) AS paybackAmt, " +
+                            "(SELECT ISNULL(SUM(AMOUNT), 0) FROM FIN_BANK_LOAN f LEFT JOIN FIN_LOAN_TRANACTION t ON f.BL_ID = t.BL_ID " +
+                            "WHERE t.TRANSACTION_TYPE = -1 AND f.BL_ID =@BL_ID) AS eventAmt FROM FIN_BANK_LOAN f " +
                             "LEFT JOIN (SELECT BL_ID, MAX(ISNULL(PERIOD, 0)) CUR_PERIOD, SUM(TRANSACTION_TYPE * AMOUNT) AMOUNT " +
                             "FROM FIN_LOAN_TRANACTION GROUP BY BL_ID)flt ON flt.BL_ID = f.BL_ID WHERE f.BL_ID =@BL_ID ";
                     }
                     else
                     {
-                        sql = "SELECT ISNULL(CUR_PERIOD, 0)CUR_PERIOD , ISNULL(AMOUNT, 0)AMOUNT, ROUND(ISNULL(fbl.QUOTA * (1-IIF(fbl.vaRatio >= fbl.CUM_AR_RATIO , 1, fbl.QUOTA_AVAILABLE_RATIO/100)), 0), 0) AS SURPLUS_AMOUNT " +
+                        sql = "SELECT ISNULL(CUR_PERIOD, 0)CUR_PERIOD , ISNULL(AMOUNT, 0)AMOUNT, ROUND(ISNULL(fbl.QUOTA * (1-IIF(fbl.vaRatio >= fbl.CUM_AR_RATIO , 1, fbl.QUOTA_AVAILABLE_RATIO/100)), 0), 0) AS SURPLUS_AMOUNT, " +
+                            "(SELECT ISNULL(SUM(AMOUNT), 0) FROM FIN_BANK_LOAN f LEFT JOIN FIN_LOAN_TRANACTION t ON f.BL_ID = t.BL_ID WHERE t.TRANSACTION_TYPE = 1 AND f.BL_ID =@BL_ID) AS paybackAmt, " +
+                            "(SELECT ISNULL(SUM(AMOUNT), 0) FROM FIN_BANK_LOAN f LEFT JOIN FIN_LOAN_TRANACTION t ON f.BL_ID = t.BL_ID WHERE t.TRANSACTION_TYPE = -1 AND f.BL_ID =@BL_ID) AS eventAmt " +
                             "FROM (SELECT BL_ID, QUOTA, CUM_AR_RATIO, QUOTA_AVAILABLE_RATIO, VALUATION_AMOUNT / contractAtm * 100 AS vaRatio FROM FIN_BANK_LOAN f LEFT JOIN " +
                             "(SELECT PROJECT_ID, SUM(ITEM_UNIT_PRICE * ITEM_QUANTITY) AS contractAtm FROM PLAN_ITEM GROUP BY PROJECT_ID)pi ON f.PROJECT_ID = pi.PROJECT_ID " +
                             "LEFT JOIN (SELECT PROJECT_ID, SUM(VALUATION_AMOUNT)AS VALUATION_AMOUNT FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID)v ON f.PROJECT_ID = v.PROJECT_ID " +
@@ -156,6 +161,8 @@ namespace topmeperp.Service
                     {
                         item.CurPeriod = long.Parse(ds.Tables[0].Rows[0]["CUR_PERIOD"].ToString());
                         item.SumTransactionAmount = (decimal)ds.Tables[0].Rows[0]["AMOUNT"];
+                        item.paybackAmt = (decimal)ds.Tables[0].Rows[0]["paybackAmt"];
+                        item.eventAmt = (decimal)ds.Tables[0].Rows[0]["eventAmt"];
                         if (supplier != "Y")
                         {
                             item.SurplusQuota = (decimal)ds.Tables[0].Rows[0]["SURPLUS_AMOUNT"];

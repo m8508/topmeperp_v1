@@ -662,6 +662,7 @@ namespace topmeperp.Models
         public Nullable<decimal> AP { get; set; }
         public Nullable<decimal> AR { get; set; }
         public Nullable<decimal> ManagementCost { get; set; }
+        public Nullable<decimal> SalesCost { get; set; }
         public Nullable<decimal> planProfit { get; set; }
         public Nullable<decimal> MACost { get; set; }
         public Nullable<decimal> PLAN_REVENUE { get; set; }
@@ -687,5 +688,6 @@ namespace topmeperp.Models
         public Nullable<decimal> futureCashFlow { get; set; }
         public Nullable<decimal> cashFlowBal { get; set; }
         public Nullable<decimal> loanBalance_sup { get; set; }
+        public Nullable<decimal> CompanyCost { get; set; }
     }
 }

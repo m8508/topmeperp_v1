@@ -161,7 +161,10 @@
                     界面維保費
                 </th>
                 <th style="width:80px;">
-                    業務與公司費用分擔
+                    業務開展費
+                </th>
+                <th style="width:80px;">
+                    公司費用
                 </th>
                 <th style="width:100px;">
                     累計成本
@@ -198,6 +201,9 @@
                     </td>
                     <td>
                         @String.Format("{0:$#,##0.#}", item.MACost)
+                    </td>
+                    <td>
+                        @String.Format("{0:$#,##0.#}", item.SalesCost)
                     </td>
                     <td>
                         @String.Format("{0:$#,##0.#}", item.ManagementCost)
@@ -250,6 +256,9 @@
             </th>
             <th style="width:80px;">
                 @String.Format("{0:$#,##0.#}", @Model.totalFinProfile.MACost)
+            </th>
+            <th style="width:80px;">
+                @String.Format("{0:$#,##0.#}", @Model.totalFinProfile.SalesCost)
             </th>
             <th style="width:80px;">
                 @String.Format("{0:$#,##0.#}", @Model.totalFinProfile.ManagementCost)
@@ -322,7 +331,7 @@
                     </span>
                 </th>
             }
-            <th class="bg-danger" style="width:140px;">
+            <th class="bg-danger" style="width:100px;">
                 廠商借支
             </th>
             <th class="text-right" style="width:100px;">
@@ -333,6 +342,12 @@
             </th>
             <th class="text-right" style="width:120px;">
                 @String.Format("{0:$#,##0.#}", @Model.finBalance.loanBalance_bank * -1)
+            </th>
+            <th class="bg-danger" style="width:100px;">
+                公司費用
+            </th>
+            <th class="text-right" style="width:120px;">
+                @String.Format("{0:$#,##0.#}", @Model.finBalance.CompanyCost)
             </th>
             <th class="bg-danger" style="width:50px;">
                 損益

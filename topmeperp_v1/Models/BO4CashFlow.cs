@@ -12,7 +12,9 @@ namespace topmeperp.Models
         public long CurPeriod { get; set; }
         public decimal SumTransactionAmount { get; set; }
         public decimal SurplusQuota { get; set; }
-        
+        public decimal paybackAmt { get; set; }
+        public decimal eventAmt { get; set; }
+
     }
     public class BankLoanInfoExt: FIN_BANK_LOAN
     {
