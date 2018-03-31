@@ -1,4 +1,4 @@
-﻿@model IEnumerable<topmeperp.Models.PlanAccountFunction>
+﻿@model topmeperp.Models.CashFlowModel
 @{
     ViewBag.Title = "收入明細";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
@@ -40,7 +40,7 @@
                 </th>
             </tr>
 
-            @foreach (var item in Model)
+            @foreach (var item in Model.planAccount)
             {
                 <tr>
                     <td>
@@ -67,6 +67,49 @@
         </table>
     </form>
 </div>
+<h3 class="text-left" style="padding-top:20px;">銀行借款/廠商還款 :</h3>
+<table class="table table-bordered">
+    <tr>
+        <th>
+            類型
+        </th>
+        <th>
+            金額
+        </th>
+        <th>
+            日期
+        </th>
+        <th>
+            備註
+        </th>
+    </tr>
+
+    @foreach (var item in Model.finLoanTranaction)
+            {
+        <tr>
+            @if (item.IS_SUPPLIER == "Y" )
+            {
+                <td>廠商還款</td>
+            }
+            else
+            {
+                <td>銀行借款</td>
+
+            }
+            <td>@String.Format("{0:$#,##0.#}", item.AMOUNT)</td>
+            @if (item.TRANSACTION_TYPE == -1)
+            {
+                <td>@string.Format("{0:yyyy/MM/dd}", @item.EVENT_DATE)</td>
+            }
+            else
+            {
+                <td>@string.Format("{0:yyyy/MM/dd}", @item.PAYBACK_DATE)</td>
+            }
+            <td>@item.REMARK</td>
+        </tr>
+    }
+</table>
+
 <!-- Modal :對話框-->
 <div class="modal fade" id="planAcountItem" role="dialog">
     <div class="modal-dialog" id="planAcountItemDialog">

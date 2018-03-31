@@ -541,10 +541,8 @@ namespace topmeperp.Models
         public string RECORDED_AMOUNT_PAYABLE { get; set; }
         public Int64 NO { get; set; }
         public string RECORDED_AMOUNT_PAID { get; set; }
-
-
     }
-    public class SiteBudgetModels
+        public class SiteBudgetModels
     {
         //第1年度工地費用預算資料
         public IEnumerable<ExpenseBudgetSummary> firstYear { get; set; }
@@ -672,6 +670,10 @@ namespace topmeperp.Models
         public string PROJECT_ID { get; set; }
         public string PROJECT_NAME { get; set; }
     }
+    public class LoanTranactionFunction : FIN_LOAN_TRANACTION
+    {
+        public string IS_SUPPLIER { get; set; }
+    }
     public class CashFlowModel
     {
         public IEnumerable<PlanFinanceProfile> finProfile { get; set; }
@@ -679,6 +681,9 @@ namespace topmeperp.Models
         public PlanFinanceProfile totalFinProfile { get; set; }
         public CashFlowBalance finBalance { get; set; }
         public IEnumerable<FIN_BANK_LOAN> finLoan { get; set; }
+        public IEnumerable<LoanTranactionFunction> finLoanTranaction { get; set; }
+        public IEnumerable<PlanAccountFunction> planAccount { get; set; }
+        
     }
     public class CashFlowBalance : PLAN_ACCOUNT
     {

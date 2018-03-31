@@ -4936,7 +4936,7 @@ namespace topmeperp.Service
             //處理SQL 預先填入專案代號,設定集合處理參數
             string sql = "SELECT pa.AMOUNT_PAYABLE, pa.AMOUNT_PAID, pa.ACCOUNT_TYPE, CONVERT(char(10), pa.PAYMENT_DATE, 111) AS RECORDED_DATE, pa.PLAN_ACCOUNT_ID, " +
                 "ISNULL(pa.STATUS, 10) AS STATUS , pa.CHECK_NO, p.PROJECT_NAME, pa.PAYEE, pa.REMARK, ROW_NUMBER() OVER(ORDER BY p.PROJECT_NAME) AS NO " +
-                "FROM PLAN_ACCOUNT pa LEFT JOIN TND_PROJECT p ON pa.PROJECT_ID = p.PROJECT_ID WHERE pa.ACCOUNT_TYPE = @accounttype ";
+                "FROM PLAN_ACCOUNT pa LEFT JOIN TND_PROJECT p ON pa.PROJECT_ID = p.PROJECT_ID WHERE pa.ACCOUNT_TYPE IN (@accounttype) ";
 
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("accounttype", accounttype));
@@ -4987,7 +4987,29 @@ namespace topmeperp.Service
             }
             return aitem;
         }
-
+        //取得特定日期借款與還款
+        public List<LoanTranactionFunction> getLoanTranaction(string type, string paymentdate)
+        {
+            logger.Debug("get loan tranaction by payment date=" + paymentdate);
+            List<LoanTranactionFunction> lstItem = new List<LoanTranactionFunction>();
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                if (type == "I")// type值為'I'表示有現金流入
+                {
+                    lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = 1 AND CONVERT(char(10), " +
+                        "IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE), 111) =@paymentdate OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.TRANSACTION_TYPE = -1 AND CONVERT(char(10), IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE), 111) =@paymentdate ",
+                    new SqlParameter("paymentdate", paymentdate)).ToList();
+                }
+                else // type值為'O'表示有現金流出
+                {
+                    lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = -1 AND CONVERT(char(10), " +
+                        "IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE), 111) =@paymentdate OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.TRANSACTION_TYPE = 1 AND CONVERT(char(10), IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE), 111) =@paymentdate ",
+                    new SqlParameter("paymentdate", paymentdate)).ToList();
+                }
+            }
+            return lstItem;
+        }
         public List<PlanAccountFunction> getPlanAccountById(string formid)
         {
             logger.Debug("get plan account by form id=" + formid);

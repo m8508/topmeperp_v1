@@ -67,21 +67,33 @@ namespace topmeperp.Controllers
             return View(viewModel);
         }
         //取得特定日期收入明細
-        public ActionResult CashInFlowItem(string paymentDate)
+        public ActionResult CashInFlowItem(string paymentDate, string type)
         {
             List<PlanAccountFunction> CashInFlow = null;
+            List<LoanTranactionFunction> LoanInFlow = null;
+            CashFlowModel viewModel = new CashFlowModel();
             string projectname = "";
             string account_type = "R";
             CashInFlow = service.getPlanAccount(paymentDate, projectname, projectname, account_type);
-            return View(CashInFlow);
+            LoanInFlow = service.getLoanTranaction(type, paymentDate);
+            viewModel.planAccount = CashInFlow;
+            viewModel.finLoanTranaction = LoanInFlow;
+            return View(viewModel);
         }
 
         //取得特定日期支出明細
-        public ActionResult CashOutFlowItem(string id)
+        public ActionResult CashOutFlowItem(string paymentDate, string type)
         {
-            List<CashFlowBalance> CashOutFlow = null;
-            CashOutFlow = service.getCreditByDate(id);
-            return View(CashOutFlow);
+            List<PlanAccountFunction> CashInFlow = null;
+            List<LoanTranactionFunction> LoanInFlow = null;
+            CashFlowModel viewModel = new CashFlowModel();
+            string projectname = "";
+            string account_type = "'P', 'O', 'E'";
+            CashInFlow = service.getPlanAccount(paymentDate, projectname, projectname, account_type);
+            LoanInFlow = service.getLoanTranaction(type, paymentDate);
+            viewModel.planAccount = CashInFlow;
+            viewModel.finLoanTranaction = LoanInFlow;
+            return View(viewModel);
         }
 
         public ActionResult ExpenseBudget()
