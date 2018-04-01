@@ -278,7 +278,7 @@ namespace topmeperp.Controllers
 
             bankloanInfo.BANK_NAME = Request["BANK_NAME"];
             bankloanInfo.REMARK = Request["REMARK"];
-            //bankloanInfo.IS_SUPPLIER = "Y";
+            bankloanInfo.IS_SUPPLIER = "Y";
             bankloanInfo.CREATE_ID = u.USER_ID;
             bankloanInfo.CREATE_DATE = DateTime.Now;
             ContextService4BankInfo service = new ContextService4BankInfo();
