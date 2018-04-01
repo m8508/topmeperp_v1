@@ -84,15 +84,15 @@ namespace topmeperp.Controllers
         //取得特定日期支出明細
         public ActionResult CashOutFlowItem(string paymentDate, string type)
         {
-            List<PlanAccountFunction> CashInFlow = null;
-            List<LoanTranactionFunction> LoanInFlow = null;
+            List<PlanAccountFunction> CashOutFlow = null;
+            List<LoanTranactionFunction> LoanOutFlow = null;
             CashFlowModel viewModel = new CashFlowModel();
             string projectname = "";
-            string account_type = "'P', 'O', 'E'";
-            CashInFlow = service.getPlanAccount(paymentDate, projectname, projectname, account_type);
-            LoanInFlow = service.getLoanTranaction(type, paymentDate);
-            viewModel.planAccount = CashInFlow;
-            viewModel.finLoanTranaction = LoanInFlow;
+            string account_type = "P','O','E";
+            CashOutFlow = service.getPlanAccount(paymentDate, projectname, projectname, account_type);
+            LoanOutFlow = service.getLoanTranaction(type, paymentDate);
+            viewModel.planAccount = CashOutFlow;
+            viewModel.finLoanTranaction = LoanOutFlow;
             return View(viewModel);
         }
 

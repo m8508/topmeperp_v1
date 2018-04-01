@@ -58,7 +58,7 @@
                 @if (item.AMOUNT_INFLOW != 0)
                 {
                     <td>
-                        <a href="/CashFlow/CashInFlowItem?paymentDate=@item.DATE_CASHFLOW&type='I'" target="_blank">@String.Format("{0:$#,##0.#}", item.AMOUNT_INFLOW)</a>
+                        <a href="/CashFlow/CashInFlowItem?paymentDate=@item.DATE_CASHFLOW&type=I" target="_blank">@String.Format("{0:$#,##0.#}", item.AMOUNT_INFLOW)</a>
                     </td>
                 }
                 else
@@ -70,7 +70,7 @@
                 @if (item.AMOUNT_OUTFLOW != 0)
                 {
                     <td>
-                        <a href="/CashFlow/CashOutFlowItem?paymentDate=@item.DATE_CASHFLOW&type='O'" target="_blank">@String.Format("{0:$#,##0.#}", item.AMOUNT_OUTFLOW)</a>
+                        <a href="/CashFlow/CashOutFlowItem?paymentDate=@item.DATE_CASHFLOW&type=O" target="_blank">@String.Format("{0:$#,##0.#}", item.AMOUNT_OUTFLOW)</a>
                     </td>
                 }
                 else
