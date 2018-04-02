@@ -247,14 +247,12 @@ namespace topmeperp.Controllers
                     lstLoanTransaction.Add(loanTransaction);
                     period++;
                 }
-                if (lstLoanTransaction.Count > 0)
-                {
-                    ContextService4BankInfo service = new ContextService4BankInfo();
-                    service.addBankLoanTransaction(lstLoanTransaction);
-                }
-
             }
-
+            if (lstLoanTransaction.Count > 0)
+            {
+                ContextService4BankInfo service = new ContextService4BankInfo();
+                service.addBankLoanTransaction(lstLoanTransaction);
+            }
             Response.Redirect("/BankInfo/BankLoanTransaction?BL_ID=" + Request["bl_id"]);
         }
         /// <summary>

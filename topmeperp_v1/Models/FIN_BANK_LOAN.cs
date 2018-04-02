@@ -14,12 +14,6 @@ namespace topmeperp.Models
     
     public partial class FIN_BANK_LOAN
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public FIN_BANK_LOAN()
-        {
-            this.FIN_LOAN_TRANACTION = new HashSet<FIN_LOAN_TRANACTION>();
-        }
-    
         public long BL_ID { get; set; }
         public string BANK_ID { get; set; }
         public string BANK_NAME { get; set; }
@@ -42,8 +36,5 @@ namespace topmeperp.Models
         public Nullable<decimal> QUOTA_AVAILABLE_RATIO { get; set; }
         public string QUOTA_RECYCLABLE { get; set; }
         public string IS_SUPPLIER { get; set; }
-    
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<FIN_LOAN_TRANACTION> FIN_LOAN_TRANACTION { get; set; }
     }
 }

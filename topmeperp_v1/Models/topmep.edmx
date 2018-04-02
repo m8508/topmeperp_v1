@@ -63,6 +63,7 @@
           <Property Name="CUM_AR_RATIO" Type="decimal" Precision="18" Scale="3" />
           <Property Name="QUOTA_AVAILABLE_RATIO" Type="decimal" Precision="18" Scale="3" />
           <Property Name="QUOTA_RECYCLABLE" Type="varchar" MaxLength="1" />
+          <Property Name="IS_SUPPLIER" Type="varchar" MaxLength="1" />
         </EntityType>
         <EntityType Name="FIN_EXPENSE_BUDGET">
           <Key>
@@ -131,6 +132,7 @@
           <Property Name="CREATE_DATE" Type="datetime" />
           <Property Name="MODIFY_ID" Type="varchar" MaxLength="30" />
           <Property Name="MODIFY_DATE" Type="datetime" />
+          <Property Name="VA_FORM_ID" Type="varchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="FIN_SUBJECT">
           <Key>
@@ -158,6 +160,9 @@
           <Property Name="MODIFY_DATE" Type="datetime" />
           <Property Name="CHECK_NO" Type="varchar" MaxLength="20" />
           <Property Name="AMOUNT_PAYABLE" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="BANKING_FEE" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="PAYEE" Type="varchar" MaxLength="50" />
+          <Property Name="REMARK" Type="varchar" MaxLength="500" />
         </EntityType>
         <EntityType Name="PLAN_BUDGET">
           <Key>
@@ -320,6 +325,9 @@
           <Property Name="MODIFY_DATE" Type="datetime" />
           <Property Name="INVOICE" Type="varchar" MaxLength="1" />
           <Property Name="REJECT_DESC" Type="varchar" MaxLength="500" />
+          <Property Name="PROJECT_NAME" Type="varchar" MaxLength="200" />
+          <Property Name="PAYEE" Type="varchar" MaxLength="50" />
+          <Property Name="PAYMENT_DATE" Type="datetime" />
         </EntityType>
         <EntityType Name="PLAN_ESTIMATION_ITEM">
           <Key>
@@ -1403,6 +1411,7 @@
           <Property Name="CUM_AR_RATIO" Type="Decimal" Precision="18" Scale="3" />
           <Property Name="QUOTA_AVAILABLE_RATIO" Type="Decimal" Precision="18" Scale="3" />
           <Property Name="QUOTA_RECYCLABLE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="IS_SUPPLIER" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="FIN_EXPENSE_BUDGET">
           <Key>
@@ -1471,6 +1480,7 @@
           <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
           <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="VA_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="FIN_SUBJECT">
           <Key>
@@ -1498,6 +1508,9 @@
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
           <Property Name="CHECK_NO" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="AMOUNT_PAYABLE" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="BANKING_FEE" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="PAYEE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="REMARK" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="PLAN_BUDGET">
           <Key>
@@ -1619,6 +1632,9 @@
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
           <Property Name="INVOICE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
           <Property Name="REJECT_DESC" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="PROJECT_NAME" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="PAYEE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PAYMENT_DATE" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="PLAN_ESTIMATION_ITEM">
           <Key>
@@ -2567,6 +2583,7 @@
           <EntitySetMapping Name="FIN_BANK_LOAN">
             <EntityTypeMapping TypeName="topmepModel.FIN_BANK_LOAN">
               <MappingFragment StoreEntitySet="FIN_BANK_LOAN">
+                <ScalarProperty Name="IS_SUPPLIER" ColumnName="IS_SUPPLIER" />
                 <ScalarProperty Name="QUOTA_RECYCLABLE" ColumnName="QUOTA_RECYCLABLE" />
                 <ScalarProperty Name="QUOTA_AVAILABLE_RATIO" ColumnName="QUOTA_AVAILABLE_RATIO" />
                 <ScalarProperty Name="CUM_AR_RATIO" ColumnName="CUM_AR_RATIO" />
@@ -2648,6 +2665,7 @@
           <EntitySetMapping Name="FIN_LOAN_TRANACTION">
             <EntityTypeMapping TypeName="topmepModel.FIN_LOAN_TRANACTION">
               <MappingFragment StoreEntitySet="FIN_LOAN_TRANACTION">
+                <ScalarProperty Name="VA_FORM_ID" ColumnName="VA_FORM_ID" />
                 <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
                 <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
                 <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
@@ -2675,6 +2693,9 @@
           <EntitySetMapping Name="PLAN_ACCOUNT">
             <EntityTypeMapping TypeName="topmepModel.PLAN_ACCOUNT">
               <MappingFragment StoreEntitySet="PLAN_ACCOUNT">
+                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
+                <ScalarProperty Name="PAYEE" ColumnName="PAYEE" />
+                <ScalarProperty Name="BANKING_FEE" ColumnName="BANKING_FEE" />
                 <ScalarProperty Name="AMOUNT_PAYABLE" ColumnName="AMOUNT_PAYABLE" />
                 <ScalarProperty Name="CHECK_NO" ColumnName="CHECK_NO" />
                 <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
@@ -2799,6 +2820,9 @@
           <EntitySetMapping Name="PLAN_ESTIMATION_FORM">
             <EntityTypeMapping TypeName="topmepModel.PLAN_ESTIMATION_FORM">
               <MappingFragment StoreEntitySet="PLAN_ESTIMATION_FORM">
+                <ScalarProperty Name="PAYMENT_DATE" ColumnName="PAYMENT_DATE" />
+                <ScalarProperty Name="PAYEE" ColumnName="PAYEE" />
+                <ScalarProperty Name="PROJECT_NAME" ColumnName="PROJECT_NAME" />
                 <ScalarProperty Name="REJECT_DESC" ColumnName="REJECT_DESC" />
                 <ScalarProperty Name="INVOICE" ColumnName="INVOICE" />
                 <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
