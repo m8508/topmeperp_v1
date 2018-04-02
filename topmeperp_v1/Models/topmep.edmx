@@ -207,19 +207,19 @@
           </Key>
           <Property Name="FORM_ID" Type="varchar" MaxLength="20" Nullable="false" />
           <Property Name="PROJECT_ID" Type="varchar" MaxLength="20" />
-          <Property Name="REASON_CODE" Type="varchar" MaxLength="2" />
-          <Property Name="METHOD_CODE" Type="varchar" MaxLength="2" />
-          <Property Name="REMARK_ITEM" Type="nvarchar" MaxLength="1000" />
-          <Property Name="REMARK_QTY" Type="nvarchar" MaxLength="500" />
-          <Property Name="REMARK_PRICE" Type="nvarchar" MaxLength="500" />
-          <Property Name="REMARK_OTHER" Type="nvarchar" MaxLength="500" />
-          <Property Name="REJECT_DESC" Type="nvarchar" MaxLength="500" />
+          <Property Name="REMARK_ITEM" Type="varchar" MaxLength="500" />
+          <Property Name="REMARK_QTY" Type="varchar" MaxLength="500" />
+          <Property Name="REMARK_PRICE" Type="varchar" MaxLength="500" />
+          <Property Name="REMARK_OTHER" Type="varchar" MaxLength="500" />
+          <Property Name="REASON_CODE" Type="varchar" MaxLength="3" />
+          <Property Name="METHOD_CODE" Type="varchar" MaxLength="3" />
           <Property Name="SETTLEMENT_DATE" Type="datetime" />
+          <Property Name="REJECT_DESC" Type="varchar" MaxLength="1000" />
           <Property Name="MODIFY_USER_ID" Type="varchar" MaxLength="30" />
           <Property Name="MODIFY_DATE" Type="datetime" />
           <Property Name="CREATE_USER_ID" Type="varchar" MaxLength="30" />
           <Property Name="CREATE_DATE" Type="datetime" />
-          <Property Name="STATUS" Type="varchar" MaxLength="5" />
+          <Property Name="STATUS" Type="varchar" MaxLength="3" />
         </EntityType>
         <EntityType Name="PLAN_COSTCHANGE_ITEM">
           <Key>
@@ -228,7 +228,7 @@
           <Property Name="ITEM_UID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="FORM_ID" Type="varchar" MaxLength="20" />
           <Property Name="PLAN_ITEM_ID" Type="varchar" MaxLength="50" />
-          <Property Name="PROJECT_ID" Type="varchar" MaxLength="20" />
+          <Property Name="PROJECT_ID" Type="varchar" MaxLength="20" Nullable="false" />
           <Property Name="ITEM_ID" Type="varchar" MaxLength="50" />
           <Property Name="ITEM_DESC" Type="varchar" MaxLength="1000" />
           <Property Name="ITEM_UNIT" Type="varchar" MaxLength="10" />
@@ -1121,18 +1121,6 @@
           <Property Name="DATA_KEY" Type="varchar" MaxLength="200" />
           <Property Name="CURENT_STATE" Type="bigint" />
         </EntityType>
-        <Association Name="FK_FIN_LOAN_REFERENCE_FIN_BANK">
-          <End Role="FIN_BANK_LOAN" Type="Self.FIN_BANK_LOAN" Multiplicity="0..1" />
-          <End Role="FIN_LOAN_TRANACTION" Type="Self.FIN_LOAN_TRANACTION" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="FIN_BANK_LOAN">
-              <PropertyRef Name="BL_ID" />
-            </Principal>
-            <Dependent Role="FIN_LOAN_TRANACTION">
-              <PropertyRef Name="BL_ID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_PLAN_COS_REFERENCE_PLAN_COS">
           <End Role="PLAN_COSTCHANGE_FORM" Type="Self.PLAN_COSTCHANGE_FORM" Multiplicity="0..1" />
           <End Role="PLAN_COSTCHANGE_ITEM" Type="Self.PLAN_COSTCHANGE_ITEM" Multiplicity="*" />
@@ -1256,10 +1244,6 @@
           <EntitySet Name="WF_PROCESS" EntityType="Self.WF_PROCESS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WF_PROCESS_ACTIVITY" EntityType="Self.WF_PROCESS_ACTIVITY" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WF_PROCESS_REQUEST" EntityType="Self.WF_PROCESS_REQUEST" Schema="dbo" store:Type="Tables" />
-          <AssociationSet Name="FK_FIN_LOAN_REFERENCE_FIN_BANK" Association="Self.FK_FIN_LOAN_REFERENCE_FIN_BANK">
-            <End Role="FIN_BANK_LOAN" EntitySet="FIN_BANK_LOAN" />
-            <End Role="FIN_LOAN_TRANACTION" EntitySet="FIN_LOAN_TRANACTION" />
-          </AssociationSet>
           <AssociationSet Name="FK_PLAN_COS_REFERENCE_PLAN_COS" Association="Self.FK_PLAN_COS_REFERENCE_PLAN_COS">
             <End Role="PLAN_COSTCHANGE_FORM" EntitySet="PLAN_COSTCHANGE_FORM" />
             <End Role="PLAN_COSTCHANGE_ITEM" EntitySet="PLAN_COSTCHANGE_ITEM" />
@@ -2485,19 +2469,19 @@
           </Key>
           <Property Name="FORM_ID" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="REMARK_ITEM" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <Property Name="REMARK_QTY" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="REMARK_PRICE" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="REMARK_OTHER" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="REASON_CODE" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
-          <Property Name="METHOD_CODE" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="REMARK_ITEM" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="REMARK_QTY" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="REMARK_PRICE" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="REMARK_OTHER" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="REASON_CODE" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="METHOD_CODE" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
           <Property Name="SETTLEMENT_DATE" Type="DateTime" Precision="3" />
-          <Property Name="REJECT_DESC" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="REJECT_DESC" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
           <Property Name="MODIFY_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
           <Property Name="CREATE_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="STATUS" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="STATUS" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="PLAN_COSTCHANGE_ITEM" Relationship="topmepModel.FK_PLAN_COS_REFERENCE_PLAN_COS" FromRole="PLAN_COSTCHANGE_FORM" ToRole="PLAN_COSTCHANGE_ITEM" />
         </EntityType>
         <EntityType Name="PLAN_COSTCHANGE_ITEM">
@@ -2507,7 +2491,7 @@
           <Property Name="ITEM_UID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="FORM_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="PLAN_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="ITEM_DESC" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
           <Property Name="ITEM_UNIT" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />

@@ -198,7 +198,7 @@ namespace topmeperp.Controllers
             }
             //處理借款紀錄
             SYS_USER u = (SYS_USER)Session["user"];
-            //decimal totalAmt = 0;
+            decimal totalAmt = 0;
             foreach (string key in lstFormKey)
             {
                 string[] keyAry = key.Split('.');
@@ -216,18 +216,18 @@ namespace topmeperp.Controllers
 
                     loanTransaction.CREATE_ID = u.USER_ID;
                     loanTransaction.CREATE_DATE = DateTime.Now;
-                    //if (Request["supplier"] == "Y" )
-                    //{
+                    if (Request["supplier"] == "Y")
+                    {
                         lstLoanTransaction.Add(loanTransaction);
-                    //}
-                    //else
-                    //{
-                        //if (decimal.Parse(Request["available_quota"]) >= (decimal.Parse(Request["LOAN_AMOUNT." + keyAry[1]])))
-                        //{
-                            //lstLoanTransaction.Add(loanTransaction);
-                        //}
-                    //}
-                    //totalAmt = totalAmt + decimal.Parse(Request["LOAN_AMOUNT." + keyAry[1]]);
+                    }
+                    else
+                    {
+                        if (decimal.Parse(Request["available_quota"]) >= (decimal.Parse(Request["LOAN_AMOUNT." + keyAry[1]])))
+                        {
+                            lstLoanTransaction.Add(loanTransaction);
+                        }
+                    }
+                    totalAmt = totalAmt + decimal.Parse(Request["LOAN_AMOUNT." + keyAry[1]]);
                     period++;
                 }
                 //還款記錄

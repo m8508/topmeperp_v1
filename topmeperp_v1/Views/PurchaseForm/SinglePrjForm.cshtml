@@ -2,6 +2,7 @@
 @{
     ViewBag.Title = "專案執行-採購詢價單/報價單 ";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
+    var total = "";
 }
 
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/flick/jquery-ui.css"></script>
@@ -208,7 +209,14 @@
                                 }
                             }
                         </td>
-                        <td></td>
+                        <td>
+                            @{total = "";}
+                            @if (item.ITEM_QTY != null && item.ITEM_UNIT_PRICE != null)
+                            {
+                                total = string.Format("{0:#,##0.00}", item.ITEM_UNIT_PRICE * item.ITEM_QTY);
+                            }
+                            @total
+                        </td>
                         <td>
                             @if (ViewBag.targetSupplier != false)
                             {
@@ -221,7 +229,7 @@
                         </td>
                         <td><input type="hidden" name="plan_item_id" id="plan_item_id" value="@item.PLAN_ITEM_ID"></td>
                     </tr>
-                }
+                                }
             </table>
         </div>
     </form>
