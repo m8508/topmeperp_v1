@@ -210,20 +210,20 @@ namespace topmeperp.Controllers
             //取得估驗單編號
             logger.Info("EST form Id:" + Request["formid"]);
             logger.Info("Project Id:" + Request["projectid"]);
-            logger.Info("get EST No of un Approval By contractid:" + Request["contractid"]);
-            string contractid = Request["contractid"];
+            //logger.Info("get EST No of un Approval By contractid:" + Request["contractid"]);
+            //string contractid = Request["contractid"];
             UserService us = new UserService();
             SYS_USER u = (SYS_USER)Session["user"];
             SYS_USER uInfo = us.getUserInfo(u.USER_ID);
-            string UnApproval = null;
-            UnApproval = service.getEstNoByContractId(contractid);
-            if (UnApproval != null && "" != UnApproval)
-            {
-                TempData["result"] = "目前尚有未核准的估驗單，估驗單編號為" + UnApproval + "，待此單核准後再新增估驗單!";
-                return RedirectToAction("Valuation", "Estimation", new { id = Request["projectid"] });
-            }
-            else
-            {
+            //string UnApproval = null;
+            //UnApproval = service.getEstNoByContractId(contractid);
+            //if (UnApproval != null && "" != UnApproval)
+            //{
+                //TempData["result"] = "目前尚有未核准的估驗單，估驗單編號為" + UnApproval + "，待此單核准後再新增估驗單!";
+                //return RedirectToAction("Valuation", "Estimation", new { id = Request["projectid"] });
+            //}
+            //else
+            //{
                 //更新估驗單
                 logger.Info("update Estimation Form");
                 //估驗單草稿 STATUS = 10
@@ -231,7 +231,7 @@ namespace topmeperp.Controllers
                 Flow4Estimation flowService = new Flow4Estimation();
                 flowService.iniRequest(uInfo, Request["formid"]);
                 return RedirectToAction("SingleEST", "Estimation", new { id = Request["formid"] });
-            }
+            //}
         }
 
         [HttpPost]

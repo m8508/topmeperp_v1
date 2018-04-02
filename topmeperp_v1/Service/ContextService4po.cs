@@ -1330,15 +1330,17 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 string sql = "SELECT A.INQUIRY_FORM_ID AS CONTRACT_ID, A.SUPPLIER_ID, A.FORM_NAME, A.ID, " +
-                    "SUM(A.MapQty * A.ITEM_UNIT_COST) MATERIAL_COST, SUM(A.MapQty * ISNULL(A.MAN_PRICE, 0)) WAGE_COST, " +
+                    "SUM(A.MapQty * ISNULL(A.MAN_PRICE, 0)) WAGE_COST, " +
                     "SUM(A.ITEM_QUANTITY * ISNULL(A.ITEM_UNIT_PRICE, 0)) REVENUE, SUM(A.MapQty * A.TndFormPrice * ISNULL(A.BUDGET_RATIO, 100) / 100) BUDGET, " +
-                    "(SUM(A.MapQty * A.ITEM_UNIT_COST) + SUM(A.MapQty * ISNULL(A.MAN_PRICE, 0))) COST, (SUM(A.ITEM_QUANTITY * ISNULL(A.ITEM_UNIT_PRICE, 0)) - " +
-                    "SUM(A.MapQty * A.ITEM_UNIT_COST) - SUM(A.MapQty * ISNULL(A.MAN_PRICE, 0))) PROFIT, " +
-                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.FORM_NAME) AS NO, A.INQUIRY_FORM_ID FROM(SELECT pi.*, s.SUPPLIER_ID AS ID, map.QTY AS MapQty, " +
+                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.FORM_NAME) AS NO, A.INQUIRY_FORM_ID, " +
+                    "(SELECT SUM(ITEM_QTY * ITEM_UNIT_PRICE) from PLAN_SUP_INQUIRY_ITEM WHERE INQUIRY_FORM_ID = A.INQUIRY_FORM_ID) MATERIAL_COST, " +
+                    "ISNULL(SUM(A.ITEM_QUANTITY * ISNULL(A.ITEM_UNIT_PRICE, 0)), 0) - (SELECT SUM(ITEM_QTY * ITEM_UNIT_PRICE) from PLAN_SUP_INQUIRY_ITEM " +
+                    "WHERE INQUIRY_FORM_ID = A.INQUIRY_FORM_ID) -ISNULL(SUM(A.MapQty * ISNULL(A.MAN_PRICE, 0)), 0) PROFIT " +
+                    "FROM(SELECT pi.*, s.SUPPLIER_ID AS ID, map.QTY AS MapQty, " +
                     "tpi.ITEM_UNIT_PRICE AS TndFormPrice FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON " +
-                    "pi.SUPPLIER_ID = s.COMPANY_NAME LEFT JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT JOIN TND_PROJECT_ITEM tpi ON pi.PLAN_ITEM_ID = tpi.PROJECT_ITEM_ID  " +
-                    ")A WHERE A.PROJECT_ID = @projectid AND A.INQUIRY_FORM_ID IS NOT NULL " +
-                    "GROUP BY A.PROJECT_ID, A.ID, A.FORM_NAME, A.SUPPLIER_ID, A.INQUIRY_FORM_ID; ";
+                    "pi.SUPPLIER_ID = s.COMPANY_NAME LEFT JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID " +
+                    "LEFT JOIN TND_PROJECT_ITEM tpi ON pi.PLAN_ITEM_ID = tpi.PROJECT_ITEM_ID)A WHERE A.PROJECT_ID =@projectid  " +
+                    "AND A.INQUIRY_FORM_ID IS NOT NULL GROUP BY A.PROJECT_ID, A.ID, A.FORM_NAME, A.SUPPLIER_ID, A.INQUIRY_FORM_ID; ";
                 logger.Debug("sql =" + sql + ",project id=" + projectid);
 
                 ///SQL 是否可調整如下
@@ -3819,7 +3821,7 @@ namespace topmeperp.Service
         }
         //修改估驗單額外扣款
         //public int RefreshESTAmountByEstId(string estid, decimal subAmount, decimal foreign_payment, decimal retention, decimal tax_amount, string remark)
-        public int RefreshESTAmountByEstId(string estid, decimal subAmount, string payee, string projectName, DateTime ? paymentDate, string remark)
+        public int RefreshESTAmountByEstId(string estid, decimal subAmount, string payee, string projectName, DateTime? paymentDate, string remark)
         {
             int i = 0;
             logger.Info("update EST form by estid" + estid);

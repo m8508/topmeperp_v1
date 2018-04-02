@@ -216,17 +216,17 @@ namespace topmeperp.Controllers
 
                     loanTransaction.CREATE_ID = u.USER_ID;
                     loanTransaction.CREATE_DATE = DateTime.Now;
-                    if (Request["supplier"] == "Y" )
-                    {
+                    //if (Request["supplier"] == "Y" )
+                    //{
                         lstLoanTransaction.Add(loanTransaction);
-                    }
-                    else
-                    {
-                        if (decimal.Parse(Request["available_quota"]) >= (decimal.Parse(Request["LOAN_AMOUNT." + keyAry[1]])))
-                        {
-                            lstLoanTransaction.Add(loanTransaction);
-                        }
-                    }
+                    //}
+                    //else
+                    //{
+                        //if (decimal.Parse(Request["available_quota"]) >= (decimal.Parse(Request["LOAN_AMOUNT." + keyAry[1]])))
+                        //{
+                            //lstLoanTransaction.Add(loanTransaction);
+                        //}
+                    //}
                     //totalAmt = totalAmt + decimal.Parse(Request["LOAN_AMOUNT." + keyAry[1]]);
                     period++;
                 }
