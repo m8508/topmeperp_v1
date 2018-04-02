@@ -27,7 +27,6 @@ namespace topmeperp.Models
     
         public virtual DbSet<ENT_DEPARTMENT> ENT_DEPARTMENT { get; set; }
         public virtual DbSet<FIN_BANK_ACCOUNT> FIN_BANK_ACCOUNT { get; set; }
-        public virtual DbSet<FIN_BANK_LOAN> FIN_BANK_LOAN { get; set; }
         public virtual DbSet<FIN_EXPENSE_BUDGET> FIN_EXPENSE_BUDGET { get; set; }
         public virtual DbSet<FIN_EXPENSE_FORM> FIN_EXPENSE_FORM { get; set; }
         public virtual DbSet<FIN_EXPENSE_ITEM> FIN_EXPENSE_ITEM { get; set; }
@@ -87,5 +86,6 @@ namespace topmeperp.Models
         public virtual DbSet<PLAN_COSTCHANGE_FORM> PLAN_COSTCHANGE_FORM { get; set; }
         public virtual DbSet<PLAN_COSTCHANGE_ITEM> PLAN_COSTCHANGE_ITEM { get; set; }
         public virtual DbSet<PLAN_ESTIMATION_FORM> PLAN_ESTIMATION_FORM { get; set; }
+        public virtual DbSet<FIN_BANK_LOAN> FIN_BANK_LOAN { get; set; }
     }
 }
