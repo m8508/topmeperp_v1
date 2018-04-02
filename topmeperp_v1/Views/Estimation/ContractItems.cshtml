@@ -453,7 +453,8 @@
                 $('#total_repayment').val(data.TOTAL_REPAYMENT);
                 $('#total_refund').val(data.TOTAL_REFUND);
                 if (data.PAYABLE_AMOUNT == null || data.PAYABLE_AMOUNT == '') {
-                    alert("目前尚有未核准的估驗單，估驗單編號為" + data + "，待此單核准後再新增估驗單!");
+                    //alert("目前尚有未核准的估驗單，估驗單編號為" + data + "，待此單核准後再新增估驗單!");
+                    alert("請輸入金額!!");
                 }
                 else {
                     alert("更新成功，若資料無誤請按下儲存或提交鍵 !");
