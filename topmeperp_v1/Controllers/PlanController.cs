@@ -720,8 +720,8 @@ namespace topmeperp.Controllers
             SelectList LstStatus = new SelectList(SystemParameter.getSystemPara("ExpenseForm"), "KEY_FIELD", "VALUE_FIELD");
             ViewData.Add("status", LstStatus);
 
-            CostChangeService cs = new CostChangeService();
-            List<PLAN_COSTCHANGE_FORM> lstForms = cs.getChangeOrders(projectId, remark, status);
+            Flow4CostChange wfs = new Flow4CostChange();
+            List<CostChangeTask> lstForms = wfs.getCostChangeRequest(projectId, remark, status);
             return View(lstForms);
         }
         //建立異動單-標單品項選擇畫面

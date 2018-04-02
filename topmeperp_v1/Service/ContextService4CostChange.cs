@@ -188,31 +188,7 @@ namespace topmeperp.Service
             logger.Info("add CostChangeItem count =" + i);
             return form.FORM_ID;
         }
-        //查詢異動單
-        public List<PLAN_COSTCHANGE_FORM> getChangeOrders(string projectId, string remark, string status)
-        {
-            List<PLAN_COSTCHANGE_FORM> lstForms = new List<PLAN_COSTCHANGE_FORM>();
-            using (var context = new topmepEntities())
-            {
-                logger.Debug("query by project and remark:" + projectId + "," + remark);
-                string sql = "SELECT * FROM PLAN_COSTCHANGE_FORM WHERE PROJECT_ID=@projectId";
-                var parameters = new List<SqlParameter>();
-                parameters.Add(new SqlParameter("projectId", projectId));
-                if (null != remark && remark != "")
-                {
-                    sql = sql + " AND (REMARK_ITEM Like @remark OR REMARK_QTY Like @remark OR REMARK_PRICE Like @remark OR REMARK_OTHER Like @remark) ";
-                    parameters.Add(new SqlParameter("remark", "%" + remark + "%"));
-                }
-                if (null != status && status != "")
-                {
-                    sql = sql + " AND STATUS =@status";
-                    parameters.Add(new SqlParameter("status", status));
-                }
-                logger.Debug("SQL:" + sql);
-                lstForms = context.PLAN_COSTCHANGE_FORM.SqlQuery(sql, parameters.ToArray()).ToList();
-            }
-            return lstForms;
-        }
+
         //取得單一異動單資料
         public PLAN_COSTCHANGE_FORM getChangeOrderForm(string formId)
         {

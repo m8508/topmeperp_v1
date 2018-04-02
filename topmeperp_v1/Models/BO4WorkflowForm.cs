@@ -14,10 +14,14 @@ namespace topmeperp.Models
     //提供費用申請流程清單所需物件
     public class CostChangeTask : WF_PORCESS_TASK
     {
-        //FIN_EXPENSE_FORM
+        //PLAN_COSTCHANGE_FORM
         public string FORM_ID { get; set; }
         public string PROJECT_ID { get; set; }
         public string REJECT_DESC { get; set; }
+        public string REMARK_ITEM { get; set; }
+        public string REMARK_QTY { get; set; }
+        public string REMARK_PRICE { get; set; }
+        public string REMARK_OTHER { get; set; }
         //WF_PROCESS_REQUEST
         public string REQ_USER_ID { get; set; }
         public Int64 CURENT_STATE { get; set; }

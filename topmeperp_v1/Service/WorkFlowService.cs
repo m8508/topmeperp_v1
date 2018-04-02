@@ -105,7 +105,6 @@ namespace topmeperp.Service
         public void CancelRequest(SYS_USER u)
         {
             user = u;
-            logger.Debug("USER :" + user.USER_ID + " Cancel :" + task.task.EXP_FORM_ID);
             CancelRequest();
         }
         protected void processTask()
@@ -945,7 +944,7 @@ namespace topmeperp.Service
         public string FLOW_KEY = "CCH01";
         public new CostChangeFormTask task;//CostChangeFormTask
         //處理SQL 預先填入專案代號,設定集合處理參數
-        string sql = @"SELECT F.FORM_ID,F.PROJECT_ID,F.REJECT_DESC REJECT_DESC,
+        string sql = @"SELECT F.FORM_ID,F.PROJECT_ID,F.REJECT_DESC REJECT_DESC,F.REMARK_ITEM, F.REMARK_QTY,F.REMARK_PRICE,F.REMARK_OTHER,
                         R.REQ_USER_ID,R.CURENT_STATE,R.PID,
 						(SELECT TOP 1 MANAGER FROM ENT_DEPARTMENT WHERE DEPT_CODE=CT.DEP_CODE) MANAGER,
                         CT.* ,M.FORM_URL + METHOD_URL as FORM_URL
@@ -957,12 +956,23 @@ namespace topmeperp.Service
         /// <summary>
         /// 取得成本異動單據
         /// </summary>
-        public List<CostChangeTask> getCostChangeRequest(string projectId)
+        public List<CostChangeTask> getCostChangeRequest(string projectId, string remark, string status)
         {
             logger.Info("search costchagefor form by " + projectId);
             List<CostChangeTask> lstForm = new List<CostChangeTask>();
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("projectid", projectId));
+            if (null!=remark && remark != "")
+            {
+                sql = sql + " AND (F.REMARK_ITEM Like @remark OR F.REMARK_QTY Like @remark OR F.REMARK_PRICE Like @remark OR F.REMARK_OTHER Like @remark) ";
+                parameters.Add(new SqlParameter("remark", "%" + remark + "%"));
+            }
+            if (null != status && status != "")
+            {
+                sql = sql + " AND F.STATUS =@status";
+                parameters.Add(new SqlParameter("status", status));
+            }
+
             using (var context = new topmepEntities())
             {
                 lstForm = context.Database.SqlQuery<CostChangeTask>(sql, parameters.ToArray()).ToList();
@@ -1075,9 +1085,10 @@ namespace topmeperp.Service
         }
 
         //退件
-        public void Reject(SYS_USER u, DateTime? paymentdate, string reason)
+        public new void Reject(SYS_USER u, string reason)
         {
             logger.Debug("CostChangeRequest Reject:" + task.task.RID);
+            base.task = task;
             base.Reject(u, reason);
             if (statusChange != "F")
             {
@@ -1089,15 +1100,16 @@ namespace topmeperp.Service
         {
             user = u;
             logger.Info("USER :" + user.USER_ID + " Cancel :" + task.task.EXP_FORM_ID);
+            base.task = task;
             base.CancelRequest(u);
             if (statusChange != "F")
             {
-                string sql = "DELETE PLAN_COSTCHANGE_FORM WHERE FORM_ID=@formId;DELETE PLAN_COSTCHANGE_ITEM WHERE FORM_ID=@formId;";
+                string sql = "DELETE PLAN_COSTCHANGE_ITEM WHERE FORM_ID=@formId;DELETE PLAN_COSTCHANGE_FORM WHERE FORM_ID=@formId;";
                 var parameters = new List<SqlParameter>();
-                parameters.Add(new SqlParameter("formId", task.task.EXP_FORM_ID));
+                parameters.Add(new SqlParameter("formId", task.FormData.FORM_ID));
                 using (var context = new topmepEntities())
                 {
-                    logger.Debug("Cancel CostChangeRequest Status=" + task.task.EXP_FORM_ID);
+                    logger.Debug("Cancel CostChangeRequest Status=" + task.FormData.FORM_ID);
                     context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
                 }
             }
