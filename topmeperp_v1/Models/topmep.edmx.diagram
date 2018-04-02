@@ -7,7 +7,6 @@
       <Diagram DiagramId="a7c7dccd404c413991f0ed2a1ca31c76" Name="Diagram1" ZoomLevel="63">
         <EntityTypeShape EntityType="topmepModel.ENT_DEPARTMENT" Width="2.5" PointX="0.75" PointY="7.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_BANK_ACCOUNT" Width="1.5" PointX="10.75" PointY="6.75" />
-        <EntityTypeShape EntityType="topmepModel.FIN_BANK_LOAN" Width="1.5" PointX="0.75" PointY="11.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_EXPENSE_BUDGET" Width="1.5" PointX="10.75" PointY="11.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_EXPENSE_FORM" Width="1.5" PointX="2.75" PointY="12.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_EXPENSE_ITEM" Width="1.5" PointX="12.75" PointY="6.75" />
@@ -72,6 +71,7 @@
         <EntityTypeShape EntityType="topmepModel.PLAN_COSTCHANGE_ITEM" Width="1.5" PointX="27.625" PointY="17" />
         <AssociationConnector Association="topmepModel.FK_PLAN_COS_REFERENCE_PLAN_COS" />
         <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_FORM" Width="1.5" PointX="8.375" PointY="0.75" />
+        <EntityTypeShape EntityType="topmepModel.FIN_BANK_LOAN" Width="1.5" PointX="5.5" PointY="28.875" />
         <AssociationConnector Association="topmepModel.FK_FIN_LOAN_REFERENCE_FIN_BANK" />
         </Diagram>
     </edmx:Diagrams>

@@ -4997,7 +4997,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 //條件篩選
-                if (type == "'I'")// type值為'I'表示有現金流入
+                if (type == "I")// type值為'I'表示有現金流入
                 {
                     lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = 1 AND CONVERT(char(10), " +
                         "IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE), 111) =@paymentdate OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = -1 AND CONVERT(char(10), IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE), 111) =@paymentdate ",
