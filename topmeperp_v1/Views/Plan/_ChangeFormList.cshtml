@@ -31,18 +31,30 @@
                 @item.REMARK_OTHER
             </td>
             <td data-th="處理狀態">
-                @Html.DisplayFor(modelItem => item.STATUS)
+                @{
+                    switch (item.STATUS)
+                    {
+                        case "0":
+                            <label>退件</label>
+                            break;  // Always break each case
+                        case "20":
+                            <label>審核中</label>
+                            break;
+                        case "30":
+                            <label>審核通過</label>
+                            break;
+                        default:
+                            <label>草稿</label>
+                            break;
+                    }
+                }
             </td>
             <td data-th="處理狀態">
-                @Html.DisplayFor(modelItem => item.CREATE_USER_ID )
+                @Html.DisplayFor(modelItem => item.CREATE_USER_ID)
             </td>
             <td data-th="建立日期">
                 @Html.DisplayFor(modelItem => item.CREATE_DATE)
             </td>
         </tr>
-    }
+                    }
 </table>
-
-
-
-

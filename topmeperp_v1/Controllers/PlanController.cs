@@ -717,6 +717,8 @@ namespace topmeperp.Controllers
                 logger.Debug("remark=" + Request["remark"]);
                 remark = Request["remark"];
             }
+            SelectList LstStatus = new SelectList(SystemParameter.getSystemPara("ExpenseForm"), "KEY_FIELD", "VALUE_FIELD");
+            ViewData.Add("status", LstStatus);
 
             CostChangeService cs = new CostChangeService();
             List<PLAN_COSTCHANGE_FORM> lstForms = cs.getChangeOrders(projectId, remark, status);
@@ -804,7 +806,6 @@ namespace topmeperp.Controllers
             wfs.getTask(formId);
             wfs.task.FormData= cs.form;
             wfs.task.lstItem = cs.lstItem;
-            wfs.getRequest(id);
             Session["process"] = wfs.task;
             SelectList reasoncode = new SelectList(SystemParameter.getSystemPara("COSTHANGE", "REASON"), "KEY_FIELD", "VALUE_FIELD",cs.form.REASON_CODE);
             ViewData.Add("reasoncode", reasoncode);

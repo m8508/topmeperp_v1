@@ -201,7 +201,7 @@ namespace topmeperp.Service
                 if (null != remark && remark != "")
                 {
                     sql = sql + " AND (REMARK_ITEM Like @remark OR REMARK_QTY Like @remark OR REMARK_PRICE Like @remark OR REMARK_OTHER Like @remark) ";
-                    parameters.Add(new SqlParameter("remark", "'%" + remark + "%'"));
+                    parameters.Add(new SqlParameter("remark", "%" + remark + "%"));
                 }
                 if (null != status && status != "")
                 {

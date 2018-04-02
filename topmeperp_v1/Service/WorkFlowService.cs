@@ -568,11 +568,11 @@ namespace topmeperp.Service
         //處理SQL 預先填入專案代號,設定集合處理參數
         string sql = @"SELECT F.EST_FORM_ID,F.PROJECT_NAME,F.PROJECT_ID,F.PAYEE,F.PAYMENT_DATE, F.PAID_AMOUNT,F.REMARK REQ_DESC,F.REJECT_DESC REJECT_DESC,
                         R.REQ_USER_ID,R.CURENT_STATE,R.PID,
-(SELECT TOP 1 MANAGER FROM ENT_DEPARTMENT WHERE DEPT_CODE=CT.DEP_CODE) MANAGER,
+                        (SELECT TOP 1 MANAGER FROM ENT_DEPARTMENT WHERE DEPT_CODE=CT.DEP_CODE) MANAGER,
                         CT.* ,M.FORM_URL + METHOD_URL as FORM_URL
 						FROM PLAN_ESTIMATION_FORM F,WF_PROCESS_REQUEST R,
                         WF_PORCESS_TASK CT , 
-		(SELECT P.PID,A.SEQ_ID,FORM_URL,METHOD_URL  FROM WF_PROCESS P,WF_PROCESS_ACTIVITY A WHERE P.PID=A.PID ) M
+		                (SELECT P.PID,A.SEQ_ID,FORM_URL,METHOD_URL  FROM WF_PROCESS P,WF_PROCESS_ACTIVITY A WHERE P.PID=A.PID ) M
                         WHERE F.EST_FORM_ID= R.DATA_KEY AND R.RID=CT.RID AND R.CURENT_STATE=CT.SEQ_ID
 						AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE ";
         //string sqlDeptInfo = @"SELECT R.REQ_USER_ID REQ_USER_ID,U.USER_NAME REQ_USER_NAME,
@@ -990,6 +990,11 @@ namespace topmeperp.Service
                     logger.Debug("sqlDeptInfo=" + sqlDeptInfo + ",Data Key=" + dataKey);
                     task.DeptInfo = context.Database.SqlQuery<RequestUserDeptInfo>(sqlDeptInfo, new SqlParameter("datakey", dataKey)).First();
 
+                    logger.Debug("get WF_REQUEST rid=" + dataKey + ",sql=" + sql4Task);
+                    task.ProcessRequest = context.WF_PROCESS_REQUEST.SqlQuery(sql4Request, new SqlParameter("dataKey", dataKey)).First();
+                    logger.Debug("get task rid=" + task.ProcessRequest.RID + ",sql=" + sql4Task);
+                    task.ProcessTask = context.WF_PORCESS_TASK.SqlQuery(sql4Task, new SqlParameter("rid", task.ProcessRequest.RID)).ToList();
+
                 }
                 catch (Exception ex)
                 {
@@ -1009,6 +1014,7 @@ namespace topmeperp.Service
         public void Send(SYS_USER u, string reason, string methodCode, DateTime? settlementDate)
         {
             logger.Debug("CostChange Request Send" + task.task.ID);
+            base.task = task;
             base.Send(u);
             if (statusChange != "F")
             {
@@ -1030,8 +1036,18 @@ namespace topmeperp.Service
             string sql = @"UPDATE PLAN_COSTCHANGE_FORM SET STATUS=@status,REJECT_DESC=@rejectDesc,METHOD_CODE=@Methodcode, SETTLEMENT_DATE=@settlementDate 
                             WHERE FORM_ID=@formId";
             var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("formId", task.FormData.FORM_ID));
             parameters.Add(new SqlParameter("status", staus));
-            parameters.Add(new SqlParameter("rejectDesc", reason));
+
+            if (null == reason)
+            {
+                parameters.Add(new SqlParameter("rejectDesc", DBNull.Value));
+            }
+            else
+            {
+                parameters.Add(new SqlParameter("rejectDesc", reason));
+            }
+
             if (null == settlementDate)
             {
                 parameters.Add(new SqlParameter("settlementDate", DBNull.Value));
