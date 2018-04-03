@@ -409,6 +409,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\BankInfoController.cs" />
     <Compile Include="Controllers\CashFlowController.cs" />
+    <Compile Include="Controllers\CostChangeController.cs" />
     <Compile Include="Controllers\DeptManageController.cs" />
     <Compile Include="Controllers\EstimationController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -1100,6 +1101,9 @@
     <Content Include="Scripts\popper-utils.js.map" />
     <Content Include="Views\BankInfo\_SupplierLoanInfo.cshtml" />
     <Content Include="Views\BankInfo\SupplierLoanList.cshtml" />
+    <Content Include="Views\CostChange\Index.cshtml" />
+    <Content Include="Views\CostChange\_ChangeFormList.cshtml" />
+    <Content Include="Views\CostChange\costChangeForm.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

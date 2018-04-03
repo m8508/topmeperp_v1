@@ -25,13 +25,7 @@
                         <label class="control-label">狀態:</label>
                     </div>
                     <div class="col-sm-8">
-                        <select id="status" name="status" class="form-control">
-                            <option value="*">全部</option>
-                            <option value="新建立">新建立</option>
-                            <option value="送審">送審</option>
-                            <option value="進行採購">進行採購</option>
-                            <option value="刪除">刪除</option>
-                        </select>
+                        @Html.DropDownList("status", null, String.Empty, new { @class = "form-control" })
                     </div>
                 </div>
                 <div class="col-sm-3">

@@ -61,7 +61,7 @@ namespace topmeperp.Models
         public PlanRevenue Revenue;
         public List<CostChangeEvent> lstCostChangeEvent;
         public List<plansummary> lstDirectCostItem;
-        public List<PLAN_INDIRECT_COST > lstIndirectCostItem;
+        public List<PLAN_INDIRECT_COST> lstIndirectCostItem;
     }
     //每份成本異動單的彙整資料
     public class CostChangeEvent
@@ -73,5 +73,11 @@ namespace topmeperp.Models
         public Nullable<decimal> RecognizeAmt { get; set; }
         public Nullable<decimal> AddAmt { get; set; }
         public Nullable<decimal> CutAmt { get; set; }
+    }
+    //public class
+    public class CostChangeForm : PLAN_COSTCHANGE_FORM
+    {
+        public string Reason { get; set; }
+        public string Method { get; set; }
     }
 }

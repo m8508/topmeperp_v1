@@ -717,9 +717,11 @@ namespace topmeperp.Controllers
                 logger.Debug("remark=" + Request["remark"]);
                 remark = Request["remark"];
             }
+            SelectList LstStatus = new SelectList(SystemParameter.getSystemPara("ExpenseForm"), "KEY_FIELD", "VALUE_FIELD");
+            ViewData.Add("status", LstStatus);
 
-            CostChangeService cs = new CostChangeService();
-            List<PLAN_COSTCHANGE_FORM> lstForms = cs.getChangeOrders(projectId, remark, status);
+            Flow4CostChange wfs = new Flow4CostChange();
+            List<CostChangeTask> lstForms = wfs.getCostChangeRequest(projectId, remark, status);
             return View(lstForms);
         }
         //建立異動單-標單品項選擇畫面
@@ -804,7 +806,6 @@ namespace topmeperp.Controllers
             wfs.getTask(formId);
             wfs.task.FormData= cs.form;
             wfs.task.lstItem = cs.lstItem;
-            wfs.getRequest(id);
             Session["process"] = wfs.task;
             SelectList reasoncode = new SelectList(SystemParameter.getSystemPara("COSTHANGE", "REASON"), "KEY_FIELD", "VALUE_FIELD",cs.form.REASON_CODE);
             ViewData.Add("reasoncode", reasoncode);
@@ -1211,7 +1212,7 @@ namespace topmeperp.Controllers
             }
             if (null != f["settlementDate"] && f["settlementDate"].ToString() != "")
             {
-                settlementDate = Convert.ToDateTime(f["methodcode"].ToString().Trim());
+                settlementDate = Convert.ToDateTime(f["settlementDate"].ToString().Trim());
             }
             wfs.Send(u, desc, method, settlementDate);
             return "更新成功!!";

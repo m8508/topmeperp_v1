@@ -51,7 +51,7 @@ namespace topmeperp.Service
                 it.MODIFY_ID = userid;
                 it.MODIFY_DATE = DateTime.Now;
                 // System.Convert.ToDoublSystem.Math.Round(1.235, 2, MidpointRounding.AwayFromZero)
-                it.COST = Convert.ToDecimal(Math.Round(Convert.ToDouble(CostInfo.Revenue.PLAN_REVENUE * decimal.Parse(p.KEY_FIELD)/100), 0, MidpointRounding.AwayFromZero));
+                it.COST = Convert.ToDecimal(Math.Round(Convert.ToDouble(CostInfo.Revenue.PLAN_REVENUE * decimal.Parse(p.KEY_FIELD) / 100), 0, MidpointRounding.AwayFromZero));
                 logger.Debug(p.VALUE_FIELD + " Indirect Cost=" + it.COST + ",per=" + p.KEY_FIELD);
                 lstIndirectCostItem.Add(it);
             }
@@ -188,31 +188,7 @@ namespace topmeperp.Service
             logger.Info("add CostChangeItem count =" + i);
             return form.FORM_ID;
         }
-        //查詢異動單
-        public List<PLAN_COSTCHANGE_FORM> getChangeOrders(string projectId, string remark, string status)
-        {
-            List<PLAN_COSTCHANGE_FORM> lstForms = new List<PLAN_COSTCHANGE_FORM>();
-            using (var context = new topmepEntities())
-            {
-                logger.Debug("query by project and remark:" + projectId + "," + remark);
-                string sql = "SELECT * FROM PLAN_COSTCHANGE_FORM WHERE PROJECT_ID=@projectId";
-                var parameters = new List<SqlParameter>();
-                parameters.Add(new SqlParameter("projectId", projectId));
-                if (null != remark && remark != "")
-                {
-                    sql = sql + " AND (REMARK_ITEM Like @remark OR REMARK_QTY Like @remark OR REMARK_PRICE Like @remark OR REMARK_OTHER Like @remark) ";
-                    parameters.Add(new SqlParameter("remark", "'%" + remark + "%'"));
-                }
-                if (null != status && status != "")
-                {
-                    sql = sql + " AND STATUS =@status";
-                    parameters.Add(new SqlParameter("status", status));
-                }
-                logger.Debug("SQL:" + sql);
-                lstForms = context.PLAN_COSTCHANGE_FORM.SqlQuery(sql, parameters.ToArray()).ToList();
-            }
-            return lstForms;
-        }
+
         //取得單一異動單資料
         public PLAN_COSTCHANGE_FORM getChangeOrderForm(string formId)
         {
@@ -340,6 +316,64 @@ namespace topmeperp.Service
                 }
             }
             return i;
+        }
+        //異動單採購程序
+        public List<TND_PROJECT> SearchProjectByName(string projectname, string status)
+        {
+            if (projectname != null)
+            {
+                logger.Info("search project by 名稱 =" + projectname);
+                List<topmeperp.Models.TND_PROJECT> lstProject = new List<TND_PROJECT>();
+                using (var context = new topmepEntities())
+                {
+                    lstProject = context.TND_PROJECT.SqlQuery("SELECT * FROM TND_PROJECT p "
+                        + "WHERE P.PROJECT_NAME Like '%' + @projectname + '%' AND STATUS=@status;",
+                         new SqlParameter("projectname", projectname), new SqlParameter("status", status)).ToList();
+                }
+                logger.Info("get project count=" + lstProject.Count);
+                return lstProject;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        //取得成本異動單資料
+        public List<CostChangeForm> getCostChangeForm(string projectId, string status,string remark)
+        {
+            logger.Debug("get costchange form for project id=" + projectId);
+            List<CostChangeForm> lst = null;
+            string sql = @"SELECT *,
+                    (SELECT  VALUE_FIELD FROM SYS_PARA
+                    WHERE FUNCTION_ID='COSTHANGE' AND FIELD_ID='REASON' AND KEY_FIELD=F.REASON_CODE ) REASON,
+                    (SELECT  VALUE_FIELD FROM SYS_PARA　
+                    WHERE FUNCTION_ID='COSTHANGE' AND FIELD_ID='METHOD' AND KEY_FIELD=F.METHOD_CODE ) METHOD
+                     FROM PLAN_COSTCHANGE_FORM F WHERE PROJECT_ID=@projectId ";
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("projectId", projectId));
+            if (null != status && status != "")
+            {
+                sql = sql + " AND STATUS=@status";
+                parameters.Add(new SqlParameter("status", status));
+            }
+            if (null != remark && remark != "")
+            {
+                sql = sql + " AND (REMARK_ITEM Like @remark OR REMARK_QTY Like @remark OR REMARK_PRICE Like @remark  OR REMARK_OTHER Like @remark) ";
+                parameters.Add(new SqlParameter("remark", "%" + remark + "%"));
+            }
+            logger.Debug("sql" + sql);
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    lst = context.Database.SqlQuery<CostChangeForm>(sql, parameters.ToArray()).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.Message + "," + ex.StackTrace);
+                }
+            }
+            return lst;
         }
     }
 }

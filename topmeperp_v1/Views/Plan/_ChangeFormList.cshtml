@@ -1,4 +1,4 @@
-﻿@model IEnumerable<topmeperp.Models.PLAN_COSTCHANGE_FORM>
+﻿@model IEnumerable<topmeperp.Models.CostChangeTask>
 
 <table class="rwd-table">
     <tr>
@@ -12,10 +12,13 @@
             處理狀態
         </th>
         <th>
-            建立者
+            備註
         </th>
         <th>
-            建立日期
+            申請者
+        </th>
+        <th>
+            下一步
         </th>
     </tr>
     @foreach (var item in Model)
@@ -31,18 +34,31 @@
                 @item.REMARK_OTHER
             </td>
             <td data-th="處理狀態">
-                @Html.DisplayFor(modelItem => item.STATUS)
+                @{
+                    switch (item.STATUS)
+                    {
+                        case "0":
+                            <label>退件</label>
+                            break;  // Always break each case
+                        case "20":
+                            <label>審核中</label>
+                            break;
+                        case "30":
+                            <label>審核通過</label>
+                            break;
+                        default:
+                            <label>草稿</label>
+                            break;
+                    }
+                }
             </td>
-            <td data-th="處理狀態">
-                @Html.DisplayFor(modelItem => item.CREATE_USER_ID )
+            <td data-th="備註">
+                @Html.DisplayFor(modelItem => item.REJECT_DESC )
             </td>
-            <td data-th="建立日期">
-                @Html.DisplayFor(modelItem => item.CREATE_DATE)
+            <td data-th="申請者">@item.REQ_USER_ID</td>
+            <td data-th="下一步">
+                <a href='@(item.FORM_URL+item.FORM_ID)' target="_blank">@item.NOTE</a>
             </td>
         </tr>
-    }
+                    }
 </table>
-
-
-
-
