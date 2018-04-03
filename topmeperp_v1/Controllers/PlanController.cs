@@ -1212,7 +1212,7 @@ namespace topmeperp.Controllers
             }
             if (null != f["settlementDate"] && f["settlementDate"].ToString() != "")
             {
-                settlementDate = Convert.ToDateTime(f["methodcode"].ToString().Trim());
+                settlementDate = Convert.ToDateTime(f["settlementDate"].ToString().Trim());
             }
             wfs.Send(u, desc, method, settlementDate);
             return "更新成功!!";
