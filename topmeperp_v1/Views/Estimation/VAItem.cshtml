@@ -95,6 +95,7 @@
             <input type="hidden" class="form-control" name="modifyDate" id="modifyDate" value="@ViewBag.modifyDate">
             <input type="hidden" class="form-control" name="projectId" id="projectId" value="@ViewBag.projectId">
             <input type="hidden" class="form-control" name="formid" id="formid" value="@ViewBag.formid">
+            <div style="color:blue "><h4>若要輸入憑證資料請按下"新增"鈕</h4></div>
             <ng-form ng-repeat="key in keys" name="keyForm">
                 <span class="btn btn-info">
                     <button type="button" class="close" ng-click="remove($index)">&times;</button>

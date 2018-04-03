@@ -31,5 +31,8 @@ namespace topmeperp.Models
         public Nullable<decimal> BANKING_FEE { get; set; }
         public string PAYEE { get; set; }
         public string REMARK { get; set; }
+        public Nullable<decimal> BANKING_FEE1 { get; set; }
+        public string PAYEE1 { get; set; }
+        public string REMARK1 { get; set; }
     }
 }

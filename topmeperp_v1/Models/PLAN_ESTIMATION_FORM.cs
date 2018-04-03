@@ -36,5 +36,8 @@ namespace topmeperp.Models
         public string PROJECT_NAME { get; set; }
         public string PAYEE { get; set; }
         public Nullable<System.DateTime> PAYMENT_DATE { get; set; }
+        public string PROJECT_NAME1 { get; set; }
+        public string PAYEE1 { get; set; }
+        public Nullable<System.DateTime> PAYMENT_DATE1 { get; set; }
     }
 }

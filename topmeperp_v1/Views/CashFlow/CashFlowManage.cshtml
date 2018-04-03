@@ -24,16 +24,16 @@
                 現金流出
             </th>
             <th>
-                金流小計
+                自有資金累計
             </th>
             <th>
                 貸款可用額度
             </th>
             <th>
-                合計
+                貸款額度累計
             </th>
             <th>
-                累計
+                資金缺口
             </th>
         </tr>
 
@@ -79,17 +79,17 @@
                         @String.Format("{0:$#,##0.#}", item.AMOUNT_OUTFLOW)
                     </td>
                 }
-                @if (item.SUB_BALANCE >= 0)
+                @if (item.CASH_RUNNING_TOTAL >= 0)
                 {
                     <td>
-                        @String.Format("{0:$#,##0.#; ($#,##0.#)}", item.SUB_BALANCE)
+                        @String.Format("{0:$#,##0.#; ($#,##0.#)}", item.CASH_RUNNING_TOTAL)
                     </td>
                 }
                 else
                 {
                     <td>
                         <span style="font-weight:bold;color:crimson">
-                            @String.Format("{0:$#,##0.#; ($#,##0.#)}", item.SUB_BALANCE)
+                            @String.Format("{0:$#,##0.#; ($#,##0.#)}", item.CASH_RUNNING_TOTAL)
                         </span>
                     </td>
                 }
@@ -107,33 +107,35 @@
                         </span>
                     </td>
                 }
-                @if (item.BALANCE >= 0)
+                @if (item.LOAN_QUOTA_RUNNING_TOTAL >= 0)
                 {
                     <td>
-                        @String.Format("{0:$#,##0.#; ($#,##0.#)}", item.BALANCE)
+                        @String.Format("{0:$#,##0.#; ($#,##0.#)}", item.LOAN_QUOTA_RUNNING_TOTAL)
                     </td>
                 }
                 else
                 {
                     <td>
                         <span style="font-weight:bold;color:crimson">
-                            @String.Format("{0:$#,##0.#; ($#,##0.#)}", item.BALANCE)
+                            @String.Format("{0:$#,##0.#; ($#,##0.#)}", item.LOAN_QUOTA_RUNNING_TOTAL)
                         </span>
                     </td>
                 }
-                @if (item.RUNNING_TOTAL >= 0)
-                {
-                    <td>
-                        @String.Format("{0:$#,##0.#; ($#,##0.#)}", item.RUNNING_TOTAL)
-                    </td>
-                }
-                else
+                @if (item.CASH_RUNNING_TOTAL + item.LOAN_QUOTA_RUNNING_TOTAL < 0)
                 {
                     <td>
                         <span style="font-weight:bold;color:crimson">
-                            @String.Format("{0:$#,##0.#; ($#,##0.#)}", item.RUNNING_TOTAL)
+                            @String.Format("{0:$#,##0.#; ($#,##0.#)}", item.CASH_RUNNING_TOTAL + item.LOAN_QUOTA_RUNNING_TOTAL)
                         </span>
                     </td>
+                }
+                else if(item.CASH_RUNNING_TOTAL < 0 && item.CASH_RUNNING_TOTAL + item.LOAN_QUOTA_RUNNING_TOTAL >= 0)
+                {
+                    <td>缺口可用貸款補足</td>
+                }
+                else
+                {
+                    <td>無</td>
                 }
             </tr>
         }
