@@ -10,9 +10,7 @@
         <EntityTypeShape EntityType="topmepModel.FIN_EXPENSE_BUDGET" Width="1.5" PointX="10.75" PointY="11.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_EXPENSE_FORM" Width="1.5" PointX="2.75" PointY="12.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_EXPENSE_ITEM" Width="1.5" PointX="12.75" PointY="6.75" />
-        <EntityTypeShape EntityType="topmepModel.FIN_LOAN_TRANACTION" Width="1.5" PointX="7.75" PointY="12.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_SUBJECT" Width="1.5" PointX="5.75" PointY="0.75" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_ACCOUNT" Width="1.5" PointX="12.75" PointY="10.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_BUDGET" Width="1.5" PointX="13.75" PointY="0.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_CONTRACT_PROCESS" Width="1.5" PointX="4.75" PointY="13.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_DALIY_REPORT" Width="1.5" PointX="14.75" PointY="5.75" />
@@ -70,8 +68,10 @@
         <EntityTypeShape EntityType="topmepModel.PLAN_COSTCHANGE_FORM" Width="1.5" PointX="25.375" PointY="17.125" />
         <EntityTypeShape EntityType="topmepModel.PLAN_COSTCHANGE_ITEM" Width="1.5" PointX="27.625" PointY="17" />
         <AssociationConnector Association="topmepModel.FK_PLAN_COS_REFERENCE_PLAN_COS" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_FORM" Width="1.5" PointX="8.375" PointY="0.75" />
-        <EntityTypeShape EntityType="topmepModel.FIN_BANK_LOAN" Width="1.5" PointX="10.375" PointY="0.75" />
+        <EntityTypeShape EntityType="topmepModel.FIN_BANK_LOAN" Width="1.5" PointX="8.375" PointY="0.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_ACCOUNT" Width="1.5" PointX="10.375" PointY="0.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_FORM" Width="1.5" PointX="25.375" PointY="22.75" />
+        <EntityTypeShape EntityType="topmepModel.FIN_LOAN_TRANACTION" Width="1.5" PointX="27.375" PointY="0.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

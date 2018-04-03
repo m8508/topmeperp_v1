@@ -27,6 +27,5 @@ namespace topmeperp.Models
         public string MODIFY_ID { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
         public string VA_FORM_ID { get; set; }
-        public string VA_FORM_ID1 { get; set; }
     }
 }
