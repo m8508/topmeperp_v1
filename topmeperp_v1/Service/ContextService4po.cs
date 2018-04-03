@@ -4931,9 +4931,9 @@ namespace topmeperp.Service
         }
 
         //取得符合條件之帳款資料
-        public List<PlanAccountFunction> getPlanAccount(string paymentdate, string projectname, string payee, string accounttype)
+        public List<PlanAccountFunction> getPlanAccount(string paymentdate, string projectname, string payee, string accounttype, string formid)
         {
-            logger.Info("search plan account by " + paymentdate + ", 受款人 =" + payee + ", 專案名稱 =" + projectname + ", 帳款類型 =" + accounttype);
+            logger.Info("search plan account by " + paymentdate + ", 受款人 =" + payee + ", 專案名稱 =" + projectname + ", 帳款類型 =" + accounttype + ", 單據編號 =" + formid);
             List<PlanAccountFunction> lstForm = new List<PlanAccountFunction>();
             //處理SQL 預先填入專案代號,設定集合處理參數
             string sql = "SELECT pa.AMOUNT_PAYABLE, pa.AMOUNT_PAID, pa.ACCOUNT_TYPE, CONVERT(char(10), pa.PAYMENT_DATE, 111) AS RECORDED_DATE, pa.PLAN_ACCOUNT_ID, " +
@@ -4961,6 +4961,12 @@ namespace topmeperp.Service
             {
                 sql = sql + "AND pa.PAYEE LIKE @payee ";
                 parameters.Add(new SqlParameter("payee", '%' + payee + '%'));
+            }
+            //單據編號條件
+            if (null != formid && formid != "")
+            {
+                sql = sql + "AND pa.ACCOUNT_FORM_ID =@formid ";
+                parameters.Add(new SqlParameter("formid", formid));
             }
             sql = sql + "ORDER BY p.PROJECT_NAME, pa.PAYMENT_DATE, pa.PAYEE DESC ";
             using (var context = new topmepEntities())

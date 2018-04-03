@@ -38,43 +38,50 @@
                         <span style="color: deeppink; font-size: 20px;" ng-show="count >= 59">*費用項目個數已超過58項，其餘內容請另外新增費用單來加入*</span>
                     </div>
                     <div class="row">
-                        <ng-form ng-repeat="m in model">
-                            <table>
-                                <tr>
-                                    <td>
-                                        <span class="btn btn-info">
-                                            <button type="button" class="close" ng-click="remove($index)">&times;</button>
-                                        </span>
-                                        No.{{$index +1}}
-                                    </td>
-                                    <td>
-                                        項目名稱：
-                                        <select id="subjectid" name="subjectid" style="height:27px" ng-model="m.SUBJECT" ng-options="(key.FIN_SUBJECT_ID + ' - ' + key.SUBJECT_NAME) for key in keys" required>
-                                            <option value="" required>-- 請選擇 --</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        品名/摘要：
-                                        <input type="text" style="width:300px" id="item_remark" name="item_remark" ng-model="m.REMARK" required>
-                                    </td>
-                                    <td>
-                                        單位：
-                                        <input type="text" style="width:50px" id="unit" name="unit" ng-model="m.ITEM_UNIT">
-                                    </td>
-                                    <td>
-                                        數量：
-                                        <input type="number" style="width:90px" id="item_quantity" name="item_quantity" ng-model="m.ITEM_QUANTITY">
-                                    </td>
-                                    <td>
-                                        單價：
-                                        <input type="text" style="width:90px" id="unit_price" name="unit_price" ng-model="m.ITEM_UNIT_PRICE" onblur="thousands(this)">
-                                    </td>
-                                    <td>
-                                        金額：
-                                        <input type="text" style="width:90px" id="input_amount" name="input_amount" ng-model="m.AMOUNT" onblur="thousands(this)" required>
-                                    </td>
-                                </tr>
-                            </table>
+                            <ng-form ng-repeat="m in model">
+                                <table class="table table-bordered">
+                                     <thead>
+                                    <tr>
+                                        <th style="width:100px;"> No.</th>
+                                        <th style="width:100px;">會計科目</th>
+                                        <th style="width:100px;">品名/摘要</th>
+                                        <th style="width:100px;">單位</th>
+                                        <th style="width:100px;">數量</th>
+                                        <th style="width:100px;">單價</th>
+                                        <th style="width:100px;">複價</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <span class="btn btn-info">
+                                                    <button type="button" class="close" ng-click="remove($index)">&times;</button>
+                                                </span>
+                                                {{$index +1}}
+                                            </td>
+                                            <td>
+                                                <select id="subjectid" name="subjectid" style="height:27px" ng-model="m.SUBJECT" ng-options="(key.FIN_SUBJECT_ID + ' - ' + key.SUBJECT_NAME) for key in keys" required>
+                                                    <option value="" required>-- 請選擇 --</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="text" style="width:300px" id="item_remark" name="item_remark" ng-model="m.REMARK" required>
+                                            </td>
+                                            <td>
+                                                <input type="text" style="width:50px" id="unit" name="unit" ng-model="m.ITEM_UNIT">
+                                            </td>
+                                            <td>
+                                                <input type="number" style="width:90px" id="item_quantity" name="item_quantity" ng-model="m.ITEM_QUANTITY">
+                                            </td>
+                                            <td>
+                                                <input type="text" style="width:90px" id="unit_price" name="unit_price" ng-model="m.ITEM_UNIT_PRICE" onblur="thousands(this)">
+                                            </td>
+                                            <td>
+                                                <input type="text" style="width:90px" id="input_amount" name="input_amount" value="{{m.ITEM_QUANTITY * m.ITEM_UNIT_PRICE  | number : 0}}">
+                                            </td>
+                                        </tr>
+                                        </tbody>
+</table>
                         </ng-form>
 
                         <ng-form ng-repeat="key in keys">
@@ -130,7 +137,7 @@
 
         if(/^-?\d+\.?\d+$/.test(num)){  //判断输入内容是否为整数或小数
             if(/^-?\d+$/.test(num)){    //判断输入内容是否为整数 包含负数和正数
-                num =num + ",0";   //将整数转为精度为2的小数，并将小数点换成逗号
+                num =num + ",00";   //将整数转为精度为2的小数，并将小数点换成逗号
             }else{
                 num = num.toString().replace(/\./,',');    //将小数的小数点换成逗号
             }

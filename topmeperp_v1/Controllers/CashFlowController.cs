@@ -74,7 +74,7 @@ namespace topmeperp.Controllers
             CashFlowModel viewModel = new CashFlowModel();
             string projectname = "";
             string account_type = "R";
-            CashInFlow = service.getPlanAccount(paymentDate, projectname, projectname, account_type);
+            CashInFlow = service.getPlanAccount(paymentDate, projectname, projectname, account_type, projectname);
             LoanInFlow = service.getLoanTranaction(type, paymentDate);
             viewModel.planAccount = CashInFlow;
             viewModel.finLoanTranaction = LoanInFlow;
@@ -89,7 +89,7 @@ namespace topmeperp.Controllers
             CashFlowModel viewModel = new CashFlowModel();
             string projectname = "";
             string account_type = "P','O','E";
-            CashOutFlow = service.getPlanAccount(paymentDate, projectname, projectname, account_type);
+            CashOutFlow = service.getPlanAccount(paymentDate, projectname, projectname, account_type, projectname);
             LoanOutFlow = service.getLoanTranaction(type, paymentDate);
             viewModel.planAccount = CashOutFlow;
             viewModel.finLoanTranaction = LoanOutFlow;
@@ -931,7 +931,8 @@ namespace topmeperp.Controllers
         public ActionResult ShowPlanAccount()
         {
             logger.Info("payment_date =" + Request["payment_date"] + ", projectname =" + Request["projectname"] + ", payee =" + Request["payee"] + ", account_type =" + Request["account_type"]);
-            List<PlanAccountFunction> lstAccount = service.getPlanAccount(Request["payment_date"], Request["projectname"], Request["payee"], Request["account_type"]);
+            string formId = "";
+            List<PlanAccountFunction> lstAccount = service.getPlanAccount(Request["payment_date"], Request["projectname"], Request["payee"], Request["account_type"], formId);
             ViewBag.SearchResult = "共取得" + lstAccount.Count + "筆資料";
             return PartialView(lstAccount);
         }
@@ -984,6 +985,7 @@ namespace topmeperp.Controllers
             item.STATUS = int.Parse(form["unRecordedFlag"]);
             item.CREATE_ID = form["create_id"];
             item.CHECK_NO = form["check_no"];
+            item.PAYEE = form["payee"];
             item.REMARK = form["remark"];
             SYS_USER loginUser = (SYS_USER)Session["user"];
             item.MODIFY_ID = loginUser.USER_ID;

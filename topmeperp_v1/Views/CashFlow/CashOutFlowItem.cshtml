@@ -33,7 +33,7 @@
                     預計付款日期
                 </th>
                 <th>
-                    支票號碼
+                    受款人
                 </th>
                 <th>
                     暫不入帳
@@ -53,7 +53,7 @@
                     <td>@String.Format("{0:$#,##0.#}", item.AMOUNT_PAYABLE)</td>
                     <td>@String.Format("{0:$#,##0.#}", item.AMOUNT_PAID)</td>
                     <td>@item.RECORDED_DATE</td>
-                    <td>@item.CHECK_NO</td>
+                    <td>@item.PAYEE</td>
                     @if (item.STATUS != 10)
                     {
                         <td><span style="color: red; font-size: 15px;">是</span></td>
