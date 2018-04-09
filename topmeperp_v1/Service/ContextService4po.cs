@@ -3682,6 +3682,10 @@ namespace topmeperp.Service
                     "ISNULL((SELECT TAX_RATIO FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid),0) AS TAX_RATIO, " +
                     "ISNULL((SELECT RETENTION_PAYMENT FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid),0) AS T_RETENTION, " +
                     "ISNULL((SELECT TAX_AMOUNT FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid),0) AS TAX_AMOUNT, " +
+                    "ISNULL((SELECT IIF(loan.AMOUNT < 0 , -loan.AMOUNT, 0) FROM PLAN_ESTIMATION_FORM f LEFT JOIN (SELECT l.BANK_NAME, SUM(TRANSACTION_TYPE*AMOUNT) AS AMOUNT FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID " +
+                    "WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' GROUP BY t.BL_ID, l.BANK_NAME)loan ON f.PAYEE = loan.BANK_NAME WHERE f.EST_FORM_ID =@formid),0) AS LOAN_AMOUNT, " +
+                    "ISNULL((SELECT loan.BL_ID FROM PLAN_ESTIMATION_FORM f LEFT JOIN (SELECT l.BANK_NAME, t.BL_ID, SUM(TRANSACTION_TYPE*AMOUNT) AS AMOUNT FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID " +
+                    "WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' GROUP BY t.BL_ID, l.BANK_NAME)loan ON f.PAYEE = loan.BANK_NAME WHERE f.EST_FORM_ID =@formid),0) AS LOAN_PAYEE_ID, " +
                     "ISNULL((SELECT SUM(RETENTION_PAYMENT) FROM PLAN_ESTIMATION_FORM WHERE CONTRACT_ID = @contractid AND STATUS >= 0 AND CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid)),0)  AS CUM_T_RETENTION, " +
                     "ISNULL((SELECT SUM(TAX_AMOUNT) FROM PLAN_ESTIMATION_FORM WHERE CONTRACT_ID = @contractid AND STATUS >= 0 AND CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid)),0) AS CUM_TAX_AMOUNT, " +
                     "ISNULL((SELECT ISNULL(PAYMENT_TRANSFER, 0) + ISNULL(FOREIGN_PAYMENT, 0) - ISNULL((SELECT SUM(AMOUNT) FROM PLAN_OTHER_PAYMENT WHERE EST_FORM_ID =@formid AND CONTRACT_ID =@contractid AND TYPE = 'R' GROUP BY EST_FORM_ID, CONTRACT_ID), 0) PRICE " +
@@ -5033,6 +5037,21 @@ namespace topmeperp.Service
             }
             return lstForm;
         }
+        public List<PlanAccountFunction> getOutFlowBalanceByDate(string paymentDate)
+        {
+            logger.Debug("get cash out flow balance by payment date, and payment date =" + paymentDate);
+            List<PlanAccountFunction> lstItem = new List<PlanAccountFunction>();
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                lstItem = context.Database.SqlQuery<PlanAccountFunction>("SELECT p.* , CONVERT(char(10), p.PAYMENT_DATE, 111) AS RECORDED_DATE, PARSENAME(Convert(varchar,Convert(money,ISNULL(p.AMOUNT_PAID, 0)),1),2) AS RECORDED_AMOUNT_PAYABLE, " +
+                    "PARSENAME(Convert(varchar,Convert(money,ISNULL(it.AMOUNT, 0)),1),2) AS PAYBACK_AMOUNT , PARSENAME(Convert(varchar,Convert(money,ISNULL(p.AMOUNT_PAID, 0) - ISNULL(it.AMOUNT, 0)),1),2) AS RECORDED_AMOUNT_PAID  FROM PLAN_ACCOUNT p " +
+                    "LEFT JOIN (SELECT t.*, l.IS_SUPPLIER, l.BANK_NAME FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = 1 AND CONVERT(char(10), " +
+                    "IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE), 111) = @paymentDate OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = -1 AND CONVERT(char(10), IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE), 111) = @paymentDate)it " +
+                    "ON it.BANK_NAME = p.PAYEE WHERE p.ISDEBIT = 'N' AND CONVERT(char(10), p.PAYMENT_DATE, 111) =@paymentDate ", new SqlParameter("paymentDate", paymentDate)).ToList();
+            }
+            return lstItem;
+        }
         public int updatePlanAccountItem(PLAN_ACCOUNT item)
         {
             int i = 0;
@@ -5788,7 +5807,7 @@ namespace topmeperp.Service
                 lstAmount = context.Database.SqlQuery<CashFlowBalance>("SELECT *, ISNULL(curCashFlow,0) - ISNULL(loanBalance_sup, 0) + ISNULL(loanBalance_bank, 0) + ISNULL(futureCashFlow, 0) - ISNULL(CompanyCost, 0) AS cashFlowBal FROM " +
                     "(SELECT (SELECT ISNULL(bankAmt, 0) + ISNULL(cashFlow, 0) + ISNULL(loanFlowFactor, 0) FROM (SELECT (SELECT SUM(CUR_AMOUNT) FROM FIN_BANK_ACCOUNT) AS bankAmt, " +
                     "(SELECT SUM(IIF(ISNULL(IS_SUPPLIER, 'N') = 'Y', IIF(TRANSACTION_TYPE = 1, 1 ,-1),IIF(TRANSACTION_TYPE = 1, -1 ,1)) * AMOUNT) " +
-                    "FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID WHERE CONVERT(char(10), IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE),111) > " +
+                    "FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID WHERE CONVERT(char(10), IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE),111) >= " +
                     "CONVERT(char(10), getdate(),111) AND t.REMARK NOT LIKE '%備償款%') AS loanFlowFactor, SUM(AMOUNT_PAID *IIF(pa.ISDEBIT = 'N', -1, 1)) AS cashFlow " +
                     "FROM PLAN_ACCOUNT pa WHERE pa.PAYMENT_DATE >= CONVERT(char(10), getdate(), 111) AND ISNULL(STATUS, 10) <> 0)it) AS curCashFlow, (SELECT SUM(MAINTENANCE_BOND) FROM PLAN_CONTRACT_PROCESS) AS maintBond, " +
                     "(SELECT SUM(AMOUNT) FROM FIN_EXPENSE_BUDGET WHERE BUDGET_YEAR = IIF(MONTH(GETDATE()) > 6, YEAR(GETDATE()), YEAR(GETDATE())-1)) AS CompanyCost," +

@@ -120,6 +120,13 @@
                     }
                 </div>
             </div>
+            <div class="col-md-12 alert-dismissable" style="padding-top: 20px;">
+                <span style="color:crimson; ">
+                    @Html.Raw(TempData["loanAmt"])
+                </span>
+                <a href="/BankInfo/BankLoanTransaction?BL_ID=@ViewBag.loanPayee&IS_SUPPLIER='Y'" target="_blank" class="btn btn-link">@String.Format("{0:$#,##0.#}", ViewBag.loanAmount)</a>
+                
+            </div>
             <input type="hidden" name="estid" id="estid" value="@Model.EstData.planEST.EST_FORM_ID">
             <input type="hidden" name="id" id="id" value="@Model.EstData.planEST.PROJECT_ID">
             <input type="hidden" id="date" name="date" value="@Model.EstData.planEST.CREATE_DATE" />

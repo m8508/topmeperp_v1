@@ -468,6 +468,8 @@ namespace topmeperp.Models
         public Nullable<decimal> CUM_T_REFUND { get; set; }
         public Nullable<decimal> TOTAL_REPAYMENT { get; set; }
         public Nullable<decimal> TOTAL_REFUND { get; set; }
+        public Nullable<decimal> LOAN_AMOUNT { get; set; }
+        public Int64 LOAN_PAYEE_ID { get; set; }
     }
 
     public class RePaymentFunction : PLAN_OTHER_PAYMENT
@@ -541,6 +543,7 @@ namespace topmeperp.Models
         public string RECORDED_AMOUNT_PAYABLE { get; set; }
         public Int64 NO { get; set; }
         public string RECORDED_AMOUNT_PAID { get; set; }
+        public string PAYBACK_AMOUNT { get; set; }
     }
         public class SiteBudgetModels
     {
@@ -683,7 +686,7 @@ namespace topmeperp.Models
         public IEnumerable<FIN_BANK_LOAN> finLoan { get; set; }
         public IEnumerable<LoanTranactionFunction> finLoanTranaction { get; set; }
         public IEnumerable<PlanAccountFunction> planAccount { get; set; }
-        
+        public IEnumerable<PlanAccountFunction> outFlowBalance { get; set; }
     }
     public class CashFlowBalance : PLAN_ACCOUNT
     {

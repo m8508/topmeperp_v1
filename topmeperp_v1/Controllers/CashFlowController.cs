@@ -86,13 +86,16 @@ namespace topmeperp.Controllers
         {
             List<PlanAccountFunction> CashOutFlow = null;
             List<LoanTranactionFunction> LoanOutFlow = null;
+            List<PlanAccountFunction> OutFlowBalance = null;
             CashFlowModel viewModel = new CashFlowModel();
             string projectname = "";
             string account_type = "P','O','E";
             CashOutFlow = service.getPlanAccount(paymentDate, projectname, projectname, account_type, projectname);
             LoanOutFlow = service.getLoanTranaction(type, paymentDate);
+            OutFlowBalance = service.getOutFlowBalanceByDate(paymentDate);
             viewModel.planAccount = CashOutFlow;
             viewModel.finLoanTranaction = LoanOutFlow;
+            viewModel.outFlowBalance = OutFlowBalance;
             return View(viewModel);
         }
 

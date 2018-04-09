@@ -115,14 +115,23 @@
 </form>
 <table class="table table-bordered">
     <tr>
-        <th class="bg-danger" style="width:115px;">
-            合計:
+        <th class="bg-danger">
+            借款小計:
         </th>
-        <th class="text-left" style="width:20px;">
+        <th class="text-right">
             @String.Format("{0:$#,##0.#; ($#,##0.#);-}", Model.eventAmt)
         </th>
-        <th class="text-left" style="width:185px;">
+        <th class="bg-danger">
+            還款小計:
+        </th>
+        <th class="text-right">
             @String.Format("{0:$#,##0.#; ($#,##0.#);-}", Model.paybackAmt)
+        </th>
+        <th class="bg-danger">
+            合計:
+        </th>
+        <th class="text-right">
+            @String.Format("{0:$#,##0.#; ($#,##0.#);0}", Model.eventAmt - Model.paybackAmt)
         </th>
     </tr>
 </table>

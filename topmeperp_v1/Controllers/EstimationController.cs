@@ -503,10 +503,17 @@ namespace topmeperp.Controllers
             logger.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
             //PaymentDetailsFunction lstSummary = service.getDetailsPayById(id, singleForm.planEST.CONTRACT_ID);
             PaymentDetailsFunction lstSummary = service.getDetailsPayById(id, id);
+            PaymentDetailsFunction pay = service.getDetailsPayById(id,id);
+            if (pay.LOAN_AMOUNT != 0)
+            {
+                TempData["loanAmt"] = "此廠商有借款尚未償還，金額為:";
+                ViewBag.loanAmount = pay.LOAN_AMOUNT;
+                ViewBag.loanPayee = pay.LOAN_PAYEE_ID;
+            }
             //var balance = service.getBalanceOfRefundById(singleForm.planEST.CONTRACT_ID);
             //if (balance > 0)
             //{
-                //TempData["balance"] = "本合約目前尚有 " + string.Format("{0:C0}", balance) + "的代付支出款項，仍未扣回!";
+            //TempData["balance"] = "本合約目前尚有 " + string.Format("{0:C0}", balance) + "的代付支出款項，仍未扣回!";
             //}
             //轉成Json字串
             //ViewData["items"] = JsonConvert.SerializeObject(singleForm.planESTItem);

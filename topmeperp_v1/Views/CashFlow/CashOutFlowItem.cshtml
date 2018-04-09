@@ -109,6 +109,40 @@
         </tr>
     }
 </table>
+<h3 class="text-left" style="padding-top:20px;">當日須支付明細 :</h3>
+<table class="table table-bordered">
+    <tr>
+        <th>
+            日期
+        </th>
+        <th>
+            受款人
+        </th>
+        <th>
+            支付金額
+        </th>
+        <th>
+            原應付金額
+        </th>
+        <th>
+            已還款金額
+        </th>
+    </tr>
+
+    @foreach (var item in Model.outFlowBalance)
+            {
+        <tr>
+            <td>@item.RECORDED_DATE</td>
+            <td>@item.PAYEE</td>
+            <td>@item.RECORDED_AMOUNT_PAID</td>
+            <td>@item.RECORDED_AMOUNT_PAYABLE</td>
+            <td>@item.PAYBACK_AMOUNT</td>
+        </tr>
+    }
+</table>
+
+
+
 <!-- Modal :對話框-->
 <div class="modal fade" id="planAcountItem" role="dialog">
     <div class="modal-dialog" id="planAcountItemDialog">
