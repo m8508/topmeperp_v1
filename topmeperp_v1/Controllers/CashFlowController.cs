@@ -943,7 +943,7 @@ namespace topmeperp.Controllers
         public ActionResult PlanAccountOfForm(string formid)
         {
             logger.Info("get plan account by form id=" + formid);
-            List<PlanAccountFunction> lstAccount = service.getPlanAccountById(formid);
+            List<PlanAccountFunction> lstAccount = service.getPlanAccount(null, null, null, "R", formid); 
             return View(lstAccount);
         }
         public string getPlanAccountItem(string itemid)
@@ -955,6 +955,18 @@ namespace topmeperp.Controllers
             return itemJson;
         }
 
+        /// <summary>
+        /// PlanAccountItem 註記刪除
+        /// </summary>
+        /// <param name="itemid"></param>
+        /// <returns></returns>
+        public String delPlanAccountItem(string itemid)
+        {
+            string msg = "更新成功!!";
+            logger.Info("del plan account item by id=" + itemid);
+            int i = service.delPlanAccountItem(itemid);
+            return msg + "(" + i + ")";
+        }
         public String updatePlanAccountItem(FormCollection form)
         {
             logger.Info("form:" + form.Count);

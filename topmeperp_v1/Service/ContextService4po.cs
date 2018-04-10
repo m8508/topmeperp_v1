@@ -4999,6 +4999,20 @@ namespace topmeperp.Service
             }
             return aitem;
         }
+        //將Plan Account Item 刪除
+        public int delPlanAccountItem(string itemid)
+        {
+            string sql = "DELETE FROM PLAN_ACCOUNT WHERE PLAN_ACCOUNT_ID = @itemid";
+            int i = 0;
+            using (var db = new topmepEntities())
+            {
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("itemid", itemid));
+                logger.Info("Delete PLAN_ACCOUNT =" + sql + ",itemid=" + itemid);
+                i = db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            }
+            return i;
+        }
         //取得特定日期借款與還款
         public List<LoanTranactionFunction> getLoanTranaction(string type, string paymentdate)
         {
@@ -5022,21 +5036,7 @@ namespace topmeperp.Service
             }
             return lstItem;
         }
-        public List<PlanAccountFunction> getPlanAccountById(string formid)
-        {
-            logger.Debug("get plan account by form id=" + formid);
-            List<PlanAccountFunction> lstForm = new List<PlanAccountFunction>();
-            using (var context = new topmepEntities())
-            {
-                //條件篩選
-                lstForm = context.Database.SqlQuery<PlanAccountFunction>("SELECT PARSENAME(Convert(varchar,Convert(money,ISNULL(pa.AMOUNT_PAYABLE, 0)),1),2) AS RECORDED_AMOUNT_PAYABLE, PARSENAME(Convert(varchar,Convert(money,ISNULL(pa.AMOUNT_PAID, 0)),1),2) AS RECORDED_AMOUNT_PAID, " +
-                    "pa.ACCOUNT_TYPE, CONVERT(char(10), pa.PAYMENT_DATE, 111) AS RECORDED_DATE, pa.REMARK, " +
-                    "pa.PLAN_ACCOUNT_ID, pa.CONTRACT_ID, pa.ACCOUNT_TYPE, pa.ACCOUNT_FORM_ID, pa.ISDEBIT, ISNULL(pa.STATUS, 10) AS STATUS, pa.CREATE_ID, pa.PROJECT_ID, pa.CHECK_NO, p.PROJECT_NAME, ROW_NUMBER() OVER(ORDER BY pa.PAYMENT_DATE) AS NO " +
-                    "FROM PLAN_ACCOUNT pa LEFT JOIN TND_PROJECT p ON pa.PROJECT_ID = p.PROJECT_ID WHERE pa.ACCOUNT_FORM_ID=@formid ",
-                new SqlParameter("formid", formid)).ToList();
-            }
-            return lstForm;
-        }
+        
         public List<PlanAccountFunction> getOutFlowBalanceByDate(string paymentDate)
         {
             logger.Debug("get cash out flow balance by payment date, and payment date =" + paymentDate);

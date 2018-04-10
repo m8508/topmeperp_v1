@@ -2843,20 +2843,20 @@ namespace topmeperp.Controllers
                 loanBalance = service.getLoanBalanceByBlId(int.Parse(form.Get("loans").Trim()));
                 paybackRatio = decimal.Parse(bl.AR_PAYBACK_RATIO.ToString());
                 period = service.getPaybackCountByBlId(int.Parse(form.Get("loans").Trim()));
+                if (loanBalance < 0 && loanBalance * -1 < Math.Round(decimal.Parse(form["payment_amount"]) * paybackRatio / 100))
+                {
+                    paybackAtm = loanBalance * -1;
+                }
+                else if (loanBalance >= 0)
+                {
+                    return "此備償戶借款已償還完畢，請重新入帳。";
+                }
+                else
+                {
+                    paybackAtm = Math.Round(decimal.Parse(form["payment_amount"]) * paybackRatio / 100);
+                }
+                logger.Info("paybackAtm = " + paybackAtm);
             }
-            if (loanBalance < 0 && loanBalance * -1 < Math.Round(decimal.Parse(form["payment_amount"]) * paybackRatio / 100))
-            {
-                paybackAtm = loanBalance * -1;
-            }
-            else if (loanBalance >= 0)
-            {
-                return "此備償戶借款已償還完畢，請重新入帳。";
-            }
-            else
-            {
-                paybackAtm = Math.Round(decimal.Parse(form["payment_amount"]) * paybackRatio / 100);
-            }
-            logger.Info("paybackAtm = " + paybackAtm);
             if (form["fee"] != "")
             {
                 //item.BANKING_FEE = decimal.Parse(form["fee"]);
