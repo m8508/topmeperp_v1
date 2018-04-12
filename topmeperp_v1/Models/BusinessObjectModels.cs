@@ -698,4 +698,10 @@ namespace topmeperp.Models
         public Nullable<decimal> loanBalance_sup { get; set; }
         public Nullable<decimal> CompanyCost { get; set; }
     }
+    public class CreditNote : PLAN_INVOICE
+    {
+        public string OWNER_NAME { get; set; }
+        public string INVOICE_TYPE { get; set; }
+
+    }
 }

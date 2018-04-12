@@ -5834,7 +5834,18 @@ namespace topmeperp.Service
             }
             return lstAmount;
         }
-
+        public List<CreditNote> getCreditNoteById(string projectid, string formid)
+        {
+            logger.Debug("get credit note by form id, and form id =" + formid);
+            List<CreditNote> lstItem = new List<CreditNote>();
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                lstItem = context.Database.SqlQuery<CreditNote>("SELECT note.*, pi.TYPE AS INVOICE_TYPE FROM (SELECT I.*, P.OWNER_NAME  FROM PLAN_INVOICE I, TND_PROJECT P WHERE I.CONTRACT_ID = P.PROJECT_ID AND TYPE = '折讓單' " +
+                    "AND EST_FORM_ID =@formid)note LEFT JOIN (SELECT * FROM PLAN_INVOICE WHERE CONTRACT_ID =@projectid AND TYPE <> '折讓單')pi ON note.INVOICE_NUMBER = pi.INVOICE_NUMBER ", new SqlParameter("formid", formid), new SqlParameter("projectid", projectid)).ToList();
+            }
+            return lstItem;
+        }
 
     }
 }

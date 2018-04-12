@@ -7,13 +7,17 @@
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0rc1/angular.min.js"></script>
 
 <div class="page-header">
-    <h3 style="height:10px;line-height:5px">@ViewBag.Title</h3><br />
+    <h3 style="height:10px;line-height:5px">@ViewBag.Title</h3>
+    
     <div class="row">
         <div class="col-md-1" style="padding-bottom:15px;">
             <input type="button" class="btn btn-success" onclick="location.href='@Url.Action("Valuation4Owner", "Estimation", new { id = ViewBag.projectId })'" value="回上一頁">
         </div>
         <div class="col-md-1" style="padding-bottom:15px">
             <input type="button" value="儲存" class="btn btn-default" onclick="saveVA()" />
+        </div>
+        <div class="col-md-1" style="padding-bottom:15px">
+            <a class="btn btn-link" href="/Estimation/downLoadCreditNote?projectid=@ViewBag.projectId&formid=@ViewBag.formid" target="_blank">下載折讓單</a>
         </div>
     </div>
     <div ng-app="" ng-controller="MyCtrl">
@@ -148,11 +152,9 @@
         $scope.keys = @Html.Raw(ViewData["items"]);
         $scope.show = function () {
             $scope.keys.push({ number:$scope.key.INVOICE_NUMBER, amount: $scope.key.AMOUNT, taxamount: $scope.key.TAX, type: $scope.key.TYPE });
-
         };
         $scope.addKey = function () {
             $scope.keys.push({date: null, number: null, amount: null, tax: null, type: null, sub_type: null, plan_item_id : null, discount_qty: null, discount_unit_price: null });
-
         };
         $scope.remove = function (index) {
             $scope.keys.splice(index, 1);

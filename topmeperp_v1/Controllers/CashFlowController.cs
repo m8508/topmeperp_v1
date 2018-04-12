@@ -769,85 +769,7 @@ namespace topmeperp.Controllers
             ViewBag.SearchResult = "共取得" + lstEXP.Count + "筆資料";
             return View("ExpenseForm", lstEXP);
         }
-
-
-        public String PassEXPById(FormCollection form)
-        {
-            //取得費用單編號
-            logger.Info("EXP form Id:" + form["formnumber"]);
-            //更新費用單狀態
-            logger.Info("Pass Expense Form ");
-            string formid = form.Get("formnumber").Trim();
-            UserService us = new UserService();
-            SYS_USER u = (SYS_USER)Session["user"];
-            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
-            string passid = uInfo.USER_ID;
-            //費用單(主管已通過) STATUS = 30
-            string msg = "";
-            int i = service.PassEXPByExpId(formid, passid);
-            if (i == 0)
-            {
-                msg = service.message;
-            }
-            else
-            {
-                msg = "費用單已核可";
-            }
-            return msg;
-        }
-
-        public String JournalById(FormCollection form)
-        {
-            //取得費用單編號
-            logger.Info("EXP form Id:" + form["formnumber"]);
-            //更新費用單狀態
-            logger.Info("Journal For Operating Expense Form ");
-            string formid = form.Get("formnumber").Trim();
-            UserService us = new UserService();
-            SYS_USER u = (SYS_USER)Session["user"];
-            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
-            string journalid = uInfo.USER_ID;
-            //費用(已立帳) STATUS = 40
-            string msg = "";
-            int i = service.JournalByExpId(formid, journalid);
-            if (i == 0)
-            {
-                msg = service.message;
-            }
-            else
-            {
-                msg = "費用單已核可";
-            }
-            return msg;
-        }
-
-        public String ApproveEXPById(FormCollection form)
-        {
-            //取得費用單編號
-            logger.Info("EXP form Id:" + form["formnumber"]);
-            //更新費用單狀態
-            logger.Info("Approve Operating Expense Form ");
-            string formid = form.Get("formnumber").Trim();
-            UserService us = new UserService();
-            SYS_USER u = (SYS_USER)Session["user"];
-            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
-            string approveid = uInfo.USER_ID;
-            //費用單(已核可) STATUS = 50
-            string msg = "";
-            int i = service.ApproveEXPByExpId(formid, approveid);
-            string k = service.AddAccountByExpId(formid, approveid);
-            logger.Info("Add the Operating Expense Account To Plan Account Record, It's Form Id = " + k);
-            if (i == 0)
-            {
-                msg = service.message;
-            }
-            else
-            {
-                msg = "費用單已核可";
-            }
-            return msg;
-        }
-
+        
         public String UpdateAccountStatus(FormCollection form)
         {
             logger.Info("form:" + form.Count);
@@ -903,17 +825,6 @@ namespace topmeperp.Controllers
                 msg = "帳款支付狀態已更新";
             }
             return msg;
-        }
-
-        //會計立帳進入畫面
-        public ActionResult FormForJournal()
-        {
-            logger.Info("Access to Form For Journal !!");
-            //公司需立帳之帳款(即會計審核)
-            int status = 30;
-            ViewBag.forJournal = "會計立帳";
-            List<OperatingExpenseFunction> lstEXP = service.getEXPListByExpId(Request["occurred_date"], Request["subjectname"], Request["expid"], status, Request["id"]);
-            return View(lstEXP);
         }
 
         public ActionResult SearchForm4Journal()
