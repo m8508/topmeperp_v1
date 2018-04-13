@@ -327,7 +327,45 @@ namespace topmeperp.Service
             logger.Info("get owner's contract file record count=" + lstItem.Count);
             return lstItem;
         }
+
+        //
+
     }
+    //採發階段
+    public class Bill4PurchService : TnderProject
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        public TND_PROJECT wageTable = null;
+        public List<PROJECT_ITEM_WITH_WAGE> wageTableItem = null;
+        public TND_PROJECT name = null;
+        public Bill4PurchService()
+        {
+        }
+        //取得工率表單
+        public void getProjectId(string projectid)
+        {
+            logger.Info("get project : projectid=" + projectid);
+            using (var context = new topmepEntities())
+            {
+                //取得專案檔頭資訊
+                wageTable = context.TND_PROJECT.SqlQuery("SELECT * FROM TND_PROJECT WHERE PROJECT_ID=@projectid", new SqlParameter("projectid", projectid)).First();
+                //取得合約標單明細
+                string sql = @"SELECT i.PLAN_ITEM_ID PROJECT_ITEM_ID,i.PROJECT_ID,i.ITEM_ID ,i.ITEM_DESC,i.ITEM_UNIT,i.ITEM_QUANTITY,i.ITEM_UNIT_PRICE
+                   ,i.MAN_PRICE ,i.ITEM_REMARK  ,i.TYPE_CODE_1 ,i.TYPE_CODE_2 ,i.SUB_TYPE_CODE  ,i.SYSTEM_MAIN ,i.SYSTEM_SUB
+                   ,i.MODIFY_USER_ID  ,i.MODIFY_DATE ,i.CREATE_USER_ID   ,i.CREATE_DATE  ,i.EXCEL_ROW_ID  ,i.FORM_NAME  ,i.SUPPLIER_ID
+                   ,i.BUDGET_RATIO  ,i.ITEM_FORM_QUANTITY   ,i.ITEM_UNIT_COST ,i.TND_RATIO
+                   ,i.MAN_FORM_NAME    ,i.MAN_SUPPLIER_ID      ,i.LEAD_TIME      ,i.DEL_FLAG      ,i.INQUIRY_FORM_ID      ,i.MAN_FORM_ID
+                   ,i.BUDGET_WAGE_RATIO,w.ratio,w.price,map.QTY as MAP_QTY FROM PLAN_ITEM i LEFT OUTER JOIN 
+                   TND_WAGE w ON i.PLAN_ITEM_ID = w.PROJECT_ITEM_ID 
+                    LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON i.PLAN_ITEM_ID = map.PROJECT_ITEM_ID 
+                   WHERE i.project_id = @projectid AND ISNULL(i.DEL_FLAG,'N')='N' ORDER BY i.EXCEL_ROW_ID; ";
+                wageTableItem = context.Database.SqlQuery<PROJECT_ITEM_WITH_WAGE>(sql, new SqlParameter("projectid", projectid)).ToList();
+                logger.Debug("get project item count:" + wageTableItem.Count);
+            }
+        }
+    }
+
+
     public class BudgetDataService : CostAnalysisDataService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);

@@ -2982,8 +2982,8 @@ namespace topmeperp.Service
         public List<PROJECT_ITEM_WITH_WAGE> projectItems = null;
         CostAnalysisDataService service = new CostAnalysisDataService();
 
-        XSSFCellStyle style = null;
-        XSSFCellStyle styleNumber = null;
+        public XSSFCellStyle style = null;
+        public XSSFCellStyle styleNumber = null;
 
         public void exportExcel(string projectid)
         {
@@ -3008,7 +3008,7 @@ namespace topmeperp.Service
             file.Close();
         }
         //寫入標單品項
-        private void getProjectItem()
+        protected void getProjectItem()
         {
             //2.寫入初期成本標單 僅提供office 格式2007 
             sheet = (XSSFSheet)hssfworkbook.GetSheet("標單品項");

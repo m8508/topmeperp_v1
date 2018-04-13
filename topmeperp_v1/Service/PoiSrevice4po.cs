@@ -47,6 +47,45 @@ namespace topmeperp.Service
         }
     }
 
+
+
+    //將合約標單品項輸出成Excel
+    public class PlanItemForContract : ProjectItem2Excel
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        string outputPath = ContextService.strUploadPath;
+        string templateFile = ContextService.strUploadPath + "\\ProjectItem_Template_v1.xlsx";
+        Bill4PurchService service = new Bill4PurchService();
+
+        //test conflicts
+        public PlanItemForContract()
+        {
+        }
+
+        
+        public new  void exportExcel(string projectid)
+        {
+            //1 取得資料庫資料
+            logger.Info("get data from DB,id=" + projectid);
+            service.getProjectId(projectid);
+            project = service.wageTable;
+            projectItems = service.wageTableItem;
+
+            //2.開啟檔案
+            logger.Info("InitializeWorkbook");
+            InitializeWorkbook(templateFile);
+            style = ExcelStyle.getContentStyle(hssfworkbook);
+            styleNumber = ExcelStyle.getNumberStyle(hssfworkbook);
+            //3.標單品項 僅提供office 格式2007 
+            getProjectItem();
+
+            //4.令存新檔至專案所屬目錄
+            var file = new FileStream(outputPath + "\\" + project.PROJECT_ID + "\\" + project.PROJECT_ID + "_標單明細.xlsx", FileMode.Create);
+            logger.Info("output file=" + file.Name);
+            hssfworkbook.Write(file);
+            file.Close();
+        }
+    }
     #region 預算下載表格格式處理區段
     public class BudgetFormToExcel
     {
