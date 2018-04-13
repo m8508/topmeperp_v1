@@ -16,9 +16,12 @@
         <div class="col-md-1" style="padding-bottom:15px">
             <input type="button" value="儲存" class="btn btn-default" onclick="saveVA()" />
         </div>
+        @if (ViewBag.NotePieces > 0)
+        {
         <div class="col-md-1" style="padding-bottom:15px">
             <a class="btn btn-link" href="/Estimation/downLoadCreditNote?projectid=@ViewBag.projectId&formid=@ViewBag.formid" target="_blank">下載折讓單</a>
         </div>
+        }
     </div>
     <div ng-app="" ng-controller="MyCtrl">
         <div class="row" style="padding-bottom:30px">

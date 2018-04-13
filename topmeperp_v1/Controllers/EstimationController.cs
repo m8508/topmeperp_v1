@@ -2450,7 +2450,9 @@ namespace topmeperp.Controllers
             ViewBag.projectId = id;
             List<PLAN_INVOICE> lstInvoice = null;
             lstInvoice = service.getInvoiceById(formid);
+            List<CreditNote> lstNote = service.getCreditNoteById(id, formid);
             ViewBag.InvoicePieces = service.getInvoicePiecesById(formid);
+            ViewBag.NotePieces = lstNote.Count;
             ViewData["items"] = JsonConvert.SerializeObject(lstInvoice);
             if (id != formid)
             {

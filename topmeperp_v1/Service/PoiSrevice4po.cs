@@ -3243,89 +3243,102 @@ namespace topmeperp.Service
             //1.讀取折讓單表格檔案
             InitializeWorkbook(creditNoteFile);
             //2.填入資料
-            int i = 0;
-            foreach (CreditNote item in CreditNoteItem)
-            {
-                sheet = (XSSFSheet)hssfworkbook.GetSheet("折讓單_" + (i + 1));
-                int idxRow = 5;
-                IRow row = sheet.GetRow(idxRow);//.CreateRow(idxRow);
-                logger.Info("Row Id=" + idxRow);
-                //發票類型、年、月、日、字軌、號碼、品名、數量、單價、金額、營業稅額、買受人、買受人統編、買受人地址
-                row.Cells[1].SetCellValue(item.INVOICE_TYPE.Substring(0, 1));//發票類型
-                row.Cells[2].SetCellValue(item.INVOICE_DATE.Value.Year);//年
-                row.Cells[4].SetCellValue(item.INVOICE_DATE.Value.Month);//月
-                row.Cells[5].SetCellValue(item.INVOICE_DATE.Value.Day);//日
-                row.Cells[6].SetCellValue(item.INVOICE_NUMBER.Substring(0, 2));//字軌
-                row.Cells[8].SetCellValue(item.INVOICE_NUMBER.Substring(2, 8));//號碼
-                                                                               //品名
-                logger.Debug("PLAN_ITEM_ID=" + item.PLAN_ITEM_ID);
-                row.Cells[9].SetCellValue(item.PLAN_ITEM_ID);
-                if (null != item.DISCOUNT_QTY && item.DISCOUNT_QTY.ToString().Trim() != "")
+                int i = 0;
+                foreach (CreditNote item in CreditNoteItem)
                 {
-                    row.Cells[11].SetCellValue(double.Parse(item.DISCOUNT_QTY.ToString())); //數量
+                    sheet = (XSSFSheet)hssfworkbook.GetSheet("折讓單_" + (i + 1));
+                    int idxRow = 2;
+                    IRow row = sheet.GetRow(idxRow);//.CreateRow(idxRow);
+                    row.Cells[13].SetCellValue(Convert.ToDateTime(DateTime.Now.ToShortDateString()));//折讓單開立日期
+                    idxRow = idxRow + 3;
+                    row = sheet.GetRow(idxRow);
+                    logger.Info("Row Id=" + idxRow);
+                    //發票類型、年、月、日、字軌、號碼、品名、數量、單價、金額、營業稅額、買受人、買受人統編、買受人地址
+                    if (item.INVOICE_TYPE.Trim() == "三聯式" || item.INVOICE_TYPE.Trim() == "二聯式")
+                    {
+                        row.Cells[1].SetCellValue(item.INVOICE_TYPE.Substring(0, 1));//發票類型
+                    }
+                    row.Cells[2].SetCellValue(item.INVOICE_DATE.Value.Year);//年
+                    row.Cells[4].SetCellValue(item.INVOICE_DATE.Value.Month);//月
+                    row.Cells[5].SetCellValue(item.INVOICE_DATE.Value.Day);//日
+                    row.Cells[6].SetCellValue(item.INVOICE_NUMBER.Substring(0, 2));//字軌
+                    row.Cells[8].SetCellValue(item.INVOICE_NUMBER.Substring(2, 8));//號碼
+                                                                                   //品名
+                    logger.Debug("PLAN_ITEM_ID=" + item.PLAN_ITEM_ID);
+                    row.Cells[9].SetCellValue(item.PLAN_ITEM_ID);
+                    if (null != item.DISCOUNT_QTY && item.DISCOUNT_QTY.ToString().Trim() != "")
+                    {
+                        row.Cells[11].SetCellValue(double.Parse(item.DISCOUNT_QTY.ToString())); //數量
+                    }
+                    else
+                    {
+                        row.Cells[11].SetCellValue("");
+                    }
+                    //單價
+                    if (null != item.DISCOUNT_UNIT_PRICE && item.DISCOUNT_UNIT_PRICE.ToString().Trim() != "")
+                    {
+                        row.Cells[12].SetCellValue(double.Parse(item.DISCOUNT_UNIT_PRICE.ToString()));
+                    }
+                    else
+                    {
+                        row.Cells[12].SetCellValue("");
+                    }
+                    //金額
+                    if (null != item.AMOUNT && item.AMOUNT.ToString().Trim() != "")
+                    {
+                        row.Cells[13].SetCellValue(double.Parse(item.AMOUNT.ToString()));
+                    }
+                    else
+                    {
+                        row.Cells[13].SetCellValue("");
+                    }
+                    //營業稅額
+                    if (null != item.TAX && item.TAX.ToString().Trim() != "")
+                    {
+                        row.Cells[14].SetCellValue(double.Parse(item.TAX.ToString()));
+                    }
+                    else
+                    {
+                        row.Cells[14].SetCellValue("");
+                    }
+                    ICell cel16 = row.CreateCell(16);
+                    cel16.CellFormula = "IF(C6=\"\",\"\",\"✔\")";
+                    idxRow = idxRow + 5;
+                    row = sheet.GetRow(idxRow);
+                    //金額合計
+                    if (null != item.AMOUNT && item.AMOUNT.ToString().Trim() != "")
+                    {
+                        row.Cells[13].SetCellValue(double.Parse(item.AMOUNT.ToString()));
+                    }
+                    else
+                    {
+                        row.Cells[13].SetCellValue("");
+                    }
+                    //營業稅額合計
+                    if (null != item.TAX && item.TAX.ToString().Trim() != "")
+                    {
+                        row.Cells[14].SetCellValue(double.Parse(item.TAX.ToString()));
+                    }
+                    else
+                    {
+                        row.Cells[14].SetCellValue("");
+                    }
+                    idxRow = idxRow + 2;
+                    row = sheet.GetRow(idxRow);
+                    //買受人
+                    logger.Debug("OWNER_NAME=" + item.OWNER_NAME);
+                    row.Cells[9].SetCellValue(item.OWNER_NAME);
+                    row.Cells[18].SetCellValue("●" + item.SUB_TYPE);//折讓單種類
+                    idxRow = idxRow + 1;
+                    row = sheet.GetRow(idxRow);
+                    row.Cells[8].SetCellValue(item.COMPANY_ID);//買受人統編
+                    idxRow = idxRow + 1;
+                    row = sheet.GetRow(idxRow);
+                    row.Cells[4].SetCellValue(item.REGISTER_ADDRESS);//買受人地址
+                    logger.Debug("get credit note cell style rowid=" + idxRow);
+                    i++;
                 }
-                else
-                {
-                    row.Cells[11].SetCellValue("");
-                }
-                //單價
-                if (null != item.DISCOUNT_UNIT_PRICE && item.DISCOUNT_UNIT_PRICE.ToString().Trim() != "")
-                {
-                    row.Cells[12].SetCellValue(double.Parse(item.DISCOUNT_UNIT_PRICE.ToString()));
-                }
-                else
-                {
-                    row.Cells[12].SetCellValue("");
-                }
-                //金額
-                if (null != item.AMOUNT && item.AMOUNT.ToString().Trim() != "")
-                {
-                    row.Cells[13].SetCellValue(double.Parse(item.AMOUNT.ToString()));
-                }
-                else
-                {
-                    row.Cells[13].SetCellValue("");
-                }
-                //營業稅額
-                if (null != item.TAX && item.TAX.ToString().Trim() != "")
-                {
-                    row.Cells[14].SetCellValue(double.Parse(item.TAX.ToString()));
-                }
-                else
-                {
-                    row.Cells[14].SetCellValue("");
-                }
-                ICell cel16 = row.CreateCell(16);
-                cel16.CellFormula = "IF(C6=\"\",\"\",\"✔\")";
-                idxRow = idxRow + 5;
-                row = sheet.GetRow(idxRow);
-                //金額合計
-                if (null != item.AMOUNT && item.AMOUNT.ToString().Trim() != "")
-                {
-                    row.Cells[13].SetCellValue(double.Parse(item.AMOUNT.ToString()));
-                }
-                else
-                {
-                    row.Cells[13].SetCellValue("");
-                }
-                //營業稅額合計
-                if (null != item.TAX && item.TAX.ToString().Trim() != "")
-                {
-                    row.Cells[14].SetCellValue(double.Parse(item.TAX.ToString()));
-                }
-                else
-                {
-                    row.Cells[14].SetCellValue("");
-                }
-                idxRow = idxRow + 2;
-                row = sheet.GetRow(idxRow);
-                //買受人
-                logger.Debug("OWNER_NAME=" + item.OWNER_NAME);
-                row.Cells[9].SetCellValue(item.OWNER_NAME);
-                row.Cells[18].SetCellValue("●" + item.SUB_TYPE);//折讓單種類
-                logger.Debug("get credit note cell style rowid=" + idxRow);
-                i++;
-            }
+
             //4.另存新檔至專案所屬目錄 (增加Temp for zip 打包使用
             string fileLocation = null;
             fileLocation = outputPath + "\\" + va.PROJECT_ID + "\\" + va.VA_FORM_ID + "_折讓單.xlsx";

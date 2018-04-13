@@ -198,6 +198,7 @@
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
+                window.location.reload();
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);

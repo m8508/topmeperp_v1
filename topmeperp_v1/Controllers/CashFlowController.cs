@@ -52,8 +52,8 @@ namespace topmeperp.Controllers
         public ActionResult CashFlowManage()
         {
             List<CashFlowFunction> lstCashFlow = null;
-            List<PlanFinanceProfile> lstFinProfile = null;
-            PlanFinanceProfile totalFinProfile = null;
+            List<PlanFinanceProfile> lstFinProfile = null; 
+             PlanFinanceProfile totalFinProfile = null;
             CashFlowBalance cashFlowBalance = null;
             lstCashFlow = service.getCashFlow();
             lstFinProfile = service.getPlanFinProfile();
@@ -64,6 +64,7 @@ namespace topmeperp.Controllers
             viewModel.finProfile = lstFinProfile;
             viewModel.totalFinProfile = totalFinProfile;
             viewModel.finBalance = cashFlowBalance;
+            ViewBag.today = DateTime.Now;
             return View(viewModel);
         }
         //取得特定日期收入明細
