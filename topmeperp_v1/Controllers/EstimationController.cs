@@ -311,6 +311,7 @@ namespace topmeperp.Controllers
             {
                 est.PAYMENT_DATE = Convert.ToDateTime(Request["paymentDate"]);
             }
+            //NDIRECT_COST_TYPE : M 代表界面維保費用；O 代表其他(泛指非直接成本與維保費的其他額外延伸的成本)
             if (null != Request["indirect_cost_type"] && Request["indirect_cost_type"] != "")
             {
                 est.INDIRECT_COST_TYPE = Request["indirect_cost_type"];
