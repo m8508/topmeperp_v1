@@ -227,7 +227,10 @@ namespace topmeperp.Service
             {
                 try
                 {
-                    string sql = "SELECT * , (SELECT ISNULL(SUM(TRANSACTION_TYPE * AMOUNT), 0) FROM FIN_LOAN_TRANACTION T WHERE T.BL_ID = B.BL_ID) SumTransactionAmount  FROM FIN_BANK_LOAN B WHERE ISNULL(B.IS_SUPPLIER, 'N') = 'Y'";
+                    string sql = "SELECT B.*, P.PROJECT_NAME, (SELECT ISNULL(SUM(TRANSACTION_TYPE * AMOUNT), 0) FROM FIN_LOAN_TRANACTION T WHERE T.BL_ID = B.BL_ID) SumTransactionAmount, " +
+                        "(SELECT ISNULL(SUM(AMOUNT), 0) FROM FIN_LOAN_TRANACTION f WHERE f.TRANSACTION_TYPE = 1 AND f.BL_ID = B.BL_ID GROUP BY f.BL_ID) AS paybackAmt, " +
+                        "(SELECT ISNULL(SUM(AMOUNT), 0) FROM FIN_LOAN_TRANACTION f WHERE f.TRANSACTION_TYPE = -1 AND f.BL_ID = B.BL_ID GROUP BY f.BL_ID) AS eventAmt " +
+                        "FROM FIN_BANK_LOAN B LEFT JOIN TND_PROJECT P ON B.PROJECT_ID = P.PROJECT_ID WHERE ISNULL(B.IS_SUPPLIER, 'N') = 'Y'";
 
                     lstSupplierLoan = context.Database.SqlQuery<BankLoanInfoExt>(sql).ToList();
                     logger.Info("new supplier loan records=" + lstSupplierLoan.Count);

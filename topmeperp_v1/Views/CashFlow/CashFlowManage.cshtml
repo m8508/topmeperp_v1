@@ -209,7 +209,7 @@
                         @String.Format("{0:#,##0.#}", item.SiteCostPaid)
                     </td>
                     <td>
-                        
+                        @String.Format("{0:#,##0.#}", item.MACostPaid)
                     </td>
                     <td>
                         @String.Format("{0:#,##0.#}", item.uncollectedAR)
@@ -269,7 +269,9 @@
             <th style="width:100px;">
                 @String.Format("{0:#,##0.#}", @Model.totalFinProfile.SiteCostPaid)
             </th>
-            <th style="width:100px;"></th>
+            <th style="width:100px;">
+                @String.Format("{0:#,##0.#}", @Model.totalFinProfile.MACostPaid)
+            </th>
             <th style="width:100px;">
                 @String.Format("{0:#,##0.#}", @Model.totalFinProfile.uncollectedAR)
             </th>

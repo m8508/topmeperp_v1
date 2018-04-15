@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<topmeperp.Models.BankLoanInfoExt>
 @{
-    ViewBag.Title = "財務管理-廠商借支管理";
+    ViewBag.Title = "財務管理-其他財務管理";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <!--直接顯示廠商借支-->
@@ -17,8 +17,11 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>明細</th>
-                                <th>廠商名稱</th>
+                                <th>項目名稱</th>
+                                <th>專案名稱</th>
+                                <th>借款小計</th>
+                                <th>還款小計</th>
+                                <th>結餘</th>
                                 <th>備註</th>
                                 <th>修改日期</th>
                             </tr>
@@ -33,8 +36,17 @@
                                             <a href="#" onclick="editBankLoan('@item.BL_ID')"> @item.BL_ID</a>
                                             <input type="hidden" id="BL_ID" name="BL_ID" value="@item.BL_ID" />
                                         </td>
-                                        <td><a href="/BankInfo/BankLoanTransaction?BL_ID=@item.BL_ID&IS_SUPPLIER=@item.IS_SUPPLIER">明細</a></td>
-                                        <td>@item.BANK_NAME</td>
+                                        <td><a href="/BankInfo/BankLoanTransaction?BL_ID=@item.BL_ID&IS_SUPPLIER=@item.IS_SUPPLIER">@item.BANK_NAME</a></td>
+                                        <td>@item.PROJECT_NAME</td>
+                                        <td>
+                                            @String.Format("{0:$#,##0.#; (#,##0.#);-}", item.eventAmt)
+                                        </td>
+                                        <td>
+                                            @String.Format("{0:$#,##0.#; (#,##0.#);-}", item.paybackAmt)
+                                        </td>
+                                        <td>
+                                            @String.Format("{0:$#,##0.#; (#,##0.#);0}", item.eventAmt - item.paybackAmt)
+                                        </td>
                                         <td>@item.REMARK</td>
                                         <td>@item.MODIFY_DATE</td>
                                     </tr>

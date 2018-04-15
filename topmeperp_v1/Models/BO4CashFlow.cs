@@ -20,5 +20,8 @@ namespace topmeperp.Models
     {
         public decimal SumTransactionAmount { get; set; }
         public decimal vaRatio { get; set; }
+        public decimal paybackAmt { get; set; }
+        public decimal eventAmt { get; set; }
+        public string PROJECT_NAME { get; set; }
     }
 }

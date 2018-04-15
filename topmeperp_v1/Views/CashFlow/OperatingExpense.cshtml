@@ -12,10 +12,6 @@
 </div>
 @using (Html.BeginForm("AddExpense", "CashFlow", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
-    <label class="col-md-2 control-label">費用申請日期: </label>
-    <div class='col-md-10'>
-        <input style="width:200px" type="text" class="form-control" name="occurreddate" id="occurreddate" value="">
-    </div>
     <label class="col-md-2 control-label">支付日期: </label>
     <div class='col-md-10'>
         <input style="width:200px" type="text" class="form-control" name="paymentdate" id="paymentdate" value="">
@@ -166,12 +162,11 @@
     }
     function Confirm_Form() {
         var paymentdate = $('input[name=paymentdate]').val();
-        var occurreddate = $('input[name=occurreddate]').val();
         //if (null == paymentdate  || paymentdate == "") {
         //    alert("沒有輸入費用支付日期，請填寫完整後再送出！");
         //    return false;
         //}
-        if (null == occurreddate  || occurreddate == "") {
+        if (null == paymentdate  || paymentdate == "") {
             alert("沒有輸入費用發生年月，請填寫完整後再送出！");
             return false;
         }

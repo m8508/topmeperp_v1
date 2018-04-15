@@ -1141,7 +1141,7 @@ namespace topmeperp.Service
                 }
                 //2.填入表頭資料
                 logger.Debug("Table Head_1=" + sheet.GetRow(1).Cells[0].ToString());
-                sheet.GetRow(0).Cells[4].SetCellValue("協成水電工程事業有限公司 工地費用單");
+                sheet.GetRow(0).Cells[4].SetCellValue("協成水電工程事業有限公司 工地費用申請單");
                 sheet.GetRow(1).Cells[3].SetCellValue(ExpTable.PROJECT_NAME);//專案名稱
                 sheet.GetRow(0).Cells[20].SetCellValue("第 1 頁");
                 sheet.GetRow(0).Cells[22].SetCellValue("共" + Convert.ToInt16(Math.Ceiling(page)) + "頁");
@@ -1155,7 +1155,7 @@ namespace topmeperp.Service
                 sheet.GetRow(1).Cells[22].SetCellValue(Convert.ToDateTime(ExpTable.CREATE_DATE).ToShortDateString());//請款日期
                 if (float.Parse(EXPTableItem.Count.ToString()) / 47 > 1)
                 {
-                    sheet.GetRow(48).Cells[4].SetCellValue("協成水電工程事業有限公司 工地費用單");
+                    sheet.GetRow(48).Cells[4].SetCellValue("協成水電工程事業有限公司 工地費用申請單");
                     sheet.GetRow(48).Cells[20].SetCellValue("第 2 頁");
                     sheet.GetRow(48).Cells[22].SetCellValue("共" + Convert.ToInt16(Math.Ceiling(page)) + "頁");
                     sheet.GetRow(49).Cells[3].SetCellValue(ExpTable.PROJECT_NAME);//專案名稱
@@ -1184,10 +1184,14 @@ namespace topmeperp.Service
                     }
                     logger.Debug("Table Head_9=" + sheet.GetRow(90).Cells[12].ToString());
                     sheet.GetRow(90).Cells[13].SetCellValue(double.Parse(ExpAmt.AMOUNT.ToString()));//本期金額
-                    logger.Debug("Table Head_10=" + sheet.GetRow(91).Cells[12].ToString());                                                                              //工資預算
-                    sheet.GetRow(91).Cells[13].CellFormula = "(N90+N91)";
+                    logger.Debug("Table Head_10=" + sheet.GetRow(91).Cells[12].ToString());
+                    sheet.GetRow(91).Cells[13].CellFormula = "(N90+N91)"; //累計金額
                     logger.Debug("Table Head_11=" + sheet.GetRow(92).Cells[12].ToString());
                     sheet.GetRow(92).Cells[13].SetCellValue(Convert.ToDateTime(ExpTable.PAYMENT_DATE).ToShortDateString());//支付日期
+                    logger.Debug("Table Head_12=" + sheet.GetRow(73).Cells[7].ToString());
+                    sheet.GetRow(73).Cells[20].SetCellValue(Convert.ToDateTime(ExpTable.PAYMENT_DATE).ToShortDateString());//到期日
+                    sheet.GetRow(73).Cells[22].SetCellValue(double.Parse(ExpAmt.AMOUNT.ToString()));//金額
+                    sheet.GetRow(76).Cells[22].CellFormula = "(W74+W75+W76)"; //合計
                 }
                 else
                 {
@@ -1213,6 +1217,10 @@ namespace topmeperp.Service
                     sheet.GetRow(45).Cells[13].CellFormula = "(N44+N45)";
                     logger.Debug("Table Head_11=" + sheet.GetRow(46).Cells[12].ToString());
                     sheet.GetRow(46).Cells[13].SetCellValue(Convert.ToDateTime(ExpTable.PAYMENT_DATE).ToShortDateString());//支付日期
+                    logger.Debug("Table Head_12=" + sheet.GetRow(27).Cells[7].ToString());
+                    sheet.GetRow(27).Cells[20].SetCellValue(Convert.ToDateTime(ExpTable.PAYMENT_DATE).ToShortDateString());//到期日
+                    sheet.GetRow(27).Cells[22].SetCellValue(double.Parse(ExpAmt.AMOUNT.ToString()));//金額
+                    sheet.GetRow(30).Cells[22].CellFormula = "(W28+W29+W30)"; //合計
                 }
                 //3.填入資料
                 int idxRow = 4;
@@ -1239,7 +1247,16 @@ namespace topmeperp.Service
                     //前期累計金額
                     if (null != item.CUM_AMOUNT && item.CUM_AMOUNT.ToString().Trim() != "")
                     {
-                        row.Cells[14].SetCellValue(double.Parse(item.CUM_AMOUNT.ToString()));
+                        row.Cells[13].SetCellValue(double.Parse(item.CUM_AMOUNT.ToString()));
+                    }
+                    else
+                    {
+                        row.Cells[13].SetCellValue("");
+                    }
+                    //本期數量
+                    if (null != item.ITEM_QUANTITY && item.ITEM_QUANTITY.ToString().Trim() != "")
+                    {
+                        row.Cells[14].SetCellValue(double.Parse(item.ITEM_QUANTITY.ToString()));
                     }
                     else
                     {
@@ -1297,7 +1314,7 @@ namespace topmeperp.Service
                     sheet = (XSSFSheet)hssfworkbook.GetSheet("費用表");
                 }
                 //2.填入表頭資料
-                sheet.GetRow(0).Cells[4].SetCellValue("協成水電工程事業有限公司 公司費用單");
+                sheet.GetRow(0).Cells[4].SetCellValue("協成水電工程事業有限公司 公司費用申請單");
                 sheet.GetRow(1).Cells[3].SetCellValue("公司營業費用");
                 sheet.GetRow(0).Cells[20].SetCellValue("第 1 頁");
                 sheet.GetRow(0).Cells[22].SetCellValue("共" + Convert.ToInt16(Math.Ceiling(page)) + "頁");
@@ -1311,7 +1328,7 @@ namespace topmeperp.Service
                 sheet.GetRow(1).Cells[22].SetCellValue(Convert.ToDateTime(ExpTable.CREATE_DATE).ToShortDateString());//請款日期
                 if (float.Parse(EXPTableItem.Count.ToString()) / 47 > 1)
                 {
-                    sheet.GetRow(48).Cells[4].SetCellValue("協成水電工程事業有限公司 公司費用單");
+                    sheet.GetRow(48).Cells[4].SetCellValue("協成水電工程事業有限公司 公司費用申請單");
                     sheet.GetRow(48).Cells[20].SetCellValue("第 2 頁");
                     sheet.GetRow(48).Cells[22].SetCellValue("共" + Convert.ToInt16(Math.Ceiling(page)) + "頁");
                     sheet.GetRow(49).Cells[3].SetCellValue("公司營業費用");
@@ -1344,6 +1361,10 @@ namespace topmeperp.Service
                     sheet.GetRow(91).Cells[13].CellFormula = "(N90+N91)";
                     logger.Debug("Table Head_11=" + sheet.GetRow(92).Cells[12].ToString());
                     sheet.GetRow(92).Cells[13].SetCellValue(Convert.ToDateTime(ExpTable.PAYMENT_DATE).ToShortDateString());//支付日期
+                    logger.Debug("Table Head_12=" + sheet.GetRow(73).Cells[7].ToString());
+                    sheet.GetRow(73).Cells[20].SetCellValue(Convert.ToDateTime(ExpTable.PAYMENT_DATE).ToShortDateString());//到期日
+                    sheet.GetRow(73).Cells[22].SetCellValue(double.Parse(ExpAmt.AMOUNT.ToString()));//金額
+                    sheet.GetRow(76).Cells[22].CellFormula = "(W74+W75+W76)"; //合計
                 }
                 else
                 {
@@ -1369,6 +1390,10 @@ namespace topmeperp.Service
                     sheet.GetRow(45).Cells[13].CellFormula = "(N44+N45)";
                     logger.Debug("Table Head_11=" + sheet.GetRow(46).Cells[12].ToString());
                     sheet.GetRow(46).Cells[13].SetCellValue(Convert.ToDateTime(ExpTable.PAYMENT_DATE).ToShortDateString());//支付日期
+                    logger.Debug("Table Head_12=" + sheet.GetRow(27).Cells[7].ToString());
+                    sheet.GetRow(27).Cells[20].SetCellValue(Convert.ToDateTime(ExpTable.PAYMENT_DATE).ToShortDateString());//到期日
+                    sheet.GetRow(27).Cells[22].SetCellValue(double.Parse(ExpAmt.AMOUNT.ToString()));//金額
+                    sheet.GetRow(30).Cells[22].CellFormula = "(W28+W29+W30)"; //合計
                 }
                 //3.填入資料
                 int idxRow = 4;
@@ -1396,7 +1421,16 @@ namespace topmeperp.Service
                     //前期累計金額
                     if (null != item.CUM_AMOUNT && item.CUM_AMOUNT.ToString().Trim() != "")
                     {
-                        row.Cells[14].SetCellValue(double.Parse(item.CUM_AMOUNT.ToString()));
+                        row.Cells[13].SetCellValue(double.Parse(item.CUM_AMOUNT.ToString()));
+                    }
+                    else
+                    {
+                        row.Cells[13].SetCellValue("");
+                    }
+                    //本期數量
+                    if (null != item.ITEM_QUANTITY && item.ITEM_QUANTITY.ToString().Trim() != "")
+                    {
+                        row.Cells[14].SetCellValue(double.Parse(item.ITEM_QUANTITY.ToString()));
                     }
                     else
                     {

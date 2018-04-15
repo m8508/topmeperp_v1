@@ -3420,7 +3420,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 //取得估驗單檔頭資訊
-                string sql = "SELECT EST_FORM_ID, PROJECT_ID, CONTRACT_ID, PLUS_TAX, TAX_AMOUNT, TAX_RATIO, PAYMENT_TRANSFER, FOREIGN_PAYMENT, RETENTION_PAYMENT, MODIFY_DATE, REMARK, INVOICE, " +
+                string sql = "SELECT EST_FORM_ID, PROJECT_ID, CONTRACT_ID, PLUS_TAX, TAX_AMOUNT, TAX_RATIO, PAYMENT_TRANSFER, FOREIGN_PAYMENT, RETENTION_PAYMENT, MODIFY_DATE, REMARK, INVOICE,INDIRECT_COST_TYPE, " +
                     "CREATE_ID, CREATE_DATE, SETTLEMENT, STATUS, TYPE, PAID_AMOUNT, REJECT_DESC, PROJECT_NAME, PAYEE, PAYMENT_DATE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID =@estid ";
 
                 formEST = context.PLAN_ESTIMATION_FORM.SqlQuery(sql, new SqlParameter("estid", estid)).FirstOrDefault();
@@ -3825,11 +3825,11 @@ namespace topmeperp.Service
         }
         //修改估驗單額外扣款
         //public int RefreshESTAmountByEstId(string estid, decimal subAmount, decimal foreign_payment, decimal retention, decimal tax_amount, string remark)
-        public int RefreshESTAmountByEstId(string estid, decimal subAmount, string payee, string projectName, DateTime? paymentDate, string remark)
+        public int RefreshESTAmountByEstId(string estid, decimal subAmount, string payee, string projectName, DateTime? paymentDate, string remark, string indirectCostType)
         {
             int i = 0;
             logger.Info("update EST form by estid" + estid);
-            string sql = "UPDATE  PLAN_ESTIMATION_FORM SET PAYMENT_TRANSFER = @subAmount, PAYEE = @payee, PROJECT_NAME = @projectName, PAYMENT_DATE =@paymentDate, REMARK =@remark WHERE EST_FORM_ID = @estid ";
+            string sql = "UPDATE  PLAN_ESTIMATION_FORM SET PAYMENT_TRANSFER = @subAmount, PAYEE = @payee, PROJECT_NAME = @projectName, PAYMENT_DATE =@paymentDate, REMARK =@remark, INDIRECT_COST_TYPE =@indirectCostType WHERE EST_FORM_ID = @estid ";
             logger.Debug("batch sql:" + sql);
             db = new topmepEntities();
             var parameters = new List<SqlParameter>();
@@ -3839,6 +3839,7 @@ namespace topmeperp.Service
             parameters.Add(new SqlParameter("projectName", projectName));
             parameters.Add(new SqlParameter("paymentDate", paymentDate));
             parameters.Add(new SqlParameter("remark", remark));
+            parameters.Add(new SqlParameter("indirectCostType", indirectCostType));
             db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
             i = db.SaveChanges();
             logger.Info("Update Record:" + i);
@@ -4228,7 +4229,7 @@ namespace topmeperp.Service
                     "FROM(SELECT CASHFLOW_1.DATE_CASHFLOW, CASHFLOW_1.AMOUNT_BANK, CASHFLOW_1.AMOUNT_INFLOW, CASHFLOW_1.AMOUNT_OUTFLOW, CASHFLOW_1.BALANCE, SUM(CASHFLOW_2.BALANCE) RUNNING_TOTAL FROM(SELECT DISTINCT CONVERT(char(10), pa.PAYMENT_DATE, 111) AS DATE_CASHFLOW, " +
                     "ISNULL(bank.BankAmt, 0) AS AMOUNT_BANK, ISNULL(A.AMOUNT_INFLOW, 0) AS AMOUNT_INFLOW, ISNULL(B.AMOUNT_OUTFLOW, 0) AS AMOUNT_OUTFLOW, ISNULL(bank.BankAmt, 0) + ISNULL(A.AMOUNT_INFLOW, 0) - ISNULL(B.AMOUNT_OUTFLOW, 0) AS BALANCE FROM (SELECT PAYMENT_DATE FROM PLAN_ACCOUNT UNION SELECT CONVERT(char(10), GETDATE(), 111) AS DATE_CASHFLOW " +
                     "FROM FIN_BANK_ACCOUNT UNION SELECT CONVERT(char(10), IIF(flt.TRANSACTION_TYPE = 1, flt.PAYBACK_DATE, flt.EVENT_DATE), 111) AS EVENT_DATE FROM FIN_LOAN_TRANACTION flt LEFT JOIN FIN_BANK_LOAN fbl ON flt.BL_ID = fbl.BL_ID " +
-                    "WHERE IIF(flt.TRANSACTION_TYPE = 1, flt.PAYBACK_DATE, flt.EVENT_DATE) > CONVERT(char(10), GETDATE(), 111))pa LEFT JOIN(SELECT CONVERT(char(10), GETDATE(), 111) AS DATE_CASHFLOW, SUM(CUR_AMOUNT) AS BankAmt FROM FIN_BANK_ACCOUNT WHERE CUR_DATE < GETDATE())bank " +
+                    "WHERE IIF(flt.TRANSACTION_TYPE = 1, flt.PAYBACK_DATE, flt.EVENT_DATE) > CONVERT(char(10), GETDATE(), 111))pa LEFT JOIN(SELECT CONVERT(char(10), GETDATE(), 111) AS DATE_CASHFLOW, SUM(CUR_AMOUNT) AS BankAmt FROM FIN_BANK_ACCOUNT)bank " +
                     "ON CONVERT(char(10), pa.PAYMENT_DATE, 111) = bank.DATE_CASHFLOW LEFT JOIN(SELECT DATE_INFLOW, SUM(AMOUNT_INFLOW) AS AMOUNT_INFLOW FROM(SELECT CONVERT(char(10), pla.PAYMENT_DATE, 111) AS DATE_INFLOW, SUM(pla.AMOUNT_PAID) AS AMOUNT_INFLOW FROM PLAN_ACCOUNT pla WHERE ISDEBIT = 'Y' AND ISNULL(STATUS, 10) <> 0 " +
                     "AND PAYMENT_DATE BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), PAYMENT_DATE, 111) UNION SELECT CONVERT(char(10), IIF(TRANSACTION_TYPE = '1', PAYBACK_DATE, EVENT_DATE), 111), SUM(IIF(ISNULL(IS_SUPPLIER, 'N') = 'Y', IIF(TRANSACTION_TYPE = '1', 1, 0) * AMOUNT, IIF(TRANSACTION_TYPE = '-1', 1, 0) * AMOUNT)) " +
                     "FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID WHERE IIF(TRANSACTION_TYPE = '1', PAYBACK_DATE, EVENT_DATE) BETWEEN CONVERT(char(10), getdate(), 111) AND getdate() + 180 GROUP BY CONVERT(char(10), IIF(TRANSACTION_TYPE = '1', PAYBACK_DATE, EVENT_DATE), 111) UNION SELECT(SELECT CONVERT(char(10), MAX(PAYMENT_DATE), 111)PAYMENT_DATE FROM " +
@@ -5573,14 +5574,16 @@ namespace topmeperp.Service
             List<RevenueFromOwner> VAItem = new List<RevenueFromOwner>();
             using (var context = new topmepEntities())
             {
-                VAItem = context.Database.SqlQuery<RevenueFromOwner>("SELECT vf.*, pi.otherPay, pi.taxAmt, account.AR_PAID, f.FILE_UPLOAD_NAME, ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + pi.taxAmt " +
-                    "- ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) - pi.otherPay AS AR, " +
-                    "ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + pi.taxAmt - ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) " +
-                    "- pi.otherPay - account.AR_PAID AS AR_UNPAID, " +
+                VAItem = context.Database.SqlQuery<RevenueFromOwner>("SELECT vf.*, pi.discount, (pi.taxAmt - pi.taxMinus) AS taxAmt , ISNULL(account.AR_PAID, 0) AS AR_PAID, f.FILE_UPLOAD_NAME, ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + pi.taxAmt " +
+                    "- ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) - pi.discount - pi.otherPay - pi.taxMinus AS AR, " +
+                    "ISNULL(vf.ADVANCE_PAYMENT, 0) + ISNULL(vf.VALUATION_AMOUNT,0) + pi.taxAmt - ISNULL(vf.RETENTION_PAYMENT, 0) - ISNULL(vf.ADVANCE_PAYMENT_REFUND, 0) - pi.discount " +
+                    "- pi.otherPay - ISNULL(account.AR_PAID, 0) - pi.taxMinus AS AR_UNPAID, " +
                     "ROW_NUMBER() OVER(ORDER BY vf.CREATE_DATE) AS NO FROM PLAN_VALUATION_FORM vf LEFT JOIN (SELECT pa.ACCOUNT_FORM_ID, SUM(pa.AMOUNT_PAYABLE) AS AR_PAID FROM PLAN_ACCOUNT pa " +
                     "WHERE pa.ACCOUNT_TYPE = 'R' AND pa.PROJECT_ID =@projectid AND pa.STATUS = 10 GROUP BY pa.ACCOUNT_FORM_ID)account ON vf.VA_FORM_ID = account.ACCOUNT_FORM_ID " +
                     "LEFT JOIN (SELECT FILE_UPLOAD_NAME FROM TND_FILE GROUP BY FILE_UPLOAD_NAME)f ON vf.VA_FORM_ID = f.FILE_UPLOAD_NAME " +
-                    "LEFT JOIN (SELECT EST_FORM_ID, ISNULL(SUM(AMOUNT*IIF(TYPE <> '折讓單', 0, 1)), 0) + ISNULL(SUM(TAX * IIF(TYPE <> '折讓單', 0, 1)), 0) AS otherPay, " +
+                    "LEFT JOIN (SELECT EST_FORM_ID, ISNULL(SUM(AMOUNT*IIF(TYPE <> '折讓單', 0, 1)), 0) + ISNULL(SUM(TAX * IIF(TYPE <> '折讓單', 0, 1)), 0) AS discount, " +
+                    "ISNULL(SUM(TAX * IIF(TYPE = '其他扣款', 1, 0)), 0) AS taxMinus, " +
+                    "ISNULL(SUM(AMOUNT * IIF(TYPE = '其他扣款', 1, 0)), 0) AS otherPay, " +
                     "ISNULL(SUM(TAX*IIF(TYPE <> '折讓單', 1, 0)), 0) AS taxAmt FROM PLAN_INVOICE GROUP BY EST_FORM_ID)pi " +
                     "ON pi.EST_FORM_ID = vf.VA_FORM_ID WHERE vf.PROJECT_ID =@projectid "
                    , new SqlParameter("projectid", projectid)).ToList();
@@ -5746,25 +5749,34 @@ namespace topmeperp.Service
             //處理SQL 預先填入ID,設定集合處理參數
             using (var context = new topmepEntities())
             {
-                lstItem = context.Database.SqlQuery<PlanFinanceProfile>("SELECT *, PLAN_REVENUE - directCost - SiteCost - ManagementCost - MACost - SalesCost AS planProfit " +
+                lstItem = context.Database.SqlQuery<PlanFinanceProfile>("SELECT *, uncollectedAR - unpaidAP - (IIF(SiteCost - SiteCostPaid >= 0,SiteCost - SiteCostPaid, SiteCostPaid - SiteCost)) " +
+                    "- ManagementCost - (IIF(MACost - MACostPaid >= 0, MACost - MACostPaid, MACostPaid - MACost)) - SalesCost - OtherCostPaid AS planProfit " +
                     "FROM (SELECT p.PROJECT_ID, p.PROJECT_NAME, ISNULL(B.directCost, 0) AS directCost, ISNULL(C.AR, 0) AS AR, " +
                     "ISNULL(SUM(pi.ITEM_UNIT_PRICE * pi.ITEM_QUANTITY), 0) - ISNULL(C.AR, 0) AS uncollectedAR, ISNULL(D.AP, 0) - ISNULL(E.MinusItem, 0) AS AP, " +
                     "ISNULL(B.directCost, 0) - ISNULL(D.AP, 0) + ISNULL(E.MinusItem, 0) AS unpaidAP, ISNULL(SUM(pi.ITEM_UNIT_PRICE * pi.ITEM_QUANTITY), 0) AS PLAN_REVENUE, " +
-                    "ISNULL(F.MACost, 0) AS MACost, ISNULL(G.SalesCost, 0) AS SalesCost, ISNULL(I.CompanyCost, 0) AS ManagementCost, ISNULL(H.SiteCost, 0) AS SiteCost, ISNULL(J.SiteCostPaid, 0) AS SiteCostPaid " +
+                    "ISNULL(F.MACost, 0) AS MACost, ISNULL(G.SalesCost, 0) AS SalesCost, ISNULL(I.CompanyCost, 0) AS ManagementCost, ISNULL(H.SiteCost, 0) AS SiteCost, " +
+                    "ISNULL(J.SiteCostPaid, 0) AS SiteCostPaid, ISNULL(K.MACostPaid, 0) AS MACostPaid, ISNULL(M.OtherCostPaid, 0) AS OtherCostPaid " +
                     "FROM TND_PROJECT p LEFT JOIN PLAN_ITEM pi ON pi.PROJECT_ID = p.PROJECT_ID LEFT JOIN (SELECT main.PROJECT_ID, SUM(sub.directCost) AS directCost " +
                     "FROM(SELECT pi.INQUIRY_FORM_ID, pi.PROJECT_ID FROM PLAN_ITEM pi union SELECT pi.MAN_FORM_ID, pi.PROJECT_ID FROM PLAN_ITEM pi)main " +
                     "LEFT JOIN(SELECT psi.INQUIRY_FORM_ID, SUM(psi.ITEM_UNIT_PRICE * psi.ITEM_QTY) AS directCost FROM  PLAN_SUP_INQUIRY_ITEM psi GROUP BY psi.INQUIRY_FORM_ID)sub " +
                     "ON main.INQUIRY_FORM_ID = sub.INQUIRY_FORM_ID GROUP BY main.PROJECT_ID)B ON p.PROJECT_ID = B.PROJECT_ID " +
-                    "LEFT JOIN(SELECT PROJECT_ID, ISNULL(SUM(ADVANCE_PAYMENT), 0) + ISNULL(SUM(VALUATION_AMOUNT), 0) - ISNULL(SUM(RETENTION_PAYMENT), 0) - ISNULL(SUM(ADVANCE_PAYMENT_REFUND), 0) AS AR " +
-                    "FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID)C ON p.PROJECT_ID = C.PROJECT_ID LEFT JOIN(SELECT PROJECT_ID, ISNULL(SUM(PAYMENT_TRANSFER),0) - ISNULL(SUM(RETENTION_PAYMENT),0) AS AP " +
-                    "FROM PLAN_ESTIMATION_FORM GROUP BY PROJECT_ID)D ON p.PROJECT_ID = D.PROJECT_ID LEFT JOIN(SELECT PROJECT_ID, ISNULL(SUM(pop.AMOUNT), 0) AS MinusItem FROM PLAN_ESTIMATION_FORM pef " +
+                    "LEFT JOIN (SELECT PROJECT_ID, ISNULL(SUM(ADVANCE_PAYMENT), 0) + ISNULL(SUM(VALUATION_AMOUNT), 0) - ISNULL(SUM(RETENTION_PAYMENT), 0) - ISNULL(SUM(ADVANCE_PAYMENT_REFUND), 0) AS AR " +
+                    "FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID UNION SELECT (SELECT PROJECT_ID FROM TND_PROJECT WHERE PROJECT_NAME LIKE '%公司費用%')PROJECT_ID, SUM(AMOUNT) AS CompanyCostPaid " +
+                    "FROM FIN_EXPENSE_FORM f LEFT JOIN FIN_EXPENSE_ITEM fi ON f.EXP_FORM_ID = fi.EXP_FORM_ID WHERE ISNULL(PROJECT_ID, '') = '' AND STATUS = 30 AND OCCURRED_YEAR = IIF(MONTH(GETDATE()) > 6, YEAR(GETDATE()), YEAR(GETDATE())-1) " +
+                    "AND OCCURRED_MONTH > 6 OR ISNULL(PROJECT_ID, '') = '' AND STATUS = 30 AND OCCURRED_YEAR = IIF(MONTH(GETDATE()) > 6, YEAR(GETDATE())+1, YEAR(GETDATE())) AND OCCURRED_MONTH < 6 GROUP BY PROJECT_ID)C " +
+                    "ON p.PROJECT_ID = C.PROJECT_ID LEFT JOIN(SELECT PROJECT_ID, ISNULL(SUM(PAYMENT_TRANSFER),0) - ISNULL(SUM(RETENTION_PAYMENT),0) AS AP " +
+                    "FROM PLAN_ESTIMATION_FORM WHERE ISNULL(INDIRECT_COST_TYPE, '') = '' GROUP BY PROJECT_ID)D ON p.PROJECT_ID = D.PROJECT_ID LEFT JOIN(SELECT PROJECT_ID, ISNULL(SUM(pop.AMOUNT), 0) AS MinusItem FROM PLAN_ESTIMATION_FORM pef " +
                     "LEFT JOIN PLAN_OTHER_PAYMENT pop ON pef.EST_FORM_ID = pop.EST_FORM_ID WHERE pop.TYPE  in ('A', 'B', 'C', 'F') GROUP BY PROJECT_ID)E ON p.PROJECT_ID = E.PROJECT_ID " +
                     "LEFT JOIN (SELECT PROJECT_ID, COST AS MACost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '01_MACost')F on p.PROJECT_ID = F.PROJECT_ID " +
                     "LEFT JOIN (SELECT PROJECT_ID, COST AS SalesCost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '02_SalesCost')G on p.PROJECT_ID = G.PROJECT_ID " +
                     "LEFT JOIN (SELECT PROJECT_ID, SUM(AMOUNT) AS SiteCost FROM PLAN_SITE_BUDGET GROUP BY PROJECT_ID)H on p.PROJECT_ID = H.PROJECT_ID " +
-                    "LEFT JOIN (SELECT PROJECT_ID, SUM(AMOUNT) AS SiteCostPaid FROM FIN_EXPENSE_FORM f LEFT JOIN FIN_EXPENSE_ITEM fi ON f.EXP_FORM_ID = fi.EXP_FORM_ID WHERE PROJECT_ID IS NOT NULL AND PROJECT_ID <> ''  GROUP BY PROJECT_ID)J on p.PROJECT_ID = J.PROJECT_ID " +
+                    "LEFT JOIN (SELECT PROJECT_ID, SUM(AMOUNT) AS SiteCostPaid FROM FIN_EXPENSE_FORM f LEFT JOIN FIN_EXPENSE_ITEM fi ON f.EXP_FORM_ID = fi.EXP_FORM_ID WHERE PROJECT_ID IS NOT NULL AND PROJECT_ID <> ''  AND STATUS = 30 GROUP BY PROJECT_ID)J on p.PROJECT_ID = J.PROJECT_ID " +
+                    "LEFT JOIN (SELECT PROJECT_ID, ISNULL(SUM(PAYMENT_TRANSFER),0) - ISNULL(SUM(RETENTION_PAYMENT),0) AS MACostPaid " +
+                    "FROM PLAN_ESTIMATION_FORM WHERE ISNULL(INDIRECT_COST_TYPE, '') = 'M' GROUP BY PROJECT_ID)K ON p.PROJECT_ID = K.PROJECT_ID " +
+                    "LEFT JOIN (SELECT PROJECT_ID, ISNULL(SUM(PAYMENT_TRANSFER),0) - ISNULL(SUM(RETENTION_PAYMENT),0) AS OtherCostPaid " +
+                    "FROM PLAN_ESTIMATION_FORM WHERE ISNULL(INDIRECT_COST_TYPE, '') = 'O' GROUP BY PROJECT_ID)M ON p.PROJECT_ID = M.PROJECT_ID " +
                     "LEFT JOIN (SELECT PROJECT_ID, COST AS CompanyCost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '03_CompanyCost')I on p.PROJECT_ID = I.PROJECT_ID WHERE p.STATUS = '專案執行' " +
-                    "GROUP BY p.PROJECT_ID, p.PROJECT_NAME, B.directCost, C.AR, D.AP, E.MinusItem, F.MACost, G.SalesCost, I.CompanyCost, H.SiteCost, J.SiteCostPaid)a; ").ToList();
+                    "GROUP BY p.PROJECT_ID, p.PROJECT_NAME, B.directCost, C.AR, D.AP, E.MinusItem, F.MACost, G.SalesCost, I.CompanyCost, H.SiteCost, J.SiteCostPaid, K.MACostPaid, M.OtherCostPaid)a; ").ToList();
                 logger.Info("Get Plan Financial Profile Count=" + lstItem.Count);
             }
 
@@ -5778,26 +5790,35 @@ namespace topmeperp.Service
             {
                 lstAmount = context.Database.SqlQuery<PlanFinanceProfile>("SELECT SUM(PLAN_REVENUE) AS PLAN_REVENUE, SUM(directCost) AS directCost, " +
                     "SUM(AP) AS AP, SUM(AR) AS AR, SUM(uncollectedAR) AS uncollectedAR, SUM(unpaidAP) AS unpaidAP, SUM(MACost) AS MACost, " +
-                    "SUM(SiteCost) AS SiteCost, SUM(SalesCost) AS SalesCost, SUM(SiteCostPaid) AS SiteCostPaid, " +
-                    "SUM(ManagementCost) AS ManagementCost, SUM(planProfit) AS planProfit FROM (SELECT *, PLAN_REVENUE - directCost - SiteCost - ManagementCost - MACost - SalesCost AS planProfit " +
+                    "SUM(SiteCost) AS SiteCost, SUM(SalesCost) AS SalesCost, SUM(SiteCostPaid) AS SiteCostPaid, SUM(MACostPaid) AS MACostPaid, SUM(OtherCostPaid) AS OtherCostPaid, " +
+                    "SUM(ManagementCost) AS ManagementCost, SUM(planProfit) AS planProfit FROM (SELECT *, uncollectedAR - unpaidAP - IIF(SiteCost - SiteCostPaid >= 0, SiteCost - SiteCostPaid, SiteCostPaid - SiteCost) " +
+                    "- ManagementCost - IIF(MACost - MACostPaid >= 0, MACost - MACostPaid, MACostPaid - MACost) - SalesCost - OtherCostPaid AS planProfit " +
                     "FROM (SELECT p.PROJECT_ID, p.PROJECT_NAME, ISNULL(B.directCost, 0) AS directCost, ISNULL(C.AR, 0) AS AR, " +
                     "ISNULL(SUM(pi.ITEM_UNIT_PRICE * pi.ITEM_QUANTITY), 0) - ISNULL(C.AR, 0) AS uncollectedAR, ISNULL(D.AP, 0) - ISNULL(E.MinusItem, 0) AS AP, " +
                     "ISNULL(B.directCost, 0) - ISNULL(D.AP, 0) + ISNULL(E.MinusItem, 0) AS unpaidAP, ISNULL(SUM(pi.ITEM_UNIT_PRICE * pi.ITEM_QUANTITY), 0) AS PLAN_REVENUE, " +
-                    "ISNULL(F.MACost, 0) AS MACost, ISNULL(G.SalesCost, 0) AS SalesCost, ISNULL(I.CompanyCost, 0) AS ManagementCost, ISNULL(H.SiteCost, 0) AS SiteCost, ISNULL(J.SiteCostPaid, 0) AS SiteCostPaid " +
+                    "ISNULL(F.MACost, 0) AS MACost, ISNULL(G.SalesCost, 0) AS SalesCost, ISNULL(I.CompanyCost, 0) AS ManagementCost, ISNULL(H.SiteCost, 0) AS SiteCost, " +
+                    "ISNULL(J.SiteCostPaid, 0) AS SiteCostPaid, ISNULL(K.MACostPaid, 0) AS MACostPaid, ISNULL(M.OtherCostPaid, 0) AS OtherCostPaid " +
                     "FROM TND_PROJECT p LEFT JOIN PLAN_ITEM pi ON pi.PROJECT_ID = p.PROJECT_ID LEFT JOIN (SELECT main.PROJECT_ID, SUM(sub.directCost) AS directCost " +
                     "FROM(SELECT pi.INQUIRY_FORM_ID, pi.PROJECT_ID FROM PLAN_ITEM pi union SELECT pi.MAN_FORM_ID, pi.PROJECT_ID FROM PLAN_ITEM pi)main " +
                     "LEFT JOIN(SELECT psi.INQUIRY_FORM_ID, SUM(psi.ITEM_UNIT_PRICE * psi.ITEM_QTY) AS directCost FROM  PLAN_SUP_INQUIRY_ITEM psi GROUP BY psi.INQUIRY_FORM_ID)sub " +
                     "ON main.INQUIRY_FORM_ID = sub.INQUIRY_FORM_ID GROUP BY main.PROJECT_ID)B ON p.PROJECT_ID = B.PROJECT_ID " +
                     "LEFT JOIN (SELECT PROJECT_ID, ISNULL(SUM(ADVANCE_PAYMENT), 0) + ISNULL(SUM(VALUATION_AMOUNT), 0) - ISNULL(SUM(RETENTION_PAYMENT), 0) - ISNULL(SUM(ADVANCE_PAYMENT_REFUND), 0) AS AR " +
-                    "FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID)C ON p.PROJECT_ID = C.PROJECT_ID LEFT JOIN (SELECT PROJECT_ID, ISNULL(SUM(PAYMENT_TRANSFER), 0) - ISNULL(SUM(RETENTION_PAYMENT), 0) AS AP " +
-                    "FROM PLAN_ESTIMATION_FORM GROUP BY PROJECT_ID)D ON p.PROJECT_ID = D.PROJECT_ID LEFT JOIN(SELECT PROJECT_ID, ISNULL(SUM(pop.AMOUNT),0) AS MinusItem FROM PLAN_ESTIMATION_FORM pef " +
+                    "FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID UNION SELECT (SELECT PROJECT_ID FROM TND_PROJECT WHERE PROJECT_NAME LIKE '%公司費用%')PROJECT_ID, SUM(AMOUNT) AS CompanyCostPaid " +
+                    "FROM FIN_EXPENSE_FORM f LEFT JOIN FIN_EXPENSE_ITEM fi ON f.EXP_FORM_ID = fi.EXP_FORM_ID WHERE ISNULL(PROJECT_ID, '') = '' AND STATUS = 30 AND OCCURRED_YEAR = IIF(MONTH(GETDATE()) > 6, YEAR(GETDATE()), YEAR(GETDATE())-1) " +
+                    "AND OCCURRED_MONTH > 6 OR ISNULL(PROJECT_ID, '') = '' AND STATUS = 30 AND OCCURRED_YEAR = IIF(MONTH(GETDATE()) > 6, YEAR(GETDATE())+1, YEAR(GETDATE())) AND OCCURRED_MONTH < 6 GROUP BY PROJECT_ID)C " +
+                    "ON p.PROJECT_ID = C.PROJECT_ID LEFT JOIN (SELECT PROJECT_ID, ISNULL(SUM(PAYMENT_TRANSFER), 0) - ISNULL(SUM(RETENTION_PAYMENT), 0) AS AP " +
+                    "FROM PLAN_ESTIMATION_FORM WHERE ISNULL(INDIRECT_COST_TYPE, '') = '' GROUP BY PROJECT_ID)D ON p.PROJECT_ID = D.PROJECT_ID LEFT JOIN(SELECT PROJECT_ID, ISNULL(SUM(pop.AMOUNT),0) AS MinusItem FROM PLAN_ESTIMATION_FORM pef " +
                     "LEFT JOIN PLAN_OTHER_PAYMENT pop ON pef.EST_FORM_ID = pop.EST_FORM_ID WHERE pop.TYPE  in ('A', 'B', 'C', 'F') GROUP BY PROJECT_ID)E ON p.PROJECT_ID = E.PROJECT_ID " +
                     "LEFT JOIN (SELECT PROJECT_ID, COST AS MACost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '01_MACost')F on p.PROJECT_ID = F.PROJECT_ID " +
                     "LEFT JOIN (SELECT PROJECT_ID, COST AS SalesCost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '02_SalesCost')G on p.PROJECT_ID = G.PROJECT_ID " +
                     "LEFT JOIN (SELECT PROJECT_ID, SUM(AMOUNT) AS SiteCost FROM PLAN_SITE_BUDGET GROUP BY PROJECT_ID)H on p.PROJECT_ID = H.PROJECT_ID " +
-                    "LEFT JOIN (SELECT PROJECT_ID, SUM(AMOUNT) AS SiteCostPaid FROM FIN_EXPENSE_FORM f LEFT JOIN FIN_EXPENSE_ITEM fi ON f.EXP_FORM_ID = fi.EXP_FORM_ID WHERE PROJECT_ID IS NOT NULL AND PROJECT_ID <> ''  GROUP BY PROJECT_ID)J on p.PROJECT_ID = J.PROJECT_ID " +
+                    "LEFT JOIN (SELECT PROJECT_ID, SUM(AMOUNT) AS SiteCostPaid FROM FIN_EXPENSE_FORM f LEFT JOIN FIN_EXPENSE_ITEM fi ON f.EXP_FORM_ID = fi.EXP_FORM_ID WHERE PROJECT_ID IS NOT NULL AND PROJECT_ID <> '' AND STATUS = 30 GROUP BY PROJECT_ID)J on p.PROJECT_ID = J.PROJECT_ID " +
+                    "LEFT JOIN (SELECT PROJECT_ID, ISNULL(SUM(PAYMENT_TRANSFER),0) - ISNULL(SUM(RETENTION_PAYMENT),0) AS MACostPaid " +
+                    "FROM PLAN_ESTIMATION_FORM WHERE ISNULL(INDIRECT_COST_TYPE, '') = 'M' GROUP BY PROJECT_ID)K ON p.PROJECT_ID = K.PROJECT_ID " +
+                    "LEFT JOIN (SELECT PROJECT_ID, ISNULL(SUM(PAYMENT_TRANSFER),0) - ISNULL(SUM(RETENTION_PAYMENT),0) AS OtherCostPaid " +
+                    "FROM PLAN_ESTIMATION_FORM WHERE ISNULL(INDIRECT_COST_TYPE, '') = 'O' GROUP BY PROJECT_ID)M ON p.PROJECT_ID = M.PROJECT_ID " +
                     "LEFT JOIN (SELECT PROJECT_ID, COST AS CompanyCost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '03_CompanyCost')I on p.PROJECT_ID = I.PROJECT_ID WHERE p.STATUS = '專案執行' " +
-                    "GROUP BY p.PROJECT_ID, p.PROJECT_NAME, B.directCost, C.AR, D.AP, E.MinusItem, F.MACost, G.SalesCost, I.CompanyCost, H.SiteCost, J.SiteCostPaid)a)it ").FirstOrDefault();
+                    "GROUP BY p.PROJECT_ID, p.PROJECT_NAME, B.directCost, C.AR, D.AP, E.MinusItem, F.MACost, G.SalesCost, I.CompanyCost, H.SiteCost, J.SiteCostPaid,K.MACostPaid, M.OtherCostPaid)a)it ").FirstOrDefault();
             }
             return lstAmount;
         }
@@ -5816,27 +5837,34 @@ namespace topmeperp.Service
                     "(SELECT SUM(AMOUNT) FROM FIN_EXPENSE_BUDGET WHERE BUDGET_YEAR = IIF(MONTH(GETDATE()) > 6, YEAR(GETDATE()), YEAR(GETDATE())-1)) AS CompanyCost," +
                     "(SELECT ISNULL(SUM(AMOUNT * flt.TRANSACTION_TYPE), 0) FROM FIN_LOAN_TRANACTION flt LEFT JOIN FIN_BANK_LOAN fbl ON flt.BL_ID = fbl.BL_ID WHERE ISNULL(IS_SUPPLIER, 'N') <> 'Y') AS loanBalance_bank, " +
                     "(SELECT ISNULL(SUM(AMOUNT * flt.TRANSACTION_TYPE), 0) FROM FIN_LOAN_TRANACTION flt LEFT JOIN FIN_BANK_LOAN fbl ON flt.BL_ID = fbl.BL_ID WHERE ISNULL(IS_SUPPLIER, 'N') = 'Y') AS loanBalance_sup, " +
-                    "(SELECT SUM(ISNULL(PLAN_REVENUE, 0)) - SUM(directCost) - SUM(ISNULL(MACost, 0)) - SUM(ISNULL(ManagementCost, 0)) - SUM(ISNULL(SiteCost, 0)) " +
+                    "(SELECT SUM(ISNULL(uncollectedAR, 0)) - SUM(unpaidAP) - SUM(ISNULL(IIF(SiteCost - SiteCostPaid >= 0,SiteCost - SiteCostPaid, SiteCostPaid - SiteCost), 0)) - " +
+                    "SUM(ISNULL(ManagementCost, 0)) - SUM(ISNULL(IIF(MACost - MACostPaid >= 0, MACost - MACostPaid, MACostPaid - MACost), 0)) - ISNULL(SUM(OtherCostPaid), 0) " +
                     "FROM(SELECT p.PROJECT_ID, p.PROJECT_NAME, ISNULL(B.directCost, 0) AS directCost, ISNULL(C.AR, 0) AS AR, " +
                     "ISNULL(SUM(pi.ITEM_UNIT_PRICE * pi.ITEM_QUANTITY), 0) - ISNULL(C.AR, 0) AS uncollectedAR, ISNULL(D.AP, 0) - ISNULL(E.MinusItem, 0) AS AP, " +
                     "ISNULL(B.directCost, 0) - ISNULL(D.AP, 0) + ISNULL(E.MinusItem, 0) AS unpaidAP, ISNULL(SUM(pi.ITEM_UNIT_PRICE * pi.ITEM_QUANTITY), 0) AS PLAN_REVENUE, " +
-                    "ISNULL(F.MACost, 0) AS MACost, ISNULL(G.SalesCost, 0) + ISNULL(I.CompanyCost, 0) AS ManagementCost, ISNULL(H.SiteCost, 0) AS SiteCost " +
+                    "ISNULL(F.MACost, 0) AS MACost, ISNULL(G.SalesCost, 0) + ISNULL(I.CompanyCost, 0) AS ManagementCost, ISNULL(H.SiteCost, 0) AS SiteCost, " +
+                    "ISNULL(J.SiteCostPaid, 0) AS SiteCostPaid, ISNULL(K.MACostPaid, 0) AS MACostPaid, ISNULL(M.OtherCostPaid, 0) AS OtherCostPaid " +
                     "FROM PLAN_ITEM pi LEFT JOIN TND_PROJECT p ON pi.PROJECT_ID = p.PROJECT_ID LEFT JOIN(SELECT main.PROJECT_ID, SUM(sub.directCost) AS directCost " +
                     "FROM (SELECT pi.INQUIRY_FORM_ID, pi.PROJECT_ID FROM PLAN_ITEM pi union SELECT pi.MAN_FORM_ID, pi.PROJECT_ID FROM PLAN_ITEM pi)main " +
                     "LEFT JOIN (SELECT psi.INQUIRY_FORM_ID, SUM(psi.ITEM_UNIT_PRICE * psi.ITEM_QTY) AS directCost FROM  PLAN_SUP_INQUIRY_ITEM psi GROUP BY psi.INQUIRY_FORM_ID)sub " +
                     "ON main.INQUIRY_FORM_ID = sub.INQUIRY_FORM_ID GROUP BY main.PROJECT_ID)B ON p.PROJECT_ID = B.PROJECT_ID " +
-                    "LEFT JOIN (SELECT PROJECT_ID, SUM(ADVANCE_PAYMENT) + SUM(VALUATION_AMOUNT) - SUM(RETENTION_PAYMENT) - SUM(ADVANCE_PAYMENT_REFUND) AS AR " +
+                    "LEFT JOIN (SELECT PROJECT_ID, ISNULL(SUM(ADVANCE_PAYMENT), 0) + ISNULL(SUM(VALUATION_AMOUNT), 0) - ISNULL(SUM(RETENTION_PAYMENT), 0) - ISNULL(SUM(ADVANCE_PAYMENT_REFUND), 0) AS AR " +
                     "FROM PLAN_VALUATION_FORM GROUP BY PROJECT_ID UNION SELECT (SELECT PROJECT_ID FROM TND_PROJECT WHERE PROJECT_NAME LIKE '%公司費用%')PROJECT_ID, SUM(AMOUNT) AS CompanyCostPaid " +
-                    "FROM FIN_EXPENSE_FORM f LEFT JOIN FIN_EXPENSE_ITEM fi ON f.EXP_FORM_ID = fi.EXP_FORM_ID WHERE ISNULL(PROJECT_ID, '') <> '' AND OCCURRED_YEAR = IIF(MONTH(GETDATE()) > 6, YEAR(GETDATE()), YEAR(GETDATE())-1) " +
-                    "AND OCCURRED_MONTH > 6 OR ISNULL(PROJECT_ID, '') <> '' AND OCCURRED_YEAR = IIF(MONTH(GETDATE()) > 6, YEAR(GETDATE())+1, YEAR(GETDATE())) AND OCCURRED_MONTH < 6 GROUP BY PROJECT_ID)C " +
+                    "FROM FIN_EXPENSE_FORM f LEFT JOIN FIN_EXPENSE_ITEM fi ON f.EXP_FORM_ID = fi.EXP_FORM_ID WHERE ISNULL(PROJECT_ID, '') = '' AND STATUS = 30 AND OCCURRED_YEAR = IIF(MONTH(GETDATE()) > 6, YEAR(GETDATE()), YEAR(GETDATE())-1) " +
+                    "AND OCCURRED_MONTH > 6 OR ISNULL(PROJECT_ID, '') = '' AND STATUS = 30 AND OCCURRED_YEAR = IIF(MONTH(GETDATE()) > 6, YEAR(GETDATE())+1, YEAR(GETDATE())) AND OCCURRED_MONTH < 6 GROUP BY PROJECT_ID)C " +
                     "ON p.PROJECT_ID = C.PROJECT_ID LEFT JOIN(SELECT PROJECT_ID, SUM(PAYMENT_TRANSFER) - SUM(RETENTION_PAYMENT) AS AP " +
-                    "FROM PLAN_ESTIMATION_FORM GROUP BY PROJECT_ID)D ON p.PROJECT_ID = D.PROJECT_ID LEFT JOIN(SELECT PROJECT_ID, SUM(pop.AMOUNT) AS MinusItem FROM PLAN_ESTIMATION_FORM pef " +
+                    "FROM PLAN_ESTIMATION_FORM WHERE ISNULL(INDIRECT_COST_TYPE, '') = '' GROUP BY PROJECT_ID)D ON p.PROJECT_ID = D.PROJECT_ID LEFT JOIN(SELECT PROJECT_ID, SUM(pop.AMOUNT) AS MinusItem FROM PLAN_ESTIMATION_FORM pef " +
                     "LEFT JOIN PLAN_OTHER_PAYMENT pop ON pef.EST_FORM_ID = pop.EST_FORM_ID WHERE pop.TYPE  in ('A', 'B', 'C', 'F') GROUP BY PROJECT_ID)E ON p.PROJECT_ID = E.PROJECT_ID " +
-                    "LEFT JOIN(SELECT PROJECT_ID, COST AS MACost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '01_MACost')F on p.PROJECT_ID = F.PROJECT_ID " +
-                    "LEFT JOIN(SELECT PROJECT_ID, COST AS SalesCost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '02_SalesCost')G on p.PROJECT_ID = G.PROJECT_ID " +
-                    "LEFT JOIN(SELECT PROJECT_ID, SUM(AMOUNT) AS SiteCost FROM PLAN_SITE_BUDGET GROUP BY PROJECT_ID)H on p.PROJECT_ID = H.PROJECT_ID " +
-                    "LEFT JOIN(SELECT PROJECT_ID, COST AS CompanyCost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '03_CompanyCost')I on p.PROJECT_ID = I.PROJECT_ID " +
-                    "GROUP BY p.PROJECT_ID, p.PROJECT_NAME, B.directCost, C.AR, D.AP, E.MinusItem, F.MACost, G.SalesCost, I.CompanyCost, H.SiteCost)a)  AS futureCashFlow)cash ").FirstOrDefault();
+                    "LEFT JOIN (SELECT PROJECT_ID, COST AS MACost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '01_MACost')F on p.PROJECT_ID = F.PROJECT_ID " +
+                    "LEFT JOIN (SELECT PROJECT_ID, COST AS SalesCost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '02_SalesCost')G on p.PROJECT_ID = G.PROJECT_ID " +
+                    "LEFT JOIN (SELECT PROJECT_ID, SUM(AMOUNT) AS SiteCost FROM PLAN_SITE_BUDGET GROUP BY PROJECT_ID)H on p.PROJECT_ID = H.PROJECT_ID " +
+                    "LEFT JOIN (SELECT PROJECT_ID, COST AS CompanyCost FROM PLAN_INDIRECT_COST WHERE FIELD_ID = '03_CompanyCost')I on p.PROJECT_ID = I.PROJECT_ID " +
+                    "LEFT JOIN (SELECT PROJECT_ID, SUM(AMOUNT) AS SiteCostPaid FROM FIN_EXPENSE_FORM f LEFT JOIN FIN_EXPENSE_ITEM fi ON f.EXP_FORM_ID = fi.EXP_FORM_ID WHERE PROJECT_ID IS NOT NULL AND PROJECT_ID <> ''  AND STATUS = 30 GROUP BY PROJECT_ID)J on p.PROJECT_ID = J.PROJECT_ID " +
+                    "LEFT JOIN (SELECT PROJECT_ID, ISNULL(SUM(PAYMENT_TRANSFER), 0) - ISNULL(SUM(RETENTION_PAYMENT), 0) AS MACostPaid " +
+                    "FROM PLAN_ESTIMATION_FORM WHERE ISNULL(INDIRECT_COST_TYPE, '') = 'M' GROUP BY PROJECT_ID)K ON p.PROJECT_ID = K.PROJECT_ID " +
+                    "LEFT JOIN (SELECT PROJECT_ID, ISNULL(SUM(PAYMENT_TRANSFER),0) - ISNULL(SUM(RETENTION_PAYMENT),0) AS OtherCostPaid " +
+                    "FROM PLAN_ESTIMATION_FORM WHERE ISNULL(INDIRECT_COST_TYPE, '') = 'O' GROUP BY PROJECT_ID)M ON p.PROJECT_ID = M.PROJECT_ID " +
+                    "GROUP BY p.PROJECT_ID, p.PROJECT_NAME, B.directCost, C.AR, D.AP, E.MinusItem, F.MACost, G.SalesCost, I.CompanyCost, H.SiteCost,J.SiteCostPaid,K.MACostPaid, M.OtherCostPaid)a)  AS futureCashFlow)cash ").FirstOrDefault();
             }
             return lstAmount;
         }

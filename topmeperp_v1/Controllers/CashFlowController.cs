@@ -411,8 +411,8 @@ namespace topmeperp.Controllers
             {
                 ef.PAYMENT_DATE = Convert.ToDateTime(Request["paymentdate"]);
             }
-            ef.OCCURRED_YEAR = int.Parse(Request["occurreddate"].Substring(0, 4));
-            ef.OCCURRED_MONTH = int.Parse(Request["occurreddate"].Substring(5, 2));
+            ef.OCCURRED_YEAR = int.Parse(Request["paymentdate"].Substring(0, 4));
+            ef.OCCURRED_MONTH = int.Parse(Request["paymentdate"].Substring(5, 2));
             ef.CREATE_DATE = DateTime.Now;
             ef.CREATE_ID = uInfo.USER_ID;
             ef.REMARK = Request["remark"];
