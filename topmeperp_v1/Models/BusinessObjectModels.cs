@@ -632,8 +632,9 @@ namespace topmeperp.Models
         public Nullable<decimal> otherPay { get; set; }
         public Nullable<decimal> taxAmt { get; set; }
         public Nullable<decimal> Amt { get; set; }
-
-
+        public Nullable<decimal> taxMinus { get; set; }
+        public Nullable<decimal> discount { get; set; }
+        
     }
     public class PaymentTermsFunction : PLAN_PAYMENT_TERMS
     {
@@ -672,6 +673,10 @@ namespace topmeperp.Models
         public Nullable<decimal> unpaidAP { get; set; }
         public string PROJECT_ID { get; set; }
         public string PROJECT_NAME { get; set; }
+        public Nullable<decimal> SiteCostPaid { get; set; }
+        public Nullable<decimal> MACostPaid { get; set; }
+        public Nullable<decimal> OtherCostPaid { get; set; }
+
     }
     public class LoanTranactionFunction : FIN_LOAN_TRANACTION
     {
@@ -702,6 +707,7 @@ namespace topmeperp.Models
     {
         public string OWNER_NAME { get; set; }
         public string INVOICE_TYPE { get; set; }
-
+        public string REGISTER_ADDRESS { get; set; }
+        public string COMPANY_ID { get; set; }
     }
 }

@@ -16,9 +16,12 @@
         <div class="col-md-1" style="padding-bottom:15px">
             <input type="button" value="儲存" class="btn btn-default" onclick="saveVA()" />
         </div>
+        @if (ViewBag.NotePieces > 0)
+        {
         <div class="col-md-1" style="padding-bottom:15px">
             <a class="btn btn-link" href="/Estimation/downLoadCreditNote?projectid=@ViewBag.projectId&formid=@ViewBag.formid" target="_blank">下載折讓單</a>
         </div>
+        }
     </div>
     <div ng-app="" ng-controller="MyCtrl">
         <div class="row" style="padding-bottom:30px">
@@ -76,7 +79,7 @@
             </div>
             <label for="remark" class="col-md-2 control-label">備註 :</label>
             <div class="col-md-4" style="padding-top:2px">
-                <input type="text" class="form-control" name="remark" id="remark" value="">
+                <input type="text" class="form-control" name="remark" id="remark" value="@ViewBag.remark">
             </div>
             <label for="tax_ratio" class="col-md-2 control-label">稅率% :</label>
             <div class="col-md-4" style="padding-top:2px">
@@ -126,7 +129,7 @@
                     {{key.AMOUNT + key.TAX | number }}
                     <br />
                     憑證類型 :
-                    <select style="color:deeppink;font-weight:bold; width:120px" id="invoicetype" name="invoicetype" ng-model="key.TYPE" required><option value="二聯式">二聯式</option><option value="三聯式">三聯式</option><option value="收據">收據</option><option value="工資單">工資單</option><option value="對開發票">對開發票</option><option value="折讓單">折讓單</option></select>
+                    <select style="color:deeppink;font-weight:bold; width:120px" id="invoicetype" name="invoicetype" ng-model="key.TYPE" required><option value="二聯式">二聯式</option><option value="三聯式">三聯式</option><option value="收據">收據</option><option value="工資單">工資單</option><option value="對開發票">對開發票</option><option value="折讓單">折讓單</option><option value="其他扣款">其他扣款</option></select>
                     <span ng-show="key.TYPE == '折讓單'">
                         <select style="color:cornflowerblue;font-weight:bold; width:120px" id="sub_type" name="sub_type" ng-model="key.SUB_TYPE" required><option value="溢開折讓">溢開折讓</option><option value="扣款折讓">扣款折讓</option><option value="代收代付">代收代付</option></select>
                         品名 :

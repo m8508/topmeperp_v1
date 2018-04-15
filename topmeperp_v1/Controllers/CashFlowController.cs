@@ -52,8 +52,8 @@ namespace topmeperp.Controllers
         public ActionResult CashFlowManage()
         {
             List<CashFlowFunction> lstCashFlow = null;
-            List<PlanFinanceProfile> lstFinProfile = null;
-            PlanFinanceProfile totalFinProfile = null;
+            List<PlanFinanceProfile> lstFinProfile = null; 
+             PlanFinanceProfile totalFinProfile = null;
             CashFlowBalance cashFlowBalance = null;
             lstCashFlow = service.getCashFlow();
             lstFinProfile = service.getPlanFinProfile();
@@ -64,6 +64,7 @@ namespace topmeperp.Controllers
             viewModel.finProfile = lstFinProfile;
             viewModel.totalFinProfile = totalFinProfile;
             viewModel.finBalance = cashFlowBalance;
+            ViewBag.today = DateTime.Now;
             return View(viewModel);
         }
         //取得特定日期收入明細
@@ -410,8 +411,8 @@ namespace topmeperp.Controllers
             {
                 ef.PAYMENT_DATE = Convert.ToDateTime(Request["paymentdate"]);
             }
-            ef.OCCURRED_YEAR = int.Parse(Request["occurreddate"].Substring(0, 4));
-            ef.OCCURRED_MONTH = int.Parse(Request["occurreddate"].Substring(5, 2));
+            ef.OCCURRED_YEAR = int.Parse(Request["paymentdate"].Substring(0, 4));
+            ef.OCCURRED_MONTH = int.Parse(Request["paymentdate"].Substring(5, 2));
             ef.CREATE_DATE = DateTime.Now;
             ef.CREATE_ID = uInfo.USER_ID;
             ef.REMARK = Request["remark"];

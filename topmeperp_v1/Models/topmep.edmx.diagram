@@ -70,8 +70,8 @@
         <AssociationConnector Association="topmepModel.FK_PLAN_COS_REFERENCE_PLAN_COS" />
         <EntityTypeShape EntityType="topmepModel.FIN_BANK_LOAN" Width="1.5" PointX="8.375" PointY="0.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_ACCOUNT" Width="1.5" PointX="10.375" PointY="0.75" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_FORM" Width="1.5" PointX="25.375" PointY="22.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_LOAN_TRANACTION" Width="1.5" PointX="27.375" PointY="0.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_FORM" Width="1.5" PointX="25.375" PointY="22.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

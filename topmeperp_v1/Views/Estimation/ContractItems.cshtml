@@ -22,6 +22,10 @@
                 <label for="paymentDate">付款日期:</label>
                 <input type="text" id="paymentDate" name="paymentDate" value="" class="form-control" />
             </div>
+            <div class="col-md-3">
+                <label for="indirect_cost_type">估驗單類型:</label>
+                <select class="form-control" id="indirect_cost_type" name="indirect_cost_type"><option value=""></option><option value="M">界面維保費用</option><option value="O">其他費用</option></select>
+            </div>
             <input type="hidden" name="id" id="id" value="@ViewBag.projectId">
             <input type="hidden" name="estid" id="estid" value="@ViewBag.formid">
             <input type="hidden" name="contractid" id="contractid" value="@ViewBag.contractid">

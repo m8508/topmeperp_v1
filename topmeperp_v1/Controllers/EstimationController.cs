@@ -311,6 +311,11 @@ namespace topmeperp.Controllers
             {
                 est.PAYMENT_DATE = Convert.ToDateTime(Request["paymentDate"]);
             }
+            //NDIRECT_COST_TYPE : M 代表界面維保費用；O 代表其他(泛指非直接成本與維保費的其他額外延伸的成本)
+            if (null != Request["indirect_cost_type"] && Request["indirect_cost_type"] != "")
+            {
+                est.INDIRECT_COST_TYPE = Request["indirect_cost_type"];
+            }
             //est.CONTRACT_ID = Request["contractid"];
             //est.PLUS_TAX = Request["tax"];
             est.REMARK = Request["remark"];
@@ -504,6 +509,7 @@ namespace topmeperp.Controllers
             //PaymentDetailsFunction lstSummary = service.getDetailsPayById(id, singleForm.planEST.CONTRACT_ID);
             PaymentDetailsFunction lstSummary = service.getDetailsPayById(id, id);
             PaymentDetailsFunction pay = service.getDetailsPayById(id,id);
+            ViewBag.loanAmount = 0;
             if (pay.LOAN_AMOUNT != 0)
             {
                 TempData["loanAmt"] = "此廠商有借款尚未償還，金額為:";
@@ -762,6 +768,11 @@ namespace topmeperp.Controllers
             string remark = form.Get("remark").Trim();
             string payee = form.Get("supplier").Trim();
             string projectName = form.Get("projectName").Trim();
+            string indirectCostType = "";
+            if (null != form.Get("indirect_cost_type").Trim() && form.Get("indirect_cost_type").Trim() != "")
+            {
+                indirectCostType  = form.Get("indirect_cost_type").Trim();
+            }
             DateTime? paymentDate = null;
             if (form.Get("paymentDate").Trim() != "")
             {
@@ -769,7 +780,7 @@ namespace topmeperp.Controllers
             }
             //int i = service.RefreshESTAmountByEstId(form["estid"], subAmount, foreign_payment, retention, tax_amount, remark);
             //int i = service.RefreshESTAmountByEstId(form["estid"], paidAmount, 0, 0, 0, remark);
-            int i = service.RefreshESTAmountByEstId(form["estid"], paidAmount, payee, projectName, paymentDate, remark);
+            int i = service.RefreshESTAmountByEstId(form["estid"], paidAmount, payee, projectName, paymentDate, remark, indirectCostType);
             //修改小計金額(PAYMENT_TRANSFER 欄位)與實付金額(PAID_AMOUNT 欄位)
             //PaymentDetailsFunction amountPaid = service.getDetailsPayById(form["estid"], form["contractid"]);
             int t = service.UpdatePaidAmountById(form["estid"], paidAmount);
@@ -1518,8 +1529,8 @@ namespace topmeperp.Controllers
             SYS_USER uInfo = us.getUserInfo(u.USER_ID);
             ef.PROJECT_ID = Request["projectid"];
             ef.PAYMENT_DATE = Convert.ToDateTime(Request["paymentdate"]);
-            ef.OCCURRED_YEAR = int.Parse(Request["occurreddate"].Substring(0, 4));
-            ef.OCCURRED_MONTH = int.Parse(Request["occurreddate"].Substring(5, 2));
+            ef.OCCURRED_YEAR = int.Parse(Request["paymentdate"].Substring(0, 4));
+            ef.OCCURRED_MONTH = int.Parse(Request["paymentdate"].Substring(5, 2));
             ef.CREATE_DATE = DateTime.Now;
             ef.CREATE_ID = uInfo.USER_ID;
             ef.REMARK = Request["remark"];
@@ -2450,7 +2461,9 @@ namespace topmeperp.Controllers
             ViewBag.projectId = id;
             List<PLAN_INVOICE> lstInvoice = null;
             lstInvoice = service.getInvoiceById(formid);
+            List<CreditNote> lstNote = service.getCreditNoteById(id, formid);
             ViewBag.InvoicePieces = service.getInvoicePiecesById(formid);
+            ViewBag.NotePieces = lstNote.Count;
             ViewData["items"] = JsonConvert.SerializeObject(lstInvoice);
             if (id != formid)
             {

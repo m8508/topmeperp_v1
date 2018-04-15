@@ -263,6 +263,18 @@ namespace topmeperp.Controllers
         {
             ContextService4BankInfo service = new ContextService4BankInfo();
             List<BankLoanInfoExt> lstSupplierLoan = service.getAllSupplierLoan();
+            service.getAllPlan();
+
+            ViewData.Add("plans", service.tndProjectModels.planList);
+            if (service.tndProjectModels.planList != null)
+            {
+                SelectList plans = new SelectList(service.tndProjectModels.planList, "PROJECT_ID", "PROJECT_NAME");
+
+                ViewBag.plans = plans;
+                //將資料存入TempData 減少不斷讀取資料庫
+                TempData.Remove("plans");
+                TempData.Add("plans", service.tndProjectModels.planList);
+            }
             return View(lstSupplierLoan);
         }
         /// <summary>
@@ -279,6 +291,10 @@ namespace topmeperp.Controllers
             bankloanInfo.IS_SUPPLIER = "Y";
             bankloanInfo.CREATE_ID = u.USER_ID;
             bankloanInfo.CREATE_DATE = DateTime.Now;
+            if (Request["plans"] != "")
+            {
+                bankloanInfo.PROJECT_ID = Request["plans"];
+            }
             ContextService4BankInfo service = new ContextService4BankInfo();
             int i = service.addBankLoan(bankloanInfo);
             if (i > 0)
