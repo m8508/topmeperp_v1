@@ -178,7 +178,7 @@ namespace topmeperp.Service
         {
             logger.Info("get map DEVICE info by item_name=" + item_name);
             string sql = "SELECT DEVIVE_ID,M.PROJECT_ID,P.PLAN_ITEM_ID as PROJECT_ITEM_ID,MAP_NO,BUILDING_NO "
-                + ", M.CREATE_DATE,CREATE_ID,QTY,P.ITEM_DESC LOC_DESC "
+                + ", M.CREATE_DATE,CREATE_ID,P.ITEM_QUANTITY QTY,P.ITEM_DESC LOC_DESC "
                 + "FROM TND_MAP_DEVICE M, PLAN_ITEM P "
                 + " WHERE M.PROJECT_ITEM_ID = P.PLAN_ITEM_ID "
                 + " AND P.ITEM_DESC Like @item_name "
@@ -298,7 +298,7 @@ namespace topmeperp.Service
                 parameters.Add(new SqlParameter("name", "%" + name + "%"));
             }
             string sql = "SELECT * FROM ((" + sql_pipe + ")) UNION (" + sql_wire + "))) a ORDER BY EXCEL_ROW_ID";
-            logger.Debug("PEP SQL=" + sql);
+            logger.Debug("MapFP SQL=" + sql);
             using (var context = new topmepEntities())
             {
                 // lstMapFP = context.PLAN_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();

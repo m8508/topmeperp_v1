@@ -1237,6 +1237,26 @@ namespace topmeperp.Controllers
             return wfs.Message;
         }
         #endregion
+        /// <summary>
+        /// 下載現有標單資料
+        /// </summary>
+        public void downLoadPlanItem()
+        {
+            string projectid = Request["projectid"];
+            PlanItemForContract poiservice = new PlanItemForContract();
+            //產生檔案位置
+            poiservice.exportExcel(projectid);
+            string fileLocation = "/UploadFile/" + projectid + "/" + projectid + "_標單明細.xlsx";
+            //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
+            string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
+            Response.Clear();
+            Response.Charset = "utf-8";
+            Response.ContentType = "text/xls";
+            Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", filename));
+            ///"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx"
+            Response.WriteFile(fileLocation);
+            Response.End();
+        }
     }
 }
 
