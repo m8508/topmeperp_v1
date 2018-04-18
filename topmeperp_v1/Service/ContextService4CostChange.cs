@@ -211,7 +211,7 @@ namespace topmeperp.Service
         {
             int i = 0;
             string sqlForm = @"UPDATE PLAN_COSTCHANGE_FORM SET REASON_CODE=@Reasoncode,
-                            REMARK_ITEM=@RemarkItem,REMARK_QTY=@RemarkQty,REMARK_PRICE=@RemarkPrice,REMARK_OTHER=@RemarkOther,
+                            REMARK_ITEM=@RemarkItem,REMARK_QTY=Null,REMARK_PRICE=Null,REMARK_OTHER=Null,
                             MODIFY_USER_ID=@userId,MODIFY_DATE=@modifyDate WHERE FORM_ID=@formId;";
             string sqlItem = @"UPDATE PLAN_COSTCHANGE_ITEM SET ITEM_DESC=@itemdesc,ITEM_UNIT=@unit,ITEM_UNIT_PRICE=@unitPrice,
                               ITEM_QUANTITY=@Qty,ITEM_REMARK=@remark,TRANSFLAG=@transFlag,MODIFY_USER_ID=@userId,MODIFY_DATE=@modifyDate WHERE ITEM_UID=@uid";
@@ -226,9 +226,9 @@ namespace topmeperp.Service
                     var parameters = new List<SqlParameter>();
                     parameters.Add(new SqlParameter("Reasoncode", form.REASON_CODE));
                     parameters.Add(new SqlParameter("RemarkItem", form.REMARK_ITEM));
-                    parameters.Add(new SqlParameter("RemarkQty", form.REMARK_QTY));
-                    parameters.Add(new SqlParameter("RemarkPrice", form.REMARK_PRICE));
-                    parameters.Add(new SqlParameter("RemarkOther", form.REMARK_OTHER));
+                   // parameters.Add(new SqlParameter("RemarkQty", form.REMARK_QTY));
+                   // parameters.Add(new SqlParameter("RemarkPrice", form.REMARK_PRICE));
+                   // parameters.Add(new SqlParameter("RemarkOther", form.REMARK_OTHER));
                     parameters.Add(new SqlParameter("userId", form.MODIFY_USER_ID));
                     parameters.Add(new SqlParameter("modifyDate", form.MODIFY_DATE));
                     parameters.Add(new SqlParameter("formId", form.FORM_ID));

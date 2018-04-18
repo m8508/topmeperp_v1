@@ -944,7 +944,7 @@ namespace topmeperp.Service
         public string FLOW_KEY = "CCH01";
         public new CostChangeFormTask task;//CostChangeFormTask
         //處理SQL 預先填入專案代號,設定集合處理參數
-        string sql = @"SELECT F.FORM_ID,F.PROJECT_ID,F.REJECT_DESC REJECT_DESC,F.REMARK_ITEM, F.REMARK_QTY,F.REMARK_PRICE,F.REMARK_OTHER,
+        string sql = @"SELECT F.FORM_ID,F.PROJECT_ID,F.REJECT_DESC REJECT_DESC,F.REMARK_ITEM, F.REMARK_QTY,F.REMARK_PRICE,F.REMARK_OTHER,F.STATUS,
                         R.REQ_USER_ID,R.CURENT_STATE,R.PID,
 						(SELECT TOP 1 MANAGER FROM ENT_DEPARTMENT WHERE DEPT_CODE=CT.DEP_CODE) MANAGER,
                         CT.* ,M.FORM_URL + METHOD_URL as FORM_URL

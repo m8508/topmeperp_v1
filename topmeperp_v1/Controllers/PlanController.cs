@@ -813,11 +813,12 @@ namespace topmeperp.Controllers
                 logger.Debug("Modify Change Order:" + formId);
 
                 formCostChange.FORM_ID = formId;
-                formCostChange.REASON_CODE = f["reasoncode"];                
+                formCostChange.REASON_CODE = f["reasoncode"];
+                formCostChange.METHOD_CODE = f["methodcode"];             
                 formCostChange.REMARK_ITEM = f["remarkItem"];
-                formCostChange.REMARK_QTY = f["remarkQty"];
-                formCostChange.REMARK_PRICE = f["remarkPrice"];
-                formCostChange.REMARK_OTHER = f["remarkOther"];
+                //formCostChange.REMARK_QTY = f["remarkQty"];
+                //formCostChange.REMARK_PRICE = f["remarkPrice"];
+                //formCostChange.REMARK_OTHER = f["remarkOther"];
                 formCostChange.MODIFY_DATE = DateTime.Now;
                 formCostChange.MODIFY_USER_ID = u.USER_ID;
                 logger.Debug("Item Id=" + f["uid"] + "," + f["itemdesc"]);
@@ -1180,22 +1181,39 @@ namespace topmeperp.Controllers
 
             SYS_USER u = (SYS_USER)Session["user"];
 
+             string method = null;
+            string reason = null;
             string desc = null;
-            string method = null;
             DateTime? settlementDate = null;
-            if (null != f["RejectDesc"] && f["RejectDesc"].ToString() != "")
+
+            //工地主任需要填寫的欄位
+            if (null != f["reasoncode"] && f["reasoncode"].ToString() != "")
             {
-                desc = f["RejectDesc"].ToString().Trim();
+                reason = f["reasoncode"].ToString().Trim();
             }
             if (null != f["methodcode"] && f["methodcode"].ToString() != "")
             {
                 method = f["methodcode"].ToString().Trim();
+            }
+            if (null == reason)
+            {
+                return "成本異動原因未填寫，請選擇異動原因!!";
+            }
+            if (null == method)
+            {
+                return "財務處理未填寫，請選擇財務處理!!";
+            }
+            //工地主任需要填寫的欄位
+            if (null != f["RejectDesc"] && f["RejectDesc"].ToString() != "")
+            {
+                desc = f["RejectDesc"].ToString().Trim();
             }
             if (null != f["settlementDate"] && f["settlementDate"].ToString() != "")
             {
                 settlementDate = Convert.ToDateTime(f["settlementDate"].ToString().Trim());
             }
             wfs.Send(u, desc, method, settlementDate);
+            
             return "更新成功!!";
         }
         //退件
