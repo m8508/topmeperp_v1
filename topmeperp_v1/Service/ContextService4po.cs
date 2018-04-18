@@ -22,7 +22,32 @@ namespace topmeperp.Service
         public string message = "";
         public TND_PROJECT project = null;
         public TND_PROJECT budgetTable = null;
-
+        /// <summary>
+        /// 取得工地專案資料
+        /// </summary>
+        /// <param name="projectname"></param>
+        /// <param name="status"></param>
+        /// <returns></returns>
+        public static List<ProjectList> SearchProjectByName(string projectname, string status)
+        {
+            if (projectname != null)
+            {
+                logger.Info("search project by 名稱 =" + projectname);
+                List<ProjectList> lstProject = new List<ProjectList>();
+                string sql = @"select DISTINCT p.*, convert(varchar, pi.CREATE_DATE , 111) as PLAN_CREATE_DATE from TND_PROJECT p left join PLAN_ITEM pi 
+                        on p.PROJECT_ID = pi.PROJECT_ID where p.PROJECT_NAME Like '%' + @projectname + '%' AND STATUS=@status AND p.PROJECT_ID !='001'";
+                using (var context = new topmepEntities())
+                {
+                    lstProject = context.Database.SqlQuery<ProjectList>(sql, new SqlParameter("projectname", projectname), new SqlParameter("status", status)).ToList();
+                }
+                logger.Info("get project count=" + lstProject.Count);
+                return lstProject;
+            }
+            else
+            {
+                return null;
+            }
+        }
         #region 得標標單項目處理
         public TND_PROJECT getProject(string prjid)
         {

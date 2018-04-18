@@ -317,27 +317,6 @@ namespace topmeperp.Service
             }
             return i;
         }
-        //異動單採購程序
-        public List<TND_PROJECT> SearchProjectByName(string projectname, string status)
-        {
-            if (projectname != null)
-            {
-                logger.Info("search project by 名稱 =" + projectname);
-                List<topmeperp.Models.TND_PROJECT> lstProject = new List<TND_PROJECT>();
-                using (var context = new topmepEntities())
-                {
-                    lstProject = context.TND_PROJECT.SqlQuery("SELECT * FROM TND_PROJECT p "
-                        + "WHERE P.PROJECT_NAME Like '%' + @projectname + '%' AND STATUS=@status;",
-                         new SqlParameter("projectname", projectname), new SqlParameter("status", status)).ToList();
-                }
-                logger.Info("get project count=" + lstProject.Count);
-                return lstProject;
-            }
-            else
-            {
-                return null;
-            }
-        }
         //取得成本異動單資料
         public List<CostChangeForm> getCostChangeForm(string projectId, string status,string remark)
         {

@@ -24,7 +24,7 @@ namespace topmeperp.Controllers
         [topmeperp.Filter.AuthFilter]
         public ActionResult Index()
         {
-            List<ProjectList> lstProject = SearchProjectByName("", "專案執行");
+            List<ProjectList> lstProject = PlanService.SearchProjectByName("", "專案執行");
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
 
             //畫面上權限管理控制
@@ -44,26 +44,6 @@ namespace topmeperp.Controllers
             return View(lstProject);
         }
 
-        private List<ProjectList> SearchProjectByName(string projectname, string status)
-        {
-            if (projectname != null)
-            {
-                logger.Info("search project by 名稱 =" + projectname);
-                List<ProjectList> lstProject = new List<ProjectList>();
-                using (var context = new topmepEntities())
-                {
-                    lstProject = context.Database.SqlQuery<ProjectList>("select DISTINCT p.*, convert(varchar, pi.CREATE_DATE , 111) as PLAN_CREATE_DATE from TND_PROJECT p left join PLAN_ITEM pi "
-                        + "on p.PROJECT_ID = pi.PROJECT_ID where p.PROJECT_NAME Like '%' + @projectname + '%' AND STATUS=@status;",
-                         new SqlParameter("projectname", projectname), new SqlParameter("status", status)).ToList();
-                }
-                logger.Info("get project count=" + lstProject.Count);
-                return lstProject;
-            }
-            else
-            {
-                return null;
-            }
-        }
         //廠商估驗計價
         public ActionResult Valuation(string id)
         {

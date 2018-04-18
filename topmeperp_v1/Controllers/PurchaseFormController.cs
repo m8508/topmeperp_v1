@@ -23,7 +23,7 @@ namespace topmeperp.Controllers
         [topmeperp.Filter.AuthFilter]
         public ActionResult Index()
         {
-            List<topmeperp.Models.TND_PROJECT> lstProject = SearchProjectByName("", "專案執行");
+            List<ProjectList> lstProject = PlanService.SearchProjectByName("", "專案執行");
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             //畫面上權限管理控制
             //頁面上使用ViewBag 定義開關\@ViewBag.F10005
@@ -40,27 +40,6 @@ namespace topmeperp.Controllers
                 }
             }
             return View(lstProject);
-        }
-
-        private List<topmeperp.Models.TND_PROJECT> SearchProjectByName(string projectname, string status)
-        {
-            if (projectname != null)
-            {
-                log.Info("search project by 名稱 =" + projectname);
-                List<topmeperp.Models.TND_PROJECT> lstProject = new List<TND_PROJECT>();
-                using (var context = new topmepEntities())
-                {
-                    lstProject = context.TND_PROJECT.SqlQuery("select * from TND_PROJECT p "
-                        + "where p.PROJECT_NAME Like '%' + @projectname + '%' AND STATUS=@status;",
-                         new SqlParameter("projectname", projectname), new SqlParameter("status", status)).ToList();
-                }
-                log.Info("get project count=" + lstProject.Count);
-                return lstProject;
-            }
-            else
-            {
-                return null;
-            }
         }
 
         public ActionResult FormIndex(string id)

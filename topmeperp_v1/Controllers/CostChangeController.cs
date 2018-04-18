@@ -16,7 +16,7 @@ namespace topmeperp.Controllers
         public ActionResult Index()
         {
             CostChangeService cs = new CostChangeService();
-            SelectList lstProject = new SelectList(cs.SearchProjectByName("", "專案執行"), "PROJECT_ID", "PROJECT_NAME");
+            SelectList lstProject = new SelectList(PlanService.SearchProjectByName("", "專案執行"), "PROJECT_ID", "PROJECT_NAME");
             ViewData.Add("projects", lstProject);
             return View();
         }
