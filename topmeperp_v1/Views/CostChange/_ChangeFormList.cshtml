@@ -17,7 +17,7 @@
             財務處理
         </th>
         <th>
-            處理進度
+            功能
         </th>
     </tr>
     @foreach (var item in Model)
@@ -38,7 +38,9 @@
             <td data-th="財務處理">
                 @item.Method
             </td>
-            <td data-th="處理進度"></td>
+            <td data-th="功能">
+                <a href="" class="btn btn-link" >建立詢價單</a>
+            </td>
         </tr>
     }
 </table>
