@@ -39,6 +39,10 @@
                 @item.Method
             </td>
             <td data-th="功能">
+                @if(item.INQUIRY_FORM_ID != null)
+                {
+                    <label>已轉詢價單</label>
+                }
                 <a href="createInquiryOrder?formId=@item.FORM_ID" class="btn btn-link" target="_blank" >建立詢價單</a>
             </td>
         </tr>

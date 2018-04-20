@@ -35,6 +35,7 @@ namespace topmeperp.Models
         public string CREATE_USER_ID { get; set; }
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public string STATUS { get; set; }
+        public string INQUIRY_FORM_ID { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PLAN_COSTCHANGE_ITEM> PLAN_COSTCHANGE_ITEM { get; set; }

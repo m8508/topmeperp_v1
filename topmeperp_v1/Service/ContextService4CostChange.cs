@@ -323,7 +323,7 @@ namespace topmeperp.Service
             return i;
         }
         //取得成本異動單資料
-        public List<CostChangeForm> getCostChangeForm(string projectId, string status,string remark)
+        public List<CostChangeForm> getCostChangeForm(string projectId, string status,string remark,string noInquiry)
         {
             logger.Debug("get costchange form for project id=" + projectId);
             List<CostChangeForm> lst = null;
@@ -333,6 +333,13 @@ namespace topmeperp.Service
                     (SELECT  VALUE_FIELD FROM SYS_PARA　
                     WHERE FUNCTION_ID='COSTHANGE' AND FIELD_ID='METHOD' AND KEY_FIELD=F.METHOD_CODE ) METHOD
                      FROM PLAN_COSTCHANGE_FORM F WHERE PROJECT_ID=@projectId ";
+            if (null == noInquiry)
+            {
+                sql = sql + " AND INQUIRY_FORM_ID IS NULL";
+            } else
+            {
+                
+            }
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("projectId", projectId));
             if (null != status && status != "")
@@ -378,6 +385,11 @@ namespace topmeperp.Service
                 pf.INQUIRY_FORM_ID = snoservice.getSerialKey(sno_key);
                 pf.PROJECT_ID = form.PROJECT_ID;
                 pf.FORM_NAME = "(成本異動)" + form.REMARK_ITEM;
+                //聯絡人基本資料
+                pf.OWNER_NAME = u.USER_NAME;
+                pf.OWNER_EMAIL = u.EMAIL;
+                pf.OWNER_TEL = u.TEL + "-" + u.TEL_EXT;
+                pf.OWNER_FAX = u.FAX;
                 pf.CREATE_ID = u.USER_ID;
                 pf.CREATE_DATE = DateTime.Now;
 

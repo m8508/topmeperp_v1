@@ -25,9 +25,10 @@ namespace topmeperp.Controllers
         {
             string projectId = Request["projects"];
             string remark = Request["remark"];
+            string noInquiry = Request["noInquiry"];
             CostChangeService cs = new CostChangeService();
             //取得通過審核之異動單資料 STATUS=30
-            List<CostChangeForm> lst = cs.getCostChangeForm(projectId, "30", remark);
+            List<CostChangeForm> lst = cs.getCostChangeForm(projectId, "30", remark, noInquiry);
             ViewBag.SearchResult = "共取得" + lst.Count + "筆資料!!";
             return PartialView("_ChangeFormList",lst);
         }
