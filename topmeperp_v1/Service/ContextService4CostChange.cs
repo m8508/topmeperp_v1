@@ -217,8 +217,9 @@ namespace topmeperp.Service
             string sqlForm = @"UPDATE PLAN_COSTCHANGE_FORM SET REASON_CODE=@Reasoncode,METHOD_CODE=@methodCode,
                             REMARK_ITEM=@RemarkItem,REMARK_QTY=Null,REMARK_PRICE=Null,REMARK_OTHER=Null,
                             MODIFY_USER_ID=@userId,MODIFY_DATE=@modifyDate WHERE FORM_ID=@formId;";
-            string sqlItem = @"UPDATE PLAN_COSTCHANGE_ITEM SET ITEM_DESC=@itemdesc,ITEM_UNIT=@unit,ITEM_UNIT_PRICE=@unitPrice,
-                              ITEM_QUANTITY=@Qty,ITEM_REMARK=@remark,TRANSFLAG=@transFlag,MODIFY_USER_ID=@userId,MODIFY_DATE=@modifyDate WHERE ITEM_UID=@uid";
+            string sqlItem = @"UPDATE PLAN_COSTCHANGE_ITEM SET ITEM_DESC=@itemdesc,ITEM_UNIT=@unit,ITEM_UNIT_PRICE=@unitPrice,ITEM_UNIT_COST=@unitCost,
+                              ITEM_QUANTITY=@Qty,ITEM_REMARK=@remark,TRANSFLAG=@transFlag,MODIFY_USER_ID=@userId,MODIFY_DATE=@modifyDate 
+                              WHERE ITEM_UID=@uid";
             //2.將資料寫入 
 
             using (var context = new topmepEntities())
@@ -251,6 +252,14 @@ namespace topmeperp.Service
                         else
                         {
                             parameters.Add(new SqlParameter("unitPrice", DBNull.Value));
+                        }
+                        if (item.ITEM_UNIT_COST != null)
+                        {
+                            parameters.Add(new SqlParameter("unitCost", item.ITEM_UNIT_COST));
+                        }
+                        else
+                        {
+                            parameters.Add(new SqlParameter("unitCost", DBNull.Value));
                         }
                         if (item.ITEM_QUANTITY == null)
                         {
