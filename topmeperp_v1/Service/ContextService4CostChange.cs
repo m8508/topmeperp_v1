@@ -359,5 +359,53 @@ namespace topmeperp.Service
             }
             return lst;
         }
+        /// <summary>
+        /// 依據成本異動單建立詢價單
+        /// </summary>
+        public string createInquiryOrderByChangeForm(string formId,SYS_USER u)
+        {
+            //取得異動單資料
+            getChangeOrderForm(formId);
+            logger.Info("create new [PLAN_SUP_INQUIRY] from CostChange Order= "+ formId);
+            string sno_key = "PC";
+            SerialKeyService snoservice = new SerialKeyService();
+
+            using (var context = new topmepEntities())
+            {
+                //1.取得異動單相關資訊
+                //2,建立表頭
+                PLAN_SUP_INQUIRY pf = new PLAN_SUP_INQUIRY();
+                pf.INQUIRY_FORM_ID = snoservice.getSerialKey(sno_key);
+                pf.PROJECT_ID = form.PROJECT_ID;
+                pf.FORM_NAME = "(成本異動)" + form.REMARK_ITEM;
+                pf.CREATE_ID = u.USER_ID;
+                pf.CREATE_DATE = DateTime.Now;
+
+                context.PLAN_SUP_INQUIRY.Add(pf);
+                int i = context.SaveChanges();
+                logger.Info("plan form id = " + pf.INQUIRY_FORM_ID);               
+                //3建立詢價單明細
+                string sql = @"INSERT INTO PLAN_SUP_INQUIRY_ITEM 
+                        (INQUIRY_FORM_ID,PLAN_ITEM_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT,ITEM_QTY,ITEM_UNIT_PRICE,ITEM_REMARK)
+                        SELECT @InquiryFormId INQUIRY_FORM_ID,PLAN_ITEM_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT,ITEM_QUANTITY ITEM_QTY,ITEM_UNIT_COST ITEM_UNICE_PRICE,ITEM_REMARK 
+                         FROM PLAN_COSTCHANGE_ITEM WHERE FORM_ID=@formId";
+                logger.Info("sql =" + sql);
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("InquiryFormId", pf.INQUIRY_FORM_ID));
+                parameters.Add(new SqlParameter("formId", formId));
+                i = context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+                //4.將成本異動單更新相關的詢價單資料
+                sql = @"UPDATE PLAN_COSTCHANGE_FORM SET INQUIRY_FORM_ID=@InquiryFormId,
+                            MODIFY_USER_ID = @userId, MODIFY_DATE = @modifyDate WHERE FORM_ID = @formId; ";
+                logger.Info("sql =" + sql);
+                parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("InquiryFormId", pf.INQUIRY_FORM_ID));
+                parameters.Add(new SqlParameter("formId", formId));
+                parameters.Add(new SqlParameter("userId", u.USER_ID));
+                parameters.Add(new SqlParameter("modifyDate",DateTime.Now));
+                i = context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+                return pf.INQUIRY_FORM_ID;
+            }
+        }
     }
 }

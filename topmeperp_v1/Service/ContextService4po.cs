@@ -352,9 +352,6 @@ namespace topmeperp.Service
             logger.Info("get owner's contract file record count=" + lstItem.Count);
             return lstItem;
         }
-
-        //
-
     }
     //採發階段
     public class Bill4PurchService : TnderProject
@@ -389,7 +386,6 @@ namespace topmeperp.Service
             }
         }
     }
-
 
     public class BudgetDataService : CostAnalysisDataService
     {

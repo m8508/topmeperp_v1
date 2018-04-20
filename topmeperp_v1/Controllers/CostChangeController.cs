@@ -57,5 +57,19 @@ namespace topmeperp.Controllers
             ViewData.Add("methodcode", methodcode);
             return View(wfs.task);
         }
+        /// <summary>
+        /// 建立詢價單並轉至詢價單頁面
+        /// </summary>
+        public void createInquiryOrder()
+        {
+            string formId = Request["formId"];
+            logger.Debug("formId=" + formId);
+            SYS_USER u = (SYS_USER)Session["user"];
+            CostChangeService cs = new CostChangeService();
+            string inquiryFormId= cs.createInquiryOrderByChangeForm(formId,u);
+            string url = "~/PurchaseForm/SinglePrjForm/" + inquiryFormId + "?update=Y";
+            logger.Debug("Redirector:" + url);
+            Response.Redirect(url);
+        }
     }
 }
