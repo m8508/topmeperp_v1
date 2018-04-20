@@ -1025,7 +1025,7 @@ namespace topmeperp.Service
         }
 
         //送審
-        public void Send(SYS_USER u, string reason, string methodCode, DateTime? settlementDate)
+        public void Send(SYS_USER u, string desc,string reason, string methodCode, DateTime? settlementDate)
         {
             logger.Debug("CostChange Request Send" + task.task.ID);
             base.task = task;
@@ -1041,21 +1041,22 @@ namespace topmeperp.Service
                 {
                     staus = 30;
                 }
-                staus = updateForm(reason, staus, methodCode, settlementDate);
+                staus = updateForm(reason, staus, reason, methodCode, settlementDate);
             }
         }
         //更新資料庫資料
-        protected int updateForm(string reason, int staus, string method, DateTime? settlementDate)
+        protected int updateForm(string desc, int staus,string reason, string method, DateTime? settlementDate)
         {
-            string sql = @"UPDATE PLAN_COSTCHANGE_FORM SET STATUS=@status,REJECT_DESC=@rejectDesc,METHOD_CODE=@Methodcode, SETTLEMENT_DATE=@settlementDate 
-                            WHERE FORM_ID=@formId";
+            string sql = @"UPDATE PLAN_COSTCHANGE_FORM SET STATUS=@status,REJECT_DESC=@rejectDesc,
+                           REASON_CODE=@reason,METHOD_CODE=@Methodcode,SETTLEMENT_DATE=@settlementDate 
+                           WHERE FORM_ID=@formId";
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("formId", task.FormData.FORM_ID));
             parameters.Add(new SqlParameter("status", staus));
 
-            if (null == reason)
+            if (null == desc)
             {
-                parameters.Add(new SqlParameter("rejectDesc", DBNull.Value));
+                sql = sql.Replace(",REJECT_DESC=@rejectDesc", "");
             }
             else
             {
@@ -1064,15 +1065,24 @@ namespace topmeperp.Service
 
             if (null == settlementDate)
             {
-                parameters.Add(new SqlParameter("settlementDate", DBNull.Value));
+                sql = sql.Replace(",SETTLEMENT_DATE=@settlementDate", "");
             }
             else
             {
                 parameters.Add(new SqlParameter("settlementDate", settlementDate));
             }
+            if (null == reason)
+            {
+                sql = sql.Replace(",REASON_CODE=@reason", "");
+            }
+            else
+            {
+                parameters.Add(new SqlParameter("reason", reason));
+            }
+
             if (null == method)
             {
-                parameters.Add(new SqlParameter("Methodcode", DBNull.Value));
+                sql = sql.Replace(",METHOD_CODE=@Methodcode", "");
             }
             else
             {
@@ -1096,7 +1106,7 @@ namespace topmeperp.Service
             base.Reject(u, reason);
             if (statusChange != "F")
             {
-                updateForm(reason, 0, null, null);
+                updateForm(reason, 0,null, null, null);
             }
         }
         //中止

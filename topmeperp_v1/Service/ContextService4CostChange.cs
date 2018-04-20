@@ -175,6 +175,10 @@ namespace topmeperp.Service
                         {
                             item.ITEM_UNIT_PRICE = pi.ITEM_UNIT_PRICE;
                         }
+                        if (pi != null && item.ITEM_UNIT_COST == null)
+                        {
+                            item.ITEM_UNIT_COST = pi.ITEM_UNIT_COST;
+                        }
                     }
                     item.FORM_ID = form.FORM_ID;
                     item.PROJECT_ID = form.PROJECT_ID;
@@ -210,7 +214,7 @@ namespace topmeperp.Service
         public string updateChangeOrder(PLAN_COSTCHANGE_FORM form, List<PLAN_COSTCHANGE_ITEM> lstItem)
         {
             int i = 0;
-            string sqlForm = @"UPDATE PLAN_COSTCHANGE_FORM SET REASON_CODE=@Reasoncode,
+            string sqlForm = @"UPDATE PLAN_COSTCHANGE_FORM SET REASON_CODE=@Reasoncode,METHOD_CODE=@methodCode,
                             REMARK_ITEM=@RemarkItem,REMARK_QTY=Null,REMARK_PRICE=Null,REMARK_OTHER=Null,
                             MODIFY_USER_ID=@userId,MODIFY_DATE=@modifyDate WHERE FORM_ID=@formId;";
             string sqlItem = @"UPDATE PLAN_COSTCHANGE_ITEM SET ITEM_DESC=@itemdesc,ITEM_UNIT=@unit,ITEM_UNIT_PRICE=@unitPrice,
@@ -225,6 +229,7 @@ namespace topmeperp.Service
                     context.Database.BeginTransaction();
                     var parameters = new List<SqlParameter>();
                     parameters.Add(new SqlParameter("Reasoncode", form.REASON_CODE));
+                    parameters.Add(new SqlParameter("methodCode", form.METHOD_CODE));
                     parameters.Add(new SqlParameter("RemarkItem", form.REMARK_ITEM));
                    // parameters.Add(new SqlParameter("RemarkQty", form.REMARK_QTY));
                    // parameters.Add(new SqlParameter("RemarkPrice", form.REMARK_PRICE));

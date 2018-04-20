@@ -30,6 +30,7 @@ namespace topmeperp.Models
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public Nullable<long> EXCEL_ROW_ID { get; set; }
         public string TRANSFLAG { get; set; }
+        public Nullable<decimal> ITEM_UNIT_COST { get; set; }
     
         public virtual PLAN_COSTCHANGE_FORM PLAN_COSTCHANGE_FORM { get; set; }
     }

@@ -785,10 +785,10 @@ namespace topmeperp.Controllers
             //取得表單資料存入Session
             Flow4CostChange wfs = new Flow4CostChange();
             wfs.getTask(formId);
-            wfs.task.FormData= cs.form;
+            wfs.task.FormData = cs.form;
             wfs.task.lstItem = cs.lstItem;
             Session["process"] = wfs.task;
-            SelectList reasoncode = new SelectList(SystemParameter.getSystemPara("COSTHANGE", "REASON"), "KEY_FIELD", "VALUE_FIELD",cs.form.REASON_CODE);
+            SelectList reasoncode = new SelectList(SystemParameter.getSystemPara("COSTHANGE", "REASON"), "KEY_FIELD", "VALUE_FIELD", cs.form.REASON_CODE);
             ViewData.Add("reasoncode", reasoncode);
             //財務處理區塊
             SelectList methodcode = new SelectList(SystemParameter.getSystemPara("COSTHANGE", "METHOD"), "KEY_FIELD", "VALUE_FIELD", cs.form.METHOD_CODE);
@@ -809,57 +809,7 @@ namespace topmeperp.Controllers
 
             if (formId != "")
             {
-                //直接新增時使用者尚未建立明細
-                logger.Debug("Modify Change Order:" + formId);
-
-                formCostChange.FORM_ID = formId;
-                formCostChange.REASON_CODE = f["reasoncode"];
-                formCostChange.METHOD_CODE = f["methodcode"];             
-                formCostChange.REMARK_ITEM = f["remarkItem"];
-                //formCostChange.REMARK_QTY = f["remarkQty"];
-                //formCostChange.REMARK_PRICE = f["remarkPrice"];
-                //formCostChange.REMARK_OTHER = f["remarkOther"];
-                formCostChange.MODIFY_DATE = DateTime.Now;
-                formCostChange.MODIFY_USER_ID = u.USER_ID;
-                logger.Debug("Item Id=" + f["uid"] + "," + f["itemdesc"]);
-                if (null != f["uid"])
-                {
-                    string[] itemId = f["uid"].Split(',');
-                    string[] itemdesc = f["itemdesc"].Split(',');
-                    string[] itemunit = f["itemunit"].Split(',');
-                    string[] itemUnitPrice = f["itemUnitPrice"].Split(',');
-                    string[] itemQty = f["itemQty"].Split(',');
-                    string[] itemRemark = f["itemRemark"].Split(',');
-
-                    for (int i = 0; i < itemId.Length; i++)
-                    {
-                        PLAN_COSTCHANGE_ITEM it = new PLAN_COSTCHANGE_ITEM();
-                        it.ITEM_UID = long.Parse(itemId[i]);
-                        it.ITEM_DESC = itemdesc[i];
-                        it.ITEM_UNIT = itemunit[i];
-                        if (itemUnitPrice[i] != "")
-                        {
-                            it.ITEM_UNIT_PRICE = decimal.Parse(itemUnitPrice[i]);
-                        }
-                        if (itemQty[i] != "")
-                        {
-                            it.ITEM_QUANTITY = decimal.Parse(itemQty[i]);
-                        }
-                        it.ITEM_REMARK = itemRemark[i];
-                        if (null != f["transFlg." + itemId[i]])
-                        {
-                            it.TRANSFLAG = f["transFlg." + itemId[i]];
-                        }
-                        else
-                        {
-                            it.TRANSFLAG = "0";
-                        }
-                        logger.Debug(it.ITEM_UID + "," + it.ITEM_DESC + "," + it.ITEM_UNIT_PRICE + "," + it.ITEM_QUANTITY + "," + it.ITEM_REMARK + "," + it.TRANSFLAG);
-                        it.MODIFY_DATE = DateTime.Now;
-                        it.MODIFY_USER_ID = u.USER_ID;
-                        lstItemId.Add(it);
-                    }
-                }
+                getCostChangeForm(f, u, formId, formCostChange, lstItemId);
                 CostChangeService s = new CostChangeService();
                 reurnMsg = s.updateChangeOrder(formCostChange, lstItemId) + " <a href='/Plan/costChangeForm/" + formId + "'>返回</a>";
             }
@@ -913,6 +863,71 @@ namespace topmeperp.Controllers
             }
             return reurnMsg;
         }
+        //將CostChangeForm 資料轉成物件
+        private static void getCostChangeForm(FormCollection f, SYS_USER u, string formId, PLAN_COSTCHANGE_FORM formCostChange, List<PLAN_COSTCHANGE_ITEM> lstItemId)
+        {
+            //直接新增時使用者尚未建立明細
+            logger.Debug("Modify Change Order:" + formId);
+
+            formCostChange.FORM_ID = formId;
+            formCostChange.REASON_CODE = f["reasoncode"];
+            formCostChange.METHOD_CODE = f["methodcode"];
+            formCostChange.REMARK_ITEM = f["remarkItem"];
+            //formCostChange.REMARK_QTY = f["remarkQty"];
+            //formCostChange.REMARK_PRICE = f["remarkPrice"];
+            //formCostChange.REMARK_OTHER = f["remarkOther"];
+            formCostChange.MODIFY_DATE = DateTime.Now;
+            formCostChange.MODIFY_USER_ID = u.USER_ID;
+            logger.Debug("Item Id=" + f["uid"] + "," + f["itemdesc"]);
+            if (null != f["uid"])
+            {
+                string[] itemId = f["uid"].Split(',');
+                string[] itemdesc = f["itemdesc"].Split(',');
+                string[] itemunit = f["itemunit"].Split(',');
+                string[] itemUnitPrice = f["itemUnitPrice"].Split(',');
+                string[] itemUnitCost = null;
+                if (null != f["itemUnitCost"])
+                {
+                    itemUnitCost = f["itemUnitCost"].Split(',');
+                }
+                string[] itemQty = f["itemQty"].Split(',');
+                string[] itemRemark = f["itemRemark"].Split(',');
+
+                for (int i = 0; i < itemId.Length; i++)
+                {
+                    PLAN_COSTCHANGE_ITEM it = new PLAN_COSTCHANGE_ITEM();
+                    it.ITEM_UID = long.Parse(itemId[i]);
+                    it.ITEM_DESC = itemdesc[i];
+                    it.ITEM_UNIT = itemunit[i];
+                    if (itemUnitPrice[i] != "")
+                    {
+                        it.ITEM_UNIT_PRICE = decimal.Parse(itemUnitPrice[i]);
+                    }
+                    if (itemUnitCost!=null && itemUnitCost[i] != "")
+                    {
+                        it.ITEM_UNIT_COST = decimal.Parse(itemUnitCost[i]);
+                    }
+                    if (itemQty[i] != "")
+                    {
+                        it.ITEM_QUANTITY = decimal.Parse(itemQty[i]);
+                    }
+                    it.ITEM_REMARK = itemRemark[i];
+                    if (null != f["transFlg." + itemId[i]])
+                    {
+                        it.TRANSFLAG = f["transFlg." + itemId[i]];
+                    }
+                    else
+                    {
+                        it.TRANSFLAG = "0";
+                    }
+                    logger.Debug(it.ITEM_UID + "," + it.ITEM_DESC + "," + it.ITEM_UNIT_PRICE + "," + it.ITEM_QUANTITY + "," + it.ITEM_REMARK + "," + it.TRANSFLAG);
+                    it.MODIFY_DATE = DateTime.Now;
+                    it.MODIFY_USER_ID = u.USER_ID;
+                    lstItemId.Add(it);
+                }
+            }
+        }
+
         //資料轉換
         private IEnumerable<PLAN_COSTCHANGE_ITEM> getItem(string prefix, string[] aryPlanItemIds)
         {
@@ -1052,10 +1067,12 @@ namespace topmeperp.Controllers
             return "修改成功";
         }
         //上傳異動單
-        public string uploadCostChangeForm(HttpPostedFileBase file1)
+        public string uploadCostChangeForm()
         {
             string projectid = Request["projectid"];
             string fromid = Request["formid"];
+            string reurnMsg = "";
+            HttpPostedFileBase file1 = Request.Files[0];
             logger.Debug("ProjectID=" + projectid + ",Upload ProjectItem=" + file1.FileName);
             SYS_USER u = (SYS_USER)Session["user"];
 
@@ -1078,18 +1095,14 @@ namespace topmeperp.Controllers
                     poi4CostChangeService poiService = new poi4CostChangeService();
                     poiService.setUser(u);
                     poiService.getDataFromExcel(path, projectid, fromid);
-                    //System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-                    //string itemJson = objSerializer.Serialize(poiService.project);
-                    //logger.Info("project info=" + itemJson);
-                    //itemJson = objSerializer.Serialize(poiService.costChangeForm);
-                    //logger.Info("form info=" + itemJson);
-                    //itemJson = objSerializer.Serialize(poiService.lstItem);
-                    //logger.Info("item info=" + itemJson);
                     //2.3 寫入資料
                     CostChangeService s = new CostChangeService();
                     if (null == poiService.costChangeForm.FORM_ID || poiService.costChangeForm.FORM_ID == "")
                     {
-                        s.createChangeOrder(poiService.costChangeForm, poiService.lstItem);
+                        reurnMsg = s.createChangeOrder(poiService.costChangeForm, poiService.lstItem);
+                        //建立審核程序
+                        Flow4CostChange wfs = new Flow4CostChange();
+                        wfs.iniRequest(u, reurnMsg);
                     }
                     else
                     {
@@ -1103,7 +1116,8 @@ namespace topmeperp.Controllers
                     return ex.Message;
                 }
             }
-            return "匯入成功!!";
+            Response.Redirect("/Plan/costChangeForm/" + reurnMsg);
+            return reurnMsg;
 
         }
         //上傳業主合約檔案
@@ -1181,7 +1195,14 @@ namespace topmeperp.Controllers
 
             SYS_USER u = (SYS_USER)Session["user"];
 
-             string method = null;
+            //審核過程同時修改資料
+            PLAN_COSTCHANGE_FORM formCostChange = new PLAN_COSTCHANGE_FORM();
+            List<PLAN_COSTCHANGE_ITEM> lstItemId = new List<PLAN_COSTCHANGE_ITEM>();
+            getCostChangeForm(f, u, f["txtFormId"].ToString(), formCostChange, lstItemId);
+            CostChangeService s = new CostChangeService();
+            s.updateChangeOrder(formCostChange, lstItemId);
+
+            string method = null;
             string reason = null;
             string desc = null;
             DateTime? settlementDate = null;
@@ -1212,8 +1233,10 @@ namespace topmeperp.Controllers
             {
                 settlementDate = Convert.ToDateTime(f["settlementDate"].ToString().Trim());
             }
-            wfs.Send(u, desc, method, settlementDate);
-            
+            ///需要加入Form 資料
+            ///
+            wfs.Send(u, desc, reason, method, settlementDate);
+
             return "更新成功!!";
         }
         //退件

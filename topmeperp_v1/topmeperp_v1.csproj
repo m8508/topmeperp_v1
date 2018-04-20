@@ -1103,6 +1103,7 @@
     <Content Include="Views\BankInfo\SupplierLoanList.cshtml" />
     <Content Include="Views\CostChange\Index.cshtml" />
     <Content Include="Views\CostChange\_ChangeFormList.cshtml" />
+    <Content Include="Views\CostChange\_ChangeOrderItemList.cshtml" />
     <Content Include="Views\CostChange\costChangeForm.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
