@@ -16,10 +16,11 @@
                 <input type="text" id="remark" name="remark" class="form-control" />
             </div>
             <div class="col-sm-3">
-                <button type="button" class="btn btn-info" onclick="getFormList()">查詢</button>
+                <input type="checkbox" id="noInquiry" name="noInquiry" value="Y"/>全部
                 <div id="divProcessing">
                     <img src="~/Content/ajax-loader.gif">
                 </div>
+                <button type="button" class="btn btn-info" onclick="getFormList()">查詢</button>
             </div>
         </div>
     </form>

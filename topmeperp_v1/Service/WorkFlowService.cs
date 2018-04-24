@@ -335,7 +335,11 @@ namespace topmeperp.Service
                         R.REQ_USER_ID,R.CURENT_STATE,R.PID,
 						(SELECT TOP 1 MANAGER FROM ENT_DEPARTMENT WHERE DEPT_CODE=CT.DEP_CODE) MANAGER,
                         CT.* ,M.FORM_URL + METHOD_URL as FORM_URL
-						FROM (SELECT fef.EXP_FORM_ID,fef.PROJECT_ID,fef.OCCURRED_YEAR,fef.OCCURRED_MONTH,PAYEE,fef.PAYMENT_DATE, fef.REMARK,fef.REJECT_DESC, SUM(fei.AMOUNT) AS PAID_AMOUNT FROM FIN_EXPENSE_FORM fef LEFT JOIN FIN_EXPENSE_ITEM fei ON fef.EXP_FORM_ID = fei.EXP_FORM_ID GROUP BY fef.EXP_FORM_ID,fef.PROJECT_ID,fef.OCCURRED_YEAR,fef.OCCURRED_MONTH,PAYEE,fef.PAYMENT_DATE, fef.REMARK,fef.REJECT_DESC)F,WF_PROCESS_REQUEST R,
+						FROM (SELECT fef.EXP_FORM_ID,fef.PROJECT_ID,fef.OCCURRED_YEAR,fef.OCCURRED_MONTH,PAYEE,fef.PAYMENT_DATE, 
+                        fef.REMARK,fef.REJECT_DESC, fef.STATUS,SUM(fei.AMOUNT) AS PAID_AMOUNT 
+                        FROM FIN_EXPENSE_FORM fef LEFT JOIN FIN_EXPENSE_ITEM fei ON fef.EXP_FORM_ID = fei.EXP_FORM_ID 
+                        GROUP BY fef.EXP_FORM_ID,fef.PROJECT_ID,fef.OCCURRED_YEAR,fef.OCCURRED_MONTH,PAYEE,fef.STATUS,
+                        fef.PAYMENT_DATE, fef.REMARK,fef.REJECT_DESC)F,WF_PROCESS_REQUEST R,
                         WF_PORCESS_TASK CT ,
 		                (SELECT P.PID,A.SEQ_ID,FORM_URL,METHOD_URL  FROM WF_PROCESS P,WF_PROCESS_ACTIVITY A WHERE P.PID=A.PID ) M
                         WHERE F.EXP_FORM_ID= R.DATA_KEY AND R.RID=CT.RID AND R.CURENT_STATE=CT.SEQ_ID
@@ -944,7 +948,7 @@ namespace topmeperp.Service
         public string FLOW_KEY = "CCH01";
         public new CostChangeFormTask task;//CostChangeFormTask
         //處理SQL 預先填入專案代號,設定集合處理參數
-        string sql = @"SELECT F.FORM_ID,F.PROJECT_ID,F.REJECT_DESC REJECT_DESC,F.REMARK_ITEM, F.REMARK_QTY,F.REMARK_PRICE,F.REMARK_OTHER,
+        string sql = @"SELECT F.FORM_ID,F.PROJECT_ID,F.REJECT_DESC REJECT_DESC,F.REMARK_ITEM, F.REMARK_QTY,F.REMARK_PRICE,F.REMARK_OTHER,F.STATUS,
                         R.REQ_USER_ID,R.CURENT_STATE,R.PID,
 						(SELECT TOP 1 MANAGER FROM ENT_DEPARTMENT WHERE DEPT_CODE=CT.DEP_CODE) MANAGER,
                         CT.* ,M.FORM_URL + METHOD_URL as FORM_URL
@@ -1021,7 +1025,7 @@ namespace topmeperp.Service
         }
 
         //送審
-        public void Send(SYS_USER u, string reason, string methodCode, DateTime? settlementDate)
+        public void Send(SYS_USER u, string desc,string reason, string methodCode, DateTime? settlementDate)
         {
             logger.Debug("CostChange Request Send" + task.task.ID);
             base.task = task;
@@ -1037,21 +1041,22 @@ namespace topmeperp.Service
                 {
                     staus = 30;
                 }
-                staus = updateForm(reason, staus, methodCode, settlementDate);
+                staus = updateForm(reason, staus, reason, methodCode, settlementDate);
             }
         }
         //更新資料庫資料
-        protected int updateForm(string reason, int staus, string method, DateTime? settlementDate)
+        protected int updateForm(string desc, int staus,string reason, string method, DateTime? settlementDate)
         {
-            string sql = @"UPDATE PLAN_COSTCHANGE_FORM SET STATUS=@status,REJECT_DESC=@rejectDesc,METHOD_CODE=@Methodcode, SETTLEMENT_DATE=@settlementDate 
-                            WHERE FORM_ID=@formId";
+            string sql = @"UPDATE PLAN_COSTCHANGE_FORM SET STATUS=@status,REJECT_DESC=@rejectDesc,
+                           REASON_CODE=@reason,METHOD_CODE=@Methodcode,SETTLEMENT_DATE=@settlementDate 
+                           WHERE FORM_ID=@formId";
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("formId", task.FormData.FORM_ID));
             parameters.Add(new SqlParameter("status", staus));
 
-            if (null == reason)
+            if (null == desc)
             {
-                parameters.Add(new SqlParameter("rejectDesc", DBNull.Value));
+                sql = sql.Replace(",REJECT_DESC=@rejectDesc", "");
             }
             else
             {
@@ -1060,15 +1065,24 @@ namespace topmeperp.Service
 
             if (null == settlementDate)
             {
-                parameters.Add(new SqlParameter("settlementDate", DBNull.Value));
+                sql = sql.Replace(",SETTLEMENT_DATE=@settlementDate", "");
             }
             else
             {
                 parameters.Add(new SqlParameter("settlementDate", settlementDate));
             }
+            if (null == reason)
+            {
+                sql = sql.Replace(",REASON_CODE=@reason", "");
+            }
+            else
+            {
+                parameters.Add(new SqlParameter("reason", reason));
+            }
+
             if (null == method)
             {
-                parameters.Add(new SqlParameter("Methodcode", DBNull.Value));
+                sql = sql.Replace(",METHOD_CODE=@Methodcode", "");
             }
             else
             {
@@ -1092,7 +1106,7 @@ namespace topmeperp.Service
             base.Reject(u, reason);
             if (statusChange != "F")
             {
-                updateForm(reason, 0, null, null);
+                updateForm(reason, 0,null, null, null);
             }
         }
         //中止

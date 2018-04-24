@@ -16,7 +16,7 @@ namespace topmeperp.Controllers
         public ActionResult Index()
         {
             CostChangeService cs = new CostChangeService();
-            SelectList lstProject = new SelectList(cs.SearchProjectByName("", "專案執行"), "PROJECT_ID", "PROJECT_NAME");
+            SelectList lstProject = new SelectList(PlanService.SearchProjectByName("", "專案執行"), "PROJECT_ID", "PROJECT_NAME");
             ViewData.Add("projects", lstProject);
             return View();
         }
@@ -25,9 +25,10 @@ namespace topmeperp.Controllers
         {
             string projectId = Request["projects"];
             string remark = Request["remark"];
+            string noInquiry = Request["noInquiry"];
             CostChangeService cs = new CostChangeService();
             //取得通過審核之異動單資料 STATUS=30
-            List<CostChangeForm> lst = cs.getCostChangeForm(projectId, "30", remark);
+            List<CostChangeForm> lst = cs.getCostChangeForm(projectId, "30", remark, noInquiry);
             ViewBag.SearchResult = "共取得" + lst.Count + "筆資料!!";
             return PartialView("_ChangeFormList",lst);
         }
@@ -56,6 +57,20 @@ namespace topmeperp.Controllers
             SelectList methodcode = new SelectList(SystemParameter.getSystemPara("COSTHANGE", "METHOD"), "KEY_FIELD", "VALUE_FIELD", cs.form.METHOD_CODE);
             ViewData.Add("methodcode", methodcode);
             return View(wfs.task);
+        }
+        /// <summary>
+        /// 建立詢價單並轉至詢價單頁面
+        /// </summary>
+        public void createInquiryOrder()
+        {
+            string formId = Request["formId"];
+            logger.Debug("formId=" + formId);
+            SYS_USER u = (SYS_USER)Session["user"];
+            CostChangeService cs = new CostChangeService();
+            string inquiryFormId= cs.createInquiryOrderByChangeForm(formId,u);
+            string url = "~/PurchaseForm/SinglePrjForm/" + inquiryFormId + "?update=Y";
+            logger.Debug("Redirector:" + url);
+            Response.Redirect(url);
         }
     }
 }

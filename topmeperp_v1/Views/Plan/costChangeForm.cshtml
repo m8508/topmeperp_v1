@@ -41,21 +41,23 @@
                     <label class="control-label">異動單號:</label>
                     <input class="form-control" type="text" id="txtFormId" name="txtFormId" value="@ViewBag.FormId" readonly />
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-6">
                     @Html.Raw("<label class=control-label' for='methodcode'>異動原因</label>")
                     @Html.DropDownList("reasoncode", null, String.Empty, new { @class = "form-control" })
+                    @Html.Raw("<label class=control-label' for='methodcode'>財務處理</label>")
+                    @Html.DropDownList("methodcode", null, String.Empty, new { @class = "form-control" })
                 </div>
                 <div class="col-sm-3">
                     <a class="btn btn-link" href="/Plan/downloadCostChangeForm?formId=@ViewBag.FormId" target="_blank">下載</a>
                     @if (ViewBag.formStatus == "10")
                     {
-                    <button class="btn btn-link" data-toggle="modal" data-target="#formUploadItem" type="button">上傳</button>
+                        <button class="btn btn-link" data-toggle="modal" data-target="#formUploadItem" type="button">上傳</button>
                     }
                 </div>
             </div>
 
             <div class="row body-content">
-            @if (null != Model)
+                @if (null != Model)
             {
                 Html.RenderPartial("_ChangeOrderItemList");
             }
@@ -69,33 +71,33 @@
             }
             <div class="row form-inline" style="margin-top:3px">
                 <div class="col-md-12">
-                    <label class="control-label" for="remarkItem">項目增減說明</label>
+                    <label class="control-label" for="remarkItem">增減原因說明(請針對項目、數量、價格或其他原因詳述)</label>
                     <textarea class="form-control" rows="3" cols="60" id="remarkItem" name="remarkItem">@Html.DisplayFor(model => model.FormData.REMARK_ITEM)</textarea>
-                    <label class="control-label" for="remarkQty">數量增減說明</label>
-                    <textarea class="form-control" rows="3" cols="60" id="remarkQty" name="remarkQty">@Html.DisplayFor(model => model.FormData.REMARK_QTY)</textarea>
                 </div>
             </div>
+            <!--
             <div class="row form-inline">
                 <div class="col-md-12">
+                   <label class="control-label" for="remarkQty">數量增減說明</label>
+                    <textarea class="form-control" rows="3" cols="60" id="remarkQty" name="remarkQty">@Html.DisplayFor(model => model.FormData.REMARK_QTY)</textarea>
+
                     <label class="control-label" for="remarkQty">價格增減說明</label>
                     <textarea class="form-control" rows="3" cols="60" id="remarkPrice" name="remarkPrice">@Html.DisplayFor(model => model.FormData.REMARK_PRICE)</textarea>
                     <label class="control-label" for="remarkQty">其他說明事項</label>
                     <textarea class="form-control" rows="3" cols="60" id="remarkOther" name="remarkOther">@Html.DisplayFor(model => model.FormData.REMARK_OTHER)</textarea>
                 </div>
             </div>
+                -->
         </div>
-        <div class="row" style="margin-top:3px">
+        <div class="row">
             <!--退件或草稿可進行增修-->
             @if (Model.FormData.STATUS == "20")
             {
-                <div class="col-sm-6">
-                    @Html.Raw("<label class=control-label' for='methodcode'>財務處理</label>")
-                    @Html.DropDownList("methodcode", null, String.Empty, new { @class = "form-control" })
+                <div class="col-sm-2">
                     <input name="settlementDate" class="form-control" id="settlementDate" type="text" value="@ViewBag.settlementDate" placeholder="結算日期">
                 </div>
             }
-        </div>
-        <div class="row">
+
             @Html.Partial("~/Views/include/_WorkFlowFunction.cshtml")
         </div>
     </form>
@@ -319,7 +321,9 @@
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
-                window.close();
+                if(msg=="更新成功!!"){
+                    window.close();
+                }
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);

@@ -175,6 +175,10 @@ namespace topmeperp.Service
                         {
                             item.ITEM_UNIT_PRICE = pi.ITEM_UNIT_PRICE;
                         }
+                        if (pi != null && item.ITEM_UNIT_COST == null)
+                        {
+                            item.ITEM_UNIT_COST = pi.ITEM_UNIT_COST;
+                        }
                     }
                     item.FORM_ID = form.FORM_ID;
                     item.PROJECT_ID = form.PROJECT_ID;
@@ -210,11 +214,12 @@ namespace topmeperp.Service
         public string updateChangeOrder(PLAN_COSTCHANGE_FORM form, List<PLAN_COSTCHANGE_ITEM> lstItem)
         {
             int i = 0;
-            string sqlForm = @"UPDATE PLAN_COSTCHANGE_FORM SET REASON_CODE=@Reasoncode,
-                            REMARK_ITEM=@RemarkItem,REMARK_QTY=@RemarkQty,REMARK_PRICE=@RemarkPrice,REMARK_OTHER=@RemarkOther,
+            string sqlForm = @"UPDATE PLAN_COSTCHANGE_FORM SET REASON_CODE=@Reasoncode,METHOD_CODE=@methodCode,
+                            REMARK_ITEM=@RemarkItem,REMARK_QTY=Null,REMARK_PRICE=Null,REMARK_OTHER=Null,
                             MODIFY_USER_ID=@userId,MODIFY_DATE=@modifyDate WHERE FORM_ID=@formId;";
-            string sqlItem = @"UPDATE PLAN_COSTCHANGE_ITEM SET ITEM_DESC=@itemdesc,ITEM_UNIT=@unit,ITEM_UNIT_PRICE=@unitPrice,
-                              ITEM_QUANTITY=@Qty,ITEM_REMARK=@remark,TRANSFLAG=@transFlag,MODIFY_USER_ID=@userId,MODIFY_DATE=@modifyDate WHERE ITEM_UID=@uid";
+            string sqlItem = @"UPDATE PLAN_COSTCHANGE_ITEM SET ITEM_DESC=@itemdesc,ITEM_UNIT=@unit,ITEM_UNIT_PRICE=@unitPrice,ITEM_UNIT_COST=@unitCost,
+                              ITEM_QUANTITY=@Qty,ITEM_REMARK=@remark,TRANSFLAG=@transFlag,MODIFY_USER_ID=@userId,MODIFY_DATE=@modifyDate 
+                              WHERE ITEM_UID=@uid";
             //2.將資料寫入 
 
             using (var context = new topmepEntities())
@@ -225,10 +230,11 @@ namespace topmeperp.Service
                     context.Database.BeginTransaction();
                     var parameters = new List<SqlParameter>();
                     parameters.Add(new SqlParameter("Reasoncode", form.REASON_CODE));
+                    parameters.Add(new SqlParameter("methodCode", form.METHOD_CODE));
                     parameters.Add(new SqlParameter("RemarkItem", form.REMARK_ITEM));
-                    parameters.Add(new SqlParameter("RemarkQty", form.REMARK_QTY));
-                    parameters.Add(new SqlParameter("RemarkPrice", form.REMARK_PRICE));
-                    parameters.Add(new SqlParameter("RemarkOther", form.REMARK_OTHER));
+                   // parameters.Add(new SqlParameter("RemarkQty", form.REMARK_QTY));
+                   // parameters.Add(new SqlParameter("RemarkPrice", form.REMARK_PRICE));
+                   // parameters.Add(new SqlParameter("RemarkOther", form.REMARK_OTHER));
                     parameters.Add(new SqlParameter("userId", form.MODIFY_USER_ID));
                     parameters.Add(new SqlParameter("modifyDate", form.MODIFY_DATE));
                     parameters.Add(new SqlParameter("formId", form.FORM_ID));
@@ -246,6 +252,14 @@ namespace topmeperp.Service
                         else
                         {
                             parameters.Add(new SqlParameter("unitPrice", DBNull.Value));
+                        }
+                        if (item.ITEM_UNIT_COST != null)
+                        {
+                            parameters.Add(new SqlParameter("unitCost", item.ITEM_UNIT_COST));
+                        }
+                        else
+                        {
+                            parameters.Add(new SqlParameter("unitCost", DBNull.Value));
                         }
                         if (item.ITEM_QUANTITY == null)
                         {
@@ -317,29 +331,8 @@ namespace topmeperp.Service
             }
             return i;
         }
-        //異動單採購程序
-        public List<TND_PROJECT> SearchProjectByName(string projectname, string status)
-        {
-            if (projectname != null)
-            {
-                logger.Info("search project by 名稱 =" + projectname);
-                List<topmeperp.Models.TND_PROJECT> lstProject = new List<TND_PROJECT>();
-                using (var context = new topmepEntities())
-                {
-                    lstProject = context.TND_PROJECT.SqlQuery("SELECT * FROM TND_PROJECT p "
-                        + "WHERE P.PROJECT_NAME Like '%' + @projectname + '%' AND STATUS=@status;",
-                         new SqlParameter("projectname", projectname), new SqlParameter("status", status)).ToList();
-                }
-                logger.Info("get project count=" + lstProject.Count);
-                return lstProject;
-            }
-            else
-            {
-                return null;
-            }
-        }
         //取得成本異動單資料
-        public List<CostChangeForm> getCostChangeForm(string projectId, string status,string remark)
+        public List<CostChangeForm> getCostChangeForm(string projectId, string status,string remark,string noInquiry)
         {
             logger.Debug("get costchange form for project id=" + projectId);
             List<CostChangeForm> lst = null;
@@ -349,6 +342,13 @@ namespace topmeperp.Service
                     (SELECT  VALUE_FIELD FROM SYS_PARA　
                     WHERE FUNCTION_ID='COSTHANGE' AND FIELD_ID='METHOD' AND KEY_FIELD=F.METHOD_CODE ) METHOD
                      FROM PLAN_COSTCHANGE_FORM F WHERE PROJECT_ID=@projectId ";
+            if (null == noInquiry)
+            {
+                sql = sql + " AND INQUIRY_FORM_ID IS NULL";
+            } else
+            {
+                
+            }
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("projectId", projectId));
             if (null != status && status != "")
@@ -374,6 +374,59 @@ namespace topmeperp.Service
                 }
             }
             return lst;
+        }
+        /// <summary>
+        /// 依據成本異動單建立詢價單
+        /// </summary>
+        public string createInquiryOrderByChangeForm(string formId,SYS_USER u)
+        {
+            //取得異動單資料
+            getChangeOrderForm(formId);
+            logger.Info("create new [PLAN_SUP_INQUIRY] from CostChange Order= "+ formId);
+            string sno_key = "PC";
+            SerialKeyService snoservice = new SerialKeyService();
+
+            using (var context = new topmepEntities())
+            {
+                //1.取得異動單相關資訊
+                //2,建立表頭
+                PLAN_SUP_INQUIRY pf = new PLAN_SUP_INQUIRY();
+                pf.INQUIRY_FORM_ID = snoservice.getSerialKey(sno_key);
+                pf.PROJECT_ID = form.PROJECT_ID;
+                pf.FORM_NAME = "(成本異動)" + form.REMARK_ITEM;
+                //聯絡人基本資料
+                pf.OWNER_NAME = u.USER_NAME;
+                pf.OWNER_EMAIL = u.EMAIL;
+                pf.OWNER_TEL = u.TEL + "-" + u.TEL_EXT;
+                pf.OWNER_FAX = u.FAX;
+                pf.CREATE_ID = u.USER_ID;
+                pf.CREATE_DATE = DateTime.Now;
+
+                context.PLAN_SUP_INQUIRY.Add(pf);
+                int i = context.SaveChanges();
+                logger.Info("plan form id = " + pf.INQUIRY_FORM_ID);               
+                //3建立詢價單明細
+                string sql = @"INSERT INTO PLAN_SUP_INQUIRY_ITEM 
+                        (INQUIRY_FORM_ID,PLAN_ITEM_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT,ITEM_QTY,ITEM_UNIT_PRICE,ITEM_REMARK)
+                        SELECT @InquiryFormId INQUIRY_FORM_ID,PLAN_ITEM_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT,ITEM_QUANTITY ITEM_QTY,ITEM_UNIT_COST ITEM_UNICE_PRICE,ITEM_REMARK 
+                         FROM PLAN_COSTCHANGE_ITEM WHERE FORM_ID=@formId";
+                logger.Info("sql =" + sql);
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("InquiryFormId", pf.INQUIRY_FORM_ID));
+                parameters.Add(new SqlParameter("formId", formId));
+                i = context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+                //4.將成本異動單更新相關的詢價單資料
+                sql = @"UPDATE PLAN_COSTCHANGE_FORM SET INQUIRY_FORM_ID=@InquiryFormId,
+                            MODIFY_USER_ID = @userId, MODIFY_DATE = @modifyDate WHERE FORM_ID = @formId; ";
+                logger.Info("sql =" + sql);
+                parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("InquiryFormId", pf.INQUIRY_FORM_ID));
+                parameters.Add(new SqlParameter("formId", formId));
+                parameters.Add(new SqlParameter("userId", u.USER_ID));
+                parameters.Add(new SqlParameter("modifyDate",DateTime.Now));
+                i = context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+                return pf.INQUIRY_FORM_ID;
+            }
         }
     }
 }

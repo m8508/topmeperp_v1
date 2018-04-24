@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("topmep.com")]
 [assembly: AssemblyProduct("topmeperp")]
-[assembly: AssemblyCopyright("Copyright (C)  2017")]
+[assembly: AssemblyCopyright("Copyright (C)  2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -31,5 +31,5 @@ using System.Runtime.InteropServices;
 //
 // 您可以指定所有值或預設修訂和組件數目
 // 指定為預設值:
-[assembly: AssemblyVersion("1.0.1.2")]
-[assembly: AssemblyFileVersion("1.0.1.2")]
+[assembly: AssemblyVersion("1.0.1.6")]
+[assembly: AssemblyFileVersion("1.0.1.6")]

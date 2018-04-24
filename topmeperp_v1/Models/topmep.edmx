@@ -220,6 +220,7 @@
           <Property Name="CREATE_USER_ID" Type="varchar" MaxLength="30" />
           <Property Name="CREATE_DATE" Type="datetime" />
           <Property Name="STATUS" Type="varchar" MaxLength="3" />
+          <Property Name="INQUIRY_FORM_ID" Type="varchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="PLAN_COSTCHANGE_ITEM">
           <Key>
@@ -234,6 +235,7 @@
           <Property Name="ITEM_UNIT" Type="varchar" MaxLength="10" />
           <Property Name="ITEM_QUANTITY" Type="decimal" Precision="18" Scale="3" />
           <Property Name="ITEM_UNIT_PRICE" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="ITEM_UNIT_COST" Type="decimal" Precision="18" Scale="3" />
           <Property Name="ITEM_REMARK" Type="varchar" MaxLength="1000" />
           <Property Name="MODIFY_USER_ID" Type="varchar" MaxLength="30" />
           <Property Name="MODIFY_DATE" Type="datetime" />
@@ -2411,6 +2413,7 @@
           <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
           <Property Name="STATUS" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="PLAN_COSTCHANGE_ITEM" Relationship="topmepModel.FK_PLAN_COS_REFERENCE_PLAN_COS" FromRole="PLAN_COSTCHANGE_FORM" ToRole="PLAN_COSTCHANGE_ITEM" />
+          <Property Name="INQUIRY_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="PLAN_COSTCHANGE_ITEM">
           <Key>
@@ -2433,6 +2436,7 @@
           <Property Name="EXCEL_ROW_ID" Type="Int64" />
           <Property Name="TRANSFLAG" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="PLAN_COSTCHANGE_FORM" Relationship="topmepModel.FK_PLAN_COS_REFERENCE_PLAN_COS" FromRole="PLAN_COSTCHANGE_ITEM" ToRole="PLAN_COSTCHANGE_FORM" />
+          <Property Name="ITEM_UNIT_COST" Type="Decimal" Precision="18" Scale="3" />
         </EntityType>
         <Association Name="FK_PLAN_COS_REFERENCE_PLAN_COS">
           <End Type="topmepModel.PLAN_COSTCHANGE_FORM" Role="PLAN_COSTCHANGE_FORM" Multiplicity="0..1" />
@@ -3587,6 +3591,7 @@
           <EntitySetMapping Name="PLAN_COSTCHANGE_FORM">
             <EntityTypeMapping TypeName="topmepModel.PLAN_COSTCHANGE_FORM">
               <MappingFragment StoreEntitySet="PLAN_COSTCHANGE_FORM">
+                <ScalarProperty Name="INQUIRY_FORM_ID" ColumnName="INQUIRY_FORM_ID" />
                 <ScalarProperty Name="STATUS" ColumnName="STATUS" />
                 <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
                 <ScalarProperty Name="CREATE_USER_ID" ColumnName="CREATE_USER_ID" />
@@ -3608,6 +3613,7 @@
           <EntitySetMapping Name="PLAN_COSTCHANGE_ITEM">
             <EntityTypeMapping TypeName="topmepModel.PLAN_COSTCHANGE_ITEM">
               <MappingFragment StoreEntitySet="PLAN_COSTCHANGE_ITEM">
+                <ScalarProperty Name="ITEM_UNIT_COST" ColumnName="ITEM_UNIT_COST" />
                 <ScalarProperty Name="TRANSFLAG" ColumnName="TRANSFLAG" />
                 <ScalarProperty Name="EXCEL_ROW_ID" ColumnName="EXCEL_ROW_ID" />
                 <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />

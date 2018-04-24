@@ -24,7 +24,7 @@ namespace topmeperp.Controllers
         [topmeperp.Filter.AuthFilter]
         public ActionResult Index()
         {
-            List<ProjectList> lstProject = SearchProjectByName("", "專案執行");
+            List<ProjectList> lstProject = PlanService.SearchProjectByName("", "專案執行");
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
 
             //畫面上權限管理控制
@@ -44,26 +44,6 @@ namespace topmeperp.Controllers
             return View(lstProject);
         }
 
-        private List<ProjectList> SearchProjectByName(string projectname, string status)
-        {
-            if (projectname != null)
-            {
-                logger.Info("search project by 名稱 =" + projectname);
-                List<ProjectList> lstProject = new List<ProjectList>();
-                using (var context = new topmepEntities())
-                {
-                    lstProject = context.Database.SqlQuery<ProjectList>("select DISTINCT p.*, convert(varchar, pi.CREATE_DATE , 111) as PLAN_CREATE_DATE from TND_PROJECT p left join PLAN_ITEM pi "
-                        + "on p.PROJECT_ID = pi.PROJECT_ID where p.PROJECT_NAME Like '%' + @projectname + '%' AND STATUS=@status;",
-                         new SqlParameter("projectname", projectname), new SqlParameter("status", status)).ToList();
-                }
-                logger.Info("get project count=" + lstProject.Count);
-                return lstProject;
-            }
-            else
-            {
-                return null;
-            }
-        }
         //廠商估驗計價
         public ActionResult Valuation(string id)
         {
@@ -219,18 +199,18 @@ namespace topmeperp.Controllers
             //UnApproval = service.getEstNoByContractId(contractid);
             //if (UnApproval != null && "" != UnApproval)
             //{
-                //TempData["result"] = "目前尚有未核准的估驗單，估驗單編號為" + UnApproval + "，待此單核准後再新增估驗單!";
-                //return RedirectToAction("Valuation", "Estimation", new { id = Request["projectid"] });
+            //TempData["result"] = "目前尚有未核准的估驗單，估驗單編號為" + UnApproval + "，待此單核准後再新增估驗單!";
+            //return RedirectToAction("Valuation", "Estimation", new { id = Request["projectid"] });
             //}
             //else
             //{
-                //更新估驗單
-                logger.Info("update Estimation Form");
-                //估驗單草稿 STATUS = 10
-                int k = service.UpdateESTStatusById(Request["formid"]);
-                Flow4Estimation flowService = new Flow4Estimation();
-                flowService.iniRequest(uInfo, Request["formid"]);
-                return RedirectToAction("SingleEST", "Estimation", new { id = Request["formid"] });
+            //更新估驗單
+            logger.Info("update Estimation Form");
+            //估驗單草稿 STATUS = 10
+            int k = service.UpdateESTStatusById(Request["formid"]);
+            Flow4Estimation flowService = new Flow4Estimation();
+            flowService.iniRequest(uInfo, Request["formid"]);
+            return RedirectToAction("SingleEST", "Estimation", new { id = Request["formid"] });
             //}
         }
 
@@ -508,7 +488,7 @@ namespace topmeperp.Controllers
             logger.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
             //PaymentDetailsFunction lstSummary = service.getDetailsPayById(id, singleForm.planEST.CONTRACT_ID);
             PaymentDetailsFunction lstSummary = service.getDetailsPayById(id, id);
-            PaymentDetailsFunction pay = service.getDetailsPayById(id,id);
+            PaymentDetailsFunction pay = service.getDetailsPayById(id, id);
             ViewBag.loanAmount = 0;
             if (pay.LOAN_AMOUNT != 0)
             {
@@ -771,7 +751,7 @@ namespace topmeperp.Controllers
             string indirectCostType = "";
             if (null != form.Get("indirect_cost_type").Trim() && form.Get("indirect_cost_type").Trim() != "")
             {
-                indirectCostType  = form.Get("indirect_cost_type").Trim();
+                indirectCostType = form.Get("indirect_cost_type").Trim();
             }
             DateTime? paymentDate = null;
             if (form.Get("paymentDate").Trim() != "")
@@ -2376,6 +2356,10 @@ namespace topmeperp.Controllers
             ViewBag.projectName = p.PROJECT_NAME;
             //取得付款條件
             PaymentTermsFunction payment = service.getPaymentTerm(id, id);
+            if (null == payment)
+            {
+                payment = new PaymentTermsFunction();
+            }
             if (payment.PAYMENT_RETENTION_RATIO != null)
             {
                 ViewBag.retention = (null == payment.PAYMENT_RETENTION_RATIO ? 0 : payment.PAYMENT_RETENTION_RATIO);

@@ -869,7 +869,7 @@ namespace topmeperp.Controllers
             }
             return msg;
         }
-
+        //會計稽核作業
         public ActionResult SearchForm4Journal()
         {
             logger.Info("occurred_date =" + Request["occurred_date"] + ", subjectname =" + Request["subjectname"] + ", expid =" + Request["expid"] + ", status =" + int.Parse(Request["status"]) + ", projectid =" + Request["id"]);
