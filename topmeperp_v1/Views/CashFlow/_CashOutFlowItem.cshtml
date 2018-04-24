@@ -13,16 +13,16 @@
                     專案名稱/摘要說明
                 </th>
                 <th>
-                    應收金額
+                    應付金額
                 </th>
                 <th>
-                    實收金額
+                    實付金額
                 </th>
                 <th>
-                    預計入帳日期
+                    預計付款日期
                 </th>
                 <th>
-                    支票號碼
+                    受款人
                 </th>
                 <th>
                     暫不入帳
@@ -42,7 +42,7 @@
                     <td>@String.Format("{0:$#,##0.#}", item.AMOUNT_PAYABLE)</td>
                     <td>@String.Format("{0:$#,##0.#}", item.AMOUNT_PAID)</td>
                     <td>@item.RECORDED_DATE</td>
-                    <td>@item.CHECK_NO</td>
+                    <td>@item.PAYEE</td>
                     @if (item.STATUS != 10)
                     {
                         <td><span style="color: red; font-size: 15px;">是</span></td>
@@ -56,7 +56,7 @@
         </table>
     </form>
 </div>
-<h3 class="text-left" style="padding-top:20px;">銀行借款/廠商還款 :</h3>
+<h3 class="text-left" style="padding-top:20px;">借款還款/廠商借款 :</h3>
 <table class="table table-bordered">
     <tr>
         <th>
@@ -78,11 +78,11 @@
         <tr>
             @if (item.IS_SUPPLIER == "Y")
             {
-                <td>廠商還款</td>
+                <td>廠商借款</td>
             }
             else
             {
-                <td>銀行借款</td>
+                <td>借款還款</td>
 
             }
             <td>@String.Format("{0:$#,##0.#}", item.AMOUNT)</td>
@@ -98,3 +98,37 @@
         </tr>
     }
 </table>
+<h3 class="text-left" style="padding-top:20px;">當日須支付明細 :</h3>
+<table class="table table-bordered">
+    <tr>
+        <th>
+            日期
+        </th>
+        <th>
+            受款人
+        </th>
+        <th>
+            支付金額
+        </th>
+        <th>
+            原應付金額
+        </th>
+        <th>
+            已還款金額
+        </th>
+    </tr>
+
+    @foreach (var item in Model.outFlowBalance)
+            {
+        <tr>
+            <td>@item.RECORDED_DATE</td>
+            <td>@item.PAYEE</td>
+            <td>@item.RECORDED_AMOUNT_PAID</td>
+            <td>@item.RECORDED_AMOUNT_PAYABLE</td>
+            <td>@item.PAYBACK_AMOUNT</td>
+        </tr>
+    }
+</table>
+
+
+

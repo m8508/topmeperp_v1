@@ -4254,7 +4254,7 @@ namespace topmeperp.Service
         }
         #endregion
 
-        //取得6個月內現金流資料
+        //取得6個月內現金流資料(6個月後資料總結至最大的日期呈現,日期遇假日(即星期六與星期日)會遞延)
         public List<CashFlowFunction> getCashFlow()
         {
 
@@ -4979,12 +4979,12 @@ namespace topmeperp.Service
         }
 
         //取得符合條件之帳款資料
-        public List<PlanAccountFunction> getPlanAccount(string paymentdate, string projectname, string payee, string accounttype, string formid)
+        public List<PlanAccountFunction> getPlanAccount(string paymentdate, string projectname, string payee, string accounttype, string formid, string duringStart, string duringEnd)
         {
             logger.Info("search plan account by " + paymentdate + ", 受款人 =" + payee + ", 專案名稱 =" + projectname + ", 帳款類型 =" + accounttype + ", 單據編號 =" + formid);
             List<PlanAccountFunction> lstForm = new List<PlanAccountFunction>();
             //處理SQL 預先填入專案代號,設定集合處理參數
-            string sql = "SELECT pa.AMOUNT_PAYABLE, pa.AMOUNT_PAID, pa.ACCOUNT_TYPE, CONVERT(char(10), pa.PAYMENT_DATE, 111) AS RECORDED_DATE, pa.PLAN_ACCOUNT_ID, " +
+            string sql = "SELECT ISNULL(pa.AMOUNT_PAYABLE, 0)AMOUNT_PAYABLE, ISNULL(pa.AMOUNT_PAID, 0)AMOUNT_PAID, pa.ACCOUNT_TYPE, CONVERT(char(10), pa.PAYMENT_DATE, 111) AS RECORDED_DATE, pa.PLAN_ACCOUNT_ID, " +
                 "ISNULL(pa.STATUS, 10) AS STATUS , pa.CHECK_NO, p.PROJECT_NAME, pa.PAYEE, pa.REMARK, ROW_NUMBER() OVER(ORDER BY p.PROJECT_NAME) AS NO " +
                 "FROM PLAN_ACCOUNT pa LEFT JOIN TND_PROJECT p ON pa.PROJECT_ID = p.PROJECT_ID WHERE pa.ACCOUNT_TYPE IN ('" + accounttype + "') ";
 
@@ -5015,6 +5015,13 @@ namespace topmeperp.Service
             {
                 sql = sql + "AND pa.ACCOUNT_FORM_ID =@formid ";
                 parameters.Add(new SqlParameter("formid", formid));
+            }
+            //支付區間條件
+            if (null != duringStart && duringStart != "" || null != duringEnd && duringEnd != "")
+            {
+                sql = sql + "AND pa.PAYMENT_DATE >= convert(datetime, @duringStart, 111) AND pa.PAYMENT_DATE <= convert(datetime, @duringEnd, 111) ";
+                parameters.Add(new SqlParameter("duringStart", duringStart));
+                parameters.Add(new SqlParameter("duringEnd", duringEnd));
             }
             sql = sql + "ORDER BY p.PROJECT_NAME, pa.PAYMENT_DATE, pa.PAYEE DESC ";
             using (var context = new topmepEntities())
@@ -5058,41 +5065,96 @@ namespace topmeperp.Service
             return i;
         }
         //取得特定日期借款與還款
-        public List<LoanTranactionFunction> getLoanTranaction(string type, string paymentdate)
+        public List<LoanTranactionFunction> getLoanTranaction(string type, string paymentdate, string duringStart, string duringEnd)
         {
             logger.Debug("get loan tranaction by payment date=" + paymentdate + ",and type = " + type);
             List<LoanTranactionFunction> lstItem = new List<LoanTranactionFunction>();
             using (var context = new topmepEntities())
             {
                 //條件篩選
-                if (type == "I")// type值為'I'表示有現金流入
+                if (null != paymentdate && paymentdate != "")
                 {
-                    lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = 1 AND CONVERT(char(10), " +
-                        "IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE), 111) =@paymentdate OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = -1 AND CONVERT(char(10), IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE), 111) =@paymentdate ",
-                    new SqlParameter("paymentdate", paymentdate)).ToList();
+                    if (type == "I")// type值為'I'表示有現金流入
+                    {
+                        lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = 1 AND CONVERT(char(10), " +
+                            "IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE), 111) =@paymentdate OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = -1 AND CONVERT(char(10), IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE), 111) =@paymentdate ",
+                        new SqlParameter("paymentdate", paymentdate)).ToList();
+                    }
+                    else // type值為'O'表示有現金流出
+                    {
+                        lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = -1 AND CONVERT(char(10), " +
+                            "IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE), 111) =@paymentdate OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = 1 AND CONVERT(char(10), IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE), 111) =@paymentdate ",
+                        new SqlParameter("paymentdate", paymentdate)).ToList();
+                    }
                 }
-                else // type值為'O'表示有現金流出
+                else if(null != duringStart && duringStart != "" && null != duringEnd && duringEnd != "")
                 {
-                    lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = -1 AND CONVERT(char(10), " +
-                        "IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE), 111) =@paymentdate OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = 1 AND CONVERT(char(10), IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE), 111) =@paymentdate ",
-                    new SqlParameter("paymentdate", paymentdate)).ToList();
+                    if (type == "I")// type值為'I'表示有現金流入
+                    {
+                        lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = 1 AND " +
+                            "IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) >= convert(datetime, @duringStart, 111) AND IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) <= convert(datetime, @duringEnd, 111) OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' " +
+                            "AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = -1 AND IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) >= convert(datetime, @duringStart, 111) AND IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) <= convert(datetime, @duringEnd, 111) ",
+                        new SqlParameter("duringStart", duringStart), new SqlParameter("duringEnd", duringEnd)).ToList();
+                    }
+                    else // type值為'O'表示有現金流出
+                    {
+                        lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = -1 AND " +
+                            "IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) >= convert(datetime, @duringStart, 111) AND IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) <= convert(datetime, @duringEnd, 111) OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' " +
+                            "AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = 1 AND IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) >= convert(datetime, @duringStart, 111) AND IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) <= convert(datetime, @duringEnd, 111) ",
+                       new SqlParameter("duringStart", duringStart), new SqlParameter("duringEnd", duringEnd)).ToList();
+                    }
+                }
+                else
+                {
+                    if (type == "I")// type值為'I'表示有現金流入
+                    {
+                        lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = 1 " +
+                            "OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = -1 ",
+                        new SqlParameter("paymentdate", paymentdate)).ToList();
+                    }
+                    else // type值為'O'表示有現金流出
+                    {
+                        lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = -1 " +
+                            "OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = 1 ",
+                        new SqlParameter("paymentdate", paymentdate)).ToList();
+                    }
                 }
             }
             return lstItem;
         }
         
-        public List<PlanAccountFunction> getOutFlowBalanceByDate(string paymentDate)
+        public List<PlanAccountFunction> getOutFlowBalanceByDate(string paymentDate, string duringStart, string duringEnd)
         {
             logger.Debug("get cash out flow balance by payment date, and payment date =" + paymentDate);
             List<PlanAccountFunction> lstItem = new List<PlanAccountFunction>();
             using (var context = new topmepEntities())
             {
                 //條件篩選
-                lstItem = context.Database.SqlQuery<PlanAccountFunction>("SELECT p.* , CONVERT(char(10), p.PAYMENT_DATE, 111) AS RECORDED_DATE, PARSENAME(Convert(varchar,Convert(money,ISNULL(p.AMOUNT_PAID, 0)),1),2) AS RECORDED_AMOUNT_PAYABLE, " +
-                    "PARSENAME(Convert(varchar,Convert(money,ISNULL(it.AMOUNT, 0)),1),2) AS PAYBACK_AMOUNT , PARSENAME(Convert(varchar,Convert(money,ISNULL(p.AMOUNT_PAID, 0) - ISNULL(it.AMOUNT, 0)),1),2) AS RECORDED_AMOUNT_PAID  FROM PLAN_ACCOUNT p " +
-                    "LEFT JOIN (SELECT t.*, l.IS_SUPPLIER, l.BANK_NAME FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = 1 AND CONVERT(char(10), " +
-                    "IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE), 111) = @paymentDate OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = -1 AND CONVERT(char(10), IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE), 111) = @paymentDate)it " +
-                    "ON it.BANK_NAME = p.PAYEE WHERE p.ISDEBIT = 'N' AND CONVERT(char(10), p.PAYMENT_DATE, 111) =@paymentDate ", new SqlParameter("paymentDate", paymentDate)).ToList();
+                if (null != paymentDate && paymentDate != "")
+                {
+                    lstItem = context.Database.SqlQuery<PlanAccountFunction>("SELECT p.* , CONVERT(char(10), p.PAYMENT_DATE, 111) AS RECORDED_DATE, PARSENAME(Convert(varchar,Convert(money,ISNULL(p.AMOUNT_PAID, 0)),1),2) AS RECORDED_AMOUNT_PAYABLE, " +
+                        "PARSENAME(Convert(varchar,Convert(money,ISNULL(it.AMOUNT, 0)),1),2) AS PAYBACK_AMOUNT , PARSENAME(Convert(varchar,Convert(money,ISNULL(p.AMOUNT_PAID, 0) - ISNULL(it.AMOUNT, 0)),1),2) AS RECORDED_AMOUNT_PAID  FROM PLAN_ACCOUNT p " +
+                        "LEFT JOIN (SELECT t.*, l.IS_SUPPLIER, l.BANK_NAME FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = 1 AND CONVERT(char(10), " +
+                        "IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE), 111) = @paymentDate OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = -1 AND CONVERT(char(10), IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE), 111) = @paymentDate)it " +
+                        "ON it.BANK_NAME = p.PAYEE WHERE p.ISDEBIT = 'N' AND CONVERT(char(10), p.PAYMENT_DATE, 111) =@paymentDate ", new SqlParameter("paymentDate", paymentDate)).ToList();
+                }
+                else if(null != duringStart && duringStart != "" && null != duringEnd && duringEnd != "")
+                {
+                    lstItem = context.Database.SqlQuery<PlanAccountFunction>("SELECT p.* , CONVERT(char(10), p.PAYMENT_DATE, 111) AS RECORDED_DATE, PARSENAME(Convert(varchar,Convert(money,ISNULL(p.AMOUNT_PAID, 0)),1),2) AS RECORDED_AMOUNT_PAYABLE, " +
+                        "PARSENAME(Convert(varchar,Convert(money,ISNULL(it.AMOUNT, 0)),1),2) AS PAYBACK_AMOUNT , PARSENAME(Convert(varchar,Convert(money,ISNULL(p.AMOUNT_PAID, 0) - ISNULL(it.AMOUNT, 0)),1),2) AS RECORDED_AMOUNT_PAID  FROM PLAN_ACCOUNT p " +
+                        "LEFT JOIN (SELECT t.*, l.IS_SUPPLIER, l.BANK_NAME FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = 1 AND " +
+                        "IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE) >= CONVERT(datetime, @duringStart, 111) AND IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE) <= CONVERT(datetime, @duringEnd, 111) OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' " +
+                        "AND t.REMARK NOT LIKE '%備償% ' AND t.TRANSACTION_TYPE = -1 AND IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE) >= CONVERT(datetime, @duringStart, 111) AND IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE) <= CONVERT(datetime, @duringEnd, 111))it " +
+                        "ON it.BANK_NAME = p.PAYEE WHERE p.ISDEBIT = 'N' AND p.PAYMENT_DATE >= CONVERT(datetime, @duringStart, 111) AND p.PAYMENT_DATE <= CONVERT(datetime, @duringEnd, 111) ", new SqlParameter("duringStart", duringStart), new SqlParameter("duringEnd", duringEnd)).ToList();
+                }
+                else
+                {
+                    lstItem = context.Database.SqlQuery<PlanAccountFunction>("SELECT p.* , CONVERT(char(10), p.PAYMENT_DATE, 111) AS RECORDED_DATE, PARSENAME(Convert(varchar,Convert(money,ISNULL(p.AMOUNT_PAID, 0)),1),2) AS RECORDED_AMOUNT_PAYABLE, " +
+                        "PARSENAME(Convert(varchar,Convert(money,ISNULL(it.AMOUNT, 0)),1),2) AS PAYBACK_AMOUNT , PARSENAME(Convert(varchar,Convert(money,ISNULL(p.AMOUNT_PAID, 0) - ISNULL(it.AMOUNT, 0)),1),2) AS RECORDED_AMOUNT_PAID  FROM PLAN_ACCOUNT p " +
+                        "LEFT JOIN (SELECT t.*, l.IS_SUPPLIER, l.BANK_NAME FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = 1 " +
+                        "OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = -1)it " +
+                        "ON it.BANK_NAME = p.PAYEE WHERE p.ISDEBIT = 'N' ", new SqlParameter("paymentDate", paymentDate)).ToList();
+                }
             }
             return lstItem;
         }

@@ -1105,6 +1105,7 @@
     <Content Include="Views\CostChange\_ChangeFormList.cshtml" />
     <Content Include="Views\CostChange\costChangeForm.cshtml" />
     <Content Include="Views\CashFlow\_CashInFlowItem.cshtml" />
+    <Content Include="Views\CashFlow\_CashOutFlowItem.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

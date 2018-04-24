@@ -52,8 +52,8 @@ namespace topmeperp.Controllers
         public ActionResult CashFlowManage()
         {
             List<CashFlowFunction> lstCashFlow = null;
-            List<PlanFinanceProfile> lstFinProfile = null; 
-             PlanFinanceProfile totalFinProfile = null;
+            List<PlanFinanceProfile> lstFinProfile = null;
+            PlanFinanceProfile totalFinProfile = null;
             CashFlowBalance cashFlowBalance = null;
             lstCashFlow = service.getCashFlow();
             lstFinProfile = service.getPlanFinProfile();
@@ -75,10 +75,30 @@ namespace topmeperp.Controllers
             CashFlowModel viewModel = new CashFlowModel();
             string projectname = "";
             string account_type = "R";
-            CashInFlow = service.getPlanAccount(paymentDate, projectname, projectname, account_type, projectname);
-            LoanInFlow = service.getLoanTranaction(type, paymentDate);
+            int day = (Convert.ToDateTime(paymentDate) - Convert.ToDateTime("2018/01/01")).Days % 7;
+            string lstDate = Convert.ToDateTime(paymentDate).AddDays(-2).ToString("yyyy/MM/dd");
+            int dayOverHalfAYear = (Convert.ToDateTime(paymentDate) - DateTime.Now).Days;
+            string DateOverHalfAYear = DateTime.Now.AddDays(181).ToString("yyyy/MM/dd");
+            logger.Debug("day's mod =" + day);
+            if (dayOverHalfAYear > 180)
+            {
+                CashInFlow = service.getPlanAccount(null, projectname, projectname, account_type, projectname, DateOverHalfAYear, paymentDate);
+                LoanInFlow = service.getLoanTranaction(type, null, DateOverHalfAYear, paymentDate);
+                
+            }
+            else if (day == 0)
+            {
+                CashInFlow = service.getPlanAccount(null, projectname, projectname, account_type, projectname, lstDate, paymentDate);
+                LoanInFlow = service.getLoanTranaction(type, null, lstDate, paymentDate);
+            }
+            else
+            {
+                CashInFlow = service.getPlanAccount(paymentDate, projectname, projectname, account_type, projectname, null, null);
+                LoanInFlow = service.getLoanTranaction(type, paymentDate, null, null);
+            }
             viewModel.planAccount = CashInFlow;
             viewModel.finLoanTranaction = LoanInFlow;
+            ViewBag.SearchTerm = "實際入帳日期為 : " + paymentDate;
             return View(viewModel);
         }
 
@@ -91,12 +111,34 @@ namespace topmeperp.Controllers
             CashFlowModel viewModel = new CashFlowModel();
             string projectname = "";
             string account_type = "P','O','E";
-            CashOutFlow = service.getPlanAccount(paymentDate, projectname, projectname, account_type, projectname);
-            LoanOutFlow = service.getLoanTranaction(type, paymentDate);
-            OutFlowBalance = service.getOutFlowBalanceByDate(paymentDate);
+            int day = (Convert.ToDateTime(paymentDate) - Convert.ToDateTime("2018/01/01")).Days % 7;
+            string lstDate = Convert.ToDateTime(paymentDate).AddDays(-2).ToString("yyyy/MM/dd");
+            int dayOverHalfAYear = (Convert.ToDateTime(paymentDate) - DateTime.Now).Days;
+            string DateOverHalfAYear = DateTime.Now.AddDays(181).ToString("yyyy/MM/dd");
+            logger.Debug("day's mod =" + day);
+            if(dayOverHalfAYear > 180)
+            {
+                CashOutFlow = service.getPlanAccount(null, projectname, projectname, account_type, projectname, DateOverHalfAYear, paymentDate);
+                LoanOutFlow = service.getLoanTranaction(type, null, DateOverHalfAYear, paymentDate);
+                OutFlowBalance = service.getOutFlowBalanceByDate(null, DateOverHalfAYear, paymentDate);
+            }
+
+            else if (day == 0)
+            {
+                CashOutFlow = service.getPlanAccount(null, projectname, projectname, account_type, projectname, lstDate, paymentDate);
+                LoanOutFlow = service.getLoanTranaction(type, null, lstDate, paymentDate);
+                OutFlowBalance = service.getOutFlowBalanceByDate(null, lstDate, paymentDate);
+            }
+            else
+            {
+                CashOutFlow = service.getPlanAccount(paymentDate, projectname, projectname, account_type, projectname, null, null);
+                LoanOutFlow = service.getLoanTranaction(type, paymentDate, null, null);
+                OutFlowBalance = service.getOutFlowBalanceByDate(paymentDate, null, null);
+            }
             viewModel.planAccount = CashOutFlow;
             viewModel.finLoanTranaction = LoanOutFlow;
             viewModel.outFlowBalance = OutFlowBalance;
+            ViewBag.SearchTerm = "實際付款日期為 : " + paymentDate;
             return View(viewModel);
         }
 
@@ -747,7 +789,7 @@ namespace topmeperp.Controllers
             SelectList status = new SelectList(SystemParameter.getSystemPara("ExpenseForm"), "KEY_FIELD", "VALUE_FIELD");
             ViewData.Add("status", status);
             Flow4CompanyExpense s = new Flow4CompanyExpense();
-            List<ExpenseFlowTask> lstEXP = s.getCompanyExpenseRequest(Request["occurred_date"], Request["subjectname"], Request["expid"], id,null);
+            List<ExpenseFlowTask> lstEXP = s.getCompanyExpenseRequest(Request["occurred_date"], Request["subjectname"], Request["expid"], id, null);
             return View(lstEXP);
         }
 
@@ -770,7 +812,7 @@ namespace topmeperp.Controllers
             ViewBag.SearchResult = "共取得" + lstEXP.Count + "筆資料";
             return View("ExpenseForm", lstEXP);
         }
-        
+
         public String UpdateAccountStatus(FormCollection form)
         {
             logger.Info("form:" + form.Count);
@@ -847,7 +889,7 @@ namespace topmeperp.Controllers
         {
             logger.Info("payment_date =" + Request["payment_date"] + ", projectname =" + Request["projectname"] + ", payee =" + Request["payee"] + ", account_type =" + Request["account_type"]);
             string formId = "";
-            List<PlanAccountFunction> lstAccount = service.getPlanAccount(Request["payment_date"], Request["projectname"], Request["payee"], Request["account_type"], formId);
+            List<PlanAccountFunction> lstAccount = service.getPlanAccount(Request["payment_date"], Request["projectname"], Request["payee"], Request["account_type"], formId, null, null);
             ViewBag.SearchResult = "共取得" + lstAccount.Count + "筆資料";
             return PartialView(lstAccount);
         }
@@ -855,7 +897,7 @@ namespace topmeperp.Controllers
         public ActionResult PlanAccountOfForm(string formid)
         {
             logger.Info("get plan account by form id=" + formid);
-            List<PlanAccountFunction> lstAccount = service.getPlanAccount(null, null, null, "R", formid); 
+            List<PlanAccountFunction> lstAccount = service.getPlanAccount(null, null, null, "R", formid, null, null);
             return View(lstAccount);
         }
         public string getPlanAccountItem(string itemid)
@@ -1020,6 +1062,57 @@ namespace topmeperp.Controllers
             ///"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx"
             Response.WriteFile(fileLocation);
             Response.End();
+        }
+        public ActionResult SearchCashInFlow()
+        {
+
+            List<PlanAccountFunction> CashInFlow = null;
+            List<LoanTranactionFunction> LoanInFlow = null;
+            CashFlowModel viewModel = new CashFlowModel();
+            string projectname = "";
+            string account_type = "R";
+            string type = "I";
+            CashInFlow = service.getPlanAccount(Request["payment_date"], projectname, projectname, account_type, projectname, Request["during_start"], Request["during_end"]);
+            LoanInFlow = service.getLoanTranaction(type, Request["payment_date"], Request["during_start"], Request["during_end"]);
+            viewModel.planAccount = CashInFlow;
+            viewModel.finLoanTranaction = LoanInFlow;
+            if (null != Request["payment_date"] && Request["payment_date"] != "")
+            {
+                ViewBag.SearchTerm = "查詢日期為 : " + Request["payment_date"];
+            }
+            else
+            {
+                ViewBag.SearchTerm = "查詢區間為 : " + Request["during_start"] + "~" + Request["during_end"];
+            }
+            return View("CashInFlowItem", viewModel);
+        }
+        public ActionResult SearchCashOutFlow()
+        {
+
+
+            List<PlanAccountFunction> CashOutFlow = null;
+            List<LoanTranactionFunction> LoanOutFlow = null;
+            List<PlanAccountFunction> OutFlowBalance = null;
+            CashFlowModel viewModel = new CashFlowModel();
+            string projectname = "";
+            string account_type = "P','O','E";
+            string type = "O";
+            CashOutFlow = service.getPlanAccount(Request["payment_date"], projectname, projectname, account_type, projectname, Request["during_start"], Request["during_end"]);
+            LoanOutFlow = service.getLoanTranaction(type, Request["payment_date"], Request["during_start"], Request["during_end"]);
+            OutFlowBalance = service.getOutFlowBalanceByDate(Request["payment_date"], Request["during_start"], Request["during_end"]);
+            viewModel.planAccount = CashOutFlow;
+            viewModel.finLoanTranaction = LoanOutFlow;
+            viewModel.outFlowBalance = OutFlowBalance;
+            
+            if (null != Request["payment_date"] && Request["payment_date"] != "")
+            {
+                ViewBag.SearchTerm = "查詢日期為 : " + Request["payment_date"];
+            }
+            else
+            {
+                ViewBag.SearchTerm = "查詢區間為 : " + Request["during_start"] + "~" + Request["during_end"];
+            }
+            return View("CashOutFlowItem", viewModel);
         }
     }
 }
