@@ -527,10 +527,10 @@
             data: { itemid: itemid },
             dataType: "JSON",
             success: function (data) {
-                $('#bl_id').val(data.BL_ID);
+                $('#blId').val(data.BL_ID);
                 $('#transaction_type').val(data.TRANSACTION_TYPE);
-                $('#period').val(data.PERIOD);
-                $('#create_date').val(data.CREATE_DATE);
+                $('#Period').val(data.PERIOD);
+                $('#create_date').val(data.RECORDED_CREATE_DATE);
                 $('#create_id').val(data.CREATE_ID);
                 $('#tid').val(data.TID);
                 $('#amount').val(data.RECORDED_AMOUNT);
@@ -559,10 +559,10 @@
             data: { itemid: itemid },
             dataType: "JSON",
             success: function (data) {
-                $('#bl_id').val(data.BL_ID);
+                $('#blId').val(data.BL_ID);
                 $('#transaction_type').val(data.TRANSACTION_TYPE);
-                $('#period').val(data.PERIOD);
-                $('#create_date').val(data.CREATE_DATE);
+                $('#Period').val(data.PERIOD);
+                $('#create_date').val(data.RECORDED_CREATE_DATE);
                 $('#create_id').val(data.CREATE_ID);
                 $('#tid').val(data.TID);
                 $('#payback_amt').val(data.RECORDED_AMOUNT);
@@ -582,6 +582,24 @@
         });
     }
 
+    //更新 Loan Transaction Item
+    $("#saveItem").click(function () {
+        var URLs = "/BankInfo/updateLoanTransactionItem";
+        var s = $('#formLoanTransactionItem').serialize();
+        $.ajax({
+            url: URLs,
+            data: $('#formLoanTransactionItem').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+                window.location.reload();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    });
     $(function () {
         $('#payback_date').datetimepicker({
             format: 'YYYY/MM/DD',

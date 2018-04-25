@@ -7,6 +7,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 using topmeperp.Models;
+using System.Data.Entity.Migrations;
 
 namespace topmeperp.Service
 {
@@ -252,10 +253,31 @@ namespace topmeperp.Service
             {
                 //條件篩選
                 item = context.Database.SqlQuery<LoanTranactionFunction>("SELECT *, PARSENAME(Convert(varchar,Convert(money,ISNULL(AMOUNT, 0)),1),2) AS RECORDED_AMOUNT, " +
-                    "CONVERT(char(10), EVENT_DATE, 111) AS RECORDED_EVENT_DATE,  CONVERT(char(10), PAYBACK_DATE, 111) AS RECORDED_PAYBACK_DATE FROM FIN_LOAN_TRANACTION WHERE TID=@itemid",
+                    "CONVERT(char(10), EVENT_DATE, 111) AS RECORDED_EVENT_DATE,  CONVERT(char(10), PAYBACK_DATE, 111) AS RECORDED_PAYBACK_DATE, " +
+                    "CONVERT(char(10), CREATE_DATE, 111) AS RECORDED_CREATE_DATE FROM FIN_LOAN_TRANACTION WHERE TID=@itemid",
                 new SqlParameter("itemid", itemid)).First();
             }
             return item;
+        }
+        public string message = "";
+        public int updateLoanTransactionItem(FIN_LOAN_TRANACTION item)
+        {
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    context.FIN_LOAN_TRANACTION.AddOrUpdate(item);
+                    i = context.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    logger.Error("update loan transaction item fail:" + e.ToString());
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+            }
+            return i;
         }
     }
 }

@@ -684,6 +684,7 @@ namespace topmeperp.Models
         public string RECORDED_EVENT_DATE { get; set; }
         public string RECORDED_AMOUNT { get; set; }
         public string RECORDED_PAYBACK_DATE { get; set; }
+        public string RECORDED_CREATE_DATE { get; set; }
     }
     public class CashFlowModel
     {

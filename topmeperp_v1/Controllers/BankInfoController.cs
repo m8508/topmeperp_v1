@@ -316,5 +316,59 @@ namespace topmeperp.Controllers
             logger.Info("bank loan transaction item info=" + itemJson);
             return itemJson;
         }
+        
+        public String updateLoanTransactionItem(FormCollection form)
+        {
+            logger.Info("form:" + form.Count);
+            string msg = "更新成功!!";
+
+            FIN_LOAN_TRANACTION item = new FIN_LOAN_TRANACTION();
+            item.BL_ID = Int64.Parse(form["blId"]);
+            item.TID = Int64.Parse(form["tid"]);
+            item.TRANSACTION_TYPE = int.Parse(form["transaction_type"]);
+            item.PERIOD = int.Parse(form["Period"]);
+            if (int.Parse(form["transaction_type"]) == -1)
+            {
+                item.EVENT_DATE = Convert.ToDateTime(form.Get("event_date"));
+            }
+            if (int.Parse(form["transaction_type"]) == 1)
+            {
+                item.PAYBACK_DATE = Convert.ToDateTime(form.Get("payback_date"));
+            }
+            if (int.Parse(form["transaction_type"]) == -1)
+            {
+                try
+                {
+                    item.AMOUNT = decimal.Parse(form["amount"]);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(item.AMOUNT + " not paid amount:" + ex.Message);
+                }
+            }
+            else
+            {
+                try
+                {
+                    item.AMOUNT = decimal.Parse(form["payback_amt"]);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(item.AMOUNT + " not paid amount:" + ex.Message);
+                }
+            }
+            item.REMARK = form["remark"];
+            item.VA_FORM_ID = form["formid"];
+            item.CREATE_ID = form["create_id"];
+            item.CREATE_DATE = Convert.ToDateTime(form.Get("create_date"));
+            SYS_USER loginUser = (SYS_USER)Session["user"];
+            item.MODIFY_ID = loginUser.USER_ID;
+            item.MODIFY_DATE = DateTime.Now;
+            ContextService4BankInfo service = new ContextService4BankInfo();
+            int i = 0;
+            i = service.updateLoanTransactionItem(item);
+            if (i == 0) { msg = service.message; }
+            return msg;
+        }
     }
 }
