@@ -2449,6 +2449,7 @@ namespace topmeperp.Controllers
             ViewBag.InvoicePieces = service.getInvoicePiecesById(formid);
             ViewBag.NotePieces = lstNote.Count;
             ViewData["items"] = JsonConvert.SerializeObject(lstInvoice);
+
             if (id != formid)
             {
                 RevenueFromOwner v = service.getVADetailByVAId(formid);

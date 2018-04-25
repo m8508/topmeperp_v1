@@ -99,7 +99,7 @@ namespace topmeperp.Controllers
             string msg = "";
             //懶得把Form綁FIN_SUBJECT 直接先把Form 值填滿
             FIN_SUBJECT s = new FIN_SUBJECT();
-            if (form.Get("subject_id").Trim() != "")
+            if (null != form.Get("subject_id").Trim() && form.Get("subject_id").Trim() != "")
             {
                 s.FIN_SUBJECT_ID = form.Get("subject_id").Trim();
             }
