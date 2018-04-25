@@ -1107,6 +1107,7 @@
     <Content Include="Views\CostChange\costChangeForm.cshtml" />
     <Content Include="Views\CashFlow\_CashInFlowItem.cshtml" />
     <Content Include="Views\CashFlow\_CashOutFlowItem.cshtml" />
+    <Content Include="Views\BankInfo\_BankLoanTransactionItem.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

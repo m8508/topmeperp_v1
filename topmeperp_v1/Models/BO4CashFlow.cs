@@ -24,4 +24,5 @@ namespace topmeperp.Models
         public decimal eventAmt { get; set; }
         public string PROJECT_NAME { get; set; }
     }
+    
 }

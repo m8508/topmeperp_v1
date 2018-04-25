@@ -681,6 +681,9 @@ namespace topmeperp.Models
     public class LoanTranactionFunction : FIN_LOAN_TRANACTION
     {
         public string IS_SUPPLIER { get; set; }
+        public string RECORDED_EVENT_DATE { get; set; }
+        public string RECORDED_AMOUNT { get; set; }
+        public string RECORDED_PAYBACK_DATE { get; set; }
     }
     public class CashFlowModel
     {

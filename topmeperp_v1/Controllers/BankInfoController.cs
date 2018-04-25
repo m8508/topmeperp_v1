@@ -306,5 +306,15 @@ namespace topmeperp.Controllers
                 return "更新失敗!!";
             }
         }
+
+        public string getLoanTransactionItem(string itemid)
+        {
+            ContextService4BankInfo service = new ContextService4BankInfo();
+            logger.Info("get bank loan transaction item by id=" + itemid);
+            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            string itemJson = objSerializer.Serialize(service.getLoanTransactionItem(itemid));
+            logger.Info("bank loan transaction item info=" + itemJson);
+            return itemJson;
+        }
     }
 }

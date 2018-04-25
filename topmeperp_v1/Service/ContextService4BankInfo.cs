@@ -242,5 +242,20 @@ namespace topmeperp.Service
             }
             return lstSupplierLoan;
         }
+
+        //取得銀行貸款單一交易資料
+        public LoanTranactionFunction getLoanTransactionItem(string itemid)
+        {
+            logger.Debug("get bank loan transaction item by id=" + itemid);
+            LoanTranactionFunction item = null;
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                item = context.Database.SqlQuery<LoanTranactionFunction>("SELECT *, PARSENAME(Convert(varchar,Convert(money,ISNULL(AMOUNT, 0)),1),2) AS RECORDED_AMOUNT, " +
+                    "CONVERT(char(10), EVENT_DATE, 111) AS RECORDED_EVENT_DATE,  CONVERT(char(10), PAYBACK_DATE, 111) AS RECORDED_PAYBACK_DATE FROM FIN_LOAN_TRANACTION WHERE TID=@itemid",
+                new SqlParameter("itemid", itemid)).First();
+            }
+            return item;
+        }
     }
 }
