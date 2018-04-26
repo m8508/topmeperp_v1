@@ -39,10 +39,10 @@
                                         <td><a href="/BankInfo/BankLoanTransaction?BL_ID=@item.BL_ID&IS_SUPPLIER=@item.IS_SUPPLIER">@item.BANK_NAME</a></td>
                                         <td>@item.PROJECT_NAME</td>
                                         <td>
-                                            @String.Format("{0:$#,##0.#; (#,##0.#);-}", item.eventAmt)
+                                            @String.Format("{0:$#,##0.#; (#,##0.#);0}", item.eventAmt)
                                         </td>
                                         <td>
-                                            @String.Format("{0:$#,##0.#; (#,##0.#);-}", item.paybackAmt)
+                                            @String.Format("{0:$#,##0.#; (#,##0.#);0}", item.paybackAmt)
                                         </td>
                                         <td>
                                             @String.Format("{0:$#,##0.#; (#,##0.#);0}", item.eventAmt - item.paybackAmt)

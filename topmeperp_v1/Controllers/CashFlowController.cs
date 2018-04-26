@@ -38,7 +38,7 @@ namespace topmeperp.Controllers
                 using (var context = new topmepEntities())
                 {
                     lstProject = context.Database.SqlQuery<ProjectList>("select DISTINCT p.*, convert(varchar, pi.CREATE_DATE , 111) as PLAN_CREATE_DATE from TND_PROJECT p left join PLAN_ITEM pi "
-                        + "on p.PROJECT_ID = pi.PROJECT_ID where p.PROJECT_NAME Like '%' + @projectname + '%' AND STATUS=@status;",
+                        + "on p.PROJECT_ID = pi.PROJECT_ID where p.PROJECT_NAME Like '%' + @projectname + '%' AND STATUS=@status AND pi.CREATE_DATE <> '' AND pi.CREATE_DATE IS NOT NULL;",
                          new SqlParameter("projectname", projectname), new SqlParameter("status", status)).ToList();
                 }
                 logger.Info("get project count=" + lstProject.Count);
