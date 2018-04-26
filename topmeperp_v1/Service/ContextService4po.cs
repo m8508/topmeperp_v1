@@ -34,8 +34,8 @@ namespace topmeperp.Service
             {
                 logger.Info("search project by 名稱 =" + projectname);
                 List<ProjectList> lstProject = new List<ProjectList>();
-                string sql = @"select DISTINCT p.*, convert(varchar, pi.CREATE_DATE , 111) as PLAN_CREATE_DATE from TND_PROJECT p left join PLAN_ITEM pi 
-                        on p.PROJECT_ID = pi.PROJECT_ID where p.PROJECT_NAME Like '%' + @projectname + '%' AND STATUS=@status AND p.PROJECT_ID !='001'";
+                string sql = @"select DISTINCT p.*, convert(varchar, pi.CREATE_DATE , 111) as PLAN_CREATE_DATE from TND_PROJECT p left join " +
+                        "(SELECT PROJECT_ID, MIN(CREATE_DATE) AS CREATE_DATE FROM PLAN_ITEM GROUP BY PROJECT_ID)pi on p.PROJECT_ID = pi.PROJECT_ID where p.PROJECT_NAME Like '%' + @projectname + '%' AND STATUS=@status AND p.PROJECT_ID !='001'";
                 using (var context = new topmepEntities())
                 {
                     lstProject = context.Database.SqlQuery<ProjectList>(sql, new SqlParameter("projectname", projectname), new SqlParameter("status", status)).ToList();
