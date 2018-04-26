@@ -159,6 +159,20 @@ namespace topmeperp.Controllers
             }
         }
         /// <summary>
+        /// 取得貸款銀行基本資料
+        /// </summary>
+        /// <returns></returns>
+        public string getBasicInfo()
+        {
+            ContextService4BankInfo service = new ContextService4BankInfo();
+            string blid = Request["id"];
+            BankLoanInfo bank = service.getBankLoan(blid, "N");
+            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            string bankJson = objSerializer.Serialize(bank.LoanInfo);
+            logger.Debug("get bakn info id =" + bankJson);
+            return bankJson;
+        }
+        /// <summary>
         /// 貸還款交易維護
         /// </summary>
         /// <returns></returns>
