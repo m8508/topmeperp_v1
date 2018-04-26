@@ -25,7 +25,10 @@
                                 <th>額度</th>
                                 <th>可用額度</th>
                                 <th>期數</th>
-                                <th style="text-align:center">應收帳還款比率%</th>
+                                <th style="text-align:center">額度可動用比率%</th>
+                                <th style="text-align:center">還款率%</th>
+                                <th style="text-align:center">請款達成率%</th>
+                                <th>專案名稱</th>
                                 <th>備註</th>
                                 <th>修改日期</th>
                             </tr>
@@ -60,7 +63,10 @@
                                             <td>結案</td>
                                         }
                                         <td>@item.PERIOD_COUNT</td>
+                                        <td>@string.Format("{0:N0}", item.QUOTA_AVAILABLE_RATIO)</td>
                                         <td>@string.Format("{0:N0}", item.AR_PAYBACK_RATIO)</td>
+                                        <td>@string.Format("{0:N0}", item.CUM_AR_RATIO)</td>
+                                        <td>@item.PROJECT_NAME.Substring(0,4)</td>
                                         <td>@item.REMARK</td>
                                         <td>@item.MODIFY_DATE</td>
                                     </tr>
