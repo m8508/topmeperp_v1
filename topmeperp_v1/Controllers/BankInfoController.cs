@@ -1,7 +1,9 @@
 ﻿using log4net;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 using topmeperp.Models;
@@ -110,6 +112,10 @@ namespace topmeperp.Controllers
         {
             SYS_USER u = (SYS_USER)Session["user"];
             FIN_BANK_LOAN bankloanInfo = new FIN_BANK_LOAN();
+            if (Request["BL_ID"] != "")
+            {
+                bankloanInfo.BL_ID = Convert.ToInt64(Request["BL_ID"]);
+            }
             bankloanInfo.BANK_ID = Request["BANK_ID"];
             bankloanInfo.BANK_NAME = Request["BANK_NAME"];
             //bankloanInfo.BRANCH_NAME = Request["BRANCH_NAME"];
@@ -167,8 +173,9 @@ namespace topmeperp.Controllers
             ContextService4BankInfo service = new ContextService4BankInfo();
             string blid = Request["id"];
             BankLoanInfo bank = service.getBankLoan(blid, "N");
-            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            string bankJson = objSerializer.Serialize(bank.LoanInfo);
+            //處理Json 日期格式
+            var settings = new JsonSerializerSettings { DateFormatString = "yyyy/MM/dd" };
+            string bankJson =JsonConvert.SerializeObject(bank.LoanInfo, settings);
             logger.Debug("get bakn info id =" + bankJson);
             return bankJson;
         }
@@ -299,6 +306,10 @@ namespace topmeperp.Controllers
         {
             SYS_USER u = (SYS_USER)Session["user"];
             FIN_BANK_LOAN bankloanInfo = new FIN_BANK_LOAN();
+            if (Request["BL_ID"] != "")
+            {
+                bankloanInfo.BL_ID =Convert.ToInt64(Request["BL_ID"]);
+            }
 
             bankloanInfo.BANK_NAME = Request["BANK_NAME"];
             bankloanInfo.REMARK = Request["REMARK"];

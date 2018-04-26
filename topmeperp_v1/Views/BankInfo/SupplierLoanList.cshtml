@@ -91,6 +91,26 @@
     });
     function editBankLoan(id) {
         alert("edit:" + id);
+        $.ajax({
+            url: "getBasicInfo",
+            type: "GET",
+            data: { id: id },
+            dataType: "JSON",
+            success: function (data) {
+                $('#formAddSupplierLoan #BL_ID').val(data.BL_ID);
+                $('#BANK_NAME').val(data.BANK_NAME);
+                $('#ACCOUNT_NAME').val(data.ACCOUNT_NAME);
+                //使用Jqery selector 選定對話框內的droplist
+                $('#formAddSupplierLoan #plans').val(data.PROJECT_ID);
+                $('#REMARK').val(data.REMARK);
+
+                $('#bankLoanInfo').modal('show'); // show bootstrap modal when complete loaded
+                $('.modal-title').text('編輯其他帳務資料'); // Set title to Bootstrap modal title
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('Error get data from ajax');
+            }
+        });
     }
 </script>
 
