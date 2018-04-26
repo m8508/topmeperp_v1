@@ -185,7 +185,7 @@ namespace topmeperp.Service
             {
                 try
                 {
-                    context.FIN_BANK_LOAN.Add(bankloan);
+                    context.FIN_BANK_LOAN.AddOrUpdate(bankloan);
                     i = context.SaveChanges();
                     logger.Info("new bank loan record=" + bankloan.ACCOUNT_NAME);
                 }
