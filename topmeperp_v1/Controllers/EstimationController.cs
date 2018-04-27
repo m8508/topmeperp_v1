@@ -2058,14 +2058,15 @@ namespace topmeperp.Controllers
                 if (null != fileBudget2 && fileBudget2.ContentLength != 0)
                 {
                     //2.解析Excel
-                    logger.Info("Parser Excel data:" + fileBudget1.FileName);
+
+                    logger.Info("Parser Excel data:" + fileBudget2.FileName);
                     //2.1 設定Excel 檔案名稱
-                    var fileName = Path.GetFileName(fileBudget1.FileName);
+                    var fileName = Path.GetFileName(fileBudget2.FileName);
                     var path = Path.Combine(ContextService.strUploadPath + "/" + projectid, fileName);
                     logger.Info("save excel file:" + path);
-                    fileBudget1.SaveAs(path);
+                    fileBudget2.SaveAs(path);
                     //2.2 開啟Excel 檔案
-                    logger.Info("Parser Excel File Begin:" + fileBudget1.FileName);
+                    logger.Info("Parser Excel File Begin:" + fileBudget2.FileName);
                     SiteBudgetFormToExcel budgetservice = new SiteBudgetFormToExcel();
                     budgetservice.InitializeWorkbook(path);
                     //解析預算數量
@@ -2089,14 +2090,14 @@ namespace topmeperp.Controllers
                 if (null != fileBudget3 && fileBudget3.ContentLength != 0)
                 {
                     //2.解析Excel
-                    logger.Info("Parser Excel data:" + fileBudget1.FileName);
+                    logger.Info("Parser Excel data:" + fileBudget3.FileName);
                     //2.1 設定Excel 檔案名稱
-                    var fileName = Path.GetFileName(fileBudget1.FileName);
+                    var fileName = Path.GetFileName(fileBudget3.FileName);
                     var path = Path.Combine(ContextService.strUploadPath + "/" + projectid, fileName);
                     logger.Info("save excel file:" + path);
-                    fileBudget1.SaveAs(path);
+                    fileBudget3.SaveAs(path);
                     //2.2 開啟Excel 檔案
-                    logger.Info("Parser Excel File Begin:" + fileBudget1.FileName);
+                    logger.Info("Parser Excel File Begin:" + fileBudget3.FileName);
                     SiteBudgetFormToExcel budgetservice = new SiteBudgetFormToExcel();
                     budgetservice.InitializeWorkbook(path);
                     //解析預算數量
@@ -2120,14 +2121,14 @@ namespace topmeperp.Controllers
                 if (null != fileBudget4 && fileBudget4.ContentLength != 0)
                 {
                     //2.解析Excel
-                    logger.Info("Parser Excel data:" + fileBudget1.FileName);
+                    logger.Info("Parser Excel data:" + fileBudget4.FileName);
                     //2.1 設定Excel 檔案名稱
-                    var fileName = Path.GetFileName(fileBudget1.FileName);
+                    var fileName = Path.GetFileName(fileBudget4.FileName);
                     var path = Path.Combine(ContextService.strUploadPath + "/" + projectid, fileName);
                     logger.Info("save excel file:" + path);
-                    fileBudget1.SaveAs(path);
+                    fileBudget4.SaveAs(path);
                     //2.2 開啟Excel 檔案
-                    logger.Info("Parser Excel File Begin:" + fileBudget1.FileName);
+                    logger.Info("Parser Excel File Begin:" + fileBudget4.FileName);
                     SiteBudgetFormToExcel budgetservice = new SiteBudgetFormToExcel();
                     budgetservice.InitializeWorkbook(path);
                     //解析預算數量
@@ -2151,14 +2152,14 @@ namespace topmeperp.Controllers
                 if (null != fileBudget5 && fileBudget5.ContentLength != 0)
                 {
                     //2.解析Excel
-                    logger.Info("Parser Excel data:" + fileBudget1.FileName);
+                    logger.Info("Parser Excel data:" + fileBudget5.FileName);
                     //2.1 設定Excel 檔案名稱
-                    var fileName = Path.GetFileName(fileBudget1.FileName);
+                    var fileName = Path.GetFileName(fileBudget5.FileName);
                     var path = Path.Combine(ContextService.strUploadPath + "/" + projectid, fileName);
                     logger.Info("save excel file:" + path);
-                    fileBudget1.SaveAs(path);
+                    fileBudget5.SaveAs(path);
                     //2.2 開啟Excel 檔案
-                    logger.Info("Parser Excel File Begin:" + fileBudget1.FileName);
+                    logger.Info("Parser Excel File Begin:" + fileBudget5.FileName);
                     SiteBudgetFormToExcel budgetservice = new SiteBudgetFormToExcel();
                     budgetservice.InitializeWorkbook(path);
                     //解析預算數量
