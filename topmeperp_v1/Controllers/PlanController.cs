@@ -690,10 +690,9 @@ namespace topmeperp.Controllers
             return msg;
         }
         /// <summary>
-        /// 異動單控制區塊
+        /// 異動單控制區塊   //異動單管理資料
         /// </summary>
         /// <returns></returns>
-        //異動單管理資料
         public ActionResult PlanItemChange()
         {
             string projectId = Request["projectid"];
