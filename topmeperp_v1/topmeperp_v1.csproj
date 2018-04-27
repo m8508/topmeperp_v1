@@ -1108,6 +1108,7 @@
     <Content Include="Views\CashFlow\_CashInFlowItem.cshtml" />
     <Content Include="Views\CashFlow\_CashOutFlowItem.cshtml" />
     <Content Include="Views\BankInfo\_BankLoanTransactionItem.cshtml" />
+    <Content Include="UploadFile\credit_note_form.xlsx" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

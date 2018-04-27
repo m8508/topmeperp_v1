@@ -1,7 +1,6 @@
 ﻿using log4net;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -25,9 +24,6 @@ namespace topmeperp.Controllers
 
             return View(lstProject);
         }
-
-
-
         //上傳得標後標單內容(用於標單內容有異動時)_2017/9/8
         [HttpPost]
         public ActionResult uploadPlanItem(TND_PROJECT prj, HttpPostedFileBase file)
@@ -76,6 +72,28 @@ namespace topmeperp.Controllers
             //ViewBag.budgetdata = priId;
             //if (null != priId) { int k = service.updateBudgetToPlanItem(projectid); }
             return Redirect("ManagePlanItem?id=" + projectid);
+        }
+        /// <summary>
+        /// 下載專案樣板
+        /// </summary>
+        public void downloadTemplate()
+        {
+            string projectId = Request["projectId"];
+            CostChangeService cs = new CostChangeService();
+            logger.Info("download template:" + projectId);
+            
+            poi4CostChangeService poiservice = new poi4CostChangeService();
+            poiservice.createExcel(service.getProject(projectId));
+            string fileLocation = poiservice.outputFile;
+
+            //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
+            string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
+            Response.Clear();
+            Response.Charset = "utf-8";
+            Response.ContentType = "text/xls";
+            Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", filename));
+            Response.WriteFile(fileLocation);
+            Response.End();
         }
         /// <summary>
         /// 設定標單品項查詢條件
@@ -279,7 +297,6 @@ namespace topmeperp.Controllers
             logger.Debug("ProjectID=" + Request["id"] + ",Upload PlanItem=" + file.FileName);
             return "TEST";
         }
-
         //取得業主合約金額
         public ActionResult ContractForOwner(string id)
         {
@@ -358,7 +375,6 @@ namespace topmeperp.Controllers
             }
             return msg;
         }
-
         public ActionResult Budget(string id)
         {
             logger.Info("budget info for projectid=" + id);

@@ -27,6 +27,33 @@ namespace topmeperp.Service
         {
             user = u;
         }
+        public void downloadTemplate()
+        {
+
+        }
+        /// <summary>
+        /// 下載異動單資料
+        /// </summary>
+        /// <param name="project"></param>                  
+        public void createExcel(TND_PROJECT project)
+        {
+            InitializeWorkbook();
+            SetOpSheet("異動單");
+            //填寫專案資料
+            IRow row = sheet.GetRow(1);
+            row.Cells[1].SetCellValue(project.PROJECT_ID);
+            row.Cells[2].SetCellValue(project.PROJECT_NAME);
+
+            //填入明細資料
+            //ConverObjectTotExcel(lstItem, 4);
+            //令存新檔至專案所屬目錄
+            outputFile = strUploadPath + "\\" + project.PROJECT_ID + "\\" + project.PROJECT_ID + "-CostChange.xlsx";
+            logger.Debug("export excel file=" + outputFile);
+            var file = new FileStream(outputFile, FileMode.Create);
+            logger.Info("output file=" + file.Name);
+            hssfworkbook.Write(file);
+            file.Close();
+        }       
         public void createExcel(TND_PROJECT project, PLAN_COSTCHANGE_FORM form, List<PLAN_COSTCHANGE_ITEM> lstItem)
         {
             InitializeWorkbook();
@@ -39,9 +66,6 @@ namespace topmeperp.Service
             row = sheet.GetRow(2);
             row.Cells[1].SetCellValue(form.FORM_ID);
             row.Cells[3].SetCellValue(form.REMARK_ITEM);
-            //row.Cells[3].SetCellValue(form.REMARK_ITEM);
-            //row.Cells[3].SetCellValue(form.REMARK_ITEM);
-            //row.Cells[3].SetCellValue(form.REMARK_ITEM);
             //填入明細資料
             ConverObjectTotExcel(lstItem, 4);
             //令存新檔至專案所屬目錄
