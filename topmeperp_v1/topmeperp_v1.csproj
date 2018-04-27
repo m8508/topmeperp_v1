@@ -423,6 +423,7 @@
     <Compile Include="Controllers\SubjectManageController.cs" />
     <Compile Include="Controllers\SupplierManageController.cs" />
     <Compile Include="Controllers\TenderController.cs" />
+    <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Controllers\TypeManageController.cs" />
     <Compile Include="Controllers\UserManageController.cs" />
     <Compile Include="Controllers\WageController.cs" />
@@ -674,6 +675,7 @@
     <Content Include="Content\handsontable\handsontable.full.css" />
     <Content Include="Content\handsontable\handsontable.full.min.css" />
     <Content Include="Content\handsontable\handsontable.min.css" />
+    <Content Include="Content\jquery.smartmenus.bootstrap.css" />
     <Content Include="Content\PagedList.css" />
     <Content Include="Content\Site.css" />
     <Content Include="Content\themes\base\images\ui-icons_444444_256x240.png" />
@@ -820,6 +822,8 @@
     <Content Include="Scripts\jquery-ui-1.12.1.js" />
     <Content Include="Scripts\jquery.form.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jquery.smartmenus.bootstrap.js" />
+    <Content Include="Scripts\jquery.smartmenus.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
@@ -1109,6 +1113,7 @@
     <Content Include="Views\CashFlow\_CashOutFlowItem.cshtml" />
     <Content Include="Views\BankInfo\_BankLoanTransactionItem.cshtml" />
     <Content Include="UploadFile\credit_note_form.xlsx" />
+    <Content Include="Views\Test\index.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

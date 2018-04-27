@@ -3411,7 +3411,8 @@ namespace topmeperp.Service
                     logger.Debug("get credit note cell style rowid=" + idxRow);
                     i++;
                 }
-
+            ////修改Excel欄位後自動更新公式計算結果
+            sheet.ForceFormulaRecalculation = true;
             //4.另存新檔至專案所屬目錄 (增加Temp for zip 打包使用
             string fileLocation = null;
             fileLocation = outputPath + "\\" + va.PROJECT_ID + "\\" + va.VA_FORM_ID + "_折讓單.xlsx";

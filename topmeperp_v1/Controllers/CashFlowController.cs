@@ -25,14 +25,12 @@ namespace topmeperp.Controllers
         {
             List<ProjectList> lstProject = PlanService.SearchProjectByName("", "專案執行','保固");
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
-
             return View(lstProject);
         }
 
-
         public ActionResult CashFlowManage()
         {
-            List<CashFlowFunction> lstCashFlow = null;
+            List<CashFlowFunction> lstCashFlow= null;
             List<PlanFinanceProfile> lstFinProfile = null;
             PlanFinanceProfile totalFinProfile = null;
             CashFlowBalance cashFlowBalance = null;
