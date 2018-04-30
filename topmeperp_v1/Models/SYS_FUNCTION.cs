@@ -29,6 +29,7 @@ namespace topmeperp.Models
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
         public string MODIFY_ID { get; set; }
         public string ISMENU { get; set; }
+        public string SUB_MODULE { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SYS_PRIVILEGE> SYS_PRIVILEGE { get; set; }
