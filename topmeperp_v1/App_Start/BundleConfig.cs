@@ -32,6 +32,8 @@ namespace topmeperp
                       "~/Scripts/bootstrap-datetimepicker.js", //new
                       "~/Scripts/jquery.form.js", //new
                       "~/Scripts/respond.js",
+                      "~/Scripts/jquery.smartmenus.js",
+                      "~/Scripts/jquery.smartmenus.bootstrap.js",
                       "~/Scripts/bootstrap3-typeahead.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
@@ -39,6 +41,7 @@ namespace topmeperp
                       "~/Content/bootstrap-theme.css",
                       "~/Content/bootstrap-datetimepicker.css",
                       "~/Content/jquery-ui.css",
+                      "~/Content/jquery.smartmenus.bootstrap.css",
                       "~/Content/site.css"));
 
             //jquery ui css by ph

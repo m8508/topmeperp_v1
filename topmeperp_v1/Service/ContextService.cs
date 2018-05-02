@@ -117,7 +117,7 @@ namespace topmeperp.Service
                     + "and p.FUNCTION_ID = f.FUNCTION_ID "
                     + "and u.USER_ID = @userid "
                     + "and u.PASSWORD = @passwd "
-                    + "Order by FUNCTION_ID;", new SqlParameter("userid", userid), new SqlParameter("passwd", passwd)).ToList();
+                    + "Order by MODULE_NAME DESC,SUB_MODULE;", new SqlParameter("userid", userid), new SqlParameter("passwd", passwd)).ToList();
             }
             logger.Info("get functions count=" + userPrivilege.Count);
         }
