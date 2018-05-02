@@ -489,36 +489,9 @@ namespace topmeperp.Service
                 logger.Debug("Change CompanyExpenseRequest Status=" + task.task.EXP_FORM_ID + "," + staus);
                 context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
             }
-            if (staus == 30)
-            {
-                staus = addAccountFromExp(task.task.EXP_FORM_ID, task.task.PAYEE, task.task.PAYMENT_DATE, task.task.PROJECT_ID, task.task.PAID_AMOUNT);
-            }
             return staus;
         }
-        //將費用資料寫入帳款(暫時)
-        public int addAccountFromExp(string formid, string payee, DateTime? paymentdate, string projectid, decimal Amt)
-        {
-
-            logger.Info("add plan account detail from exp form,exp form id =" + formid);
-            int i = 0;
-            string sql = "";
-            using (var context = new topmepEntities())
-            {
-                if (null != projectid && projectid != "")
-                {
-                    sql = "INSERT INTO PLAN_ACCOUNT (PROJECT_ID, PAYEE, ACCOUNT_FORM_ID, AMOUNT_PAID, PAYMENT_DATE, ISDEBIT, ACCOUNT_TYPE) " +
-                          "VALUES ('" + task.task.PROJECT_ID + "','" + task.task.PAYEE + "', '" + task.task.EXP_FORM_ID + "'," + task.task.PAID_AMOUNT + ", CONVERT(datetime, REPLACE(REPLACE('" + task.task.PAYMENT_DATE + "', '上午', ''), '下午', '') +case when charindex('上午', '" + task.task.PAYMENT_DATE + "')> 0 then 'AM' when charindex('下午', '" + task.task.PAYMENT_DATE + "')> 0 then 'PM' end), 'N', 'E') ";
-                }
-                else
-                {
-                    sql = "INSERT INTO PLAN_ACCOUNT (PAYEE, ACCOUNT_FORM_ID, AMOUNT_PAID, PAYMENT_DATE, ISDEBIT, ACCOUNT_TYPE) " +
-                          "VALUES ('" + task.task.PAYEE + "', '" + task.task.EXP_FORM_ID + "'," + task.task.PAID_AMOUNT + ", CONVERT(datetime, REPLACE(REPLACE('" + task.task.PAYMENT_DATE + "', '上午', ''), '下午', '') +case when charindex('上午', '" + task.task.PAYMENT_DATE + "')> 0 then 'AM' when charindex('下午', '" + task.task.PAYMENT_DATE + "')> 0 then 'PM' end), 'N', 'O') ";
-                }
-                logger.Info("sql =" + sql);
-                i = context.Database.ExecuteSqlCommand(sql);
-                return i;
-            }
-        }
+        
         //退件
         public void Reject(SYS_USER u, DateTime? paymentdate, string reason)
         {

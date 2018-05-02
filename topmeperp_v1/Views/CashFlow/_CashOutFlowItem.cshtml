@@ -1,5 +1,6 @@
 ﻿<div style="padding-top:50px;">
     <h4><span style="font-weight:bold;color:cornflowerblue">@ViewBag.SearchTerm</span></h4>
+    <h3 class="text-left" style="padding-top:10px;">廠商請款(計價單) :</h3>
     <form id="formAccount" name="formAccount" action="UpdateAccountStatus" method="post">
         <table class="table">
             <tr>
@@ -95,6 +96,64 @@
                 <td>@string.Format("{0:yyyy/MM/dd}", @item.PAYBACK_DATE)</td>
             }
             <td>@item.REMARK</td>
+        </tr>
+    }
+</table>
+<h3 class="text-left" style="padding-top:20px;">費用單(公司與工地) :</h3>
+<table class="table table-bordered">
+    <tr>
+        <th>
+            類型
+        </th>
+        <th>
+            金額
+        </th>
+        <th>
+            日期
+        </th>
+        <th>
+            受款人
+        </th>
+        <th>
+            費用單編號
+        </th>
+    </tr>
+
+    @foreach (var item in Model.outFlowExp)
+            {
+        <tr>
+            @if (item.PROJECT_ID == "")
+            {
+                <td>公司營業費用</td>
+            }
+            else
+            {
+                <td>工地費用</td>
+
+            }
+            <td>@String.Format("{0:$#,##0.#}", item.AMOUNT)</td>
+            <td>@string.Format("{0:yyyy/MM/dd}", item.RECORDED_DATE)</td>
+            <td>@item.PAYEE</td>
+            <td>@item.EXP_FORM_ID</td>
+        </tr>
+    }
+</table>
+<h3 class="text-left" style="padding-top:20px;">費用預算(含公司與工地，不含今天以前的資料) :</h3>
+<table class="table table-bordered">
+    <tr>
+        <th>
+            金額
+        </th>
+        <th>
+            日期
+        </th>
+    </tr>
+
+    @foreach (var item in Model.expBudget)
+            {
+        <tr>
+            <td>@String.Format("{0:$#,##0.#}", item.AMOUNT)</td>
+            <td>@string.Format("{0:yyyy/MM/dd}", item.RECORDED_DATE)</td>
         </tr>
     }
 </table>

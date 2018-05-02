@@ -22,14 +22,15 @@
                 <label for="projectname">專案名稱 :</label>
                 <input id="projectname" name="projectname" type="text" value="" class="form-control" />
             </div>
-            <div class="col-md-6 form-group" style="padding-top:10px">
-                <input type="radio" value="R" id="account_type" name="account_type" checked />業主帳款
-                <input type="radio" value="P" id="account_type" name="account_type" />廠商帳款
-                <input type="radio" value="E" id="account_type" name="account_type" />工地費用
-                <input type="radio" value="O" id="account_type" name="account_type" />公司營業費用
+            <div class="col-md-4 form-group" style="padding-top:10px">
+                <input type="radio" value="R" id="account_type" name="account_type" checked />業主應收帳款
+                <input type="radio" value="P" id="account_type" name="account_type" />廠商應付帳款
+                
+            </div>
+            <div class="col-md-2 form-group" style="padding-top:10px">
                 <input id="btnQuery" class="btn btn-info" type="button" onclick="getComparisonData()" value="查詢" />
             </div>
-        </div>
+            </div>
         <div class="row">
         </div>
         <div class="col-md-6">
@@ -132,7 +133,8 @@
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
-                window.location.reload();
+                getComparisonData();
+                //window.location.reload();
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);

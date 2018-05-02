@@ -562,6 +562,8 @@ namespace topmeperp.Models
     public class ExpenseFormFunction : FIN_EXPENSE_FORM
     {
         public string PROJECT_NAME { get; set; }
+        public string RECORDED_DATE { get; set; }
+        public Nullable<decimal> AMOUNT { get; set; }
     }
 
     public class PlanItem4Map : PLAN_ITEM
@@ -696,6 +698,8 @@ namespace topmeperp.Models
         public IEnumerable<LoanTranactionFunction> finLoanTranaction { get; set; }
         public IEnumerable<PlanAccountFunction> planAccount { get; set; }
         public IEnumerable<PlanAccountFunction> outFlowBalance { get; set; }
+        public IEnumerable<ExpenseFormFunction> outFlowExp { get; set; }
+        public IEnumerable<ExpenseFormFunction> expBudget { get; set; }
     }
     public class CashFlowBalance : PLAN_ACCOUNT
     {

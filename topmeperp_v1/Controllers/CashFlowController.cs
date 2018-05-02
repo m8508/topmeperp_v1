@@ -108,9 +108,12 @@ namespace topmeperp.Controllers
             List<PlanAccountFunction> CashOutFlow = null;
             List<LoanTranactionFunction> LoanOutFlow = null;
             List<PlanAccountFunction> OutFlowBalance = null;
+            List<ExpenseFormFunction> ExpenseOutFlow = null;
+            List<ExpenseFormFunction> ExpenseBudget = null;
+
             CashFlowModel viewModel = new CashFlowModel();
             string projectname = "";
-            string account_type = "P','O','E";
+            string account_type = "P";
             int day = (Convert.ToDateTime(paymentDate) - Convert.ToDateTime("2018/01/01")).Days % 7;
             string lstDate = Convert.ToDateTime(paymentDate).AddDays(-2).ToString("yyyy/MM/dd");
             int dayOverHalfAYear = (Convert.ToDateTime(paymentDate) - DateTime.Now).Days;
@@ -121,6 +124,8 @@ namespace topmeperp.Controllers
                 CashOutFlow = service.getPlanAccount(null, projectname, projectname, account_type, projectname, DateOverHalfAYear, paymentDate);
                 LoanOutFlow = service.getLoanTranaction(type, null, DateOverHalfAYear, paymentDate);
                 OutFlowBalance = service.getOutFlowBalanceByDate(null, DateOverHalfAYear, paymentDate);
+                ExpenseOutFlow = service.getExpenseOutFlowByDate(null, DateOverHalfAYear, paymentDate);
+                ExpenseBudget = service.getExpenseBudgetByDate(null, DateOverHalfAYear, paymentDate);
             }
 
             else if (day == 0)
@@ -128,16 +133,22 @@ namespace topmeperp.Controllers
                 CashOutFlow = service.getPlanAccount(null, projectname, projectname, account_type, projectname, lstDate, paymentDate);
                 LoanOutFlow = service.getLoanTranaction(type, null, lstDate, paymentDate);
                 OutFlowBalance = service.getOutFlowBalanceByDate(null, lstDate, paymentDate);
+                ExpenseOutFlow = service.getExpenseOutFlowByDate(null, lstDate, paymentDate);
+                ExpenseBudget = service.getExpenseBudgetByDate(null, lstDate, paymentDate);
             }
             else
             {
                 CashOutFlow = service.getPlanAccount(paymentDate, projectname, projectname, account_type, projectname, null, null);
                 LoanOutFlow = service.getLoanTranaction(type, paymentDate, null, null);
                 OutFlowBalance = service.getOutFlowBalanceByDate(paymentDate, null, null);
+                ExpenseOutFlow = service.getExpenseOutFlowByDate(paymentDate, null, null);
+                ExpenseBudget = service.getExpenseBudgetByDate(paymentDate, null, null);
             }
             viewModel.planAccount = CashOutFlow;
             viewModel.finLoanTranaction = LoanOutFlow;
             viewModel.outFlowBalance = OutFlowBalance;
+            viewModel.outFlowExp = ExpenseOutFlow;
+            viewModel.expBudget = ExpenseBudget;
             ViewBag.SearchTerm = "實際付款日期為 : " + paymentDate;
             return View(viewModel);
         }
@@ -1093,17 +1104,23 @@ namespace topmeperp.Controllers
             List<PlanAccountFunction> CashOutFlow = null;
             List<LoanTranactionFunction> LoanOutFlow = null;
             List<PlanAccountFunction> OutFlowBalance = null;
+            List<ExpenseFormFunction> ExpenseOutFlow = null;
+            List<ExpenseFormFunction> ExpenseBudget = null;
             CashFlowModel viewModel = new CashFlowModel();
             string projectname = "";
-            string account_type = "P','O','E";
+            string account_type = "P";
             string type = "O";
             CashOutFlow = service.getPlanAccount(Request["payment_date"], projectname, projectname, account_type, projectname, Request["during_start"], Request["during_end"]);
             LoanOutFlow = service.getLoanTranaction(type, Request["payment_date"], Request["during_start"], Request["during_end"]);
             OutFlowBalance = service.getOutFlowBalanceByDate(Request["payment_date"], Request["during_start"], Request["during_end"]);
+            ExpenseOutFlow = service.getExpenseOutFlowByDate(Request["payment_date"], Request["during_start"], Request["during_end"]);
+            ExpenseBudget = service.getExpenseBudgetByDate(Request["payment_date"], Request["during_start"], Request["during_end"]);
             viewModel.planAccount = CashOutFlow;
             viewModel.finLoanTranaction = LoanOutFlow;
             viewModel.outFlowBalance = OutFlowBalance;
-            
+            viewModel.outFlowExp = ExpenseOutFlow;
+            viewModel.expBudget = ExpenseBudget;
+
             if (null != Request["payment_date"] && Request["payment_date"] != "")
             {
                 ViewBag.SearchTerm = "查詢日期為 : " + Request["payment_date"];
