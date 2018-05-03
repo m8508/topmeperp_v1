@@ -134,7 +134,7 @@
             <td>@String.Format("{0:$#,##0.#}", item.AMOUNT)</td>
             <td>@string.Format("{0:yyyy/MM/dd}", item.RECORDED_DATE)</td>
             <td>@item.PAYEE</td>
-            <td>@item.EXP_FORM_ID</td>
+            <td><a href="/CashFlow/SingleEXPForm/@item.EXP_FORM_ID" target="_blank">@item.EXP_FORM_ID</a></td>
         </tr>
     }
 </table>
