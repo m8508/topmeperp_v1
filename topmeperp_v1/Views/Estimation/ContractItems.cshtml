@@ -9,7 +9,7 @@
 <!--<h3 style="height:10px;line-height:5px">@ViewBag.Title</h3>-->
 <div class="page-header" ng-app="">
     <form id="formESTMain" name="formESTMain" action="/Estimation/ConfirmEst" method="post" enctype="multipart/form-data">
-       
+
         <div class="row">
             <div class="col-md-3">
                 <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" />
@@ -31,10 +31,6 @@
             <input type="hidden" name="contractid" id="contractid" value="@ViewBag.contractid">
             <input type="hidden" name="keyid" id="keyid" value="@ViewBag.keyid">
             <input type="hidden" name="type" id="type" value="@ViewBag.type">
-        </div>
-        <div style="padding-top: 30px;">
-            <input type="button" value="更新" class="btn btn-success" onclick="saveVA()" />
-            <!-- <input type="submit" value="計算" id="saveForm" name="saveForm" class="btn btn-success" />-->
         </div>
         <div style="padding-top: 30px;">
             <label class="col-md-2 control-label">上傳計價檔案: </label>
@@ -191,8 +187,8 @@
             }
         </div>
         <div class="col-md-12" style="padding-bottom:30px;">
-            <div class="col-md-6">
-                <textarea class="form-control" rows="10" id="remark" name="remark" placeholder="說明事項"></textarea>
+            <div class="col-md-12">
+                <textarea class="form-control" rows="5" id="remark" name="remark" placeholder="說明事項"></textarea>
             </div>
             <div class="col-md-6 alert-dismissable">
                 @Html.Raw(TempData["balance"])
@@ -202,14 +198,12 @@
 </div>
 @using (Html.BeginForm())
 {
-    <input type="hidden" id="formid" name="formid" value="@ViewBag.formid" />
-    <input type="hidden" id="contractid" name="contractid" value="@ViewBag.contractid" />
-    <input type="hidden" id="projectid" name="projectid" value="@ViewBag.projectId" />
-
     <div class="row" style="padding-top:10px">
         <div class="col-md-12">
-            <input type="submit" value="儲存" name="SaveEst" class="btn btn-default" onclick="return Confirm_Form()" />
-            <!--<input type="submit" value="提交" name="AddEst" class="btn btn-warning" onclick="return Confirm_Form()" />-->
+            <input type="button" value="更新" class="btn btn-success" onclick="saveVA()" />
+            <!-- <input type="submit" value="計算" id="saveForm" name="saveForm" class="btn btn-success" />-->
+            <!-- <input type="submit" value="儲存" name="SaveEst" class="btn btn-default" onclick="return Confirm_Form()" />
+            <input type="submit" value="提交" name="AddEst" class="btn btn-warning" onclick="return Confirm_Form()" />-->
         </div>
     </div>
 }
@@ -456,13 +450,14 @@
                 $('#total_tax_amount').val(data.TOTAL_TAX_AMOUNT);
                 $('#total_repayment').val(data.TOTAL_REPAYMENT);
                 $('#total_refund').val(data.TOTAL_REFUND);
-                if (data.PAYABLE_AMOUNT == null || data.PAYABLE_AMOUNT == '') {
-                    //alert("目前尚有未核准的估驗單，估驗單編號為" + data + "，待此單核准後再新增估驗單!");
-                    alert("請輸入金額!!");
-                }
-                else {
-                    alert("更新成功，若資料無誤請按下儲存或提交鍵 !");
-                }
+
+                //if (data.PAYABLE_AMOUNT == null || data.PAYABLE_AMOUNT == '') {
+                //    alert("目前尚有未核准的估驗單，估驗單編號為" + data + "，待此單核准後再新增估驗單!");
+                //    //alert("請輸入金額!!");
+                //}
+                //else {
+                //    alert("更新成功，若資料無誤請按下儲存或提交鍵 !");
+                //}
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);
@@ -489,6 +484,8 @@
                 //type: "POST",
                 dataType: 'JSON',
                 success: function (data) {
+                    //window.location.replace("~/Estimation/EstimationForm/" + @ViewBag.projectId);
+                    location.assign("EstimationForm/@ViewBag.projectId");
                     $('#cum_t_foreign').val(data.CUM_T_FOREIGN);
                     $('#cum_sub_amount').val(data.CUM_SUB_AMOUNT);
                     $('#cum_t_retention').val(data.CUM_T_RETENTION);
@@ -519,28 +516,37 @@
                     $('#total_tax_amount').val(data.TOTAL_TAX_AMOUNT);
                     $('#total_repayment').val(data.TOTAL_REPAYMENT);
                     $('#total_refund').val(data.TOTAL_REFUND);
-                    if (data.PAYABLE_AMOUNT == null || data.PAYABLE_AMOUNT == '') {
-                        alert("目前尚有未核准的估驗單，估驗單編號為" + data + "，待此單核准後再新增估驗單!");
-                    }
-                    else {
-                        alert("更新成功，若資料無誤請按下儲存或提交鍵 !");
-                    }
+
+                   // if (data.PAYABLE_AMOUNT == null || data.PAYABLE_AMOUNT == '') {
+                   //     alert("目前尚有未核准的估驗單，估驗單編號為" + data + "，待此單核准後再新增估驗單!");
+                   // }
+                  //  else {
+                    //    alert("更新成功，若資料無誤請按下儲存或提交鍵 !");
+
+                   /// }
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     alert(thrownError);
                 }
             });
-            e.preventDefault(); //Prevent Default action.
+            //e.preventDefault(); //Prevent Default action.
+
             e.unbind();
         });
         $("#formESTMain").submit(); //Submit the form
         // document.forms["formFileUpload"].submit();
     }
+    //function Confirm_Form() {
+    //    if ($("#estid").val() == "") {
+    //        alert("估驗單未建立請按下[更新]!!");
+    //        return false;
+    //    }
+    //    return true;
+    //}
 </script>
 
 <script type="text/javascript">
     $(document).ready(function () {
-
         $(function () {
             $('#paymentDate').datetimepicker({
                 format: 'YYYY/MM/DD',

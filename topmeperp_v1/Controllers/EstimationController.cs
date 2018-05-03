@@ -146,6 +146,7 @@ namespace topmeperp.Controllers
             //轉成Json字串
             ViewData["items"] = JsonConvert.SerializeObject(lstContractItem);
             */
+
             return View("ContractItems", contract);
         }
 
@@ -345,7 +346,7 @@ namespace topmeperp.Controllers
                 file.SaveAs(path);
             }
             //string estid = service.newEST(Request["formid"], est, lstItemId);
-            string estid = service.newEST(Request["formid"], est);
+            string estid = service.newEST(Request["estid"], est);
             /*
             List<PLAN_ESTIMATION_ITEM> lstItem = new List<PLAN_ESTIMATION_ITEM>();
             for (int j = 0; j < lstItemId.Count(); j++)
@@ -369,6 +370,11 @@ namespace topmeperp.Controllers
             //寫入實付金額(PAID_AMOUNT 欄位)
             //PaymentDetailsFunction amountPaid = service.getDetailsPayById(Request["formid"], Request["contractid"]);
             //int t = service.UpdatePaidAmountById(Request["formid"], decimal.Parse(amountPaid.PAID_AMOUNT.ToString()));
+
+            int iR = service.UpdateESTStatusById(estid);
+            Flow4Estimation flowService = new Flow4Estimation();
+            flowService.iniRequest(uInfo, estid);
+
             System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
             //string itemJson = objSerializer.Serialize(service.getDetailsPayById(Request["formid"], Request["contractid"]));
             string itemJson = objSerializer.Serialize(service.getDetailsPayById(Request["estid"], Request["estid"]));

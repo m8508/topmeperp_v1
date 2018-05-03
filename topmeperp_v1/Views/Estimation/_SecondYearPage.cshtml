@@ -81,40 +81,40 @@
                                 </span>
                             </td>
                             <td>
-                                <input type="text" style="width:70px" name="janAmt2" id="janAmt2" value="@String.Format("{0:#,##0.#}", item.JAN)" />
+                                <input type="text" style="width:70px;text-align:right" name="janAmt2" id="janAmt2" value="@String.Format("{0:#,##0.#}", item.JAN)" />
                             </td>
                             <td>
-                                <input type="text" style="width:70px" name="febAmt2" id="febAmt2" value="@String.Format("{0:#,##0.#}", item.FEB)" />
+                                <input type="text" style="width:70px;text-align:right" name="febAmt2" id="febAmt2" value="@String.Format("{0:#,##0.#}", item.FEB)" />
                             </td>
                             <td>
-                                <input type="text" style="width:70px" name="marAmt2" id="marAmt2" value="@String.Format("{0:#,##0.#}", item.MAR)" />
+                                <input type="text" style="width:70px;text-align:right" name="marAmt2" id="marAmt2" value="@String.Format("{0:#,##0.#}", item.MAR)" />
                             </td>
                             <td>
-                                <input type="text" style="width:70px" name="aprAmt2" id="aprAmt2" value="@String.Format("{0:#,##0.#}", item.APR)" />
+                                <input type="text" style="width:70px;text-align:right" name="aprAmt2" id="aprAmt2" value="@String.Format("{0:#,##0.#}", item.APR)" />
                             </td>
                             <td>
-                                <input type="text" style="width:70px" name="mayAmt2" id="mayAmt2" value="@String.Format("{0:#,##0.#}", item.MAY)" />
+                                <input type="text" style="width:70px;text-align:right" name="mayAmt2" id="mayAmt2" value="@String.Format("{0:#,##0.#}", item.MAY)" />
                             </td>
                             <td>
-                                <input type="text" style="width:70px" name="junAmt2" id="junAmt2" value="@String.Format("{0:#,##0.#}", item.JUN)" />
+                                <input type="text" style="width:70px;text-align:right" id="junAmt2" value="@String.Format("{0:#,##0.#}", item.JUN)" />
                             </td>
                             <td>
-                                <input type="text" style="width:70px" name="julAmt2" id="julAmt2" value="@String.Format("{0:#,##0.#}", item.JUL)" />
+                                <input type="text"style="width:70px;text-align:right" name="julAmt2" id="julAmt2" value="@String.Format("{0:#,##0.#}", item.JUL)" />
                             </td>
                             <td>
-                                <input type="text" style="width:70px" name="augAmt2" id="augAmt2" value="@String.Format("{0:#,##0.#}", item.AUG)" />
+                                <input type="text" style="width:70px;text-align:right" name="augAmt2" id="augAmt2" value="@String.Format("{0:#,##0.#}", item.AUG)" />
                             </td>
                             <td>
-                                <input type="text" style="width:70px" name="sepAmt2" id="sepAmt2" value="@String.Format("{0:#,##0.#}", item.SEP)" />
+                                <input type="text" style="width:70px;text-align:right" name="sepAmt2" id="sepAmt2" value="@String.Format("{0:#,##0.#}", item.SEP)" />
                             </td>
                             <td>
-                                <input type="text" style="width:70px" name="octAmt2" id="octAmt2" value="@String.Format("{0:#,##0.#}", item.OCT)" />
+                                <input type="text" style="width:70px;text-align:right" name="octAmt2" id="octAmt2" value="@String.Format("{0:#,##0.#}", item.OCT)" />
                             </td>
                             <td>
-                                <input type="text" style="width:70px" name="novAmt2" id="novAmt2" value="@String.Format("{0:#,##0.#}", item.NOV)" />
+                                <input type="text" style="width:70px;text-align:right" name="novAmt2" id="novAmt2" value="@String.Format("{0:#,##0.#}", item.NOV)" />
                             </td>
                             <td>
-                                <input type="text" style="width:70px" name="decAmt2" id="decAmt2" value="@String.Format("{0:#,##0.#}", item.DEC)" />
+                                <input type="text" style="width:70px;text-align:right" name="decAmt2" id="decAmt2" value="@String.Format("{0:#,##0.#}", item.DEC)" />
                             </td>
                             <td>
                                 <span style="color: blue; font-size: 15px;">
@@ -245,41 +245,42 @@
             var atm7 = 0; var atm8 = 0; var atm9 = 0;
             var atm10 = 0; var atm11 = 0; var atm12 = 0;
 
+
             if ($.trim($(this).find("#janAmt2").val()) != "") {
-                atm1 = parseInt($.trim($(this).find("#janAmt2").val()));
+                atm1 = parseInt($.trim($(this).find("#janAmt2").val().replace(",", "")));
             }
             if ($.trim($(this).find("#febAmt2").val()) != "") {
-                atm2 = parseInt($.trim($(this).find("#febAmt2").val()));
+                atm2 = parseInt($.trim($(this).find("#febAmt2").val().replace(",", "")));
             }
             if ($.trim($(this).find("#marAmt2").val()) != "") {
-                atm3 = parseInt($.trim($(this).find("#marAmt2").val()));
+                atm3 = parseInt($.trim($(this).find("#marAmt2").val().replace(",", "")));
             }
             if ($.trim($(this).find("#aprAmt2").val()) != "") {
-                atm4 = parseInt($.trim($(this).find("#aprAmt2").val()));
+                atm4 = parseInt($.trim($(this).find("#aprAmt2").val().replace(",", "")));
             }
             if ($.trim($(this).find("#mayAmt2").val()) != "") {
-                atm5 = parseInt($.trim($(this).find("#mayAmt2").val()));
+                atm5 = parseInt($.trim($(this).find("#mayAmt2").val().replace(",", "")));
             }
             if ($.trim($(this).find("#junAmt2").val()) != "") {
-                atm6 = parseInt($.trim($(this).find("#junAmt2").val()));
+                atm6 = parseInt($.trim($(this).find("#junAmt2").val().replace(",", "")));
             }
             if ($.trim($(this).find("#julAmt2").val()) != "") {
-                atm7 = parseInt($.trim($(this).find("#julAmt2").val()));
+                atm7 = parseInt($.trim($(this).find("#julAmt2").val().replace(",", "")));
             }
             if ($.trim($(this).find("#augAmt2").val()) != "") {
-                atm8 = parseInt($.trim($(this).find("#augAmt2").val()));
+                atm8 = parseInt($.trim($(this).find("#augAmt2").val().replace(",", "")));
             }
             if ($.trim($(this).find("#sepAmt2").val()) != "") {
-                atm9 = parseInt($.trim($(this).find("#sepAmt2").val()));
+                atm9 = parseInt($.trim($(this).find("#sepAmt2").val().replace(",", "")));
             }
             if ($.trim($(this).find("#octAmt2").val()) != "") {
-                atm10 = parseInt($.trim($(this).find("#octAmt2").val()));
+                atm10 = parseInt($.trim($(this).find("#octAmt2").val().replace(",", "")));
             }
             if ($.trim($(this).find("#novAmt2").val()) != "") {
-                atm11 = parseInt($.trim($(this).find("#novAmt2").val()));
+                atm11 = parseInt($.trim($(this).find("#novAmt2").val().replace(",", "")));
             }
             if ($.trim($(this).find("#decAmt2").val()) != "") {
-                atm12 = parseInt($.trim($(this).find("#decAmt2").val()));
+                atm12 = parseInt($.trim($(this).find("#decAmt2").val().replace(",", "")));
             }
 
             total1 = atm1; total2 = atm2; total3 = atm3;
@@ -294,10 +295,19 @@
             sum13 += total1 + total2 + total3 + total4 + total5 + total6 + total7 + total8 + total9 + total10 + total11 + total12;
 
         });
-        return $("#janVTotal_2").val(sum1), $("#febVTotal_2").val(sum2), $("#marVTotal_2").val(sum3), $("#aprVTotal_2").val(sum4),
-        $("#mayVTotal_2").val(sum5), $("#junVTotal_2").val(sum6), $("#julVTotal_2").val(sum7), $("#augVTotal_2").val(sum8),
-        $("#sepVTotal_2").val(sum9), $("#octVTotal_2").val(sum10), $("#novVTotal_2").val(sum11), $("#decVTotal_2").val(sum12),
-        $("#VTotal_2").val(sum13)
+        $("#janVTotal_2").val(numeral(sum1).format('0,0'));
+        $("#febVTotal_2").val(numeral(sum2).format('0,0'));
+        $("#marVTotal_2").val(numeral(sum3).format('0,0'));
+        $("#aprVTotal_2").val(numeral(sum4).format('0,0'));
+        $("#mayVTotal_2").val(numeral(sum5).format('0,0'));
+        $("#junVTotal_2").val(numeral(sum6).format('0,0'));
+        $("#julVTotal_2").val(numeral(sum7).format('0,0'));
+        $("#augVTotal_2").val(numeral(sum8).format('0,0'));
+        $("#sepVTotal_2").val(numeral(sum9).format('0,0'));
+        $("#octVTotal_2").val(numeral(sum10).format('0,0'));
+        $("#novVTotal_2").val(numeral(sum11).format('0,0'));
+        $("#decVTotal_2").val(numeral(sum12).format('0,0'));
+        $("#VTotal_2").val(numeral(sum13).format('0,0'));
     });
 
 </script>

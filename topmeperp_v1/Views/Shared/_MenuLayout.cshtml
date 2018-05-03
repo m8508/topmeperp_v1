@@ -82,6 +82,10 @@
                             </li>
                         }
                     }
+                    @if (submodulename != null && submodulename != "")
+                    {
+                        @Html.Raw(new HtmlString("</ul></li>"));
+                    }
 
                     @Html.Raw(new HtmlString("</ul></li>"))
                 </ul>

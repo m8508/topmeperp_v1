@@ -33,6 +33,7 @@
             <div class="col-md-6 form-group" style="padding-top:10px">
                 <label for="status">狀態 : </label> @Html.DropDownList("status", null, String.Empty, new { @class = "form-control" })
                 <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
+                <button type="button" class="btn btn-info" onclick="location.href='@Url.Action("ContractItems", "Estimation", new { projectid = @ViewBag.projectid })'">新增</button>
             </div>
             <!--
             <div class="col-md-8 form-group" style="padding-top:10px">
