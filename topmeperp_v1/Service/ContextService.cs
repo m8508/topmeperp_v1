@@ -111,13 +111,14 @@ namespace topmeperp.Service
             userPrivilege = null;
             using (var context = new topmepEntities())
             {
-                userPrivilege = context.SYS_FUNCTION.SqlQuery("select f.* from SYS_FUNCTION f,SYS_PRIVILEGE p,SYS_ROLE r,SYS_USER u "
-                    + "where u.ROLE_ID = r.ROLE_ID "
-                    + "and r.ROLE_ID = p.ROLE_ID "
-                    + "and p.FUNCTION_ID = f.FUNCTION_ID "
-                    + "and u.USER_ID = @userid "
-                    + "and u.PASSWORD = @passwd "
-                    + "Order by MODULE_NAME DESC,SUB_MODULE;", new SqlParameter("userid", userid), new SqlParameter("passwd", passwd)).ToList();
+                string sql = @"select f.* from SYS_FUNCTION f,SYS_PRIVILEGE p,SYS_ROLE r,SYS_USER u 
+                                where u.ROLE_ID = r.ROLE_ID
+                                and r.ROLE_ID = p.ROLE_ID
+                                and p.FUNCTION_ID = f.FUNCTION_ID
+                                and u.USER_ID = @userid
+                                and u.PASSWORD = @passwd 
+                                Order by MODULE_NAME DESC,SUB_MODULE,FUNCTION_ID;";
+                userPrivilege = context.SYS_FUNCTION.SqlQuery(sql, new SqlParameter("userid", userid), new SqlParameter("passwd", passwd)).ToList();
             }
             logger.Info("get functions count=" + userPrivilege.Count);
         }

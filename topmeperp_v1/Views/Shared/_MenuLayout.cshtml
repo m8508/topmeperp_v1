@@ -61,6 +61,7 @@
                                 @Html.Raw(new HtmlString("<a href='#'>" + item.MODULE_NAME + "<span class='caret'></span></a>"));
                                 @Html.Raw(new HtmlString("<ul class='dropdown-menu'>"));
                                 modulename = item.MODULE_NAME;
+                                submodulename = "";
                             }
 
                             //如果換Sub Module 加入結尾符號
@@ -84,10 +85,10 @@
                     }
                     @if (submodulename != null && submodulename != "")
                     {
-                        @Html.Raw(new HtmlString("</ul></li>"));
+                        @Html.Raw(new HtmlString("</ul></li>"))
                     }
-
                     @Html.Raw(new HtmlString("</ul></li>"))
+
                 </ul>
 
                 <ul class="nav navbar-nav navbar-right">
