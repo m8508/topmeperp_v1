@@ -19,7 +19,6 @@ namespace topmeperp.Controllers
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         PurchaseFormService service = new PurchaseFormService();
 
-
         // GET: Estimation
         [topmeperp.Filter.AuthFilter]
         public ActionResult Index()
@@ -391,10 +390,10 @@ namespace topmeperp.Controllers
             TND_PROJECT p = tndservice.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
             //取得表單狀態參考資料
-            SelectList status = new SelectList(SystemParameter.getSystemPara("EstimationForm"), "KEY_FIELD", "VALUE_FIELD");
+            SelectList status = new SelectList(SystemParameter.getSystemPara("ExpenseForm"), "KEY_FIELD", "VALUE_FIELD");
             ViewData.Add("status", status);
             Flow4Estimation s = new Flow4Estimation();
-            List<ExpenseFlowTask> lstEST = s.getEstimationFormRequest(Request["contractid"], Request["payee"], Request["estid"], id, null);
+            List<ExpenseFlowTask> lstEST = s.getEstimationFormRequest(Request["contractid"], Request["payee"], Request["estid"], id, Request["status"]);
             //估驗單草稿
             //int status = 20;
             //if (Request["status"] == null || Request["status"] == "")
@@ -410,10 +409,10 @@ namespace topmeperp.Controllers
             //logger.Info("projectid=" + Request["id"] + ", contractid =" + Request["contractid"] + ", estid =" + Request["estid"] + ", status =" + int.Parse(Request["status"]));
             string id = Request["id"];
             string status = Request["status"];
-            SelectList LstStatus = new SelectList(SystemParameter.getSystemPara("EstimationForm"), "KEY_FIELD", "VALUE_FIELD");
+            SelectList LstStatus = new SelectList(SystemParameter.getSystemPara("ExpenseForm"), "KEY_FIELD", "VALUE_FIELD");
             ViewData.Add("status", LstStatus);
             Flow4Estimation s = new Flow4Estimation();
-            List<ExpenseFlowTask> lstEST = s.getEstimationFormRequest(Request["contractid"], Request["payee"], Request["estid"], id, null);
+            List<ExpenseFlowTask> lstEST = s.getEstimationFormRequest(Request["contractid"], Request["payee"], Request["estid"], id, status);
             ViewBag.SearchResult = "共取得" + lstEST.Count + "筆資料";
             ViewBag.projectId = Request["id"];
             ViewBag.projectName = Request["projectName"];

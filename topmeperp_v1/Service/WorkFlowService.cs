@@ -581,13 +581,13 @@ namespace topmeperp.Service
                 if (null != payee && payee != "")
                 {
                     sql = sql + " AND PAYEE Like @payee ";
-                    parameters.Add(new SqlParameter("payee", "'%" + payee + "%'"));
+                    parameters.Add(new SqlParameter("payee", "%" + payee + "%"));
                 }
                 //申請單號
                 if (null != estid && estid != "")
                 {
                     sql = sql + " AND  F.EST_FORM_ID Like @expid ";
-                    parameters.Add(new SqlParameter("estid", "'%" + estid + "%'"));
+                    parameters.Add(new SqlParameter("estid", "%" + estid + "%"));
                 }
                 //專案名稱
                 if (null != projectid && projectid != "")

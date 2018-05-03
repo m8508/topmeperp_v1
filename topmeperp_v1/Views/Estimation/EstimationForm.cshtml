@@ -33,7 +33,6 @@
             <div class="col-md-6 form-group" style="padding-top:10px">
                 <label for="status">狀態 : </label> @Html.DropDownList("status", null, String.Empty, new { @class = "form-control" })
                 <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
-                <button type="button" class="btn btn-info" onclick="location.href='@Url.Action("ContractItems", "Estimation", new { projectid = @ViewBag.projectid })'">新增</button>
             </div>
             <!--
             <div class="col-md-8 form-group" style="padding-top:10px">
@@ -44,12 +43,13 @@
                 <div id="divProcessing">
                     <img src="~/Content/ajax-loader.gif">
                 </div>
-               
+
             </div> -->
-                <div class="col-md-2 form-group" style="padding-top:10px">
-                    <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "CashFlow")'" value="回上一頁">
-                </div>
+            <div class="col-md-2 form-group" style="padding-top:10px">
+                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("ContractItems", "Estimation", new { projectid = @ViewBag.projectid })'">新增</button>
+                <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "CashFlow")'" value="回上一頁">
             </div>
+        </div>
     </form>
 </div>
 <!--估驗單列表區域-->
@@ -59,7 +59,6 @@
     {
         Html.RenderPartial("_EstimationFormList");
     }
-
 </div>
 
 <script type="text/javascript">
@@ -69,12 +68,6 @@
         // Attach click handler to the submit button:
         $('#Submit1').click(function () {
             $("#divProcessing").show();
-        });
-
-        $(function () {
-            $('#create_date').datetimepicker({
-                format: 'YYYY/MM'
-            });
         });
     })
 </script>

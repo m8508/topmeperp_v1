@@ -412,6 +412,7 @@
     <Compile Include="Controllers\CostChangeController.cs" />
     <Compile Include="Controllers\DeptManageController.cs" />
     <Compile Include="Controllers\EstimationController.cs" />
+    <Compile Include="Controllers\FormManageController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InquiryController.cs" />
     <Compile Include="Controllers\MaterialManageController.cs" />
@@ -1115,6 +1116,8 @@
     <Content Include="Views\BankInfo\_BankLoanTransactionItem.cshtml" />
     <Content Include="UploadFile\credit_note_form.xlsx" />
     <Content Include="Views\Test\index.cshtml" />
+    <Content Include="Views\FormManage\Index.cshtml" />
+    <Content Include="Views\FormManage\_EstimationFormList.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
