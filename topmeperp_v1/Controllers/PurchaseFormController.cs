@@ -634,6 +634,12 @@ namespace topmeperp.Controllers
             string formName = Request["formName"];
             log.Debug("formName=" + formName);
             ViewBag.formName = formName;
+            string iswage = Request["iswage"]; 
+            if (iswage == "Y")
+            {
+                ViewBag.isWage = "checked";
+            }
+
             //設定查詢條件
             return View();
         }
