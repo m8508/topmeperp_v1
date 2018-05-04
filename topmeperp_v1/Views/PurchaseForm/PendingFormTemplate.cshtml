@@ -39,8 +39,9 @@
                         詢價單數量
                     </th>
                     <th>議約廠商</th>
-                    <th>空白詢價單</th>
-                    <th>廠商詢價單</th>
+                    <th>比價</th>
+                    <!--<th>空白詢價單</th>
+                    <th>廠商詢價單</th>-->
                     <th>發包廠商</th>
                     <th>廠牌</th>
                     <th>
@@ -102,11 +103,14 @@
                             <a href="/PurchaseForm/PurchaseMain?id=@item.PROJECT_ID&formname=@item.FORM_NAME&iswage=@item.ISWAGE" target="_blank"><span style="color:forestgreen; font-size: 15px;">連結</span></a>
                         </td>
                         <td>
+                            <a href="/PurchaseForm/Comparison/@ViewBag.projectid?formName=@item.FORM_NAME" target="_blank">比價</a>
+                        </td>
+                        <!--<td>
                             <a href="/PurchaseForm/downLoadInquiryForm?formid=@item.INQUIRY_FORM_ID&isTemp=N" target="_blank">下載</a>
                         </td>
                         <td>
                             <a href="/PurchaseForm/SinglePrjForm/@item.INQUIRY_FORM_ID" target="_blank"><span style="color: deeppink; font-size: 15px;">產生</span></a>
-                        </td>
+                        </td>-->
                         <td>@Html.TextBox("supplier", @item.Supplier, new { style = "width:110px", @readonly = "readonly" , @class = "form-control" })</td>
                         <td><input type="text" class="form-control" style="width:120px" name="brand" id="brand" value="@item.MATERIAL_BRAND"></td>
                         @if (null != item.Bargain && item.Bargain != "")

@@ -631,6 +631,9 @@ namespace topmeperp.Controllers
             }
             //selectSub.Add(empty);
             ViewBag.SystemSub = selectSub;
+            string formName = Request["formName"];
+            log.Debug("formName=" + formName);
+            ViewBag.formName = formName;
             //設定查詢條件
             return View();
         }

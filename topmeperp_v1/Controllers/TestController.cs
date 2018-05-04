@@ -13,5 +13,11 @@ namespace topmeperp.Controllers
         {
             return View();
         }
+        //handsontable : Excel 樣式範例
+        public ActionResult handsontable()
+        {
+            return View();
+        }
     }
+    
 }
