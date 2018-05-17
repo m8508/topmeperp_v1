@@ -606,8 +606,8 @@ namespace topmeperp.Models
     }
     public class ExpenseBudgetModel
     {
-        public IEnumerable<ExpenseBudgetSummary> ExpenseSummary { get; set; }
         public IEnumerable<ExpenseBudgetSummary> BudgetSummary { get; set; }
+        public IEnumerable<ExpenseBudgetSummary> ExpenseSummary { get; set; }
         public IEnumerable<ExpenseBudgetByMonth> budget { get; set; }
         public IEnumerable<ExpensetFromOPByMonth> expense { get; set; }
     }
