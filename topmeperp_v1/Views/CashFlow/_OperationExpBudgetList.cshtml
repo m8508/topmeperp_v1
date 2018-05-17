@@ -3,13 +3,11 @@
 @{ 
     decimal? excuRatio = Convert.ToDecimal(TempData["TotalExpAmt"]) / Convert.ToDecimal(TempData["TotalAmt"]) * 100;
 }
-<div class="row" style="padding-bottom:10px">
+<div class="row" >
     <div class="col-md-12">
-        <a class="btn btn-link" href="/CashFlow/downLoadOPExpenseSummary?budgetyear=@TempData["budgetYear"]" target="_blank"><span style="color :magenta; font-size: 20px;">下載彙整表</span></a>
-    </div>
-    <div class="col-md-12" style="padding-top:5px">
         <div class="col-md-3">
             <span style="color: blue; font-size: 20px;">預算年度 : @TempData["budgetYear"]</span>
+            <a class="btn btn-link" href="/CashFlow/downLoadOPExpenseSummary?budgetyear=@TempData["budgetYear"]" target="_blank"><span style="color :magenta;">下載彙整表</span></a>
         </div>
         <div class="col-md-3 text-right">
             <span style="color:darkgreen; font-size: 20px;">總預算金額 : @String.Format("{0:#,##0.#}", TempData["TotalAmt"])</span>

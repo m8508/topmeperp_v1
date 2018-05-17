@@ -3,12 +3,11 @@
     ViewBag.Title = "公司費用預算執行彙整表";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
-
 <div class="page-header">
     <h3 style="padding-bottom:10px;">公司費用預算執行彙整表 : </h3>
     <form name="formSearchExpSummary" id="formSearchExpSummary" action="SearchExpSummary" method="Post" class="form-inline">
-        <div class="row col-md-12" style="padding-bottom : 5px">
-            <div class="row col-md-4" style="padding-bottom:5px">
+        <div class="row" style="padding-bottom : 5px">
+            <div class="col-md-4">
                 <label for="budgetyear">預算年度 :</label> <input id="budgetyear" name="budgetyear" type="text" placeholder="請輸入要查詢的預算年度" class="form-control" />
             </div>
             <div class="col-md-2 pull-left">
@@ -22,8 +21,7 @@
 </div>
 
 <!--公司費用預算執行列表區域-->
-<div class="container-fluid">
-
+<div class="pager body-content">
     @if (null != Model)
     {
         Html.RenderPartial("_OperationExpBudgetList");
