@@ -1137,7 +1137,7 @@ namespace topmeperp.Service
         string fileformat = "xlsx";
 
         //存放費用表資料
-        PurchaseFormService service = new PurchaseFormService();
+        Service4Budget service = new Service4Budget();
         public ExpenseFormFunction ExpTable = null;
         public List<ExpenseBudgetSummary> EXPTableItem = null;
         public List<ExpenseBudgetSummary> SiteTableItem = null;
@@ -1581,7 +1581,7 @@ namespace topmeperp.Service
         XSSFCellStyle styleNumber = null;
 
         //存放費用表資料
-        PurchaseFormService service = new PurchaseFormService();
+        Service4Budget service = new Service4Budget();
         ExpenseBudgetSummary Amt = null;
         ExpenseBudgetSummary ExpAmt = null;
         public string totalBudget = null;
@@ -2203,7 +2203,7 @@ namespace topmeperp.Service
         ISheet sheet = null;
         string fileformat = "xlsx";
         //存放工地費用預算資料
-        PurchaseFormService service = new PurchaseFormService();
+        Service4Budget service = new Service4Budget();
         public List<FIN_SUBJECT> subjects = null;
         public string errorMessage = null;
         public TND_PROJECT project = null;
@@ -2534,7 +2534,7 @@ namespace topmeperp.Service
         string fileformat = "xlsx";
 
         //存放費用表資料
-        PurchaseFormService service = new PurchaseFormService();
+        Service4Budget service = new Service4Budget();
         ExpenseBudgetSummary Amt = null;
         ExpenseBudgetSummary ExpAmt = null;
         public string totalBudget = null;

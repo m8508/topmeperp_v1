@@ -17,7 +17,7 @@ namespace topmeperp.Controllers
     public class CashFlowController : Controller
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        PurchaseFormService service = new PurchaseFormService();
+        Service4Budget service = new Service4Budget();
 
         // GET: CashFlow 
         [topmeperp.Filter.AuthFilter]
@@ -132,26 +132,6 @@ namespace topmeperp.Controllers
             return View(viewModel);
         }
      
-        //public ActionResult ExpenseBudget()
-        //{
-        //    logger.Info("Access to Expense Budget Page !!");
-        //    List<ExpenseBudgetSummary> ExpBudget = null;
-        //    List<ExpenseBudgetByMonth> BudgetByMonth = null;
-        //    ExpenseBudgetModel viewModel = new ExpenseBudgetModel();
-        //    ExpenseBudgetSummary Amt = null;
-        //    if (null != Request["budgetyear"])
-        //    {
-        //        ExpBudget = service.getExpBudgetByYear(int.Parse(Request["budgetyear"]));
-        //        BudgetByMonth = service.getExpBudgetOfMonthByYear(int.Parse(Request["budgetyear"]));
-        //        Amt = service.getTotalExpBudgetAmount(int.Parse(Request["budgetyear"]));
-        //        viewModel.summary = ExpBudget;
-        //        viewModel.budget = BudgetByMonth;
-        //        TempData["TotalAmt"] = Amt.TOTAL_BUDGET;
-        //        return View(viewModel);
-        //    }
-        //    TempData["budgetYear"] = Request["budgetyear"];
-        //    return View();
-        //}
         //查詢公司預算
         public ActionResult Search()
         {
@@ -231,6 +211,11 @@ namespace topmeperp.Controllers
             return RedirectToAction("ExpenseBudget");
         }
 
+        public ActionResult ExpenseBudget()
+        {
+            logger.Info("Access to Expense Budget Page !!");
+            return View();
+        }
         //更新公司費用預算
         public String UpdateExpBudget(FormCollection form)
         {

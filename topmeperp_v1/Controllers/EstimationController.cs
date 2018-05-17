@@ -17,7 +17,7 @@ namespace topmeperp.Controllers
     public class EstimationController : Controller
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        PurchaseFormService service = new PurchaseFormService();
+        Service4Budget service = new Service4Budget();
 
         // GET: Estimation
         [topmeperp.Filter.AuthFilter]
@@ -230,37 +230,6 @@ namespace topmeperp.Controllers
         {
             //取得專案編號
             logger.Info("Project Id:" + Request["id"]);
-            //取得專案名稱
-            //logger.Info("ContractId:" + Request["keyid"]);
-            //logger.Info("get EST No of un Approval By contractid:" + Request["contractid"]);
-            //string contractid = Request["contractid"];
-            //string UnApproval = null;
-            //UnApproval = service.getEstNoByContractId(contractid);
-            //if (UnApproval != null && "" != UnApproval)
-            //{
-            //System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            //string itemJson = objSerializer.Serialize(service.getEstNoByContractId(contractid));
-            //logger.Info("EST form No of UnApproval =" + itemJson);
-            //return itemJson;
-            //}
-            //else
-            //{
-            /*
-            // 先刪除原先資料
-            logger.Info("EST form id =" + Request["formid"]);
-            logger.Info("Delete PLAN_ESTIMATION_FORM By EST_FORM_ID");
-            service.delESTByESTId(Request["formid"]);
-            logger.Info("Delete PLAN_ESTIMATION_ITEM By EST_FORM_ID");
-            service.delESTItemsByESTId(Request["formid"]);
-            //取得合約估驗品項ID
-            string[] lstItemId = Request["planitemid"].Split(',');
-            var i = 0;
-            for (i = 0; i < lstItemId.Count(); i++)
-            {
-                logger.Info("item_list return No.:" + lstItemId[i]);
-            }
-            string[] lstQty = Request["evaluated_qty"].Split(',');
-            */
             //建立估驗單
             logger.Info("create new Estimation Form");
             UserService us = new UserService();
@@ -286,23 +255,6 @@ namespace topmeperp.Controllers
             est.REMARK = Request["remark"];
             //est.INVOICE = Request["invoice"];
             est.STATUS = -10;
-            //if (Request["tax"] == "E")
-            //{
-            //est.TAX_RATIO = decimal.Parse(Request["taxratio"]);
-            //}
-            //else
-            //{
-            //est.TAX_RATIO = 0;
-            //}
-            //try
-            //{
-            //est.FOREIGN_PAYMENT = int.Parse(Request["t_foreign"]);
-            //}
-            //catch (Exception ex)
-            //{
-            //logger.Error(est.FOREIGN_PAYMENT + " not foreign_payment:" + ex.Message);
-            //}
-            //est.TYPE = Request["type"];
             try
             {
                 est.PAYMENT_TRANSFER = decimal.Parse(Request["paid_amount"]);
@@ -346,29 +298,6 @@ namespace topmeperp.Controllers
             }
             //string estid = service.newEST(Request["formid"], est, lstItemId);
             string estid = service.newEST(Request["estid"], est);
-            /*
-            List<PLAN_ESTIMATION_ITEM> lstItem = new List<PLAN_ESTIMATION_ITEM>();
-            for (int j = 0; j < lstItemId.Count(); j++)
-           {
-             PLAN_ESTIMATION_ITEM items = new PLAN_ESTIMATION_ITEM();
-             items.PLAN_ITEM_ID = lstItemId[j];
-             if (lstQty[j].ToString() == "")
-           {
-             items.EST_QTY = null;
-           }
-            else
-           {
-             items.EST_QTY = decimal.Parse(lstQty[j]);
-           }
-             logger.Debug("Item No=" + items.PLAN_ITEM_ID + ", Qty =" + items.EST_QTY);
-             lstItem.Add(items);
-           }
-             int k = service.refreshEST(estid, est, lstItem);
-           */
-            //int m = service.UpdateRetentionAmountById(Request["formid"], Request["contractid"]);
-            //寫入實付金額(PAID_AMOUNT 欄位)
-            //PaymentDetailsFunction amountPaid = service.getDetailsPayById(Request["formid"], Request["contractid"]);
-            //int t = service.UpdatePaidAmountById(Request["formid"], decimal.Parse(amountPaid.PAID_AMOUNT.ToString()));
 
             int iR = service.UpdateESTStatusById(estid);
             Flow4Estimation flowService = new Flow4Estimation();
@@ -394,13 +323,6 @@ namespace topmeperp.Controllers
             ViewData.Add("status", status);
             Flow4Estimation s = new Flow4Estimation();
             List<ExpenseFlowTask> lstEST = s.getEstimationFormRequest(Request["contractid"], Request["payee"], Request["estid"], id, Request["status"]);
-            //估驗單草稿
-            //int status = 20;
-            //if (Request["status"] == null || Request["status"] == "")
-            //{
-            //status = 10;
-            //}
-            //List<ESTFunction> lstEST = service.getESTListByEstId(id, Request["contractid"], Request["estid"], status, Request["supplier"]);
             return View(lstEST);
         }
 
@@ -1558,11 +1480,11 @@ namespace topmeperp.Controllers
                 FourthYearBudget = service.getBudget4ProjectBySeq(id,"4");
                 FifthYearBudget = service.getBudget4ProjectBySeq(id,"5");
                 //工地(專案)該年度預算
-                ViewBag.FirstYear = service.getFirstYearOfSiteBudgetById(id);
-                ViewBag.SecondYear = service.getSecondYearOfSiteBudgetById(id);
-                ViewBag.ThirdYear = service.getThirdYearOfSiteBudgetById(id);
-                ViewBag.FourthYear = service.getFourthYearOfSiteBudgetById(id);
-                ViewBag.FifthYear = service.getFifthYearOfSiteBudgetById(id);
+                ViewBag.FirstYear = service.getSiteBudgetByYearSeq(id,"1");
+                ViewBag.SecondYear = service.getSiteBudgetByYearSeq(id,"2");
+                ViewBag.ThirdYear = service.getSiteBudgetByYearSeq(id,"3");
+                ViewBag.FourthYear = service.getSiteBudgetByYearSeq(id,"4");
+                ViewBag.FifthYear = service.getSiteBudgetByYearSeq(id,"5");
                 Amt = service.getTotalSiteBudgetAmount(id);
                 TempData["TotalAmt"] = Amt.TOTAL_BUDGET;
                 SiteBudgetModels viewModel = new SiteBudgetModels();
