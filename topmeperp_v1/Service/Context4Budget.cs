@@ -99,7 +99,7 @@ namespace topmeperp.Service
             {
                 string sql = @"SELECT DISTINCT BUDGET_YEAR FROM PLAN_SITE_BUDGET WHERE PROJECT_ID = @pid AND YEAR_SEQUENCE = @yearSeq";
                 var parameters = new List<SqlParameter>();
-                parameters.Add(new SqlParameter("projectid", prjid));
+                parameters.Add(new SqlParameter("pid", prjid));
                 parameters.Add(new SqlParameter("yearSeq", yearSeq));
                 year = context.Database.SqlQuery<int>(sql, parameters.ToArray()).FirstOrDefault();
             }
