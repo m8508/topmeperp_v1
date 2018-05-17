@@ -1447,20 +1447,22 @@ namespace topmeperp.Service
             List<DirectCost> lstDirecCost = null;
             using (var context = new topmepEntities())
             {
-                string sql = "SELECT (select TYPE_CODE_1 + TYPE_CODE_2 from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE, "
-                    + "(SELECT TYPE_DESC from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE_DESC ,"
-                    + "(SELECT SUB_TYPE_ID from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) T_SUB_CODE, "
-                    + "TYPE_CODE_2 SUB_CODE, (select TYPE_DESC from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) SUB_DESC, "
-                    + "SUM(tndQTY * tndPrice) MATERIAL_COST, SUM(MapQty * tndPrice) MATERIAL_COST_INMAP,"
-                    + "SUM(MapQty * RATIO) MAN_DAY_4EXCEL,"
-                    + "SUM(MapQty * RATIO * WagePrice) MAN_DAY_INMAP,"
-                    + "SUM(tndQTY * ITEM_UNIT_PRICE) CONTRACT_PRICE,"
-                    + "COUNT(*) ITEM_COUNT "
-                    + "FROM(SELECT pi.*, w.RATIO, w.PRICE, it.ITEM_UNIT_PRICE tndPrice, it.ITEM_QUANTITY tndQTY, map.QTY MapQty, ISNULL(p.WAGE_MULTIPLIER, 0) AS WagePrice FROM PLAN_ITEM pi LEFT OUTER JOIN TND_WAGE w "
-                    + "ON pi.PLAN_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map "
-                    + "ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT OUTER JOIN TND_PROJECT_ITEM it ON it.PROJECT_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN TND_PROJECT p ON pi.PROJECT_ID = p.PROJECT_ID  "
-                    + "WHERE it.project_id =@projectid ) A "
-                    + "GROUP BY TYPE_CODE_1, TYPE_CODE_2 ORDER BY ISNULL(TYPE_CODE_1,'無'), ISNULL(TYPE_CODE_2, '無') ;";
+                string sql = @"SELECT (select TYPE_CODE_1 + TYPE_CODE_2 from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE, 
+                     (SELECT TYPE_DESC from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE_DESC ,
+                     (SELECT SUB_TYPE_ID from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) T_SUB_CODE, 
+                     TYPE_CODE_2 SUB_CODE, (select TYPE_DESC from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) SUB_DESC, 
+                     SUM(tndQTY * tndPrice) MATERIAL_COST, SUM(MapQty * tndPrice) MATERIAL_COST_INMAP,
+                     SUM(MapQty * RATIO) MAN_DAY_4EXCEL,
+                     SUM(MapQty * RATIO * WagePrice) MAN_DAY_INMAP,
+                     SUM(tndQTY * ITEM_UNIT_PRICE) CONTRACT_PRICE,
+                     COUNT(*) ITEM_COUNT 
+                     FROM(SELECT pi.*, w.RATIO, w.PRICE, it.ITEM_UNIT_PRICE tndPrice, it.ITEM_QUANTITY tndQTY, map.QTY MapQty, ISNULL(p.WAGE_MULTIPLIER, 0) AS WagePrice 
+                     FROM PLAN_ITEM pi LEFT OUTER JOIN TND_WAGE w 
+                     ON pi.PLAN_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map 
+                     ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT OUTER JOIN TND_PROJECT_ITEM it 
+                     ON it.PROJECT_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN TND_PROJECT p ON pi.PROJECT_ID = p.PROJECT_ID  
+                     WHERE it.project_id =@projectid ) A 
+                     GROUP BY TYPE_CODE_1, TYPE_CODE_2 ORDER BY ISNULL(TYPE_CODE_1,'無'), ISNULL(TYPE_CODE_2, '無') ;";
                 logger.Info("Get DirectCost SQL=" + sql + ",projectid=" + projectid);
                 lstDirecCost = context.Database.SqlQuery<DirectCost>(sql, new SqlParameter("projectid", projectid)).ToList();
 

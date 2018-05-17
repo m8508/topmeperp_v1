@@ -2236,7 +2236,7 @@ namespace topmeperp.Controllers
                 ExpenseByMonth = service.getSiteExpensetOfMonth(Request["projectid"], targetYear, targetMonth, isCum);
                 Amt = service.getSiteBudgetAmountById(Request["projectid"]);
                 ExpAmt = service.getTotalSiteExpAmountById(Request["projectid"], targetYear, targetMonth, isCum);
-                viewModel.summary = ExpBudget;
+               //// viewModel.summary = ExpBudget;
                 viewModel.budget = BudgetByMonth;
                 viewModel.expense = ExpenseByMonth;
                 TempData["TotalAmt"] = Amt.TOTAL_BUDGET;
@@ -2292,7 +2292,7 @@ namespace topmeperp.Controllers
                 ExpenseByMonth = service.getSiteExpensetOfMonth(Request["projectid"], targetYear, targetMonth, isCum);
                 Amt = service.getSiteBudgetAmountById(Request["projectid"]);
                 ExpAmt = service.getTotalSiteExpAmountById(Request["projectid"], targetYear, targetMonth, isCum);
-                viewModel.summary = ExpBudget;
+               /// viewModel.summary = ExpBudget;
                 viewModel.budget = BudgetByMonth;
                 viewModel.expense = ExpenseByMonth;
                 TempData["TotalAmt"] = Amt.TOTAL_BUDGET;

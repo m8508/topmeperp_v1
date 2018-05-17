@@ -7,7 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using topmeperp.Models;
+
 
 namespace topmeperp.Service
 {
@@ -62,8 +64,8 @@ namespace topmeperp.Service
         {
         }
 
-        
-        public new  void exportExcel(string projectid)
+
+        public new void exportExcel(string projectid)
         {
             //1 取得資料庫資料
             logger.Info("get data from DB,id=" + projectid);
@@ -1577,7 +1579,6 @@ namespace topmeperp.Service
         ISheet sheet = null;
         XSSFCellStyle style = null;
         XSSFCellStyle styleNumber = null;
-        string fileformat = "xlsx";
 
         //存放費用表資料
         PurchaseFormService service = new PurchaseFormService();
@@ -1590,9 +1591,9 @@ namespace topmeperp.Service
         //建立公司費用預算執行彙整下載表格
         public string exportExcel(int year)
         {
-            List<ExpenseBudgetSummary> ExpBudget = service.getExpBudgetSummaryByYear(year);
-            List<ExpenseBudgetByMonth> BudgetByMonth = service.getExpBudgetOfMonthByYear(year);
-            List<ExpensetFromOPByMonth> ExpenseByMonth = service.getExpensetOfMonthByYear(year);
+            List<ExpenseBudgetSummary> BudgetSummary = service.getExpBudgetByYear(year);
+            List<ExpenseBudgetSummary> ExpenseSummary = service.getExpSummaryByYear(year);
+
             Amt = service.getTotalExpBudgetAmount(year);
             totalBudget = String.Format("{0:#,##0.#}", Amt.TOTAL_BUDGET);
             ExpAmt = service.getTotalOperationExpAmount(year);
@@ -1604,464 +1605,37 @@ namespace topmeperp.Service
             sheet = (XSSFSheet)hssfworkbook.GetSheet("彙整表");
             //2.填入表頭資料
             logger.Debug("Table Head_1=" + sheet.GetRow(1).Cells[0].ToString());
+            IRow r = sheet.GetRow(0);
+            int iCols = r.Cells.Count;
+            sheet.GetRow(0).Cells[15].SetCellValue(totalBudget);//總預算金額
             sheet.GetRow(1).Cells[1].SetCellValue(year);//公司費用預算年度
+            sheet.GetRow(1).Cells[9].SetCellValue(totalExpense);//總執行金額
             sheet.GetRow(2).Cells[15].SetCellValue(DateTime.Now.ToString("yyyy/MM/dd"));//製表日期
-            sheet.GetRow(0).Cells[16].SetCellValue(totalBudget);//總預算金額
-            sheet.GetRow(1).Cells[10].SetCellValue(totalExpense);//總執行金額
 
             //3.填入資料
             int idxRow = 5;
-            foreach (ExpenseBudgetSummary item in ExpBudget)
+            foreach (ExpenseBudgetSummary item in BudgetSummary)
             {
-                IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
-                logger.Info("Row Id=" + idxRow);
-                //項目、項目代碼、預算/費用、7月、8月、9月、10月、11月、12月、1月、2月、3月、4月、5月、6月、合計
-                //項目
-                logger.Debug("SUBJECT_NAM=" + item.SUBJECT_NAME);
-                row.CreateCell(0).SetCellValue(item.SUBJECT_NAME);
-                row.Cells[0].CellStyle = style;
-                //項目代碼
-                row.CreateCell(1).SetCellValue(item.SUBJECT_ID);
-                row.Cells[1].CellStyle = style;
-                //預算/實際
-                row.CreateCell(2).SetCellValue(item.NO);
-                ICell cel3 = row.CreateCell(3);//設公式
-                cel3.CellFormula = "IF(ISBLANK(C" + (idxRow + 1) + "),\"\",IF(MOD(C" + (idxRow + 1) + ",2)=0,\"實際數\",\"預算數\"))";
-                cel3.CellStyle = style;
+                logger.Info("Budget Row Id=" + idxRow);
+                createRow(idxRow, item, "預算數");
+                idxRow++;
+                //由會計科目取得實際數資料
+                logger.Info("Execute Row Id=" + idxRow);
+                List<ExpenseBudgetSummary> modelExpenseSummary = ExpenseSummary.Where(x => x.FIN_SUBJECT_ID.Equals(item.SUBJECT_ID)).ToList();
+                if (null != modelExpenseSummary && modelExpenseSummary.Count > 0)
+                {
+                    ExpenseBudgetSummary exp = modelExpenseSummary[0];
+                    createRow(idxRow, exp, "實際數");
+                }
+                idxRow++;
+            }
+            //加入每月預算數總計
+            IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);                                              
+            createSumRow(idxRow, row, "預算數");
+            idxRow++;
+            row = sheet.CreateRow(idxRow);//.GetRow(idxRow);        
+            createSumRow(idxRow, row, "實際數");
 
-                row.CreateCell(4);//7月
-                if (null != item.JUL && item.JUL.ToString().Trim() != "")
-                {
-                    row.Cells[4].SetCellValue(double.Parse(item.JUL.ToString()));
-                }
-                else
-                {
-                    row.Cells[4].SetCellValue("");
-                }
-                row.Cells[4].CellStyle = styleNumber;
-                row.CreateCell(5);//8月
-                if (null != item.AUG && item.AUG.ToString().Trim() != "")
-                {
-                    row.Cells[5].SetCellValue(double.Parse(item.AUG.ToString()));
-                }
-                else
-                {
-                    row.Cells[5].SetCellValue("");
-                }
-                row.Cells[5].CellStyle = styleNumber;
-                row.CreateCell(6);//9月
-                if (null != item.SEP && item.SEP.ToString().Trim() != "")
-                {
-                    row.Cells[6].SetCellValue(double.Parse(item.SEP.ToString()));
-                }
-                else
-                {
-                    row.Cells[5].SetCellValue("");
-                }
-                row.Cells[6].CellStyle = styleNumber;
-                row.CreateCell(7);//10月
-                if (null != item.OCT && item.OCT.ToString().Trim() != "")
-                {
-                    row.Cells[7].SetCellValue(double.Parse(item.OCT.ToString()));
-                }
-                else
-                {
-                    row.Cells[7].SetCellValue("");
-                }
-                row.Cells[7].CellStyle = styleNumber;
-                row.CreateCell(8);//11月
-                if (null != item.NOV && item.NOV.ToString().Trim() != "")
-                {
-                    row.Cells[8].SetCellValue(double.Parse(item.NOV.ToString()));
-                }
-                else
-                {
-                    row.Cells[8].SetCellValue("");
-                }
-                row.Cells[8].CellStyle = styleNumber;
-                row.CreateCell(9);//12月
-                if (null != item.DEC && item.DEC.ToString().Trim() != "")
-                {
-                    row.Cells[9].SetCellValue(double.Parse(item.DEC.ToString()));
-                }
-                else
-                {
-                    row.Cells[9].SetCellValue("");
-                }
-                row.Cells[9].CellStyle = styleNumber;
-                row.CreateCell(10);//1月
-                if (null != item.JAN && item.JAN.ToString().Trim() != "")
-                {
-                    row.Cells[10].SetCellValue(double.Parse(item.JAN.ToString()));
-                }
-                else
-                {
-                    row.Cells[10].SetCellValue("");
-                }
-                row.Cells[10].CellStyle = styleNumber;
-                row.CreateCell(11);//2月
-                if (null != item.FEB && item.FEB.ToString().Trim() != "")
-                {
-                    row.Cells[11].SetCellValue(double.Parse(item.FEB.ToString()));
-                }
-                else
-                {
-                    row.Cells[11].SetCellValue("");
-                }
-                row.Cells[11].CellStyle = styleNumber;
-                row.CreateCell(12);//3月
-                if (null != item.MAR && item.MAR.ToString().Trim() != "")
-                {
-                    row.Cells[12].SetCellValue(double.Parse(item.MAR.ToString()));
-                }
-                else
-                {
-                    row.Cells[12].SetCellValue("");
-                }
-                row.Cells[12].CellStyle = styleNumber;
-                row.CreateCell(13);//4月
-                if (null != item.APR && item.APR.ToString().Trim() != "")
-                {
-                    row.Cells[13].SetCellValue(double.Parse(item.APR.ToString()));
-                }
-                else
-                {
-                    row.Cells[13].SetCellValue("");
-                }
-                row.Cells[13].CellStyle = styleNumber;
-                row.CreateCell(14);//5月
-                if (null != item.MAY && item.MAY.ToString().Trim() != "")
-                {
-                    row.Cells[14].SetCellValue(double.Parse(item.MAY.ToString()));
-                }
-                else
-                {
-                    row.Cells[14].SetCellValue("");
-                }
-                row.Cells[14].CellStyle = styleNumber;
-                row.CreateCell(15);//6月
-                if (null != item.JUN && item.JUN.ToString().Trim() != "")
-                {
-                    row.Cells[15].SetCellValue(double.Parse(item.JUN.ToString()));
-                }
-                else
-                {
-                    row.Cells[15].SetCellValue("");
-                }
-                row.Cells[15].CellStyle = styleNumber;
-                row.CreateCell(16);//合計
-                if (null != item.HTOTAL && item.HTOTAL.ToString().Trim() != "")
-                {
-                    row.Cells[16].SetCellValue(double.Parse(item.HTOTAL.ToString()));
-                }
-                else
-                {
-                    row.Cells[16].SetCellValue("");
-                }
-                row.Cells[16].CellStyle = styleNumber;
-                logger.Debug("get ExpBudget cell style rowid=" + idxRow);
-                idxRow++;
-            }
-            foreach (ExpenseBudgetByMonth item in BudgetByMonth)
-            {
-                IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
-                logger.Info("Row Id=" + idxRow);
-                //預算/費用、7月、8月、9月、10月、11月、12月、1月、2月、3月、4月、5月、6月、合計
-                row.CreateCell(0);
-                row.Cells[0].SetCellValue("合計");
-                row.Cells[0].CellStyle = style;
-                row.CreateCell(1);
-                row.Cells[1].SetCellValue("");
-                row.Cells[1].CellStyle = style;
-                row.CreateCell(2);
-                row.Cells[2].SetCellValue("");
-                row.Cells[2].CellStyle = style;
-                row.CreateCell(3);//預算
-                row.Cells[3].SetCellValue("預算數");
-                row.Cells[3].CellStyle = style;
-                row.CreateCell(4);//7月
-                if (null != item.JUL && item.JUL.ToString().Trim() != "")
-                {
-                    row.Cells[4].SetCellValue(double.Parse(item.JUL.ToString()));
-                }
-                else
-                {
-                    row.Cells[4].SetCellValue("");
-                }
-                row.Cells[4].CellStyle = styleNumber;
-                row.CreateCell(5);//8月
-                if (null != item.AUG && item.AUG.ToString().Trim() != "")
-                {
-                    row.Cells[5].SetCellValue(double.Parse(item.AUG.ToString()));
-                }
-                else
-                {
-                    row.Cells[5].SetCellValue("");
-                }
-                row.Cells[5].CellStyle = styleNumber;
-                row.CreateCell(6);//9月
-                if (null != item.SEP && item.SEP.ToString().Trim() != "")
-                {
-                    row.Cells[6].SetCellValue(double.Parse(item.SEP.ToString()));
-                }
-                else
-                {
-                    row.Cells[5].SetCellValue("");
-                }
-                row.Cells[6].CellStyle = styleNumber;
-                row.CreateCell(7);//10月
-                if (null != item.OCT && item.OCT.ToString().Trim() != "")
-                {
-                    row.Cells[7].SetCellValue(double.Parse(item.OCT.ToString()));
-                }
-                else
-                {
-                    row.Cells[7].SetCellValue("");
-                }
-                row.Cells[7].CellStyle = styleNumber;
-                row.CreateCell(8);//11月
-                if (null != item.NOV && item.NOV.ToString().Trim() != "")
-                {
-                    row.Cells[8].SetCellValue(double.Parse(item.NOV.ToString()));
-                }
-                else
-                {
-                    row.Cells[8].SetCellValue("");
-                }
-                row.Cells[8].CellStyle = styleNumber;
-                row.CreateCell(9);//12月
-                if (null != item.DEC && item.DEC.ToString().Trim() != "")
-                {
-                    row.Cells[9].SetCellValue(double.Parse(item.DEC.ToString()));
-                }
-                else
-                {
-                    row.Cells[9].SetCellValue("");
-                }
-                row.Cells[9].CellStyle = styleNumber;
-                row.CreateCell(10);//1月
-                if (null != item.JAN && item.JAN.ToString().Trim() != "")
-                {
-                    row.Cells[10].SetCellValue(double.Parse(item.JAN.ToString()));
-                }
-                else
-                {
-                    row.Cells[10].SetCellValue("");
-                }
-                row.Cells[10].CellStyle = styleNumber;
-                row.CreateCell(11);//2月
-                if (null != item.FEB && item.FEB.ToString().Trim() != "")
-                {
-                    row.Cells[11].SetCellValue(double.Parse(item.FEB.ToString()));
-                }
-                else
-                {
-                    row.Cells[11].SetCellValue("");
-                }
-                row.Cells[11].CellStyle = styleNumber;
-                row.CreateCell(12);//3月
-                if (null != item.MAR && item.MAR.ToString().Trim() != "")
-                {
-                    row.Cells[12].SetCellValue(double.Parse(item.MAR.ToString()));
-                }
-                else
-                {
-                    row.Cells[12].SetCellValue("");
-                }
-                row.Cells[12].CellStyle = styleNumber;
-                row.CreateCell(13);//4月
-                if (null != item.APR && item.APR.ToString().Trim() != "")
-                {
-                    row.Cells[13].SetCellValue(double.Parse(item.APR.ToString()));
-                }
-                else
-                {
-                    row.Cells[13].SetCellValue("");
-                }
-                row.Cells[13].CellStyle = styleNumber;
-                row.CreateCell(14);//5月
-                if (null != item.MAY && item.MAY.ToString().Trim() != "")
-                {
-                    row.Cells[14].SetCellValue(double.Parse(item.MAY.ToString()));
-                }
-                else
-                {
-                    row.Cells[14].SetCellValue("");
-                }
-                row.Cells[14].CellStyle = styleNumber;
-                row.CreateCell(15);//6月
-                if (null != item.JUN && item.JUN.ToString().Trim() != "")
-                {
-                    row.Cells[15].SetCellValue(double.Parse(item.JUN.ToString()));
-                }
-                else
-                {
-                    row.Cells[15].SetCellValue("");
-                }
-                row.Cells[15].CellStyle = styleNumber;
-                row.CreateCell(16);//合計
-                if (null != item.HTOTAL && item.HTOTAL.ToString().Trim() != "")
-                {
-                    row.Cells[16].SetCellValue(double.Parse(item.HTOTAL.ToString()));
-                }
-                else
-                {
-                    row.Cells[16].SetCellValue("");
-                }
-                row.Cells[16].CellStyle = styleNumber;
-                logger.Debug("get BudgetByMonth cell style rowid=" + idxRow);
-                idxRow++;
-            }
-            foreach (ExpensetFromOPByMonth item in ExpenseByMonth)
-            {
-                IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
-                logger.Info("Row Id=" + idxRow);
-                //預算/費用、7月、8月、9月、10月、11月、12月、1月、2月、3月、4月、5月、6月、合計
-                row.CreateCell(0);
-                row.Cells[0].SetCellValue("合計");
-                row.Cells[0].CellStyle = style;
-                row.CreateCell(1);
-                row.Cells[1].SetCellValue("");
-                row.Cells[1].CellStyle = style;
-                row.CreateCell(2);
-                row.Cells[2].SetCellValue("");
-                row.Cells[2].CellStyle = style;
-                row.CreateCell(3);//實際
-                row.Cells[3].SetCellValue("實際數");
-                row.Cells[3].CellStyle = style;
-                row.CreateCell(4);//7月
-                if (null != item.JUL && item.JUL.ToString().Trim() != "")
-                {
-                    row.Cells[4].SetCellValue(double.Parse(item.JUL.ToString()));
-                }
-                else
-                {
-                    row.Cells[4].SetCellValue("");
-                }
-                row.Cells[4].CellStyle = styleNumber;
-                row.CreateCell(5);//8月
-                if (null != item.AUG && item.AUG.ToString().Trim() != "")
-                {
-                    row.Cells[5].SetCellValue(double.Parse(item.AUG.ToString()));
-                }
-                else
-                {
-                    row.Cells[5].SetCellValue("");
-                }
-                row.Cells[5].CellStyle = styleNumber;
-                row.CreateCell(6);//9月
-                if (null != item.SEP && item.SEP.ToString().Trim() != "")
-                {
-                    row.Cells[6].SetCellValue(double.Parse(item.SEP.ToString()));
-                }
-                else
-                {
-                    row.Cells[5].SetCellValue("");
-                }
-                row.Cells[6].CellStyle = styleNumber;
-                row.CreateCell(7);//10月
-                if (null != item.OCT && item.OCT.ToString().Trim() != "")
-                {
-                    row.Cells[7].SetCellValue(double.Parse(item.OCT.ToString()));
-                }
-                else
-                {
-                    row.Cells[7].SetCellValue("");
-                }
-                row.Cells[7].CellStyle = styleNumber;
-                row.CreateCell(8);//11月
-                if (null != item.NOV && item.NOV.ToString().Trim() != "")
-                {
-                    row.Cells[8].SetCellValue(double.Parse(item.NOV.ToString()));
-                }
-                else
-                {
-                    row.Cells[8].SetCellValue("");
-                }
-                row.Cells[8].CellStyle = styleNumber;
-                row.CreateCell(9);//12月
-                if (null != item.DEC && item.DEC.ToString().Trim() != "")
-                {
-                    row.Cells[9].SetCellValue(double.Parse(item.DEC.ToString()));
-                }
-                else
-                {
-                    row.Cells[9].SetCellValue("");
-                }
-                row.Cells[9].CellStyle = styleNumber;
-                row.CreateCell(10);//1月
-                if (null != item.JAN && item.JAN.ToString().Trim() != "")
-                {
-                    row.Cells[10].SetCellValue(double.Parse(item.JAN.ToString()));
-                }
-                else
-                {
-                    row.Cells[10].SetCellValue("");
-                }
-                row.Cells[10].CellStyle = styleNumber;
-                row.CreateCell(11);//2月
-                if (null != item.FEB && item.FEB.ToString().Trim() != "")
-                {
-                    row.Cells[11].SetCellValue(double.Parse(item.FEB.ToString()));
-                }
-                else
-                {
-                    row.Cells[11].SetCellValue("");
-                }
-                row.Cells[11].CellStyle = styleNumber;
-                row.CreateCell(12);//3月
-                if (null != item.MAR && item.MAR.ToString().Trim() != "")
-                {
-                    row.Cells[12].SetCellValue(double.Parse(item.MAR.ToString()));
-                }
-                else
-                {
-                    row.Cells[12].SetCellValue("");
-                }
-                row.Cells[12].CellStyle = styleNumber;
-                row.CreateCell(13);//4月
-                if (null != item.APR && item.APR.ToString().Trim() != "")
-                {
-                    row.Cells[13].SetCellValue(double.Parse(item.APR.ToString()));
-                }
-                else
-                {
-                    row.Cells[13].SetCellValue("");
-                }
-                row.Cells[13].CellStyle = styleNumber;
-                row.CreateCell(14);//5月
-                if (null != item.MAY && item.MAY.ToString().Trim() != "")
-                {
-                    row.Cells[14].SetCellValue(double.Parse(item.MAY.ToString()));
-                }
-                else
-                {
-                    row.Cells[14].SetCellValue("");
-                }
-                row.Cells[14].CellStyle = styleNumber;
-                row.CreateCell(15);//6月
-                if (null != item.JUN && item.JUN.ToString().Trim() != "")
-                {
-                    row.Cells[15].SetCellValue(double.Parse(item.JUN.ToString()));
-                }
-                else
-                {
-                    row.Cells[15].SetCellValue("");
-                }
-                row.Cells[15].CellStyle = styleNumber;
-                row.CreateCell(16);//合計
-                if (null != item.HTOTAL && item.HTOTAL.ToString().Trim() != "")
-                {
-                    row.Cells[16].SetCellValue(double.Parse(item.HTOTAL.ToString()));
-                }
-                else
-                {
-                    row.Cells[16].SetCellValue("");
-                }
-                row.Cells[16].CellStyle = styleNumber;
-                logger.Debug("get ExpenseByMonth cell style rowid=" + idxRow);
-                idxRow++;
-            }
             //4.另存新檔至專案所屬目錄 (增加Temp for zip 打包使用
             string fileLocation = null;
             fileLocation = outputPath + "\\" + year + "_公司費用預算執行彙整表.xlsx";
@@ -2071,6 +1645,222 @@ namespace topmeperp.Service
             file.Close();
             return fileLocation;
         }
+
+        private void createSumRow(int idxRow, IRow row, string desc)
+        {
+            //費用、7月、8月、9月、10月、11月、12月、1月、2月、3月、4月、5月、6月、合計
+            int iRow = idxRow+1;
+            if (desc != "實際數")
+            {
+                row.CreateCell(0);
+                row.Cells[0].SetCellValue("合計");
+                row.Cells[0].CellStyle = style;
+                row.CreateCell(1);
+                row.Cells[1].SetCellValue("");
+                row.Cells[1].CellStyle = style;
+                row.CreateCell(2);//預算
+                row.Cells[2].SetCellValue(desc);
+                row.Cells[2].CellStyle = style;
+            }else
+            {
+                row.CreateCell(0);
+                row.Cells[0].SetCellValue("");
+                row.Cells[0].CellStyle = style;
+                row.CreateCell(1);
+                row.Cells[1].SetCellValue("");
+                row.Cells[1].CellStyle = style;
+                row.CreateCell(2);//實際數
+                row.Cells[2].SetCellValue(desc);
+                row.Cells[2].CellStyle = style;
+            }
+            row.CreateCell(3);//7月
+            row.Cells[3].SetCellFormula("SUMIF(C6:C" + idxRow + ",C"+ iRow + ",D6:D" + idxRow + ")");
+            row.Cells[3].CellStyle = styleNumber;
+            row.CreateCell(4);//8月
+            row.Cells[4].SetCellFormula("SUMIF(C6:C" + idxRow + ",C" + iRow + ",E6:E" + idxRow + ")");
+            row.Cells[4].CellStyle = styleNumber;
+            row.CreateCell(5);//9月
+            row.Cells[5].SetCellFormula("SUMIF(C6:C" + idxRow + ",C" + iRow + ",F6:F" + idxRow + ")");
+            row.Cells[5].CellStyle = styleNumber;
+            row.CreateCell(6);//10月
+            row.Cells[6].SetCellFormula("SUMIF(C6:C" + idxRow + ",C" + iRow + ",G6:G" + idxRow + ")");
+            row.Cells[6].CellStyle = styleNumber;
+            row.CreateCell(7);//11月
+            row.Cells[7].SetCellFormula("SUMIF(C6:C" + idxRow + ",C" + iRow + ",H6:H" + idxRow + ")");
+            row.Cells[7].CellStyle = styleNumber;
+            row.CreateCell(8);//12月
+            row.Cells[8].SetCellFormula("SUMIF(C6:C" + idxRow + ",C" + iRow + ",I6:I" + idxRow + ")");
+            row.Cells[8].CellStyle = styleNumber;
+            row.CreateCell(9);//1月
+            row.Cells[9].SetCellFormula("SUMIF(C6:C" + idxRow + ",C" + iRow + ",J6:J" + idxRow + ")");
+            row.Cells[9].CellStyle = styleNumber;
+            row.CreateCell(10);//2月
+            row.Cells[10].SetCellFormula("SUMIF(C6:C" + idxRow + ",C" + iRow + ",K6:K" + idxRow + ")");
+            row.Cells[10].CellStyle = styleNumber;
+            row.CreateCell(11);//3月
+            row.Cells[11].SetCellFormula("SUMIF(C6:C" + idxRow + ",C" + iRow + ",L6:L" + idxRow + ")");
+            row.Cells[11].CellStyle = styleNumber;
+            row.CreateCell(12);//4月
+            row.Cells[12].SetCellFormula("SUMIF(C6:C" + idxRow + ",C" + iRow + ",M6:M" + idxRow + ")");
+            row.Cells[12].CellStyle = styleNumber;
+            row.CreateCell(13);//5月
+            row.Cells[13].SetCellFormula("SUMIF(C6:C" + idxRow + ",C" + iRow + ",N6:N" + idxRow + ")");
+            row.Cells[13].CellStyle = styleNumber;
+            row.CreateCell(14);//6月
+            row.Cells[14].SetCellFormula("SUMIF(C6:C" + idxRow + ",C" + iRow + ",O6:O" + idxRow + ")");
+            row.Cells[14].CellStyle = styleNumber;
+            row.CreateCell(15);//合計
+            row.Cells[15].SetCellFormula("SUMIF(C6:C" + idxRow + ",C" + iRow + ",P6:P" + idxRow + ")");
+            row.Cells[15].CellStyle = styleNumber;
+        }
+
+        private void createRow(int idxRow, ExpenseBudgetSummary item, string desc)
+        {
+            IRow row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
+                                               //項目、項目代碼、預算/費用、7月、8月、9月、10月、11月、12月、1月、2月、3月、4月、5月、6月、合計
+            logger.Debug("SUBJECT_NAM=" + item.SUBJECT_NAME);
+            if (desc == "預算數")
+            {
+                row.CreateCell(0).SetCellValue(item.SUBJECT_NAME);
+            }
+            else
+            {
+                row.CreateCell(0).SetCellValue("");
+            }
+            row.Cells[0].CellStyle = style;
+            //項目代碼
+            row.CreateCell(1).SetCellValue(item.SUBJECT_ID);
+            row.Cells[1].CellStyle = style;
+            //預算/實際
+            row.CreateCell(2).SetCellValue(desc);
+            row.CreateCell(3);//7月
+            if (null != item.JUL && item.JUL.ToString().Trim() != "")
+            {
+                row.Cells[3].SetCellValue(double.Parse(item.JUL.ToString()));
+            }
+            else
+            {
+                row.Cells[3].SetCellValue("");
+            }
+            row.Cells[3].CellStyle = styleNumber;
+
+            row.CreateCell(4);//8月
+            if (null != item.AUG && item.AUG.ToString().Trim() != "")
+            {
+                row.Cells[4].SetCellValue(double.Parse(item.AUG.ToString()));
+            }
+            else
+            {
+                row.Cells[4].SetCellValue("");
+            }
+            row.Cells[4].CellStyle = styleNumber;
+
+            row.CreateCell(5);//9月
+            if (null != item.SEP && item.SEP.ToString().Trim() != "")
+            {
+                row.Cells[5].SetCellValue(double.Parse(item.SEP.ToString()));
+            }
+            else
+            {
+                row.Cells[5].SetCellValue("");
+            }
+            row.Cells[5].CellStyle = styleNumber;
+            row.CreateCell(6);//10月
+            if (null != item.OCT && item.OCT.ToString().Trim() != "")
+            {
+                row.Cells[6].SetCellValue(double.Parse(item.OCT.ToString()));
+            }
+            else
+            {
+                row.Cells[6].SetCellValue("");
+            }
+            row.Cells[6].CellStyle = styleNumber;
+            row.CreateCell(7);//11月
+            if (null != item.NOV && item.NOV.ToString().Trim() != "")
+            {
+                row.Cells[7].SetCellValue(double.Parse(item.NOV.ToString()));
+            }
+            else
+            {
+                row.Cells[7].SetCellValue("");
+            }
+            row.Cells[7].CellStyle = styleNumber;
+            row.CreateCell(8);//12月
+            if (null != item.DEC && item.DEC.ToString().Trim() != "")
+            {
+                row.Cells[8].SetCellValue(double.Parse(item.DEC.ToString()));
+            }
+            else
+            {
+                row.Cells[8].SetCellValue("");
+            }
+            row.Cells[8].CellStyle = styleNumber;
+            row.CreateCell(9);//1月
+            if (null != item.JAN && item.JAN.ToString().Trim() != "")
+            {
+                row.Cells[9].SetCellValue(double.Parse(item.JAN.ToString()));
+            }
+            else
+            {
+                row.Cells[9].SetCellValue("");
+            }
+            row.Cells[9].CellStyle = styleNumber;
+            row.CreateCell(10);//2月
+            if (null != item.FEB && item.FEB.ToString().Trim() != "")
+            {
+                row.Cells[10].SetCellValue(double.Parse(item.FEB.ToString()));
+            }
+            else
+            {
+                row.Cells[10].SetCellValue("");
+            }
+            row.Cells[10].CellStyle = styleNumber;
+            row.CreateCell(11);//3月
+            if (null != item.MAR && item.MAR.ToString().Trim() != "")
+            {
+                row.Cells[11].SetCellValue(double.Parse(item.MAR.ToString()));
+            }
+            else
+            {
+                row.Cells[11].SetCellValue("");
+            }
+            row.Cells[11].CellStyle = styleNumber;
+            row.CreateCell(12);//4月
+            if (null != item.APR && item.APR.ToString().Trim() != "")
+            {
+                row.Cells[12].SetCellValue(double.Parse(item.APR.ToString()));
+            }
+            else
+            {
+                row.Cells[12].SetCellValue("");
+            }
+            row.Cells[12].CellStyle = styleNumber;
+            row.CreateCell(13);//5月
+            if (null != item.MAY && item.MAY.ToString().Trim() != "")
+            {
+                row.Cells[13].SetCellValue(double.Parse(item.MAY.ToString()));
+            }
+            else
+            {
+                row.Cells[13].SetCellValue("");
+            }
+            row.Cells[13].CellStyle = styleNumber;
+            row.CreateCell(14);//6月
+            if (null != item.JUN && item.JUN.ToString().Trim() != "")
+            {
+                row.Cells[14].SetCellValue(double.Parse(item.JUN.ToString()));
+            }
+            else
+            {
+                row.Cells[14].SetCellValue("");
+            }
+            row.Cells[14].CellStyle = styleNumber;
+            row.CreateCell(15);//合計
+            int iRow = idxRow + 1;
+            row.Cells[15].SetCellFormula("SUM(D" + iRow + ":O" + iRow + ")");
+            row.Cells[15].CellStyle = styleNumber;
+        }
+
         public ExpBudgetSummaryToExcel()
         {
         }
@@ -3316,101 +3106,101 @@ namespace topmeperp.Service
             //1.讀取折讓單表格檔案
             InitializeWorkbook(creditNoteFile);
             //2.填入資料
-                int i = 0;
-                foreach (CreditNote item in CreditNoteItem)
+            int i = 0;
+            foreach (CreditNote item in CreditNoteItem)
+            {
+                sheet = (XSSFSheet)hssfworkbook.GetSheet("折讓單_" + (i + 1));
+                int idxRow = 2;
+                IRow row = sheet.GetRow(idxRow);//.CreateRow(idxRow);
+                row.Cells[13].SetCellValue(Convert.ToDateTime(DateTime.Now.ToShortDateString()));//折讓單開立日期
+                idxRow = idxRow + 3;
+                row = sheet.GetRow(idxRow);
+                logger.Info("Row Id=" + idxRow);
+                //發票類型、年、月、日、字軌、號碼、品名、數量、單價、金額、營業稅額、買受人、買受人統編、買受人地址
+                if (item.INVOICE_TYPE.Trim() == "三聯式" || item.INVOICE_TYPE.Trim() == "二聯式")
                 {
-                    sheet = (XSSFSheet)hssfworkbook.GetSheet("折讓單_" + (i + 1));
-                    int idxRow = 2;
-                    IRow row = sheet.GetRow(idxRow);//.CreateRow(idxRow);
-                    row.Cells[13].SetCellValue(Convert.ToDateTime(DateTime.Now.ToShortDateString()));//折讓單開立日期
-                    idxRow = idxRow + 3;
-                    row = sheet.GetRow(idxRow);
-                    logger.Info("Row Id=" + idxRow);
-                    //發票類型、年、月、日、字軌、號碼、品名、數量、單價、金額、營業稅額、買受人、買受人統編、買受人地址
-                    if (item.INVOICE_TYPE.Trim() == "三聯式" || item.INVOICE_TYPE.Trim() == "二聯式")
-                    {
-                        row.Cells[1].SetCellValue(item.INVOICE_TYPE.Substring(0, 1));//發票類型
-                    }
-                    row.Cells[2].SetCellValue(item.INVOICE_DATE.Value.Year);//年
-                    row.Cells[4].SetCellValue(item.INVOICE_DATE.Value.Month);//月
-                    row.Cells[5].SetCellValue(item.INVOICE_DATE.Value.Day);//日
-                    row.Cells[6].SetCellValue(item.INVOICE_NUMBER.Substring(0, 2));//字軌
-                    row.Cells[8].SetCellValue(item.INVOICE_NUMBER.Substring(2, 8));//號碼
-                                                                                   //品名
-                    logger.Debug("PLAN_ITEM_ID=" + item.PLAN_ITEM_ID);
-                    row.Cells[9].SetCellValue(item.PLAN_ITEM_ID);
-                    if (null != item.DISCOUNT_QTY && item.DISCOUNT_QTY.ToString().Trim() != "")
-                    {
-                        row.Cells[11].SetCellValue(double.Parse(item.DISCOUNT_QTY.ToString())); //數量
-                    }
-                    else
-                    {
-                        row.Cells[11].SetCellValue("");
-                    }
-                    //單價
-                    if (null != item.DISCOUNT_UNIT_PRICE && item.DISCOUNT_UNIT_PRICE.ToString().Trim() != "")
-                    {
-                        row.Cells[12].SetCellValue(double.Parse(item.DISCOUNT_UNIT_PRICE.ToString()));
-                    }
-                    else
-                    {
-                        row.Cells[12].SetCellValue("");
-                    }
-                    //金額
-                    if (null != item.AMOUNT && item.AMOUNT.ToString().Trim() != "")
-                    {
-                        row.Cells[13].SetCellValue(double.Parse(item.AMOUNT.ToString()));
-                    }
-                    else
-                    {
-                        row.Cells[13].SetCellValue("");
-                    }
-                    //營業稅額
-                    if (null != item.TAX && item.TAX.ToString().Trim() != "")
-                    {
-                        row.Cells[14].SetCellValue(double.Parse(item.TAX.ToString()));
-                    }
-                    else
-                    {
-                        row.Cells[14].SetCellValue("");
-                    }
-                    ICell cel16 = row.CreateCell(16);
-                    cel16.CellFormula = "IF(C6=\"\",\"\",\"✔\")";
-                    idxRow = idxRow + 5;
-                    row = sheet.GetRow(idxRow);
-                    //金額合計
-                    if (null != item.AMOUNT && item.AMOUNT.ToString().Trim() != "")
-                    {
-                        row.Cells[13].SetCellValue(double.Parse(item.AMOUNT.ToString()));
-                    }
-                    else
-                    {
-                        row.Cells[13].SetCellValue("");
-                    }
-                    //營業稅額合計
-                    if (null != item.TAX && item.TAX.ToString().Trim() != "")
-                    {
-                        row.Cells[14].SetCellValue(double.Parse(item.TAX.ToString()));
-                    }
-                    else
-                    {
-                        row.Cells[14].SetCellValue("");
-                    }
-                    idxRow = idxRow + 2;
-                    row = sheet.GetRow(idxRow);
-                    //買受人
-                    logger.Debug("OWNER_NAME=" + item.OWNER_NAME);
-                    row.Cells[9].SetCellValue(item.OWNER_NAME);
-                    row.Cells[18].SetCellValue("●" + item.SUB_TYPE);//折讓單種類
-                    idxRow = idxRow + 1;
-                    row = sheet.GetRow(idxRow);
-                    row.Cells[8].SetCellValue(item.COMPANY_ID);//買受人統編
-                    idxRow = idxRow + 1;
-                    row = sheet.GetRow(idxRow);
-                    row.Cells[4].SetCellValue(item.REGISTER_ADDRESS);//買受人地址
-                    logger.Debug("get credit note cell style rowid=" + idxRow);
-                    i++;
+                    row.Cells[1].SetCellValue(item.INVOICE_TYPE.Substring(0, 1));//發票類型
                 }
+                row.Cells[2].SetCellValue(item.INVOICE_DATE.Value.Year);//年
+                row.Cells[4].SetCellValue(item.INVOICE_DATE.Value.Month);//月
+                row.Cells[5].SetCellValue(item.INVOICE_DATE.Value.Day);//日
+                row.Cells[6].SetCellValue(item.INVOICE_NUMBER.Substring(0, 2));//字軌
+                row.Cells[8].SetCellValue(item.INVOICE_NUMBER.Substring(2, 8));//號碼
+                                                                               //品名
+                logger.Debug("PLAN_ITEM_ID=" + item.PLAN_ITEM_ID);
+                row.Cells[9].SetCellValue(item.PLAN_ITEM_ID);
+                if (null != item.DISCOUNT_QTY && item.DISCOUNT_QTY.ToString().Trim() != "")
+                {
+                    row.Cells[11].SetCellValue(double.Parse(item.DISCOUNT_QTY.ToString())); //數量
+                }
+                else
+                {
+                    row.Cells[11].SetCellValue("");
+                }
+                //單價
+                if (null != item.DISCOUNT_UNIT_PRICE && item.DISCOUNT_UNIT_PRICE.ToString().Trim() != "")
+                {
+                    row.Cells[12].SetCellValue(double.Parse(item.DISCOUNT_UNIT_PRICE.ToString()));
+                }
+                else
+                {
+                    row.Cells[12].SetCellValue("");
+                }
+                //金額
+                if (null != item.AMOUNT && item.AMOUNT.ToString().Trim() != "")
+                {
+                    row.Cells[13].SetCellValue(double.Parse(item.AMOUNT.ToString()));
+                }
+                else
+                {
+                    row.Cells[13].SetCellValue("");
+                }
+                //營業稅額
+                if (null != item.TAX && item.TAX.ToString().Trim() != "")
+                {
+                    row.Cells[14].SetCellValue(double.Parse(item.TAX.ToString()));
+                }
+                else
+                {
+                    row.Cells[14].SetCellValue("");
+                }
+                ICell cel16 = row.CreateCell(16);
+                cel16.CellFormula = "IF(C6=\"\",\"\",\"✔\")";
+                idxRow = idxRow + 5;
+                row = sheet.GetRow(idxRow);
+                //金額合計
+                if (null != item.AMOUNT && item.AMOUNT.ToString().Trim() != "")
+                {
+                    row.Cells[13].SetCellValue(double.Parse(item.AMOUNT.ToString()));
+                }
+                else
+                {
+                    row.Cells[13].SetCellValue("");
+                }
+                //營業稅額合計
+                if (null != item.TAX && item.TAX.ToString().Trim() != "")
+                {
+                    row.Cells[14].SetCellValue(double.Parse(item.TAX.ToString()));
+                }
+                else
+                {
+                    row.Cells[14].SetCellValue("");
+                }
+                idxRow = idxRow + 2;
+                row = sheet.GetRow(idxRow);
+                //買受人
+                logger.Debug("OWNER_NAME=" + item.OWNER_NAME);
+                row.Cells[9].SetCellValue(item.OWNER_NAME);
+                row.Cells[18].SetCellValue("●" + item.SUB_TYPE);//折讓單種類
+                idxRow = idxRow + 1;
+                row = sheet.GetRow(idxRow);
+                row.Cells[8].SetCellValue(item.COMPANY_ID);//買受人統編
+                idxRow = idxRow + 1;
+                row = sheet.GetRow(idxRow);
+                row.Cells[4].SetCellValue(item.REGISTER_ADDRESS);//買受人地址
+                logger.Debug("get credit note cell style rowid=" + idxRow);
+                i++;
+            }
             ////修改Excel欄位後自動更新公式計算結果
             sheet.ForceFormulaRecalculation = true;
             //4.另存新檔至專案所屬目錄 (增加Temp for zip 打包使用

@@ -131,41 +131,43 @@ namespace topmeperp.Controllers
             ViewBag.SearchTerm = "實際付款日期為 : " + paymentDate;
             return View(viewModel);
         }
-
-        public ActionResult ExpenseBudget()
-        {
-            logger.Info("Access to Expense Budget Page !!");
-            List<ExpenseBudgetSummary> ExpBudget = null;
-            List<ExpenseBudgetByMonth> BudgetByMonth = null;
-            ExpenseBudgetModel viewModel = new ExpenseBudgetModel();
-            ExpenseBudgetSummary Amt = null;
-            if (null != Request["budgetyear"])
-            {
-                ExpBudget = service.getExpBudgetByYear(int.Parse(Request["budgetyear"]));
-                BudgetByMonth = service.getExpBudgetOfMonthByYear(int.Parse(Request["budgetyear"]));
-                Amt = service.getTotalExpBudgetAmount(int.Parse(Request["budgetyear"]));
-                viewModel.summary = ExpBudget;
-                viewModel.budget = BudgetByMonth;
-                TempData["TotalAmt"] = Amt.TOTAL_BUDGET;
-                return View(viewModel);
-            }
-            TempData["budgetYear"] = Request["budgetyear"];
-            return View();
-        }
-
+     
+        //public ActionResult ExpenseBudget()
+        //{
+        //    logger.Info("Access to Expense Budget Page !!");
+        //    List<ExpenseBudgetSummary> ExpBudget = null;
+        //    List<ExpenseBudgetByMonth> BudgetByMonth = null;
+        //    ExpenseBudgetModel viewModel = new ExpenseBudgetModel();
+        //    ExpenseBudgetSummary Amt = null;
+        //    if (null != Request["budgetyear"])
+        //    {
+        //        ExpBudget = service.getExpBudgetByYear(int.Parse(Request["budgetyear"]));
+        //        BudgetByMonth = service.getExpBudgetOfMonthByYear(int.Parse(Request["budgetyear"]));
+        //        Amt = service.getTotalExpBudgetAmount(int.Parse(Request["budgetyear"]));
+        //        viewModel.summary = ExpBudget;
+        //        viewModel.budget = BudgetByMonth;
+        //        TempData["TotalAmt"] = Amt.TOTAL_BUDGET;
+        //        return View(viewModel);
+        //    }
+        //    TempData["budgetYear"] = Request["budgetyear"];
+        //    return View();
+        //}
+        //查詢公司預算
         public ActionResult Search()
         {
             List<ExpenseBudgetSummary> ExpBudget = null;
-            List<ExpenseBudgetByMonth> BudgetByMonth = null;
+            //List<ExpenseBudgetByMonth> BudgetByMonth = null;
             ExpenseBudgetModel viewModel = new ExpenseBudgetModel();
             ExpenseBudgetSummary Amt = null;
             if (null != Request["budgetyear"])
             {
+                //年度預算月分配
                 ExpBudget = service.getExpBudgetByYear(int.Parse(Request["budgetyear"]));
-                BudgetByMonth = service.getExpBudgetOfMonthByYear(int.Parse(Request["budgetyear"]));
+                //年度預算月分配總和
+                //BudgetByMonth = service.getExpBudgetOfMonthByYear(int.Parse(Request["budgetyear"]));
                 Amt = service.getTotalExpBudgetAmount(int.Parse(Request["budgetyear"]));
-                viewModel.summary = ExpBudget;
-                viewModel.budget = BudgetByMonth;
+                viewModel.BudgetSummary = ExpBudget;
+                //viewModel.budget = BudgetByMonth;
                 TempData["TotalAmt"] = Amt.TOTAL_BUDGET;
                 TempData["budgetYear"] = Request["budgetyear"];
                 return View("ExpenseBudget", viewModel);
@@ -954,52 +956,40 @@ namespace topmeperp.Controllers
             if (i == 0) { msg = service.message; }
             return msg;
         }
-
+        //公司預算數與實際數查詢功能
         public ActionResult OperationExpSummary()
         {
-            logger.Info("Access to Expense and Budget Summary Page !!");
-            List<ExpenseBudgetSummary> ExpBudget = null;
-            List<ExpenseBudgetByMonth> BudgetByMonth = null;
-            List<ExpensetFromOPByMonth> ExpenseByMonth = null;
-            ExpenseBudgetSummary Amt = null;
-            ExpenseBudgetSummary ExpAmt = null;
-            ExpenseBudgetModel viewModel = new ExpenseBudgetModel();
-            if (null != Request["budgetyear"])
-            {
-                ExpBudget = service.getExpBudgetSummaryByYear(int.Parse(Request["budgetyear"]));
-                BudgetByMonth = service.getExpBudgetOfMonthByYear(int.Parse(Request["budgetyear"]));
-                ExpenseByMonth = service.getExpensetOfMonthByYear(int.Parse(Request["budgetyear"]));
-                Amt = service.getTotalExpBudgetAmount(int.Parse(Request["budgetyear"]));
-                ExpAmt = service.getTotalOperationExpAmount(int.Parse(Request["budgetyear"]));
-                viewModel.summary = ExpBudget;
-                viewModel.budget = BudgetByMonth;
-                viewModel.expense = ExpenseByMonth;
-                TempData["TotalAmt"] = Amt.TOTAL_BUDGET;
-                TempData["TotalExpAmt"] = ExpAmt.TOTAL_OPERATION_EXP;
-                TempData["budgetYear"] = Request["budgetyear"];
-                return View(viewModel);
-            }
-            TempData["budgetYear"] = Request["budgetyear"];
             return View();
         }
-
+        //查詢公司預算/實際數
         public ActionResult SearchExpSummary()
         {
-            List<ExpenseBudgetSummary> ExpBudget = null;
-            List<ExpenseBudgetByMonth> BudgetByMonth = null;
+            List<ExpenseBudgetSummary> ExpenseSummary = null;
+            List<ExpenseBudgetSummary> BudgetSummary = null;
+
+           // List<ExpenseBudgetByMonth> BudgetByMonth = null;
             List<ExpensetFromOPByMonth> ExpenseByMonth = null;
+
             ExpenseBudgetSummary Amt = null;
             ExpenseBudgetSummary ExpAmt = null;
             ExpenseBudgetModel viewModel = new ExpenseBudgetModel();
             if (null != Request["budgetyear"])
             {
-                ExpBudget = service.getExpBudgetSummaryByYear(int.Parse(Request["budgetyear"]));
-                BudgetByMonth = service.getExpBudgetOfMonthByYear(int.Parse(Request["budgetyear"]));
+                //取得預算數
+                BudgetSummary = service.getExpBudgetByYear(int.Parse(Request["budgetyear"]));
+                //取得發生數、
+                ExpenseSummary = service.getExpSummaryByYear(int.Parse(Request["budgetyear"]));
+                //合計數字
+                //BudgetByMonth = service.getExpBudgetOfMonthByYear(int.Parse(Request["budgetyear"]));
                 ExpenseByMonth = service.getExpensetOfMonthByYear(int.Parse(Request["budgetyear"]));
+
                 ExpAmt = service.getTotalOperationExpAmount(int.Parse(Request["budgetyear"]));
                 Amt = service.getTotalExpBudgetAmount(int.Parse(Request["budgetyear"]));
-                viewModel.summary = ExpBudget;
-                viewModel.budget = BudgetByMonth;
+
+                viewModel.BudgetSummary = BudgetSummary;
+                viewModel.ExpenseSummary = ExpenseSummary;
+
+                //viewModel.budget = BudgetByMonth;
                 viewModel.expense = ExpenseByMonth;
                 TempData["TotalAmt"] = String.Format("{0:#,##0.#}", Amt.TOTAL_BUDGET);
                 TempData["TotalExpAmt"] = String.Format("{0:#,##0.#}", ExpAmt.TOTAL_OPERATION_EXP);

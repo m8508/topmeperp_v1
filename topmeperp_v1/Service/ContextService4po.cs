@@ -4454,13 +4454,23 @@ namespace topmeperp.Service
             List<ExpenseBudgetSummary> lstExpBudget = new List<ExpenseBudgetSummary>();
             using (var context = new topmepEntities())
             {
-                lstExpBudget = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT A.*, SUM(ISNULL(A.JAN,0))+ SUM(ISNULL(A.FEB,0))+ SUM(ISNULL(A.MAR,0)) + SUM(ISNULL(A.APR,0)) + SUM(ISNULL(A.MAY,0)) + SUM(ISNULL(A.JUN,0)) " +
-                   "+ SUM(ISNULL(A.JUL, 0)) + SUM(ISNULL(A.AUG, 0)) + SUM(ISNULL(A.SEP, 0)) + SUM(ISNULL(A.OCT, 0)) + SUM(ISNULL(A.NOV, 0)) + SUM(ISNULL(A.DEC, 0)) AS HTOTAL " +
-                   "FROM (SELECT SUBJECT_NAME, SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
-                   "FROM (SELECT eb.SUBJECT_ID, eb.BUDGET_MONTH, eb.AMOUNT, eb.BUDGET_YEAR, fs.SUBJECT_NAME FROM FIN_EXPENSE_BUDGET eb LEFT JOIN FIN_SUBJECT fs ON eb.SUBJECT_ID = fs.FIN_SUBJECT_ID WHERE BUDGET_YEAR = @year) As STable " +
-                   "PIVOT (SUM(AMOUNT) FOR BUDGET_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)A " +
-                   "GROUP BY A.SUBJECT_NAME, A.SUBJECT_ID, A.JAN, A.FEB, A.MAR,A.APR, A.MAY, A.JUN, A.JUL, A.AUG, A.SEP, A.OCT, A.NOV, A.DEC ORDER BY A.SUBJECT_ID ; "
-                   , new SqlParameter("year", year)).ToList();
+                string sql = @"--預算數
+                            SELECT ROW_NUMBER() OVER(ORDER BY A.SUBJECT_ID) AS SUB_NO, A.*, 
+                            SUM(ISNULL(A.JAN,0))+ SUM(ISNULL(A.FEB,0))+ SUM(ISNULL(A.MAR,0)) + SUM(ISNULL(A.APR,0)) + SUM(ISNULL(A.MAY,0)) + SUM(ISNULL(A.JUN,0)) 
+                            + SUM(ISNULL(A.JUL, 0)) + SUM(ISNULL(A.AUG, 0)) + SUM(ISNULL(A.SEP, 0)) + SUM(ISNULL(A.OCT, 0)) + SUM(ISNULL(A.NOV, 0)) + SUM(ISNULL(A.DEC, 0)) AS HTOTAL 
+                            FROM(SELECT SUBJECT_NAME, SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' 
+                            FROM(
+                            SELECT FIN_SUBJECT_ID SUBJECT_ID,BUDGET_MONTH ,AMOUNT AMOUNT, BUDGET_YEAR,SUBJECT_NAME
+                            FROM 
+                            (SELECT * FROM FIN_SUBJECT  WHERE CATEGORY='公司營業費用' ) SUBJ
+                            LEFT OUTER JOIN 
+                            (SELECT BUDGET_YEAR,BUDGET_MONTH,SUBJECT_ID,AMOUNT,CURRENT_YEAR FROM FIN_EXPENSE_BUDGET
+                            WHERE BUDGET_YEAR=@year) BUD
+                            ON SUBJ.FIN_SUBJECT_ID=BUD.SUBJECT_ID
+                            ) As STable 
+                            PIVOT(SUM(AMOUNT) FOR BUDGET_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)A 
+                            GROUP BY A.SUBJECT_NAME, A.SUBJECT_ID, A.JAN, A.FEB, A.MAR,A.APR, A.MAY, A.JUN, A.JUL, A.AUG, A.SEP, A.OCT, A.NOV, A.DEC;";
+                lstExpBudget = context.Database.SqlQuery<ExpenseBudgetSummary>(sql , new SqlParameter("year", year)).ToList();
             }
             return lstExpBudget;
         }
@@ -4502,28 +4512,23 @@ namespace topmeperp.Service
             return lstExpAmount;
         }
 
-        //取得特定年度公司費用預算與費用彙整
-        public List<ExpenseBudgetSummary> getExpBudgetSummaryByYear(int year)
+        //取得特定年度公司費用彙整
+        public List<ExpenseBudgetSummary> getExpSummaryByYear(int year)
         {
             List<ExpenseBudgetSummary> lstExpBudget = new List<ExpenseBudgetSummary>();
             using (var context = new topmepEntities())
             {
-                lstExpBudget = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT ROW_NUMBER() OVER(ORDER BY D.SUBJECT_ID, D.SUB_NO) AS NO, D.* FROM (SELECT ROW_NUMBER() OVER(ORDER BY A.SUBJECT_ID) AS SUB_NO, A.*, " +
-                    "SUM(ISNULL(A.JAN,0))+ SUM(ISNULL(A.FEB,0))+ SUM(ISNULL(A.MAR,0)) + SUM(ISNULL(A.APR,0)) + SUM(ISNULL(A.MAY,0)) + SUM(ISNULL(A.JUN,0)) " +
-                    "+ SUM(ISNULL(A.JUL, 0)) + SUM(ISNULL(A.AUG, 0)) + SUM(ISNULL(A.SEP, 0)) + SUM(ISNULL(A.OCT, 0)) + SUM(ISNULL(A.NOV, 0)) + SUM(ISNULL(A.DEC, 0)) AS HTOTAL " +
-                    "FROM(SELECT SUBJECT_NAME, SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
-                    "FROM(SELECT eb.SUBJECT_ID, eb.BUDGET_MONTH, eb.AMOUNT, eb.BUDGET_YEAR, fs.SUBJECT_NAME FROM FIN_EXPENSE_BUDGET eb LEFT JOIN FIN_SUBJECT fs ON eb.SUBJECT_ID = fs.FIN_SUBJECT_ID WHERE BUDGET_YEAR = @year) As STable " +
-                    "PIVOT(SUM(AMOUNT) FOR BUDGET_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)A " +
-                    "GROUP BY A.SUBJECT_NAME, A.SUBJECT_ID, A.JAN, A.FEB, A.MAR,A.APR, A.MAY, A.JUN, A.JUL, A.AUG, A.SEP, A.OCT, A.NOV, A.DEC UNION " +
-                    "SELECT ROW_NUMBER() OVER(ORDER BY C.FIN_SUBJECT_ID) + 1 AS SUB_NO, C.*, SUM(ISNULL(C.JAN, 0)) + SUM(ISNULL(C.FEB, 0)) + SUM(ISNULL(C.MAR, 0)) + SUM(ISNULL(C.APR, 0)) + SUM(ISNULL(C.MAY, 0)) + SUM(ISNULL(C.JUN, 0)) " +
-                    "+ SUM(ISNULL(C.JUL, 0)) + SUM(ISNULL(C.AUG, 0)) + SUM(ISNULL(C.SEP, 0)) + SUM(ISNULL(C.OCT, 0)) + SUM(ISNULL(C.NOV, 0)) + SUM(ISNULL(C.DEC, 0)) AS HTOTAL " +
-                    "FROM(SELECT SUBJECT_NAME, FIN_SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
-                    "FROM(SELECT B.OCCURRED_MONTH, fs.FIN_SUBJECT_ID, fs.SUBJECT_NAME, B.AMOUNT FROM FIN_SUBJECT fs LEFT JOIN(SELECT ef.OCCURRED_MONTH, ei.FIN_SUBJECT_ID, ei.AMOUNT FROM FIN_EXPENSE_ITEM ei " +
-                    "LEFT JOIN FIN_EXPENSE_FORM ef ON ei.EXP_FORM_ID = ef.EXP_FORM_ID WHERE ef.OCCURRED_YEAR = @year AND ef.OCCURRED_MONTH > 6 OR ef.OCCURRED_YEAR = @year + 1 AND ef.OCCURRED_MONTH < 7)B " +
-                    "ON fs.FIN_SUBJECT_ID = B.FIN_SUBJECT_ID WHERE fs.CATEGORY = '公司營業費用') As STable " +
-                    "PIVOT(SUM(AMOUNT) FOR OCCURRED_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)C " +
-                    "GROUP BY C.SUBJECT_NAME, C.FIN_SUBJECT_ID, C.JAN, C.FEB, C.MAR, C.APR, C.MAY, C.JUN, C.JUL, C.AUG, C.SEP, C.OCT, C.NOV, C.DEC )D ORDER BY D.SUBJECT_ID, D.SUB_NO ; "
-                   , new SqlParameter("year", year)).ToList();
+                string sql = @"SELECT ROW_NUMBER() OVER(ORDER BY C.FIN_SUBJECT_ID) + 1 AS SUB_NO, C.*, SUM(ISNULL(C.JAN, 0)) + SUM(ISNULL(C.FEB, 0)) + SUM(ISNULL(C.MAR, 0)) + SUM(ISNULL(C.APR, 0)) + SUM(ISNULL(C.MAY, 0)) + SUM(ISNULL(C.JUN, 0)) 
+                        + SUM(ISNULL(C.JUL, 0)) + SUM(ISNULL(C.AUG, 0)) + SUM(ISNULL(C.SEP, 0)) + SUM(ISNULL(C.OCT, 0)) + SUM(ISNULL(C.NOV, 0)) + SUM(ISNULL(C.DEC, 0)) AS HTOTAL 
+                        FROM (
+                        SELECT SUBJECT_NAME, FIN_SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' 
+                        FROM (
+                        SELECT B.OCCURRED_MONTH, fs.FIN_SUBJECT_ID, fs.SUBJECT_NAME, B.AMOUNT FROM FIN_SUBJECT fs LEFT JOIN(SELECT ef.OCCURRED_MONTH, ei.FIN_SUBJECT_ID, ei.AMOUNT FROM FIN_EXPENSE_ITEM ei 
+                        LEFT JOIN FIN_EXPENSE_FORM ef ON ei.EXP_FORM_ID = ef.EXP_FORM_ID WHERE ef.OCCURRED_YEAR = @year AND ef.OCCURRED_MONTH > 6 OR ef.OCCURRED_YEAR = @year + 1 AND ef.OCCURRED_MONTH < 7)B 
+                        ON fs.FIN_SUBJECT_ID = B.FIN_SUBJECT_ID WHERE fs.CATEGORY = '公司營業費用') As STable 
+                        PIVOT(SUM(AMOUNT) FOR OCCURRED_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable) C 
+                        GROUP BY C.SUBJECT_NAME, C.FIN_SUBJECT_ID, C.JAN, C.FEB, C.MAR, C.APR, C.MAY, C.JUN, C.JUL, C.AUG, C.SEP, C.OCT, C.NOV, C.DEC";
+                lstExpBudget = context.Database.SqlQuery<ExpenseBudgetSummary>(sql, new SqlParameter("year", year)).ToList();
             }
             return lstExpBudget;
         }
