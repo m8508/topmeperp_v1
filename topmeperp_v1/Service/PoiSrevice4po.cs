@@ -1163,7 +1163,7 @@ namespace topmeperp.Service
             Budget = service.getTotalExpBudgetAmount(budgetYear);
             if (null != ExpTable.PROJECT_ID && ExpTable.PROJECT_ID != "")
             {
-                siteBudget = service.getTotalSiteBudgetAmount(ExpTable.PROJECT_ID);
+                siteBudget = service.getSiteBudgetAmountById(ExpTable.PROJECT_ID,null);
             }
             //1.讀取費用表格檔案
             InitializeWorkbook(expenseFile);
@@ -2542,14 +2542,14 @@ namespace topmeperp.Service
         public string errorMessage = null;
 
         //建立工地費用預算執行彙整下載表格
-        public string exportExcel(string projectid, int sequence, int targetYear, int targetMonth, bool isCum)
+        public string exportExcel(string projectid, int sequence, string targetYear, int targetMonth, bool isCum)
         {
             List<ExpenseBudgetSummary> ExpBudget = null;// service.getSiteExpBudgetSummaryBySeqYear(projectid, sequence, targetYear, targetMonth, isCum);
-            List<ExpenseBudgetByMonth> BudgetByMonth = service.getSiteExpBudgetOfMonth(projectid, sequence, targetYear, targetMonth, isCum);
-            List<ExpensetFromOPByMonth> ExpenseByMonth = service.getSiteExpensetOfMonth(projectid, targetYear, targetMonth, isCum);
-            Amt = service.getSiteBudgetAmountById(projectid);
+            List<ExpenseBudgetByMonth> BudgetByMonth = null;// service.getSiteExpBudgetOfMonth(projectid, sequence, targetYear, targetMonth, isCum);
+            List<ExpensetFromOPByMonth> ExpenseByMonth = null;// service.getSiteExpensetOfMonth(projectid, targetYear, targetMonth, isCum);
+            Amt = service.getSiteBudgetAmountById(projectid,null);
             totalBudget = String.Format("{0:#,##0.#}", Amt.TOTAL_BUDGET);
-            ExpAmt = service.getTotalSiteExpAmountById(projectid, targetYear, targetMonth, isCum);
+            ExpAmt = service.getTotalSiteExpAmountById(projectid, targetYear);//, targetMonth, isCum);
             totalExpense = String.Format("{0:#,##0.#}", ExpAmt.CUM_YEAR_AMOUNT);
             string date = targetYear.ToString() + "/" + targetMonth.ToString();
             //1.讀取費用表格檔案

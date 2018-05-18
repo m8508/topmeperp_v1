@@ -508,6 +508,7 @@ namespace topmeperp.Models
         public Nullable<decimal> HTOTAL { get; set; }
         public string SUBJECT_ID { get; set; }
         public string SUBJECT_NAME { get; set; }
+        public string YEAR_SEQUENCE { get; set; }
         public string BUDGET_YEAR { get; set; }
         public Nullable<decimal> TOTAL_BUDGET { get; set; }
         public Nullable<decimal> BUDGET_AMOUNT { get; set; }
@@ -608,8 +609,7 @@ namespace topmeperp.Models
     {
         public IEnumerable<ExpenseBudgetSummary> BudgetSummary { get; set; }
         public IEnumerable<ExpenseBudgetSummary> ExpenseSummary { get; set; }
-        public IEnumerable<ExpenseBudgetByMonth> budget { get; set; }
-        public IEnumerable<ExpensetFromOPByMonth> expense { get; set; }
+        public IEnumerable<ExpenseBudgetSummary> SiteBudgetPerYear { get; set; }
     }
     public class ProjectList : TND_PROJECT
     {

@@ -1,29 +1,21 @@
 ﻿@model topmeperp.Models.ExpenseBudgetModel
 
 <div class="row">
-    <div class="col-md-12" style="padding-top:5px">
-        <div class="col-md-3">
-            @if (ViewBag.searchKey == "S")
-            {
-                <span style="color: blue; font-size: 18px;">查詢年度 : @TempData["targetYear"]<lable>(專案第</lable>@TempData["yearSequence"]<lable>年度)</lable></span>
-            }
-            else
-            {
-                <span style="color: blue; font-size: 18px;">查詢條件為累計至 : @TempData["targetYear"]/@TempData["targetMonth"]</span>
-            }
+    <div class="row info">
+        <div class="col-md-3 text-right">
+            <span style="color:darkgreen; font-size: 18px;">年度預算 : @String.Format("{0:#,##0.#}", TempData["TotalBudgetPerYear"])</span>
         </div>
+        <div class="col-md-3 text-right">
+            <span style="color:darkgreen; font-size: 18px;">年度費用金額 : @String.Format("{0:#,##0.#}", TempData["TotalExpensePerYear"])</span>
+        </div>
+        <div class="col-md-3 text-right">
+            @{
+                decimal? excuRatio = Convert.ToDecimal(TempData["TotalExpensePerYear"]) / Convert.ToDecimal(TempData["TotalBudgetPerYear"]) * 100;
+            }
+            <span style="color: red; font-size: 20px;">執行率 : @String.Format("{0:0.00}", excuRatio) %</span>
+        </div>
+    </div>
 
-        <div class="col-md-9 text-right">
-            <span style="color:darkgreen; font-size: 18px;">專案總預算金額 : @String.Format("{0:#,##0.#}", TempData["TotalAmt"])</span>
-        </div>
-    </div>
-    <div class="col-md-12" style="padding-bottom:10px">
-        <div class="col-md-3">
-        </div>
-        <div class="col-md-9 text-right">
-            <span style="color: blue; font-size: 18px;">查詢條件執行金額 : @String.Format("{0:#,##0.#}", TempData["TotalExpAmt"])</span>
-        </div>
-    </div>
 </div>
 <table class="table fixed_headers3" style="padding-left:-50px">
     <thead>
@@ -222,7 +214,7 @@
                     </span>
                 </td>
             </tr>
-        @* 輸出發生數 ExpenseSummary *@
+            @* 輸出發生數 ExpenseSummary *@
         {
             List<ExpenseBudgetSummary> modelExpenseSummary = Model.ExpenseSummary.Where(x => x.SUBJECT_ID.Equals(item.SUBJECT_ID)).ToList();
             if (null != modelExpenseSummary && modelExpenseSummary.Count > 0)

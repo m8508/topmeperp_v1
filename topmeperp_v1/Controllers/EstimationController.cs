@@ -1485,7 +1485,7 @@ namespace topmeperp.Controllers
                 ViewBag.ThirdYear = service.getSiteBudgetByYearSeq(id, "3");
                 ViewBag.FourthYear = service.getSiteBudgetByYearSeq(id, "4");
                 ViewBag.FifthYear = service.getSiteBudgetByYearSeq(id, "5");
-                Amt = service.getTotalSiteBudgetAmount(id);
+                Amt = service.getSiteBudgetAmountById(id,null);
                 TempData["TotalAmt"] = Amt.TOTAL_BUDGET;
                 SiteBudgetModels viewModel = new SiteBudgetModels();
                 viewModel.firstYear = FirstYearBudget;
@@ -2122,52 +2122,44 @@ namespace topmeperp.Controllers
             ViewBag.projectid = id;
             TND_PROJECT p = service.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
-            return View();
+            //取得工地每年預算資料
+            List<ExpenseBudgetSummary> lstSiteBudget = service.getSiteBudgetPerYear(id);
+            ExpenseBudgetModel viewModel = new ExpenseBudgetModel();
+            //取得工地總預算、費用累積
+            ExpenseBudgetSummary BudgeTotalAmt = service.getSiteBudgetAmountById(id,null);
+            ExpenseBudgetSummary ExpenseTotalAmt = service.getTotalSiteExpAmountById(id,null);
+            TempData["TotalBudget"] = BudgeTotalAmt.TOTAL_BUDGET; //getTotalSiteBudgetAmount
+            TempData["TotalExpense"] = ExpenseTotalAmt.CUM_YEAR_AMOUNT;
+            viewModel.SiteBudgetPerYear = lstSiteBudget;
+            return View(viewModel);
         }
         // 工地預算查詢畫面
         public ActionResult SearchSiteExpSummary()
         {
             logger.Info("Access to Site Expense and Budget Summary Page，Project Id =" + Request["projectid"]);
             string projectId = Request["projectid"];
-            //判斷年度或日期
-            string searchKey = Request["searchKey"];
-            string searchDate = Request["date"];
-
-            ViewBag.projectid = projectId;
-            ViewBag.projectName = Request["projectName"];
-            ViewBag.searchKey = searchKey;
-
-            logger.Debug("search date = " + Request["date"]);
-            string targetYear = null;
-            int sequence = 0;
-
-            string[] date = Request["date"].Split('/');
-            targetYear = date[0];
+            string targetYear = Request["budgetYear"];
 
             //取得預算數
             List<ExpenseBudgetSummary> siteBudgetSummary = null;
             //取得發生數
             List<ExpenseBudgetSummary> sitExpenseSummary = null;
-            //工地費用總預算金額
-            ExpenseBudgetSummary BudgeTotalAmt = null;
             ExpenseBudgetModel viewModel = new ExpenseBudgetModel();
-            if (targetYear != null && targetYear !="")
+            if (targetYear != null && targetYear != "")
             {
                 siteBudgetSummary = service.getBudget4ProjectBySeq(Request["projectid"], targetYear, null);
                 sitExpenseSummary = service.getSiteExpenseSummaryByYear(Request["projectid"], targetYear);
-                BudgeTotalAmt = service.getSiteBudgetAmountById(Request["projectid"]);
-                //ExpAmt = service.getTotalSiteExpAmountById(Request["projectid"], targetYear, targetMonth, isCum);
+                //取得每年工地總預算、費用累積
+                ExpenseBudgetSummary BudgeTotalAmt = service.getSiteBudgetAmountById(projectId, targetYear);
+                ExpenseBudgetSummary ExpenseTotalAmt = service.getTotalSiteExpAmountById(projectId, targetYear);
+
+                TempData["TotalBudgetPerYear"] = BudgeTotalAmt.TOTAL_BUDGET; //getTotalSiteBudgetAmount
+                TempData["TotalExpensePerYear"] = ExpenseTotalAmt.CUM_YEAR_AMOUNT;
                 viewModel.BudgetSummary = siteBudgetSummary;
                 viewModel.ExpenseSummary = sitExpenseSummary;
-
-                TempData["TotalAmt"] = BudgeTotalAmt.TOTAL_BUDGET;
-                //TempData["TotalExpAmt"] = ExpAmt.CUM_YEAR_AMOUNT;
-                TempData["targetYear"] = targetYear;
-                //TempData["targetMonth"] = targetMonth;
-                TempData["yearSequence"] = sequence;
-                return View("SiteExpSummary", viewModel);
+                return PartialView("_SiteExpBudgetList", viewModel);
             }
-            return View("SiteExpSummary");
+            return PartialView("_SiteExpBudgetList");
         }
 
         /// <summary>
@@ -2176,7 +2168,7 @@ namespace topmeperp.Controllers
         public void downLoadSiteExpenseSummary()
         {
             string projectid = Request["projectid"];
-            int targetYear = int.Parse(Request["targetYear"]);
+            string targetYear = Request["targetYear"];
             int sequence = 0;
             int targetMonth = 0;
             bool isCum = false;

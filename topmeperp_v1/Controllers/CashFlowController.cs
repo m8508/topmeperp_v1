@@ -952,9 +952,6 @@ namespace topmeperp.Controllers
             List<ExpenseBudgetSummary> ExpenseSummary = null;
             List<ExpenseBudgetSummary> BudgetSummary = null;
 
-           // List<ExpenseBudgetByMonth> BudgetByMonth = null;
-            List<ExpensetFromOPByMonth> ExpenseByMonth = null;
-
             ExpenseBudgetSummary Amt = null;
             ExpenseBudgetSummary ExpAmt = null;
             ExpenseBudgetModel viewModel = new ExpenseBudgetModel();
@@ -964,9 +961,6 @@ namespace topmeperp.Controllers
                 BudgetSummary = service.getExpBudgetByYear(int.Parse(Request["budgetyear"]));
                 //取得發生數、
                 ExpenseSummary = service.getExpSummaryByYear(int.Parse(Request["budgetyear"]));
-                //合計數字
-                //BudgetByMonth = service.getExpBudgetOfMonthByYear(int.Parse(Request["budgetyear"]));
-                ExpenseByMonth = service.getExpensetOfMonthByYear(int.Parse(Request["budgetyear"]));
 
                 ExpAmt = service.getTotalOperationExpAmount(int.Parse(Request["budgetyear"]));
                 Amt = service.getTotalExpBudgetAmount(int.Parse(Request["budgetyear"]));
@@ -974,8 +968,6 @@ namespace topmeperp.Controllers
                 viewModel.BudgetSummary = BudgetSummary;
                 viewModel.ExpenseSummary = ExpenseSummary;
 
-                //viewModel.budget = BudgetByMonth;
-                viewModel.expense = ExpenseByMonth;
                 TempData["TotalAmt"] = String.Format("{0:#,##0.#}", Amt.TOTAL_BUDGET);
                 TempData["TotalExpAmt"] = String.Format("{0:#,##0.#}", ExpAmt.TOTAL_OPERATION_EXP);
                 TempData["budgetYear"] = Request["budgetyear"];

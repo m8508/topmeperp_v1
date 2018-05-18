@@ -116,18 +116,6 @@ namespace topmeperp.Service
             return year;
         }
         #endregion
-        //取得特定專案之工地費用總預算金額
-        public ExpenseBudgetSummary getTotalSiteBudgetAmount(string projectid)
-        {
-            ExpenseBudgetSummary lstAmount = null;
-            using (var context = new topmepEntities())
-            {
-                lstAmount = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT  SUM(AMOUNT) AS TOTAL_BUDGET FROM PLAN_SITE_BUDGET WHERE PROJECT_ID = @projectid  "
-               , new SqlParameter("projectid", projectid)).FirstOrDefault();
-            }
-            return lstAmount;
-        }
-
         //取得特定專案之工地費用預算年度
         public int getYearOfSiteExpenseById(string projectid, int seqYear)
         {
@@ -152,7 +140,6 @@ namespace topmeperp.Service
         }
 
         //取得專案工地費用預算
-        #region by 年度
         public List<ExpenseBudgetSummary> getBudget4ProjectBySeq(string projectid, string targetYear, string yearSeq)
         {
             List<ExpenseBudgetSummary> lstSiteBudget = new List<ExpenseBudgetSummary>();
@@ -179,41 +166,20 @@ namespace topmeperp.Service
             return lstExpBudget;
         }
 
-        //取得特定專案工地費用每月預算總和
-        public List<ExpenseBudgetByMonth> getSiteExpBudgetOfMonth(string projectid, int seqYear, int targetYear, int targetMonth, bool isCum)
+        //取得特定工地每年預算
+        public List<ExpenseBudgetSummary> getSiteBudgetPerYear(string projectid)
         {
-            List<ExpenseBudgetByMonth> lstExpBudget = new List<ExpenseBudgetByMonth>();
+            List<ExpenseBudgetSummary> lstSiteBudget = new List<ExpenseBudgetSummary>();
             using (var context = new topmepEntities())
             {
-                if (isCum == true)
-                {
-                    lstExpBudget = context.Database.SqlQuery<ExpenseBudgetByMonth>("SELECT SUM(F.JAN) AS JAN, SUM(F.FEB) AS FEB, SUM(F.MAR) AS MAR, SUM(F.APR) AS APR, SUM(F.MAY) AS MAY, SUM(F.JUN) AS JUN, " +
-                        "SUM(F.JUL) AS JUL, SUM(F.AUG) AS AUG, SUM(F.SEP) AS SEP, SUM(F.OCT) AS OCT, SUM(F.NOV) AS NOV, SUM(F.DEC) AS DEC, SUM(F.HTOTAL) AS HTOTAL FROM(SELECT  A.*, G.HTOTAL " +
-                        "FROM(SELECT SUBJECT_NAME, FIN_SUBJECT_ID AS SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
-                        "FROM(SELECT main.*, sub.AMOUNT, sub.BUDGET_YEAR, sub.BUDGET_MONTH FROM(SELECT fs.FIN_SUBJECT_ID, fs.SUBJECT_NAME FROM FIN_SUBJECT fs WHERE fs.CATEGORY = '工地費用')main LEFT JOIN(SELECT psb.BUDGET_MONTH, psb.AMOUNT, psb.BUDGET_YEAR, psb.SUBJECT_ID " +
-                        "FROM PLAN_SITE_BUDGET psb WHERE psb.PROJECT_ID = @projectid AND psb.BUDGET_YEAR = @targetYear AND psb.BUDGET_MONTH <= @targetMonth)sub ON sub.SUBJECT_ID = main.FIN_SUBJECT_ID) As STable " +
-                        "PIVOT(SUM(AMOUNT) FOR BUDGET_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)A " +
-                        "LEFT JOIN(SELECT SUBJECT_ID, ISNULL(SUM(psb.AMOUNT), 0) AS HTOTAL FROM PLAN_SITE_BUDGET psb WHERE psb.PROJECT_ID = @projectid AND psb.BUDGET_YEAR < @targetYear OR " +
-                        "psb.PROJECT_ID = @projectid AND psb.BUDGET_YEAR = @targetYear AND psb.BUDGET_MONTH <= @targetMonth GROUP BY SUBJECT_ID)G ON A.SUBJECT_ID = G.SUBJECT_ID)F ; "
-                   , new SqlParameter("projectid", projectid), new SqlParameter("targetYear", targetYear), new SqlParameter("targetMonth", targetMonth)).ToList();
-                }
-                else
-                {
-                    lstExpBudget = context.Database.SqlQuery<ExpenseBudgetByMonth>("SELECT SUM(F.JAN) AS JAN, SUM(F.FEB) AS FEB, SUM(F.MAR) AS MAR, SUM(F.APR) AS APR, SUM(F.MAY) AS MAY, SUM(F.JUN) AS JUN, " +
-                        "SUM(F.JUL) AS JUL, SUM(F.AUG) AS AUG, SUM(F.SEP) AS SEP, SUM(F.OCT) AS OCT, SUM(F.NOV) AS NOV, SUM(F.DEC) AS DEC, SUM(F.HTOTAL) AS HTOTAL FROM(SELECT  A.*, " +
-                        "SUM(ISNULL(A.JAN, 0)) + SUM(ISNULL(A.FEB, 0)) + SUM(ISNULL(A.MAR, 0)) + SUM(ISNULL(A.APR, 0)) + SUM(ISNULL(A.MAY, 0)) + SUM(ISNULL(A.JUN, 0)) " +
-                        "+ SUM(ISNULL(A.JUL, 0)) + SUM(ISNULL(A.AUG, 0)) + SUM(ISNULL(A.SEP, 0)) + SUM(ISNULL(A.OCT, 0)) + SUM(ISNULL(A.NOV, 0)) + SUM(ISNULL(A.DEC, 0)) AS HTOTAL " +
-                        "FROM(SELECT SUBJECT_NAME, FIN_SUBJECT_ID AS SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
-                        "FROM(SELECT main.*, sub.AMOUNT, sub.BUDGET_YEAR, sub.BUDGET_MONTH FROM(SELECT fs.FIN_SUBJECT_ID, fs.SUBJECT_NAME FROM FIN_SUBJECT fs WHERE fs.CATEGORY = '工地費用')main LEFT JOIN(SELECT psb.BUDGET_MONTH, psb.AMOUNT, psb.BUDGET_YEAR, psb.SUBJECT_ID " +
-                        "FROM PLAN_SITE_BUDGET psb WHERE psb.PROJECT_ID = @projectid AND psb.YEAR_SEQUENCE = @seqYear)sub ON sub.SUBJECT_ID = main.FIN_SUBJECT_ID) As STable " +
-                        "PIVOT(SUM(AMOUNT) FOR BUDGET_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)A " +
-                        "GROUP BY A.SUBJECT_NAME, A.SUBJECT_ID, A.JAN, A.FEB, A.MAR, A.APR, A.MAY, A.JUN, A.JUL, A.AUG, A.SEP, A.OCT, A.NOV, A.DEC)F ; "
-                        , new SqlParameter("projectid", projectid), new SqlParameter("seqYear", seqYear)).ToList();
-                }
+                string sql = @"SELECT CAST(YEAR_SEQUENCE AS VARCHAR) YEAR_SEQUENCE,CAST(BUDGET_YEAR as VARCHAR) BUDGET_YEAR ,SUM(AMOUNT) as TOTAL_BUDGET FROM PLAN_SITE_BUDGET 
+                            WHERE PROJECT_ID=@projectid
+                            GROUP BY BUDGET_YEAR,YEAR_SEQUENCE ORDER BY YEAR_SEQUENCE";
+                logger.Debug("sql=" + sql + " ,projectId=" + projectid);
+                lstSiteBudget = context.Database.SqlQuery<ExpenseBudgetSummary>(sql, new SqlParameter("projectid", projectid)).ToList();
             }
-            return lstExpBudget;
+            return lstSiteBudget;
         }
-
         //取得特定專案工地費用每月執行總和
         public List<ExpensetFromOPByMonth> getSiteExpensetOfMonth(string projectid, int targetYear, int targetMonth, bool isCum)
         {
@@ -251,38 +217,43 @@ namespace topmeperp.Service
             return lstExpense;
         }
         //取得特定專案之工地費用總預算金額
-        public ExpenseBudgetSummary getSiteBudgetAmountById(string projectid)
+        public ExpenseBudgetSummary getSiteBudgetAmountById(string projectid,string budgetYear)
         {
             ExpenseBudgetSummary lstAmount = null;
+            string sql = @"SELECT SUM(AMOUNT) AS TOTAL_BUDGET FROM PLAN_SITE_BUDGET 
+                WHERE PROJECT_ID = @projectid  
+                AND (@budgetYear IS NULL OR BUDGET_YEAR=@budgetYear)";
             using (var context = new topmepEntities())
             {
-                lstAmount = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT SUM(AMOUNT) AS TOTAL_BUDGET FROM PLAN_SITE_BUDGET WHERE PROJECT_ID = @projectid  "
-               , new SqlParameter("projectid", projectid)).FirstOrDefault();
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("projectid", projectid));
+                parameters.Add(new SqlParameter("budgetYear", (object)budgetYear ?? DBNull.Value));
+                lstAmount = context.Database.SqlQuery<ExpenseBudgetSummary>(sql ,parameters.ToArray()).FirstOrDefault();
             }
             return lstAmount;
         }
+
         //取得特定專案之工地費用總執行金額
-        public ExpenseBudgetSummary getTotalSiteExpAmountById(string projectid, int targetYear, int targetMonth, bool isCum)
+        public ExpenseBudgetSummary getTotalSiteExpAmountById(string projectid, string targetYear)
         {
+            string sql = @"SELECT SUM(ei.AMOUNT) AS CUM_YEAR_AMOUNT FROM FIN_EXPENSE_ITEM ei 
+                    LEFT JOIN FIN_EXPENSE_FORM ef 
+                    ON ei.EXP_FORM_ID = ef.EXP_FORM_ID WHERE ef.PROJECT_ID = @projectid 
+                    AND ef.STATUS=@status
+                    AND (@targetYear is Null OR ef.OCCURRED_YEAR = @targetYear)";
             ExpenseBudgetSummary lstExpAmount = null;
             using (var context = new topmepEntities())
             {
-                if (isCum == true)
-                {
-                    lstExpAmount = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT SUM(ei.AMOUNT) AS CUM_YEAR_AMOUNT FROM FIN_EXPENSE_ITEM ei LEFT JOIN FIN_EXPENSE_FORM ef " +
-                    "ON ei.EXP_FORM_ID = ef.EXP_FORM_ID WHERE ef.PROJECT_ID = @projectid AND ef.OCCURRED_YEAR < @targetYear OR ef.PROJECT_ID = @projectid AND ef.OCCURRED_YEAR = @targetYear AND ef.OCCURRED_MONTH <= @targetMonth  "
-               , new SqlParameter("projectid", projectid), new SqlParameter("targetYear", targetYear), new SqlParameter("targetMonth", targetMonth)).FirstOrDefault();
-                }
-                else
-                {
-                    lstExpAmount = context.Database.SqlQuery<ExpenseBudgetSummary>("SELECT SUM(ei.AMOUNT) AS CUM_YEAR_AMOUNT FROM FIN_EXPENSE_ITEM ei LEFT JOIN FIN_EXPENSE_FORM ef " +
-                    "ON ei.EXP_FORM_ID = ef.EXP_FORM_ID WHERE ef.PROJECT_ID = @projectid AND ef.OCCURRED_YEAR = @targetYear "
-               , new SqlParameter("projectid", projectid), new SqlParameter("targetYear", targetYear)).FirstOrDefault();
-                }
+                logger.Debug("sql=" + sql + ",project_id=" + projectid + ",year=" + targetYear);
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("projectid", projectid));
+                parameters.Add(new SqlParameter("status", "30"));
+                parameters.Add(new SqlParameter("targetYear", (object)targetYear ?? DBNull.Value));
+                lstExpAmount = context.Database.SqlQuery<ExpenseBudgetSummary>(sql, parameters.ToArray()).FirstOrDefault();
             }
             return lstExpAmount;
         }
-        #endregion
+
         //取得特定年度之公司費用總預算金額
         public ExpenseBudgetSummary getTotalExpBudgetAmount(int year)
         {
