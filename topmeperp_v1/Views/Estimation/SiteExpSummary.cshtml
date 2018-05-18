@@ -3,35 +3,32 @@
     ViewBag.Title = "工地費用預算執行彙整表";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
-
-<div class="page-header">
-    <h3 style="padding-bottom:15px;">工地費用預算執行彙整表 : </h3>
-    <form name="formSearchSiteExpSummary" id="formSearchSiteExpSummary" action="/Estimation/SearchSiteExpSummary" method="Post" class="form-inline">
-        <input id="projectid" name="projectid" type="hidden" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
-        <div class="col-md-4" style="padding-top:5px; padding-bottom:15px">
-            <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc; width:300px" readonly="readonly" />
-        </div>
-        <div class="row col-md-12" style="padding-bottom : 5px">
-            <div class="row col-md-5" style="padding-bottom:5px">
-                <input type="radio" id="searchKey" name="searchKey" value="S" checked/>
-                <label for="yearSequence">依年度查詢 :</label> <input id="yearSequence" name="yearSequence" type="text" placeholder="例如查詢專案第1年度，請輸入1" style="width:250px" class="form-control" />
+<div class="container">
+    <h3 style="padding-bottom:5px;">工地費用預算執行彙整表 : </h3>
+    <div class="row">
+        <form name="formSearchSiteExpSummary" id="formSearchSiteExpSummary" action="/Estimation/SearchSiteExpSummary" method="Post" class="form-inline">
+            <input id="projectid" name="projectid" type="hidden" value="@ViewBag.projectid" />
+            <div class="col-md-6">
+                <label for="projectName">專案名稱:</label>
+                <input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc; width:300px" readonly="readonly" />
+                <a class="btn btn-link" href="/Estimation/downLoadSiteExpenseSummary?projectid=@ViewBag.projectid" target="_blank"><span style="color :magenta;">下載彙整表</span></a>
             </div>
-            <div class="row col-md-5" style="padding-bottom:5px">
-                <input type="radio" id="searchKey" name="searchKey" value="D"/>
-                <label for="date">依年月累計 :</label> <input id="date" name="date" type="text" value="" style="width:250px" class="form-control" placeholder="請選取要查詢的年月"/>
+            <div class="row col-md-4">
+                <label for="date">輸入年 :</label> <input id="date" name="date" type="text" value="" style="width:250px" class="form-control" placeholder="請選取要查詢的年" />
             </div>
-            <div class="col-md-1 pull-left">
+            <div class="col-md-2 pull-left">
                 <input type="submit" value="查詢" class="btn btn-info" id="Submit1" onclick="return Confirm_Form()" />
+                <div id="divProcessing">
+                    <img src="~/Content/ajax-loader.gif">
+                </div>
             </div>
-            <div id="divProcessing" class="col-md-1">
-                <img src="~/Content/ajax-loader.gif">
-            </div>
-        </div>
-    </form>
+
+        </form>
+    </div>
 </div>
 
 <!--公司費用預算執行列表區域-->
-<div class="container-fluid">
+<div class="container">
 
     @if (null != Model)
     {
@@ -52,22 +49,22 @@
         });
         $(function () {
             $('#date').datetimepicker({
-                format: 'YYYY/MM',
+                format: 'YYYY',
                 locale: 'zh-tw'
             });
         });
     });
     function Confirm_Form() {
-        var method1 = $('input[name=searchKey]:radio:checked').val();
-        if (method1 == "S" && $("#yearSequence").val() == "") {
-            alert("年度欄位不可空白，請輸入要查詢的年度序數!!");
-            return false;
-        }
-        if (method1 == "D" && $("#date").val() == "") {
+        //var method1 = $('input[name=searchKey]:radio:checked').val();
+        //if (method1 == "S" && $("#yearSequence").val() == "") {
+        //    alert("年度欄位不可空白，請輸入要查詢的年度序數!!");
+        //    return false;
+        //}
+        if ($("#date").val() == "") {
             alert("年月累計欄位不可空白，請選取要查詢的年月!!");
             return false;
         }
+        return true;
     }
-
 </script>
 

@@ -2544,7 +2544,7 @@ namespace topmeperp.Service
         //建立工地費用預算執行彙整下載表格
         public string exportExcel(string projectid, int sequence, int targetYear, int targetMonth, bool isCum)
         {
-            List<ExpenseBudgetSummary> ExpBudget = service.getSiteExpBudgetSummaryBySeqYear(projectid, sequence, targetYear, targetMonth, isCum);
+            List<ExpenseBudgetSummary> ExpBudget = null;// service.getSiteExpBudgetSummaryBySeqYear(projectid, sequence, targetYear, targetMonth, isCum);
             List<ExpenseBudgetByMonth> BudgetByMonth = service.getSiteExpBudgetOfMonth(projectid, sequence, targetYear, targetMonth, isCum);
             List<ExpensetFromOPByMonth> ExpenseByMonth = service.getSiteExpensetOfMonth(projectid, targetYear, targetMonth, isCum);
             Amt = service.getSiteBudgetAmountById(projectid);

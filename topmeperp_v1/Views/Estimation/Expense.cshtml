@@ -6,7 +6,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0rc1/angular.min.js"></script>
 
 <div class="row col-md-12" style="padding-bottom:10px;"><h4>@ViewBag.Title</h4></div>
-@using (Html.BeginForm("AddExpense", "CashFlow", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+@using (Html.BeginForm("AddExpense", "CashFlow", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-inline" }))
 {
     <div class="row">
         <div class="col-md-4 form-group" style="padding-bottom:15px;">
@@ -19,23 +19,25 @@
             <button type="button" class="btn btn-primary" onclick="window.open('@Url.Action("SiteBudget", "Estimation", new { id = @ViewBag.projectid })');">工地費用預算</button>
         </div>
     </div>
-    <!--
-    <label class="col-md-2 control-label">費用申請日期: </label>
-    <div class='col-md-10'>
-        <input style="width:200px" type="text" class="form-control" name="occurreddate" id="occurreddate" value="">
+    <div class="row"  style="padding-bottom:10px">
+        <div class='col-md-4'>
+            <label class="control-label">費用申請日期: </label>
+            <input type="text" class="form-control" name="occurreddate" id="occurreddate" value="">
+        </div>
+        <div class='col-md-4'>
+            <label class="control-label">支付日期: </label>
+            <input type="text" class="form-control" name="paymentdate" id="paymentdate" value="">
+        </div>
     </div>
-        -->
-    <label class="col-md-2 control-label">支付日期: </label>
-    <div class='col-md-10'>
-        <input style="width:200px" type="text" class="form-control" name="paymentdate" id="paymentdate" value="">
-    </div>
-    <label class="col-md-2 control-label">受款人: </label>
-    <div class='col-md-10'>
-        <input type="text" class="typeahead form-control" id="supplier" name="supplier" autocomplete="off">
-    </div>
-    <label class="col-md-2 control-label">說明事項: </label>
-    <div class='col-md-10' style="padding-bottom:20px">
-        <input style="width:300px" type="text" class="form-control" name="remark" id="remark" value="">
+    <div class="row">
+        <div class='col-md-4'>
+            <label class="control-label">受款人: </label>
+            <input type="text" class="typeahead form-control" id="supplier" name="supplier" autocomplete="off">
+        </div>
+        <div class='col-md-8'>
+            <label class="control-label">說明事項: </label>
+            <input style="width:300px" type="text" class="form-control" name="remark" id="remark" value="">
+        </div>
     </div>
     <div ng-app="" ng-controller="MyCtrl">
         <div class="container" ng-submit="submit()">
@@ -93,9 +95,9 @@
             </div>
         </div>
     </div>
-    <div class="row" style="padding-top :50px">
-        <input id="Submit1" type="submit" value="送出" class="btn btn-default" onclick="return Confirm_Form()" />
-    </div>
+        <div class="row" style="padding-top :50px">
+            <input id="Submit1" type="submit" value="送出" class="btn btn-default" onclick="return Confirm_Form()" />
+        </div>
 }
 
 <script type="text/javascript">

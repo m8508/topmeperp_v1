@@ -12,7 +12,39 @@ namespace topmeperp.Service
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         #region 工地費用
-
+        /// <summary>
+        /// 取得工地預算，依據專案與年度條件
+        /// </summary>
+        string sql4Buget = @"SELECT ROW_NUMBER() OVER(ORDER BY A.SUBJECT_ID) AS SUB_NO, A.*, G.HTOTAL FROM 
+                (SELECT SUBJECT_NAME, FIN_SUBJECT_ID AS SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', 
+                [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' FROM
+                (SELECT main.*, sub.AMOUNT, sub.BUDGET_YEAR, sub.BUDGET_MONTH FROM 
+                (SELECT fs.FIN_SUBJECT_ID, fs.SUBJECT_NAME FROM FIN_SUBJECT fs WHERE fs.CATEGORY = '工地費用') main LEFT JOIN 
+                (SELECT psb.BUDGET_MONTH, psb.AMOUNT, psb.BUDGET_YEAR, psb.SUBJECT_ID FROM PLAN_SITE_BUDGET psb 
+                WHERE psb.PROJECT_ID = @projectid 
+                AND (@targetYear is null or psb.BUDGET_YEAR = @targetYear) 
+                AND (@yearSeq is null or psb.YEAR_SEQUENCE = @yearSeq))sub ON sub.SUBJECT_ID = main.FIN_SUBJECT_ID) As STable 
+                PIVOT(SUM(AMOUNT) FOR BUDGET_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)A 
+                LEFT JOIN 
+                (SELECT SUBJECT_ID, ISNULL(SUM(psb.AMOUNT), 0) AS HTOTAL FROM PLAN_SITE_BUDGET psb 
+                WHERE psb.PROJECT_ID = @projectid AND psb.BUDGET_YEAR < @targetYear OR psb.PROJECT_ID = @projectid 
+                AND psb.BUDGET_YEAR = @targetYear GROUP BY SUBJECT_ID)G ON A.SUBJECT_ID = G.SUBJECT_ID  ";
+        /// <summary>
+        /// 取得工地費用彙整，與預算比較需要僅能透過年度件
+        /// </summary>
+        string sql4Expense = @"SELECT ROW_NUMBER() OVER(ORDER BY C.SUBJECT_ID) + 1 AS SUB_NO, C.* FROM 
+                (SELECT OCCURRED_YEAR,SUBJECT_NAME, SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY'
+                , [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' FROM
+                (
+                SELECT * FROM 
+                (SELECT fs.FIN_SUBJECT_ID SUBJECT_ID, fs.SUBJECT_NAME FROM FIN_SUBJECT fs WHERE fs.CATEGORY = '工地費用') main
+                LEFT OUTER JOIN 
+                (SELECT ef.OCCURRED_YEAR,ef.OCCURRED_MONTH, ei.FIN_SUBJECT_ID, ei.AMOUNT FROM FIN_EXPENSE_ITEM ei  
+                LEFT JOIN FIN_EXPENSE_FORM ef ON ei.EXP_FORM_ID = ef.EXP_FORM_ID 
+                WHERE ef.PROJECT_ID = @projectid AND ef.OCCURRED_YEAR = @targetYear) Expen
+                ON main.SUBJECT_ID = Expen.FIN_SUBJECT_ID 
+                 ) As STable 
+                PIVOT(SUM(AMOUNT) FOR OCCURRED_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable) C ";
         //取得工地費用項目
         public List<FIN_SUBJECT> getSubjectOfExpense4Site()
         {
@@ -66,33 +98,11 @@ namespace topmeperp.Service
             return i;
         }
 
-        //取得專案工地費用預算
-        #region by 年度
-        public List<ExpenseBudgetSummary> getBudget4ProjectBySeq(string projectid, string yearSeq)
-        {
-            List<ExpenseBudgetSummary> lstSiteBudget = new List<ExpenseBudgetSummary>();
-            using (var context = new topmepEntities())
-            {
-                string sql = @"SELECT A.*, SUM(ISNULL(A.JAN,0))+ SUM(ISNULL(A.FEB,0))+ SUM(ISNULL(A.MAR,0)) + SUM(ISNULL(A.APR,0)) + SUM(ISNULL(A.MAY,0)) + SUM(ISNULL(A.JUN,0)) 
-                    + SUM(ISNULL(A.JUL, 0)) + SUM(ISNULL(A.AUG, 0)) + SUM(ISNULL(A.SEP, 0)) + SUM(ISNULL(A.OCT, 0)) + SUM(ISNULL(A.NOV, 0)) + SUM(ISNULL(A.DEC, 0)) AS HTOTAL 
-                   FROM (SELECT SUBJECT_NAME, SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' 
-                   FROM (SELECT eb.SUBJECT_ID, eb.BUDGET_MONTH, eb.AMOUNT, eb.BUDGET_YEAR, fs.SUBJECT_NAME FROM PLAN_SITE_BUDGET eb LEFT JOIN FIN_SUBJECT fs ON eb.SUBJECT_ID = fs.FIN_SUBJECT_ID 
-                   WHERE PROJECT_ID =@projectid AND YEAR_SEQUENCE = @yearSeq) As STable 
-                   PIVOT (SUM(AMOUNT) FOR BUDGET_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable) A 
-                   GROUP BY A.SUBJECT_NAME, A.SUBJECT_ID, A.JAN, A.FEB, A.MAR,A.APR, A.MAY, A.JUN, A.JUL, A.AUG, A.SEP, A.OCT, A.NOV, A.DEC ORDER BY A.SUBJECT_ID;";
-                logger.Debug("sql=" + sql);
-                var parameters = new List<SqlParameter>();
-                parameters.Add(new SqlParameter("projectid", projectid));
-                parameters.Add(new SqlParameter("yearSeq", yearSeq));
-                lstSiteBudget = context.Database.SqlQuery<ExpenseBudgetSummary>(sql, parameters.ToArray()).ToList();
-            }
-            return lstSiteBudget;
-        }
-        #endregion
 
+        #endregion
         //取得專案工地費用預算之西元年
         #region 年度
-        public int getSiteBudgetByYearSeq(string prjid,string yearSeq)
+        public int getSiteBudgetByYearSeq(string prjid, string yearSeq)
         {
             int year = 0;
             using (var context = new topmepEntities())
@@ -140,51 +150,31 @@ namespace topmeperp.Service
             }
             return lstYear;
         }
+
+        //取得專案工地費用預算
+        #region by 年度
+        public List<ExpenseBudgetSummary> getBudget4ProjectBySeq(string projectid, string targetYear, string yearSeq)
+        {
+            List<ExpenseBudgetSummary> lstSiteBudget = new List<ExpenseBudgetSummary>();
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("sql=" + sql4Buget);
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("projectid", projectid));
+                parameters.Add(new SqlParameter("targetYear", (object)targetYear ?? DBNull.Value));
+                parameters.Add(new SqlParameter("yearSeq", (object)yearSeq ?? DBNull.Value));
+                lstSiteBudget = context.Database.SqlQuery<ExpenseBudgetSummary>(sql4Buget, parameters.ToArray()).ToList();
+            }
+            return lstSiteBudget;
+        }
         //取得特定期間工地費用預算與費用彙整
-        public List<ExpenseBudgetSummary> getSiteExpBudgetSummaryBySeqYear(string projectid, int seqYear, int targetYear, int targetMonth, bool isCum)
+        public List<ExpenseBudgetSummary> getSiteExpenseSummaryByYear(string projectid, string targetYear)
         {
             List<ExpenseBudgetSummary> lstExpBudget = new List<ExpenseBudgetSummary>();
             using (var context = new topmepEntities())
             {
-                if (isCum == true)
-                {
-                    string sql = "SELECT ROW_NUMBER() OVER(ORDER BY D.SUBJECT_ID, D.SUB_NO) AS NO, D.* FROM(SELECT ROW_NUMBER() OVER(ORDER BY A.SUBJECT_ID) AS SUB_NO, A.*, G.HTOTAL " +
-                        "FROM(SELECT SUBJECT_NAME, FIN_SUBJECT_ID AS SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
-                        "FROM(SELECT main.*, sub.AMOUNT, sub.BUDGET_YEAR, sub.BUDGET_MONTH FROM (SELECT fs.FIN_SUBJECT_ID, fs.SUBJECT_NAME FROM FIN_SUBJECT fs WHERE fs.CATEGORY = '工地費用')main LEFT JOIN (SELECT psb.BUDGET_MONTH, psb.AMOUNT, psb.BUDGET_YEAR, psb.SUBJECT_ID " +
-                        "FROM PLAN_SITE_BUDGET psb WHERE psb.PROJECT_ID = @projectid AND psb.BUDGET_YEAR = @targetYear AND psb.BUDGET_MONTH <= @targetMonth)sub ON sub.SUBJECT_ID = main.FIN_SUBJECT_ID) As STable " +
-                        "PIVOT(SUM(AMOUNT) FOR BUDGET_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)A " +
-                        "LEFT JOIN (SELECT SUBJECT_ID, ISNULL(SUM(psb.AMOUNT), 0) AS HTOTAL FROM PLAN_SITE_BUDGET psb WHERE psb.PROJECT_ID = @projectid AND psb.BUDGET_YEAR < @targetYear OR " +
-                        "psb.PROJECT_ID = @projectid AND psb.BUDGET_YEAR = @targetYear AND psb.BUDGET_MONTH <= @targetMonth GROUP BY SUBJECT_ID)G ON A.SUBJECT_ID = G.SUBJECT_ID UNION " +
-                        "SELECT ROW_NUMBER() OVER(ORDER BY C.FIN_SUBJECT_ID) + 1 AS SUB_NO, C.*, F.HTOTAL FROM (SELECT SUBJECT_NAME, FIN_SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
-                        "FROM(SELECT B.OCCURRED_MONTH, fs.FIN_SUBJECT_ID, fs.SUBJECT_NAME, B.AMOUNT FROM FIN_SUBJECT fs LEFT JOIN(SELECT ef.OCCURRED_MONTH, ei.FIN_SUBJECT_ID, ei.AMOUNT FROM FIN_EXPENSE_ITEM ei " +
-                        "LEFT JOIN FIN_EXPENSE_FORM ef ON ei.EXP_FORM_ID = ef.EXP_FORM_ID WHERE ef.PROJECT_ID = @projectid AND ef.OCCURRED_YEAR = @targetYear AND ef.OCCURRED_MONTH <= @targetMonth)B " +
-                        "ON fs.FIN_SUBJECT_ID = B.FIN_SUBJECT_ID WHERE fs.CATEGORY = '工地費用') As STable " +
-                        "PIVOT(SUM(AMOUNT) FOR OCCURRED_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)C LEFT JOIN(SELECT FIN_SUBJECT_ID, ISNULL(SUM(fei.AMOUNT), 0) AS HTOTAL FROM FIN_EXPENSE_ITEM fei LEFT JOIN FIN_EXPENSE_FORM fef ON fei.EXP_FORM_ID = fef.EXP_FORM_ID " +
-                        "WHERE fef.PROJECT_ID = @projectid AND fef.OCCURRED_YEAR < @targetYear OR fef.PROJECT_ID = @projectid AND fef.OCCURRED_YEAR = @targetYear AND fef.OCCURRED_MONTH <= @targetMonth GROUP BY FIN_SUBJECT_ID)F ON C.FIN_SUBJECT_ID = F.FIN_SUBJECT_ID)D ORDER BY D.SUBJECT_ID, D.SUB_NO ";
-                    logger.Info("sql = " + sql);
-                    lstExpBudget = context.Database.SqlQuery<ExpenseBudgetSummary>(sql, new SqlParameter("projectid", projectid), new SqlParameter("targetYear", targetYear), new SqlParameter("targetMonth", targetMonth)).ToList();
-                }
-                else
-                {
-                    string sql = "SELECT ROW_NUMBER() OVER(ORDER BY D.SUBJECT_ID, D.SUB_NO) AS NO, D.* FROM(SELECT ROW_NUMBER() OVER(ORDER BY A.SUBJECT_ID) AS SUB_NO, A.*, " +
-                        "SUM(ISNULL(A.JAN,0))+ SUM(ISNULL(A.FEB,0))+ SUM(ISNULL(A.MAR,0)) + SUM(ISNULL(A.APR,0)) + SUM(ISNULL(A.MAY,0)) + SUM(ISNULL(A.JUN,0)) " +
-                        "+ SUM(ISNULL(A.JUL, 0)) + SUM(ISNULL(A.AUG, 0)) + SUM(ISNULL(A.SEP, 0)) + SUM(ISNULL(A.OCT, 0)) + SUM(ISNULL(A.NOV, 0)) + SUM(ISNULL(A.DEC, 0)) AS HTOTAL " +
-                        "FROM(SELECT SUBJECT_NAME, FIN_SUBJECT_ID AS SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
-                        "FROM(SELECT main.*, sub.AMOUNT, sub.BUDGET_YEAR, sub.BUDGET_MONTH FROM (SELECT fs.FIN_SUBJECT_ID, fs.SUBJECT_NAME FROM FIN_SUBJECT fs WHERE fs.CATEGORY = '工地費用')main LEFT JOIN (SELECT psb.BUDGET_MONTH, psb.AMOUNT, psb.BUDGET_YEAR, psb.SUBJECT_ID " +
-                        "FROM PLAN_SITE_BUDGET psb WHERE psb.PROJECT_ID = @projectid AND psb.YEAR_SEQUENCE = @seqYear)sub ON sub.SUBJECT_ID = main.FIN_SUBJECT_ID) As STable " +
-                        "PIVOT(SUM(AMOUNT) FOR BUDGET_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)A " +
-                        "GROUP BY A.SUBJECT_NAME, A.SUBJECT_ID, A.JAN, A.FEB, A.MAR,A.APR, A.MAY, A.JUN, A.JUL, A.AUG, A.SEP, A.OCT, A.NOV, A.DEC UNION " +
-                        "SELECT ROW_NUMBER() OVER(ORDER BY C.FIN_SUBJECT_ID) + 1 AS SUB_NO, C.*, SUM(ISNULL(C.JAN, 0)) + SUM(ISNULL(C.FEB, 0)) + SUM(ISNULL(C.MAR, 0)) + SUM(ISNULL(C.APR, 0)) + SUM(ISNULL(C.MAY, 0)) + SUM(ISNULL(C.JUN, 0)) " +
-                        "+ SUM(ISNULL(C.JUL, 0)) + SUM(ISNULL(C.AUG, 0)) + SUM(ISNULL(C.SEP, 0)) + SUM(ISNULL(C.OCT, 0)) + SUM(ISNULL(C.NOV, 0)) + SUM(ISNULL(C.DEC, 0)) AS HTOTAL " +
-                        "FROM(SELECT SUBJECT_NAME, FIN_SUBJECT_ID, [01] As 'JAN', [02] As 'FEB', [03] As 'MAR', [04] As 'APR', [05] As 'MAY', [06] As 'JUN', [07] As 'JUL', [08] As 'AUG', [09] As 'SEP', [10] As 'OCT', [11] As 'NOV', [12] As 'DEC' " +
-                        "FROM(SELECT B.OCCURRED_MONTH, fs.FIN_SUBJECT_ID, fs.SUBJECT_NAME, B.AMOUNT FROM FIN_SUBJECT fs LEFT JOIN(SELECT ef.OCCURRED_MONTH, ei.FIN_SUBJECT_ID, ei.AMOUNT FROM FIN_EXPENSE_ITEM ei " +
-                        "LEFT JOIN FIN_EXPENSE_FORM ef ON ei.EXP_FORM_ID = ef.EXP_FORM_ID WHERE ef.PROJECT_ID = @projectid AND ef.OCCURRED_YEAR = @targetYear)B " +
-                        "ON fs.FIN_SUBJECT_ID = B.FIN_SUBJECT_ID WHERE fs.CATEGORY = '工地費用') As STable " +
-                        "PIVOT(SUM(AMOUNT) FOR OCCURRED_MONTH IN([01], [02], [03], [04], [05], [06], [07], [08], [09], [10], [11], [12])) As PTable)C " +
-                        "GROUP BY C.SUBJECT_NAME, C.FIN_SUBJECT_ID, C.JAN, C.FEB, C.MAR, C.APR, C.MAY, C.JUN, C.JUL, C.AUG, C.SEP, C.OCT, C.NOV, C.DEC )D ORDER BY D.SUBJECT_ID, D.SUB_NO ";
-                    logger.Info("sql = " + sql);
-                    lstExpBudget = context.Database.SqlQuery<ExpenseBudgetSummary>(sql, new SqlParameter("projectid", projectid), new SqlParameter("seqYear", seqYear), new SqlParameter("targetYear", targetYear)).ToList();
-                }
+                logger.Info("sql = " + sql4Expense);
+                lstExpBudget = context.Database.SqlQuery<ExpenseBudgetSummary>(sql4Expense, new SqlParameter("projectid", projectid), new SqlParameter("targetYear", targetYear)).ToList();
             }
             return lstExpBudget;
         }
@@ -293,7 +283,6 @@ namespace topmeperp.Service
             return lstExpAmount;
         }
         #endregion
-        //
         //取得特定年度之公司費用總預算金額
         public ExpenseBudgetSummary getTotalExpBudgetAmount(int year)
         {

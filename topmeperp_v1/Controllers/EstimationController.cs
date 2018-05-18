@@ -1474,17 +1474,17 @@ namespace topmeperp.Controllers
             if (null != priId && priId != "")
             {
                 //取得已寫入之工地費用預算資料
-                FirstYearBudget = service.getBudget4ProjectBySeq(id,"1");
-                SecondYearBudget = service.getBudget4ProjectBySeq(id,"2");
-                ThirdYearBudget = service.getBudget4ProjectBySeq(id,"3");
-                FourthYearBudget = service.getBudget4ProjectBySeq(id,"4");
-                FifthYearBudget = service.getBudget4ProjectBySeq(id,"5");
+                FirstYearBudget = service.getBudget4ProjectBySeq(id, null, "1");
+                SecondYearBudget = service.getBudget4ProjectBySeq(id, null, "2");
+                ThirdYearBudget = service.getBudget4ProjectBySeq(id, null, "3");
+                FourthYearBudget = service.getBudget4ProjectBySeq(id, null, "4");
+                FifthYearBudget = service.getBudget4ProjectBySeq(id, null, "5");
                 //工地(專案)該年度預算
-                ViewBag.FirstYear = service.getSiteBudgetByYearSeq(id,"1");
-                ViewBag.SecondYear = service.getSiteBudgetByYearSeq(id,"2");
-                ViewBag.ThirdYear = service.getSiteBudgetByYearSeq(id,"3");
-                ViewBag.FourthYear = service.getSiteBudgetByYearSeq(id,"4");
-                ViewBag.FifthYear = service.getSiteBudgetByYearSeq(id,"5");
+                ViewBag.FirstYear = service.getSiteBudgetByYearSeq(id, "1");
+                ViewBag.SecondYear = service.getSiteBudgetByYearSeq(id, "2");
+                ViewBag.ThirdYear = service.getSiteBudgetByYearSeq(id, "3");
+                ViewBag.FourthYear = service.getSiteBudgetByYearSeq(id, "4");
+                ViewBag.FifthYear = service.getSiteBudgetByYearSeq(id, "5");
                 Amt = service.getTotalSiteBudgetAmount(id);
                 TempData["TotalAmt"] = Amt.TOTAL_BUDGET;
                 SiteBudgetModels viewModel = new SiteBudgetModels();
@@ -2122,64 +2122,48 @@ namespace topmeperp.Controllers
             ViewBag.projectid = id;
             TND_PROJECT p = service.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
-            //ViewBag.searchKey = Request["searchKey"];
             return View();
         }
         // 工地預算查詢畫面
         public ActionResult SearchSiteExpSummary()
         {
             logger.Info("Access to Site Expense and Budget Summary Page，Project Id =" + Request["projectid"]);
-            ViewBag.projectid = Request["projectid"];
-            ViewBag.projectName = Request["projectName"];
-            ViewBag.searchKey = Request["searchKey"];
-            logger.Debug("search date = " + Request["date"]);
-            int budgetYear = 0;
-            int targetYear = 0;
-            int targetMonth = 0;
-            int sequence = 0;
-            bool isCum = false;
-            if (Request["searchKey"] == "S")
-            {
-                budgetYear = service.getYearOfSiteExpenseById(Request["projectid"], int.Parse(Request["yearSequence"]));
-                targetYear = budgetYear;
-                int firstYear = service.getFirstYearOfPlanById(Request["projectid"]);
-                if (budgetYear == 0)
-                {
-                    sequence = int.Parse(Request["yearSequence"]);
-                    targetYear = firstYear + sequence - 1;
-                }
-            }
-            else
-            {
-                string[] date = Request["date"].Split('/');
-                targetYear = int.Parse(date[0]);
-                targetMonth = int.Parse(date[1]);
-                isCum = true;
-            }
-            List<ExpenseBudgetSummary> siteBudgetSummary = null;
-            List<ExpenseBudgetSummary> sitExpenseSummary = null;
-            List<ExpenseBudgetByMonth> BudgetByMonth = null;
-            List<ExpensetFromOPByMonth> ExpenseByMonth = null;
-            ExpenseBudgetSummary Amt = null;
-            ExpenseBudgetSummary ExpAmt = null;
-            ExpenseBudgetModel viewModel = new ExpenseBudgetModel();
-            if (null != Request["searchKey"] && Request["searchKey"] != "")
-            {
-                siteBudgetSummary = service.getSiteExpBudgetSummaryBySeqYear(Request["projectid"], sequence, targetYear, targetMonth, isCum);
-                //sitExpenseSummary = service.getSiteExpBudgetSummaryBySeqYear(Request["projectid"], sequence, targetYear, targetMonth, isCum);
-                BudgetByMonth = service.getSiteExpBudgetOfMonth(Request["projectid"], sequence, targetYear, targetMonth, isCum);
-                ExpenseByMonth = service.getSiteExpensetOfMonth(Request["projectid"], targetYear, targetMonth, isCum);
-                Amt = service.getSiteBudgetAmountById(Request["projectid"]);
-                ExpAmt = service.getTotalSiteExpAmountById(Request["projectid"], targetYear, targetMonth, isCum);
-                viewModel.BudgetSummary = siteBudgetSummary;
-                //viewModel.BudgetSummary = siteBudgetSummary;
+            string projectId = Request["projectid"];
+            //判斷年度或日期
+            string searchKey = Request["searchKey"];
+            string searchDate = Request["date"];
 
-                viewModel.budget = BudgetByMonth;
-                viewModel.expense = ExpenseByMonth;
-                TempData["TotalAmt"] = Amt.TOTAL_BUDGET;
-                TempData["TotalExpAmt"] = ExpAmt.CUM_YEAR_AMOUNT;
+            ViewBag.projectid = projectId;
+            ViewBag.projectName = Request["projectName"];
+            ViewBag.searchKey = searchKey;
+
+            logger.Debug("search date = " + Request["date"]);
+            string targetYear = null;
+            int sequence = 0;
+
+            string[] date = Request["date"].Split('/');
+            targetYear = date[0];
+
+            //取得預算數
+            List<ExpenseBudgetSummary> siteBudgetSummary = null;
+            //取得發生數
+            List<ExpenseBudgetSummary> sitExpenseSummary = null;
+            //工地費用總預算金額
+            ExpenseBudgetSummary BudgeTotalAmt = null;
+            ExpenseBudgetModel viewModel = new ExpenseBudgetModel();
+            if (targetYear != null && targetYear !="")
+            {
+                siteBudgetSummary = service.getBudget4ProjectBySeq(Request["projectid"], targetYear, null);
+                sitExpenseSummary = service.getSiteExpenseSummaryByYear(Request["projectid"], targetYear);
+                BudgeTotalAmt = service.getSiteBudgetAmountById(Request["projectid"]);
+                //ExpAmt = service.getTotalSiteExpAmountById(Request["projectid"], targetYear, targetMonth, isCum);
+                viewModel.BudgetSummary = siteBudgetSummary;
+                viewModel.ExpenseSummary = sitExpenseSummary;
+
+                TempData["TotalAmt"] = BudgeTotalAmt.TOTAL_BUDGET;
+                //TempData["TotalExpAmt"] = ExpAmt.CUM_YEAR_AMOUNT;
                 TempData["targetYear"] = targetYear;
-                TempData["targetMonth"] = targetMonth;
+                //TempData["targetMonth"] = targetMonth;
                 TempData["yearSequence"] = sequence;
                 return View("SiteExpSummary", viewModel);
             }
