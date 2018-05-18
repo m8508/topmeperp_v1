@@ -2542,16 +2542,16 @@ namespace topmeperp.Service
         public string errorMessage = null;
 
         //建立工地費用預算執行彙整下載表格
-        public string exportExcel(string projectid, int sequence, string targetYear, int targetMonth, bool isCum)
+        public string exportExcel(string projectid)
         {
             List<ExpenseBudgetSummary> ExpBudget = null;// service.getSiteExpBudgetSummaryBySeqYear(projectid, sequence, targetYear, targetMonth, isCum);
             List<ExpenseBudgetByMonth> BudgetByMonth = null;// service.getSiteExpBudgetOfMonth(projectid, sequence, targetYear, targetMonth, isCum);
             List<ExpensetFromOPByMonth> ExpenseByMonth = null;// service.getSiteExpensetOfMonth(projectid, targetYear, targetMonth, isCum);
             Amt = service.getSiteBudgetAmountById(projectid,null);
             totalBudget = String.Format("{0:#,##0.#}", Amt.TOTAL_BUDGET);
-            ExpAmt = service.getTotalSiteExpAmountById(projectid, targetYear);//, targetMonth, isCum);
+            //ExpAmt = service.getTotalSiteExpAmountById(projectid, targetYear);//, targetMonth, isCum);
             totalExpense = String.Format("{0:#,##0.#}", ExpAmt.CUM_YEAR_AMOUNT);
-            string date = targetYear.ToString() + "/" + targetMonth.ToString();
+            //string date = targetYear.ToString() + "/" + targetMonth.ToString();
             //1.讀取費用表格檔案
             InitializeWorkbook(summaryFile);
             style = ExcelStyle.getContentStyle(hssfworkbook);
@@ -2559,23 +2559,23 @@ namespace topmeperp.Service
             sheet = (XSSFSheet)hssfworkbook.GetSheet("彙整表");
             //2.填入表頭資料
             logger.Debug("Table Head_1=" + sheet.GetRow(1).Cells[0].ToString());
-            if (isCum == true)
-            {
+           // if (isCum == true)
+           // {
                 sheet.GetRow(1).Cells[0].SetCellValue("條件為累計至 :");//工地費用查詢條件表頭文字
-                sheet.GetRow(1).Cells[1].SetCellValue(date);//工地費用累計查詢年月
-            }
-            else
-            {
+             //   sheet.GetRow(1).Cells[1].SetCellValue(date);//工地費用累計查詢年月
+           // }
+           // else
+           // {
                 sheet.GetRow(1).Cells[0].SetCellValue("查詢年度 :");//工地費用查詢條件表頭文字
-                sheet.GetRow(1).Cells[1].SetCellValue(targetYear);//工地費用查詢年度
-            }
+               // sheet.GetRow(1).Cells[1].SetCellValue(targetYear);//工地費用查詢年度
+            //}
             sheet.GetRow(2).Cells[15].SetCellValue(DateTime.Now.ToString("yyyy/MM/dd"));//製表日期
             sheet.GetRow(0).Cells[16].SetCellValue(totalBudget);//總預算金額
             sheet.GetRow(1).Cells[10].SetCellValue(totalExpense);//執行金額
-            if (isCum == true)
-            {
-                sheet.GetRow(3).Cells[16].SetCellValue("累計");//更改合計欄位為累計
-            }
+            //if (isCum == true)
+            //{
+            //    sheet.GetRow(3).Cells[16].SetCellValue("累計");//更改合計欄位為累計
+            //}
             //3.填入資料
             int idxRow = 5;
             foreach (ExpenseBudgetSummary item in ExpBudget)
@@ -3032,18 +3032,18 @@ namespace topmeperp.Service
             }
             //4.另存新檔至專案所屬目錄 (增加Temp for zip 打包使用
             string fileLocation = null;
-            if (isCum == true && targetMonth.ToString().Length > 1)
-            {
-                fileLocation = outputPath + "\\" + projectid + "\\" + projectid + "_" + targetYear + targetMonth + "_工地費用預算執行彙整表.xlsx";
-            }
-            else if (isCum == true)
-            {
-                fileLocation = outputPath + "\\" + projectid + "\\" + projectid + "_" + targetYear + "0" + targetMonth + "_工地費用預算執行彙整表.xlsx";
-            }
-            else
-            {
-                fileLocation = outputPath + "\\" + projectid + "\\" + projectid + "_" + targetYear + "_工地費用預算執行彙整表.xlsx";
-            }
+            //if (isCum == true && targetMonth.ToString().Length > 1)
+            //{
+            //    fileLocation = outputPath + "\\" + projectid + "\\" + projectid + "_" + targetYear + targetMonth + "_工地費用預算執行彙整表.xlsx";
+            //}
+            //else if (isCum == true)
+            //{
+            //    fileLocation = outputPath + "\\" + projectid + "\\" + projectid + "_" + targetYear + "0" + targetMonth + "_工地費用預算執行彙整表.xlsx";
+            //}
+            //else
+            //{
+            //    fileLocation = outputPath + "\\" + projectid + "\\" + projectid + "_" + targetYear + "_工地費用預算執行彙整表.xlsx";
+            //}
             var file = new FileStream(fileLocation, FileMode.Create);
             logger.Info("new file name =" + file.Name + ",path=" + file.Position);
             hssfworkbook.Write(file);

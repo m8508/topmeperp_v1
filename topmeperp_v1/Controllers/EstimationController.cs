@@ -2157,6 +2157,7 @@ namespace topmeperp.Controllers
                 TempData["TotalExpensePerYear"] = ExpenseTotalAmt.CUM_YEAR_AMOUNT;
                 viewModel.BudgetSummary = siteBudgetSummary;
                 viewModel.ExpenseSummary = sitExpenseSummary;
+                ViewBag.BudgetYear = targetYear;
                 return PartialView("_SiteExpBudgetList", viewModel);
             }
             return PartialView("_SiteExpBudgetList");
@@ -2169,21 +2170,9 @@ namespace topmeperp.Controllers
         {
             string projectid = Request["projectid"];
             string targetYear = Request["targetYear"];
-            int sequence = 0;
-            int targetMonth = 0;
-            bool isCum = false;
-            if (null != Request["isCum"] && Request["isCum"] == "Y")
-            {
-                isCum = true;
-                targetMonth = int.Parse(Request["targetMonth"]);
-            }
-            else
-            {
-                sequence = int.Parse(Request["sequence"]);
-            }
             SiteExpSummaryToExcel poi = new SiteExpSummaryToExcel();
             //檔案位置
-            string fileLocation = poi.exportExcel(projectid, sequence, targetYear, targetMonth, isCum);
+            string fileLocation = poi.exportExcel(projectid);
             //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
             string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
             Response.Clear();
