@@ -522,6 +522,41 @@ namespace topmeperp.Models
         public Nullable<decimal> MONTH_RATIO { get; set; }
         public Nullable<decimal> YEAR_RATIO { get; set; }
         public Nullable<decimal> CUM_YEAR_AMOUNT { get; set; }
+
+        public Nullable<decimal> getMonthBudget(int month)
+        {
+            Nullable<decimal> budget = null;
+            switch (month)
+            {
+                case 1:
+                    return JAN;
+                case 2:
+                    return FEB;
+                case 3:
+                    return MAR;
+                case 4:
+                    return APR;
+                case 5:
+                    return MAY;
+                case 6:
+                    return JUN;
+                case 7:
+                    return JUL;
+                case 8:
+                    return AUG;
+                case 9:
+                    return SEP;
+                case 10:
+                    return OCT;
+                case 11:
+                    return NOV;
+                case 12:
+                    return DEC;
+                case 13:
+                    return HTOTAL;
+            }
+            return budget;
+        }
     }
     public class OperatingExpenseModel
     {
@@ -546,7 +581,7 @@ namespace topmeperp.Models
         public string RECORDED_AMOUNT_PAID { get; set; }
         public string PAYBACK_AMOUNT { get; set; }
     }
-        public class SiteBudgetModels
+    public class SiteBudgetModels
     {
         //第1年度工地費用預算資料
         public IEnumerable<ExpenseBudgetSummary> firstYear { get; set; }
@@ -637,7 +672,7 @@ namespace topmeperp.Models
         public Nullable<decimal> Amt { get; set; }
         public Nullable<decimal> taxMinus { get; set; }
         public Nullable<decimal> discount { get; set; }
-        
+
     }
     public class PaymentTermsFunction : PLAN_PAYMENT_TERMS
     {

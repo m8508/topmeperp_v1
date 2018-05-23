@@ -56,7 +56,7 @@ namespace topmeperp.Service
             }
             return lstSubject;
         }
-
+        //取得專案編號?
         public string getSiteBudgetById(string prjid)
         {
             string projectid = null;
@@ -67,7 +67,7 @@ namespace topmeperp.Service
             }
             return projectid;
         }
-
+        //刪除專案工地預算
         public int delSiteBudgetByProject(string projectid, string year)
         {
             logger.Info("remove all site budget by projectid =" + projectid + "and by year sequence =" + year);
@@ -80,7 +80,7 @@ namespace topmeperp.Service
             logger.Debug("delete PALN_SITE_BUDGET count=" + i);
             return i;
         }
-
+        //匯入工地預算
         public int refreshSiteBudget(List<PLAN_SITE_BUDGET> items)
         {
             int i = 0;
@@ -97,7 +97,6 @@ namespace topmeperp.Service
             logger.Info("add PLAN_SITE_BUDGET count =" + i);
             return i;
         }
-
 
         #endregion
         //取得專案工地費用預算之西元年
