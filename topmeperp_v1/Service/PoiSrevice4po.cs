@@ -1134,7 +1134,7 @@ namespace topmeperp.Service
         string outputPath = ContextService.strUploadPath;
         IWorkbook hssfworkbook;
         ISheet sheet = null;
-        string fileformat = "xlsx";
+        string company_folder = "C001";
 
         //存放費用表資料
         Service4Budget service = new Service4Budget();
@@ -1143,9 +1143,6 @@ namespace topmeperp.Service
         public List<ExpenseBudgetSummary> SiteTableItem = null;
         ExpenseBudgetSummary Budget = null;
         ExpenseBudgetSummary siteBudget = null;
-        ExpenseBudgetSummary ExpAmt = null;
-        ExpenseBudgetSummary EarlyExpAmt = null;
-        ExpenseBudgetSummary siteEarlyExpAmt = null;
         public string errorMessage = null;
 
         //建立預算下載表格
@@ -1524,7 +1521,8 @@ namespace topmeperp.Service
             }
             else
             {
-                fileLocation = outputPath + "\\" + ExpTable.PROJECT_ID + "\\" + ExpTable.EXP_FORM_ID + "_公司費用表.xlsx";
+                ZipFileCreator.CreateDirectory(outputPath + "\\" + company_folder);
+                fileLocation = outputPath+ "\\"  +company_folder + "\\" + ExpTable.EXP_FORM_ID + "_公司費用表.xlsx";
             }
             var file = new FileStream(fileLocation, FileMode.Create);
             logger.Info("new file name =" + file.Name + ",path=" + file.Position);
@@ -2724,7 +2722,7 @@ namespace topmeperp.Service
                 {
                     row.Cells[1].SetCellValue(item.INVOICE_TYPE.Substring(0, 1));//發票類型
                 }
-                row.Cells[2].SetCellValue(item.INVOICE_DATE.Value.Year);//年
+                row.Cells[2].SetCellValue(item.INVOICE_DATE.Value.Year-1911);//年
                 row.Cells[4].SetCellValue(item.INVOICE_DATE.Value.Month);//月
                 row.Cells[5].SetCellValue(item.INVOICE_DATE.Value.Day);//日
                 row.Cells[6].SetCellValue(item.INVOICE_NUMBER.Substring(0, 2));//字軌
