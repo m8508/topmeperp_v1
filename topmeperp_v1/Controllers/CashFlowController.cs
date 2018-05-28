@@ -17,7 +17,7 @@ namespace topmeperp.Controllers
     public class CashFlowController : Controller
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        Service4Budget service = new Service4Budget();
+        Service4CashFlow service = new Service4CashFlow();
 
         // GET: CashFlow 
         [topmeperp.Filter.AuthFilter]
@@ -123,11 +123,16 @@ namespace topmeperp.Controllers
                 ExpenseOutFlow = service.getExpenseOutFlowByDate(paymentDate, null, null);
                 ExpenseBudget = service.getExpenseBudgetByDate(paymentDate, null, null);
             }
+            //廠商請款(計價單) 
             viewModel.planAccount = CashOutFlow;
+            //借款還款/廠商借款 
             viewModel.finLoanTranaction = LoanOutFlow;
+            //費用單
             viewModel.outFlowBalance = OutFlowBalance;
-            viewModel.outFlowExp = ExpenseOutFlow;
+            //費用預算(含公司與工地，不含今天以前的資料)
             viewModel.expBudget = ExpenseBudget;
+            //當日須支付明細
+            viewModel.outFlowExp = ExpenseOutFlow;
             ViewBag.SearchTerm = "實際付款日期為 : " + paymentDate;
             return View(viewModel);
         }
@@ -846,11 +851,21 @@ namespace topmeperp.Controllers
             }
             return msg;
         }
+
+        public ActionResult FormForJournal()
+        {
+            logger.Info("Access to Form For Journal !!");
+            //公司需立帳之帳款(即會計審核)
+            int status = 30;
+            List<OperatingExpenseFunction> lstEXP = service.getEXPListByExpId(null, null, null, status, null);
+            return View(lstEXP);
+        }
+
         //會計稽核作業
         public ActionResult SearchForm4Journal()
         {
-            logger.Info("occurred_date =" + Request["occurred_date"] + ", subjectname =" + Request["subjectname"] + ", expid =" + Request["expid"] + ", status =" + int.Parse(Request["status"]) + ", projectid =" + Request["id"]);
-            List<OperatingExpenseFunction> lstEXP = service.getEXPListByExpId(Request["occurred_date"], Request["subjectname"], Request["expid"], int.Parse(Request["status"]), Request["id"]);
+            //logger.Info("occurred_date =" + Request["occurred_date"] + ", subjectname =" + Request["subjectname"] + ", expid =" + Request["expid"] + ", status =" + int.Parse(Request["status"]) + ", projectid =" + Request["id"]);
+            List<OperatingExpenseFunction> lstEXP = new List<OperatingExpenseFunction>() ;//service.getEXPListByExpId(Request["occurred_date"], Request["subjectname"], Request["expid"], int.Parse(Request["status"]), Request["id"]);
             //ViewBag.SearchResult = "共取得" + lstEXP.Count + "筆資料";
             return View("FormForJournal", lstEXP);
         }

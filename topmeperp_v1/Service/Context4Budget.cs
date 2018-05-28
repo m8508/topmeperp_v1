@@ -265,4 +265,281 @@ namespace topmeperp.Service
             return lstAmount;
         }
     }
+    /// <summary>
+    /// 現金流量報表
+    /// </summary>
+    class Service4CashFlow: Service4Budget
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        //取得特定日期借款與還款
+        public List<LoanTranactionFunction> getLoanTranaction(string type, string paymentdate, string duringStart, string duringEnd)
+        {
+            logger.Debug("get loan tranaction by payment date=" + paymentdate + ",and type = " + type);
+            List<LoanTranactionFunction> lstItem = new List<LoanTranactionFunction>();
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                if (null != paymentdate && paymentdate != "")
+                {
+                    if (type == "I")// type值為'I'表示有現金流入
+                    {
+                        lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = 1 AND CONVERT(char(10), " +
+                            "IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE), 111) =@paymentdate OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = -1 AND CONVERT(char(10), IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE), 111) =@paymentdate ",
+                        new SqlParameter("paymentdate", paymentdate)).ToList();
+                    }
+                    else // type值為'O'表示有現金流出
+                    {
+                        lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = -1 AND CONVERT(char(10), " +
+                            "IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE), 111) =@paymentdate OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = 1 AND CONVERT(char(10), IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE), 111) =@paymentdate ",
+                        new SqlParameter("paymentdate", paymentdate)).ToList();
+                    }
+                }
+                else if (null != duringStart && duringStart != "" && null != duringEnd && duringEnd != "")
+                {
+                    if (type == "I")// type值為'I'表示有現金流入
+                    {
+                        lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = 1 AND " +
+                            "IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) >= convert(datetime, @duringStart, 111) AND IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) <= convert(datetime, @duringEnd, 111) OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' " +
+                            "AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = -1 AND IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) >= convert(datetime, @duringStart, 111) AND IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) <= convert(datetime, @duringEnd, 111) ORDER BY IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) ",
+                        new SqlParameter("duringStart", duringStart), new SqlParameter("duringEnd", duringEnd)).ToList();
+                    }
+                    else // type值為'O'表示有現金流出
+                    {
+                        lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = -1 AND " +
+                            "IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) >= convert(datetime, @duringStart, 111) AND IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) <= convert(datetime, @duringEnd, 111) OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' " +
+                            "AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = 1 AND IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) >= convert(datetime, @duringStart, 111) AND IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) <= convert(datetime, @duringEnd, 111) ORDER BY IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) ",
+                       new SqlParameter("duringStart", duringStart), new SqlParameter("duringEnd", duringEnd)).ToList();
+                    }
+                }
+                else
+                {
+                    if (type == "I")// type值為'I'表示有現金流入
+                    {
+                        lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = 1 " +
+                            "OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = -1 ORDER BY IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) ",
+                        new SqlParameter("paymentdate", paymentdate)).ToList();
+                    }
+                    else // type值為'O'表示有現金流出
+                    {
+                        lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = -1 " +
+                            "OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = 1 ORDER BY IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) ",
+                        new SqlParameter("paymentdate", paymentdate)).ToList();
+                    }
+                }
+            }
+            return lstItem;
+        }
+
+        public List<PlanAccountFunction> getOutFlowBalanceByDate(string paymentDate, string duringStart, string duringEnd)
+        {
+            logger.Debug("get cash out flow balance by payment date, and payment date =" + paymentDate);
+            List<PlanAccountFunction> lstItem = new List<PlanAccountFunction>();
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                if (null != paymentDate && paymentDate != "")
+                {
+                    string sql = @"SELECT p.* , CONVERT(char(10), p.PAYMENT_DATE, 111) AS RECORDED_DATE, PARSENAME(Convert(varchar,Convert(money,ISNULL(p.AMOUNT_PAID, 0)),1),2) AS RECORDED_AMOUNT_PAYABLE, 
+                            PARSENAME(Convert(varchar, Convert(money, ISNULL(it.AMOUNT, 0)), 1), 2) AS PAYBACK_AMOUNT, PARSENAME(Convert(varchar, Convert(money, ISNULL(p.AMOUNT_PAID, 0) - ISNULL(it.AMOUNT, 0)), 1), 2) AS RECORDED_AMOUNT_PAID  
+                            FROM (
+                            select o.PAYEE, CONVERT(datetime,o.PAYMENT_DATE, 111)PAYMENT_DATE, SUM(o.AMOUNT)AMOUNT_PAID 
+                            from(SELECT CONVERT(varchar, PAYMENT_DATE, 111)PAYMENT_DATE, SUM(fei.AMOUNT)AMOUNT, PAYEE 
+                            FROM FIN_EXPENSE_FORM fef LEFT JOIN FIN_EXPENSE_ITEM fei ON fef.EXP_FORM_ID = fei.EXP_FORM_ID 
+                            WHERE fef.STATUS = 30 AND CONVERT(varchar, PAYMENT_DATE, 111) = @paymentDate 
+                            GROUP BY CONVERT(varchar, PAYMENT_DATE, 111), PAYEE 
+                            union 
+                            SELECT CONVERT(char(10), PAYMENT_DATE, 111)PAYMENT_DATE, SUM(AMOUNT_PAID)AMOUNT_PAID, PAYEE 
+                            FROM PLAN_ACCOUNT WHERE ISDEBIT = 'N' 
+                            AND CONVERT(char(10), PAYMENT_DATE, 111) = @paymentDate 
+                            GROUP BY PAYEE, CONVERT(char(10), PAYMENT_DATE, 111))o GROUP BY o.PAYEE, o.PAYMENT_DATE
+                            )p LEFT JOIN(
+                            SELECT SUM(t.AMOUNT)AMOUNT, l.BANK_NAME FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  
+                            WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' 
+                            AND t.TRANSACTION_TYPE = 1 
+                            OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' 
+                            AND t.REMARK NOT LIKE '%備償%' 
+                            AND t.TRANSACTION_TYPE = -1 
+                            AND CONVERT(char(10),IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE), 111) = @paymentDate 
+                            GROUP BY l.BANK_NAME
+                            )it ON it.BANK_NAME = p.PAYEE";
+                    lstItem = context.Database.SqlQuery<PlanAccountFunction>(sql, new SqlParameter("paymentDate", paymentDate)).ToList();
+                }
+                else if (null != duringStart && duringStart != "" && null != duringEnd && duringEnd != "")
+                {
+                    lstItem = context.Database.SqlQuery<PlanAccountFunction>("SELECT p.* , CONVERT(char(10), p.PAYMENT_DATE, 111) AS RECORDED_DATE, PARSENAME(Convert(varchar,Convert(money,ISNULL(p.AMOUNT_PAID, 0)),1),2) AS RECORDED_AMOUNT_PAYABLE, " +
+                          "PARSENAME(Convert(varchar, Convert(money, ISNULL(it.AMOUNT, 0)), 1), 2) AS PAYBACK_AMOUNT, PARSENAME(Convert(varchar, Convert(money, ISNULL(p.AMOUNT_PAID, 0) - ISNULL(it.AMOUNT, 0)), 1), 2) AS RECORDED_AMOUNT_PAID  FROM " +
+                          "(select o.PAYEE, CONVERT(datetime,o.PAYMENT_DATE, 111)PAYMENT_DATE, SUM(o.AMOUNT)AMOUNT_PAID from(SELECT CONVERT(varchar, PAYMENT_DATE, 111)PAYMENT_DATE, SUM(fei.AMOUNT)AMOUNT, PAYEE FROM FIN_EXPENSE_FORM fef LEFT JOIN FIN_EXPENSE_ITEM fei ON fef.EXP_FORM_ID = fei.EXP_FORM_ID " +
+                          "WHERE fef.STATUS = 30 AND PAYMENT_DATE >= CONVERT(datetime, @duringStart, 111) AND PAYMENT_DATE <= CONVERT(varchar, @duringEnd, 111) GROUP BY CONVERT(varchar, PAYMENT_DATE, 111), PAYEE " +
+                          "union SELECT CONVERT(char(10), PAYMENT_DATE, 111)PAYMENT_DATE, SUM(AMOUNT_PAID)AMOUNT_PAID, PAYEE FROM PLAN_ACCOUNT WHERE ISDEBIT = 'N' AND PAYMENT_DATE >= CONVERT(datetime, @duringStart, 111) AND " +
+                          "PAYMENT_DATE <= CONVERT(datetime, @duringEnd, 111) GROUP BY PAYEE, CONVERT(char(10), PAYMENT_DATE, 111))o GROUP BY o.PAYEE, o.PAYMENT_DATE)p " +
+                          "LEFT JOIN(SELECT SUM(t.AMOUNT)AMOUNT, l.BANK_NAME FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = 1 AND " +
+                          "IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE) >= CONVERT(datetime, @duringStart, 111) AND IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE) <= CONVERT(datetime, @duringEnd, 111) OR " +
+                          "ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = -1 AND IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE) >= CONVERT(datetime, @duringStart, 111) AND " +
+                          "IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE) <= CONVERT(datetime, @duringEnd, 111) GROUP BY l.BANK_NAME)it " +
+                          "ON it.BANK_NAME = p.PAYEE ORDER BY p.PAYMENT_DATE ", new SqlParameter("duringStart", duringStart), new SqlParameter("duringEnd", duringEnd)).ToList();
+                }
+                else
+                {
+                    lstItem = context.Database.SqlQuery<PlanAccountFunction>("SELECT p.* , CONVERT(char(10), p.PAYMENT_DATE, 111) AS RECORDED_DATE, PARSENAME(Convert(varchar,Convert(money,ISNULL(p.AMOUNT_PAID, 0)),1),2) AS RECORDED_AMOUNT_PAYABLE, " +
+                           "PARSENAME(Convert(varchar, Convert(money, ISNULL(it.AMOUNT, 0)), 1), 2) AS PAYBACK_AMOUNT, PARSENAME(Convert(varchar, Convert(money, ISNULL(p.AMOUNT_PAID, 0) - ISNULL(it.AMOUNT, 0)), 1), 2) AS RECORDED_AMOUNT_PAID  FROM " +
+                           "(select o.PAYEE, CONVERT(datetime,o.PAYMENT_DATE, 111)PAYMENT_DATE, SUM(o.AMOUNT)AMOUNT_PAID from(SELECT CONVERT(varchar, PAYMENT_DATE, 111)PAYMENT_DATE, SUM(fei.AMOUNT)AMOUNT, PAYEE FROM FIN_EXPENSE_FORM fef LEFT JOIN FIN_EXPENSE_ITEM fei ON fef.EXP_FORM_ID = fei.EXP_FORM_ID " +
+                           "WHERE fef.STATUS = 30 GROUP BY CONVERT(varchar, PAYMENT_DATE, 111), PAYEE " +
+                           "union SELECT CONVERT(char(10), PAYMENT_DATE, 111)PAYMENT_DATE, SUM(AMOUNT_PAID)AMOUNT_PAID, PAYEE FROM PLAN_ACCOUNT WHERE ISDEBIT = 'N' GROUP BY PAYEE, CONVERT(char(10), PAYMENT_DATE, 111))o GROUP BY o.PAYEE, o.PAYMENT_DATE)p " +
+                           "LEFT JOIN(SELECT SUM(t.AMOUNT)AMOUNT, l.BANK_NAME FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = 1 " +
+                           "OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = -1 GROUP BY l.BANK_NAME)it " +
+                           "ON it.BANK_NAME = p.PAYEE ORDER BY p.PAYMENT_DATE ").ToList();
+                }
+            }
+            return lstItem;
+        }
+
+        public List<ExpenseFormFunction> getExpenseOutFlowByDate(string paymentDate, string duringStart, string duringEnd)
+        {
+            logger.Debug("get cash out flow from expense form by payment date, and payment date =" + paymentDate);
+            List<ExpenseFormFunction> lstItem = new List<ExpenseFormFunction>();
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                if (null != paymentDate && paymentDate != "")
+                {
+                    lstItem = context.Database.SqlQuery<ExpenseFormFunction>("SELECT fef.EXP_FORM_ID, ISNULL(fef.PROJECT_ID, '')PROJECT_ID, fef.PAYEE, CONVERT(varchar, fef.PAYMENT_DATE, 111)RECORDED_DATE, SUM(fei.AMOUNT)AMOUNT " +
+                        "FROM FIN_EXPENSE_FORM fef LEFT JOIN FIN_EXPENSE_ITEM fei ON fef.EXP_FORM_ID = fei.EXP_FORM_ID WHERE fef.STATUS = 30 AND CONVERT(varchar, fef.PAYMENT_DATE, 111) = @paymentDate " +
+                        "GROUP BY fef.EXP_FORM_ID, fef.PAYEE, ISNULL(fef.PROJECT_ID, ''), CONVERT(varchar, fef.PAYMENT_DATE, 111) ", new SqlParameter("paymentDate", paymentDate)).ToList();
+                }
+                else if (null != duringStart && duringStart != "" && null != duringEnd && duringEnd != "")
+                {
+                    lstItem = context.Database.SqlQuery<ExpenseFormFunction>("SELECT fef.EXP_FORM_ID, ISNULL(fef.PROJECT_ID, '')PROJECT_ID, fef.PAYEE, CONVERT(varchar, fef.PAYMENT_DATE, 111)RECORDED_DATE, SUM(fei.AMOUNT)AMOUNT " +
+                        "FROM FIN_EXPENSE_FORM fef LEFT JOIN FIN_EXPENSE_ITEM fei ON fef.EXP_FORM_ID = fei.EXP_FORM_ID WHERE fef.STATUS = 30 AND CONVERT(varchar, fef.PAYMENT_DATE, 111) >= @duringStart " +
+                        "AND CONVERT(varchar, fef.PAYMENT_DATE, 111) <= @duringEnd GROUP BY fef.EXP_FORM_ID, fef.PAYEE, ISNULL(fef.PROJECT_ID, ''), CONVERT(varchar, fef.PAYMENT_DATE, 111) "
+                        , new SqlParameter("duringStart", duringStart), new SqlParameter("duringEnd", duringEnd)).ToList();
+                }
+                else
+                {
+                    lstItem = context.Database.SqlQuery<ExpenseFormFunction>("SELECT fef.EXP_FORM_ID, ISNULL(fef.PROJECT_ID, '')PROJECT_ID, fef.PAYEE, CONVERT(varchar, fef.PAYMENT_DATE, 111)RECORDED_DATE, SUM(fei.AMOUNT)AMOUNT " +
+                        "FROM FIN_EXPENSE_FORM fef LEFT JOIN FIN_EXPENSE_ITEM fei ON fef.EXP_FORM_ID = fei.EXP_FORM_ID WHERE fef.STATUS = 30 GROUP BY fef.EXP_FORM_ID, fef.PAYEE, ISNULL(fef.PROJECT_ID, ''), CONVERT(varchar, fef.PAYMENT_DATE, 111) ").ToList();
+                }
+            }
+            return lstItem;
+        }
+        /// <summary>
+        /// 取得預算數、實際數
+        /// </summary>
+        /// <param name="paymentDate"></param>
+        /// <param name="duringStart"></param>
+        /// <param name="duringEnd"></param>
+        /// <returns></returns>
+        public List<ExpenseFormFunction> getExpenseBudgetByDate(string paymentDate, string duringStart, string duringEnd)
+        {
+            List<ExpenseFormFunction> lstItem = new List<ExpenseFormFunction>();
+            string sql = @"SELECT CONVERT(char(10),CONVERT(datetime, exp.PaidDate , 111), 111)RECORDED_DATE, exp.AMOUNT 
+                 from (SELECT CONVERT(varchar, r.CURRENT_YEAR) + '/'+ CONVERT(varchar, r.BUDGET_MONTH) + '/'+ CONVERT(varchar, 12)PaidDate, sum(PaidAmt) AMOUNT 
+                 from (SELECT budget.*, iif(expense.AMOUNT_REAL is not null, 0, budget.AMOUNT)PaidAmt 
+                 FROM (
+                 --公司預算 (租金)
+                 SELECT SUBJECT_ID, CURRENT_YEAR, BUDGET_MONTH, AMOUNT 
+                 FROM FIN_EXPENSE_BUDGET WHERE SUBJECT_ID = '6020' AND CURRENT_YEAR >= YEAR(GETDATE()) 
+                 UNION 
+                  --工地預算 (租金)
+                 SELECT SUBJECT_ID, BUDGET_YEAR, BUDGET_MONTH, AMOUNT 
+                 FROM PLAN_SITE_BUDGET WHERE SUBJECT_ID = '1312' AND  BUDGET_YEAR >= YEAR(GETDATE())
+                  )budget 
+                 left join (
+                 --租金實際數
+                 SELECT OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID, sum(i.AMOUNT) as AMOUNT_REAL 
+                 FROM FIN_EXPENSE_FORM f LEFT JOIN FIN_EXPENSE_ITEM i ON f.EXP_FORM_ID = i.EXP_FORM_ID 
+                 WHERE i.FIN_SUBJECT_ID in ('6020', '1312') AND f.STATUS = 30 GROUP BY OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID)expense ON 
+                   budget.SUBJECT_ID + CONVERT(varchar, budget.CURRENT_YEAR) + CONVERT(varchar, budget.BUDGET_MONTH) 
+                 = expense.FIN_SUBJECT_ID + CONVERT(varchar, expense.OCCURRED_YEAR) + CONVERT(varchar, expense.OCCURRED_MONTH)
+                 )r GROUP BY r.CURRENT_YEAR,r.BUDGET_MONTH 
+                UNION 
+                SELECT CONVERT(varchar, r.CURRENT_YEAR) +'/' + CONVERT(varchar, r.BUDGET_MONTH) + '/' + CONVERT(varchar, 5)PaidDate, sum(PaidAmt)AMOUNT from (
+                --薪資預算(公司)
+                SELECT budget.*, iif(expense.AMOUNT_REAL is not null, 0, budget.AMOUNT)PaidAmt FROM(
+                SELECT SUBJECT_ID, CURRENT_YEAR, BUDGET_MONTH, AMOUNT FROM FIN_EXPENSE_BUDGET 
+                WHERE SUBJECT_ID = '6010' AND CURRENT_YEAR >= YEAR(GETDATE()) 
+                UNION 
+                --薪資預算(工地)
+                SELECT SUBJECT_ID, BUDGET_YEAR, BUDGET_MONTH, AMOUNT 
+                FROM PLAN_SITE_BUDGET WHERE SUBJECT_ID = '1301' AND  BUDGET_YEAR >= YEAR(GETDATE())
+                )budget left join (
+                --薪資實際
+                SELECT OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID, sum(i.AMOUNT) as AMOUNT_REAL 
+                FROM FIN_EXPENSE_FORM f LEFT JOIN FIN_EXPENSE_ITEM i ON f.EXP_FORM_ID = i.EXP_FORM_ID 
+                 WHERE i.FIN_SUBJECT_ID in ('6010', '1301') AND f.STATUS = 30 GROUP BY OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID
+                 ) expense ON budget.SUBJECT_ID + CONVERT(varchar, budget.CURRENT_YEAR) + CONVERT(varchar, budget.BUDGET_MONTH) = expense.FIN_SUBJECT_ID + CONVERT(varchar, expense.OCCURRED_YEAR) + CONVERT(varchar, expense.OCCURRED_MONTH))r GROUP BY r.CURRENT_YEAR,r.BUDGET_MONTH 
+                UNION 
+                SELECT CONVERT(varchar, r.CURRENT_YEAR) +'/' + CONVERT(varchar, r.BUDGET_MONTH) + '/' + CONVERT(varchar, 15)PaidDate, sum(PaidAmt)AMOUNT 
+                from (SELECT budget.*, iif(expense.AMOUNT_REAL is not null, 0, budget.AMOUNT)PaidAmt FROM(
+                --保險預算(公司)
+                SELECT SUBJECT_ID, CURRENT_YEAR, BUDGET_MONTH, AMOUNT FROM FIN_EXPENSE_BUDGET 
+                WHERE SUBJECT_ID = '6100' AND CURRENT_YEAR >= YEAR(GETDATE()) 
+                 UNION 
+                 --保險預算(工地)
+                 SELECT SUBJECT_ID, BUDGET_YEAR, BUDGET_MONTH, AMOUNT FROM PLAN_SITE_BUDGET 
+                 WHERE SUBJECT_ID = '1306' AND  BUDGET_YEAR >= YEAR(GETDATE()))budget 
+                 left join(
+                  --保險實際數
+                 SELECT OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID, sum(i.AMOUNT) as AMOUNT_REAL 
+                 FROM FIN_EXPENSE_FORM f LEFT JOIN FIN_EXPENSE_ITEM i ON f.EXP_FORM_ID = i.EXP_FORM_ID 
+                 WHERE i.FIN_SUBJECT_ID in ('6100', '1306') AND f.STATUS = 30 GROUP BY OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID
+                 )expense ON budget.SUBJECT_ID + CONVERT(varchar, budget.CURRENT_YEAR) + CONVERT(varchar, budget.BUDGET_MONTH) = expense.FIN_SUBJECT_ID + CONVERT(varchar, expense.OCCURRED_YEAR) + CONVERT(varchar, expense.OCCURRED_MONTH))r GROUP BY r.CURRENT_YEAR,r.BUDGET_MONTH 
+                 UNION 
+                 SELECT CONVERT(varchar, r.CURRENT_YEAR) +'/' + CONVERT(varchar, r.BUDGET_MONTH) + '/' + iif(BUDGET_MONTH <> 2, CONVERT(varchar, 30), CONVERT(varchar, 28))PaidDate, sum(PaidAmt)PaidAmt from 
+                 (SELECT budget.*, iif(expense.AMOUNT_REAL is not null, 0, budget.AMOUNT)PaidAmt FROM(
+                 --退職金預算(公司)
+                 SELECT SUBJECT_ID, CURRENT_YEAR, BUDGET_MONTH, AMOUNT 
+                 FROM FIN_EXPENSE_BUDGET WHERE SUBJECT_ID = '6560' AND CURRENT_YEAR >= YEAR(GETDATE()) 
+                 UNION 
+                 --退職金預算(工地)
+                 SELECT SUBJECT_ID, BUDGET_YEAR, BUDGET_MONTH, AMOUNT 
+                 FROM PLAN_SITE_BUDGET WHERE SUBJECT_ID = '1307' AND  BUDGET_YEAR >= YEAR(GETDATE())
+                 )budget left join(
+                 SELECT OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID, sum(i.AMOUNT) as AMOUNT_REAL 
+                 FROM FIN_EXPENSE_FORM f LEFT JOIN FIN_EXPENSE_ITEM i ON f.EXP_FORM_ID = i.EXP_FORM_ID 
+                 WHERE i.FIN_SUBJECT_ID in ('6560', '1307') AND f.STATUS = 30 GROUP BY OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID
+                 )expense ON budget.SUBJECT_ID + CONVERT(varchar, budget.CURRENT_YEAR) + CONVERT(varchar, budget.BUDGET_MONTH) = expense.FIN_SUBJECT_ID + CONVERT(varchar, expense.OCCURRED_YEAR) + CONVERT(varchar, expense.OCCURRED_MONTH))r GROUP BY r.CURRENT_YEAR,r.BUDGET_MONTH 
+                UNION 
+                SELECT CONVERT(varchar, r.CURRENT_YEAR) +'/' + CONVERT(varchar, r.BUDGET_MONTH) + '/' + CONVERT(varchar, 5)PaidDate, sum(PaidAmt)AMOUNT from(SELECT budget.*, iif(expense.AMOUNT_REAL is not null, 0, budget.AMOUNT)PaidAmt FROM(
+                ---公司其他預算
+                SELECT SUBJECT_ID, BUDGET_YEAR AS CURRENT_YEAR, BUDGET_MONTH, AMOUNT FROM PLAN_SITE_BUDGET 
+                 WHERE SUBJECT_ID IN('1321', '1317', '1318', '1316', '1328', '1315', '1319') AND BUDGET_YEAR >= YEAR(GETDATE())
+                 )budget left join(
+                 ---公司其他時技術
+                SELECT OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID, sum(i.AMOUNT) as AMOUNT_REAL 
+                FROM FIN_EXPENSE_FORM f LEFT JOIN FIN_EXPENSE_ITEM i ON f.EXP_FORM_ID = i.EXP_FORM_ID 
+                WHERE i.FIN_SUBJECT_ID in ('1321', '1317', '1318', '1316', '1328', '1315', '1319')
+                 AND f.STATUS = 30 GROUP BY OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID
+                )expense ON budget.SUBJECT_ID + CONVERT(varchar, budget.CURRENT_YEAR) + CONVERT(varchar, budget.BUDGET_MONTH) = expense.FIN_SUBJECT_ID + CONVERT(varchar, expense.OCCURRED_YEAR) + CONVERT(varchar, expense.OCCURRED_MONTH))r 
+                GROUP BY r.CURRENT_YEAR,r.BUDGET_MONTH)exp
+                 where exp.AMOUNT <> 0 $WhereCond
+                ";
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                if (null != paymentDate && paymentDate != "")
+                {
+                    string sql4Where = @"and CONVERT(char(10), CONVERT(datetime, exp.PaidDate, 111), 111) = @paymentDate and CONVERT(char(10), CONVERT(datetime, exp.PaidDate, 111), 111) >= CONVERT(char(10), GETDATE(), 111) ";
+                    sql = sql.Replace("$WhereCond", sql4Where);
+                    logger.Debug("sql=" + sql + ",paymentdate=" + paymentDate);
+                    lstItem = context.Database.SqlQuery<ExpenseFormFunction>(sql, new SqlParameter("paymentDate", paymentDate)).ToList();
+                }
+                else if (null != duringStart && duringStart != "" && null != duringEnd && duringEnd != "")
+                {
+                    string sql4Where = @"and CONVERT(char(10), CONVERT(datetime, exp.PaidDate, 111), 111) >= @duringStart and CONVERT(char(10), CONVERT(datetime, exp.PaidDate, 111), 111) <= @duringEnd and CONVERT(char(10), CONVERT(datetime, exp.PaidDate, 111), 111) >= CONVERT(char(10), GETDATE(), 111) ";
+                    sql = sql.Replace("$WhereCond", sql4Where);
+                    logger.Debug("sql=" + sql + ",duringStart=" + duringStart + ",duringEnd=" + duringEnd);
+                    lstItem = context.Database.SqlQuery<ExpenseFormFunction>(sql, new SqlParameter("duringStart", duringStart), new SqlParameter("duringEnd", duringEnd)).ToList();
+                }
+                else
+                {
+                    string sql4Where = @" and CONVERT(char(10), CONVERT(datetime, exp.PaidDate, 111), 111) >= CONVERT(char(10), GETDATE(), 111) ";
+                    sql = sql.Replace("$WhereCond", sql4Where);
+                    logger.Debug("sql=" + sql);
+                    lstItem = context.Database.SqlQuery<ExpenseFormFunction>(sql).ToList();
+                }
+            }
+            return lstItem;
+        }
+
+    }
 }

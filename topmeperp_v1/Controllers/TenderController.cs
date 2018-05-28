@@ -54,7 +54,6 @@ namespace topmeperp.Controllers
             if (prj.PROJECT_ID == "" || prj.PROJECT_ID == null)
             {
                 //新增專案
-                prj.STATUS = "備標";
                 prj.CREATE_USER_ID = u.USER_ID;
                 prj.OWNER_USER_ID = u.USER_ID;
                 prj.CREATE_DATE = DateTime.Now;
@@ -101,7 +100,7 @@ namespace topmeperp.Controllers
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("Error Message:" + ex.Message);
+                    logger.Error("Error Message:" + ex.Message +"." + ex.StackTrace);
                     message = ex.Message;
                 }
             }
@@ -577,7 +576,7 @@ namespace topmeperp.Controllers
                 using (var context = new topmepEntities())
                 {
                     lstProject = context.TND_PROJECT.SqlQuery("select * from TND_PROJECT p "
-                        + "where p.PROJECT_NAME Like '%' + @projectname + '%' AND STATUS=@status;",
+                        + "where p.PROJECT_NAME Like '%' + @projectname + '%' AND ISNULL(STATUS,'備標')=@status;",
                          new SqlParameter("projectname", projectname), new SqlParameter("status", status)).ToList();
                 }
                 logger.Info("get project count=" + lstProject.Count);

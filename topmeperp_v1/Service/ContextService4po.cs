@@ -1389,28 +1389,18 @@ namespace topmeperp.Service
             List<plansummary> lst = new List<plansummary>();
             using (var context = new topmepEntities())
             {
-                string sql = "SELECT A.INQUIRY_FORM_ID AS CONTRACT_ID, A.SUPPLIER_ID, A.FORM_NAME, A.ID, " +
-                    "SUM(A.MapQty * ISNULL(A.MAN_PRICE, 0)) WAGE_COST, " +
-                    "SUM(A.ITEM_QUANTITY * ISNULL(A.ITEM_UNIT_PRICE, 0)) REVENUE, SUM(A.MapQty * A.TndFormPrice * ISNULL(A.BUDGET_RATIO, 100) / 100) BUDGET, " +
-                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.FORM_NAME) AS NO, A.INQUIRY_FORM_ID, " +
-                    "(SELECT SUM(ITEM_QTY * ITEM_UNIT_PRICE) from PLAN_SUP_INQUIRY_ITEM WHERE INQUIRY_FORM_ID = A.INQUIRY_FORM_ID) MATERIAL_COST, " +
-                    "ISNULL(SUM(A.ITEM_QUANTITY * ISNULL(A.ITEM_UNIT_PRICE, 0)), 0) - (SELECT SUM(ITEM_QTY * ITEM_UNIT_PRICE) from PLAN_SUP_INQUIRY_ITEM " +
-                    "WHERE INQUIRY_FORM_ID = A.INQUIRY_FORM_ID) -ISNULL(SUM(A.MapQty * ISNULL(A.MAN_PRICE, 0)), 0) PROFIT " +
-                    "FROM(SELECT pi.*, s.SUPPLIER_ID AS ID, map.QTY AS MapQty, " +
-                    "tpi.ITEM_UNIT_PRICE AS TndFormPrice FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON " +
-                    "pi.SUPPLIER_ID = s.COMPANY_NAME LEFT JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID " +
-                    "LEFT JOIN TND_PROJECT_ITEM tpi ON pi.PLAN_ITEM_ID = tpi.PROJECT_ITEM_ID)A WHERE A.PROJECT_ID =@projectid  " +
-                    "AND A.INQUIRY_FORM_ID IS NOT NULL GROUP BY A.PROJECT_ID, A.ID, A.FORM_NAME, A.SUPPLIER_ID, A.INQUIRY_FORM_ID; ";
-                logger.Debug("sql =" + sql + ",project id=" + projectid);
-
-                ///SQL 是否可調整如下
-                // SELECT pi.FORM_NAME,pi.INQUIRY_FORM_ID,pi.SUPPLIER_ID,SUM(pi.ITEM_QUANTITY*pi.ITEM_UNIT_PRICE) 業主報價,SUM(map.QTY*pi.ITEM_UNIT_PRICE*ISNULL(pi.BUDGET_RATIO, 100) / 100) 內部預算,
-                // (SELECT SUM(ITEM_QTY * ITEM_UNIT_PRICE) from PLAN_SUP_INQUIRY_ITEM WHERE INQUIRY_FORM_ID = pi.INQUIRY_FORM_ID) 廠商報價
-                //  FROM PLAN_ITEM pi
-                //INNER JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID
-                //WHERE pi.PROJECT_ID = 'P00023'
-                //GROUP BY   pi.FORM_NAME,pi.INQUIRY_FORM_ID,pi.SUPPLIER_ID
-                lst = context.Database.SqlQuery<plansummary>(sql, new SqlParameter("projectid", projectid)).ToList();
+                string sql4Material = @"SELECT '材料' TYPE,VAL.INQUIRY_FORM_ID CONTRACT_ID,VAL.FORM_NAME,VAL.SUPPLIER_ID, MATERIAL_COST
+                           FROM (SELECT  DISTINCT FORM_NAME,SUPPLIER_ID
+                           FROM PLAN_ITEM WHERE PROJECT_ID = @projectid
+                           AND FORM_NAME IS NOT NULL ) IDX LEFT JOIN (
+                           SELECT F.INQUIRY_FORM_ID,F.FORM_NAME,F.SUPPLIER_ID,SUM(FI.ITEM_QTY * FI.ITEM_UNIT_PRICE) MATERIAL_COST
+                           FROM PLAN_SUP_INQUIRY F ,PLAN_SUP_INQUIRY_ITEM FI
+                           WHERE F.INQUIRY_FORM_ID=FI.INQUIRY_FORM_ID
+                           AND F.PROJECT_ID =  @projectid AND ISNULL(SUPPLIER_ID,'') !='' AND ISNULL(F.ISWAGE,'N')='N'
+                           GROUP BY F.INQUIRY_FORM_ID,F.FORM_NAME,F.SUPPLIER_ID ) VAL
+                           ON IDX.FORM_NAME=VAL.FORM_NAME AND IDX.SUPPLIER_ID = VAL.SUPPLIER_ID;";
+                logger.Debug("sql =" + sql4Material + ",project id=" + projectid);
+                lst = context.Database.SqlQuery<plansummary>(sql4Material, new SqlParameter("projectid", projectid)).ToList();
             }
             return lst;
         }
@@ -1420,14 +1410,17 @@ namespace topmeperp.Service
             List<plansummary> lst = new List<plansummary>();
             using (var context = new topmepEntities())
             {
-                lst = context.Database.SqlQuery<plansummary>("SELECT  MAN_FORM_ID AS CONTRACT_ID, A.MAN_SUPPLIER_ID, A.MAN_FORM_NAME, " +
-                    "SUM(A.MapQty * ISNULL(A.MAN_PRICE, 0)) WAGE_COST, SUM(A.MapQty * A.Ratio * A.WAGE_MULTIPLIER * ISNULL(A.BUDGET_WAGE_RATIO, 100) / 100) AS WAGE_BUDGET, " +
-                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.MAN_SUPPLIER_ID) AS NO,A.MAN_FORM_ID FROM(SELECT pi.*, map.QTY AS MapQty, w.RATIO AS Ratio, p.WAGE_MULTIPLIER, " +
-                    "s.SUPPLIER_ID AS ID FROM PLAN_ITEM pi LEFT JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT OUTER JOIN TND_WAGE w ON pi.PLAN_ITEM_ID = w.PROJECT_ITEM_ID " +
-                    "LEFT JOIN TND_PROJECT p ON pi.PROJECT_ID = p.PROJECT_ID LEFT JOIN TND_SUPPLIER s ON " +
-                    "pi.MAN_SUPPLIER_ID = s.COMPANY_NAME)A WHERE A.PROJECT_ID = @projectid and A.MAN_FORM_ID IS NOT NULL " +
-                    "GROUP BY A.PROJECT_ID, A.MAN_SUPPLIER_ID, A.MAN_FORM_NAME, A.ID, A.MAN_FORM_ID  ; "
-                   , new SqlParameter("projectid", projectid)).ToList();
+                string sql4Wage = @"SELECT '工資' TYPE,VAL.INQUIRY_FORM_ID CONTRACT_ID,VAL.FORM_NAME,VAL.SUPPLIER_ID, MATERIAL_COST FROM (
+                           SELECT DISTINCT MAN_FORM_NAME,MAN_SUPPLIER_ID ,MAN_FORM_ID
+                           FROM PLAN_ITEM WHERE PROJECT_ID =  @projectid
+                           AND MAN_FORM_NAME IS NOT NULL ) IDX LEFT JOIN (
+                           SELECT F.INQUIRY_FORM_ID,F.FORM_NAME,F.SUPPLIER_ID,SUM(FI.ITEM_QTY * FI.ITEM_UNIT_PRICE) MATERIAL_COST
+                           FROM PLAN_SUP_INQUIRY F ,PLAN_SUP_INQUIRY_ITEM FI
+                           WHERE F.INQUIRY_FORM_ID=FI.INQUIRY_FORM_ID
+                           AND F.PROJECT_ID =  @projectid AND ISNULL(SUPPLIER_ID,'') !='' AND F.ISWAGE='Y'
+                           GROUP BY F.INQUIRY_FORM_ID,F.FORM_NAME,F.SUPPLIER_ID ) VAL
+                           ON IDX.MAN_FORM_ID=VAL.INQUIRY_FORM_ID;";
+                lst = context.Database.SqlQuery<plansummary>(sql4Wage, new SqlParameter("projectid", projectid)).ToList();
             }
             return lst;
         }

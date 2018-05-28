@@ -102,6 +102,7 @@
             <thead>
                 <tr>
                     <th>預算編號</th>
+                    <th>類型</th>
                     <th>廠商名稱</th>
                     <th>工程項目</th>
                     <th>預定採購目標</th>
@@ -119,21 +120,23 @@
                 @foreach (var directCost in Model.lstDirectCostItem)
                 {
                     <tr>
-                        <td><a href='/PurchaseForm/SinglePrjForm/@directCost.INQUIRY_FORM_ID' target="_blank">@directCost.INQUIRY_FORM_ID</a></td>
+                        <td><a href='/PurchaseForm/SinglePrjForm/@directCost.CONTRACT_ID' target="_blank">@directCost.CONTRACT_ID</a></td>
+                        <td>@directCost.TYPE</td>
                         <td> @directCost.SUPPLIER_ID</td>
                         <td> @directCost.FORM_NAME</td>
                         <td style="text-align:right"> @String.Format("{0:n0}", directCost.BUDGET)</td>
-                        <td style="text-align:right"> @String.Format("{0:n0}", directCost.COST)</td>
+                        <td style="text-align:right"> @String.Format("{0:n0}", directCost.MATERIAL_COST )</td>
                         <td> 缺 </td>
                         <td> 缺 </td>
                         <td> 缺</td>
                     </tr>
-                    sum = sum + directCost.COST;
+                    sum = sum + directCost.MATERIAL_COST;
                     sumBudget = sumBudget + directCost.BUDGET;
                 }
             </tbody>
             <tfoot>
                 <tr>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td>合計(未稅)</td>

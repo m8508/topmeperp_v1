@@ -241,7 +241,7 @@ namespace topmeperp.Service
                 }
             }
             //循序處理每一筆資料之欄位!!
-            iRowIndex++;
+            //iRowIndex++;
             int itemId = 1;
             bool hasMore = true;
             while (hasMore)
