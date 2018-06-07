@@ -1,9 +1,13 @@
 ﻿@model topmeperp.Models.ExpenseBudgetModel
 
-@{ 
-    decimal? excuRatio = Convert.ToDecimal(TempData["TotalExpAmt"]) / Convert.ToDecimal(TempData["TotalAmt"]) * 100;
+@{
+    decimal? excuRatio = 0;
+    if (TempData["TotalExpAmt"].ToString() != "" &&   TempData["TotalAmt"].ToString() != "")
+    {
+        excuRatio = Convert.ToDecimal(TempData["TotalExpAmt"]) / Convert.ToDecimal(TempData["TotalAmt"]) * 100;
+    }
 }
-<div class="row" >
+<div class="row">
     <div class="col-md-12">
         <div class="col-md-3">
             <span style="color: blue; font-size: 20px;">預算年度 : @TempData["budgetYear"]</span>
@@ -330,7 +334,7 @@
 <table class="table fixed_headers2">
     <!--預算數加總-->
     <tr style="background-color:#BBFF66">
-        <th >
+        <th>
             <span style="font-size: 15px;">
                 <input type="text" style="width:80px" name="" id="" value="合計 :" />
             </span>
