@@ -152,6 +152,7 @@ namespace topmeperp.Models
         public Nullable<decimal> MAP_QTY { get; set; }
         public Nullable<decimal> RATIO { get; set; }
         public Nullable<decimal> PRICE { get; set; }
+        public string IN_CONTRACT { get; set; }
     }
     public class PurchaseFormModel
     {

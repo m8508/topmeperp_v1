@@ -1,11 +1,12 @@
 ﻿@model IEnumerable<topmeperp.Models.PLAN_ITEM>
-    @ViewBag.Result
-    <button class="btn-xs" type="button" onclick="switchDivQuery()">
-        <span class="glyphicon glyphicon-menu-up"></span>
-    </button>
-    <div class="row">
-        <table class="table">
-            <tr>
+@ViewBag.Result
+<button class="btn-xs" type="button" onclick="switchDivQuery()">
+    <span class="glyphicon glyphicon-menu-up"></span>
+</button>
+<div class="row">
+    <table class="table table-bordered">
+        <thead >
+            <tr  class="info">
                 <th>
                     功能
                 </th>
@@ -43,7 +44,8 @@
                     次系統
                 </th>
             </tr>
-
+        </thead>
+        <tbody>
             @foreach (var item in Model)
             {
                 <tr>
@@ -96,6 +98,7 @@
                     </td>
                 </tr>
             }
-        </table>
-    </div>
+        </tbody>
+    </table>
+</div>
 

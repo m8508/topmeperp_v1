@@ -73,7 +73,11 @@
             </div>
             <div class="col-md-3 text-right">
                 @{
-                    decimal? excuRatio = Convert.ToDecimal(TempData["TotalExpense"]) / Convert.ToDecimal(TempData["TotalBudget"]) * 100;
+                    decimal? excuRatio = 0;
+                    if (Convert.ToDecimal(TempData["TotalExpense"]) != 0 && Convert.ToDecimal(TempData["TotalBudget"]) != 0)
+                    {
+                            excuRatio = Convert.ToDecimal(TempData["TotalExpense"]) / Convert.ToDecimal(TempData["TotalBudget"]) * 100;
+                    }
                 }
                 <span style="color: red; font-size: 20px;">執行率 : @String.Format("{0:0.00}", excuRatio) %</span>
             </div>
@@ -84,7 +88,7 @@
     <div class="tab">
 
         @foreach (var item in Model.SiteBudgetPerYear)
-        {
+            {
             <button class="tablinks" id="tab@item.YEAR_SEQUENCE" onclick="clickTab(event, @item.BUDGET_YEAR)">第 @item.YEAR_SEQUENCE 年度</button>
         }
     </div>

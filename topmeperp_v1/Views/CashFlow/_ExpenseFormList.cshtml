@@ -1,5 +1,5 @@
 ﻿
-@model IEnumerable<topmeperp.Models.OperatingExpenseFunction>
+@model IEnumerable<topmeperp.Models.ExpenseFlowTask>
 <div class="container">
     <div class="row" style="padding-top:5px;">
         <table class="table table-bordered">
@@ -47,7 +47,6 @@
                         <td>
                             <a href='@(item.FORM_URL+"id="+item.EXP_FORM_ID)'>@item.NOTE</a>
                         </td>
-
                     </tr>
                 }
             </tbody>

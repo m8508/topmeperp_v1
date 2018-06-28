@@ -427,7 +427,7 @@ namespace topmeperp.Service
             planItem.CREATE_DATE = System.DateTime.Now;
 
             ///改用迴圈處理每個Cell
-            for (int i = 0; i < 13; i++)
+            for (int i = 0; i < 15; i++)
             {
                 /// Sample
                 ///  If row.GetCell(j).CellType = CellType.FORMULA Then    '== v.1.2.4版修改
@@ -555,19 +555,25 @@ namespace topmeperp.Service
                     case 11:
                         if (i < row.PhysicalNumberOfCells)
                         {
-                            //if (row.GetCell(i).CellType.Equals(CellType.Blank))
-                            //{
                             planItem.SYSTEM_MAIN = row.GetCell(i).ToString();
-                            //}
                         }
                         break;
                     case 12:
                         if (i < row.PhysicalNumberOfCells)
                         {
-                            //if (row.GetCell(i).CellType.Equals(CellType.Blank))
-                            //{
                             planItem.SYSTEM_SUB = row.GetCell(i).ToString();
-                            //}
+                        }
+                        break;
+                    case 13:
+                        if (i < row.PhysicalNumberOfCells)
+                        {
+                            planItem.EXCEL_ROW_ID = Convert.ToInt32(row.GetCell(i).ToString());
+                        }
+                        break;
+                    case 14:
+                        if (i < row.PhysicalNumberOfCells)
+                        {
+                            planItem.IN_CONTRACT = row.GetCell(i).ToString();
                         }
                         break;
                 }
@@ -3089,6 +3095,8 @@ namespace topmeperp.Service
                 row.Cells[12].CellStyle = style;
                 row.CreateCell(13).SetCellValue((item.EXCEL_ROW_ID == null ? "" : item.EXCEL_ROW_ID.ToString()));// Excel 排序
                 row.Cells[13].CellStyle = style;
+                row.CreateCell(14).SetCellValue((item.IN_CONTRACT == null ? "" : item.IN_CONTRACT.ToString()));// 合約內品項標記
+                row.Cells[14].CellStyle = style;
                 idxRow++;
             }
         }

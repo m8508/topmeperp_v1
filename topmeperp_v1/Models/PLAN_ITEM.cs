@@ -46,5 +46,6 @@ namespace topmeperp.Models
         public string INQUIRY_FORM_ID { get; set; }
         public string MAN_FORM_ID { get; set; }
         public Nullable<decimal> BUDGET_WAGE_RATIO { get; set; }
+        public string IN_CONTRACT { get; set; }
     }
 }

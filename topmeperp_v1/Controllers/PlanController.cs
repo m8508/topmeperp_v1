@@ -156,22 +156,22 @@ namespace topmeperp.Controllers
             PurchaseFormService service = new PurchaseFormService();
             logger.Info("start project id=" + Request["id"] + ",TypeCode1=" + Request["typeCode1"] + ",typecode2=" + Request["typeCode2"] + ",SystemMain=" + Request["SystemMain"] + ",Sytem Sub=" + Request["SystemSub"]);
             logger.Debug("Exception check=" + Request["chkEx"]);
-            List<PlanItem4Map> lstItems = service.getPlanItem(Request["chkEx"], Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"], Request["supplier"], Request["selDelFlag"]);
+            List<PlanItem4Map> lstItems = service.getPlanItem(Request["chkEx"], Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"], Request["supplier"], Request["selDelFlag"],Request["inContractFlag"]);
             ViewBag.Result = "共" + lstItems.Count + "筆資料";
             //畫面上權限管理控制
             //頁面上使用ViewBag 定義開關\@ViewBag.F10005
             //由Session 取得權限清單
-            List<SYS_FUNCTION> lstFunctions = (List<SYS_FUNCTION>)Session["functions"];
-            //開關預設關閉
-            @ViewBag.F10005 = "disabled";
-            //輪巡功能清單，若全線存在則將開關打開 @ViewBag.F10005 = "";
-            foreach (SYS_FUNCTION f in lstFunctions)
-            {
-                if (f.FUNCTION_ID == "F10005")
-                {
-                    @ViewBag.F10005 = "";
-                }
-            }
+            //List<SYS_FUNCTION> lstFunctions = (List<SYS_FUNCTION>)Session["functions"];
+            ////開關預設關閉
+            //@ViewBag.F10005 = "disabled";
+            ////輪巡功能清單，若全線存在則將開關打開 @ViewBag.F10005 = "";
+            //foreach (SYS_FUNCTION f in lstFunctions)
+            //{
+            //    if (f.FUNCTION_ID == "F10005")
+            //    {
+            //        @ViewBag.F10005 = "";
+            //    }
+            //}
             return PartialView(lstItems);
         }
         public string getPlanItem(string itemid)
@@ -249,6 +249,7 @@ namespace topmeperp.Controllers
             item.SYSTEM_MAIN = form["system_main"];
             item.SYSTEM_SUB = form["system_sub"];
             item.DEL_FLAG = form["selDelFlag"];
+            item.IN_CONTRACT = form["inContractFlag"];
             try
             {
                 item.EXCEL_ROW_ID = long.Parse(form["excel_row_id"]);
@@ -288,14 +289,6 @@ namespace topmeperp.Controllers
             logger.Info("del plan item by id=" + itemid);
             int i = service.changePlanItem(itemid, "Y");
             return msg + "(" + i + ")";
-        }
-        /// <summary>
-        /// 上載現有得標標單資料
-        /// </summary>
-        public string uploadPlanItem(HttpPostedFileBase file)
-        {
-            logger.Debug("ProjectID=" + Request["id"] + ",Upload PlanItem=" + file.FileName);
-            return "TEST";
         }
         //取得業主合約金額
         public ActionResult ContractForOwner(string id)
@@ -627,7 +620,7 @@ namespace topmeperp.Controllers
 
             logger.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"] + ",formName=" + Request["formName"]);
             PurchaseFormService service = new PurchaseFormService();
-            List<topmeperp.Models.PlanItem4Map> lstProject = service.getPlanItem(Request["chkEx"], Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"], "N");
+            List<topmeperp.Models.PlanItem4Map> lstProject = service.getPlanItem(Request["chkEx"], Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"], "N","Y");
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             ViewBag.projectId = Request["projectid"];
             ViewBag.textCode1 = Request["textCode1"];

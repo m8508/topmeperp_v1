@@ -53,8 +53,7 @@
                     <th>
                         合約製作期限
                     </th>
-                    <th>付款日期已設定</th>
-                    <th>付款條件已設定</th>
+                    <th>付款條件設定</th>
                     <th></th>
                 </tr>
             </thead>
@@ -75,7 +74,7 @@
                                     @Html.DisplayFor(modelItem => item.NO)
                                 </span>
                             }
-</td>
+                        </td>
                         <td>
                             @if (item.ISWAGE == "Y")
                             {
@@ -111,7 +110,7 @@
                         <td>
                             <a href="/PurchaseForm/SinglePrjForm/@item.INQUIRY_FORM_ID" target="_blank"><span style="color: deeppink; font-size: 15px;">產生</span></a>
                         </td>-->
-                        <td>@Html.TextBox("supplier", @item.Supplier, new { style = "width:110px", @readonly = "readonly" , @class = "form-control" })</td>
+                        <td>@Html.TextBox("supplier", @item.Supplier, new { style = "width:110px", @readonly = "readonly", @class = "form-control" })</td>
                         <td><input type="text" class="form-control" style="width:120px" name="brand" id="brand" value="@item.MATERIAL_BRAND"></td>
                         @if (null != item.Bargain && item.Bargain != "")
                 {
@@ -147,39 +146,21 @@
                         }
                         @if (null != item.DELIVERY_DATE && item.DELIVERY_DATE != "")
                 {
-                            <td><input style="width:150px" type="text" class="form-control" name="Date_${index}" id="Date_${index}" value="@item.DELIVERY_DATE"></td>
+                            <td><input style="width:150px" type="text" class="form-control" name="Date_Deliver" id="Date_Deliver" value="@item.DELIVERY_DATE"></td>
                         }
                         else
                         {
-                            <td><input style="width:150px" type="date" class="form-control" name="Date_${index}" id="Date_${index}" value=""></td>
+                            <td><input style="width:150px" type="date" class="form-control" name="Date_Deliver" id="Date_Deliver" value=""></td>
                         }
                         @if (null != item.paymentFrequency)
                 {
                             <td>
-                                <span style="color: red; font-size: 15px;">
-                                    ✔
-                                </span>
+                                <button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@item.ContractId')">已設定</button>
                             </td>
                         }
                         else if (null != item.Bargain && item.Bargain != "")
                         {
-                            <td><button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@item.ContractId')">查看</button></td>
-                        }
-                        else
-                        {
-                            <td>未發包</td>
-                        }
-                        @if (null != item.PAYMENT_TERMS && item.PAYMENT_TERMS != "")
-                {
-                            <td>
-                                <span style="color: red; font-size: 15px;">
-                                    ✔
-                                </span>
-                            </td>
-                        }
-                        else if (null != item.Bargain && item.Bargain != "")
-                        {
-                            <td><button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@item.ContractId')">查看</button></td>
+                            <td><button type="button" class="btn btn-link" data-toggle="modal" data-target="#paymentInfo" onclick="getPaymentTerm('@item.ContractId')" style="color:red"> 未設定</button></td>
                         }
                         else
                         {
@@ -218,13 +199,7 @@
 </div>
 
 <script type="text/javascript">
-    $(function () {
-        var date = { index: new Date().getTime() };
-        $('#Date_${index}').datetimepicker({
-            format: 'YYYY/MM/DD',
-            locale: 'zh-tw'
-        });
-    });
+
     //由ID 取得資料填入表單
     function getPaymentTerm(contractid) {
         //alert(contractid);
@@ -234,6 +209,7 @@
             data: { contractid: contractid },
             dataType: "JSON",
             success: function (data) {
+                console.log(data);
                 $('#project_id').val(data.PROJECT_ID);
                 $('#contract_id').val(data.CONTRACT_ID);
                 $('#date1').val(data.DATE_1);
@@ -278,21 +254,19 @@
                 $('#usanceretention_cash').val(data.USANCE_RETENTION_CASH_RATIO);
                 $('#usanceretention_1').val(data.USANCE_RETENTION_1_RATIO);
                 $('#usanceretention_2').val(data.USANCE_RETENTION_2_RATIO);
-                if ((data.DATE_3) == null) {
+                if ((data.PAYMENT_FREQUENCY) == 'O') {
                     $("input[name=payfrequency][value='O']").attr('checked', true);
+                } else {
+                    $("input[name=payfrequency][value='T']").attr('checked', true);
                 }
-                else {
-                    $("input[name=payfrequency][value='T']").attr('checked', true)
-                }
-                if ((data.PAYMENT_TYPE) != null && (data.PAYMENT_TYPE) != "") {
-                    $("input[name=payterms][value='P']").attr('checked', true);
-                }
-                else {
+
+                if (data.PAYMENT_TYPE == 'S') {
                     $("input[name=payterms][value='S']").attr('checked', true);
+                } else {
+                    $("input[name=payterms][value='P']").attr('checked', true);
                 }
 
                 $('#paymentInfo').modal('show'); // show bootstrap modal when complete loaded
-                //$('.modal-title').text('編輯設定資料'); // Set title to Bootstrap modal title
 
             },
             error: function (jqXHR, textStatus, errorThrown) {
