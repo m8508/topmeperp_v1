@@ -5,12 +5,10 @@
     var total = "";
 }
 
-<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/flick/jquery-ui.css"></script>
-
 <div class="page-header">
     <form id="formSupplier" name="formSupplier" action="UpdatePrjForm" method="post">
         <div class="row">
-            <div class="col-md-8"><h3 class="text-center">協成水電工程事業有限公司-採購詢價單</h3></div>
+            <div class="col-md-7"><h3 class="text-center">協成水電工程事業有限公司-採購詢價單</h3></div>
             <div class="col-md-3">
                 <h5 class="text-right">
                     工資:
@@ -22,6 +20,14 @@
                         <input type="checkbox" name="isWage" id="isWage" value="Y" />
                     }
                 </h5>
+            </div>
+            <div class="col-md-1 alert-warning">
+                @if (ViewBag.targetSupplier != false)
+                {
+                    <h5 class="text-right">
+                        已簽約
+                    </h5>
+                }
             </div>
             <div class="col-md-1 alert-warning"><h5 class="text-right">狀態:@Model.planForm.STATUS</h5></div>
         </div>
@@ -85,14 +91,14 @@
                     }
                     else
                     {
-                        <input type="text" class="form-control" name="inputemail" id="inputemail" style="background: #CCC"  placeholder="如果未帶入，請手動輸入!!">
+                        <input type="text" class="form-control" name="inputemail" id="inputemail" style="background: #CCC" placeholder="如果未帶入，請手動輸入!!">
                     }
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="form-group">
-                <label for="inputphone" class=col-md-2 control-label">聯絡電話</label>
+                <label for="inputphone" class="col-md-2 control-label">聯絡電話</label>
                 <div class="col-md-4">
                     <input type="text" class="form-control" name="inputphone" id="inputphone" value="@Model.planForm.OWNER_TEL">
                 </div>
@@ -186,27 +192,13 @@
                             @item.ITEM_QTY
                         </td>
                         <td>
-                            @if (ViewBag.targetSupplier != false)
+                            @if (@item.ITEM_UNIT_PRICE != null)
                             {
-                                if (@item.ITEM_UNIT_PRICE != null)
-                                {
-                                    <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="@item.ITEM_UNIT_PRICE" style="width:100px" readonly>
-                                }
-                                else
-                                {
-                                    <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="" style="width:100px" readonly>
-                                }
+                            <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="@item.ITEM_UNIT_PRICE" style="width:100px">
                             }
                             else
                             {
-                                if (@item.ITEM_UNIT_PRICE != null)
-                                {
-                                    <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="@item.ITEM_UNIT_PRICE" style="width:100px">
-                                }
-                                else
-                                {
-                                    <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="" style="width:100px">
-                                }
+                            <input type="text" class="form-control" name="formunitprice" id="formunitprice" value="" style="width:100px">
                             }
                         </td>
                         <td>
