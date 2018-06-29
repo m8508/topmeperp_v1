@@ -601,7 +601,7 @@ namespace topmeperp.Service
                     sql = sql + " AND  F.STATUS = @status ";
                     parameters.Add(new SqlParameter("status", status));
                 }
-
+                logger.Debug("sql=" + sql);
                 lstForm = context.Database.SqlQuery<ExpenseFlowTask>(sql, parameters.ToArray()).ToList();
             }
             logger.Info("get est form count=" + lstForm.Count);
