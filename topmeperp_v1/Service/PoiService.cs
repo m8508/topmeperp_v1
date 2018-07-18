@@ -1328,17 +1328,18 @@ namespace topmeperp.Service
             while (rows.MoveNext())
             {
                 row = (IRow)rows.Current;
-                logger.Debug("Excel Value:" + row.Cells[0].ToString() + row.Cells[1] + row.Cells[2]);
+                logger.Debug("Excel Value:" + row.Cells[0].ToString());
                 //將各Row 資料寫入物件內
                 //0.項次	1.圖號	2.棟別	3.一次側位置	4.一次側名稱	5.二次側名稱	6.二次側位置	7.線材名稱	8.條數/組	9.線組數	10.線長度/組數	11.線總長  12.地線名稱	13.地線條數	14.地線總長  15.管材名稱1	16.管長1	17.管組數1   18.管總長1	19.管材名稱2  20.管長2	21.管組數2  22.管總長2
                 if (row.Cells.Count != 0 && row.Cells[0].ToString().ToUpper() != "END")
                 {
+                    logger.Debug("Excel Value:" + row.Cells[0].ToString() + row.Cells[1] + row.Cells[2]);
                     lstMapLCP.Add(convertRow2TndMapLCP(row, iRowIndex));
                 }
                 else
                 {
-                    logErrorMessage("Step1 ;取得圖算數量弱電管線:" + lstProjectItem.Count + "筆");
-                    logger.Info("Finish convert Job : count=" + lstProjectItem.Count);
+                    logErrorMessage("Step1 ;取得圖算數量弱電管線:" + lstMapLCP.Count + "筆");
+                    logger.Info("Finish convert Job : count=" + lstMapLCP.Count);
                     return lstMapLCP;
                 }
                 iRowIndex++;

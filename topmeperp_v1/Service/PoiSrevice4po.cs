@@ -2425,7 +2425,12 @@ namespace topmeperp.Service
             //2.1  忽略不要的行數..(表頭)
             budgetYear = sheet.GetRow(4).Cells[1].ToString();
             sequenceYear = sheet.GetRow(3).Cells[1].ToString();
-            while (iRowIndex < (6))
+            if (budgetYear =="" || sequenceYear == "")
+            {
+                logger.Error("The Year Info is empty!!");
+                throw new Exception("年度資料欄位填寫錯誤!!");
+            }
+            while (iRowIndex < (7))
             {
                 rows.MoveNext();
                 iRowIndex++;
