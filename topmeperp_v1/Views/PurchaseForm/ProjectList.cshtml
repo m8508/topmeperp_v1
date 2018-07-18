@@ -2,6 +2,9 @@
 <table class="rwd-table">
     <tr>
         <th>
+            編號
+        </th>
+        <th>
             專案名稱
         </th>
         <th>
@@ -16,6 +19,9 @@
     {
         <tr>
             <td data-th="專案名稱">
+                @Html.DisplayFor(modelItem => item.PROJECT_ID )
+            </td>
+            <td data-th="專案名稱">
                 @Html.DisplayFor(modelItem => item.PROJECT_NAME)
             </td>
             <td data-th="業主名稱">
@@ -26,7 +32,7 @@
             </td>
         </tr>
         <tr>
-            <td>
+            <td colspan="2">
                 <button type="button" class="btn btn-info" @ViewBag.F10005 onclick="location.href='@Url.Action("Budget", "Plan", new { id = item.PROJECT_ID })'">預算作業</button>
                 <button type="button" class="btn btn-info" onclick="location.href='@Url.Action("ContractForOwner", "Plan", new { id = item.PROJECT_ID })'; ">業主合約</button>
                 <button type="button" class="btn btn-info" onclick="location.href='@Url.Action("ManagePlanItem", "Plan", new { id = item.PROJECT_ID })'; ">標單上傳與查詢</button>

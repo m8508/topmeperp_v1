@@ -671,7 +671,7 @@ namespace topmeperp.Controllers
                     //由Session 取得權限清單
                     List<SYS_FUNCTION> lstFunctions = (List<SYS_FUNCTION>)Session["functions"];
                     //開關預設關閉
-                    @ViewBag.F10006 = "disabled";
+                    @ViewBag.F10006 = "hidden='hidden'";
                     //輪巡功能清單，若全線存在則將開關打開 @ViewBag.F10006 = "";
                     foreach (SYS_FUNCTION f in lstFunctions)
                     {
