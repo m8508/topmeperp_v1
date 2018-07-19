@@ -84,9 +84,9 @@ namespace topmeperp.Controllers
         //取得特定日期支出明細
         public ActionResult CashOutFlowItem(string paymentDate, string type)
         {
-            List<PlanAccountFunction> CashOutFlow = null;
-            List<LoanTranactionFunction> LoanOutFlow = null;
-            List<PlanAccountFunction> OutFlowBalance = null;
+            List<PlanAccountFunction> CashOutFlow = null; //廠商請款
+            List<LoanTranactionFunction> LoanOutFlow = null;//借款還款 / 廠商借款
+            List<PlanAccountFunction> OutFlowBalance = null;//費用支出
             List<ExpenseFormFunction> ExpenseOutFlow = null;
             List<ExpenseFormFunction> ExpenseBudget = null;
 

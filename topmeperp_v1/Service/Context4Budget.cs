@@ -431,87 +431,51 @@ namespace topmeperp.Service
         public List<ExpenseFormFunction> getExpenseBudgetByDate(string paymentDate, string duringStart, string duringEnd)
         {
             List<ExpenseFormFunction> lstItem = new List<ExpenseFormFunction>();
-            string sql = @"SELECT CONVERT(char(10),CONVERT(datetime, exp.PaidDate , 111), 111)RECORDED_DATE, exp.AMOUNT 
-                 from (SELECT CONVERT(varchar, r.CURRENT_YEAR) + '/'+ CONVERT(varchar, r.BUDGET_MONTH) + '/'+ CONVERT(varchar, 12)PaidDate, sum(PaidAmt) AMOUNT 
-                 from (SELECT budget.*, iif(expense.AMOUNT_REAL is not null, 0, budget.AMOUNT)PaidAmt 
+            string sql = @"SELECT CONVERT(char(10),CONVERT(datetime, exp.PaidDate , 111), 111) RECORDED_DATE,exp.AMOUNT 
+                from (
+                 SELECT CONVERT(varchar, r.CURRENT_YEAR) + '/'+ CONVERT(varchar, r.BUDGET_MONTH) + '/'+ CONVERT(varchar, BUDGET_DAY)PaidDate, sum(PaidAmt) AMOUNT 
                  FROM (
-                 --公司預算 (租金)
-                 SELECT SUBJECT_ID, CURRENT_YEAR, BUDGET_MONTH, AMOUNT 
-                 FROM FIN_EXPENSE_BUDGET WHERE SUBJECT_ID = '6020' AND CURRENT_YEAR >= YEAR(GETDATE()) 
-                 UNION 
-                  --工地預算 (租金)
-                 SELECT SUBJECT_ID, BUDGET_YEAR, BUDGET_MONTH, AMOUNT 
-                 FROM PLAN_SITE_BUDGET WHERE SUBJECT_ID = '1312' AND  BUDGET_YEAR >= YEAR(GETDATE())
-                  )budget 
+                 SELECT budget.*, ISNULL(expense.AMOUNT_REAL, budget.AMOUNT) PaidAmt 
+                 FROM (
+                 --公司預算--特定預算日期
+                 SELECT SUBJECT_ID, CURRENT_YEAR, BUDGET_MONTH, AMOUNT ,BUDGET_DAY
+                 FROM FIN_EXPENSE_BUDGET B JOIN FIN_SUBJECT S 
+                 ON B.SUBJECT_ID=S.FIN_SUBJECT_ID
+                 WHERE S.BUDGET_DAY IS NOT NULL AND CURRENT_YEAR >= YEAR(GETDATE()) 
+                 UNION --工地預算
+                 SELECT SUBJECT_ID, BUDGET_YEAR, BUDGET_MONTH, AMOUNT ,BUDGET_DAY
+                 FROM PLAN_SITE_BUDGET B JOIN FIN_SUBJECT S 
+                 ON B.SUBJECT_ID=S.FIN_SUBJECT_ID
+                 WHERE S.BUDGET_DAY IS NOT NULL AND  BUDGET_YEAR >= YEAR(GETDATE())
+                  ) budget 
                  left join (
-                 --租金實際數
+                 --實際數
                  SELECT OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID, sum(i.AMOUNT) as AMOUNT_REAL 
                  FROM FIN_EXPENSE_FORM f LEFT JOIN FIN_EXPENSE_ITEM i ON f.EXP_FORM_ID = i.EXP_FORM_ID 
-                 WHERE i.FIN_SUBJECT_ID in ('6020', '1312') AND f.STATUS = 30 GROUP BY OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID)expense ON 
+                 WHERE i.FIN_SUBJECT_ID in (SELECT FIN_SUBJECT_ID FROM FIN_SUBJECT WHERE BUDGET_DAY IS NOT NULL ) 
+                 AND f.STATUS = 30 
+                 GROUP BY OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID)expense ON 
                    budget.SUBJECT_ID + CONVERT(varchar, budget.CURRENT_YEAR) + CONVERT(varchar, budget.BUDGET_MONTH) 
                  = expense.FIN_SUBJECT_ID + CONVERT(varchar, expense.OCCURRED_YEAR) + CONVERT(varchar, expense.OCCURRED_MONTH)
-                 )r GROUP BY r.CURRENT_YEAR,r.BUDGET_MONTH 
+                 )r GROUP BY r.CURRENT_YEAR,r.BUDGET_MONTH ,BUDGET_DAY
                 UNION 
-                SELECT CONVERT(varchar, r.CURRENT_YEAR) +'/' + CONVERT(varchar, r.BUDGET_MONTH) + '/' + CONVERT(varchar, 5)PaidDate, sum(PaidAmt)AMOUNT from (
-                --薪資預算(公司)
-                SELECT budget.*, iif(expense.AMOUNT_REAL is not null, 0, budget.AMOUNT)PaidAmt FROM(
-                SELECT SUBJECT_ID, CURRENT_YEAR, BUDGET_MONTH, AMOUNT FROM FIN_EXPENSE_BUDGET 
-                WHERE SUBJECT_ID = '6010' AND CURRENT_YEAR >= YEAR(GETDATE()) 
-                UNION 
-                --薪資預算(工地)
-                SELECT SUBJECT_ID, BUDGET_YEAR, BUDGET_MONTH, AMOUNT 
-                FROM PLAN_SITE_BUDGET WHERE SUBJECT_ID = '1301' AND  BUDGET_YEAR >= YEAR(GETDATE())
-                )budget left join (
-                --薪資實際
-                SELECT OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID, sum(i.AMOUNT) as AMOUNT_REAL 
-                FROM FIN_EXPENSE_FORM f LEFT JOIN FIN_EXPENSE_ITEM i ON f.EXP_FORM_ID = i.EXP_FORM_ID 
-                 WHERE i.FIN_SUBJECT_ID in ('6010', '1301') AND f.STATUS = 30 GROUP BY OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID
-                 ) expense ON budget.SUBJECT_ID + CONVERT(varchar, budget.CURRENT_YEAR) + CONVERT(varchar, budget.BUDGET_MONTH) = expense.FIN_SUBJECT_ID + CONVERT(varchar, expense.OCCURRED_YEAR) + CONVERT(varchar, expense.OCCURRED_MONTH))r GROUP BY r.CURRENT_YEAR,r.BUDGET_MONTH 
-                UNION 
-                SELECT CONVERT(varchar, r.CURRENT_YEAR) +'/' + CONVERT(varchar, r.BUDGET_MONTH) + '/' + CONVERT(varchar, 15)PaidDate, sum(PaidAmt)AMOUNT 
-                from (SELECT budget.*, iif(expense.AMOUNT_REAL is not null, 0, budget.AMOUNT)PaidAmt FROM(
-                --保險預算(公司)
-                SELECT SUBJECT_ID, CURRENT_YEAR, BUDGET_MONTH, AMOUNT FROM FIN_EXPENSE_BUDGET 
-                WHERE SUBJECT_ID = '6100' AND CURRENT_YEAR >= YEAR(GETDATE()) 
-                 UNION 
-                 --保險預算(工地)
-                 SELECT SUBJECT_ID, BUDGET_YEAR, BUDGET_MONTH, AMOUNT FROM PLAN_SITE_BUDGET 
-                 WHERE SUBJECT_ID = '1306' AND  BUDGET_YEAR >= YEAR(GETDATE()))budget 
-                 left join(
-                  --保險實際數
-                 SELECT OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID, sum(i.AMOUNT) as AMOUNT_REAL 
-                 FROM FIN_EXPENSE_FORM f LEFT JOIN FIN_EXPENSE_ITEM i ON f.EXP_FORM_ID = i.EXP_FORM_ID 
-                 WHERE i.FIN_SUBJECT_ID in ('6100', '1306') AND f.STATUS = 30 GROUP BY OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID
-                 )expense ON budget.SUBJECT_ID + CONVERT(varchar, budget.CURRENT_YEAR) + CONVERT(varchar, budget.BUDGET_MONTH) = expense.FIN_SUBJECT_ID + CONVERT(varchar, expense.OCCURRED_YEAR) + CONVERT(varchar, expense.OCCURRED_MONTH))r GROUP BY r.CURRENT_YEAR,r.BUDGET_MONTH 
-                 UNION 
-                 SELECT CONVERT(varchar, r.CURRENT_YEAR) +'/' + CONVERT(varchar, r.BUDGET_MONTH) + '/' + iif(BUDGET_MONTH <> 2, CONVERT(varchar, 30), CONVERT(varchar, 28))PaidDate, sum(PaidAmt)PaidAmt from 
-                 (SELECT budget.*, iif(expense.AMOUNT_REAL is not null, 0, budget.AMOUNT)PaidAmt FROM(
-                 --退職金預算(公司)
-                 SELECT SUBJECT_ID, CURRENT_YEAR, BUDGET_MONTH, AMOUNT 
-                 FROM FIN_EXPENSE_BUDGET WHERE SUBJECT_ID = '6560' AND CURRENT_YEAR >= YEAR(GETDATE()) 
-                 UNION 
-                 --退職金預算(工地)
-                 SELECT SUBJECT_ID, BUDGET_YEAR, BUDGET_MONTH, AMOUNT 
-                 FROM PLAN_SITE_BUDGET WHERE SUBJECT_ID = '1307' AND  BUDGET_YEAR >= YEAR(GETDATE())
-                 )budget left join(
-                 SELECT OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID, sum(i.AMOUNT) as AMOUNT_REAL 
-                 FROM FIN_EXPENSE_FORM f LEFT JOIN FIN_EXPENSE_ITEM i ON f.EXP_FORM_ID = i.EXP_FORM_ID 
-                 WHERE i.FIN_SUBJECT_ID in ('6560', '1307') AND f.STATUS = 30 GROUP BY OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID
-                 )expense ON budget.SUBJECT_ID + CONVERT(varchar, budget.CURRENT_YEAR) + CONVERT(varchar, budget.BUDGET_MONTH) = expense.FIN_SUBJECT_ID + CONVERT(varchar, expense.OCCURRED_YEAR) + CONVERT(varchar, expense.OCCURRED_MONTH))r GROUP BY r.CURRENT_YEAR,r.BUDGET_MONTH 
-                UNION 
-                SELECT CONVERT(varchar, r.CURRENT_YEAR) +'/' + CONVERT(varchar, r.BUDGET_MONTH) + '/' + CONVERT(varchar, 5)PaidDate, sum(PaidAmt)AMOUNT from(SELECT budget.*, iif(expense.AMOUNT_REAL is not null, 0, budget.AMOUNT)PaidAmt FROM(
-                ---公司其他預算
-                SELECT SUBJECT_ID, BUDGET_YEAR AS CURRENT_YEAR, BUDGET_MONTH, AMOUNT FROM PLAN_SITE_BUDGET 
-                 WHERE SUBJECT_ID IN('1321', '1317', '1318', '1316', '1328', '1315', '1319') AND BUDGET_YEAR >= YEAR(GETDATE())
-                 )budget left join(
-                 ---公司其他時技術
-                SELECT OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID, sum(i.AMOUNT) as AMOUNT_REAL 
-                FROM FIN_EXPENSE_FORM f LEFT JOIN FIN_EXPENSE_ITEM i ON f.EXP_FORM_ID = i.EXP_FORM_ID 
-                WHERE i.FIN_SUBJECT_ID in ('1321', '1317', '1318', '1316', '1328', '1315', '1319')
-                 AND f.STATUS = 30 GROUP BY OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID
-                )expense ON budget.SUBJECT_ID + CONVERT(varchar, budget.CURRENT_YEAR) + CONVERT(varchar, budget.BUDGET_MONTH) = expense.FIN_SUBJECT_ID + CONVERT(varchar, expense.OCCURRED_YEAR) + CONVERT(varchar, expense.OCCURRED_MONTH))r 
-                GROUP BY r.CURRENT_YEAR,r.BUDGET_MONTH)exp
-                 where exp.AMOUNT <> 0 $WhereCond
+                  SELECT 
+                  Dateadd(day,-1,Dateadd(month,1,CONVERT (Datetime,CONVERT(varchar, r.CURRENT_YEAR) + '/' + CONVERT(varchar, r.BUDGET_MONTH) + '/' + CONVERT(varchar, 1)))) PaidDate, 
+                  sum(PaidAmt)AMOUNT from 
+                (SELECT budget.*, iif(expense.AMOUNT_REAL is not null, 0, budget.AMOUNT) PaidAmt FROM(
+                  ---公司其他預算
+                  SELECT SUBJECT_ID, BUDGET_YEAR AS CURRENT_YEAR, BUDGET_MONTH, AMOUNT FROM FIN_EXPENSE_BUDGET 
+                   WHERE SUBJECT_ID IN (SELECT FIN_SUBJECT_ID FROM FIN_SUBJECT WHERE BUDGET_DAY IS NULL ) AND BUDGET_YEAR >= YEAR(GETDATE())
+                   )budget left join(
+                   ---公司其他實際數
+                  SELECT OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID, sum(i.AMOUNT) as AMOUNT_REAL 
+                  FROM FIN_EXPENSE_FORM f LEFT JOIN FIN_EXPENSE_ITEM i ON f.EXP_FORM_ID = i.EXP_FORM_ID 
+                  WHERE i.FIN_SUBJECT_ID in (SELECT FIN_SUBJECT_ID FROM FIN_SUBJECT WHERE BUDGET_DAY IS NULL ) 
+                   AND f.STATUS = 30 GROUP BY OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID
+                  )expense ON budget.SUBJECT_ID + CONVERT(varchar, budget.CURRENT_YEAR) + CONVERT(varchar, budget.BUDGET_MONTH) 
+                      = expense.FIN_SUBJECT_ID + CONVERT(varchar, expense.OCCURRED_YEAR) + CONVERT(varchar, expense.OCCURRED_MONTH))r 
+                  GROUP BY r.CURRENT_YEAR,r.BUDGET_MONTH)exp
+                   where exp.AMOUNT <> 0 $WhereCond
                 ";
             using (var context = new topmepEntities())
             {

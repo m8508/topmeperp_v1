@@ -791,7 +791,7 @@ namespace topmeperp.Service
                     {
                         f.FORM_NAME = f.FORM_NAME + "-" + idx.TYPE_CODE_2_NAME;
                     }
-                    f.FORM_NAME = f.FORM_NAME + "(" + idx.TYPE_CODE_1 + "," + idx.TYPE_CODE_2 + ")";
+                    f.FORM_NAME = "(" + idx.TYPE_CODE_1 + "," + idx.TYPE_CODE_2 + ")" + f.FORM_NAME;
                     f.PROJECT_ID = projectid;
                     f.CREATE_ID = loginUser.USER_ID;
                     f.CREATE_DATE = DateTime.Now;
@@ -4336,7 +4336,7 @@ namespace topmeperp.Service
             {
                 //todo:貸款需要再調整
                 string sql = @"
-                SELECT DATE_CASHFLOW,SUM(AMOUNT_BANK) AMOUNT_BANK,SUM(AMOUNT_INFLOW) AMOUNT_INFLOW,Sum(AMOUNT_OUTFLOW) AMOUNT_OUTFLOW,
+ SELECT DATE_CASHFLOW,SUM(AMOUNT_BANK) AMOUNT_BANK,SUM(AMOUNT_INFLOW) AMOUNT_INFLOW,Sum(AMOUNT_OUTFLOW) AMOUNT_OUTFLOW,
                 (SELECT SUM(IIF(AVAILAB+SumTransactionAmount<0,0,AVAILAB+SumTransactionAmount)) AMT
                 FROM(
                 SELECT B.* , (SELECT ISNULL(IIF(QUOTA_RECYCLABLE = 'Y', SUM(TRANSACTION_TYPE*AMOUNT),
@@ -4366,22 +4366,15 @@ namespace topmeperp.Service
                 SELECT EVENT_DATE,SUM(ISNULL(AMOUNT,0)) AMOUNT,SUM(ISNULL(AMOUNT_REAL,0)) AMOUNT_REAL
                 FROM (--公司費用與預算
                 SELECT BUDGET.EVENT_DATE,BUDGET.AMOUNT,REALAMT.AMOUNT_REAL FROM (
-                SELECT CONVERT (Datetime,CONVERT(varchar, r.CURRENT_YEAR) + '/' + CONVERT(varchar, r.BUDGET_MONTH) + '/' + CONVERT(varchar, 5)) EVENT_DATE,
-                SUBJECT_ID, CURRENT_YEAR AS CURRENT_YEAR, BUDGET_MONTH, AMOUNT FROM FIN_EXPENSE_BUDGET R WHERE SUBJECT_ID 
-                IN ('6010','6540','6550','1301','1305') 
-                UNION
-                SELECT CONVERT (Datetime,CONVERT(varchar, r.CURRENT_YEAR) + '/' + CONVERT(varchar, r.BUDGET_MONTH) + '/' + CONVERT(varchar, 12)) EVENT_DATE,
-                SUBJECT_ID, CURRENT_YEAR AS CURRENT_YEAR, BUDGET_MONTH, AMOUNT FROM FIN_EXPENSE_BUDGET R WHERE SUBJECT_ID 
-                IN ('6020', '1312') 
-                UNION
-                SELECT CONVERT (Datetime,CONVERT(varchar, r.CURRENT_YEAR) + '/' + CONVERT(varchar, r.BUDGET_MONTH) + '/' + CONVERT(varchar, 15)) EVENT_DATE,
-                SUBJECT_ID, CURRENT_YEAR AS CURRENT_YEAR, BUDGET_MONTH, AMOUNT FROM FIN_EXPENSE_BUDGET R WHERE SUBJECT_ID 
-                IN ('6100', '1306')
-                UNION
-                SELECT 
-                Dateadd(day,-1,Dateadd(month,1,CONVERT (Datetime,CONVERT(varchar, r.CURRENT_YEAR) + '/' + CONVERT(varchar, r.BUDGET_MONTH) + '/' + CONVERT(varchar, 1))))  EVENT_DATE,
-                SUBJECT_ID, CURRENT_YEAR AS CURRENT_YEAR, BUDGET_MONTH, AMOUNT FROM FIN_EXPENSE_BUDGET R WHERE SUBJECT_ID 
-                Not IN ('6100', '1306','6020', '1312','6010','6540','6550','1301','1305')
+SELECT 
+CONVERT (Datetime,CONVERT(varchar, r.CURRENT_YEAR) + '/' + CONVERT(varchar, r.BUDGET_MONTH) + '/' + CONVERT(varchar, S.BUDGET_DAY)) EVENT_DATE,SUBJECT_ID, CURRENT_YEAR AS CURRENT_YEAR, BUDGET_MONTH, AMOUNT 
+FROM FIN_EXPENSE_BUDGET R JOIN FIN_SUBJECT S 
+ON R.SUBJECT_ID=S.FIN_SUBJECT_ID WHERE S.BUDGET_DAY IS NOT NULL 
+UNION         
+SELECT 
+Dateadd(day,-1,Dateadd(month,1,CONVERT (Datetime,CONVERT(varchar, r.CURRENT_YEAR) + '/' + CONVERT(varchar, r.BUDGET_MONTH) + '/' + CONVERT(varchar, 1))))  EVENT_DATE,SUBJECT_ID, CURRENT_YEAR AS CURRENT_YEAR, BUDGET_MONTH, AMOUNT 
+FROM FIN_EXPENSE_BUDGET R  JOIN FIN_SUBJECT S 
+ON R.SUBJECT_ID=S.FIN_SUBJECT_ID WHERE S.BUDGET_DAY IS NULL 
                 ) BUDGET 
                 LEFT JOIN (
                 SELECT  PAYMENT_DATE EVENT_DATE,
@@ -4391,22 +4384,16 @@ namespace topmeperp.Service
                 ON BUDGET.EVENT_DATE=REALAMT.EVENT_DATE AND BUDGET.SUBJECT_ID=REALAMT.SUBJECT_ID
                 UNION --工地費用與預算
                 SELECT BUDGET.EVENT_DATE,BUDGET.AMOUNT,REALAMT.AMOUNT_REAL FROM (
-                SELECT 
-                CONVERT (Datetime, CONVERT(varchar, r.BUDGET_YEAR) + '/' + CONVERT(varchar, r.BUDGET_MONTH) + '/' + CONVERT(varchar, 5)) EVENT_DATE,
-                SUBJECT_ID, BUDGET_YEAR AS CURRENT_YEAR, BUDGET_MONTH, AMOUNT FROM PLAN_SITE_BUDGET R WHERE SUBJECT_ID 
-                IN ('6010','6540','6550','1301','1305') 
-                UNION
-                SELECT CONVERT (Datetime, CONVERT(varchar, r.BUDGET_YEAR) + '/' + CONVERT(varchar, r.BUDGET_MONTH) + '/' + CONVERT(varchar, 12)) EVENT_DATE,
-                SUBJECT_ID, BUDGET_YEAR AS CURRENT_YEAR, BUDGET_MONTH, AMOUNT FROM PLAN_SITE_BUDGET R WHERE SUBJECT_ID 
-                IN ('6020', '1312') 
-                UNION
-                SELECT CONVERT (Datetime, CONVERT(varchar, r.BUDGET_YEAR) + '/' + CONVERT(varchar, r.BUDGET_MONTH) + '/' + CONVERT(varchar, 15)) EVENT_DATE,
-                SUBJECT_ID, BUDGET_YEAR AS CURRENT_YEAR, BUDGET_MONTH, AMOUNT FROM PLAN_SITE_BUDGET R WHERE SUBJECT_ID 
-                IN ('6100', '1306')
-                UNION
-                SELECT Dateadd(day,-1,Dateadd(month,1,CONVERT (Datetime,CONVERT(varchar, r.BUDGET_YEAR) + '/' + CONVERT(varchar, r.BUDGET_MONTH) + '/' + CONVERT(varchar, 1))))  EVENT_DATE,
-                SUBJECT_ID, BUDGET_YEAR AS CURRENT_YEAR, BUDGET_MONTH, AMOUNT FROM PLAN_SITE_BUDGET R WHERE SUBJECT_ID 
-                Not IN ('6100', '1306','6020', '1312','6010','6540','6550','1301','1305')
+SELECT 
+CONVERT (Datetime, CONVERT(varchar, r.BUDGET_YEAR) + '/' + CONVERT(varchar, r.BUDGET_MONTH) + '/' + CONVERT(varchar, S.BUDGET_DAY)) EVENT_DATE,
+SUBJECT_ID, BUDGET_YEAR AS CURRENT_YEAR, BUDGET_MONTH, AMOUNT 
+FROM PLAN_SITE_BUDGET R  JOIN FIN_SUBJECT S ON  R.SUBJECT_ID=S.FIN_SUBJECT_ID
+WHERE S.BUDGET_DAY IS NOT NULL 
+UNION
+SELECT 
+Dateadd(day,-1,Dateadd(month,1,CONVERT (Datetime,CONVERT(varchar, r.BUDGET_YEAR) + '/' + CONVERT(varchar, r.BUDGET_MONTH) + '/' + CONVERT(varchar, 1))))  EVENT_DATE, SUBJECT_ID, BUDGET_YEAR AS CURRENT_YEAR, BUDGET_MONTH, AMOUNT 
+FROM PLAN_SITE_BUDGET R  JOIN FIN_SUBJECT S ON  R.SUBJECT_ID=S.FIN_SUBJECT_ID
+WHERE S.BUDGET_DAY IS NULL 
                 ) BUDGET LEFT JOIN (
                 SELECT PAYMENT_DATE EVENT_DATE,
                 i.FIN_SUBJECT_ID SUBJECT_ID, sum(i.AMOUNT) as AMOUNT_REAL FROM FIN_EXPENSE_FORM f 
@@ -5107,7 +5094,6 @@ namespace topmeperp.Service
 
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("accounttype", accounttype));
-            logger.Info("sql=" + sql);
 
             //支付日期條件
             if (null != paymentdate && paymentdate != "")
