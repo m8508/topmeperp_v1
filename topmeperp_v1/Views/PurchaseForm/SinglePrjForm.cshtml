@@ -189,7 +189,16 @@
                             @item.ITEM_UNIT
                         </td>
                         <td>
-                            @item.ITEM_QTY
+                            @if (@item.ITEM_QTY != null)
+                            {
+                                <input type="text" class="form-control" name="formQty" id="formQty" value="@item.ITEM_QTY" style="width:100px">
+                            }
+                            else
+                            {
+                                <input type="text" class="form-control" name="formQty" id="formQty" value="" style="width:100px">
+                            }
+
+
                         </td>
                         <td>
                             @if (@item.ITEM_UNIT_PRICE != null)

@@ -258,6 +258,7 @@ namespace topmeperp.Controllers
             }
             string fid = service.addSupplierForm(fm, lstItemId);
             string[] lstPlanItem = form.Get("plan_item_id").Split(',');
+            string[] lstQty = form.Get("formQty").Split(',');
             string[] lstPrice = form.Get("formunitprice").Split(',');
             string[] lstRemark = form.Get("remark").Split(',');
             List<PLAN_SUP_INQUIRY_ITEM> lstItem = new List<PLAN_SUP_INQUIRY_ITEM>();
@@ -272,6 +273,10 @@ namespace topmeperp.Controllers
                 else
                 {
                     item.ITEM_REMARK = lstRemark[i];
+                }
+                if (lstQty[i].ToString() == "")
+                {
+                    item.ITEM_QTY = null;
                 }
                 if (lstPrice[i].ToString() == "")
                 {
@@ -342,6 +347,7 @@ namespace topmeperp.Controllers
             string formid = form.Get("inputformnumber").Trim();
 
             string[] lstItemId = form.Get("formitemid").Split(',');
+            string[] lstQty = form.Get("formQty").Split(',');
             string[] lstPrice = form.Get("formunitprice").Split(',');
             string[] lstRemark = form.Get("remark").Split(',');
             List<PLAN_SUP_INQUIRY_ITEM> lstItem = new List<PLAN_SUP_INQUIRY_ITEM>();
@@ -357,6 +363,14 @@ namespace topmeperp.Controllers
                 {
                     item.ITEM_REMARK = lstRemark[j];
                 }
+                if (lstQty[j].ToString() == "")
+                {
+                    item.ITEM_QTY = null;
+                }
+                else
+                {
+                    item.ITEM_QTY = decimal.Parse(lstQty[j]);
+                }
                 if (lstPrice[j].ToString() == "")
                 {
                     item.ITEM_UNIT_PRICE = null;
@@ -369,7 +383,7 @@ namespace topmeperp.Controllers
                 lstItem.Add(item);
             }
             int i = service.refreshPlanSupplierForm(formid, fm, lstItem);
-            if (i == 0)
+            if (service.message!="")
             {
                 msg = service.message;
             }

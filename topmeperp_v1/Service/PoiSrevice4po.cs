@@ -103,11 +103,28 @@ namespace topmeperp.Service
         public List<DirectCost> typecodeItems = null;
         public string errorMessage = null;
         string projId = null;
+        SYS_USER user = null;
 
         //建立預算下載表格
         public string exportExcel(TND_PROJECT project)
         {
-            List<DirectCost> typecodeItems = service.getDirectCost4Budget(project.PROJECT_ID);
+            PlanService ps = new PlanService();
+            var priId = ps.getBudgetById(project.PROJECT_ID);
+            List<DirectCost> typecodeItems = null;
+            //If (沒有預算資料)
+            if (null == priId)
+            {
+                //取得直接成本作為預算初始值
+                logger.Info("Initial Budget Data for " + project.PROJECT_ID);
+                typecodeItems = service.getDirectCost4Budget(project.PROJECT_ID);
+            }
+            else
+            {
+                //取得預算值填入
+                logger.Info("Get Budget Data for " + project.PROJECT_ID);
+                BudgetDataService bs = new BudgetDataService();
+                typecodeItems = bs.getBudget(priId);
+            }
             //1.讀取預算表格檔案
             InitializeWorkbook(budgetFile);
             sheet = (XSSFSheet)hssfworkbook.GetSheet("預算");
@@ -129,7 +146,7 @@ namespace topmeperp.Service
                 //次九宮格編碼
                 if (null != item.SUB_CODE && item.SUB_CODE.ToString().Trim() != "")
                 {
-                    row.CreateCell(1).SetCellValue(double.Parse(item.SUB_CODE.ToString()));
+                    row.CreateCell(1).SetCellValue(item.SUB_CODE.ToString());
                 }
                 else
                 {
@@ -137,7 +154,14 @@ namespace topmeperp.Service
                 }
                 //分項名稱
                 logger.Debug("ITEM DESC=" + item.MAINCODE_DESC);
-                row.CreateCell(2).SetCellValue(item.MAINCODE_DESC + "-" + item.SUB_DESC);
+                if (null != item.SUB_DESC && item.SUB_DESC.Trim() != "")
+                {
+                    row.CreateCell(2).SetCellValue(item.MAINCODE_DESC + "-" + item.SUB_DESC);
+                }
+                else
+                {
+                    row.CreateCell(2).SetCellValue(item.MAINCODE_DESC);
+                }
                 //合約金額
                 if (null != item.CONTRACT_PRICE && item.CONTRACT_PRICE.ToString().Trim() != "")
                 {
@@ -156,20 +180,41 @@ namespace topmeperp.Service
                 {
                     row.CreateCell(4).SetCellValue("");
                 }
+
                 //材料折扣率 
-                row.CreateCell(5).SetCellValue("");
+                if (null != item.BUDGET && item.BUDGET.ToString().Trim() != "")
+                {
+                    row.CreateCell(5).SetCellValue(double.Parse(item.BUDGET.ToString()));
+                }
+                else
+                {
+                    row.CreateCell(5).SetCellValue("100");
+                }
                 //材料預算
                 ICell cel6 = row.CreateCell(6);
                 cel6.CellFormula = "(E" + (idxRow + 1) + "*F" + (idxRow + 1) + "/100)";
                 cel6.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
                 //工資成本
-                row.CreateCell(7).SetCellValue("");  //圖算*工率
-                if (null != item.MAN_DAY_4EXCEL && item.MAN_DAY_4EXCEL.ToString().Trim() != "")
+                row.CreateCell(7).SetCellValue("");
+                if (null != item.MAN_DAY_INMAP && item.MAN_DAY_INMAP.ToString().Trim() != "")
                 {
-                    row.Cells[7].SetCellFormula(item.MAN_DAY_4EXCEL.ToString() + "*H3");
+                    row.Cells[7].SetCellFormula(item.MAN_DAY_INMAP.ToString());
                 }
+                else
+                {
+                    //圖算*工率
+                    if (null != item.MAN_DAY_4EXCEL && item.MAN_DAY_4EXCEL.ToString().Trim() != "")
+                    {
+                        row.Cells[7].SetCellFormula(item.MAN_DAY_4EXCEL.ToString() + "*H3");
+                    }
+                }
+
                 //工資折扣率 
-                row.CreateCell(8).SetCellValue("");
+                row.CreateCell(8).SetCellValue("100");
+                if (null != item.BUDGET_WAGE && item.BUDGET_WAGE.ToString().Trim() != "")
+                {
+                    row.Cells[8].SetCellFormula(item.BUDGET_WAGE.ToString());
+                }
                 foreach (ICell c in row.Cells)
                 {
                     c.CellStyle = ExcelStyle.getNumberStyle(hssfworkbook);
@@ -185,7 +230,7 @@ namespace topmeperp.Service
                 logger.Debug("getBudget cell style rowid=" + idxRow);
                 idxRow++;
             }
-            //4.另存新檔至專案所屬目錄 (增加Temp for zip 打包使用
+            sheet.CreateRow(idxRow).CreateCell(0).SetCellValue("END");
             string fileLocation = null;
             fileLocation = outputPath + "\\" + project.PROJECT_ID + "\\" + project.PROJECT_ID + "_預算.xlsx";
             var file = new FileStream(fileLocation, FileMode.Create);
@@ -221,9 +266,11 @@ namespace topmeperp.Service
         /**
          * 取得預算Sheet 資料
          * */
-        public List<PLAN_BUDGET> ConvertDataForBudget(string projectId)
+        public List<PLAN_BUDGET> ConvertDataForBudget(string projectId, SYS_USER u)
         {
+
             projId = projectId;
+            user = u;
             //1.依據檔案附檔名使用不同物件讀取Excel 檔案，並開啟預算Sheet
             if (fileformat == "xls")
             {
@@ -275,15 +322,16 @@ namespace topmeperp.Service
                 }
                 logger.Debug("Excel Value:" + slog);
                 //將各Row 資料寫入物件內
-                //0.九宮格	1.次九宮格 2.主系統 3.次系統 4.預算折扣率 6.工資預算折扣率
+                //0.九宮格	1.次九宮格 2.分項名稱 3,合約金額 4.材料成本,5材料折扣,6Skip
+                //7.工資成本,8.工資折扣 9.skip
                 if (row.Cells[0].ToString().ToUpper() != "END")
                 {
                     lstBudget.Add(convertRow2PlanBudget(row, iRowIndex));
                 }
                 else
                 {
-                    logErrorMessage("Step1 ;取得預算資料:" + typecodeItems.Count + "筆");
-                    logger.Info("Finish convert Job : count=" + typecodeItems.Count);
+                    logErrorMessage("Step1 ;取得預算資料:" + lstBudget.Count + "筆");
+                    logger.Info("Finish convert Job : count=" + lstBudget.Count);
                     return lstBudget;
                 }
                 iRowIndex++;
@@ -296,6 +344,8 @@ namespace topmeperp.Service
          * */
         private PLAN_BUDGET convertRow2PlanBudget(IRow row, int excelrow)
         {
+            //0.九宮格	1.次九宮格 2.分項名稱 3,合約金額 4.材料成本,5材料折扣,6Skip
+            //7.工資成本,8.工資折扣 9.skip
             PLAN_BUDGET item = new PLAN_BUDGET();
             item.PROJECT_ID = projId;
             if (row.Cells[0].ToString().Trim() != "")//0.九宮格
@@ -306,59 +356,83 @@ namespace topmeperp.Service
             {
                 item.TYPE_CODE_2 = row.Cells[1].ToString();
             }
-            //if (row.Cells[2].ToString().Trim() != "")//3.主系統
-            //{
-            // item.SYSTEM_MAIN = row.Cells[2].ToString();
-            //}
-            //if (row.Cells[3].ToString().Trim() != "")//4.次系統
-            //{
-            //item.SYSTEM_SUB = row.Cells[3].ToString();
-            //}
-            //if (null != row.Cells[row.Cells.Count - 4].ToString().Trim() || row.Cells[row.Cells.Count - 4].ToString().Trim() != "")//2.投標折數
-            //{
-            //    try
-            //    {
-            //        decimal dQty = decimal.Parse(row.Cells[row.Cells.Count - 4].ToString());
-            //        logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[row.Cells.Count - 4].ToString());
-            //        item.TND_RATIO = dQty;
-            //    }
-            //    catch (Exception e)
-            //    {
-            //        logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[4].value=" + row.Cells[row.Cells.Count - 4].ToString());
-            //        logger.Error(e);
-            //    }
+            if (row.Cells[2].ToString().Trim() != "")//2.分項名稱
+            {
+                item.BUDGET_NAME = row.Cells[2].ToString();
+            }
 
-            //}
-            if (null != row.Cells[row.Cells.Count - 6].ToString().Trim() || row.Cells[row.Cells.Count - 6].ToString().Trim() != "")//5.預算折數
+            if (row.Cells[3].ToString().Trim() != "")//3,合約金額
             {
                 try
                 {
-                    decimal dQty = decimal.Parse(row.Cells[row.Cells.Count - 6].ToString());
-                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[row.Cells.Count - 6].ToString());
-                    item.BUDGET_RATIO = dQty;
+                    decimal contractAmt = decimal.Parse(row.Cells[3].ToString());
+                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[3].ToString());
+                    item.CONTRACT_AMOUNT = contractAmt;
                 }
                 catch (Exception e)
                 {
                     logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[6].value=" + row.Cells[row.Cells.Count - 6].ToString());
-                    logger.Error(e);
+                    logger.Error(e.StackTrace);
                 }
-
             }
-            if (null != row.Cells[row.Cells.Count - 3].ToString().Trim() || row.Cells[row.Cells.Count - 3].ToString().Trim() != "")//6.工資預算折數
+            if (row.Cells[4].ToString().Trim() != "")//4.材料成本
             {
                 try
                 {
-                    decimal dQty = decimal.Parse(row.Cells[row.Cells.Count - 3].ToString());
-                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[row.Cells.Count - 3].ToString());
-                    item.BUDGET_WAGE_RATIO = dQty;
+                    decimal MaterialCost = decimal.Parse(row.Cells[4].ToString());
+                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[4].ToString());
+                    item.BUDGET_AMOUNT = MaterialCost;
                 }
                 catch (Exception e)
                 {
-                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[8].value=" + row.Cells[row.Cells.Count - 3].ToString());
-                    logger.Error(e);
+                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[4].value=" + row.Cells[4].ToString());
+                    logger.Error(e.StackTrace);
                 }
-
             }
+            if (row.Cells[5].ToString().Trim() != "")//5材料折扣
+            {
+                try
+                {
+                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[5].ToString());
+                    decimal ratio = decimal.Parse(row.Cells[5].ToString());
+                    item.BUDGET_RATIO = ratio;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[6].value=" + row.Cells[6].ToString());
+                    logger.Error(e.StackTrace);
+                }
+            }
+            if (row.Cells[7].ToString().Trim() != "")//7.工資成本,
+            {
+                try
+                {
+                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[7].ToString());
+                    decimal amount = decimal.Parse(row.Cells[7].ToString());
+                    item.BUDGET_WAGE_AMOUNT = amount;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[7].value=" + row.Cells[7].ToString());
+                    logger.Error(e.StackTrace);
+                }
+            }
+            if (row.Cells[8].ToString().Trim() != "")//8.工資折扣,
+            {
+                try
+                {
+                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[8].ToString());
+                    decimal ratio = decimal.Parse(row.Cells[8].ToString());
+                    item.BUDGET_WAGE_RATIO = ratio;
+                }
+                catch (Exception e)
+                {
+                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[8].value=" + row.Cells[8].ToString());
+                    logger.Error(e.StackTrace);
+                }
+            }
+
+            item.CREATE_ID = user.USER_ID;
             item.CREATE_DATE = System.DateTime.Now;
             logger.Info("PLAN_BUDGET=" + item.ToString());
             return item;
@@ -1160,7 +1234,7 @@ namespace topmeperp.Service
             Budget = service.getTotalExpBudgetAmount(budgetYear);
             if (null != ExpTable.PROJECT_ID && ExpTable.PROJECT_ID != "")
             {
-                siteBudget = service.getSiteBudgetAmountById(ExpTable.PROJECT_ID,null);
+                siteBudget = service.getSiteBudgetAmountById(ExpTable.PROJECT_ID, null);
             }
             //1.讀取費用表格檔案
             InitializeWorkbook(expenseFile);
@@ -1522,7 +1596,7 @@ namespace topmeperp.Service
             else
             {
                 ZipFileCreator.CreateDirectory(outputPath + "\\" + company_folder);
-                fileLocation = outputPath+ "\\"  +company_folder + "\\" + ExpTable.EXP_FORM_ID + "_公司費用表.xlsx";
+                fileLocation = outputPath + "\\" + company_folder + "\\" + ExpTable.EXP_FORM_ID + "_公司費用表.xlsx";
             }
             var file = new FileStream(fileLocation, FileMode.Create);
             logger.Info("new file name =" + file.Name + ",path=" + file.Position);
@@ -1647,7 +1721,7 @@ namespace topmeperp.Service
         private void createSumRow(int idxRow, IRow row, string desc)
         {
             //費用、7月、8月、9月、10月、11月、12月、1月、2月、3月、4月、5月、6月、合計
-            int iRow = idxRow+1;
+            int iRow = idxRow + 1;
             if (desc != "實際數")
             {
                 row.CreateCell(0);
@@ -1659,7 +1733,8 @@ namespace topmeperp.Service
                 row.CreateCell(2);//預算
                 row.Cells[2].SetCellValue(desc);
                 row.Cells[2].CellStyle = style;
-            }else
+            }
+            else
             {
                 row.CreateCell(0);
                 row.Cells[0].SetCellValue("");
@@ -1672,7 +1747,7 @@ namespace topmeperp.Service
                 row.Cells[2].CellStyle = style;
             }
             row.CreateCell(3);//7月
-            row.Cells[3].SetCellFormula("SUMIF(C6:C" + idxRow + ",C"+ iRow + ",D6:D" + idxRow + ")");
+            row.Cells[3].SetCellFormula("SUMIF(C6:C" + idxRow + ",C" + iRow + ",D6:D" + idxRow + ")");
             row.Cells[3].CellStyle = styleNumber;
             row.CreateCell(4);//8月
             row.Cells[4].SetCellFormula("SUMIF(C6:C" + idxRow + ",C" + iRow + ",E6:E" + idxRow + ")");
@@ -2425,7 +2500,7 @@ namespace topmeperp.Service
             //2.1  忽略不要的行數..(表頭)
             budgetYear = sheet.GetRow(4).Cells[1].ToString();
             sequenceYear = sheet.GetRow(3).Cells[1].ToString();
-            if (budgetYear =="" || sequenceYear == "")
+            if (budgetYear == "" || sequenceYear == "")
             {
                 logger.Error("The Year Info is empty!!");
                 throw new Exception("年度資料欄位填寫錯誤!!");
@@ -2542,9 +2617,9 @@ namespace topmeperp.Service
         public string errorMessage = null;
 
         //建立工地費用預算執行彙整下載表格
-        public string exportExcel(string projectid,string projectName)
+        public string exportExcel(string projectid, string projectName)
         {
-            List<ExpenseBudgetSummary> SiteBudgetYears= service.getSiteBudgetPerYear(projectid);
+            List<ExpenseBudgetSummary> SiteBudgetYears = service.getSiteBudgetPerYear(projectid);
             //整案預算與費用
             ExpenseBudgetSummary BudgeTotalAmt = service.getSiteBudgetAmountById(projectid, null);
             ExpenseBudgetSummary ExpenseTotalAmt = service.getTotalSiteExpAmountById(projectid, null);
@@ -2557,7 +2632,7 @@ namespace topmeperp.Service
 
             foreach (ExpenseBudgetSummary sitebudgetyear in SiteBudgetYears)
             {
-                string sheetName = "工地費用預算_第"+ sitebudgetyear.YEAR_SEQUENCE.Trim() + "年度";
+                string sheetName = "工地費用預算_第" + sitebudgetyear.YEAR_SEQUENCE.Trim() + "年度";
                 sheet = (XSSFSheet)hssfworkbook.GetSheet(sheetName);
                 //取得不同年度的預算與費用資料
                 List<ExpenseBudgetSummary> SiteBudget = service.getBudget4ProjectBySeq(projectid, null, sitebudgetyear.YEAR_SEQUENCE);
@@ -2613,7 +2688,7 @@ namespace topmeperp.Service
                     row = sheet.CreateRow(idxRow);//.GetRow(idxRow);
                     //項目、項目代碼、預算/費用、1月、2月、3月、4月、5月、6月、7月、8月、9月、10月、11月、12月、合計
                     //項目
-                    logger.Debug("SUBJECT_NAM=" + exp.SUBJECT_NAME + ",Subject_Id="+ exp.SUBJECT_ID);
+                    logger.Debug("SUBJECT_NAM=" + exp.SUBJECT_NAME + ",Subject_Id=" + exp.SUBJECT_ID);
                     row.CreateCell(0).SetCellValue("");
                     row.Cells[0].CellStyle = style;
                     //項目代碼
@@ -2647,9 +2722,9 @@ namespace topmeperp.Service
                     idxRow++;
                 }
             }
-           
+
             //5.另存新檔至專案所屬目錄 (增加Temp for zip 打包使用
-            string fileLocation  = outputPath + "\\" + projectid + "\\" + projectid + "_工地費用預算執行彙整表.xlsx";
+            string fileLocation = outputPath + "\\" + projectid + "\\" + projectid + "_工地費用預算執行彙整表.xlsx";
             var file = new FileStream(fileLocation, FileMode.Create);
             logger.Info("new file name =" + file.Name + ",path=" + file.Position);
             hssfworkbook.Write(file);
@@ -2727,7 +2802,7 @@ namespace topmeperp.Service
                 {
                     row.Cells[1].SetCellValue(item.INVOICE_TYPE.Substring(0, 1));//發票類型
                 }
-                row.Cells[2].SetCellValue(item.INVOICE_DATE.Value.Year-1911);//年
+                row.Cells[2].SetCellValue(item.INVOICE_DATE.Value.Year - 1911);//年
                 row.Cells[4].SetCellValue(item.INVOICE_DATE.Value.Month);//月
                 row.Cells[5].SetCellValue(item.INVOICE_DATE.Value.Day);//日
                 row.Cells[6].SetCellValue(item.INVOICE_NUMBER.Substring(0, 2));//字軌

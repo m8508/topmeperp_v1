@@ -387,8 +387,8 @@ namespace topmeperp.Controllers
             //for exception 
             ViewBag.budget = 0;
             ViewBag.cost = 0;
+            //if (沒有預算資料)，取得九宮格組合之直接成本資料
             if (null == priId)
-            //取得九宮格組合之直接成本資料
             {
                 CostAnalysisDataService s = new CostAnalysisDataService();
                 List<DirectCost> budget1 = s.getDirectCost4Budget(id);
@@ -457,7 +457,8 @@ namespace topmeperp.Controllers
                 BudgetFormToExcel budgetservice = new BudgetFormToExcel();
                 budgetservice.InitializeWorkbook(path);
                 //解析預算數量
-                List<PLAN_BUDGET> lstBudget = budgetservice.ConvertDataForBudget(projectid);
+                SYS_USER u = (SYS_USER)Session["user"];
+                List<PLAN_BUDGET> lstBudget = budgetservice.ConvertDataForBudget(projectid,u);
                 //2.3 記錄錯誤訊息
                 message = budgetservice.errorMessage;
                 //2.4

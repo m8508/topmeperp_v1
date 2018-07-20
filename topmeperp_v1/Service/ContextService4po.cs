@@ -396,25 +396,12 @@ namespace topmeperp.Service
             List<DirectCost> lstBudget = new List<DirectCost>();
             using (var context = new topmepEntities())
             {
-                string sql = "SELECT C.*, SUM(ISNULL(MATERIAL_COST_INMAP,0) * BUDGET / 100) AS MATERIAL_BUDGET_INMAP, " +
-                    "SUM(ISNULL(MAN_DAY_INMAP,0) * BUDGET_WAGE / 100) AS MAN_DAY_BUDGET_INMAP, SUM(ISNULL(MATERIAL_COST_INMAP,0) * BUDGET / 100) + SUM(ISNULL(MAN_DAY_INMAP,0) * BUDGET_WAGE / 100) AS AMOUNT_BY_CODE FROM " +
-                    "(SELECT MAINCODE, MAINCODE_DESC, SUB_CODE, SUB_DESC, MATERIAL_COST_INMAP, MAN_DAY_INMAP, CONTRACT_PRICE, "
-                    + "ISNULL(BUDGET_RATIO, 0) as BUDGET, ISNULL(BUDGET_WAGE_RATIO, 0) as BUDGET_WAGE, COST_RATIO FROM (SELECT" +
-                    "(select TYPE_CODE_1 + TYPE_CODE_2 from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE, " +
-                    "(select TYPE_DESC from REF_TYPE_MAIN WHERE  TYPE_CODE_1 + TYPE_CODE_2 = A.TYPE_CODE_1) MAINCODE_DESC ," +
-                    "(select SUB_TYPE_ID from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) T_SUB_CODE, " +
-                    "TYPE_CODE_2 SUB_CODE," +
-                    "(select TYPE_DESC from REF_TYPE_SUB WHERE  A.TYPE_CODE_1 + A.TYPE_CODE_2 = SUB_TYPE_ID) SUB_DESC, " +
-                    "SUM(MapQty * tndPrice) MATERIAL_COST_INMAP, SUM(MapQty * RATIO * WagePrice) MAN_DAY_INMAP, SUM(ITEM_UNIT_PRICE * ITEM_QUANTITY) CONTRACT_PRICE, count(*) ITEM_COUNT " +
-                    "FROM (SELECT pi.*, w.RATIO, w.PRICE, map.QTY MapQty, ISNULL(p.WAGE_MULTIPLIER, 0) AS WagePrice, it.ITEM_UNIT_PRICE AS tndPrice, it.ITEM_QUANTITY AS tndQTY FROM PLAN_ITEM pi LEFT OUTER JOIN TND_WAGE w " +
-                    "ON pi.PLAN_ITEM_ID = w.PROJECT_ITEM_ID LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT OUTER JOIN TND_PROJECT_ITEM it ON it.PROJECT_ITEM_ID = pi.PLAN_ITEM_ID " +
-                    "LEFT JOIN TND_PROJECT p ON pi.PROJECT_ID = p.PROJECT_ID WHERE it.project_id = @projectid) A " +
-                    "GROUP BY TYPE_CODE_1, TYPE_CODE_2) B LEFT OUTER JOIN (SELECT p.TYPE_CODE_1, p.TYPE_CODE_2, SUM(p.BUDGET_RATIO*map.QTY)/SUM(map.QTY) BUDGET_RATIO, " +
-                    "SUM(p.BUDGET_WAGE_RATIO*map.QTY)/SUM(map.QTY) BUDGET_WAGE_RATIO, " +
-                    "SUM(p.TND_RATIO*map.QTY)/SUM(map.QTY) COST_RATIO FROM PLAN_ITEM p LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON p.PLAN_ITEM_ID = map.PROJECT_ITEM_ID WHERE p.PROJECT_ID =@projectid GROUP BY p.TYPE_CODE_1, p.TYPE_CODE_2) D " +
-                    "ON IIF(MAINCODE is null, '', IIF(MAINCODE = 0, '', MAINCODE)) + IIF(SUB_CODE is null, '', IIF(SUB_CODE = 0, '', SUB_CODE)) = IIF(REPLACE(D.TYPE_CODE_1, ' ', '') is null, '', IIF(REPLACE(D.TYPE_CODE_1, ' ', '') = 0, '', REPLACE(D.TYPE_CODE_1, ' ', ''))) + IIF(REPLACE(D.TYPE_CODE_2, ' ', '') is null, '', IIF(REPLACE(D.TYPE_CODE_2, ' ', '') = 0, '', REPLACE(D.TYPE_CODE_2, ' ', ''))) " +
-                    ") C GROUP BY MAINCODE, MAINCODE_DESC, SUB_CODE, SUB_DESC, MATERIAL_COST_INMAP, MAN_DAY_INMAP, CONTRACT_PRICE, BUDGET, BUDGET_WAGE, COST_RATIO ORDER BY ISNULL(MAINCODE, '無'), ISNULL(SUB_CODE, '無') ";
-                logger.Info("sql = " + sql);
+                string sql = @"SELECT TYPE_CODE_1 MAINCODE,BUDGET_NAME MAINCODE_DESC,TYPE_CODE_2 SUB_CODE,'' as SUB_DESC ,
+                        CONTRACT_AMOUNT AS CONTRACT_PRICE,
+                        BUDGET_AMOUNT MATERIAL_COST_INMAP,  BUDGET_RATIO BUDGET, BUDGET_AMOUNT*BUDGET_RATIO/100 MATERIAL_BUDGET_INMAP,
+                    	BUDGET_WAGE_AMOUNT MAN_DAY_INMAP,BUDGET_WAGE_RATIO BUDGET_WAGE,BUDGET_WAGE_AMOUNT *BUDGET_WAGE_RATIO/100 MAN_DAY_BUDGET_INMAP
+                        FROM PLAN_BUDGET WHERE PROJECT_ID=@projectid";
+                logger.Info("sql = " + sql + ",project_id=" + projectid);
                 var parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("projectid", projectid));
                 lstBudget = context.Database.SqlQuery<DirectCost>(sql, parameters.ToArray()).ToList();
@@ -1271,6 +1258,8 @@ namespace topmeperp.Service
                         if (item.INQUIRY_ITEM_ID != 0)
                         {
                             existItem = context.PLAN_SUP_INQUIRY_ITEM.Find(item.INQUIRY_ITEM_ID);
+                            existItem.ITEM_QTY = item.ITEM_QTY;
+
                             existItem.ITEM_UNIT_PRICE = item.ITEM_UNIT_PRICE;
                             existItem.ITEM_REMARK = item.ITEM_REMARK;
                             context.PLAN_SUP_INQUIRY_ITEM.AddOrUpdate(existItem);
@@ -1289,6 +1278,7 @@ namespace topmeperp.Service
                                 excelItem = context.PLAN_SUP_INQUIRY_ITEM.SqlQuery(sql, parameters.ToArray()).First();
                                 existItem = context.PLAN_SUP_INQUIRY_ITEM.Find(excelItem.INQUIRY_ITEM_ID);
                                 logger.Debug("find exist item=" + existItem.ITEM_DESC);
+                                existItem.ITEM_QTY = item.ITEM_QTY;
                                 existItem.ITEM_UNIT_PRICE = item.ITEM_UNIT_PRICE;
                                 existItem.ITEM_REMARK = item.ITEM_REMARK;
                                 context.PLAN_SUP_INQUIRY_ITEM.AddOrUpdate(existItem);

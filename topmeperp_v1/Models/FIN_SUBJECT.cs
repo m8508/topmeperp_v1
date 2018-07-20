@@ -17,5 +17,6 @@ namespace topmeperp.Models
         public string FIN_SUBJECT_ID { get; set; }
         public string SUBJECT_NAME { get; set; }
         public string CATEGORY { get; set; }
+        public string BUDGET_DAY { get; set; }
     }
 }
