@@ -272,60 +272,48 @@ namespace topmeperp.Service
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         //取得特定日期借款與還款
-        public List<LoanTranactionFunction> getLoanTranaction(string type, string paymentdate, string duringStart, string duringEnd)
+        public new List<LoanTranactionFunction> getLoanTranaction(string type, string paymentdate, string duringStart, string duringEnd)
         {
             logger.Debug("get loan tranaction by payment date=" + paymentdate + ",and type = " + type);
-            List<LoanTranactionFunction> lstItem = new List<LoanTranactionFunction>();
+            List<LoanTranactionFunction> lstItem = null;
+            string sql = @"SELECT t.*, l.IS_SUPPLIER 
+                    FROM FIN_LOAN_TRANACTION t 
+                    LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  
+                    WHERE  t.REMARK NOT LIKE '%備償%' 
+                    AND t.TRANSACTION_TYPE = @TransType $WhereCond
+                    ";
+            string strWhere = "";
+            int transType = 1;
+            //ISSUE : type ??? -1 何時為-1
+            //if (type == "I")// type值為'I'表示有現金流入
+            //{
+            //    transType = -1;
+            //}
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("TransType", transType));
+
             using (var context = new topmepEntities())
             {
                 //條件篩選
                 if (null != paymentdate && paymentdate != "")
                 {
-                    if (type == "I")// type值為'I'表示有現金流入
-                    {
-                        lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = 1 AND CONVERT(char(10), " +
-                            "IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE), 111) =@paymentdate OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = -1 AND CONVERT(char(10), IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE), 111) =@paymentdate ",
-                        new SqlParameter("paymentdate", paymentdate)).ToList();
-                    }
-                    else // type值為'O'表示有現金流出
-                    {
-                        lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = -1 AND CONVERT(char(10), " +
-                            "IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE), 111) =@paymentdate OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = 1 AND CONVERT(char(10), IIF(TRANSACTION_TYPE = 1, PAYBACK_DATE, EVENT_DATE), 111) =@paymentdate ",
-                        new SqlParameter("paymentdate", paymentdate)).ToList();
-                    }
+                    //just one day
+                    strWhere = "AND  IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) =@paymentdate ";
+                    parameters.Add(new SqlParameter("paymentdate", paymentdate));
+                    logger.Debug("paymentdate=" + paymentdate);
                 }
                 else if (null != duringStart && duringStart != "" && null != duringEnd && duringEnd != "")
                 {
-                    if (type == "I")// type值為'I'表示有現金流入
-                    {
-                        lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = 1 AND " +
-                            "IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) >= convert(datetime, @duringStart, 111) AND IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) <= convert(datetime, @duringEnd, 111) OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' " +
-                            "AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = -1 AND IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) >= convert(datetime, @duringStart, 111) AND IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) <= convert(datetime, @duringEnd, 111) ORDER BY IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) ",
-                        new SqlParameter("duringStart", duringStart), new SqlParameter("duringEnd", duringEnd)).ToList();
-                    }
-                    else // type值為'O'表示有現金流出
-                    {
-                        lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = -1 AND " +
-                            "IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) >= convert(datetime, @duringStart, 111) AND IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) <= convert(datetime, @duringEnd, 111) OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' " +
-                            "AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = 1 AND IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) >= convert(datetime, @duringStart, 111) AND IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) <= convert(datetime, @duringEnd, 111) ORDER BY IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) ",
-                       new SqlParameter("duringStart", duringStart), new SqlParameter("duringEnd", duringEnd)).ToList();
-                    }
+                    //for durateion
+                    strWhere = "AND IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) BETWEEN  @duringStart AND  @duringEnd ";
+                    parameters.Add(new SqlParameter("duringStart", duringStart));
+                    parameters.Add(new SqlParameter("duringEnd", duringEnd));
+                    logger.Debug("duringStart,duringEnd=" + duringStart + "," + duringEnd);
                 }
-                else
-                {
-                    if (type == "I")// type值為'I'表示有現金流入
-                    {
-                        lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = 1 " +
-                            "OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = -1 ORDER BY IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) ",
-                        new SqlParameter("paymentdate", paymentdate)).ToList();
-                    }
-                    else // type值為'O'表示有現金流出
-                    {
-                        lstItem = context.Database.SqlQuery<LoanTranactionFunction>("SELECT t.*, l.IS_SUPPLIER FROM FIN_LOAN_TRANACTION t LEFT JOIN FIN_BANK_LOAN l ON t.BL_ID = l.BL_ID  WHERE ISNULL(l.IS_SUPPLIER, 'N') = 'Y' AND t.TRANSACTION_TYPE = -1 " +
-                            "OR ISNULL(l.IS_SUPPLIER, 'N') <> 'Y' AND t.REMARK NOT LIKE '%備償%' AND t.TRANSACTION_TYPE = 1 ORDER BY IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE) ",
-                        new SqlParameter("paymentdate", paymentdate)).ToList();
-                    }
-                }
+                sql = sql.Replace("$WhereCond", strWhere);
+                sql = sql + " ORDER BY IIF(TRANSACTION_TYPE = 1,PAYBACK_DATE,EVENT_DATE)";
+                logger.Debug("sql=" + sql);
+                lstItem = context.Database.SqlQuery<LoanTranactionFunction>(sql, parameters.ToArray()).ToList();
             }
             return lstItem;
         }
