@@ -422,6 +422,7 @@
     <Compile Include="Controllers\RoleManageController.cs" />
     <Compile Include="Controllers\SubjectManageController.cs" />
     <Compile Include="Controllers\SupplierManageController.cs" />
+    <Compile Include="Controllers\SystemParameterController.cs" />
     <Compile Include="Controllers\TenderController.cs" />
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Controllers\TypeManageController.cs" />
@@ -1260,6 +1261,8 @@
     <Content Include="Scripts\popper-utils.js.map" />
     <Content Include="Views\Test\handsontable.cshtml" />
     <Content Include="UploadFile\SiteExpSummary_form.xlsx" />
+    <Content Include="Views\SystemParameter\Index.cshtml" />
+    <Content Include="Views\SystemParameter\_Para.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

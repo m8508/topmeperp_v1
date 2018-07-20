@@ -416,6 +416,45 @@ namespace topmeperp.Service
             }
             return lst;
         }
+        public List<PARA_INDEX> getParaIndex()
+        {
+            string sql = "SELECT DISTINCT FUNCTION_ID,FUNCTION_DESC  FROM SYS_PARA ";
+            List<PARA_INDEX> lst = new List<PARA_INDEX>();
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("sql=" + sql);
+                lst = context.Database.SqlQuery<PARA_INDEX>(sql).ToList();
+            }
+            return lst;
+        }
+        public List<PARA_INDEX> getFieldIndex(string functionId)
+        {
+            string sql = "SELECT DISTINCT FIELD_ID FUNCTION_ID, FIELD_DESC FUNCTION_DESC  FROM SYS_PARA  WHERE FUNCTION_ID=@FunctionId";
+            List<PARA_INDEX> lst = new List<PARA_INDEX>();
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("sql=" + sql + ",funcionId="+ functionId);
+                lst = context.Database.SqlQuery<PARA_INDEX>(sql,new SqlParameter("FunctionId", functionId)).ToList();
+            }
+            return lst;
+        }
+        public static string UpdateSysPara(List<SYS_PARA> lst)
+        {
+            using (var context = new topmepEntities())
+            {
+                string sql = "UPDATE SYS_PARA SET KEY_FIELD=@Key,VALUE_FIELD=@Value WHERE PARA_ID=@ParaId";
+                foreach (SYS_PARA para in lst)
+                {
+                    var parameters = new List<SqlParameter>();
+                    parameters.Add(new SqlParameter("Key", para.KEY_FIELD));
+                    parameters.Add(new SqlParameter("Value", para.VALUE_FIELD));
+                    parameters.Add(new SqlParameter("ParaId", para.PARA_ID));
+                    logger.Info("update SYS_PARA=" + para.ToString());
+                    context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+                }
+            }
+            return "更新完成!!";
+        }
     }
     #endregion
     #region 財務科目管理區塊

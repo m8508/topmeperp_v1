@@ -755,4 +755,10 @@ namespace topmeperp.Models
         public string REGISTER_ADDRESS { get; set; }
         public string COMPANY_ID { get; set; }
     }
+    public class PARA_INDEX
+    {
+        public string FUNCTION_ID { get; set; }
+        public string FUNCTION_DESC { get; set; }
+
+    }
 }
