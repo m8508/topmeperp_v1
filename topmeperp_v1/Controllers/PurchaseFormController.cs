@@ -56,8 +56,8 @@ namespace topmeperp.Controllers
             log.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"]);
             //加入刪除註記 預設 "N" /
             //Todo：用途須進一步釐清
-            List<topmeperp.Models.PlanItem4Map> lstProject = 
-                service.getPlanItem(Request["chkEx"], Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"], "N","Y");
+            List<topmeperp.Models.PlanItem4Map> lstProject =
+                service.getPlanItem(Request["chkEx"], Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"], "N", "Y");
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             ViewBag.projectId = Request["projectid"];
             return View("FormIndex", lstProject);
@@ -383,7 +383,7 @@ namespace topmeperp.Controllers
                 lstItem.Add(item);
             }
             int i = service.refreshPlanSupplierForm(formid, fm, lstItem);
-            if (service.message!="")
+            if (service.message != "")
             {
                 msg = service.message;
             }
@@ -650,7 +650,7 @@ namespace topmeperp.Controllers
             string formName = Request["formName"];
             log.Debug("formName=" + formName);
             ViewBag.formName = formName;
-            string iswage = Request["iswage"]; 
+            string iswage = Request["iswage"];
             if (iswage == "Y")
             {
                 ViewBag.isWage = "checked";
@@ -757,11 +757,7 @@ namespace topmeperp.Controllers
                         htmlString = htmlString + "</tr>";
                     }
                     htmlString = htmlString + "</table>";
-                    //加入預算資料
-                    BudgetDataService bs = new BudgetDataService();
-                    DirectCost iteminfo = bs.getItemBudget(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"]);
-                    ViewBag.itembudget = iteminfo.ITEM_BUDGET;
-                    ViewBag.itemwagebudget = iteminfo.ITEM_BUDGET_WAGE;
+                    getBudget(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"]);
                     //產生畫面
                     IHtmlString str = new HtmlString(htmlString);
                     ViewBag.htmlString = str;
@@ -863,10 +859,7 @@ namespace topmeperp.Controllers
                     }
                     htmlString = htmlString + "</table>";
                     //加入預算資料
-                    BudgetDataService bs = new BudgetDataService();
-                    DirectCost iteminfo = bs.getItemBudget(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"]);
-                    ViewBag.itembudget = iteminfo.ITEM_BUDGET;
-                    ViewBag.itemwagebudget = iteminfo.ITEM_BUDGET_WAGE;
+                    getBudget(Request["id"], Request["typeCode1"], Request["typeCode2"], Request["SystemMain"], Request["SystemSub"], Request["formName"]);
                     //產生畫面
                     IHtmlString str = new HtmlString(htmlString);
                     ViewBag.htmlString = str;
@@ -878,6 +871,15 @@ namespace topmeperp.Controllers
                 ViewBag.htmlString = e.Message;
             }
             return PartialView();
+        }
+
+        private void getBudget(string projectid, string typecode1, string typecode2, string systemmain, string systemsub, string formname)
+        {
+            //加入預算資料
+            BudgetDataService bs = new BudgetDataService();
+            DirectCost iteminfo = bs.getItemBudget(projectid, typecode1, typecode2, systemmain, systemsub, formname);
+            ViewBag.itembudget = iteminfo.ITEM_BUDGET;
+            ViewBag.itemwagebudget = iteminfo.ITEM_BUDGET_WAGE;
         }
 
         //工資比價功能資料頁
@@ -1161,11 +1163,47 @@ namespace topmeperp.Controllers
         //依據詢價單內容，更新得標標單品項所有單價
         public string BatchUpdateCost(string formid)
         {
-            log.Info("formid=" + Request["formid"] + ",iswage=" + Request["iswage"]);
+            SYS_USER u = (SYS_USER)Session["user"];
+            log.Info("project_id=" + Request["projectid"] + "formid=" + Request["formid"] + ",iswage=" + Request["iswage"]);
             int i = service.batchUpdateCostFromQuote(Request["formid"], Request["iswage"]);
+            //增加項發包紀錄
+            service.addContract4SupplierRecord(Request["projectid"], Request["formid"], u);
             return "更新成功!!";
         }
-
+        /// <summary>
+        /// 發包廠商之明細資料:
+        /// 單一項目可發包多家廠商
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult Contract4SupplierIndex()
+        {
+            string projectid = Request["projectid"];
+            PurchaseFormModel formData = new PurchaseFormModel();
+            if (null != projectid && projectid != "")
+            {
+                ViewBag.projectid = projectid;
+                TND_PROJECT p = service.getProjectById(projectid);
+                ViewBag.projectName = p.PROJECT_NAME;
+                ViewBag.formName = Request["formname"];
+                string iswage = Request["iswage"] == "" ? "N" : "Y";
+                formData.planFormFromSupplier = service.getContractForm(projectid, "有效", iswage, Request["formname"]);
+            }
+            getBudget(projectid, null, null, null, null, Request["formname"]);
+            return View(formData);
+        }
+        /// <summary>
+        /// 註銷發包廠商合約報價單資料
+        /// </summary>
+        /// <returns></returns>
+        public string cancelContract()
+        {
+            SYS_USER u = (SYS_USER)Session["user"];
+            string projectid = Request["projectid"];
+            string formid = Request["formid"];
+            int i = service.cancelContractForm(projectid, formid);
+            log.Info(u.USER_ID + " cancel project" + projectid + "form Id=" + formid);
+            return "廠商合約已取消("+ i +")";
+        }
         public void changeStatus()
         {
             string formid = Request["formId"];
@@ -1572,10 +1610,9 @@ namespace topmeperp.Controllers
         [HttpPost]
         public ActionResult LeadTimeMainPage(FormCollection f)
         {
-
             log.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"]);
             //加入刪除註記 預設 "N"
-            List<topmeperp.Models.PlanItem4Map> lstProject = service.getPlanItem(Request["chkEx"], Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"], "N","Y");
+            List<topmeperp.Models.PlanItem4Map> lstProject = service.getPlanItem(Request["chkEx"], Request["projectid"], Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], Request["formName"], Request["supplier"], "N", "Y");
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             ViewBag.projectId = Request["projectid"];
             SelectListItem empty = new SelectListItem();
@@ -1678,7 +1715,7 @@ namespace topmeperp.Controllers
         public ActionResult PendingFormTemplate(string id)
         {
             log.Info("start project id=" + id);
-            PurchaseFormService service = new PurchaseFormService();
+            //PurchaseFormService service = new PurchaseFormService();
             ContractModels contract = new ContractModels();
             formOutOfContract = service.getFormTempOutOfContractByProject(id);
             contract.planOrder = formOutOfContract;

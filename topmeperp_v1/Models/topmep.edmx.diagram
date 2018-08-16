@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="a7c7dccd404c413991f0ed2a1ca31c76" Name="Diagram1" ZoomLevel="63">
+      <Diagram DiagramId="a7c7dccd404c413991f0ed2a1ca31c76" Name="Diagram1" ZoomLevel="100">
         <EntityTypeShape EntityType="topmepModel.ENT_DEPARTMENT" Width="2.5" PointX="0.75" PointY="7.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_BANK_ACCOUNT" Width="1.5" PointX="10.75" PointY="6.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_EXPENSE_BUDGET" Width="1.5" PointX="10.75" PointY="11.75" />
@@ -16,7 +16,7 @@
         <EntityTypeShape EntityType="topmepModel.PLAN_DALIY_REPORT" Width="1.5" PointX="14.75" PointY="5.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_DR_ITEM" Width="1.5" PointX="14.75" PointY="9.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_DR_NOTE" Width="1.5" PointX="14.75" PointY="13.75" />
-        <EntityTypeShape EntityType="topmepModel.PLAN_DR_TASK" Width="1.5" PointX="15.75" PointY="0.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_DR_TASK" Width="1.5" PointX="15.625" PointY="0.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_DR_WORKER" Width="1.5" PointX="9.75" PointY="15.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_ITEM" Width="1.5" PointX="16.75" PointY="3.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_INDIRECT_COST" Width="1.5" PointX="8" PointY="8.125" />
@@ -72,6 +72,7 @@
         <EntityTypeShape EntityType="topmepModel.PLAN_ACCOUNT" Width="1.5" PointX="10.375" PointY="0.75" />
         <EntityTypeShape EntityType="topmepModel.FIN_LOAN_TRANACTION" Width="1.5" PointX="27.375" PointY="0.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_FORM" Width="1.5" PointX="25.375" PointY="22.75" />
+        <EntityTypeShape EntityType="topmepModel.PLAN_ITEM2_SUP_INQUIRY" Width="1.5" PointX="27.375" PointY="5.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -505,6 +505,9 @@
     <Compile Include="Models\PLAN_ITEM.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\PLAN_ITEM2_SUP_INQUIRY.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\PLAN_ITEM_DELIVERY.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
@@ -1263,6 +1266,7 @@
     <Content Include="UploadFile\SiteExpSummary_form.xlsx" />
     <Content Include="Views\SystemParameter\Index.cshtml" />
     <Content Include="Views\SystemParameter\_Para.cshtml" />
+    <Content Include="Views\PurchaseForm\Contract4SupplierIndex.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

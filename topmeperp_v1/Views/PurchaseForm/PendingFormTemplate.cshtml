@@ -95,7 +95,11 @@
                         </td>
 
                         <td>
-                            @Html.DisplayFor(modelItem => item.CountPO)
+                            <a href="/PurchaseForm/Contract4SupplierIndex?projectid=@item.PROJECT_ID&formname=@item.FORM_NAME&iswage=@item.ISWAGE" target="_blank">
+                            <span style="color:forestgreen; font-size: 15px;">
+                                @Html.DisplayFor(modelItem => item.CountPO)
+                                </span>
+                            </a>
                         </td>
                         <td>
                             <a href="/PurchaseForm/PurchaseMain?id=@item.PROJECT_ID&formname=@item.FORM_NAME&iswage=@item.ISWAGE" target="_blank"><span style="color:forestgreen; font-size: 15px;">連結</span></a>

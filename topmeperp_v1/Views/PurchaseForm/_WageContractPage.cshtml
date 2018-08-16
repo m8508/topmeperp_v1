@@ -18,8 +18,7 @@
         </th>
         <th>
             發包金額
-        </th>
-        
+        </th> 
     </tr>
 
     @if (ViewBag.Result4Wage > 0)
@@ -34,14 +33,20 @@
                     @Html.DisplayFor(modelItem => item.NO)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.MAN_FORM_NAME)
+                    @Html.DisplayFor(modelItem => item.FORM_NAME)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.MAN_SUPPLIER_ID)
+                    @Html.DisplayFor(modelItem => item.SUPPLIER_ID)
+                </td>
+
+                <td>
+                    <span style="color: blue; font-size: 15px;">
+                        @String.Format("{0:N0}", item.BUDGET)
+                    </span>
                 </td>
                 <td>
                     <span style="color: blue; font-size: 15px;">
-                        @String.Format("{0:N0}", item.WAGE_BUDGET)
+                        @String.Format("{0:N0}", item.MATERIAL_COST)
                     </span>
                 </td>
                 <td>
@@ -49,13 +54,24 @@
                         @String.Format("{0:N0}", item.WAGE_COST)
                     </span>
                 </td>
+                <td>
+                    <span style="color: blue; font-size: 15px;">
+                        @String.Format("{0:N0}", item.REVENUE)
+                    </span>
+                </td>
+                <td>
+                    <span style="color: blue; font-size: 15px;">
+                        @String.Format("{0:N0}", item.COST)
+                    </span>
+                </td>
+                <td>
+                    <span style="color: blue; font-size: 15px;">
+                        @String.Format("{0:N0}", item.PROFIT)
+                    </span>
+                </td>
             </tr>
         }
     }
-    else
-    {
-    }
-
 </table>
 
 

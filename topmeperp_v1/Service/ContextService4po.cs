@@ -496,6 +496,10 @@ namespace topmeperp.Service
         public PurchaseFormModel POFormData = null;
         public List<FIN_SUBJECT> ExpBudgetItem = null;
         public CashFlowModel cashFlowModel = new CashFlowModel();
+        string sql4SupInqueryForm = @"SELECT a.INQUIRY_FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, SUM(b.ITEM_QTY* b.ITEM_UNIT_PRICE) AS TOTAL_PRICE, 
+                ROW_NUMBER() OVER(ORDER BY a.INQUIRY_FORM_ID DESC) AS NO, ISNULL(a.STATUS, '有效') AS STATUS, ISNULL(a.ISWAGE, 'N') ISWAGE 
+                FROM PLAN_SUP_INQUIRY a left JOIN PLAN_SUP_INQUIRY_ITEM b ON a.INQUIRY_FORM_ID = b.INQUIRY_FORM_ID 
+                WHERE ISNULL(a.STATUS,'有效')=@status AND ISNULL(a.ISWAGE,'N')=@type ";
 
         #region 取得得標標單項目內容
         //取得標單品項資料
@@ -1007,7 +1011,57 @@ namespace topmeperp.Service
                 POFormData.BudgetSummary = context.Database.SqlQuery<BUDGET_SUMMANY>(sql, parameters.ToArray()).First();
             }
         }
-
+        //取得廠商合約報價單
+        public List<PlanSupplierFormFunction> getContractForm(string projectid, string status, string type, string formname)
+        {
+            List<PlanSupplierFormFunction> lst = new List<PlanSupplierFormFunction>();
+            string sql = sql4SupInqueryForm + " AND a.INQUIRY_FORM_ID IN (SELECT C.INQUIRY_FORM_ID FROM PLAN_ITEM2_SUP_INQUIRY C WHERE PROJECT_ID=@projectId) ";
+            sql = sql + "AND a.FORM_NAME LIKE @formname ";
+            sql = sql + " GROUP BY a.INQUIRY_FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, a.PROJECT_ID, a.STATUS, a.ISWAGE HAVING  a.SUPPLIER_ID IS NOT NULL " +
+        "AND a.PROJECT_ID =@projectid ORDER BY a.INQUIRY_FORM_ID DESC, a.FORM_NAME ;";
+            logger.Info("sql=" + sql);
+            var parameters = new List<SqlParameter>();
+            //設定專案編號資料
+            parameters.Add(new SqlParameter("projectid", projectid));
+            //設定詢價單是否有效
+            parameters.Add(new SqlParameter("status", status));
+            //設定詢價單為工資或材料
+            parameters.Add(new SqlParameter("type", type));
+            //詢價單名稱條件
+            parameters.Add(new SqlParameter("formname", "%" + formname + "%"));
+            using (var context = new topmepEntities())
+            {
+                lst = context.Database.SqlQuery<PlanSupplierFormFunction>(sql, parameters.ToArray()).ToList();
+                logger.Info("get plan supplier form function count:" + lst.Count);
+            }
+            return lst;
+        }
+        /// <summary>
+        /// 取消廠商合約報價單
+        /// </summary>
+        /// <returns></returns>
+        public int cancelContractForm(string projectId, string formId)
+        {
+            logger.Info("delete contract form by proejct id=" + projectId + ",formId="+ formId);
+            //1.刪除PLAN_ITEM2_SUP_INQUIRY
+            string sql = "DELETE PLAN_ITEM2_SUP_INQUIRY WHERE PROJECT_ID = @projectId AND INQUIRY_FORM_ID = @formId; ";
+            //2.更新PLAN_ITEM 資料
+            string sqlUpdatePlanItem = @"UPDATE PLAN_ITEM SET
+                FORM_NAME=NULL,SUPPLIER_ID=NULL,ITEM_FORM_QUANTITY=NULL,ITEM_UNIT_COST=NULL,INQUIRY_FORM_ID=NULL
+                WHERE INQUIRY_FORM_ID=@formId AND PROJECT_ID=@projectId;
+                UPDATE PLAN_ITEM SET
+                MAN_FORM_ID=NULL,MAN_FORM_NAME=NULL,MAN_SUPPLIER_ID=NULL
+                WHERE MAN_FORM_ID=@formId AND PROJECT_ID=@projectId;";
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("projectId", projectId));
+            parameters.Add(new SqlParameter("formId", formId));
+            logger.Debug("Cance Form:" + sql + sqlUpdatePlanItem);
+            using (var context = new topmepEntities())
+            {
+                i = context.Database.ExecuteSqlCommand(sql+ sqlUpdatePlanItem, parameters.ToArray());
+            }
+            return i;
+        }
         public List<PlanSupplierFormFunction> getFormByProject(string projectid, string _status, string _type, string formname)
         {
             string status = "有效";
@@ -1021,8 +1075,7 @@ namespace topmeperp.Service
                 type = _type;
             }
             List<PlanSupplierFormFunction> lst = new List<PlanSupplierFormFunction>();
-            string sql = "SELECT a.INQUIRY_FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, SUM(b.ITEM_QTY*b.ITEM_UNIT_PRICE) AS TOTAL_PRICE, ROW_NUMBER() OVER(ORDER BY a.INQUIRY_FORM_ID DESC) AS NO, ISNULL(a.STATUS, '有效') AS STATUS, ISNULL(a.ISWAGE,'N') ISWAGE " +
-                    "FROM PLAN_SUP_INQUIRY a left JOIN PLAN_SUP_INQUIRY_ITEM b ON a.INQUIRY_FORM_ID = b.INQUIRY_FORM_ID WHERE ISNULL(a.STATUS,'有效')=@status AND ISNULL(a.ISWAGE,'N')=@type  ";
+            string sql = sql4SupInqueryForm;
             var parameters = new List<SqlParameter>();
             //設定專案編號資料
             parameters.Add(new SqlParameter("projectid", projectid));
@@ -1049,6 +1102,7 @@ namespace topmeperp.Service
         }
 
         //取得尚未發包之分項詢價單資料(供應商欄位為0)
+        //TODO
         public List<PURCHASE_ORDER> getFormTempOutOfContractByProject(string projectid)
         {
             logger.Info("get purchase template out of contract by projectid=" + projectid);
@@ -1398,8 +1452,6 @@ namespace topmeperp.Service
 
             return count;
         }
-
-
         //取得次系統選單
         public List<string> getSystemSub(string projectid)
         {
@@ -1414,47 +1466,38 @@ namespace topmeperp.Service
             return lst;
         }
 
-        //取得個別材料廠商合約資料與金額
+        //取得個別廠商合約資料與金額
         public List<plansummary> getPlanContract(string projectid)
         {
-            List<plansummary> lst = new List<plansummary>();
-            using (var context = new topmepEntities())
-            {
-                string sql4Material = @"SELECT '材料' TYPE,VAL.INQUIRY_FORM_ID CONTRACT_ID,VAL.FORM_NAME,VAL.SUPPLIER_ID, MATERIAL_COST
-                           FROM (SELECT  DISTINCT FORM_NAME,SUPPLIER_ID
-                           FROM PLAN_ITEM WHERE PROJECT_ID = @projectid
-                           AND FORM_NAME IS NOT NULL ) IDX LEFT JOIN (
-                           SELECT F.INQUIRY_FORM_ID,F.FORM_NAME,F.SUPPLIER_ID,SUM(FI.ITEM_QTY * FI.ITEM_UNIT_PRICE) MATERIAL_COST
-                           FROM PLAN_SUP_INQUIRY F ,PLAN_SUP_INQUIRY_ITEM FI
-                           WHERE F.INQUIRY_FORM_ID=FI.INQUIRY_FORM_ID
-                           AND F.PROJECT_ID =  @projectid AND ISNULL(SUPPLIER_ID,'') !='' AND ISNULL(F.ISWAGE,'N')='N'
-                           GROUP BY F.INQUIRY_FORM_ID,F.FORM_NAME,F.SUPPLIER_ID ) VAL
-                           ON IDX.FORM_NAME=VAL.FORM_NAME AND IDX.SUPPLIER_ID = VAL.SUPPLIER_ID;";
-                logger.Debug("sql =" + sql4Material + ",project id=" + projectid);
-                lst = context.Database.SqlQuery<plansummary>(sql4Material, new SqlParameter("projectid", projectid)).ToList();
-            }
-            return lst;
+            return getContractForm(projectid, "N");
         }
         //取得個別工資廠商合約資料與金額
         public List<plansummary> getPlanContract4Wage(string projectid)
         {
+            return getContractForm(projectid, "Y");
+        }
+
+        private static List<plansummary> getContractForm(string projectid, string type)
+        {
             List<plansummary> lst = new List<plansummary>();
             using (var context = new topmepEntities())
             {
-                string sql4Wage = @"SELECT '工資' TYPE,VAL.INQUIRY_FORM_ID CONTRACT_ID,VAL.FORM_NAME,VAL.SUPPLIER_ID, MATERIAL_COST FROM (
-                           SELECT DISTINCT MAN_FORM_NAME,MAN_SUPPLIER_ID ,MAN_FORM_ID
-                           FROM PLAN_ITEM WHERE PROJECT_ID =  @projectid
-                           AND MAN_FORM_NAME IS NOT NULL ) IDX LEFT JOIN (
-                           SELECT F.INQUIRY_FORM_ID,F.FORM_NAME,F.SUPPLIER_ID,SUM(FI.ITEM_QTY * FI.ITEM_UNIT_PRICE) MATERIAL_COST
-                           FROM PLAN_SUP_INQUIRY F ,PLAN_SUP_INQUIRY_ITEM FI
-                           WHERE F.INQUIRY_FORM_ID=FI.INQUIRY_FORM_ID
-                           AND F.PROJECT_ID =  @projectid AND ISNULL(SUPPLIER_ID,'') !='' AND F.ISWAGE='Y'
-                           GROUP BY F.INQUIRY_FORM_ID,F.FORM_NAME,F.SUPPLIER_ID ) VAL
-                           ON IDX.MAN_FORM_ID=VAL.INQUIRY_FORM_ID;";
-                lst = context.Database.SqlQuery<plansummary>(sql4Wage, new SqlParameter("projectid", projectid)).ToList();
+                string sql4Material = @"SELECT IIF(TYPE='Y','工資','材料') TYPE,VAL.INQUIRY_FORM_ID CONTRACT_ID,VAL.FORM_NAME,VAL.SUPPLIER_ID, MATERIAL_COST
+                 FROM  (SELECT  * FROM PLAN_ITEM2_SUP_INQUIRY WHERE PROJECT_ID = @projectid ) IDX 
+                 INNER JOIN (
+                 SELECT F.INQUIRY_FORM_ID,F.FORM_NAME,F.SUPPLIER_ID,SUM(FI.ITEM_QTY * FI.ITEM_UNIT_PRICE) MATERIAL_COST,
+                 ISNULL(F.ISWAGE,'N') TYPE
+                 FROM PLAN_SUP_INQUIRY F ,PLAN_SUP_INQUIRY_ITEM FI
+                 WHERE F.INQUIRY_FORM_ID=FI.INQUIRY_FORM_ID
+                 AND F.PROJECT_ID = @projectid AND ISNULL(SUPPLIER_ID,'') !='' AND ISNULL(F.ISWAGE,'N')=@type
+                 GROUP BY F.INQUIRY_FORM_ID,F.FORM_NAME,F.SUPPLIER_ID,ISNULL(F.ISWAGE,'N') ) VAL
+                 ON IDX.INQUIRY_FORM_ID=VAL.INQUIRY_FORM_ID";
+                logger.Debug("sql =" + sql4Material + ",project id=" + projectid);
+                lst = context.Database.SqlQuery<plansummary>(sql4Material, new SqlParameter("projectid", projectid), new SqlParameter("type", type)).ToList();
             }
             return lst;
         }
+
         //取得專案廠商合約之金額總計
         public plansummary getPlanContractAmount(string projectid)
         {
@@ -1852,7 +1895,35 @@ namespace topmeperp.Service
             db = null;
             return i;
         }
-
+        /// <summary>
+        /// 增加供應商發包記錄
+        /// </summary>
+        /// <param name="projectid"></param>
+        /// <param name="formid"></param>
+        /// <param name="u"></param>
+        /// <returns></returns>
+        public int addContract4SupplierRecord(string projectid, string formid, SYS_USER u)
+        {
+            int i = 0;
+            PLAN_ITEM2_SUP_INQUIRY p2s = new PLAN_ITEM2_SUP_INQUIRY();
+            p2s.PROJECT_ID = projectid;
+            p2s.INQUIRY_FORM_ID = formid;
+            p2s.CREATE_ID = u.CREATE_ID;
+            p2s.CREATE_DATE = DateTime.Now;
+            try
+            {
+                using (var context = new topmepEntities())
+                {
+                    context.PLAN_ITEM2_SUP_INQUIRY.Add(p2s);
+                    i = context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex.Message + ":" + ex.StackTrace);
+            }
+            return i;
+        }
         public int addContractId(string projectid)
         {
             int i = 0;
@@ -3793,7 +3864,7 @@ namespace topmeperp.Service
                     AND CREATE_DATE < (SELECT CREATE_DATE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID = @formid)),0) AS CUM_T_FOREIGN)D 
                     ";
                 logger.Debug("sql=" + sql);
-                detailsPay = context.Database.SqlQuery<PaymentDetailsFunction>(sql , new SqlParameter("formid", formid), new SqlParameter("contractid", contractid)).First();
+                detailsPay = context.Database.SqlQuery<PaymentDetailsFunction>(sql, new SqlParameter("formid", formid), new SqlParameter("contractid", contractid)).First();
             }
             return detailsPay;
         }

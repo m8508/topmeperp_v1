@@ -101,7 +101,7 @@
         jQuery.ajax({
             url: "/PurchaseForm/BatchUpdateCost",
             async: true,
-            data: { "formid": formid, "iswage": iswage },
+            data: { "formid": formid, "iswage": iswage, "projectid": $("#id").val() },
             type: "POST",
             dataType: 'text',
             success: function (result) {
