@@ -95,6 +95,24 @@
             }
         });
     });
+    //刪除有錯誤的plan acount item
+    $("#delPlanAccountItem").click(function () {
+        var s = $('#formAccountItem').serialize();
+        var URLs = "/CashFlow/delPlanAccountItem";
+        $.ajax({
+            url: URLs,
+            data: $('#formAccountItem').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+                window.location.reload();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    });
 </script>
 <script type="text/javascript">
     $(document).ready(function () {

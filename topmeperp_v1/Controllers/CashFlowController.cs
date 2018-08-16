@@ -30,7 +30,7 @@ namespace topmeperp.Controllers
 
         public ActionResult CashFlowManage()
         {
-            List<CashFlowFunction> lstCashFlow= null;
+            List<CashFlowFunction> lstCashFlow = null;
             List<PlanFinanceProfile> lstFinProfile = null;
             PlanFinanceProfile totalFinProfile = null;
             CashFlowBalance cashFlowBalance = null;
@@ -63,7 +63,7 @@ namespace topmeperp.Controllers
             {
                 CashInFlow = service.getPlanAccount(null, projectname, projectname, account_type, projectname, DateOverHalfAYear, paymentDate);
                 LoanInFlow = service.getLoanTranaction(type, null, DateOverHalfAYear, paymentDate);
-                
+
             }
             else if (day == 0)
             {
@@ -98,7 +98,7 @@ namespace topmeperp.Controllers
             int dayOverHalfAYear = (Convert.ToDateTime(paymentDate) - DateTime.Now).Days;
             string DateOverHalfAYear = DateTime.Now.AddDays(181).ToString("yyyy/MM/dd");
             logger.Debug("day's mod =" + day);
-            if(dayOverHalfAYear > 180)
+            if (dayOverHalfAYear > 180)
             {
                 CashOutFlow = service.getPlanAccount(null, projectname, projectname, account_type, projectname, DateOverHalfAYear, paymentDate);
                 LoanOutFlow = service.getLoanTranaction(type, null, DateOverHalfAYear, paymentDate);
@@ -136,7 +136,7 @@ namespace topmeperp.Controllers
             ViewBag.SearchTerm = "實際付款日期為 : " + paymentDate;
             return View(viewModel);
         }
-     
+
         //查詢公司預算
         public ActionResult Search()
         {
@@ -865,7 +865,7 @@ namespace topmeperp.Controllers
         public ActionResult SearchForm4Journal()
         {
             //logger.Info("occurred_date =" + Request["occurred_date"] + ", subjectname =" + Request["subjectname"] + ", expid =" + Request["expid"] + ", status =" + int.Parse(Request["status"]) + ", projectid =" + Request["id"]);
-            List<OperatingExpenseFunction> lstEXP = new List<OperatingExpenseFunction>() ;//service.getEXPListByExpId(Request["occurred_date"], Request["subjectname"], Request["expid"], int.Parse(Request["status"]), Request["id"]);
+            List<OperatingExpenseFunction> lstEXP = new List<OperatingExpenseFunction>();//service.getEXPListByExpId(Request["occurred_date"], Request["subjectname"], Request["expid"], int.Parse(Request["status"]), Request["id"]);
             //ViewBag.SearchResult = "共取得" + lstEXP.Count + "筆資料";
             return View("FormForJournal", lstEXP);
         }
@@ -908,7 +908,22 @@ namespace topmeperp.Controllers
         /// <returns></returns>
         public String delPlanAccountItem(string itemid)
         {
-            string msg = "更新成功!!";
+            string msg = "刪除成功!!";
+            if (null != itemid && itemid != "")
+            {
+                logger.Info("del plan account item by id=" + itemid);
+            }
+            else{
+                itemid = Request["plan_account_id"];
+                string allValue = "";
+                foreach (string key in Request.Form.Keys)
+                {
+                    string value = Request.Form[key];
+                    allValue = allValue + "{" + key + ":" + value + " }";
+                }
+                logger.Info("plan account item  info=" + allValue);
+            }
+
             logger.Info("del plan account item by id=" + itemid);
             int i = service.delPlanAccountItem(itemid);
             return msg + "(" + i + ")";

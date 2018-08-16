@@ -284,11 +284,11 @@ namespace topmeperp.Service
                     ";
             string strWhere = "";
             int transType = 1;
-            //ISSUE : type ??? -1 何時為-1
-            //if (type == "I")// type值為'I'表示有現金流入
-            //{
-            //    transType = -1;
-            //}
+            //ISSUE : TYPE 何時為-1 對銀行借款，-1 錶現金流入
+            if (type == "I")// type值為'I'表示有現金流入
+            {
+                transType = -1;
+            }
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("TransType", transType));
 
