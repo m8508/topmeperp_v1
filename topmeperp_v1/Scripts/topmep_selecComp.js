@@ -56,3 +56,14 @@ function getSubType() {
         }
     })
 }
+
+
+//使用全選
+function checkBoxStatus(that, chkMap) {
+    var checked_status = $("#"+ that).prop('checked');
+    //alert(checked_status);
+    var checkBoxName = "input[name='" + chkMap + "']";
+    $(checkBoxName).each(function () {
+        this.checked = checked_status;
+    });
+}

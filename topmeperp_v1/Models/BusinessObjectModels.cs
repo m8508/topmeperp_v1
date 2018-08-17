@@ -55,6 +55,7 @@ namespace topmeperp.Models
         public IEnumerable<PLAN_ITEM> ProjectItemInMapPEP { get; set; }
         //圖算設備清單資料
         public IEnumerable<TND_MAP_DEVICE> mapDEVICE { get; set; }
+        public IEnumerable<PLAN_ITEM> ProjectItemInDEVICE { get; set; }
     }
     public class InquiryFormModel
     {

@@ -175,43 +175,42 @@ namespace topmeperp.Service
         }
         //for 圖算欄位變更
         static string sqlColumn = @"P.PLAN_ITEM_ID,
-P.PROJECT_ID,
-P.ITEM_ID, 
-P.ITEM_DESC,	
-P.ITEM_UNIT	,
-P.ITEM_UNIT_PRICE,	
-P.MAN_PRICE,
-P.ITEM_REMARK,
-P.TYPE_CODE_1,
-P.TYPE_CODE_2,
-P.SUB_TYPE_CODE,
-P.SYSTEM_MAIN,
-P.SYSTEM_SUB,
-P.MODIFY_USER_ID,
-P.MODIFY_DATE,
-P.CREATE_USER_ID,
-P.CREATE_DATE,
-P.EXCEL_ROW_ID,
-P.FORM_NAME,
-P.SUPPLIER_ID,
-P.BUDGET_RATIO,
-P.ITEM_FORM_QUANTITY,
-P.ITEM_UNIT_COST,
-P.TND_RATIO,
-P.MAN_FORM_NAME,	
-P.MAN_SUPPLIER_ID,
-P.LEAD_TIME,
-P.DEL_FLAG,
-P.INQUIRY_FORM_ID,
-P.MAN_FORM_ID,
-P.BUDGET_WAGE_RATIO,
-P.IN_CONTRACT";
+                                P.PROJECT_ID,
+                                P.ITEM_ID, 
+                                P.ITEM_DESC,	
+                                P.ITEM_UNIT	,
+                                P.ITEM_UNIT_PRICE,	
+                                P.MAN_PRICE,
+                                P.ITEM_REMARK,
+                                P.TYPE_CODE_1,
+                                P.TYPE_CODE_2,
+                                P.SUB_TYPE_CODE,
+                                P.SYSTEM_MAIN,
+                                P.SYSTEM_SUB,
+                                P.MODIFY_USER_ID,
+                                P.MODIFY_DATE,
+                                P.CREATE_USER_ID,
+                                P.CREATE_DATE,
+                                P.EXCEL_ROW_ID,
+                                P.FORM_NAME,
+                                P.SUPPLIER_ID,
+                                P.BUDGET_RATIO,
+                                P.ITEM_FORM_QUANTITY,
+                                P.ITEM_UNIT_COST,
+                                P.TND_RATIO,
+                                P.MAN_FORM_NAME,	
+                                P.MAN_SUPPLIER_ID,
+                                P.LEAD_TIME,
+                                P.DEL_FLAG,
+                                P.INQUIRY_FORM_ID,
+                                P.MAN_FORM_ID,
+                                P.BUDGET_WAGE_RATIO,
+                                P.IN_CONTRACT";
         //圖算:設備
         public void getMapItem(string projectid, string item_name, string startid, string endid, string typecode1, string typecode2, string systemmain, string systemsub)
         {
             logger.Info("get map DEVICE info by item_name=" + item_name);
-            string sql = "SELECT DEVIVE_ID,M.PROJECT_ID,P.PLAN_ITEM_ID as PROJECT_ITEM_ID,MAP_NO,BUILDING_NO "
-                + ", M.CREATE_DATE,CREATE_ID,P.ITEM_QUANTITY QTY,P.ITEM_DESC LOC_DESC "
+            string sql = "SELECT P.* "
                 + "FROM TND_MAP_DEVICE M, PLAN_ITEM P "
                 + " WHERE M.PROJECT_ITEM_ID = P.PLAN_ITEM_ID "
                 + " AND P.ITEM_DESC Like @item_name "
@@ -251,14 +250,14 @@ P.IN_CONTRACT";
                 parameters.Add(new SqlParameter("endid", int.Parse(endid)));
             }
             sql = sql + "ORDER BY EXCEL_ROW_ID ";
-            List<TND_MAP_DEVICE> lstDEVICE = new List<TND_MAP_DEVICE>();
+            List<PLAN_ITEM> lstDEVICE = new List<PLAN_ITEM>();
             using (var context = new topmepEntities())
             {
 
                 logger.Info("MapItem:" + sql);
-                lstDEVICE = context.TND_MAP_DEVICE.SqlQuery(sql, parameters.ToArray()).ToList();
+                lstDEVICE = context.PLAN_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
             }
-            viewModel.mapDEVICE = lstDEVICE;
+            viewModel.ProjectItemInDEVICE = lstDEVICE;
             resultMessage = resultMessage + "設備資料筆數:" + lstDEVICE.Count + ",";
         }
         //圖算:消防電
