@@ -173,6 +173,39 @@ namespace topmeperp.Service
         {
             return viewModel;
         }
+        //for 圖算欄位變更
+        static string sqlColumn = @"P.PLAN_ITEM_ID,
+P.PROJECT_ID,
+P.ITEM_ID, 
+P.ITEM_DESC,	
+P.ITEM_UNIT	,
+P.ITEM_UNIT_PRICE,	
+P.MAN_PRICE,
+P.ITEM_REMARK,
+P.TYPE_CODE_1,
+P.TYPE_CODE_2,
+P.SUB_TYPE_CODE,
+P.SYSTEM_MAIN,
+P.SYSTEM_SUB,
+P.MODIFY_USER_ID,
+P.MODIFY_DATE,
+P.CREATE_USER_ID,
+P.CREATE_DATE,
+P.EXCEL_ROW_ID,
+P.FORM_NAME,
+P.SUPPLIER_ID,
+P.BUDGET_RATIO,
+P.ITEM_FORM_QUANTITY,
+P.ITEM_UNIT_COST,
+P.TND_RATIO,
+P.MAN_FORM_NAME,	
+P.MAN_SUPPLIER_ID,
+P.LEAD_TIME,
+P.DEL_FLAG,
+P.INQUIRY_FORM_ID,
+P.MAN_FORM_ID,
+P.BUDGET_WAGE_RATIO,
+P.IN_CONTRACT";
         //圖算:設備
         public void getMapItem(string projectid, string item_name, string startid, string endid, string typecode1, string typecode2, string systemmain, string systemsub)
         {
@@ -232,22 +265,14 @@ namespace topmeperp.Service
         public void getMapFP(string projectid, string mapno, string buildno, string primeside, string primesidename, string secondside, string secondsidename, string name)
         {
             List<PLAN_ITEM> lstMapFP = null;
-            string sql_pipe = "SELECT PLAN_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
+            string sql_pipe = "SELECT $Columns"
                 + ",(SELECT SUM(PIPE_TOTAL_LENGTH) FROM TND_MAP_FP FP WHERE FP.PIPE_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
-                + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
-                + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
-                + ",EXCEL_ROW_ID,DEL_FLAG "
-                + ",FORM_NAME,SUPPLIER_ID,BUDGET_RATIO,ITEM_FORM_QUANTITY,ITEM_UNIT_COST,MAN_FORM_NAME,MAN_SUPPLIER_ID,LEAD_TIME,INQUIRY_FORM_ID,MAN_FORM_ID,BUDGET_WAGE_RATIO,TND_RATIO "
                 + "FROM PLAN_ITEM P "
                 + "WHERE P.PROJECT_ID=@projectid AND P.PLAN_ITEM_ID "
                 + "IN(SELECT PIPE_NAME FROM TND_MAP_FP WHERE TND_MAP_FP.PROJECT_ID=@projectid  ";
 
-            string sql_wire = "SELECT PLAN_ITEM_ID, PROJECT_ID, ITEM_ID, ITEM_DESC, ITEM_UNIT "
+            string sql_wire = "SELECT $Columns "
                 + ",(SELECT SUM(WIRE_TOTAL_LENGTH) FROM TND_MAP_FP FP WHERE FP.WIRE_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
-                + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
-                + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
-                + ",EXCEL_ROW_ID,DEL_FLAG "
-                + ",FORM_NAME,SUPPLIER_ID,BUDGET_RATIO,ITEM_FORM_QUANTITY,ITEM_UNIT_COST,MAN_FORM_NAME,MAN_SUPPLIER_ID,LEAD_TIME,INQUIRY_FORM_ID,MAN_FORM_ID,BUDGET_WAGE_RATIO,TND_RATIO "
                 + "FROM PLAN_ITEM P "
                 + "WHERE P.PROJECT_ID=@projectid AND P.PLAN_ITEM_ID "
                 + "IN(SELECT WIRE_NAME FROM TND_MAP_FP WHERE TND_MAP_FP.PROJECT_ID=@projectid  ";
@@ -299,6 +324,7 @@ namespace topmeperp.Service
             }
             string sql = "SELECT * FROM ((" + sql_pipe + ")) UNION (" + sql_wire + "))) a ORDER BY EXCEL_ROW_ID";
             logger.Debug("MapFP SQL=" + sql);
+            sql = sql.Replace("$Columns", sqlColumn);
             using (var context = new topmepEntities())
             {
                 // lstMapFP = context.PLAN_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
@@ -310,12 +336,8 @@ namespace topmeperp.Service
         //消防水
         public void getMapFW(string projectid, string mapno, string buildno, string primeside, string primesidename, string secondside, string secondsidename, string name)
         {
-            string sql = "SELECT P.PLAN_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
+            string sql = "SELECT $Columns "
                 + ",(SELECT SUM(PIPE_TOTAL_LENGTH)  FROM TND_MAP_FW PLU WHERE PLU.PIPE_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
-                + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
-                + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
-                + ",EXCEL_ROW_ID,DEL_FLAG "
-                + ",FORM_NAME,SUPPLIER_ID,BUDGET_RATIO,ITEM_FORM_QUANTITY,ITEM_UNIT_COST,MAN_FORM_NAME,MAN_SUPPLIER_ID,LEAD_TIME,INQUIRY_FORM_ID,MAN_FORM_ID,BUDGET_WAGE_RATIO,TND_RATIO "
                 + "FROM PLAN_ITEM P "
                 + "WHERE P.PROJECT_ID=@projectid AND P.PLAN_ITEM_ID IN (SELECT PIPE_NAME FROM TND_MAP_FW WHERE TND_MAP_FW.PROJECT_ID=@projectid ";
 
@@ -362,6 +384,7 @@ namespace topmeperp.Service
                     parameters.Add(new SqlParameter("name", "%" + name + "%"));
                 }
                 sql = sql + ") ORDER BY EXCEL_ROW_ID";
+                sql = sql.Replace("$Columns", sqlColumn);
                 logger.Info("MapFW:" + sql);
                 //lstMapFW = context.PLAN_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
                 lstMapFW = context.Database.SqlQuery<PLAN_ITEM>(sql, parameters.ToArray()).ToList();
@@ -372,12 +395,8 @@ namespace topmeperp.Service
         //給排水
         public void getMapPLU(string projectid, string mapno, string buildno, string primeside, string primesidename, string secondside, string secondsidename, string name)
         {
-            string sql = "SELECT PLAN_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
+            string sql = "SELECT $Columns "
                           + ",(SELECT SUM(PIPE_TOTAL_LENGTH) FROM TND_MAP_PLU PLU WHERE PLU.PIPE_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
-                          + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
-                          + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
-                          + ",EXCEL_ROW_ID,DEL_FLAG "
-                          + ",FORM_NAME,SUPPLIER_ID,BUDGET_RATIO,ITEM_FORM_QUANTITY,ITEM_UNIT_COST,MAN_FORM_NAME,MAN_SUPPLIER_ID,LEAD_TIME,INQUIRY_FORM_ID,MAN_FORM_ID,BUDGET_WAGE_RATIO,TND_RATIO "
                           + "FROM PLAN_ITEM P "
                           + "WHERE P.PROJECT_ID=@projectid AND P.PLAN_ITEM_ID IN (SELECT PIPE_NAME FROM TND_MAP_PLU WHERE TND_MAP_PLU.PROJECT_ID=@projectid ";
 
@@ -424,6 +443,7 @@ namespace topmeperp.Service
                     parameters.Add(new SqlParameter("name", "%" + name + "%"));
                 }
                 sql = sql + ") ORDER BY EXCEL_ROW_ID";
+                sql = sql.Replace("$Columns", sqlColumn);
                 logger.Info("getMapPLU:" + sql);
                 //lstMapPlu = context.PLAN_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
                 lstMapPlu = context.Database.SqlQuery<PLAN_ITEM>(sql, parameters.ToArray()).ToList();
@@ -436,32 +456,21 @@ namespace topmeperp.Service
         {
 
             List<PLAN_ITEM> lstMapPEP = null;
-            string sql_pipe = "SELECT PLAN_ITEM_ID, PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
+
+            string sql_pipe = "SELECT  $Columns"
                 + ",(SELECT SUM(PIPE_TOTAL_LENGTH) FROM TND_MAP_PEP PEP WHERE PEP.PIPE_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
-                + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
-                + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
-                + ",EXCEL_ROW_ID,DEL_FLAG "
-                + ",FORM_NAME,SUPPLIER_ID,BUDGET_RATIO,ITEM_FORM_QUANTITY,ITEM_UNIT_COST,MAN_FORM_NAME,MAN_SUPPLIER_ID,LEAD_TIME,INQUIRY_FORM_ID,MAN_FORM_ID,BUDGET_WAGE_RATIO,TND_RATIO "
                 + "FROM PLAN_ITEM P "
                 + "WHERE P.PROJECT_ID=@projectid AND P.PLAN_ITEM_ID "
                 + "IN(SELECT PIPE_NAME FROM TND_MAP_PEP WHERE TND_MAP_PEP.PROJECT_ID=@projectid  ";
 
-            string sql_ground = "SELECT PLAN_ITEM_ID ,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
+            string sql_ground = "SELECT $Columns"
                 + ",(SELECT SUM(GROUND_WIRE_TOTAL_LENGTH) FROM TND_MAP_PEP PEP WHERE PEP.GROUND_WIRE_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
-                + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
-                + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
-                + ",EXCEL_ROW_ID,DEL_FLAG "
-                + ",FORM_NAME,SUPPLIER_ID,BUDGET_RATIO,ITEM_FORM_QUANTITY,ITEM_UNIT_COST,MAN_FORM_NAME,MAN_SUPPLIER_ID,LEAD_TIME,INQUIRY_FORM_ID,MAN_FORM_ID,BUDGET_WAGE_RATIO,TND_RATIO "
                 + "FROM PLAN_ITEM P "
                 + "WHERE P.PROJECT_ID=@projectid  AND P.PLAN_ITEM_ID "
                 + "IN(SELECT GROUND_WIRE_NAME FROM TND_MAP_PEP WHERE TND_MAP_PEP.PROJECT_ID=@projectid ";
 
-            string sql_wire = "SELECT PLAN_ITEM_ID , PROJECT_ID, ITEM_ID, ITEM_DESC, ITEM_UNIT "
+            string sql_wire = "SELECT $Columns "
                 + ",(SELECT SUM(WIRE_TOTAL_LENGTH) FROM TND_MAP_PEP PEP WHERE PEP.WIRE_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
-                + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
-                + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
-                + ",EXCEL_ROW_ID,DEL_FLAG "
-                + ",FORM_NAME,SUPPLIER_ID,BUDGET_RATIO,ITEM_FORM_QUANTITY,ITEM_UNIT_COST,MAN_FORM_NAME,MAN_SUPPLIER_ID,LEAD_TIME,INQUIRY_FORM_ID,MAN_FORM_ID,BUDGET_WAGE_RATIO,TND_RATIO "
                 + "FROM PLAN_ITEM P "
                 + "WHERE P.PROJECT_ID=@projectid AND P.PLAN_ITEM_ID "
                 + "IN(SELECT WIRE_NAME FROM TND_MAP_PEP WHERE TND_MAP_PEP.PROJECT_ID=@projectid  ";
@@ -520,6 +529,7 @@ namespace topmeperp.Service
                 parameters.Add(new SqlParameter("name", "%" + name + "%"));
             }
             string sql = "SELECT * FROM ((" + sql_pipe + ")) UNION (" + sql_ground + ")) UNION (" + sql_wire + "))) a ORDER BY EXCEL_ROW_ID";
+            sql = sql.Replace("$Columns", sqlColumn);
             logger.Debug("PEP SQL=" + sql);
             using (var context = new topmepEntities())
             {
@@ -534,46 +544,33 @@ namespace topmeperp.Service
         {
             //主鍵值+ _p1 & _p2 區隔資料
             List<PLAN_ITEM> lstMapLCP = null;
-            string sql_pipe1 = "SELECT PLAN_ITEM_ID +'_p1' PLAN_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
+            string sql_pipe1 = "SELECT $Columns "
                 + ",(SELECT SUM(PIPE_1_TOTAL_LEN) FROM TND_MAP_LCP LCP WHERE LCP.PIPE_1_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
-                + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
-                + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
-                + ",EXCEL_ROW_ID,DEL_FLAG "
-                + ",FORM_NAME,SUPPLIER_ID,BUDGET_RATIO,ITEM_FORM_QUANTITY,ITEM_UNIT_COST,MAN_FORM_NAME,MAN_SUPPLIER_ID,LEAD_TIME,INQUIRY_FORM_ID,MAN_FORM_ID,BUDGET_WAGE_RATIO,TND_RATIO "
                 + "FROM PLAN_ITEM P "
                 + "WHERE P.PROJECT_ID=@projectid AND P.PLAN_ITEM_ID "
                 + "IN (SELECT PIPE_1_NAME FROM TND_MAP_LCP WHERE TND_MAP_LCP.PROJECT_ID=@projectid ";
+            sql_pipe1 = sql_pipe1.Replace("$Columns", sqlColumn).Replace("P.PLAN_ITEM_ID,", "P.PLAN_ITEM_ID +'_p1' PLAN_ITEM_ID,");
 
-            string sql_pipe2 = "SELECT PLAN_ITEM_ID+'_p2' PLAN_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
+            string sql_pipe2 = "SELECT $Columns "
                 + ",(SELECT SUM(PIPE_2_TOTAL_LEN) FROM TND_MAP_LCP LCP WHERE LCP.PIPE_2_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
-                + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
-                + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
-                + ",EXCEL_ROW_ID,DEL_FLAG "
-                + ",FORM_NAME,SUPPLIER_ID,BUDGET_RATIO,ITEM_FORM_QUANTITY,ITEM_UNIT_COST,MAN_FORM_NAME,MAN_SUPPLIER_ID,LEAD_TIME,INQUIRY_FORM_ID,MAN_FORM_ID,BUDGET_WAGE_RATIO,TND_RATIO "
                 + "FROM PLAN_ITEM P "
                 + "WHERE P.PROJECT_ID=@projectid AND P.PLAN_ITEM_ID "
                 + "IN (SELECT PIPE_2_NAME FROM TND_MAP_LCP WHERE TND_MAP_LCP.PROJECT_ID=@projectid  ";
+            sql_pipe2 = sql_pipe2.Replace("$Columns", sqlColumn).Replace("P.PLAN_ITEM_ID,", "P.PLAN_ITEM_ID +'_p2' PLAN_ITEM_ID,");
 
-            string sql_ground = "SELECT PLAN_ITEM_ID as PLAN_ITEM_ID,PROJECT_ID,ITEM_ID,ITEM_DESC,ITEM_UNIT "
+            string sql_ground = "SELECT $Columns"
                 + ",(SELECT SUM(GROUND_WIRE_TOTAL_LENGTH) FROM TND_MAP_LCP LCP WHERE LCP.GROUND_WIRE_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
-                + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
-                + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
-                + ",EXCEL_ROW_ID,DEL_FLAG "
-                + ",FORM_NAME,SUPPLIER_ID,BUDGET_RATIO,ITEM_FORM_QUANTITY,ITEM_UNIT_COST,MAN_FORM_NAME,MAN_SUPPLIER_ID,LEAD_TIME,INQUIRY_FORM_ID,MAN_FORM_ID,BUDGET_WAGE_RATIO,TND_RATIO "
                 + "FROM PLAN_ITEM P "
                 + "WHERE P.PROJECT_ID=@projectid  AND P.PLAN_ITEM_ID "
                 + "IN(SELECT GROUND_WIRE_NAME FROM TND_MAP_LCP WHERE TND_MAP_LCP.PROJECT_ID=@projectid ";
+            sql_ground = sql_ground.Replace("$Columns", sqlColumn);
 
-            string sql_wire = "SELECT PLAN_ITEM_ID as PLAN_ITEM_ID, PROJECT_ID, ITEM_ID, ITEM_DESC, ITEM_UNIT "
+            string sql_wire = "SELECT $Columns "
                 + ",(SELECT SUM(WIRE_TOTAL_LENGTH) FROM TND_MAP_LCP LCP WHERE LCP.WIRE_NAME = P.PLAN_ITEM_ID) as ITEM_QUANTITY "
-                + ",ITEM_UNIT_PRICE,MAN_PRICE,ITEM_REMARK,TYPE_CODE_1,TYPE_CODE_2,SUB_TYPE_CODE,SYSTEM_MAIN ,SYSTEM_SUB "
-                + ",MODIFY_USER_ID,MODIFY_DATE,CREATE_USER_ID,CREATE_DATE "
-                + ",EXCEL_ROW_ID,DEL_FLAG "
-                + ",FORM_NAME,SUPPLIER_ID,BUDGET_RATIO,ITEM_FORM_QUANTITY,ITEM_UNIT_COST,MAN_FORM_NAME,MAN_SUPPLIER_ID,LEAD_TIME,INQUIRY_FORM_ID,MAN_FORM_ID,BUDGET_WAGE_RATIO,TND_RATIO "
                 + "FROM PLAN_ITEM P "
                 + "WHERE P.PROJECT_ID=@projectid AND P.PLAN_ITEM_ID "
                 + "IN(SELECT WIRE_NAME FROM TND_MAP_LCP WHERE TND_MAP_LCP.PROJECT_ID=@projectid  ";
-
+            sql_wire = sql_wire.Replace("$Columns", sqlColumn);
 
             var parameters = new List<SqlParameter>();
             //設定專案名編號資料

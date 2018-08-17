@@ -93,22 +93,6 @@ namespace topmeperp.Controllers
             }
             //selectSub.Add(empty);
             ViewBag.SystemSub = selectSub;
-
-            TypeManageService typeService = new TypeManageService();
-            List<REF_TYPE_MAIN> lstType1 = typeService.getTypeMainL1();
-
-            //取得九宮格
-            List<SelectListItem> selectType1 = new List<SelectListItem>();
-            for (int idx = 0; idx < lstType1.Count; idx++)
-            {
-                log.Debug("REF_TYPE_MAIN=" + idx + "," + lstType1[idx].CODE_1_DESC);
-                SelectListItem selectI = new SelectListItem();
-                selectI.Value = lstType1[idx].TYPE_CODE_1;
-                selectI.Text = lstType1[idx].CODE_1_DESC;
-                selectType1.Add(selectI);
-            }
-            ViewBag.TypeCodeL1 = selectType1;
-
             return View();
         }
         public string getTypeCodeL2()
@@ -654,7 +638,10 @@ namespace topmeperp.Controllers
                 }
                 log.Debug("Item No=" + item.PR_ITEM_ID + ", Need Qty =" + item.NEED_QTY);
                 item.REMARK = lstRemark[j];
-                item.NEED_DATE = DateTime.ParseExact(lstDate[j], "yyyy/MM/dd", CultureInfo.InvariantCulture);
+                if (lstDate[j] != "")
+                {
+                    item.NEED_DATE = DateTime.ParseExact(lstDate[j], "yyyy/MM/dd", CultureInfo.InvariantCulture);
+                }
                 lstItem.Add(item);
             }
             int i = service.updatePR(formid, pr, lstItem);

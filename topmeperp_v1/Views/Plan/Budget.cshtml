@@ -43,8 +43,9 @@
                 </div>
                 <div class="col-md-4 form-group" style="padding-top:22px">
                     <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("BudgetForForm","Plan", new { id = @ViewBag.projectid })'; ">詢價單預算</button>
+                    <input type="button" class="btn btn-warning" onclick="myrefresh()" value="查詢">
                     <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
-                    <input type="button" class="btn btn-warning" onclick="myrefresh()" value="更新">
+
                 </div>
             </div>
             <h5>@ViewBag.Result</h5>
@@ -131,6 +132,7 @@
                             <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
                             <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
                             <td>
+                                
                                 @item.MAINCODE_DESC _ @item.SUB_DESC
                             </td>
                             <td>@String.Format("{0:N0}", item.CONTRACT_PRICE)</td>
@@ -160,22 +162,22 @@
         </form>
     </div>
 </div>
-@*
-        <div class="row">
-            <!--div class="col-md-12">
 
-            @if (ViewBag.budgetdata != null)
-                {
-                <input type="button" value="儲存" class="btn btn-default" id="saveForm" />
-            }
-            else
-            {
-                <input type="button" value="儲存" class="btn btn-default" id="updateForm" />
-            }
+<div class="row">
+    <div class="col-md-12">
+
+        @if (ViewBag.budgetdata != null)
+        {
+            <input type="button" value="儲存" class="btn btn-default" id="saveForm" />
+        }
+        else
+        {
+            <input type="button" value="儲存" class="btn btn-default" id="updateForm" />
+        }
 
     </div>
-    </div>
-*@
+</div>
+
 <script type="text/javascript">
     $("#updateForm").click(function () {
         $.ajax({
