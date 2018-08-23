@@ -45,5 +45,12 @@ namespace topmeperp.Service
 
             return selectSub;
         }
+        public static string covertToJson(Object obj)
+        {
+            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            string itemJson = objSerializer.Serialize(obj);
+            logger.Debug(itemJson);
+            return itemJson;
+        }
     }
 }

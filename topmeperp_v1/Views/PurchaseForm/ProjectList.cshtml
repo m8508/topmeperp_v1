@@ -29,6 +29,7 @@
             </td>
             <td data-th="專案狀態">
                 @Html.DisplayFor(modelItem => item.STATUS)
+                <button type="button" class="btn btn-link" onclick="location.href='@Url.Action("Index", "ProjectOrganization", new { id = item.PROJECT_ID })'; ">[組織管理]</button>
             </td>
         </tr>
         <tr>

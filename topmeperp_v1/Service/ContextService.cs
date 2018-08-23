@@ -385,7 +385,7 @@ namespace topmeperp.Service
                 {
                     //if (item.FINISH_DATE.ToString() == "")
                     //{
-                        //item.FINISH_DATE = DateTime.Now;
+                    //item.FINISH_DATE = DateTime.Now;
                     //}
                     //item.CREATE_DATE = DateTime.Now;
                     context.TND_TASKASSIGN.Add(item);
@@ -395,7 +395,7 @@ namespace topmeperp.Service
             logger.Info("add task count =" + i);
             return i;
         }
-        
+
         public TND_PROJECT getProjectById(string prjid)
         {
             using (var context = new topmepEntities())
@@ -566,7 +566,7 @@ namespace topmeperp.Service
             TaskAssign lst = new TaskAssign();
             using (var context = new topmepEntities())
             {
-                lst = context.Database.SqlQuery<TaskAssign>("select t.*, convert(varchar, t.FINISH_DATE, 111) as finishDate, " 
+                lst = context.Database.SqlQuery<TaskAssign>("select t.*, convert(varchar, t.FINISH_DATE, 111) as finishDate, "
                     + "convert(varchar, t.CREATE_DATE, 120) as createDate from TND_TASKASSIGN t where t.TASK_ID = @taskid "
                    , new SqlParameter("taskid", taskid)).First();
             }
@@ -582,12 +582,44 @@ namespace topmeperp.Service
             {
                 try
                 {
-                    context.TND_TASKASSIGN.AddOrUpdate(task);
-                i = context.SaveChanges();
+                    if (task.TASK_ID == 0)
+                    {
+                        context.TND_TASKASSIGN.Add(task);
+                    }
+                    else
+                    {
+                        context.TND_TASKASSIGN.AddOrUpdate(task);
+                    }
+                    i = context.SaveChanges();
                 }
                 catch (Exception e)
                 {
                     logger.Debug("Update task=" + i);
+                    logger.Error(e.StackTrace);
+                    message = e.Message;
+                }
+
+            }
+            return i;
+        }
+        public int delTask(SYS_USER user,TND_TASKASSIGN task)
+        {
+            //刪除任務分派資料
+            int i = 0;
+
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    TND_TASKASSIGN t = context.TND_TASKASSIGN.Find(task.TASK_ID);
+                    context.TND_TASKASSIGN.Remove(t);
+                    logger.Info(user.USER_NAME + "remove task:" + UtilService.covertToJson(t));
+                    i = context.SaveChanges();
+                    message = "組織人員已經移除!!";
+                }
+                catch (Exception e)
+                {
+                    logger.Debug("Remove task=" + i);
                     logger.Error(e.StackTrace);
                     message = e.Message;
                 }
@@ -1341,7 +1373,7 @@ namespace topmeperp.Service
             return item;
         }
     }
-    
+
     //工率相關資料提供作業
     public class WageTableService : TnderProject
     {
@@ -2011,7 +2043,7 @@ namespace topmeperp.Service
         }
     }
     #endregion
-    
+
     #region 供應商管理區塊
     /*
      *供應商管理 
@@ -2052,7 +2084,7 @@ namespace topmeperp.Service
             }
             return supplier.SUPPLIER_ID;
         }
-        
+
         public TND_SUPPLIER getSupplierById(string supid)
         {
             using (var context = new topmepEntities())
@@ -2351,5 +2383,5 @@ namespace topmeperp.Service
             return f;
         }
     }
-        #endregion
-    }
+    #endregion
+}

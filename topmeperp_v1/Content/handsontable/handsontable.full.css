@@ -23,8 +23,8 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * 
- * Version: 2.0.0
- * Release date: 11/04/2018 (built at 10/04/2018 11:38:33)
+ * Version: 5.0.1
+ * Release date: 16/08/2018 (built at 16/08/2018 12:19:04)
  */
 /**
  * Fix for bootstrap styles
@@ -98,6 +98,7 @@
 .handsontable .hide{
   display: none;
 }
+
 .handsontable .relative {
   position: relative;
 }
@@ -153,6 +154,7 @@
   table-layout: fixed;
   width: 0;
   outline-width: 0;
+  cursor: default;
   /* reset bootstrap table style. for more info see: https://github.com/handsontable/handsontable/issues/224 */
   max-width: none;
   max-height: none;
@@ -238,7 +240,7 @@
 }
 
 .handsontable th {
-  background-color: #f3f3f3;
+  background-color: #f0f0f0;
   color: #222;
   text-align: center;
   font-weight: normal;
@@ -257,7 +259,7 @@
 }
 
 #hot-display-license-info {
-  font-size: 9px;
+  font-size: 10px;
   color: #323232 ;
   padding: 5px 0 3px 0;
   font-family: Helvetica, Arial, sans-serif;
@@ -289,14 +291,14 @@
 .handsontable .manualColumnResizer.active,
 .handsontable .manualRowResizer:hover,
 .handsontable .manualRowResizer.active {
-  background-color: #AAB;
+  background-color: #34a9db;
 }
 
 .handsontable .manualColumnResizerGuide {
   position: fixed;
   right: 0;
   top: 0;
-  background-color: #AAB;
+  background-color: #34a9db;
   display: none;
   width: 0;
   border-right: 1px dashed #777;
@@ -307,7 +309,7 @@
   position: fixed;
   left: 0;
   bottom: 0;
-  background-color: #AAB;
+  background-color: #34a9db;
   display: none;
   height: 0;
   border-bottom: 1px dashed #777;
@@ -350,6 +352,17 @@
 }
 .handsontable .wtBorder.hidden{
   display:none !important;
+}
+
+/* A layer order of the selection types */
+.handsontable .wtBorder.current {
+  z-index: 10;
+}
+.handsontable .wtBorder.area {
+  z-index: 8;
+}
+.handsontable .wtBorder.fill {
+  z-index: 6;
 }
 
 .handsontable td.area,
@@ -445,9 +458,9 @@
 }
 
 .handsontableInput {
-  border:none;
+  border: none;
   outline-width: 0;
-  margin: 0 ;
+  margin: 0;
   padding: 1px 5px 0 5px;
   font-family: inherit;
   line-height: 21px;
@@ -492,6 +505,7 @@ TextRenderer readOnly cell
   color: #777;
   position: absolute;
   right: 5px;
+  font-size: 9px;
 }
 
 
@@ -1338,7 +1352,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 }
 
 .htContextMenu table tbody tr td.htSeparator {
-  border-top: 1px solid #bbb;
+  border-top: 1px solid #e6e6e6;
   height: 0;
   padding: 0;
   cursor: default;

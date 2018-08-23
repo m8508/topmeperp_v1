@@ -100,7 +100,7 @@ namespace topmeperp.Controllers
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("Error Message:" + ex.Message +"." + ex.StackTrace);
+                    logger.Error("Error Message:" + ex.Message + "." + ex.StackTrace);
                     message = ex.Message;
                 }
             }
@@ -983,25 +983,24 @@ namespace topmeperp.Controllers
             string msg = "修改任務分派資料成功!!";
             TND_TASKASSIGN item = new TND_TASKASSIGN();
             item.PROJECT_ID = form["prjid"];
-            item.TASK_ID = Int64.Parse(form["task_id"]);
+            if (null != form["task_id"] && form["task_id"] != "")
+            {
+                item.TASK_ID = Int64.Parse(form["task_id"]);
+            }
             item.USER_ID = form["userId"];
             item.TASK_TYPE = form["taskType"];
             item.TASK_ITEM = form["taskItem"];
-            item.CREATE_ID = form["createId"];
             item.REMARK = form["taskRemark"];
-            if (form["finishDate"] != "")
+            if (null != form["finishDate"] && form["finishDate"] != "")
             {
                 item.FINISH_DATE = Convert.ToDateTime(form.Get("finishDate"));
             }
-            else
-            {
-                item.FINISH_DATE = null;
-            }
-            item.CREATE_DATE = Convert.ToDateTime(form.Get("createDate"));
+
+            item.CREATE_DATE = DateTime.Now;
             UserService us = new UserService();
             SYS_USER u = (SYS_USER)Session["user"];
-            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
-            item.MODIFY_ID = uInfo.USER_ID;
+            item.CREATE_ID = u.USER_ID;
+            item.MODIFY_ID = u.USER_ID;
             item.MODIFY_DATE = DateTime.Now;
             TnderProject service = new TnderProject();
             int i = service.updateTask(item);

@@ -575,7 +575,10 @@ namespace topmeperp.Controllers
                 }
                 log.Debug("Item No=" + item.PR_ITEM_ID + ", Need Qty =" + item.NEED_QTY);
                 item.REMARK = lstRemark[j];
-                item.NEED_DATE = DateTime.ParseExact(lstDate[j], "yyyy/MM/dd", CultureInfo.InvariantCulture);
+                if (lstDate[j] != "")
+                {
+                    item.NEED_DATE = DateTime.ParseExact(lstDate[j], "yyyy/MM/dd", CultureInfo.InvariantCulture);
+                }
                 lstItem.Add(item);
             }
             int i = service.updatePR(formid, pr, lstItem);
