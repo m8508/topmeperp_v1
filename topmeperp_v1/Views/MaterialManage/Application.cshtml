@@ -2,44 +2,51 @@
 @model IEnumerable<topmeperp.Models.PurchaseRequisition>
 
 @{
-    ViewBag.Title = "申購作業 :";
+    ViewBag.Title = "申購作業 :建立申購單";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
-
 
 @using (Html.BeginForm())
 {
     <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
-    <div class="jumbotron">
-        
+    <div class="page-header">
         <div class="row">
             <div class="col-md-2 form-group">
-                <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc; width:150px;" readonly="readonly" />
+                <label for="id">專案編號:</label>
+                <input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc; width:150px;" readonly="readonly" />
             </div>
             <div class="col-md-4">
-                <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc; width:300px;" readonly="readonly" />
+                <label for="projectName">專案名稱:</label>
+                <input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc; width:300px;" readonly="readonly" />
             </div>
             <div class="col-md-3">
-                <label for="apply_date">申購日期:</label><input id="apply_date" name="apply_date" type="text" value="@ViewBag.applyDate" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                <label for="apply_date">申購日期:</label>
+                <input id="apply_date" name="apply_date" type="text" value="@ViewBag.applyDate" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
             </div>
-            <div class="col-md-1" style="padding-top:25px">
+            <div class="col-md-1">
                 <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
                 <input type="hidden" id="prj_uid" name="prj_uid" value="@ViewBag.uid" />
             </div>
-            </div>
-    </div>
-    <label class="col-md-2 control-label">收件人 : </label>
-    <div class="col-md-10" style="padding-bottom:10px">
-        <input style="width: 200px" type="text" class="form-control" name="recipient" id="recipient" value="">
-    </div>
-    <label class="col-md-2 control-label">送貨地址 : </label>
-    <div class="col-md-10" style="padding-bottom:10px">
-        <input style="width: 2000px" type="text" class="form-control" name="location" id="location" value="">
-    </div>
-    <label class="col-md-2 control-label">注意事項 : </label>
-        <div class="col-md-10" style="padding-bottom:10px">
-            <input style="width: 200px;" type="text" class="form-control" name="caution" id="caution" value="">
         </div>
+    </div>
+    <div class="body-content">
+        <div class="row">
+            <label class="col-md-2 control-label">收件人 : </label>
+            <div class="col-md-2" style="padding-bottom:10px">
+                <input type="text" class="form-control" name="recipient" id="recipient" value="@ViewBag.recipient">
+            </div>
+            <label class="col-md-2 control-label">注意事項 : </label>
+            <div class="col-md-6" style="padding-bottom:10px">
+                <input type="text" class="form-control" name="caution" id="caution" value="">
+            </div>
+        </div>
+        <div class="row">
+            <label class="col-md-2 control-label">送貨地址 : </label>
+            <div class="col-md-10" style="padding-bottom:10px">
+                <input style="max-width:none;width:70%" type="text" class="form-control" name="location" id="location" value="@ViewBag.location">
+            </div>
+        </div>
+    </div>
         <table class="table">
             <thead>
                 <tr>
@@ -188,21 +195,21 @@
             alert("沒有選取要申購的物料，請勾選並檢查數量是否正確！");
             return false;
         }
-        var boolLost = false;
-        var i = 0;
-
-        $('table > tbody > tr').each(function () {
-            need = parseInt($.trim($(this).find("#need_qty").val()));//抓取每筆記錄申購數量的值
-            if (need >= 0)
-            { i = i + 1 }
-        });
-        if (i != method2) {
-            boolLost = true;
-        }
-
-        if (boolLost == true) {
-            alert("勾選的項目沒有填寫申購數量，請重新確認後再進行申購!");
-            return false;
-        }
+       //var boolLost = false;
+       //var i = 0;
+       //
+       //$('table > tbody > tr').each(function () {
+       //    need = parseInt($.trim($(this).find("#need_qty").val()));//抓取每筆記錄申購數量的值
+       //    if (need >= 0)
+       //    { i = i + 1 }
+       //});
+       //if (i != method2) {
+       //    boolLost = true;
+       //}
+       //
+       //if (boolLost == true) {
+       //    alert("勾選的項目沒有填寫申購數量，請重新確認後再進行申購!");
+       //    return false;
+       //}
     }
 </script>

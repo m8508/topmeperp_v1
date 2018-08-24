@@ -181,7 +181,7 @@ namespace topmeperp.Controllers
         {
             string projectid = Request["id"];
             log.Debug("ProjectID=" + projectid + ",Upload ProjectItem=" + file1.FileName);
-            TnderProject service = new TnderProject();
+            TnderProjectService service = new TnderProjectService();
             service.getProjectById(projectid);
             SYS_USER u = (SYS_USER)Session["user"];
             if (null != file1 && file1.ContentLength != 0)

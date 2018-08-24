@@ -28,18 +28,36 @@ namespace topmeperp.Service
         /// <param name="projectname"></param>
         /// <param name="status"></param>
         /// <returns></returns>
-        public static List<ProjectList> SearchProjectByName(string projectname, string status)
+        public static List<ProjectList> SearchProjectByName(string projectname, string status, SYS_USER u)
         {
             if (projectname != null)
             {
                 logger.Info("search project by 名稱 =" + projectname);
                 List<ProjectList> lstProject = new List<ProjectList>();
-                string sql = @"select DISTINCT p.*, convert(varchar, pi.CREATE_DATE , 111) as PLAN_CREATE_DATE from TND_PROJECT p left join 
-                        (SELECT PROJECT_ID, MIN(CREATE_DATE) AS CREATE_DATE FROM PLAN_ITEM GROUP BY PROJECT_ID)pi on p.PROJECT_ID = pi.PROJECT_ID 
-                        where p.PROJECT_NAME Like '%' + @projectname + '%' AND STATUS  IN ('" + @status + "') AND p.PROJECT_ID !='001' ORDER BY STATUS DESC";
+                string sql = @"select DISTINCT p.*, convert(varchar, pi.CREATE_DATE , 111) as PLAN_CREATE_DATE 
+                        from TND_PROJECT p left join 
+                        (SELECT PROJECT_ID, MIN(CREATE_DATE) AS CREATE_DATE 
+                        FROM PLAN_ITEM GROUP BY PROJECT_ID)pi on p.PROJECT_ID = pi.PROJECT_ID 
+                        where p.PROJECT_NAME Like '%' + @projectname + '%' 
+                        AND STATUS  IN ('" + @status + "') AND $UserCond p.PROJECT_ID !='001' ORDER BY STATUS DESC";
+                var parameters = new List<SqlParameter>();
+
+                parameters.Add(new SqlParameter("projectname", projectname));
+                parameters.Add(new SqlParameter("status", status));
+                if (null != u)
+                {
+                    //加入使用者專案權限
+                    string userCond = " p.PROJECT_ID IN (SELECT PROJECT_ID FROM TND_TASKASSIGN WHERE USER_ID=@UserID) AND ";
+                    sql = sql.Replace("$UserCond", userCond);
+                    parameters.Add(new SqlParameter("UserID", u.USER_NAME));
+                }
+                else
+                {
+                    sql = sql.Replace("$UserCond", "");
+                }
                 using (var context = new topmepEntities())
                 {
-                    lstProject = context.Database.SqlQuery<ProjectList>(sql, new SqlParameter("projectname", projectname), new SqlParameter("status", status)).ToList();
+                    lstProject = context.Database.SqlQuery<ProjectList>(sql, parameters.ToArray()).ToList();
                 }
                 logger.Info("get project count=" + lstProject.Count);
                 return lstProject;
@@ -355,7 +373,7 @@ namespace topmeperp.Service
         }
     }
     //採發階段
-    public class Bill4PurchService : TnderProject
+    public class Bill4PurchService : TnderProjectService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public TND_PROJECT wageTable = null;
@@ -487,7 +505,7 @@ namespace topmeperp.Service
 
     }
     //採購詢價單資料提供作業
-    public class PurchaseFormService : TnderProject
+    public class PurchaseFormService : TnderProjectService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public PLAN_SUP_INQUIRY formInquiry = null;
@@ -1019,7 +1037,7 @@ namespace topmeperp.Service
             sql = sql + "AND a.FORM_NAME LIKE @formname ";
             sql = sql + " GROUP BY a.INQUIRY_FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, a.PROJECT_ID, a.STATUS, a.ISWAGE HAVING  a.SUPPLIER_ID IS NOT NULL " +
         "AND a.PROJECT_ID =@projectid ORDER BY a.INQUIRY_FORM_ID DESC, a.FORM_NAME ;";
-            logger.Info("sql=" + sql);
+            logger.Info("sql4SupInqueryForm=" + sql);
             var parameters = new List<SqlParameter>();
             //設定專案編號資料
             parameters.Add(new SqlParameter("projectid", projectid));
@@ -1042,7 +1060,7 @@ namespace topmeperp.Service
         /// <returns></returns>
         public int cancelContractForm(string projectId, string formId)
         {
-            logger.Info("delete contract form by proejct id=" + projectId + ",formId="+ formId);
+            logger.Info("delete contract form by proejct id=" + projectId + ",formId=" + formId);
             //1.刪除PLAN_ITEM2_SUP_INQUIRY
             string sql = "DELETE PLAN_ITEM2_SUP_INQUIRY WHERE PROJECT_ID = @projectId AND INQUIRY_FORM_ID = @formId; ";
             //2.更新PLAN_ITEM 資料
@@ -1058,7 +1076,7 @@ namespace topmeperp.Service
             logger.Debug("Cance Form:" + sql + sqlUpdatePlanItem);
             using (var context = new topmepEntities())
             {
-                i = context.Database.ExecuteSqlCommand(sql+ sqlUpdatePlanItem, parameters.ToArray());
+                i = context.Database.ExecuteSqlCommand(sql + sqlUpdatePlanItem, parameters.ToArray());
             }
             return i;
         }
@@ -1129,6 +1147,8 @@ namespace topmeperp.Service
                        "PLAN_CONTRACT_PROCESS pcp ON p.MAN_FORM_ID = pcp.CONTRACT_ID WHERE p.PROJECT_ID = @projectid AND p.MAN_FORM_NAME IS NOT NULL " +
                        "GROUP BY p.MAN_FORM_NAME, p.MAN_SUPPLIER_ID, IIF(ppt.PAYMENT_FREQUENCY = 'O', ppt.DATE_1, ppt.DATE_3), ppt.PAYMENT_TERMS, p.MAN_FORM_ID, " +
                        "pcp.MATERIAL_BRAND, pcp.CONTRACT_PRODUCTION, pcp.DELIVERY_DATE, pcp.REMARK)Con ON tmp.FORM_NAME = Con.Bargain";
+
+                logger.Info("sql =" + sql);
                 lst = context.Database.SqlQuery<PURCHASE_ORDER>(sql, new SqlParameter("projectid", projectid)).ToList();
             }
             return lst;
@@ -2354,21 +2374,51 @@ namespace topmeperp.Service
                     "PLAN_PURCHASE_REQUISITION WHERE PR_ID =@prid ";
                 formPR = context.PLAN_PURCHASE_REQUISITION.SqlQuery(sql, new SqlParameter("prid", prid)).First();
                 //取得申購單明細
-                PRItem = context.Database.SqlQuery<PurchaseRequisition>("SELECT pri.NEED_QTY, CONVERT(char(10), pri.NEED_DATE, 111) AS NEED_DATE, pri.REMARK, pri.PR_ITEM_ID, pri.ORDER_QTY, pri.PLAN_ITEM_ID, pri.RECEIPT_QTY, pi.ITEM_ID, " +
-                    "IIF(pi.ITEM_DESC IS NOT NULL, pi.ITEM_DESC, pri.ITEM_DESC) AS ITEM_DESC, IIF(pi.ITEM_UNIT IS NOT NULL, pi.ITEM_UNIT, pri.ITEM_UNIT) AS ITEM_UNIT, pi.ITEM_FORM_QUANTITY, pi.SYSTEM_MAIN, md.QTY AS MAP_QTY,  " +
-                    "B.CUMULATIVE_QTY, C.RECEIPT_QTY_BY_PO, E.ALL_RECEIPT_QTY, E.ALL_RECEIPT_QTY - D.DELIVERY_QTY AS INVENTORY_QTY, ROW_NUMBER() OVER(ORDER BY pi.EXCEL_ROW_ID) AS NO FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_ITEM pi ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN TND_MAP_DEVICE md " +
-                    "ON pi.PLAN_ITEM_ID = md.PROJECT_ITEM_ID LEFT JOIN (SELECT pri.PLAN_ITEM_ID, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID " +
-                    "WHERE pr.PROJECT_ID =@prjid AND pri.PR_ID LIKE 'PPO%' GROUP BY pri.PLAN_ITEM_ID)B ON pri.PLAN_ITEM_ID = B.PLAN_ITEM_ID " +
-                    "LEFT JOIN(SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS RECEIPT_QTY_BY_PO FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION ppr " +
-                    "ON pri.PR_ID = ppr.PR_ID WHERE ppr.PARENT_PR_ID =@parentId GROUP BY pri.PLAN_ITEM_ID)C ON pri.PLAN_ITEM_ID = C.PLAN_ITEM_ID LEFT JOIN " +
-                    "(SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS ALL_RECEIPT_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr " +
-                    "ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID = @prjid AND pri.PR_ID LIKE 'RP%' GROUP BY pri.PLAN_ITEM_ID)E ON pri.PLAN_ITEM_ID = E.PLAN_ITEM_ID LEFT JOIN (SELECT pid.PLAN_ITEM_ID, SUM(pid.DELIVERY_QTY) AS DELIVERY_QTY FROM PLAN_ITEM_DELIVERY pid " +
-                    "LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pid.DELIVERY_ORDER_ID = pr.PR_ID WHERE pr.PROJECT_ID = @prjid GROUP BY pid.PLAN_ITEM_ID)D ON pri.PLAN_ITEM_ID = D.PLAN_ITEM_ID WHERE pri.PR_ID =@prid", new SqlParameter("prid", prid), new SqlParameter("parentId", parentId), new SqlParameter("prjid", prjid)).ToList();
+                string sql4Po = @"SELECT pri.NEED_QTY, CONVERT(char(10), pri.NEED_DATE, 111) AS NEED_DATE, 
+                                pri.REMARK, pri.PR_ITEM_ID, pri.ORDER_QTY, pri.PLAN_ITEM_ID, pri.RECEIPT_QTY, pi.ITEM_ID, 
+                                IIF(pi.ITEM_DESC IS NOT NULL, pi.ITEM_DESC, pri.ITEM_DESC) AS ITEM_DESC, 
+                                IIF(pi.ITEM_UNIT IS NOT NULL, pi.ITEM_UNIT, pri.ITEM_UNIT) AS ITEM_UNIT, 
+                                pi.ITEM_FORM_QUANTITY, pi.SYSTEM_MAIN, md.QTY AS MAP_QTY,  
+                                B.CUMULATIVE_QTY, C.RECEIPT_QTY_BY_PO, E.ALL_RECEIPT_QTY, 
+                                E.ALL_RECEIPT_QTY - D.DELIVERY_QTY AS INVENTORY_QTY,
+                                ROW_NUMBER() OVER(ORDER BY pi.EXCEL_ROW_ID) AS NO 
+                                FROM PLAN_PURCHASE_REQUISITION_ITEM pri 
+                                LEFT JOIN PLAN_ITEM pi ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID 
+                                LEFT JOIN TND_MAP_DEVICE md ON pi.PLAN_ITEM_ID = md.PROJECT_ITEM_ID 
+                                LEFT JOIN (
+                                SELECT pri.PLAN_ITEM_ID, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri 
+                                LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID 
+                                WHERE pr.PROJECT_ID =@prjid AND pri.PR_ID LIKE 'PPO%' GROUP BY pri.PLAN_ITEM_ID
+                                ) B ON pri.PLAN_ITEM_ID = B.PLAN_ITEM_ID 
+                                LEFT JOIN(
+                                SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS RECEIPT_QTY_BY_PO 
+                                FROM PLAN_PURCHASE_REQUISITION_ITEM pri 
+                                LEFT JOIN PLAN_PURCHASE_REQUISITION ppr ON pri.PR_ID = ppr.PR_ID 
+                                WHERE ppr.PARENT_PR_ID =@parentId GROUP BY pri.PLAN_ITEM_ID
+                                )C ON pri.PLAN_ITEM_ID = C.PLAN_ITEM_ID 
+                                LEFT JOIN (
+                                SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS ALL_RECEIPT_QTY 
+                                FROM PLAN_PURCHASE_REQUISITION_ITEM pri 
+                                LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID 
+                                WHERE pr.PROJECT_ID = @prjid AND pri.PR_ID LIKE 'RP%' GROUP BY pri.PLAN_ITEM_ID
+                                )E ON pri.PLAN_ITEM_ID = E.PLAN_ITEM_ID LEFT JOIN (
+                                SELECT pid.PLAN_ITEM_ID, SUM(pid.DELIVERY_QTY) AS DELIVERY_QTY FROM PLAN_ITEM_DELIVERY pid 
+                                LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pid.DELIVERY_ORDER_ID = pr.PR_ID 
+                                WHERE pr.PROJECT_ID = @prjid GROUP BY pid.PLAN_ITEM_ID
+                                )D ON pri.PLAN_ITEM_ID = D.PLAN_ITEM_ID WHERE pri.PR_ID =@prid
+";
+                logger.Debug("get purchase requisition item :" + sql4Po);
+                PRItem = context.Database.SqlQuery<PurchaseRequisition>(sql4Po, new SqlParameter("prid", prid), new SqlParameter("parentId", parentId), new SqlParameter("prjid", prjid)).ToList();
 
-                logger.Debug("get purchase requisition item count:" + PRItem.Count);
                 //取得領料明細
-                DOItem = context.Database.SqlQuery<PurchaseRequisition>("SELECT pid.PLAN_ITEM_ID, pid.REMARK, pid.DELIVERY_QTY, pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.SYSTEM_MAIN, ROW_NUMBER() OVER(ORDER BY pi.EXCEL_ROW_ID) AS NO " +
-                    "FROM PLAN_ITEM_DELIVERY pid LEFT JOIN PLAN_ITEM pi ON pid.PLAN_ITEM_ID = pi.PLAN_ITEM_ID WHERE pid.DELIVERY_ORDER_ID =@prid", new SqlParameter("prid", prid)).ToList();
+                string sql4Deliver = @"SELECT pid.PLAN_ITEM_ID, pid.REMARK, pid.DELIVERY_QTY, 
+                    pi.ITEM_ID, pi.ITEM_DESC, pi.ITEM_UNIT, pi.SYSTEM_MAIN, 
+                    ROW_NUMBER() OVER(ORDER BY pi.EXCEL_ROW_ID) AS NO 
+                    FROM PLAN_ITEM_DELIVERY pid 
+                    LEFT JOIN PLAN_ITEM pi ON pid.PLAN_ITEM_ID = pi.PLAN_ITEM_ID 
+                    WHERE pid.DELIVERY_ORDER_ID =@prid";
+                logger.Debug("get purchase requisition item :" + sql4Po + ",prid=" + prid);
+                DOItem = context.Database.SqlQuery<PurchaseRequisition>(sql4Deliver, new SqlParameter("prid", prid)).ToList();
 
                 logger.Debug("get delivery item count:" + DOItem.Count);
             }
@@ -2411,7 +2461,6 @@ namespace topmeperp.Service
             logger.Info("Update purchase requisition id =" + formid);
             table = pr;
             int i = 0;
-            int j = 0;
             using (var context = new topmepEntities())
             {
                 try
@@ -2446,9 +2495,8 @@ namespace topmeperp.Service
                         existItem.REMARK = item.REMARK;
                         context.PLAN_PURCHASE_REQUISITION_ITEM.AddOrUpdate(existItem);
                     }
-                    j = context.SaveChanges();
-                    logger.Debug("Update purchase requisition item =" + j);
-                    return j;
+                    i = i + context.SaveChanges();
+                    logger.Debug("Update purchase requisition item =" + i);
                 }
                 catch (Exception e)
                 {
@@ -2456,23 +2504,36 @@ namespace topmeperp.Service
                     logger.Error(e.StackTrace);
                     message = e.Message;
                 }
-
             }
             return i;
         }
-        //取得申購單by供應商
+        /// <summary>
+        /// 採購單作業資料:將申購單依據發包廠商建立不同記錄
+        /// </summary>
+        /// <param name="projectid"></param>
+        /// <returns></returns>
         public List<PurchaseOrderFunction> getPRBySupplier(string projectid)
         {
             List<PurchaseOrderFunction> lstPO = new List<PurchaseOrderFunction>();
             using (var context = new topmepEntities())
             {
-                string sql = "SELECT CONVERT(char(10), B.CREATE_DATE, 111) AS CREATE_DATE, B.PR_ID, ISNULL(B.SUPPLIER_ID, '') AS SUPPLIER_ID, MIN(CONVERT(char(10), B.NEED_DATE, 111)) AS NEED_DATE, " +
-                    "B.PROJECT_ID FROM (SELECT DISTINCT(A.PROJECT_ID + '-' + PR_ID + '-' + ISNULL(SUPPLIER_ID,'') + '-' + CONVERT(char(10), NEED_DATE, 111)) AS NAME, " +
-                    "CONVERT(char(10), A.CREATE_DATE, 111) AS CREATE_DATE, A.PR_ID, A.SUPPLIER_ID, A.PROJECT_ID, A.NEED_DATE " +
-                    "FROM (SELECT pri.*, pi.ITEM_ID, pi.SUPPLIER_ID, pr.CREATE_DATE, pr.PROJECT_ID FROM PLAN_PURCHASE_REQUISITION_ITEM pri " +
-                    "JOIN PLAN_ITEM pi ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID =@projectid " +
-                    "AND pr.SUPPLIER_ID IS NULL AND pr.STATUS > 5 AND pr.PR_ID LIKE 'PR%') A WHERE A.PR_ID + ISNULL(A.SUPPLIER_ID,'') NOT IN (SELECT DISTINCT(pr.PARENT_PR_ID + pr.SUPPLIER_ID) AS ORDER_RECORD " +
-                    "FROM PLAN_PURCHASE_REQUISITION pr WHERE pr.PR_ID LIKE 'PPO%'))B GROUP BY CONVERT(char(10), B.CREATE_DATE, 111), B.PR_ID, B.SUPPLIER_ID, B.PROJECT_ID ORDER BY NEED_DATE ";
+                string sql = @"SELECT CONVERT(char(10), B.CREATE_DATE, 111) AS CREATE_DATE, B.PR_ID, 
+                ISNULL(B.SUPPLIER_ID, '') AS SUPPLIER_ID, 
+                MIN(CONVERT(char(10), B.NEED_DATE, 111)) AS NEED_DATE, 
+                B.PROJECT_ID 
+                FROM (
+                SELECT DISTINCT(A.PROJECT_ID + '-' + PR_ID + '-' + ISNULL(SUPPLIER_ID,'') + '-' + CONVERT(char(10), NEED_DATE, 111)) AS NAME, 
+                CONVERT(char(10), A.CREATE_DATE, 111) AS CREATE_DATE, A.PR_ID, A.SUPPLIER_ID, A.PROJECT_ID, A.NEED_DATE 
+                FROM (
+                SELECT pri.*, pi.ITEM_ID, pi.SUPPLIER_ID, pr.CREATE_DATE, pr.PROJECT_ID 
+                FROM PLAN_PURCHASE_REQUISITION_ITEM pri 
+                JOIN PLAN_ITEM pi ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID 
+                LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID 
+                WHERE pr.PROJECT_ID =@projectid AND pr.SUPPLIER_ID IS NULL AND pr.STATUS > 5 AND pr.PR_ID LIKE 'PR%'
+                ) A 
+                WHERE A.PR_ID + ISNULL(A.SUPPLIER_ID,'') NOT IN (SELECT DISTINCT(pr.PARENT_PR_ID + pr.SUPPLIER_ID) AS ORDER_RECORD 
+                FROM PLAN_PURCHASE_REQUISITION pr WHERE pr.PR_ID LIKE 'PPO%'))B 
+                GROUP BY CONVERT(char(10), B.CREATE_DATE, 111), B.PR_ID, B.SUPPLIER_ID, B.PROJECT_ID ORDER BY NEED_DATE ";
 
                 logger.Info("sql = " + sql);
                 var parameters = new List<SqlParameter>();

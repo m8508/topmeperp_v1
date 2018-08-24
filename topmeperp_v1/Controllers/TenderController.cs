@@ -37,7 +37,7 @@ namespace topmeperp.Controllers
             TND_PROJECT p = null;
             if (null != id)
             {
-                TnderProject service = new TnderProject();
+                TnderProjectService service = new TnderProjectService();
                 p = service.getProjectById(id);
                 ViewBag.projectId = p.PROJECT_ID;
             }
@@ -47,7 +47,7 @@ namespace topmeperp.Controllers
         public ActionResult Create(TND_PROJECT prj, HttpPostedFileBase file)
         {
             logger.Info("create project process! project =" + prj.ToString());
-            TnderProject service = new TnderProject();
+            TnderProjectService service = new TnderProjectService();
             SYS_USER u = (SYS_USER)Session["user"];
             string message = "";
             //1.更新或新增專案基本資料
@@ -113,7 +113,7 @@ namespace topmeperp.Controllers
         {
             logger.Info("task assign page!!");
             ViewBag.projectid = id;
-            TnderProject service = new TnderProject();
+            TnderProjectService service = new TnderProjectService();
             TND_PROJECT p = service.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
             SYS_USER u = (SYS_USER)Session["user"];
@@ -126,7 +126,7 @@ namespace topmeperp.Controllers
         public ActionResult Task(string id, List<TND_TASKASSIGN> TaskDatas)
         {
             logger.Info("task :" + Request["TaskDatas.index"]);
-            TnderProject service = new TnderProject();
+            TnderProjectService service = new TnderProjectService();
             service.refreshTask(TaskDatas);
             ViewBag.projectid = id;
             return View();
@@ -139,7 +139,7 @@ namespace topmeperp.Controllers
             TND_TASKASSIGN ta = null;
             if (null != id)
             {
-                TnderProject service = new TnderProject();
+                TnderProjectService service = new TnderProjectService();
                 ta = service.getTaskById(id);
             }
             return View(ta);
@@ -149,7 +149,7 @@ namespace topmeperp.Controllers
         {
             logger.Info("update task assign:task_id=" + taskassign.TASK_ID);
             string message = "";
-            TnderProject service = new TnderProject();
+            TnderProjectService service = new TnderProjectService();
             SYS_USER u = (SYS_USER)Session["user"];
             taskassign.MODIFY_ID = u.USER_ID;
             taskassign.MODIFY_DATE = DateTime.Now;
@@ -176,8 +176,8 @@ namespace topmeperp.Controllers
             logger.Info("project detail page projectid = " + id);
             ViewBag.projectid = id;
             List<TND_TASKASSIGN> lstTask = null;
-            TnderProject service = new TnderProject();
-            lstTask = service.getTaskByPrjId(id);
+            TnderProjectService service = new TnderProjectService();
+            lstTask = service.getTaskByPrjId(id,null);
             TND_PROJECT p = service.getProjectById(id);
             TndProjectModels viewModel = new TndProjectModels();
             var priId = service.getTaskAssignById(id);
@@ -207,7 +207,7 @@ namespace topmeperp.Controllers
         public string closeProject()
         {
             string projectid = Request["projectid"];
-            TnderProject service = new TnderProject();
+            TnderProjectService service = new TnderProjectService();
             service.closeProject(projectid);
             return "已結案!!";
         }
@@ -223,7 +223,7 @@ namespace topmeperp.Controllers
             HttpPostedFileBase filePEP, HttpPostedFileBase filePLU)
         {
             string projectid = Request["projectid"];
-            TnderProject service = new TnderProject();
+            TnderProjectService service = new TnderProjectService();
             string message = "";
             logger.Info("Upload Map Info for projectid=" + projectid);
             try
@@ -418,7 +418,7 @@ namespace topmeperp.Controllers
             List<TND_MAP_DEVICE> lstDEVICE = null;
             if (null != id && id != "")
             {
-                TnderProject service = new TnderProject();
+                TnderProjectService service = new TnderProjectService();
                 lstFP = service.getMapFPById(id);
                 lstFW = service.getMapFWById(id);
                 lstPEP = service.getMapPEPById(id);
@@ -450,7 +450,7 @@ namespace topmeperp.Controllers
             TND_MAP_FP fp = null;
             if (null != id)
             {
-                TnderProject service = new TnderProject();
+                TnderProjectService service = new TnderProjectService();
                 fp = service.getFPById(id);
             }
             return View(fp);
@@ -460,7 +460,7 @@ namespace topmeperp.Controllers
         {
             logger.Info("update map fp:fp_id=" + mapfp.FP_ID + "," + mapfp.EXCEL_ITEM);
             string message = "";
-            TnderProject service = new TnderProject();
+            TnderProjectService service = new TnderProjectService();
             service.updateMapFP(mapfp);
             message = "消防電圖算資料修改成功，ID :" + mapfp.FP_ID;
             ViewBag.result = message;
@@ -475,7 +475,7 @@ namespace topmeperp.Controllers
             TND_MAP_FW fw = null;
             if (null != id)
             {
-                TnderProject service = new TnderProject();
+                TnderProjectService service = new TnderProjectService();
                 fw = service.getFWById(id);
             }
             return View(fw);
@@ -485,7 +485,7 @@ namespace topmeperp.Controllers
         {
             logger.Info("update map fw:fw_id=" + mapfw.FW_ID + "," + mapfw.EXCEL_ITEM);
             string message = "";
-            TnderProject service = new TnderProject();
+            TnderProjectService service = new TnderProjectService();
             service.updateMapFW(mapfw);
             message = "消防水圖算資料修改成功，ID :" + mapfw.FW_ID;
             ViewBag.result = message;
@@ -500,7 +500,7 @@ namespace topmeperp.Controllers
             TND_MAP_PEP pep = null;
             if (null != id)
             {
-                TnderProject service = new TnderProject();
+                TnderProjectService service = new TnderProjectService();
                 pep = service.getPEPById(id);
             }
             return View(pep);
@@ -510,7 +510,7 @@ namespace topmeperp.Controllers
         {
             logger.Info("update map pep:pep_id=" + mappep.PEP_ID + "," + mappep.EXCEL_ITEM);
             string message = "";
-            TnderProject service = new TnderProject();
+            TnderProjectService service = new TnderProjectService();
             service.updateMapPEP(mappep);
             message = "電氣管線圖算資料修改成功，ID :" + mappep.PEP_ID;
             ViewBag.result = message;
@@ -525,7 +525,7 @@ namespace topmeperp.Controllers
             TND_MAP_LCP lcp = null;
             if (null != id)
             {
-                TnderProject service = new TnderProject();
+                TnderProjectService service = new TnderProjectService();
                 lcp = service.getLCPById(id);
             }
             return View(lcp);
@@ -535,7 +535,7 @@ namespace topmeperp.Controllers
         {
             logger.Info("update map lcp:lcp_id=" + maplcp.LCP_ID + "," + maplcp.EXCEL_ITEM);
             string message = "";
-            TnderProject service = new TnderProject();
+            TnderProjectService service = new TnderProjectService();
             service.updateMapLCP(maplcp);
             message = "弱電管線圖算資料修改成功，ID :" + maplcp.LCP_ID;
             ViewBag.result = message;
@@ -550,7 +550,7 @@ namespace topmeperp.Controllers
             TND_MAP_PLU plu = null;
             if (null != id)
             {
-                TnderProject service = new TnderProject();
+                TnderProjectService service = new TnderProjectService();
                 plu = service.getPLUById(id);
             }
             return View(plu);
@@ -560,7 +560,7 @@ namespace topmeperp.Controllers
         {
             logger.Info("update map plu:plu_id=" + mapplu.PLU_ID + "," + mapplu.EXCEL_ITEM);
             string message = "";
-            TnderProject service = new TnderProject();
+            TnderProjectService service = new TnderProjectService();
             service.updateMapPLU(mapplu);
             message = "給排水圖算資料修改成功，ID :" + mapplu.PLU_ID;
             ViewBag.result = message;
@@ -752,7 +752,7 @@ namespace topmeperp.Controllers
             //1.取得專案編號
             string projectid = Request["projectid"];
             logger.Info("Upload plan items for projectid=" + projectid);
-            TnderProject service = new TnderProject();
+            TnderProjectService service = new TnderProjectService();
             SYS_USER u = (SYS_USER)Session["user"];
             string message = "";
             //修改專案狀態
@@ -837,7 +837,7 @@ namespace topmeperp.Controllers
         {
             string projectid = Request["id"];
             logger.Debug("ProjectID=" + projectid + ",Upload ProjectItem=" + file1.FileName);
-            TnderProject service = new TnderProject();
+            TnderProjectService service = new TnderProjectService();
             service.getProjectById(projectid);
             SYS_USER u = (SYS_USER)Session["user"];
 
@@ -957,7 +957,7 @@ namespace topmeperp.Controllers
             taskAssign.Add(leader);
             taskAssign.Add(costing);
             taskAssign.Add(map);
-            TnderProject service = new TnderProject();
+            TnderProjectService service = new TnderProjectService();
             int i = service.refreshTask(taskAssign);
             if (i == 0) { msg = service.message; }
             return msg;
@@ -969,7 +969,7 @@ namespace topmeperp.Controllers
         /// <returns></returns>
         public string getTaskItem(string itemid)
         {
-            TnderProject service = new TnderProject();
+            TnderProjectService service = new TnderProjectService();
             logger.Info("get task assign item by id=" + itemid);
             System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
             string itemJson = objSerializer.Serialize(service.getTaskById(itemid));
@@ -1002,7 +1002,7 @@ namespace topmeperp.Controllers
             item.CREATE_ID = u.USER_ID;
             item.MODIFY_ID = u.USER_ID;
             item.MODIFY_DATE = DateTime.Now;
-            TnderProject service = new TnderProject();
+            TnderProjectService service = new TnderProjectService();
             int i = service.updateTask(item);
             if (i == 0) { msg = service.message; }
             return msg;

@@ -23,7 +23,7 @@ namespace topmeperp.Controllers
         [topmeperp.Filter.AuthFilter]
         public ActionResult Index()
         {
-            List<ProjectList> lstProject = PlanService.SearchProjectByName("", "專案執行");
+            List<ProjectList> lstProject = PlanService.SearchProjectByName("", "專案執行",null);
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             //畫面上權限管理控制
             //頁面上使用ViewBag 定義開關\@ViewBag.F10005

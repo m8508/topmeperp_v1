@@ -88,5 +88,6 @@ namespace topmeperp.Models
         public virtual DbSet<FIN_LOAN_TRANACTION> FIN_LOAN_TRANACTION { get; set; }
         public virtual DbSet<PLAN_ESTIMATION_FORM> PLAN_ESTIMATION_FORM { get; set; }
         public virtual DbSet<PLAN_ITEM2_SUP_INQUIRY> PLAN_ITEM2_SUP_INQUIRY { get; set; }
+        public virtual DbSet<SYS_MESSAGE> SYS_MESSAGE { get; set; }
     }
 }

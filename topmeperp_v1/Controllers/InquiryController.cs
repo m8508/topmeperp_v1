@@ -36,7 +36,7 @@ namespace topmeperp.Controllers
         [HttpPost]
         public ActionResult Index(FormCollection f)
         {
-            TnderProject s = new TnderProject();
+            TnderProjectService s = new TnderProjectService();
             log.Info("projectid=" + Request["projectid"] + ",textCode1=" + Request["textCode1"] + ",textCode2=" + Request["textCode2"]);
             //加入刪除註記 預設 "N"
             List<topmeperp.Models.TND_PROJECT_ITEM> lstProject = s.getProjectItem(null, Request["projectid"], Request["textCode1"], Request["textCode2"], Request["SystemMain"], Request["systemSub"], "N");
@@ -73,7 +73,7 @@ namespace topmeperp.Controllers
             }
             //建立空白詢價單
             log.Info("create new form template");
-            TnderProject s = new TnderProject();
+            TnderProjectService s = new TnderProjectService();
             UserService us = new UserService();
             SYS_USER u = (SYS_USER)Session["user"];
             SYS_USER uInfo = us.getUserInfo(u.USER_ID);
@@ -663,8 +663,9 @@ namespace topmeperp.Controllers
             string projectid = Request["textProjectId"];
             string poid = Request["textPOID"];
             string realFilePath = ContextService.strUploadPath + "\\" + projectid + "\\" + ContextService.quotesFolder + "\\" + poid + ".xlsx";
+            SYS_USER u = (SYS_USER)Session["user"];
             log.Debug("Attachment file path=" + realFilePath);
-            if (es.SendMailByGmail(strSenderAddress, strReceiveAddress, null, strSubject, strContent, realFilePath))
+            if (es.SendMailByGmail(strSenderAddress, u.USER_NAME ,strReceiveAddress, null, strSubject, strContent, realFilePath))
             {
                 return "發送成功!!";
             }

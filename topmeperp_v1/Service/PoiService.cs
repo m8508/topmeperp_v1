@@ -2094,7 +2094,7 @@ namespace topmeperp.Service
             InitializeWorkbook(templateFile);
             sheet = (XSSFSheet)hssfworkbook.GetSheet("詢價單");
             //2.填入表頭資料
-            Service.TnderProject ts = new TnderProject();
+            Service.TnderProjectService ts = new TnderProjectService();
             TND_PROJECT p = ts.getProjectById(form.PROJECT_ID);
             logger.Debug("Template Head_1=" + sheet.GetRow(2).Cells[0].ToString());
             sheet.GetRow(2).Cells[1].SetCellValue(p.PROJECT_NAME);//專案名稱

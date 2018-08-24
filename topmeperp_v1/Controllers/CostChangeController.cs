@@ -15,8 +15,9 @@ namespace topmeperp.Controllers
         // GET: //成本異動採購作業(針對已經完成審核之異動單進行採購作業
         public ActionResult Index()
         {
+            SYS_USER u = (SYS_USER)Session["user"];
             CostChangeService cs = new CostChangeService();
-            SelectList lstProject = new SelectList(PlanService.SearchProjectByName("", "專案執行"), "PROJECT_ID", "PROJECT_NAME");
+            SelectList lstProject = new SelectList(PlanService.SearchProjectByName("", "專案執行",u), "PROJECT_ID", "PROJECT_NAME");
             ViewData.Add("projects", lstProject);
             return View();
         }

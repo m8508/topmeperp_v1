@@ -15,7 +15,7 @@ namespace topmeperp.Controllers
     public class ProjectOrganizationController : Controller
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        TnderProject service = new TnderProject();
+        TnderProjectService service = new TnderProjectService();
         // GET: ProjectOrganization
         public ActionResult Index(string id)
         {
@@ -25,7 +25,7 @@ namespace topmeperp.Controllers
             TndProjectModels viewModel = new TndProjectModels();
             List<TND_TASKASSIGN> lstTask = null;
 
-            lstTask = service.getTaskByPrjId(projectId);
+            lstTask = service.getTaskByPrjId(projectId,null);
             TND_PROJECT p = service.getProjectById(projectId);
             //?
             ViewBag.taskAssign = projectId;

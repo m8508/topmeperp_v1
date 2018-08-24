@@ -23,7 +23,7 @@ namespace topmeperp.Controllers
         [topmeperp.Filter.AuthFilter]
         public ActionResult Index()
         {
-            List<ProjectList> lstProject = PlanService.SearchProjectByName("", "專案執行','保固");
+            List<ProjectList> lstProject = PlanService.SearchProjectByName("", "專案執行','保固",null);
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             return View(lstProject);
         }
@@ -315,7 +315,7 @@ namespace topmeperp.Controllers
         {
             logger.Info("Search For Estimation Form !!");
             ViewBag.projectid = id;
-            TnderProject tndservice = new TnderProject();
+            TnderProjectService tndservice = new TnderProjectService();
             TND_PROJECT p = tndservice.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
             //取得表單狀態參考資料
@@ -2173,7 +2173,7 @@ namespace topmeperp.Controllers
             string targetYear = Request["targetYear"];
             SiteExpSummaryToExcel poi = new SiteExpSummaryToExcel();
             //檔案位置
-            TnderProject t = new TnderProject();
+            TnderProjectService t = new TnderProjectService();
             TND_PROJECT p = t.getProjectById(projectid);
             string fileLocation = poi.exportExcel(p.PROJECT_ID,p.PROJECT_NAME);
             //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。

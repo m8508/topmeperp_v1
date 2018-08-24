@@ -55,7 +55,7 @@ namespace topmeperp.Controllers
         {
             log.Debug("show sreen for apply for material");
             ViewBag.projectid = id;
-            TnderProject tndservice = new TnderProject();
+            TnderProjectService tndservice = new TnderProjectService();
             TND_PROJECT p = tndservice.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
             ViewBag.TreeString = planService.getProjectTask4Tree(id);
@@ -154,7 +154,7 @@ namespace topmeperp.Controllers
         {
             log.Info("Access to Application page!!");
             ViewBag.projectid = form["projectid"];
-            TnderProject tndservice = new TnderProject();
+            TnderProjectService tndservice = new TnderProjectService();
             TND_PROJECT p = tndservice.getProjectById(form["projectid"]);
             ViewBag.projectName = p.PROJECT_NAME;
             ViewBag.applyDate = DateTime.Now;
@@ -166,6 +166,7 @@ namespace topmeperp.Controllers
             string[] fwItemId = null;
             List<string> AllItemId = new List<string>();
             //取得使用者勾選任務ID
+            //設備資料
             if (null != form["map_device"])
             {
                 log.Info("device task_list:" + Request["map_device"]);
@@ -180,6 +181,7 @@ namespace topmeperp.Controllers
                     //ViewBag.uid = lstItemId[i];
                 }
             }
+            //消防電資料
             if (null != form["map_fp"])
             {
                 log.Info("fp task_list:" + Request["map_fp"]);
@@ -193,6 +195,7 @@ namespace topmeperp.Controllers
                     AllItemId.Add(fpItemId[i]);
                 }
             }
+            //電氣資料
             if (null != form["map_pep"])
             {
                 log.Info("pep task_list:" + Request["map_pep"]);
@@ -206,6 +209,7 @@ namespace topmeperp.Controllers
                     AllItemId.Add(pepItemId[i]);
                 }
             }
+            //弱電資料
             if (null != form["map_lcp"])
             {
                 log.Info("pep task_list:" + Request["map_lcp"]);
@@ -219,6 +223,7 @@ namespace topmeperp.Controllers
                     AllItemId.Add(lcpItemId[i]);
                 }
             }
+            //給排水
             if (null != form["map_plu"])
             {
                 log.Info("plu task_list:" + Request["map_plu"]);
@@ -232,6 +237,7 @@ namespace topmeperp.Controllers
                     AllItemId.Add(pluItemId[i]);
                 }
             }
+            //消防水
             if (null != form["map_fw"])
             {
                 log.Info("fw task_list:" + Request["map_fw"]);
@@ -245,6 +251,7 @@ namespace topmeperp.Controllers
                     AllItemId.Add(fwItemId[i]);
                 }
             }
+
             if (null == form["map_device"] && null == form["map_fp"] && null == form["map_fw"] && null == form["map_pep"] && null == form["map_lcp"] && null == form["map_plu"])
             {
                 TempData["result"] = "沒有選取要申購的項目名稱，請重新查詢後並勾選物料項目!";
@@ -253,6 +260,10 @@ namespace topmeperp.Controllers
             else
             {
                 List<PurchaseRequisition> lstPR = service.getPurchaseItemByMap(form["projectid"], AllItemId);
+                //補收件人住址等資料
+                SYS_USER u = (SYS_USER)Session["user"];
+                ViewBag.recipient = u.USER_NAME;
+                ViewBag.location = p.LOCATION;
                 return View(lstPR);
             }
         }
@@ -373,25 +384,6 @@ namespace topmeperp.Controllers
             string[] Qty = Request["need_qty"].Split(',');
             string[] Date = Request["Date_${index}"].Split(',');
             string[] Remark = Request["remark"].Split(',');
-            List<string> lstQty = new List<string>();
-            List<string> lstDate = new List<string>();
-            List<string> lstRemark = new List<string>();
-            var m = 0;
-            for (m = 0; m < Qty.Count(); m++)
-            {
-                if (Qty[m] != "" && null != Qty[m])
-                {
-                    lstQty.Add(Qty[m]);
-                }
-                if (Qty[m] != "" && null != Qty[m])
-                {
-                    lstDate.Add(Date[m]);
-                }
-                if (Qty[m] != "" && null != Qty[m])
-                {
-                    lstRemark.Add(Remark[m]);
-                }
-            }
             //建立申購單
             log.Info("create new Purchase Requisition");
             UserService us = new UserService();
@@ -413,16 +405,19 @@ namespace topmeperp.Controllers
             {
                 PLAN_PURCHASE_REQUISITION_ITEM items = new PLAN_PURCHASE_REQUISITION_ITEM();
                 items.PLAN_ITEM_ID = lstItemId[j];
-                items.NEED_QTY = decimal.Parse(lstQty[j]);
+                if (Qty[j].Trim() != "")
+                {
+                    items.NEED_QTY = decimal.Parse(Qty[j]);
+                }
                 try
                 {
-                    items.NEED_DATE = Convert.ToDateTime(lstDate[j]);
+                    items.NEED_DATE = Convert.ToDateTime(Date[j]);
                 }
                 catch (Exception ex)
                 {
                     log.Error(ex.StackTrace);
                 }
-                items.REMARK = lstRemark[j];
+                items.REMARK = Remark[j];
                 log.Debug("Item No=" + items.PLAN_ITEM_ID + ", Qty =" + items.NEED_QTY + ", Date =" + items.NEED_DATE);
                 lstItem.Add(items);
             }
@@ -434,7 +429,7 @@ namespace topmeperp.Controllers
         {
             log.Info("Search For Purchase Requisition !!");
             ViewBag.projectid = id;
-            TnderProject tndservice = new TnderProject();
+            TnderProjectService tndservice = new TnderProjectService();
             TND_PROJECT p = tndservice.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
             int status = -10;
@@ -648,6 +643,10 @@ namespace topmeperp.Controllers
                 lstItem.Add(item);
             }
             int i = service.updatePR(formid, pr, lstItem);
+            ///send email to  業管
+            EMailService email = new EMailService();
+            email.createPRMessage(loginUser, pr);
+
             if (i == 0)
             {
                 msg = service.message;
@@ -673,7 +672,7 @@ namespace topmeperp.Controllers
         {
             log.Info("Access to Purchase Order Page !!");
             ViewBag.projectid = id;
-            TnderProject tndservice = new TnderProject();
+            TnderProjectService tndservice = new TnderProjectService();
             TND_PROJECT p = tndservice.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
             List<PurchaseOrderFunction> lstPO = service.getPRBySupplier(id);
@@ -684,7 +683,7 @@ namespace topmeperp.Controllers
         {
             log.Info("Access to Purchase Operation page!!");
             ViewBag.projectid = prjid;
-            TnderProject tndservice = new TnderProject();
+            TnderProjectService tndservice = new TnderProjectService();
             TND_PROJECT p = tndservice.getProjectById(prjid);
             ViewBag.projectName = p.PROJECT_NAME;
             ViewBag.supplier = sup;
@@ -770,7 +769,7 @@ namespace topmeperp.Controllers
         {
             log.Info("Search For Purchase Order !!");
             ViewBag.projectid = id;
-            TnderProject tndservice = new TnderProject();
+            TnderProjectService tndservice = new TnderProjectService();
             TND_PROJECT p = tndservice.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
             return View();
@@ -1038,7 +1037,7 @@ namespace topmeperp.Controllers
         {
             log.Info("Search For Inventory of All Item !!");
             ViewBag.projectid = id;
-            TnderProject tndservice = new TnderProject();
+            TnderProjectService tndservice = new TnderProjectService();
             TND_PROJECT p = tndservice.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
             SYS_USER u = (SYS_USER)Session["user"];
@@ -1110,7 +1109,7 @@ namespace topmeperp.Controllers
         {
             log.Info("Access To Delivery Operation Page，Project Id =" + id);
             ViewBag.projectid = id;
-            TnderProject tndservice = new TnderProject();
+            TnderProjectService tndservice = new TnderProjectService();
             TND_PROJECT p = tndservice.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
             SYS_USER u = (SYS_USER)Session["user"];
@@ -1236,7 +1235,7 @@ namespace topmeperp.Controllers
         {
             log.Info("Search For Receipt !!");
             ViewBag.projectid = id;
-            TnderProject tndservice = new TnderProject();
+            TnderProjectService tndservice = new TnderProjectService();
             TND_PROJECT p = tndservice.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
             return View();
@@ -1273,7 +1272,7 @@ namespace topmeperp.Controllers
         {
             log.Info("Search For Delivery !!");
             ViewBag.projectid = id;
-            TnderProject tndservice = new TnderProject();
+            TnderProjectService tndservice = new TnderProjectService();
             TND_PROJECT p = tndservice.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
             return View();
@@ -1295,7 +1294,7 @@ namespace topmeperp.Controllers
         {
             log.Info("Access to CheckForReceip Page By PR Id =" + prid);
             ViewBag.projectid = prjid;
-            TnderProject tndservice = new TnderProject();
+            TnderProjectService tndservice = new TnderProjectService();
             TND_PROJECT p = tndservice.getProjectById(prjid);
             ViewBag.projectName = p.PROJECT_NAME;
             ViewBag.formid = prid;
@@ -1328,7 +1327,7 @@ namespace topmeperp.Controllers
         {
             log.Info("Access to CheckForReceipQty Page By PR Id =" + prid);
             ViewBag.projectid = prjid;
-            TnderProject tndservice = new TnderProject();
+            TnderProjectService tndservice = new TnderProjectService();
             TND_PROJECT p = tndservice.getProjectById(prjid);
             ViewBag.projectName = p.PROJECT_NAME;
             ViewBag.formid = prid;
@@ -1341,9 +1340,11 @@ namespace topmeperp.Controllers
         /// </summary>
         public void downLoadMaterialForm()
         {
-            string projectid = Request["prjid"];
-            string formid = Request["prid"];
-            string parentId = Request["parentId"];
+            string key = Request["key"];
+            string[] keys = key.Split('-');
+            string projectid = keys[0];
+            string formid = keys[2];
+            string parentId = keys[1]; 
             bool isOrder = false;
             bool isDO = false;
             PlanService pservice = new PlanService();

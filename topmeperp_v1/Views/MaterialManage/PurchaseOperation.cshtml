@@ -1,43 +1,46 @@
-﻿
-@model IEnumerable<topmeperp.Models.PurchaseRequisition>
+﻿@model IEnumerable<topmeperp.Models.PurchaseRequisition>
 
 @{
-    ViewBag.Title = "採購作業 :";
+    ViewBag.Title = "採購作業:建立採購單";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
-
-
 @using (Html.BeginForm("AddPO", "MaterialManage", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
-    <div class="jumbotron">
+    <div class="page-header">
         <div class="row">
-            <div class="col-md-2 form-group" style="padding-top:10px">
+            <div class="col-md-2 form-group">
                 <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
             </div>
-            <div class="col-md-4" style="padding-top:10px">
+            <div class="col-md-4" >
                 <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
             </div>
-            <div class="col-md-2" style="padding-top:10px">
+            <div class="col-md-2" >
                 <label for="apply_date">採購日期:</label><input id="order_date" name="order_date" type="text" value="@ViewBag.orderDate" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
             </div>
-            <div class="col-md-4" style="padding-top:10px">
+            <div class="col-md-4" >
                 <label for="supplier">供應商名稱:</label><input type="text" id="supplier" name="supplier" value="@ViewBag.supplier" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
             </div>
             <input type="hidden" id="parent_pr_id" name="parent_pr_id" value="@ViewBag.parentPrId" />
         </div>
     </div>
-    <label class="col-md-2 control-label">收件人 : </label>
-    <div class="col-md-10" style="padding-bottom:10px">
-        <input style="width: 200px" type="text" class="form-control" name="recipient" id="recipient" value="@ViewBag.recipient">
-    </div>
-    <label class="col-md-2 control-label">送貨地址 : </label>
-    <div class="col-md-10" style="padding-bottom:10px">
-        <input style="width: 2000px" type="text" class="form-control" name="location" id="location" value="@ViewBag.location">
-    </div>
-    <label class="col-md-2 control-label">注意事項 : </label>
-    <div class="col-md-10" style="padding-bottom:10px">
-        <input style="width: 2000px" type="text" class="form-control" name="caution" id="caution" value="@ViewBag.caution">
+    <div class="body-content">
+        <div class="row">
+            <label class="col-md-2 control-label">收件人 : </label>
+            <div class="col-md-2" style="padding-bottom:10px">
+                <input type="text" class="form-control" name="recipient" id="recipient" value="@ViewBag.recipient">
+            </div>
+            <label class="col-md-2 control-label">注意事項 : </label>
+            <div class="col-md-6" style="padding-bottom:10px">
+                <input type="text" class="form-control" name="caution" id="caution" value="@ViewBag.caution">
+            </div>
+        </div>
+        <div class="row">
+            <label class="col-md-2 control-label">送貨地址 : </label>
+            <div class="col-md-10" style="padding-bottom:10px">
+                <input type="text" class="form-control" style="max-width:none;width:70%" name="location" id="location" value="@ViewBag.location">
+            </div>
+        </div>
     </div>
     <table class="table">
         <thead>
@@ -117,29 +120,29 @@
         </tbody>
     </table>
 
-        <div class="col-md-12" style="padding-bottom:30px;">
+    <div class="col-md-12" style="padding-bottom:30px;">
+        @if (null != ViewBag.supplier && ViewBag.supplier != "")
+        {
+            <div class="col-md-6">
+                <textarea class="form-control" rows="5" id="message" name="message" placeholder="廠商溝通事宜"></textarea>
+            </div>
+            <div class="col-md-6">
+                <textarea class="form-control" rows="5" id="memo" name="memo" placeholder="備忘錄"></textarea>
+            </div>
+        }
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            @if (null != ViewBag.supplier && ViewBag.supplier != "" && ViewBag.status >= 10)
+                {
+                <input type="submit" value="採購" class="btn btn-default" onclick="return Confirm_Form()" />
+            }
             @if (null != ViewBag.supplier && ViewBag.supplier != "")
-            {
-                <div class="col-md-6">
-                    <textarea class="form-control" rows="5" id="message" name="message" placeholder="廠商溝通事宜"></textarea>
-                </div>
-                <div class="col-md-6">
-                    <textarea class="form-control" rows="5" id="memo" name="memo" placeholder="備忘錄"></textarea>
-                </div>
+                {
+                <input type="button" value="退件" class="btn btn-warning" id="RejectPR" />
             }
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                @if (null != ViewBag.supplier && ViewBag.supplier != "" && ViewBag.status >= 10)
-                {
-                    <input type="submit" value="採購" class="btn btn-default" onclick="return Confirm_Form()" />
-                }
-                @if (null != ViewBag.supplier && ViewBag.supplier != "")
-                {
-                    <input type="button" value="退件" class="btn btn-warning" id="RejectPR" />
-                }
-            </div>
-        </div>
+    </div>
 
 }
 <form id="formPRTurnToPO" name="formPRTurnToPO" action="" method="post">
@@ -220,5 +223,3 @@
         }
     }
 </script>
-
-

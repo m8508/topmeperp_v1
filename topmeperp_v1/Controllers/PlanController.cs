@@ -19,7 +19,8 @@ namespace topmeperp.Controllers
         [topmeperp.Filter.AuthFilter]
         public ActionResult Index()
         {
-            List<ProjectList> lstProject = PlanService.SearchProjectByName("", "專案執行");
+            SYS_USER u = (SYS_USER)Session["user"];
+            List<ProjectList> lstProject = PlanService.SearchProjectByName("", "專案執行",u);
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
 
             return View(lstProject);
@@ -43,7 +44,7 @@ namespace topmeperp.Controllers
                 logger.Info("save excel file:" + path);
                 file.SaveAs(path);
                 ProjectItemFromExcel poiservice = new ProjectItemFromExcel();
-                TnderProject tndService = new TnderProject();
+                TnderProjectService tndService = new TnderProjectService();
                 //2.2 解析Excel 檔案
                 try
                 {
@@ -297,7 +298,7 @@ namespace topmeperp.Controllers
             logger.Info("start project id=" + id);
             //取得專案基本資料
             ViewBag.id = id;
-            TnderProject tndservice = new TnderProject();
+            TnderProjectService tndservice = new TnderProjectService();
             TND_PROJECT p = tndservice.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
             ViewBag.ownerName = p.OWNER_NAME;
@@ -372,7 +373,7 @@ namespace topmeperp.Controllers
         {
             logger.Info("budget info for projectid=" + id);
             ViewBag.projectid = id;
-            TnderProject service = new TnderProject();
+            TnderProjectService service = new TnderProjectService();
             TND_PROJECT p = service.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
             ViewBag.wageAmount = p.WAGE_MULTIPLIER;
@@ -438,7 +439,7 @@ namespace topmeperp.Controllers
             logger.Info("Upload Budget Table for projectid=" + projectid);
             string message = "";
             //檢查工率乘數是否存在
-            TnderProject tndservice = new TnderProject();
+            TnderProjectService tndservice = new TnderProjectService();
             TND_PROJECT p = tndservice.getProjectById(Request["projectid"]);
             //ViewBag.projectWage = p.WAGE_MULTIPLIER;
             //if (null == ViewBag.projectWage) { throw new Exception(Request["projectid"] + "'s Wage Multiplier is not exist !!");}

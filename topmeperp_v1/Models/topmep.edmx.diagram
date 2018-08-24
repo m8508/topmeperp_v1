@@ -73,6 +73,7 @@
         <EntityTypeShape EntityType="topmepModel.FIN_LOAN_TRANACTION" Width="1.5" PointX="27.375" PointY="0.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_ESTIMATION_FORM" Width="1.5" PointX="25.375" PointY="22.75" />
         <EntityTypeShape EntityType="topmepModel.PLAN_ITEM2_SUP_INQUIRY" Width="1.5" PointX="27.375" PointY="5.75" />
+        <EntityTypeShape EntityType="topmepModel.SYS_MESSAGE" Width="1.5" PointX="27.375" PointY="8.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -5,6 +5,11 @@ using Owin;
 using log4net;
 using System.Diagnostics;
 using System.Reflection;
+using Hangfire;
+using topmeperp.Models;
+using Hangfire.SqlServer;
+using System;
+using topmeperp.Schedule;
 
 namespace topmeperp
 {
@@ -15,13 +20,32 @@ namespace topmeperp
         public void ConfigureAuth(IAppBuilder app)
         {
             // 配置Middleware 組件
-            log.Info("UseCookieAuthentication");
+            log.Info("StartupConfigureAuth");
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
                 LoginPath = new PathString("/Index/Login"),
                 CookieSecure = CookieSecureOption.Never,
             });
+            //加入HangFire 排程作業
+            var context = new topmepEntities();
+            //使用ms sql 紀錄任務
+            GlobalConfiguration.Configuration.UseSqlServerStorage(context.Database.Connection.ConnectionString,
+                new SqlServerStorageOptions
+                {
+                    // if it is set to 1 minutes, each worker will run a keep-alive query each minute when processing a job
+                    QueuePollInterval = TimeSpan.FromMinutes(1)
+                }
+
+                );
+            // 啟用HanfireServer
+            app.UseHangfireServer(new BackgroundJobServerOptions { WorkerCount = 1 });
+            RecurringJob.AddOrUpdate<BackgroundService>("BackgroundService", x => x.SendMailSchedule(),
+                Cron.MinuteInterval(1),
+                TimeZoneInfo.FindSystemTimeZoneById("Taipei Standard Time"));
+            // 啟用Hangfire的Dashboard
+            app.UseHangfireDashboard();
+
         }
     }
     public class AppInfo

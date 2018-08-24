@@ -15,7 +15,7 @@ namespace topmeperp.Controllers
         //廠商計價單管理
         public ActionResult Index()
         {
-            SelectList lstProject = new SelectList(PlanService.SearchProjectByName("", "專案執行"), "PROJECT_ID", "PROJECT_NAME");
+            SelectList lstProject = new SelectList(PlanService.SearchProjectByName("", "專案執行",null), "PROJECT_ID", "PROJECT_NAME");
             //取得表單狀態參考資料
             SelectList status = new SelectList(SystemParameter.getSystemPara("ExpenseForm"), "KEY_FIELD", "VALUE_FIELD");
             ViewData.Add("status", status);
@@ -26,7 +26,7 @@ namespace topmeperp.Controllers
         public ActionResult FormList()
         {
             logger.Info("Search For Estimation Form !!");
-            TnderProject tndservice = new TnderProject();
+            TnderProjectService tndservice = new TnderProjectService();
             string projectid = Request["projects"];
             Flow4Estimation s = new Flow4Estimation();
             List<ExpenseFlowTask> lstEST = s.getEstimationFormRequest(null, null, null, projectid, Request["status"]);

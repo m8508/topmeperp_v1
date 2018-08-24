@@ -855,7 +855,7 @@ namespace topmeperp.Service
         //讀取專案基本資料
         public TND_PROJECT getProject(string projectid)
         {
-            TnderProject service = new TnderProject();
+            TnderProjectService service = new TnderProjectService();
             return service.getProjectById(projectid);
         }
         //讀取任務基本資料

@@ -23,7 +23,7 @@ namespace topmeperp.Controllers
         [topmeperp.Filter.AuthFilter]
         public ActionResult Index()
         {
-            List<ProjectList> lstProject = PlanService.SearchProjectByName("", "專案執行','保固");
+            List<ProjectList> lstProject = PlanService.SearchProjectByName("", "專案執行','保固",null);
             ViewBag.SearchResult = "共取得" + lstProject.Count + "筆資料";
             return View(lstProject);
         }

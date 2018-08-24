@@ -3,45 +3,52 @@
     ViewBag.Title = "專案執行-採購單 ";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
-
 <div class="page-header">
-    <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "PurchaseForm")'" value="回上一頁">
-    <a class="btn btn-link" href="/MaterialManage/downLoadMaterialForm?key=@Model.planPR.PROJECT_ID-@Model.planPR.PR_ID-@Model.planPR.PARENT_PR_ID" target="_blank">下載採購單</a>
     <form id="formPO" name="formPO" action="RefreshPO" method="post">
         <div class="row">
-            <div class="col-md-12"><h3 style="height:30px;line-height:20px" class="text-center">協成水電工程事業有限公司-採購單</h3></div>
+            <div class="col-md-8"><h3 style="height:30px;line-height:20px" class="text-center">協成水電工程事業有限公司-採購單</h3></div>
+            <div class="col-md-4">
+                <a class="btn btn-link" href="/MaterialManage/downLoadMaterialForm?key=@Model.planPR.PROJECT_ID-@Model.planPR.PR_ID-@Model.planPR.PARENT_PR_ID" target="_blank">下載採購單</a>
+                <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "PurchaseForm")'" value="回上一頁">
+            </div>
         </div>
         <!-- Reg-Form new { enctype = "multipart/form-data" } -->
-        <div class="row">
-            <div class="col-md-3" style="padding-bottom:30px">
-                <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@Model.prj.PROJECT_NAME" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
-            </div>
-            <div class="col-md-3" style="padding-bottom:30px">
-                <label for="order_date">採購日期:</label><input id="order_date" name="order_date" type="text" value="@ViewBag.orderDate" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
-            </div>
+        <div class="body-content">
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@Model.prj.PROJECT_NAME" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                </div>
+                <div class="col-md-3">
+                    <label for="order_date">採購日期:</label><input id="order_date" name="order_date" type="text" value="@ViewBag.orderDate" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                </div>
 
-            <div class="col-md-3" style="padding-bottom:30px">
-                <label for="pr_id">採購單號:</label><input id="pr_id" name="pr_id" type="text" value="@Model.planPR.PR_ID" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                <div class="col-md-3">
+                    <label for="pr_id">採購單號:</label><input id="pr_id" name="pr_id" type="text" value="@Model.planPR.PR_ID" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                </div>
+                <div class="col-md-3">
+                    <label for="supplier">供應商:</label><input id="supplier" name="supplier" type="text" value="@Model.planPR.SUPPLIER_ID" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                </div>
             </div>
-            <div class="col-md-3" style="padding-bottom:30px">
-                <label for="supplier">供應商:</label><input id="supplier" name="supplier" type="text" value="@Model.planPR.SUPPLIER_ID" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
-            </div>
+            <div class="row" style="padding-top:10px">
+                <label class="col-md-2 control-label">收件人 : </label>
+                <div class="col-md-2">
+                    <input type="hidden" name="projectid" id="projectid" value="@Model.planPR.PROJECT_ID">
+                    <input type="hidden" name="parent_pr_id" id="parent_pr_id" value="@Model.planPR.PARENT_PR_ID">
+                    <input type="hidden" name="status" id="status" value="@Model.planPR.STATUS">
+                    <input type="text" class="form-control" name="recipient" id="recipient" value="@Model.planPR.RECIPIENT">
+                </div>
+                <label class="col-md-2 control-label">注意事項 : </label>
+                <div class="col-md-6">
+                    <input type="text" class="form-control" name="caution" id="caution" value="@Model.planPR.REMARK">
+                </div>
 
-            <label class="col-md-2 control-label">收件人 : </label>
-            <div class="col-md-10" style="padding-bottom:10px">
-                <input type="text" class="form-control" name="recipient" id="recipient" value="@Model.planPR.RECIPIENT">
             </div>
-            <label class="col-md-2 control-label">送貨地址 : </label>
-            <div class="col-md-10" style="padding-bottom:10px">
-                <input type="text" class="form-control" name="location" id="location" value="@Model.planPR.LOCATION">
+            <div class="row" style="padding-top:10px">
+                <label class="col-md-2 control-label">送貨地址 : </label>
+                <div class="col-md-10">
+                    <input type="text" class="form-control" style="max-width:none;width:70%"  name="location" id="location" value="@Model.planPR.LOCATION">
+                </div>
             </div>
-            <label class="col-md-2 control-label">注意事項 : </label>
-            <div class="col-md-10" style="padding-bottom:20px">
-                <input type="text" class="form-control" name="caution" id="caution" value="@Model.planPR.REMARK">
-            </div>
-            <input type="hidden" name="projectid" id="projectid" value="@Model.planPR.PROJECT_ID">
-            <input type="hidden" name="parent_pr_id" id="parent_pr_id" value="@Model.planPR.PARENT_PR_ID">
-            <input type="hidden" name="status" id="status" value="@Model.planPR.STATUS">
         </div>
 
         <div class="contailer" style="page-break-before: always">

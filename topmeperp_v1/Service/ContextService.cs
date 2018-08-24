@@ -5,12 +5,11 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.Entity;
-using System.Data.Entity.Core.Objects;
 using System.Data.Entity.Migrations;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
-using System.Web;
+using System.Text;
 using topmeperp.Models;
 
 namespace topmeperp.Service
@@ -76,6 +75,27 @@ namespace topmeperp.Service
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public SYS_USER loginUser;
         public List<SYS_FUNCTION> userPrivilege;
+        public List<SYS_USER> getProjectUser(string projectid, string tasktype)
+        {
+            string sql = @"SELECT u.* from TND_TASKASSIGN t ,SYS_USER u
+                        where t.USER_ID=u.USER_NAME
+                        and t.PROJECT_ID=@projetId
+                        and t.TASK_TYPE=@taskType";
+            List<SYS_USER> u = null;
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    logger.Debug("sql="+ sql);
+                    u = context.SYS_USER.SqlQuery(sql,new SqlParameter("projetId", projectid), new SqlParameter("taskType", tasktype)).ToList();
+                }
+                catch (Exception e)
+                {
+                    logger.Error("login fail:" + e.StackTrace);
+                }
+            }
+            return u;
+        }
 
         /// <remarks>
         /// User Login by userid and passeword and get provilege informante
@@ -141,13 +161,13 @@ namespace topmeperp.Service
     /***
      * 備標階段專案管理
      */
-    public class TnderProject : ContextService
+    public class TnderProjectService : ContextService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public TND_PROJECT project = null;
         string sno_key = "PROJ";
         public string strMessage = null;
-        public TnderProject()
+        public TnderProjectService()
         {
         }
         public int newProject(TND_PROJECT prj)
@@ -550,14 +570,22 @@ namespace topmeperp.Service
             return form;
         }
 
-        public List<TND_TASKASSIGN> getTaskByPrjId(string projectid)
+        public List<TND_TASKASSIGN> getTaskByPrjId(string projectid, string targetRole)
         {
             List<TND_TASKASSIGN> lstTask = new List<TND_TASKASSIGN>();
             using (var context = new topmepEntities())
             {
-                lstTask = context.TND_TASKASSIGN.SqlQuery("select t.* from TND_TASKASSIGN t "
-                    + "where t.PROJECT_ID = @projectid order by TASK_TYPE "
-                   , new SqlParameter("projectid", projectid)).ToList();
+                StringBuilder sql = new StringBuilder("select t.* from TND_TASKASSIGN t where t.PROJECT_ID = @projectid");
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("projectid", projectid));
+                if (null != targetRole || targetRole != "")
+                {
+                    sql.Append(" AND TASK_TYPE=@tasktype");
+                    parameters.Add(new SqlParameter("tasktype", targetRole));
+                }
+                sql.Append(" ORDER BY TASK_TYPE");
+                logger.Debug(sql.ToString());
+                lstTask = context.TND_TASKASSIGN.SqlQuery(sql.ToString(), parameters.ToArray()).ToList();
             }
             return lstTask;
         }
@@ -602,7 +630,7 @@ namespace topmeperp.Service
             }
             return i;
         }
-        public int delTask(SYS_USER user,TND_TASKASSIGN task)
+        public int delTask(SYS_USER user, TND_TASKASSIGN task)
         {
             //刪除任務分派資料
             int i = 0;
@@ -1375,7 +1403,7 @@ namespace topmeperp.Service
     }
 
     //工率相關資料提供作業
-    public class WageTableService : TnderProject
+    public class WageTableService : TnderProjectService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public TND_PROJECT wageTable = null;
@@ -1578,7 +1606,7 @@ namespace topmeperp.Service
         }
     }
     //詢價單資料提供作業
-    public class InquiryFormService : TnderProject
+    public class InquiryFormService : TnderProjectService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public TND_PROJECT_FORM formInquiry = null;
