@@ -726,16 +726,12 @@ namespace topmeperp.Controllers
                 {
                     lstQty.Add(Qty[m]);
                 }
-                //if (Qty[m] != "" && null != Qty[m])
-                //{
-                //lstPlanItemId.Add(PlanItemId[m]);
-                //}
             }
             //建立採購單
             log.Info("create new Purchase Order");
             UserService us = new UserService();
             SYS_USER u = (SYS_USER)Session["user"];
-            SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            //SYS_USER uInfo = us.getUserInfo(u.USER_ID);
             pr.PROJECT_ID = Request["id"];
             pr.CREATE_USER_ID = u.USER_ID;
             pr.CREATE_DATE = DateTime.Now;
@@ -760,6 +756,10 @@ namespace topmeperp.Controllers
                 log.Debug("Item No=" + items.PLAN_ITEM_ID + ", Qty =" + items.ORDER_QTY);
                 lstItem.Add(items);
             }
+            ///send email to  工地主任與申請人
+            EMailService email = new EMailService();
+            email.createPOMessage(u, pr);
+
             int k = service.refreshPO(prid, pr, lstItem);
             return Redirect("SinglePO?id=" + prid + "&prjid=" + Request["id"]);
         }

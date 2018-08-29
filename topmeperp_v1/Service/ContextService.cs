@@ -578,7 +578,7 @@ namespace topmeperp.Service
                 StringBuilder sql = new StringBuilder("select t.* from TND_TASKASSIGN t where t.PROJECT_ID = @projectid");
                 var parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("projectid", projectid));
-                if (null != targetRole || targetRole != "")
+                if (null != targetRole && targetRole != "")
                 {
                     sql.Append(" AND TASK_TYPE=@tasktype");
                     parameters.Add(new SqlParameter("tasktype", targetRole));

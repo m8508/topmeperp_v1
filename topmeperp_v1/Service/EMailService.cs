@@ -17,12 +17,14 @@ namespace topmeperp.Service
         int smtp_port = 587;
         string smpt_id = "";
         string smtp_pwd = "";
+        string system_url = "";
         public EMailService()
         {
             smtp_ip = ConfigurationManager.AppSettings["smtp_ip"];
             smtp_port = int.Parse(ConfigurationManager.AppSettings["smtp_port"].ToString());
             smpt_id = ConfigurationManager.AppSettings["smtp_id"];
             smtp_pwd = ConfigurationManager.AppSettings["smtp_pwd"];
+            system_url = ConfigurationManager.AppSettings["system_url"];
             log.Info("smtp_ip=" + smtp_ip + "smtp_port=" + smtp_port + "smpt_id=" + smpt_id);
         }
         public bool SendMailByGmail(string fromAddress, string sendername, string MailList, string bccMailList, string Subject, string Body, string filePath)
@@ -47,7 +49,7 @@ namespace topmeperp.Service
             //郵件內容
             msg.Body = Body;
             msg.IsBodyHtml = true;
-            //附件
+            //  mailservice.SendMailByGmail
             if (null != filePath)
             {
                 Attachment attachment = new Attachment(filePath);
@@ -82,9 +84,13 @@ namespace topmeperp.Service
         public void createPRMessage(SYS_USER u, PLAN_PURCHASE_REQUISITION pr)
         {
             //mail to 業管
-           // System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-          //  string userJson = objSerializer.Serialize(u);
-           // log.Debug("sender :" + userJson);
+            // System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            //  string userJson = objSerializer.Serialize(u);
+            // log.Debug("sender :" + userJson);
+
+            //定義Email 樣板
+            StringBuilder strTemp = new StringBuilder("{1} 提出新的申購單");
+            StringBuilder strTempBody = new StringBuilder("{1} 提出新的申購單{2}。 </br> 系統發出，請勿回覆!!");
 
             SYS_MESSAGE m = new SYS_MESSAGE();
             m.FROM_ADDRESS = u.EMAIL;
@@ -104,14 +110,79 @@ namespace topmeperp.Service
                     MailLis = MailLis + "," + targetUser.EMAIL;
                 }
             }
-            StringBuilder strTemp = new StringBuilder("{1} 提出新的申購單{2}。 \\n  系統發出");
-            strTemp.Replace("{1}", pr.PROJECT_ID);
+           strTemp.Replace("{1}", pr.PROJECT_ID);
+
             m.MAIL_LIST = MailLis;
             m.SUBJECT = strTemp.ToString();
-            m.MSG_BODY = strTemp.ToString();
+
+            strTempBody.Replace("{1}", pr.PROJECT_ID);
+            strTempBody.Replace("{2}", "申購單號為:<a href='" + system_url + "'>" + pr.PR_ID + "</a>");
+            m.MSG_BODY = strTempBody.ToString();
+            log.Debug("email body:" + m.MSG_BODY);
+            m.CREATE_ID = u.USER_ID;
+            m.CREATE_DATE = DateTime.Now;
+            //決定發送時間
+            m.SEND_TIME = DateTime.Now;
             int i = 0;
             using (var context = new topmepEntities())
             {
+
+               context.SYS_MESSAGE.Add(m);
+                i = context.SaveChanges();
+            }
+        }
+        public void createPOMessage(SYS_USER u, PLAN_PURCHASE_REQUISITION pr)
+        {
+            //mail to 業管
+            // System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            //  string userJson = objSerializer.Serialize(u);
+            // log.Debug("sender :" + userJson);
+
+            //定義Email 樣板
+            StringBuilder strTemp = new StringBuilder("{1} 申購單已完成採購!!");
+            StringBuilder strTempBody = new StringBuilder("{1} 申購單已完成採購{2}。 </br> 系統發出，請勿回覆!!");
+
+            SYS_MESSAGE m = new SYS_MESSAGE();
+            m.FROM_ADDRESS = u.EMAIL;
+            m.DISPLAY_NAME = u.USER_NAME;
+            UserService s = new UserService();
+            //TODO
+            List<SYS_USER> lstTarget = s.getProjectUser(pr.PROJECT_ID, "工地主任");
+            string MailLis = "";
+            foreach (SYS_USER targetUser in lstTarget)
+            {
+                if (MailLis == "")
+                {
+                    MailLis = targetUser.EMAIL;
+                }
+                else
+                {
+                    MailLis = MailLis + "," + targetUser.EMAIL;
+                }
+            }
+
+            strTemp.Replace("{1}", pr.PROJECT_ID);
+
+            m.MAIL_LIST = MailLis;
+            if (MailLis == "")
+            {
+                log.Error(pr.PR_ID + " Have no mail list!!");
+                return;
+            }
+            m.SUBJECT = strTemp.ToString();
+
+            strTempBody.Replace("{1}", pr.PROJECT_ID);
+            strTempBody.Replace("{2}", "採購單號為:<a href='" + system_url + "'>" + pr.PR_ID + "</a>");
+            m.MSG_BODY = strTempBody.ToString();
+            log.Debug("email body:" + m.MSG_BODY);
+            m.CREATE_ID = u.USER_ID;
+            m.CREATE_DATE = DateTime.Now;
+            //決定發送時間
+            m.SEND_TIME = DateTime.Now;
+            int i = 0;
+            using (var context = new topmepEntities())
+            {
+
                 context.SYS_MESSAGE.Add(m);
                 i = context.SaveChanges();
             }
