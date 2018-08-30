@@ -1581,14 +1581,20 @@ namespace topmeperp.Service
         public List<COMPARASION_DATA_4PLAN> getComparisonData(string projectid, string typecode1, string typecode2, string systemMain, string systemSub, string formName, string iswage)
         {
             List<COMPARASION_DATA_4PLAN> lst = new List<COMPARASION_DATA_4PLAN>();
-            string sql = "SELECT  pfItem.INQUIRY_FORM_ID AS INQUIRY_FORM_ID, " +
-                "f.SUPPLIER_ID as SUPPLIER_NAME, f.FORM_NAME AS FORM_NAME, ISNULL(f.STATUS,'有效') STATUS, SUM(pfitem.ITEM_UNIT_PRICE*pfitem.ITEM_QTY) as TAmount, " +
-                "ISNULL(CEILING(SUM(pfitem.ITEM_UNIT_PRICE*pfitem.ITEM_QTY) / SUM(w.RATIO*map.QTY*ISNULL(p.WAGE_MULTIPLIER, 0))),0) as AvgMPrice " +
-                "FROM PLAN_ITEM pItem LEFT OUTER JOIN " +
-                "PLAN_SUP_INQUIRY_ITEM pfItem ON pItem.PLAN_ITEM_ID = pfItem.PLAN_ITEM_ID " +
-                "inner join PLAN_SUP_INQUIRY f on pfItem.INQUIRY_FORM_ID = f.INQUIRY_FORM_ID " +
-                "left join TND_WAGE w on pItem.PLAN_ITEM_ID = w.PROJECT_ITEM_ID LEFT JOIN vw_MAP_MATERLIALIST map ON pItem.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT JOIN TND_PROJECT p ON pItem.PROJECT_ID = p.PROJECT_ID " +
-                "WHERE pItem.PROJECT_ID = @projectid AND f.SUPPLIER_ID is not null AND ISNULL(f.STATUS,'有效') <> '註銷' AND ISNULL(f.ISWAGE,'N')=@iswage  ";
+            string sql = @"SELECT  pfItem.INQUIRY_FORM_ID AS INQUIRY_FORM_ID, 
+                f.SUPPLIER_ID as SUPPLIER_NAME, 
+                f.FORM_NAME AS FORM_NAME, 
+                ISNULL(f.STATUS,'有效') STATUS,
+                SUM(pfitem.ITEM_UNIT_PRICE*pfitem.ITEM_QTY) as TAmount, 
+                ISNULL(CEILING(SUM(pfitem.ITEM_UNIT_PRICE*pfitem.ITEM_QTY) / SUM(w.RATIO*map.QTY*ISNULL(p.WAGE_MULTIPLIER, -1))),0) as AvgMPrice 
+                FROM PLAN_ITEM pItem LEFT OUTER JOIN 
+                PLAN_SUP_INQUIRY_ITEM pfItem ON pItem.PLAN_ITEM_ID = pfItem.PLAN_ITEM_ID 
+                inner join PLAN_SUP_INQUIRY f on pfItem.INQUIRY_FORM_ID = f.INQUIRY_FORM_ID 
+                left join TND_WAGE w on pItem.PLAN_ITEM_ID = w.PROJECT_ITEM_ID 
+                LEFT JOIN vw_MAP_MATERLIALIST map ON pItem.PLAN_ITEM_ID = map.PROJECT_ITEM_ID 
+                LEFT JOIN TND_PROJECT p ON pItem.PROJECT_ID = p.PROJECT_ID 
+                WHERE pItem.PROJECT_ID = @projectid AND f.SUPPLIER_ID is not null 
+                AND ISNULL(f.STATUS,'有效') <> '註銷' AND ISNULL(f.ISWAGE,'N')=@iswage  ";
             var parameters = new List<SqlParameter>();
             //設定專案名編號資料
             parameters.Add(new SqlParameter("projectid", projectid));
@@ -1646,14 +1652,24 @@ namespace topmeperp.Service
             //採購名稱條件
             if (null != formName && "" != formName)
             {
-                string sql = "SELECT * from (select pitem.EXCEL_ROW_ID 行數, pitem.PLAN_ITEM_ID 代號,pitem.ITEM_ID 項次,pitem.ITEM_DESC 品項名稱,pitem.ITEM_UNIT 單位, fitem.ITEM_QTY 數量, " +
-                "(SELECT SUPPLIER_ID+'|'+ fitem.INQUIRY_FORM_ID +'|' + FORM_NAME FROM PLAN_SUP_INQUIRY f WHERE f.INQUIRY_FORM_ID = fitem.INQUIRY_FORM_ID ) as SUPPLIER_NAME, " +
-                "pitem.ITEM_UNIT_COST 材料單價, " +
-                "(SELECT FORM_NAME FROM PLAN_SUP_INQUIRY f WHERE f.INQUIRY_FORM_ID = fitem.INQUIRY_FORM_ID ) as FORM_NAME, fitem.ITEM_UNIT_PRICE  " +
-                "from PLAN_ITEM pitem " +
-                "left join PLAN_SUP_INQUIRY_ITEM fitem " +
-                " on pitem.PLAN_ITEM_ID = fitem.PLAN_ITEM_ID " +
-                "where pitem.PROJECT_ID = @projectid ";
+                string sql = @"SELECT * from (
+            select pitem.EXCEL_ROW_ID 行數, 
+            pitem.PLAN_ITEM_ID 代號,
+            pitem.ITEM_ID 項次,
+            pitem.ITEM_DESC 品項名稱,
+            pitem.ITEM_UNIT 單位, 
+            fitem.ITEM_QTY 數量, 
+            (
+            SELECT SUPPLIER_ID+'|'+ fitem.INQUIRY_FORM_ID +'|' + FORM_NAME FROM PLAN_SUP_INQUIRY f 
+            WHERE f.INQUIRY_FORM_ID = fitem.INQUIRY_FORM_ID 
+            ) as SUPPLIER_NAME, 
+          pitem.ITEM_UNIT_COST 材料單價, 
+          (SELECT FORM_NAME FROM PLAN_SUP_INQUIRY f WHERE f.INQUIRY_FORM_ID = fitem.INQUIRY_FORM_ID ) as FORM_NAME, 
+        fitem.ITEM_UNIT_PRICE  
+          from PLAN_ITEM pitem 
+          left join PLAN_SUP_INQUIRY_ITEM fitem 
+           on pitem.PLAN_ITEM_ID = fitem.PLAN_ITEM_ID 
+          where pitem.PROJECT_ID = @projectid ";
 
                 if (iswage == "Y")
                 {
@@ -2456,7 +2472,7 @@ namespace topmeperp.Service
         }
         public PLAN_PURCHASE_REQUISITION table = null;
         //更新申購單資料
-        public int updatePR(string formid, PLAN_PURCHASE_REQUISITION pr, List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem)
+        public int updatePR(string formid, PLAN_PURCHASE_REQUISITION pr, List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem, SYS_USER u)
         {
             logger.Info("Update purchase requisition id =" + formid);
             table = pr;
@@ -2496,6 +2512,12 @@ namespace topmeperp.Service
                         context.PLAN_PURCHASE_REQUISITION_ITEM.AddOrUpdate(existItem);
                     }
                     i = i + context.SaveChanges();
+                    ///send email to  業管
+                    if (u != null)
+                    {
+                        EMailService email = new EMailService();
+                        email.createPRMessage(u, pr);
+                    }
                     logger.Debug("Update purchase requisition item =" + i);
                 }
                 catch (Exception e)
@@ -2639,10 +2661,10 @@ namespace topmeperp.Service
             }
         }
         //更新採購數量
-        public int refreshPO(string formid, PLAN_PURCHASE_REQUISITION form, List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem)
+        public int refreshPO(string formid, PLAN_PURCHASE_REQUISITION form, List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem, SYS_USER u)
         {
             logger.Info("Update plan purchase order id =" + formid);
-            int i = 0;
+            //int i = 0;
             int j = 0;
             using (var context = new topmepEntities())
             {
@@ -2668,6 +2690,10 @@ namespace topmeperp.Service
                         context.PLAN_PURCHASE_REQUISITION_ITEM.AddOrUpdate(existItem);
                     }
                     j = context.SaveChanges();
+                    ///send email to  工地主任與申請人
+                    EMailService email = new EMailService();
+                    email.createPOMessage(u, form);
+
                     logger.Debug("Update purchase order item =" + j);
                     return j;
                 }

@@ -216,7 +216,7 @@ namespace topmeperp.Service
             return lstExpense;
         }
         //取得特定專案之工地費用總預算金額
-        public ExpenseBudgetSummary getSiteBudgetAmountById(string projectid,string budgetYear)
+        public ExpenseBudgetSummary getSiteBudgetAmountById(string projectid, string budgetYear)
         {
             ExpenseBudgetSummary lstAmount = null;
             string sql = @"SELECT SUM(AMOUNT) AS TOTAL_BUDGET FROM PLAN_SITE_BUDGET 
@@ -227,7 +227,7 @@ namespace topmeperp.Service
                 var parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("projectid", projectid));
                 parameters.Add(new SqlParameter("budgetYear", (object)budgetYear ?? DBNull.Value));
-                lstAmount = context.Database.SqlQuery<ExpenseBudgetSummary>(sql ,parameters.ToArray()).FirstOrDefault();
+                lstAmount = context.Database.SqlQuery<ExpenseBudgetSummary>(sql, parameters.ToArray()).FirstOrDefault();
             }
             return lstAmount;
         }
@@ -268,7 +268,7 @@ namespace topmeperp.Service
     /// <summary>
     /// 現金流量報表
     /// </summary>
-    class Service4CashFlow: Service4Budget
+    class Service4CashFlow : Service4Budget
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         //取得特定日期借款與還款
@@ -492,6 +492,23 @@ namespace topmeperp.Service
             }
             return lstItem;
         }
-
+        public List<Budget4CashFow> getBudgetStatus(string paymentDate)
+        {
+            List<Budget4CashFow> lstItem = new List<Budget4CashFow>();
+            string sql = @"SELECT (SELECT TOP 1 PROJECT_NAME FROM TND_PROJECT WHERE PROJECT_ID=v.PROJECT_ID ) as PROJECT_ID
+                        ,(SELECT TOP 1 SUBJECT_NAME FROM FIN_SUBJECT WHERE SUBJECT_ID=v.SUBJECT_ID ) as SUBJECT_ID
+                        ,PAID_DATE,AMOUNT,AMOUNT_REAL 
+                        FROM vw_BudgetStatus v WHERE  PAID_DATE=@paymentdate";
+            using (var context = new topmepEntities())
+            {
+                //條件篩選
+                if (null != paymentDate && paymentDate != "")
+                {
+                    logger.Debug("sql=" + sql + ",paymentdate=" + paymentDate);
+                    lstItem = context.Database.SqlQuery<Budget4CashFow>(sql, new SqlParameter("paymentdate", paymentDate)).ToList();
+                }
+                return lstItem;
+            }
+        }
     }
 }

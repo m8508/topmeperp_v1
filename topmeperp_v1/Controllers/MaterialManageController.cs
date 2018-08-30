@@ -523,7 +523,7 @@ namespace topmeperp.Controllers
             string msg = "";
             // 取得申購單資料
             PLAN_PURCHASE_REQUISITION pr = new PLAN_PURCHASE_REQUISITION();
-            SYS_USER loginUser = (SYS_USER)Session["user"];
+            SYS_USER u = (SYS_USER)Session["user"];
             pr.PROJECT_ID = form.Get("projectid").Trim();
             //pr.PRJ_UID = int.Parse(form.Get("prjuid").Trim());
             pr.STATUS = int.Parse(form.Get("status").Trim());
@@ -540,7 +540,7 @@ namespace topmeperp.Controllers
             {
                 log.Error(ex.StackTrace);
             }
-            pr.CREATE_USER_ID = loginUser.USER_ID;
+            pr.CREATE_USER_ID = u.USER_ID;
             pr.MODIFY_DATE = DateTime.Now;
             try
             {
@@ -576,7 +576,7 @@ namespace topmeperp.Controllers
                 }
                 lstItem.Add(item);
             }
-            int i = service.updatePR(formid, pr, lstItem);
+            int i = service.updatePR(formid, pr, lstItem,null);
             if (i == 0)
             {
                 msg = service.message;
@@ -642,11 +642,8 @@ namespace topmeperp.Controllers
                 }
                 lstItem.Add(item);
             }
-            int i = service.updatePR(formid, pr, lstItem);
-            ///send email to  業管
-            EMailService email = new EMailService();
-            email.createPRMessage(loginUser, pr);
-
+            //建立申購單須送出email
+            int i = service.updatePR(formid, pr, lstItem, loginUser);
             if (i == 0)
             {
                 msg = service.message;
@@ -756,11 +753,7 @@ namespace topmeperp.Controllers
                 log.Debug("Item No=" + items.PLAN_ITEM_ID + ", Qty =" + items.ORDER_QTY);
                 lstItem.Add(items);
             }
-            ///send email to  工地主任與申請人
-            EMailService email = new EMailService();
-            email.createPOMessage(u, pr);
-
-            int k = service.refreshPO(prid, pr, lstItem);
+            int k = service.refreshPO(prid, pr, lstItem,u);
             return Redirect("SinglePO?id=" + prid + "&prjid=" + Request["id"]);
         }
 
@@ -795,10 +788,13 @@ namespace topmeperp.Controllers
             service.getPRByPrId(id, parentId, prjid);
             singleForm.planPR = service.formPR;
             singleForm.planPRItem = service.PRItem;
+            ViewBag.status = singleForm.planPR.STATUS;
+            log.Debug("planPR:" + singleForm.planPR.PR_ID +",PARENT_ID="+ singleForm.planPR.PARENT_PR_ID + ",status=" + singleForm.planPR.STATUS);
             ViewBag.orderDate = singleForm.planPR.CREATE_DATE.Value.ToString("yyyy/MM/dd");
             singleForm.prj = service.getProjectById(singleForm.planPR.PROJECT_ID);
             log.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
-            ViewBag.prId = service.getParentPrIdByPrId(id);
+
+            ViewBag.prId = singleForm.planPR.PARENT_PR_ID;//service.getParentPrIdByPrId(id);
             return View(singleForm);
         }
 

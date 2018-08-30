@@ -45,13 +45,13 @@
 
             <label class="col-md-2 control-label">注意事項 : </label>
             <div class="col-md-6">
-                <input type="text" class="form-control" name="caution" id="caution" style="max-width:none; width:70%;"  value="@Model.planPR.REMARK">
+                <input type="text" class="form-control" name="caution" id="caution" style="max-width:none; width:70%;" value="@Model.planPR.REMARK">
             </div>
         </div>
         <div class="row">
             <label class="col-md-2 control-label">送貨地址 : </label>
             <div class="col-md-10">
-                <input type="text" class="form-control" name="location" id="location" style="max-width:none; width:80%;"  value="@Model.planPR.LOCATION">
+                <input type="text" class="form-control" name="location" id="location" style="max-width:none; width:80%;" value="@Model.planPR.LOCATION">
             </div>
         </div>
 
@@ -68,9 +68,6 @@
                         </th>
                         <th>
                             項目說明
-                        </th>
-                        <th>
-                            備註
                         </th>
                         <th>
                             單位
@@ -90,11 +87,13 @@
                         <th>
                             需求日期
                         </th>
-
+                        <th>
+                            備註
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
-             @foreach (var item in Model.planPRItem)
+                    @foreach (var item in Model.planPRItem)
             {
 
                         <tr>
@@ -107,18 +106,6 @@
                             <td>
                                 @item.ITEM_DESC
                             </td>
-                            @if (Model.planPR.STATUS <= 10)
-                            {
-                                <td>
-                                    @Html.TextBox("remark", item.REMARK, new { @class = "form-control", style = "width:300px" })
-                                </td>
-                            }
-                            else
-                            {
-                                <td>
-                                    @item.REMARK
-                                </td>
-                            }
                             <td>
                                 @item.ITEM_UNIT
                             </td>
@@ -156,6 +143,18 @@
                                     @item.NEED_DATE
                                 </td>
                             }
+                            @if (Model.planPR.STATUS <= 10)
+                            {
+                                <td>
+                                    @Html.TextBox("remark", item.REMARK, new { @class = "form-control", style = "width:300px" })
+                                </td>
+                            }
+                            else
+                            {
+                                <td>
+                                    @item.REMARK
+                                </td>
+                            }
                         </tr>
                     }
                 </tbody>
@@ -177,7 +176,7 @@
             @if (Model.planPR.STATUS == -10 || Model.planPR.STATUS == 5)
             {
                 <div class="col-md-6">
-                    退件不處理說明:<textarea class="form-control" rows="5" id="message" name="message" style="color: red; font-size: 15px;background-color:Highlight;width:90%" >@Model.planPR.MESSAGE</textarea>
+                    退件不處理說明:<textarea class="form-control" rows="5" id="message" name="message" style="color: red; font-size: 15px;background-color:Highlight;width:90%">@Model.planPR.MESSAGE</textarea>
                 </div>
             }
         </div>

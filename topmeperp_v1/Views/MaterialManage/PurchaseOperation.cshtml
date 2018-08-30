@@ -54,9 +54,7 @@
                 <th>
                     項目說明
                 </th>
-                <th>
-                    備註
-                </th>
+
                 <th>
                     單位
                 </th>
@@ -78,6 +76,9 @@
                 <th>
                     採購數量
                 </th>
+                <th>
+                    備註
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -92,9 +93,6 @@
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.ITEM_DESC)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.REMARK)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.ITEM_UNIT)
@@ -115,7 +113,10 @@
                         <input type="checkbox" id="chkItem" name="chkItem" value="@item.PLAN_ITEM_ID" />
                     </td>
                     <td><input style="width:80px" type="text" class="form-control" name="order_qty" id="order_qty" value=""></td>
-                </tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.REMARK)
+                    </td>
+                 </tr>
             }
         </tbody>
     </table>
@@ -133,12 +134,12 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            @if (null != ViewBag.supplier && ViewBag.supplier != "" && ViewBag.status >= 10)
+            @if (null != ViewBag.supplier && ViewBag.supplier != "" && ViewBag.status == 10)
                 {
                 <input type="submit" value="採購" class="btn btn-default" onclick="return Confirm_Form()" />
             }
-            @if (null != ViewBag.supplier && ViewBag.supplier != "")
-                {
+            @if (null != ViewBag.supplier && ViewBag.supplier != "" && ViewBag.status == 10)
+            {
                 <input type="button" value="退件" class="btn btn-warning" id="RejectPR" />
             }
         </div>

@@ -90,29 +90,23 @@ namespace topmeperp.Service
 
             //定義Email 樣板
             StringBuilder strTemp = new StringBuilder("{1} 提出新的申購單");
-            StringBuilder strTempBody = new StringBuilder("{1} 提出新的申購單{2}。 </br> 系統發出，請勿回覆!!");
+            StringBuilder strTempBody = new StringBuilder("{1} 提出新的申購單{2}。 <br/> 系統發出，請勿回覆!!");
 
             SYS_MESSAGE m = new SYS_MESSAGE();
             m.FROM_ADDRESS = u.EMAIL;
             m.DISPLAY_NAME = u.USER_NAME;
             UserService s = new UserService();
             //TODO
-            List<SYS_USER> lstTarget = s.getProjectUser(pr.PROJECT_ID, "業管");
-            string MailLis = "";
-            foreach (SYS_USER targetUser in lstTarget)
-            {
-                if (MailLis == "")
-                {
-                    MailLis = targetUser.EMAIL;
-                }
-                else
-                {
-                    MailLis = MailLis + "," + targetUser.EMAIL;
-                }
-            }
-           strTemp.Replace("{1}", pr.PROJECT_ID);
 
-            m.MAIL_LIST = MailLis;
+            List<SYS_USER> lstTarget = s.getProjectUser(pr.PROJECT_ID, "業管");
+            strTemp.Replace("{1}", pr.PROJECT_ID);
+
+            m.MAIL_LIST = getMailList(lstTarget);
+            if (m.MAIL_LIST == "")
+            {
+                log.Error(pr.PR_ID + " Have no mail list!!");
+                return;
+            }
             m.SUBJECT = strTemp.ToString();
 
             strTempBody.Replace("{1}", pr.PROJECT_ID);
@@ -140,31 +134,18 @@ namespace topmeperp.Service
 
             //定義Email 樣板
             StringBuilder strTemp = new StringBuilder("{1} 申購單已完成採購!!");
-            StringBuilder strTempBody = new StringBuilder("{1} 申購單已完成採購{2}。 </br> 系統發出，請勿回覆!!");
-
+            StringBuilder strTempBody = new StringBuilder("{1} 申購單已完成採購{2}。 <br/> 系統發出，請勿回覆!!");
+            //
             SYS_MESSAGE m = new SYS_MESSAGE();
             m.FROM_ADDRESS = u.EMAIL;
             m.DISPLAY_NAME = u.USER_NAME;
             UserService s = new UserService();
             //TODO
             List<SYS_USER> lstTarget = s.getProjectUser(pr.PROJECT_ID, "工地主任");
-            string MailLis = "";
-            foreach (SYS_USER targetUser in lstTarget)
-            {
-                if (MailLis == "")
-                {
-                    MailLis = targetUser.EMAIL;
-                }
-                else
-                {
-                    MailLis = MailLis + "," + targetUser.EMAIL;
-                }
-            }
-
             strTemp.Replace("{1}", pr.PROJECT_ID);
 
-            m.MAIL_LIST = MailLis;
-            if (MailLis == "")
+            m.MAIL_LIST = getMailList(lstTarget);
+            if (m.MAIL_LIST == "")
             {
                 log.Error(pr.PR_ID + " Have no mail list!!");
                 return;
@@ -187,6 +168,22 @@ namespace topmeperp.Service
                 i = context.SaveChanges();
             }
         }
+        private string getMailList(List<SYS_USER> lstTarget)
+        {
+            string MailLis = "";
+            foreach (SYS_USER targetUser in lstTarget)
+            {
+                if (MailLis == "")
+                {
+                    MailLis = targetUser.EMAIL;
+                }
+                else
+                {
+                    MailLis = MailLis + "," + targetUser.EMAIL;
+                }
+            }
+            return MailLis;
+        } 
     }
 
 }

@@ -1287,6 +1287,7 @@
     <Content Include="Views\PurchaseForm\Contract4SupplierIndex.cshtml" />
     <Content Include="Views\ProjectOrganization\Index.cshtml" />
     <Content Include="Views\ProjectOrganization\_TaskAssignItem.cshtml" />
+    <Content Include="Views\CashFlow\showBudgetStatus.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

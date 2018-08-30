@@ -24,5 +24,12 @@ namespace topmeperp.Models
         public decimal eventAmt { get; set; }
         public string PROJECT_NAME { get; set; }
     }
-    
+    public class Budget4CashFow
+    {
+        public string PROJECT_ID { get; set; }
+        public string SUBJECT_ID { get; set; }
+        public DateTime PAID_DATE { get; set; }
+        public Nullable<decimal> AMOUNT { get; set; }
+        public Nullable<decimal> AMOUNT_REAL { get; set; }
+    }
 }

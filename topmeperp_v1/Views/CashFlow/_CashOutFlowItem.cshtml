@@ -153,7 +153,10 @@
             {
         <tr>
             <td>@String.Format("{0:$#,##0.#}", item.AMOUNT)</td>
-            <td>@string.Format("{0:yyyy/MM/dd}", item.RECORDED_DATE)</td>
+            <td>
+            <a href="/CashFlow/showBudgetStatus?paymentdate=@string.Format("{0:yyyy/MM/dd}", item.RECORDED_DATE)" target="_blank" >
+                @string.Format("{0:yyyy/MM/dd}", item.RECORDED_DATE)</a>
+            </td>
         </tr>
     }
 </table>
@@ -188,6 +191,3 @@
         </tr>
     }
 </table>
-
-
-

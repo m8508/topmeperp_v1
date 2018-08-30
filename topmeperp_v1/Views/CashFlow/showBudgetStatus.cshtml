@@ -1,0 +1,43 @@
+﻿@model IEnumerable<topmeperp.Models.Budget4CashFow>
+@{
+    ViewBag.Title = "預算與支出一覽表";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+<div class="container">
+    <h2 class="text-center" style="padding-top:10px;">@ViewBag.Title</h2>
+</div>
+<div class="col-md-12" style="padding-bottom:20px;">
+    <input type="button" class="btn btn-success" onclick="closewin();" value="關閉">
+</div>
+
+<h3 class="text-left" style="padding-top:20px;">費用與費用明細</h3>
+<table class="table table-bordered">
+    <tr>
+        <th>
+            支付日期
+        </th>
+        <th>
+            專案名稱
+        </th>
+        <th>
+            用途說明(會科)
+        </th>
+        <th>
+            預算金額
+        </th>
+        <th>
+            費用金額
+        </th>
+    </tr>
+    @foreach (var item in Model)  {
+        <tr>
+            <td>@string.Format("{0:yyyy/MM/dd}", item.PAID_DATE )</td>
+            <td>@item.PROJECT_ID</td>
+            <td>@item.SUBJECT_ID</td>
+            <td>@String.Format("{0:$#,##0.#}", item.AMOUNT)</td>
+            <td>@String.Format("{0:$#,##0.#}", item.AMOUNT_REAL )</td>
+        </tr>
+    }
+</table>
+
+

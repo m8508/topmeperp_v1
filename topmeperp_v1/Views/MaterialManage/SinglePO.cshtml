@@ -64,9 +64,7 @@
                         <th>
                             項目說明
                         </th>
-                        <th>
-                            備註
-                        </th>
+
                         <th>
                             單位
                         </th>
@@ -85,6 +83,9 @@
                         <th>
                             採購數量
                         </th>
+                        <th>
+                            備註
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -100,9 +101,6 @@
                             </td>
                             <td>
                                 @item.ITEM_DESC
-                            </td>
-                            <td>
-                                @item.REMARK
                             </td>
                             <td>
                                 @item.ITEM_UNIT
@@ -122,7 +120,9 @@
                             <td>
                                 @Html.TextBox("order_qty", item.ORDER_QTY, new { @class = "form-control", style = "width:120px" })
                             </td>
-
+                            <td>
+                                @item.REMARK
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -142,8 +142,7 @@
 
 <div class="row">
     <div class="" col-md-12">
-
-        @if (@ViewBag.prId == null || @ViewBag.prId == "")
+        @if (@ViewBag.status!=20 && (@ViewBag.prId == null || @ViewBag.prId == ""))
         {
             <input type="button" value="修改" class="btn btn-default" id="updatePO" />
         }

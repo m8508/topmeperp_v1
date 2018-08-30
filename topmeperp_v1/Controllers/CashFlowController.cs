@@ -1108,5 +1108,11 @@ namespace topmeperp.Controllers
             }
             return View("CashOutFlowItem", viewModel);
         }
+        public ActionResult showBudgetStatus()
+        {
+            string paymentDate = Request["paymentdate"];
+            List<Budget4CashFow> lst = service.getBudgetStatus(paymentDate);
+            return View(lst);
+        }
     }
 }
