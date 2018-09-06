@@ -2079,7 +2079,6 @@ namespace topmeperp.Service
             return lst;
         }
 
-
         public List<PlanItem4Map> getPendingItems4Wage(string projectid)
         {
             List<PlanItem4Map> lst = new List<PlanItem4Map>();
@@ -2317,7 +2316,7 @@ namespace topmeperp.Service
         /// 讀取申購單、採購單、驗收單、領料單(?) 等資料
         /// </summary>
         /// <returns></returns>
-        public List<PRFunction> getPRFunction(string type, string projectid, string status, string yymm, string prid,string keyword)
+        public List<PRFunction> getPRFunction(string type, string projectid, string status, string yymm, string prid, string keyword)
         {
             // Type =PR : 申購單
             // Type =PPO : 採購單
@@ -2522,6 +2521,7 @@ namespace topmeperp.Service
                         existItem.REMARK = item.REMARK;
                         context.PLAN_PURCHASE_REQUISITION_ITEM.AddOrUpdate(existItem);
                     }
+                    ///
                     i = i + context.SaveChanges();
                     ///send email to  業管
                     if (u != null)
@@ -2621,16 +2621,32 @@ namespace topmeperp.Service
         {
             int i = 0;
             logger.Info("reject PR form by prid" + prid);
-            string sql = "UPDATE  PLAN_PURCHASE_REQUISITION SET STATUS = -10 WHERE PR_ID = @prid ";
-            logger.Debug("batch sql:" + sql);
-            db = new topmepEntities();
-            var parameters = new List<SqlParameter>();
-            parameters.Add(new SqlParameter("prid", prid));
-            db.Database.ExecuteSqlCommand(sql, parameters.ToArray());
-            i = db.SaveChanges();
-            logger.Info("Update Record:" + i);
-            db = null;
+            using (var context = new topmepEntities())
+            {
+                UpdateStatus(prid, null, "-10", context);
+            }
             return 1;
+        }
+        //更新申購單/採購單/驗收單狀態
+        protected void UpdateStatus(string prid, string parent_id, string status, topmepEntities context)
+        {
+            string sql = null;
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("status", status));
+            if (null != prid && "" != prid)
+            {
+                sql = "UPDATE  PLAN_PURCHASE_REQUISITION SET STATUS = @status WHERE PR_ID = @prid ";
+                parameters.Add(new SqlParameter("prid", prid));
+            }
+            else
+            {
+                sql = "UPDATE  PLAN_PURCHASE_REQUISITION SET STATUS = @status WHERE PARENT_PR_ID = @parent_id ";
+                parameters.Add(new SqlParameter("parent_id", parent_id));
+            }
+            logger.Debug("sql=" + sql + ",status=" + status + ",prid=" + prid + ",parend_pr_id" + parent_id);
+            context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            int i = context.SaveChanges();
+            logger.Debug("Update Count=" + i);
         }
         // 寫入採購內容
         public string newPO(string projectid, PLAN_PURCHASE_REQUISITION form, string[] lstItemId, string parentid)
@@ -2668,6 +2684,8 @@ namespace topmeperp.Service
                 logger.Info("sql =" + sql);
                 var parameters = new List<SqlParameter>();
                 i = context.Database.ExecuteSqlCommand(sql);
+                //更新申購單狀態
+                UpdateStatus(parentid, null, "40", context);
                 return form.PR_ID;
             }
         }
@@ -2888,7 +2906,7 @@ namespace topmeperp.Service
         }
 
         //更新驗收數量
-        public int refreshRP(string formid, PLAN_PURCHASE_REQUISITION form, List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem)
+        public int refreshRP(string formid, PLAN_PURCHASE_REQUISITION form, List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem, string closeFlag)
         {
             logger.Info("Update plan purchase receipt id =" + formid);
             int i = 0;
@@ -2915,6 +2933,15 @@ namespace topmeperp.Service
                         logger.Debug("find exist item=" + existItem.PLAN_ITEM_ID);
                         existItem.RECEIPT_QTY = item.RECEIPT_QTY;
                         context.PLAN_PURCHASE_REQUISITION_ITEM.AddOrUpdate(existItem);
+                        //更新採購單狀態
+                        if (closeFlag == "Y")
+                        {
+                            UpdateStatus(form.PARENT_PR_ID, null, "40", context);
+                        }
+                        else
+                        {
+                            UpdateStatus(form.PARENT_PR_ID, null, "30", context);
+                        }
                     }
                     j = context.SaveChanges();
                     logger.Debug("Update purchase reeipt item =" + j);
@@ -2931,59 +2958,61 @@ namespace topmeperp.Service
             return i;
         }
 
-        //更新驗收單資料
-        public int updateRP(string formid, PLAN_PURCHASE_REQUISITION pr, List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem)
-        {
-            logger.Info("Update purchase receipt id =" + formid);
-            table = pr;
-            int i = 0;
-            int j = 0;
-            using (var context = new topmepEntities())
-            {
-                try
-                {
-                    context.Entry(table).State = EntityState.Modified;
-                    i = context.SaveChanges();
-                    logger.Debug("Update purchase receipt =" + i);
-                    logger.Info("purchase receipt item = " + lstItem.Count);
-                    //2.將item資料寫入 
-                    foreach (PLAN_PURCHASE_REQUISITION_ITEM item in lstItem)
-                    {
-                        PLAN_PURCHASE_REQUISITION_ITEM existItem = null;
-                        logger.Debug("purchase receipt item id=" + item.PR_ITEM_ID);
-                        if (item.PR_ITEM_ID != 0)
-                        {
-                            existItem = context.PLAN_PURCHASE_REQUISITION_ITEM.Find(item.PR_ITEM_ID);
-                        }
-                        else
-                        {
-                            var parameters = new List<SqlParameter>();
-                            parameters.Add(new SqlParameter("formid", formid));
-                            parameters.Add(new SqlParameter("itemid", item.PLAN_ITEM_ID));
-                            string sql = "SELECT * FROM PLAN_PURCHASE_REQUISITION_ITEM WHERE PR_ID=@formid AND PLAN_ITEM_ID=@itemid";
-                            logger.Info(sql + " ;" + formid + ",plan_item_id=" + item.PLAN_ITEM_ID);
-                            PLAN_PURCHASE_REQUISITION_ITEM excelItem = context.PLAN_PURCHASE_REQUISITION_ITEM.SqlQuery(sql, parameters.ToArray()).First();
-                            existItem = context.PLAN_PURCHASE_REQUISITION_ITEM.Find(excelItem.PR_ITEM_ID);
+        //更新驗收單資料//採購單結案
+        //public int updateRP(string formid, PLAN_PURCHASE_REQUISITION pr, List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem)
+        //{
+        //    logger.Info("Update purchase receipt id =" + formid);
+        //    table = pr;
+        //    int i = 0;
+        //    int j = 0;
+        //    using (var context = new topmepEntities())
+        //    {
+        //        try
+        //        {
+        //            context.Entry(table).State = EntityState.Modified;
+        //            i = context.SaveChanges();
+        //            logger.Debug("Update purchase receipt =" + i);
+        //            logger.Info("purchase receipt item = " + lstItem.Count);
+        //            //2.將item資料寫入 
+        //            foreach (PLAN_PURCHASE_REQUISITION_ITEM item in lstItem)
+        //            {
+        //                PLAN_PURCHASE_REQUISITION_ITEM existItem = null;
+        //                logger.Debug("purchase receipt item id=" + item.PR_ITEM_ID);
+        //                if (item.PR_ITEM_ID != 0)
+        //                {
+        //                    existItem = context.PLAN_PURCHASE_REQUISITION_ITEM.Find(item.PR_ITEM_ID);
+        //                }
+        //                else
+        //                {
+        //                    var parameters = new List<SqlParameter>();
+        //                    parameters.Add(new SqlParameter("formid", formid));
+        //                    parameters.Add(new SqlParameter("itemid", item.PLAN_ITEM_ID));
+        //                    string sql = "SELECT * FROM PLAN_PURCHASE_REQUISITION_ITEM WHERE PR_ID=@formid AND PLAN_ITEM_ID=@itemid";
+        //                    logger.Info(sql + " ;" + formid + ",plan_item_id=" + item.PLAN_ITEM_ID);
+        //                    PLAN_PURCHASE_REQUISITION_ITEM excelItem = context.PLAN_PURCHASE_REQUISITION_ITEM.SqlQuery(sql, parameters.ToArray()).First();
+        //                    existItem = context.PLAN_PURCHASE_REQUISITION_ITEM.Find(excelItem.PR_ITEM_ID);
 
-                        }
-                        logger.Debug("find exist item=" + existItem.PLAN_ITEM_ID);
-                        existItem.RECEIPT_QTY = item.RECEIPT_QTY;
-                        context.PLAN_PURCHASE_REQUISITION_ITEM.AddOrUpdate(existItem);
-                    }
-                    j = context.SaveChanges();
-                    logger.Debug("Update purchase receipt item =" + j);
-                    return j;
-                }
-                catch (Exception e)
-                {
-                    logger.Error("update new purchase receipt id fail:" + e.ToString());
-                    logger.Error(e.StackTrace);
-                    message = e.Message;
-                }
+        //                }
+        //                logger.Debug("find exist item=" + existItem.PLAN_ITEM_ID);
+        //                existItem.RECEIPT_QTY = item.RECEIPT_QTY;
+        //                context.PLAN_PURCHASE_REQUISITION_ITEM.AddOrUpdate(existItem);
+        //            }
+        //            //更新採購單狀態
+        //            UpdateStatus(pr.PARENT_PR_ID, null, "30", context);
+        //            j = context.SaveChanges();
+        //            logger.Debug("Update purchase receipt item =" + j);
+        //            return j;
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            logger.Error("update new purchase receipt id fail:" + e.ToString());
+        //            logger.Error(e.StackTrace);
+        //            message = e.Message;
+        //        }
 
-            }
-            return i;
-        }
+        //    }
+        //    return i;
+        //}
 
         //取得驗收單資料
         public List<PRFunction> getRPByPrId(string prid)

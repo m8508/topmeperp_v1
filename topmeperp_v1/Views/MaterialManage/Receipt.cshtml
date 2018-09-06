@@ -5,17 +5,17 @@
 }
 
 <div class="page-header">
-    @using (Html.BeginForm("AddReceipt", "MaterialManage", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-inline" ,id= "formRP" }))
+    @using (Html.BeginForm("AddReceipt", "MaterialManage", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-inline", id = "formRP" }))
     {
         <div class="row bg-info">
             <div class="col-md-8">
-              <h3 class="text-center">協成水電工程事業有限公司-驗收單</h3>
+                <h3 class="text-center">協成水電工程事業有限公司-驗收單</h3>
             </div>
             <div class="col-md-4">
                 <input type="button" class="btn btn-sm btn-success" onclick="history.back()" value="回上一頁">
             </div>
         </div>
-        <div class="row bg-info"  style="margin:auto;padding:5px; ">
+        <div class="row bg-info" style="margin:auto;padding:5px; ">
             <div class="col-md-3">
                 <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@Model.prj.PROJECT_NAME" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
             </div>
@@ -31,11 +31,11 @@
             </div>
         </div>
         <div class="row bg-info" style="margin:auto;padding:5px; ">
-            <label class="col-md-1 control-label">收件人 : </label>
+            <label class="col-md-2 control-label">收件人 : </label>
             <div class="col-md-3">
                 <input type="text" class="form-control" name="recipient" id="recipient" value="@Model.planPR.RECIPIENT" readonly="readonly">
             </div>
-            <label class="col-md-1 control-label">注意事項 : </label>
+            <label class="col-md-2 control-label">注意事項 : </label>
             <div class="col-md-4">
                 <input type="text" class="form-control" name="caution" id="caution" value="@Model.planPR.REMARK" readonly="readonly">
                 <input type="hidden" name="projectid" id="projectid" value="@Model.planPR.PROJECT_ID">
@@ -44,7 +44,7 @@
             </div>
         </div>
         <div class="row bg-info" style="margin:auto;padding:5px;">
-            <label class="col-md-1 control-label">送貨地址 : </label>
+            <label class="col-md-2 control-label">送貨地址 : </label>
             <div class="col-md-10">
                 <input type="text" style="max-width:none;width:80%" class="form-control" name="location" id="location" value="@Model.planPR.LOCATION" readonly="readonly">
             </div>
@@ -136,23 +136,31 @@
                         </tr>
                     }
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <td>採購需求說明</td>
+                        <td colspan="5">
+                            <textarea class="form-control" rows="5" id="message" name="message" style="max-width:none;width:80%" readonly>@Model.planPR.MESSAGE</textarea>
+                        </td>
+                        <td>驗收備忘錄</td>
+                        <td colspan="5">
+                            <textarea class="form-control" rows="5" id="memo" name="memo" style="color: red; font-size: 15px; background-color:Highlight;max-width:none;width:80%">@Model.planPR.MEMO </textarea>
+                        </td>
+                    </tr>
+                </tfoot>
             </table>
-            <div class="col-md-12">
-                <div class="col-md-6">
-                    採購需求說明:<textarea class="form-control" rows="5" id="message" name="message" style="max-width:none;width:80%" readonly>@Model.planPR.MESSAGE</textarea>
-                </div>
-                <div class="col-md-6">
-                    驗收備忘錄:<textarea class="form-control" rows="5" id="memo" name="memo" style="color: red; font-size: 15px; background-color:Highlight;max-width:none;width:80%">@Model.planPR.MEMO </textarea>
+        </div>
+        <!--狀態39-->
+        if (Model.planPR.STATUS.ToString() != "40")
+        {
+            <div class="row">
+                <div class="" col-md-12">
+                    <input type="checkbox" id="closeFlag" name="closeFlag" value="Y" />結案
+                    <input type="submit" value="建立驗收單" class="btn btn-default" onclick="return Confirm_Form()" />
+                    <!-- <input type="button" value="結案" class="btn btn-default" id="updateRP" />-->
                 </div>
             </div>
-        </div>
-
-        <div class="row">
-            <div class="" col-md-12">
-                <input type="submit" value="新增" class="btn btn-default" onclick="return Confirm_Form()" />
-                <input type="button" value="修改" class="btn btn-default" id="updateRP" />
-            </div>
-        </div>
+        }
     }
 </div>
 
@@ -205,9 +213,8 @@
         }
     }
 
-
-    $("#updateRP").click(function () {
-
+    //將採購單結案
+    @*$("#updateRP").click(function () {
         var boolOver = false;
         $('table > tbody > tr').each(function () {
             var receipt = 0;
@@ -241,5 +248,5 @@
                 alert(thrownError);
             }
         });
-    });
+    });*@
 </script>

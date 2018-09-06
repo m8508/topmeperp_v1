@@ -1,4 +1,5 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -53,6 +54,7 @@ namespace topmeperp.Models
     {
         private DataTable _SourceTable = new DataTable();
         private IEnumerable<DataRow> _Source = new List<DataRow>();
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public Pivot(DataTable SourceTable)
         {
@@ -224,7 +226,8 @@ namespace topmeperp.Models
                 }
             }
             catch (Exception ex)
-            {
+            {;
+                logger.Error(ex.Message + ":" + ex.StackTrace);
                 return "#Error";
             }
         }

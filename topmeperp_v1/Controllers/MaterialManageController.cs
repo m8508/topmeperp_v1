@@ -901,6 +901,7 @@ namespace topmeperp.Controllers
             pr.REMARK = Request["caution"];
             pr.SUPPLIER_ID = Request["supplier"];
             pr.PARENT_PR_ID = Request["pr_id"];
+            
             pr.STATUS = 30;
             pr.MEMO = Request["memo"];
             pr.MESSAGE = Request["message"];
@@ -916,7 +917,8 @@ namespace topmeperp.Controllers
                 log.Debug("Item No=" + items.PLAN_ITEM_ID + ", Qty =" + items.RECEIPT_QTY);
                 lstItem.Add(items);
             }
-            int k = service.refreshRP(prid, pr, lstItem);
+            string closeFlag= Request["closeFlag"]; 
+            int k = service.refreshRP(prid, pr, lstItem, closeFlag);
             return Redirect("SingleRP?id=" + prid + "&parentId=" + Request["pr_id"] + "&prjid=" + Request["projectid"]);
         }
 
@@ -936,66 +938,66 @@ namespace topmeperp.Controllers
             log.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
             return View("Receipt", singleForm);
         }
-        //更新驗收單資料
-        public String RefreshRP(string id, FormCollection form)
-        {
-            log.Info("form:" + form.Count);
-            string msg = "";
-            // 取得驗收單資料
-            PLAN_PURCHASE_REQUISITION pr = new PLAN_PURCHASE_REQUISITION();
-            SYS_USER loginUser = (SYS_USER)Session["user"];
-            pr.PROJECT_ID = form.Get("projectid").Trim();
-            pr.PR_ID = form.Get("pr_id").Trim();
-            pr.RECIPIENT = form.Get("recipient").Trim();
-            pr.LOCATION = form.Get("location").Trim();
-            pr.REMARK = form.Get("caution").Trim();
-            pr.SUPPLIER_ID = form.Get("supplier").Trim();
-            pr.PARENT_PR_ID = form.Get("parent_pr_id").Trim();
-            pr.STATUS = int.Parse(form.Get("status").Trim());
-            pr.CREATE_USER_ID = loginUser.USER_ID;
-            pr.MODIFY_DATE = DateTime.Now;
-            pr.MEMO = form.Get("memo").Trim();
-            pr.MESSAGE = Request["message"];
-            try
-            {
-                pr.CREATE_DATE = Convert.ToDateTime(form.Get("receipt_date"));
-            }
-            catch (Exception ex)
-            {
-                log.Error(ex.StackTrace);
-            }
-            string formid = form.Get("pr_id").Trim();
-            string[] lstItemId = form.Get("pr_item_id").Split(',');
-            string[] lstQty = form.Get("receipt_qty").Split(',');
-            List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem = new List<PLAN_PURCHASE_REQUISITION_ITEM>();
-            for (int j = 0; j < lstItemId.Count(); j++)
-            {
-                PLAN_PURCHASE_REQUISITION_ITEM item = new PLAN_PURCHASE_REQUISITION_ITEM();
-                item.PR_ITEM_ID = int.Parse(lstItemId[j]);
-                if (lstQty[j].ToString() == "")
-                {
-                    item.RECEIPT_QTY = null;
-                }
-                else
-                {
-                    item.RECEIPT_QTY = decimal.Parse(lstQty[j]);
-                }
-                log.Debug("Item No=" + item.PR_ITEM_ID + ", Order Qty =" + item.RECEIPT_QTY);
-                lstItem.Add(item);
-            }
-            int i = service.updateRP(formid, pr, lstItem);
-            if (i == 0)
-            {
-                msg = service.message;
-            }
-            else
-            {
-                msg = "更新驗收單成功，PR_ID =" + formid;
-            }
+        //更新驗收單資料並將採購單結案//
+        //public String RefreshRP(string id, FormCollection form)
+        //{
+        //    log.Info("form:" + form.Count);
+        //    string msg = "";
+        //    // 取得驗收單資料
+        //    PLAN_PURCHASE_REQUISITION pr = new PLAN_PURCHASE_REQUISITION();
+        //    SYS_USER loginUser = (SYS_USER)Session["user"];
+        //    pr.PROJECT_ID = form.Get("projectid").Trim();
+        //    pr.PR_ID = form.Get("pr_id").Trim();
+        //    pr.RECIPIENT = form.Get("recipient").Trim();
+        //    pr.LOCATION = form.Get("location").Trim();
+        //    pr.REMARK = form.Get("caution").Trim();
+        //    pr.SUPPLIER_ID = form.Get("supplier").Trim();
+        //    pr.PARENT_PR_ID = form.Get("parent_pr_id").Trim();
+        //    pr.STATUS = int.Parse(form.Get("status").Trim());
+        //    pr.CREATE_USER_ID = loginUser.USER_ID;
+        //    pr.MODIFY_DATE = DateTime.Now;
+        //    pr.MEMO = form.Get("memo").Trim();
+        //    pr.MESSAGE = Request["message"];
+        //    try
+        //    {
+        //        pr.CREATE_DATE = Convert.ToDateTime(form.Get("receipt_date"));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.Error(ex.StackTrace);
+        //    }
+        //    string formid = form.Get("pr_id").Trim();
+        //    string[] lstItemId = form.Get("pr_item_id").Split(',');
+        //    string[] lstQty = form.Get("receipt_qty").Split(',');
+        //    List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem = new List<PLAN_PURCHASE_REQUISITION_ITEM>();
+        //    for (int j = 0; j < lstItemId.Count(); j++)
+        //    {
+        //        PLAN_PURCHASE_REQUISITION_ITEM item = new PLAN_PURCHASE_REQUISITION_ITEM();
+        //        item.PR_ITEM_ID = int.Parse(lstItemId[j]);
+        //        if (lstQty[j].ToString() == "")
+        //        {
+        //            item.RECEIPT_QTY = null;
+        //        }
+        //        else
+        //        {
+        //            item.RECEIPT_QTY = decimal.Parse(lstQty[j]);
+        //        }
+        //        log.Debug("Item No=" + item.PR_ITEM_ID + ", Order Qty =" + item.RECEIPT_QTY);
+        //        lstItem.Add(item);
+        //    }
+        //    int i = service.updateRP(formid, pr, lstItem);
+        //    if (i == 0)
+        //    {
+        //        msg = service.message;
+        //    }
+        //    else
+        //    {
+        //        msg = "更新驗收單成功，PR_ID =" + formid;
+        //    }
 
-            log.Info("Request: PR_ID = " + formid);
-            return msg;
-        }
+        //    log.Info("Request: PR_ID = " + formid);
+        //    return msg;
+        //}
 
         //驗收單明細
         public ActionResult ReceiptList(string id)
