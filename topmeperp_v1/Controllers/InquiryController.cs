@@ -116,7 +116,7 @@ namespace topmeperp.Controllers
 
             fm.PROJECT_ID = form.Get("projectid").Trim();
             //廠商資料
-            if (null != form.Get("supplier") || "" != form.Get("supplier"))
+            if (null != form.Get("supplier") && "" != form.Get("supplier"))
             {
                 fm.SUPPLIER_ID = Request["supplier"].Substring(7).Trim();
                 if (form.Get("inputdateline") != "")
