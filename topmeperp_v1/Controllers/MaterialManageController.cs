@@ -432,35 +432,15 @@ namespace topmeperp.Controllers
             TnderProjectService tndservice = new TnderProjectService();
             TND_PROJECT p = tndservice.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
-            int status = -10;
-            if (null != Request["status"] && Request["status"] != 10.ToString() && Request["status"] != 20.ToString() && Request["status"] != 30.ToString() && Request["status"] != 5.ToString())
-            {
-                status = 0;
-            }
-            else if (null != Request["status"] && Request["status"] != 0.ToString() && Request["status"] != 20.ToString() && Request["status"] != 30.ToString() && Request["status"] != 5.ToString())
-            {
-                status = 10;
-            }
-            else if (null != Request["status"] && Request["status"] != 0.ToString() && Request["status"] != 10.ToString() && Request["status"] != 30.ToString() && Request["status"] != 5.ToString())
-            {
-                status = 20;
-            }
-            else if (null != Request["status"] && Request["status"] != 0.ToString() && Request["status"] != 20.ToString() && Request["status"] != 10.ToString() && Request["status"] != 5.ToString())
-            {
-                status = 30;
-            }
-            else if (null != Request["status"])
-            {
-                status = 5;
-            }
-            List<PRFunction> lstPR = service.getPRByPrjId(id, Request["create_date"], Request["keyname"], Request["prid"], status);
+            List<PRFunction> lstPR = service.getPRByPrjId(id, Request["create_date"], Request["keyname"], Request["prid"], Request["status"]);
             return View(lstPR);
         }
 
         public ActionResult Search()
         {
             //log.Info("projectid=" + Request["id"] + ", keyname =" + Request["keyname"] + ", prid =" + Request["prid"] + ", create_id =" + Request["create_date"] + ", status =" + int.Parse(Request["status"]));
-            List<PRFunction> lstPR = service.getPRByPrjId(Request["id"], Request["create_date"], Request["keyname"], Request["prid"], int.Parse(Request["status"]));
+            string status = Request["status"];
+            List<PRFunction> lstPR = service.getPRByPrjId(Request["id"], Request["create_date"], Request["keyname"], Request["prid"], status);
             ViewBag.SearchResult = "共取得" + lstPR.Count + "筆資料";
             ViewBag.projectId = Request["id"];
             ViewBag.projectName = Request["projectName"];
@@ -526,7 +506,7 @@ namespace topmeperp.Controllers
             SYS_USER u = (SYS_USER)Session["user"];
             pr.PROJECT_ID = form.Get("projectid").Trim();
             //pr.PRJ_UID = int.Parse(form.Get("prjuid").Trim());
-            pr.STATUS = int.Parse(form.Get("status").Trim());
+            pr.STATUS = 0;
             pr.PR_ID = form.Get("pr_id").Trim();
             pr.RECIPIENT = form.Get("recipient").Trim();
             pr.LOCATION = form.Get("location").Trim();
@@ -610,7 +590,7 @@ namespace topmeperp.Controllers
             pr.MODIFY_DATE = DateTime.Now;
             try
             {
-                pr.CREATE_DATE = Convert.ToDateTime(form.Get("apply_date"));
+                pr.CREATE_DATE = Convert.ToDateTime(form.Get("apply_date")); 
             }
             catch (Exception ex)
             {
@@ -907,10 +887,6 @@ namespace topmeperp.Controllers
                 {
                     lstQty.Add(Qty[m]);
                 }
-                //if (Qty[m] != "" && null != Qty[m])
-                //{
-                //lstPlanItemId.Add(PlanItemId[m]);
-                //}
             }
             //建立驗收單
             log.Info("create new Receipt");
@@ -958,7 +934,7 @@ namespace topmeperp.Controllers
             ViewBag.receiptDate = singleForm.planPR.CREATE_DATE.Value.ToString("yyyy/MM/dd");
             singleForm.prj = service.getProjectById(singleForm.planPR.PROJECT_ID);
             log.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
-            return View(singleForm);
+            return View("Receipt", singleForm);
         }
         //更新驗收單資料
         public String RefreshRP(string id, FormCollection form)
@@ -979,6 +955,7 @@ namespace topmeperp.Controllers
             pr.CREATE_USER_ID = loginUser.USER_ID;
             pr.MODIFY_DATE = DateTime.Now;
             pr.MEMO = form.Get("memo").Trim();
+            pr.MESSAGE = Request["message"];
             try
             {
                 pr.CREATE_DATE = Convert.ToDateTime(form.Get("receipt_date"));
@@ -1224,8 +1201,6 @@ namespace topmeperp.Controllers
             log.Debug("plan_item_id = " + id);
             return View(lstItem);
         }
-
-
         //驗收單查詢
         public ActionResult ReceiptSearch(string id)
         {
@@ -1369,6 +1344,15 @@ namespace topmeperp.Controllers
                 Response.WriteFile(fileLocation);
                 Response.End();
             }
+        }
+        //刪除無用的申購單
+        public string delPR()
+        {
+            SYS_USER u = (SYS_USER)Session["user"];
+            string prid = Request["pr_id"];
+            service.delPR(prid);
+            log.Info(u.USER_ID + ",remove pr_id =" + prid);
+            return "/MaterialManage/PurchaseRequisition/" + Request["projectid"];
         }
     }
 }

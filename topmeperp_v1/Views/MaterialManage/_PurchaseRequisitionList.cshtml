@@ -1,107 +1,57 @@
-﻿
-@model IEnumerable<topmeperp.Models.PRFunction>
-<div class="container">
-    <div class="row" style="padding-top:5px;">
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>項次</th>
-                    <th>申購日期</th>
-                    <th>申購單編號</th>
-                    <th>注意事項</th>
-                    <th>備忘錄</th>
-                    <!--
-                    <th>任務名稱</th>
-                        -->
-                    <th>已送審</th>
-                    <th>已採購</th>
-                    <th>物料需求 D~D-3日</th>
-                    <th>物料全數驗收</th>
-                    <th>退件不處理</th>
-                </tr>
-            </thead>
-            <tbody>
-            <tbody>
-                @foreach (var item in Model)
+﻿@model IEnumerable<topmeperp.Models.PRFunction>
+<table class="table table-bordered" style="padding-top:5px;">
+    <thead>
+        <tr class="info">
+            <th>項次</th>
+            <th>申購日期</th>
+            <th>申購單編號</th>
+            <th>申購說明</th>
+            <th>注意事項</th>
+            <th>物料需求 D~D-3日</th>
+            <th>備註</th>
+            <th>狀態</th>
+        </tr>
+    </thead>
+    <tbody>
+    <tbody>
+        @foreach (var item in Model)
             {
-                    <tr>
-                        <td>@item.NO</td>
-                        <td>@item.CREATE_DATE</td>
-                        <td><a href="/MaterialManage/SinglePR?id=@item.PR_ID&prjid=@item.PROJECT_ID" target="_blank">@item.PR_ID</a></td>
-                         <!--
-                        <td>@item.TASK_NAME</td>
-                             -->
-                        <td>@item.REMARK</td>
-                        <td>@item.MEMO</td>
-                        <td>
-                            @if (item.STATUS == 0)
-                            {
-                                <span>草稿，待處理</span>
-                            }
-                            else if (item.STATUS == -10 && null != item.CHILD_PR_ID && item.CHILD_PR_ID != "")
-                            {
-                                <span>有部分項目被退件，待處理</span>
-                            }
-                            else if (item.STATUS == -10)
-                            {
-                                <span>退件，待處理</span>
-                            }
-                            else
-                            {
-                                <span style="color: blue; font-size: 15px;">
-                                    ✔
-                                </span>
-                            }
-                        </td>
-                        <td>
-                            @if (null != item.CHILD_PR_ID && item.CHILD_PR_ID != "")
-                            {
-                            <a href="/MaterialManage/SinglePO?id=@item.CHILD_PR_ID&prjid=@item.PROJECT_ID" target="_blank">連結至採購單</a>
-                            }
-                            else
-                            {
-                            <span style="color: red; font-size: 15px;">
-                               ❌
-                            </span>
-                            }
-                        </td>
-                        <td>
-                            @if (null != item.Dminus3day && item.Dminus3day != "")
-                            {
-                                <a href="/MaterialManage/CheckForReceipt?prid=@item.PR_ID&prjid=@item.PROJECT_ID&status=@item.STATUS" target="_blank">查看物料明細</a>
-                            }
-                        </td>
-                        <td>
-                            @if (null != item.PARENT_PR_ID && item.PARENT_PR_ID != "")
-                            {
-                                <a href="/MaterialManage/CheckForReceiptQty?prid=@item.PARENT_PR_ID&prjid=@item.PROJECT_ID&status=@item.STATUS" target="_blank">未驗收明細</a>
-                            }
-                            else if (null == item.CHILD_PR_ID || item.CHILD_PR_ID == "")
-                            {
-                                <span style="color: red; font-size: 15px;">尚未採購</span>
-                            }
-                            else
-                            {
-                                <span style="color: blue; font-size: 15px;">
-                                    ✔
-                                </span>
-                            }
-                        </td>
-                        <td>
-                            @if (item.STATUS == 5 && null != item.CHILD_PR_ID && item.CHILD_PR_ID != "")
-                            {
-                                <span>部分項目</span>
-                            }
-                            else if (item.STATUS == 5)
-                            {
-                                <span style="color: blue; font-size: 15px;">
-                                    ✔
-                                </span>
-                            }
-                        </td>
-                    </tr>
+            <tr>
+                <td>@item.NO</td>
+                <td>@item.CREATE_DATE</td>
+                <td>
+                    <a href="/MaterialManage/SinglePR?id=@item.PR_ID&prjid=@item.PROJECT_ID" target="_blank">
+                        @item.PR_ID
+                    </a>
+                </td>
+                <td>@item.REMARK</td>
+                <td>@item.MEMO</td>
+
+                <td>
+                @if (null != item.Dminus3day && item.Dminus3day != "")
+                {
+                  <a href="/MaterialManage/CheckForReceipt?prid=@item.PR_ID&prjid=@item.PROJECT_ID&status=@item.STATUS" target="_blank">查看物料明細</a>
                 }
-            </tbody>
-        </table>
-    </div>
-</div>
+                </td>
+                <td>
+                    @item.MESSAGE
+                </td>
+                <td>
+                    @switch (item.STATUS.ToString())
+                    {
+                        case "0":<label>草稿/退件</label>
+                            break;
+                        case "10": <label>已送審</label>
+                            break;
+                        case "20": <label>採購中</label>
+                            break;
+                        case "30": <label>待驗收</label>
+                            break;
+                        case "40": <label>結案</label>
+                            break;
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

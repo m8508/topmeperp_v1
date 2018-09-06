@@ -12,7 +12,7 @@ using System.Linq;
 using System.Web;
 using topmeperp.Models;
 using System.Globalization;
-
+using System.Text;
 
 namespace topmeperp.Service
 {
@@ -1509,11 +1509,15 @@ namespace topmeperp.Service
                  ISNULL(F.ISWAGE,'N') TYPE
                  FROM PLAN_SUP_INQUIRY F ,PLAN_SUP_INQUIRY_ITEM FI
                  WHERE F.INQUIRY_FORM_ID=FI.INQUIRY_FORM_ID
-                 AND F.PROJECT_ID = @projectid AND ISNULL(SUPPLIER_ID,'') !='' AND ISNULL(F.ISWAGE,'N')=@type
+                 AND F.PROJECT_ID = @projectid 
+                 AND ISNULL(SUPPLIER_ID,'') !='' 
+                 AND ISNULL(F.ISWAGE,'N')=@type
+                 AND ISNULL(F.STATUS,'有效')='有效'
                  GROUP BY F.INQUIRY_FORM_ID,F.FORM_NAME,F.SUPPLIER_ID,ISNULL(F.ISWAGE,'N') ) VAL
                  ON IDX.INQUIRY_FORM_ID=VAL.INQUIRY_FORM_ID";
-                logger.Debug("sql =" + sql4Material + ",project id=" + projectid);
+
                 lst = context.Database.SqlQuery<plansummary>(sql4Material, new SqlParameter("projectid", projectid), new SqlParameter("type", type)).ToList();
+                context.Database.Log = (log) => logger.Debug(log);
             }
             return lst;
         }
@@ -2253,6 +2257,17 @@ namespace topmeperp.Service
                 return form.PR_ID;
             }
         }
+        public void delPR(string prid)
+        {
+            string sql = @"DELETE PLAN_PURCHASE_REQUISITION_ITEM WHERE PR_ID=@prid;
+                          DELETE PLAN_PURCHASE_REQUISITION WHERE PR_ID=@prid";
+            logger.Info("sql= " + sql + ",prid=" + prid);
+            using (var context = new topmepEntities())
+            {
+                int i = context.Database.ExecuteSqlCommand(sql, new SqlParameter("prid", prid));
+                logger.Info("count= " + i);
+            }
+        }
         //更新申購數量
         public int refreshPR(string formid, PLAN_PURCHASE_REQUISITION form, List<PLAN_PURCHASE_REQUISITION_ITEM> lstItem)
         {
@@ -2298,84 +2313,80 @@ namespace topmeperp.Service
             }
             return i;
         }
-
-        //取得申購單資料
-        public List<PRFunction> getPRByPrjId(string projectid, string date, string keyname, string prid, int status)
+        /// <summary>
+        /// 讀取申購單、採購單、驗收單、領料單(?) 等資料
+        /// </summary>
+        /// <returns></returns>
+        public List<PRFunction> getPRFunction(string type, string projectid, string status, string yymm, string prid,string keyword)
         {
-            logger.Info("search purchase requisition by 申購日期 =" + date + ", 申購單編號 =" + prid + ", 關鍵字 =" + keyname + ", 申購單狀態 =" + status);
-            List<PRFunction> lstForm = new List<PRFunction>();
-            //處理SQL 預先填入專案代號,設定集合處理參數
-
-            string sql = "SELECT A.PROJECT_ID, CONVERT(char(10), A.CREATE_DATE, 111) AS CREATE_DATE, A.PR_ID, A.STATUS, A.TASK_NAME, ISNULL(A.REMARK,'') + ISNULL(A.MEMO,'') AS KEY_NAME, A.REMARK, A.MEMO, B.PR_ID AS CHILD_PR_ID, " +
-                "C.PR_ID AS Dminus3day, D.PARENT_PR_ID AS PARENT_PR_ID, ROW_NUMBER() OVER(ORDER BY C.PR_ID desc, A.STATUS,B.PR_ID, D.PARENT_PR_ID desc) AS NO " +
-                "FROM (SELECT pr.PROJECT_ID, pr.CREATE_DATE, pr.PR_ID, pr.PRJ_UID, pt.TASK_NAME, pr.STATUS, pr.REMARK, pr.MEMO FROM PLAN_PURCHASE_REQUISITION pr LEFT OUTER JOIN PLAN_TASK pt " +
-                "ON pr.PRJ_UID = pt.PRJ_UID WHERE pr.PROJECT_ID=@projectid AND pr.PR_ID LIKE 'PR%')A LEFT JOIN (SELECT * FROM PLAN_PURCHASE_REQUISITION pr WHERE pr.PROJECT_ID=@projectid AND pr.PR_ID LIKE 'PPO%')B " +
-                "ON A.PR_ID = B.PARENT_PR_ID LEFT JOIN (SELECT pri.PR_ID FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID =@projectid " +
-                "AND pri.PR_ID LIKE 'PR%' AND pr.STATUS = 10 AND pri.NEED_DATE BETWEEN CAST(convert(varchar, getdate()-3, 120) AS DATETIME) AND CAST(convert(varchar, getdate(), 120) AS DATETIME) GROUP BY pri.PR_ID " +
-                "UNION SELECT pri.PR_ID FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID =@projectid " +
-                "AND pri.PR_ID LIKE 'PR%' AND pr.STATUS = 5 AND pri.NEED_DATE BETWEEN CAST(convert(varchar, getdate()-3, 120) AS DATETIME) AND CAST(convert(varchar, getdate(), 120) AS DATETIME) " +
-                "AND pri.PR_ID IN (SELECT pr.PARENT_PR_ID FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID = @projectid " +
-                "AND pri.PR_ID LIKE 'PPO%') GROUP BY pri.PR_ID)C ON A.PR_ID = C.PR_ID LEFT JOIN (SELECT sub.PARENT_PR_ID FROM (SELECT pri.PLAN_ITEM_ID, pri.REMARK, pri.NEED_QTY, pr.PARENT_PR_ID, main.RECEIPT_QTY " +
-                "FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID LEFT JOIN (SELECT pri.PLAN_ITEM_ID, pri.REMARK, pr.PARENT_PR_ID, SUM(pri.RECEIPT_QTY)AS RECEIPT_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri " +
-                "LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID = @projectid AND pri.PR_ID LIKE 'RP%' GROUP BY pri.PLAN_ITEM_ID, pri.REMARK, pr.PARENT_PR_ID)main ON main.PLAN_ITEM_ID + main.REMARK + main.PARENT_PR_ID = pri.PLAN_ITEM_ID + pri.REMARK + pri.PR_ID " +
-                "WHERE pr.PROJECT_ID = @projectid AND pri.PR_ID LIKE 'PPO%' GROUP BY pri.PLAN_ITEM_ID, pri.REMARK, pr.PARENT_PR_ID, main.RECEIPT_QTY, pri.NEED_QTY HAVING pri.NEED_QTY - ISNULL(main.RECEIPT_QTY, 0) > 0)sub GROUP BY sub.PARENT_PR_ID)D ON A.PR_ID = D.PARENT_PR_ID ";
+            // Type =PR : 申購單
+            // Type =PPO : 採購單
+            // Type= RP : 驗收單
+            List<PRFunction> lstForm = null;
+            string sql = @"SELECT 
+                    ROW_NUMBER() OVER(ORDER BY P.PR_ID desc, P.STATUS,P.PARENT_PR_ID desc) AS NO ,
+                    P.PROJECT_ID, 
+                    CONVERT(char(10), P.CREATE_DATE, 111) AS CREATE_DATE, 
+                    P.PR_ID, 
+                    P.STATUS, '' as TASK_NAME, 
+                    ISNULL(P.REMARK,'') + ISNULL(P.MEMO,'') AS KEY_NAME, 
+                    P.REMARK, P.MEMO, P.MESSAGE,
+                    CHILD.PR_ID AS CHILD_PR_ID, 
+                    P.PR_ID AS Dminus3day, 
+                    P.PARENT_PR_ID AS PARENT_PR_ID
+                    FROM PLAN_PURCHASE_REQUISITION P
+                    LEFT JOIN PLAN_PURCHASE_REQUISITION CHILD
+                    ON P.PR_ID=CHILD.PARENT_PR_ID
+                    WHERE P.PROJECT_ID=@projectid 
+                    AND P.PR_ID Like @type + '%'";
+            StringBuilder sb = new StringBuilder(sql);
             var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("type", type));
             parameters.Add(new SqlParameter("projectid", projectid));
-            sql = sql + "WHERE A.PR_ID IS NOT NULL ";
-
-            //申購年月查詢條件
-            if (null != date && date != "")
+            //加入狀態條件
+            if (null != status && "*" != status)
             {
-                //DateTime dt = Convert.ToDateTime(date);
-                //string DateString = dt.AddDays(1).ToString("yyyy/MM/dd");
-                string[] period = date.Split('/');
+                sb.Append(" AND P.STATUS =@status");
+                parameters.Add(new SqlParameter("status", status));
+            }
+            //加入申請年月條件
+            if (null != yymm && "" != yymm)
+            {
+                string[] period = yymm.Split('/');
                 string Year = period[0];
                 string Month = period[1];
-                sql = sql + "AND YEAR(A.CREATE_DATE) = '" + Year + "' AND MONTH(A.CREATE_DATE) = '" + Month + "' ";
-                //sql = sql + "AND CREATE_DATE >=@date AND  CREATE_DATE < '" + DateString + "' ";
-                //parameters.Add(new SqlParameter("date", date));
+                sb.Append(" AND YEAR(P.CREATE_DATE) = @year AND MONTH(P.CREATE_DATE) = @month");
+                parameters.Add(new SqlParameter("year", Year));
+                parameters.Add(new SqlParameter("month", Month));
             }
-            //申購單編號條件
-            if (null != prid && prid != "")
+            //加入單號條件
+            if (null != prid && "" != prid)
             {
-                sql = sql + "AND A.PR_ID =@prid ";
+                sb.Append(" AND P.PR_ID=@prid ");
                 parameters.Add(new SqlParameter("prid", prid));
             }
-            //關鍵字條件
-            if (null != keyname && keyname != "")
+            //加入關鍵字
+            if (null != keyword && "" != keyword)
             {
-                sql = sql + "AND ISNULL(A.REMARK,'') + ISNULL(A.MEMO,'') LIKE @keyname ";
-                parameters.Add(new SqlParameter("keyname", '%' + keyname + '%'));
+
+                sb.Append(" AND (P.REMARK LIKE '%' + @keyword + '%' OR P.MEMO '%' + @keyword + '%'  ");
+                parameters.Add(new SqlParameter("keyword", keyword));
             }
-            //申購單狀態
-            if (status == 0)//草稿與退件
-            {
-                sql = sql + "AND A.STATUS <=@status ";
-                parameters.Add(new SqlParameter("status", status));
-            }
-            if (status == 5)//退件不處理
-            {
-                sql = sql + "AND A.STATUS =@status ";
-                parameters.Add(new SqlParameter("status", status));
-            }
-            if (status == 10)//已送審
-            {
-                sql = sql + "AND A.STATUS >= 5 ";
-            }
-            if (status == 20)//未採購
-            {
-                sql = sql + "AND B.PR_ID IS NULL ";
-            }
-            if (status == 30)//未驗收
-            {
-                sql = sql + "AND D.PARENT_PR_ID IS NOT NULL ";
-            }
+            sql = sb.ToString();
             using (var context = new topmepEntities())
             {
                 logger.Debug("get purchase requisition sql=" + sql);
                 lstForm = context.Database.SqlQuery<PRFunction>(sql, parameters.ToArray()).ToList();
             }
             logger.Info("get purchase requisition count=" + lstForm.Count);
+            return lstForm;
+        }
+        //取得申購單資料
+        public List<PRFunction> getPRByPrjId(string projectid, string date, string keyname, string prid, string status)
+        {
+            logger.Info("search purchase requisition by 申購日期 =" + date + ", 申購單編號 =" + prid + ", 關鍵字 =" + keyname + ", 申購單狀態 =" + status);
+            //(string type, string projectid, string status, string yymm, string prid,string keyword)
+            List<PRFunction> lstForm = getPRFunction("PR", projectid, status, date, prid, keyname);
             return lstForm;
         }
 
@@ -2594,7 +2605,7 @@ namespace topmeperp.Service
             int i = 0;
             logger.Info("Update PR Status and Message, it's formid=" + formid + ", messaage =" + message);
             db = new topmepEntities();
-            string sql = "UPDATE PLAN_PURCHASE_REQUISITION SET STATUS = 5, MESSAGE=@message, MODIFY_DATE =@datetime  WHERE PR_ID=@formid ";
+            string sql = "UPDATE PLAN_PURCHASE_REQUISITION SET STATUS = 0, MESSAGE=@message, MODIFY_DATE =@datetime  WHERE PR_ID=@formid ";
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("message", message));
             parameters.Add(new SqlParameter("formid", formid));

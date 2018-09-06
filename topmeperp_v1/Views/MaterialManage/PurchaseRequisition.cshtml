@@ -1,54 +1,50 @@
-﻿
-@{
-    ViewBag.Title = "申購單查詢 :";
+﻿@{
+    ViewBag.Title = "申購單管理 :";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
-
-<!--
-<h3 style="height:20px;line-height:10px">@ViewBag.Title</h3> -->
-<div class="jumbotron">
+<h4>@ViewBag.Title</h4>
+<div class="page-header">
     <form name="prSearch" id="prSearch" action="Search" method="Post" class="form-inline">
         <div class="row">
-            <div class="col-md-6 form-group">
+            <div class="col-md-4 form-group">
                 <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
             </div>
-            <div class="col-md-6">
-                <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;width:300px;" readonly="readonly" />
+            <div class="col-md-8">
+                <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "Plan")'" value="回上一頁">
             </div>
         </div>
         <hr style="border-top: 1px solid #8c8b8b;" />
-
-        <div class="row">
-            <div class='col-md-4 date form-group'>
+        <div class="row" style="padding-top:-30px">
+            <div class='col-md-2 date form-group'>
                 <label for="create_date">申購年月 : </label>
-                <input id="create_date" name="create_date" class="form-control" />
+                <input id="create_date" name="create_date" class="form-control" style="width:50%"/>
             </div>
-            <div class='col-md-4 form-group'>
-                <label for="prid">申購單編號 :</label>
-                <input id="prid" name="prid" type="text" value="" class="form-control" />
-                </div>
-                <div class='col-md-4 form-group'>
-                    <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "Plan")'" value="回上一頁">
-                </div>
-                <div class="col-md-4 form-group" style="padding-top:8px">
-                    <label for="keykname">關鍵字 :</label>
-                    <input id="keyname" name="keyname" type="text" value="" class="form-control" style="width:250px;"/>
-                </div>
-                <div class="col-md-4 form-group" style="padding-top:8px">
-                    <input type="radio" value="0" id="status" name="status" checked />草稿/退件
-                    <input type="radio" value="10" id="status" name="status" />已送審
-                    <input type="radio" value="20" id="status" name="status" />未採購
-                    <input type="radio" value="30" id="status" name="status" />未驗收
-                    <input type="radio" value="5" id="status" name="status" />不處理
-                    </div>
-                    <div class="col-md-4 form-group" style="padding-top:8px">
-                        <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
-                        <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PlanTask","MaterialManage", new { id = @ViewBag.projectid })'; ">新增申購單</button>
-                    </div>
+            <div class='col-md-3 form-group'>
+                <label for="prid">申購單號 :</label>
+                <input id="prid" name="prid" type="text" value="" class="form-control" style="width:60%;" />
             </div>
-        <div class="col-md-6">
-            <div id="divProcessing">
-                <img src="~/Content/ajax-loader.gif">
+            <div class="col-md-3 form-group">
+                <label for="keykname">關鍵字 :</label>
+                <input id="keyname" name="keyname" type="text" value="" class="form-control" style="width:60%;" />
+            </div>
+            <div class="col-md-2 form-group">
+                <label for="status">狀態</label>
+                <select id="status" name="status" class="form-control">
+                    <option value="*">全部</option>
+                    <option value="0">草稿/退件</option>
+                    <option value="10">已送審</option>
+                    <option value="20">採購中</option>
+                    <option value="30">待驗收</option>
+                    <option value="40">結案</option>
+                </select>
+            </div>
+            <div class="col-md-2 form-group">
+                <div id="divProcessing">
+                    <img src="~/Content/ajax-loader.gif">
+                </div>
+                <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
+                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("PlanTask","MaterialManage", new { id = @ViewBag.projectid })'; ">新增申購單</button>
             </div>
         </div>
     </form>

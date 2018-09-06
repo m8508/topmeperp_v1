@@ -3,35 +3,38 @@
     ViewBag.Title = "專案執行-申購單 ";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
-
 <div class="contailer">
     <form id="formPR" name="formPR" action="RefreshPR" method="post" class="form-inline">
-        <div class="row">
-            @if (Model.planPR.STATUS == 0)
-            {
-                <div class="col-md-12"><h3 style="height:30px;line-height:20px" class="text-center">協成水電工程事業有限公司-申購單草稿</h3></div>
-            }
-            else if (Model.planPR.STATUS == -10)
-            {
-                <div class="col-md-12"><h3 style="height:30px;line-height:20px" class="text-center">協成水電工程事業有限公司-申購單退件</h3></div>
-            }
-            else
-            {
-                <div class="col-md-12"><h3 style="height:30px;line-height:20px" class="text-center">協成水電工程事業有限公司-申購單</h3></div>
-            }
+        <div class="row  bg-info">
+            <div class="col-md-7"><h3 class="text-center">協成水電工程事業有限公司-申購單</h3></div>
+            <div class="col-md-5">
+                <label>
+                    狀態:
+                    @switch (Model.planPR.STATUS.ToString())
+                    {
+                        case "0":<label>草稿/退件</label>
+                            break;
+                        case "10": <label>已送審</label>
+                            break;
+                        case "20": <label>採購中</label>
+                            break;
+                        case "30": <label>待驗收</label>
+                            break;
+                        case "40": <label>結案</label>
+                            break;
+                    }
+                </label>
+                <label>申購日期: @Model.planPR.CREATE_DATE</label>
+                <input type="hidden" id="apply_date" name="apply_date" value="@Model.planPR.CREATE_DATE" />
+                <a href="~/MaterialManage/PurchaseRequisition/@Model.planPR.PROJECT_ID" class="btn btn-success">上一頁</a>
+            </div>
         </div>
-        <!-- Reg-Form new { enctype = "multipart/form-data" } -->
         <div class="row">
             <div class="col-md-4">
-                <label for="projectName">專案名稱:</label>
-                <input id="projectName" name="projectName" type="text" value="@Model.prj.PROJECT_NAME" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                <label for="pr_id">申購單號:@Model.planPR.PR_ID</label>
             </div>
-            <div class="col-md-4">
-                <label for="apply_date">申購日期:</label>
-                <input id="apply_date" name="apply_date" type="text" value="@Model.planPR.CREATE_DATE" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
-            </div>
-            <div class="col-md-4">
-                <label for="pr_id">申購單號:</label><input id="pr_id" name="pr_id" type="text" value="@Model.planPR.PR_ID" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+            <div class="col-md-8">
+                <label>專案名稱:@Model.prj.PROJECT_NAME</label>
             </div>
         </div>
         <div class="row" style="padding-top:10px">
@@ -39,11 +42,11 @@
             <div class="col-md-2" style="padding-bottom:10px">
                 <input type="text" class="form-control" name="recipient" id="recipient" value="@Model.planPR.RECIPIENT">
                 <input type="hidden" name="projectid" id="projectid" value="@Model.planPR.PROJECT_ID">
+                <input type="hidden" id="pr_id" name="pr_id" value="@Model.planPR.PR_ID" />
                 <input type="hidden" name="prjuid" id="prjuid" value="@Model.planPR.PRJ_UID">
                 <input type="hidden" name="status" id="status" value="@Model.planPR.STATUS">
             </div>
-
-            <label class="col-md-2 control-label">注意事項 : </label>
+            <label class="col-md-2 control-label">申購說明 : </label>
             <div class="col-md-6">
                 <input type="text" class="form-control" name="caution" id="caution" style="max-width:none; width:70%;" value="@Model.planPR.REMARK">
             </div>
@@ -55,10 +58,13 @@
             </div>
         </div>
 
-        <div class="contailer" style="page-break-before: always">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addPRItem" onclick="addPRFormItem()">新增物料品項</button>
-            <table class="table">
-                <thead>
+        <div class="contailer" style="page-break-before: always;padding-top:10px">
+            @if (@Model.planPR.STATUS == 0)
+            {
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addPRItem" onclick="addPRFormItem()">新增物料品項</button>
+            }
+            <table class="table table-bordered">
+                <thead class="bg-info">
                     <tr>
                         <th>
                             No.
@@ -94,7 +100,7 @@
                 </thead>
                 <tbody>
                     @foreach (var item in Model.planPRItem)
-            {
+                    {
 
                         <tr>
                             <td>
@@ -161,22 +167,14 @@
             </table>
         </div>
         <div class="col-md-12" style="padding-bottom:20px;">
-            @if (Model.planPR.STATUS <= 10)
-            {
                 <div class="col-md-6">
-                    備忘錄:<textarea class="form-control" rows="5" id="memo" name="memo" style="width:90%">@Model.planPR.MEMO</textarea>
+                    注意事項:<textarea class="form-control" rows="5" id="memo" name="memo" style="width:90%">@Model.planPR.MEMO</textarea>
                 </div>
-            }
-            else
+
+            @if (Model.planPR.STATUS == 10)
             {
                 <div class="col-md-6">
-                    備忘錄:<textarea class="form-control" rows="5" id="memo" name="memo" readonly style="width:90%">@Model.planPR.MEMO</textarea>
-                </div>
-            }
-            @if (Model.planPR.STATUS == -10 || Model.planPR.STATUS == 5)
-            {
-                <div class="col-md-6">
-                    退件不處理說明:<textarea class="form-control" rows="5" id="message" name="message" style="color: red; font-size: 15px;background-color:Highlight;width:90%">@Model.planPR.MESSAGE</textarea>
+                    退件說明:<textarea class="form-control" rows="5" id="message" name="message" style="width:90%">@Model.planPR.MESSAGE</textarea>
                 </div>
             }
         </div>
@@ -184,19 +182,16 @@
 </div>
 <div class="row">
     <div class="" col-md-12">
-        @if (Model.planPR.STATUS < 10)
+        @if (Model.planPR.STATUS == 0)
         {
             <input type="button" value="修改" class="btn btn-default" id="updatePR" />
-        }
-        @if (Model.planPR.STATUS < 10)
-        {
             <input type="button" value="申購" class="btn btn-warning" id="addPR" />
+            <input type="button" value="刪除" class="btn btn-danger" id="delPR" />
         }
-        @if (Model.planPR.STATUS == -10)
+        @if (Model.planPR.STATUS == 10)
         {
-            <input type="button" value="不處理" class="btn btn-danger" id="skipPR" />
+            <input type="button" value="退件" class="btn btn-warning" id="skipPR" />
         }
-
     </div>
 </div>
 
@@ -360,6 +355,22 @@
             success: function (msg) {
                 alert(msg);
                 window.location.reload()
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        });
+    });
+    $("#delPR").click(function () {
+        var r = confirm("您確定要刪除此申購單！");
+        if (r != true) return false;
+        $.ajax({
+            url: '@Url.Action("delPR", "MaterialManage")',
+            data: $('#formPR').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                window.location.replace(msg);
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);

@@ -769,10 +769,10 @@ namespace topmeperp.Service
                     }
 
                     string sql = "INSERT INTO TND_PROJECT_FORM_ITEM (FORM_ID, PROJECT_ITEM_ID,"
-                        + "TYPE_CODE, SUB_TYPE_CODE,ITEM_DESC,ITEM_UNIT, ITEM_QTY,"
+                        + "TYPE_CODE, SUB_TYPE_CODE,ITEM_ID,ITEM_DESC,ITEM_UNIT, ITEM_QTY,"
                         + "ITEM_UNIT_PRICE, ITEM_REMARK) "
                         + "SELECT '" + sf.FORM_ID + "' as FORM_ID, PROJECT_ITEM_ID, TYPE_CODE,"
-                        + "SUB_TYPE_CODE, ITEM_DESC, ITEM_UNIT,ITEM_QTY, ITEM_UNIT_PRICE,"
+                        + "SUB_TYPE_CODE, ITEM_ID,ITEM_DESC, ITEM_UNIT,ITEM_QTY, ITEM_UNIT_PRICE,"
                         + "ITEM_REMARK "
                         + "FROM TND_PROJECT_FORM_ITEM where FORM_ITEM_ID IN (" + ItemId + ")";
 
@@ -884,7 +884,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 supplier = context.TND_SUPPLIER.SqlQuery("select s.* from TND_SUPPLIER s "
-                    + "where s.COMPANY_NAME = @supplierName "
+                    + "where s.COMPANY_NAME = @supplierName OR s.SUPPLIER_ID= @supplierName "
                    , new SqlParameter("supplierName", supplierName)).First();
             }
             return supplier;

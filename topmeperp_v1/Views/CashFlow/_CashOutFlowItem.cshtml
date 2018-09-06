@@ -152,10 +152,13 @@
     @foreach (var item in Model.expBudget)
             {
         <tr>
-            <td>@String.Format("{0:$#,##0.#}", item.AMOUNT)</td>
             <td>
-            <a href="/CashFlow/showBudgetStatus?paymentdate=@string.Format("{0:yyyy/MM/dd}", item.RECORDED_DATE)" target="_blank" >
-                @string.Format("{0:yyyy/MM/dd}", item.RECORDED_DATE)</a>
+                <a href="/CashFlow/showBudgetStatus?paymentdate=@string.Format("{0:yyyy/MM/dd}", item.RECORDED_DATE)" target="_blank">
+                    @String.Format("{0:$#,##0.#}", item.AMOUNT)
+                </a>
+            </td>
+            <td>
+                @string.Format("{0:yyyy/MM/dd}", item.RECORDED_DATE)
             </td>
         </tr>
     }

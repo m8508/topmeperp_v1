@@ -1,5 +1,5 @@
 ﻿@model IEnumerable<topmeperp.Models.TND_PROJECT_ITEM>
-@using (Html.BeginForm("Create", "Inquiry", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+@using (Html.BeginForm("Create", "Inquiry", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data"}))
 {
     <!--不好的方式但檔著先屆時設為Hidden-->
     <input type="hidden" id="prjId" name="prjId" value="@ViewBag.projectid"/>
@@ -89,8 +89,8 @@
             </tr>
         }
     </table><br />
-
-    <input id="Submit1" type="submit" value="新增詢價單樣本" />
+    <label for="formname">採購項目:</label> <input type="text" id ="formname" name="formname" class="form-control" />
+    <input id="Submit1" type="submit" value="新增詢價單樣本"  class="btn" onclick="return validateForm()"  />
 }
 
 
@@ -111,5 +111,13 @@
             return $(this).val();
         })
           .get().join(',');
+    }
+    function validateForm() {
+        var formname = $("#formname").val();
+        if (formname.trim() == '') {
+            alert("請輸入採購項目名稱");
+            return false;
+        }
+        return true;
     }
 </script>

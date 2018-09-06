@@ -77,6 +77,7 @@ namespace topmeperp.Controllers
             UserService us = new UserService();
             SYS_USER u = (SYS_USER)Session["user"];
             SYS_USER uInfo = us.getUserInfo(u.USER_ID);
+            qf.FORM_NAME = Request["formname"];
             qf.PROJECT_ID = Request["prjId"];
             qf.CREATE_ID = u.USER_ID;
             qf.CREATE_DATE = DateTime.Now;
@@ -115,15 +116,19 @@ namespace topmeperp.Controllers
 
             fm.PROJECT_ID = form.Get("projectid").Trim();
             //廠商資料
-            if (null == form.Get("Supplier") || "" == form.Get("Supplier"))
+            if (null != form.Get("supplier") || "" != form.Get("supplier"))
             {
-                fm.SUPPLIER_ID = form.Get("Supplier").Substring(7).Trim();
-                fm.DUEDATE = Convert.ToDateTime(form.Get("inputdateline"));
-                TND_SUPPLIER s = service.getSupplierInfo(form.Get("Supplier").Substring(0, 7).Trim());
+                fm.SUPPLIER_ID = Request["supplier"].Substring(7).Trim();
+                if (form.Get("inputdateline") != "")
+                {
+                    fm.DUEDATE = Convert.ToDateTime(form.Get("inputdateline"));
+                }
+                TND_SUPPLIER s = service.getSupplierInfo(form.Get("supplier").Substring(0, 7).Trim());
                 fm.CONTACT_NAME = s.CONTACT_NAME;
                 fm.CONTACT_EMAIL = s.CONTACT_EMAIL;
             }
             //業務區塊
+            fm.FORM_ID = form.Get("inputformnumber").Trim();
             fm.OWNER_NAME = form.Get("inputowner").Trim();
             fm.OWNER_TEL = form.Get("inputphone").Trim();
             fm.OWNER_FAX = form.Get("inputownerfax").Trim();
@@ -665,7 +670,7 @@ namespace topmeperp.Controllers
             string realFilePath = ContextService.strUploadPath + "\\" + projectid + "\\" + ContextService.quotesFolder + "\\" + poid + ".xlsx";
             SYS_USER u = (SYS_USER)Session["user"];
             log.Debug("Attachment file path=" + realFilePath);
-            if (es.SendMailByGmail(strSenderAddress, u.USER_NAME ,strReceiveAddress, null, strSubject, strContent, realFilePath))
+            if (es.SendMailByGmail(strSenderAddress, u.USER_NAME, strReceiveAddress, null, strSubject, strContent, realFilePath))
             {
                 return "發送成功!!";
             }

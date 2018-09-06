@@ -6,13 +6,10 @@
 <div class="container">
     <h2 class="text-center" style="padding-top:10px;"> 現金流出明細查詢</h2>
 </div>
-<div class="col-md-12" style="padding-bottom:20px;">
-    <input type="button" class="btn btn-success" onclick="closewin();" value="關閉">
-</div>
 
 <form name="outFlowSearch" id="outFlowSearch" action="/CashFlow/SearchCashOutFlow" method="Post" class="form-inline">
     <div class="row">
-        <div class='col-md-4 form-group'>
+        <div class='col-md-3 form-group'>
             <label for="payment_date">查詢日期 : </label>
             <input id="payment_date" name="payment_date" class="form-control" />
         </div>
@@ -21,8 +18,9 @@
             <input id="during_start" name="during_start" class="form-control" /> ~
             <input id="during_end" name="during_end" class="form-control" />
         </div>
-        <div class="col-md-1 pull-left">
+        <div class="col-md-2 pull-left">
             <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
+            <input type="button" class="btn btn-success" onclick="closewin();" value="關閉">
         </div>
         <div id="divProcessing" class="col-md-1">
             <img src="~/Content/ajax-loader.gif">
