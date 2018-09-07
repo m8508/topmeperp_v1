@@ -5,7 +5,7 @@
         @if (null != Model.materialTemplateWithBudget)
         {
             <h3 class="text-left">
-                材料預算: @if (ViewBag.budgetdata != null)
+                材料預算: @if (Model.BudgetSummary.Material_Budget != null)
                 {
                     @String.Format("{0:#,##}", Model.BudgetSummary.Material_Budget);
                 }

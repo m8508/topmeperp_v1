@@ -419,72 +419,34 @@ namespace topmeperp.Service
         public List<ExpenseFormFunction> getExpenseBudgetByDate(string paymentDate, string duringStart, string duringEnd)
         {
             List<ExpenseFormFunction> lstItem = new List<ExpenseFormFunction>();
-            string sql = @"SELECT CONVERT(char(10),CONVERT(datetime, exp.PaidDate , 111), 111) RECORDED_DATE,exp.AMOUNT 
-                from (
-                 SELECT CONVERT(varchar, r.CURRENT_YEAR) + '/'+ CONVERT(varchar, r.BUDGET_MONTH) + '/'+ CONVERT(varchar, BUDGET_DAY)PaidDate, sum(PaidAmt) AMOUNT 
-                 FROM (
-                 SELECT budget.*, ISNULL(expense.AMOUNT_REAL, budget.AMOUNT) PaidAmt 
-                 FROM (
-                 --公司預算--特定預算日期
-                 SELECT SUBJECT_ID, CURRENT_YEAR, BUDGET_MONTH, AMOUNT ,BUDGET_DAY
-                 FROM FIN_EXPENSE_BUDGET B JOIN FIN_SUBJECT S 
-                 ON B.SUBJECT_ID=S.FIN_SUBJECT_ID
-                 WHERE S.BUDGET_DAY IS NOT NULL AND CURRENT_YEAR >= YEAR(GETDATE()) 
-                 UNION --工地預算
-                 SELECT SUBJECT_ID, BUDGET_YEAR, BUDGET_MONTH, AMOUNT ,BUDGET_DAY
-                 FROM PLAN_SITE_BUDGET B JOIN FIN_SUBJECT S 
-                 ON B.SUBJECT_ID=S.FIN_SUBJECT_ID
-                 WHERE S.BUDGET_DAY IS NOT NULL AND  BUDGET_YEAR >= YEAR(GETDATE())
-                  ) budget 
-                 left join (
-                 --實際數
-                 SELECT OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID, sum(i.AMOUNT) as AMOUNT_REAL 
-                 FROM FIN_EXPENSE_FORM f LEFT JOIN FIN_EXPENSE_ITEM i ON f.EXP_FORM_ID = i.EXP_FORM_ID 
-                 WHERE i.FIN_SUBJECT_ID in (SELECT FIN_SUBJECT_ID FROM FIN_SUBJECT WHERE BUDGET_DAY IS NOT NULL ) 
-                 AND f.STATUS = 30 
-                 GROUP BY OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID)expense ON 
-                   budget.SUBJECT_ID + CONVERT(varchar, budget.CURRENT_YEAR) + CONVERT(varchar, budget.BUDGET_MONTH) 
-                 = expense.FIN_SUBJECT_ID + CONVERT(varchar, expense.OCCURRED_YEAR) + CONVERT(varchar, expense.OCCURRED_MONTH)
-                 )r GROUP BY r.CURRENT_YEAR,r.BUDGET_MONTH ,BUDGET_DAY
-                UNION 
-                  SELECT 
-                  Dateadd(day,-1,Dateadd(month,1,CONVERT (Datetime,CONVERT(varchar, r.CURRENT_YEAR) + '/' + CONVERT(varchar, r.BUDGET_MONTH) + '/' + CONVERT(varchar, 1)))) PaidDate, 
-                  sum(PaidAmt)AMOUNT from 
-                (SELECT budget.*, iif(expense.AMOUNT_REAL is not null, 0, budget.AMOUNT) PaidAmt FROM(
-                  ---公司其他預算
-                  SELECT SUBJECT_ID, BUDGET_YEAR AS CURRENT_YEAR, BUDGET_MONTH, AMOUNT FROM FIN_EXPENSE_BUDGET 
-                   WHERE SUBJECT_ID IN (SELECT FIN_SUBJECT_ID FROM FIN_SUBJECT WHERE BUDGET_DAY IS NULL ) AND BUDGET_YEAR >= YEAR(GETDATE())
-                   )budget left join(
-                   ---公司其他實際數
-                  SELECT OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID, sum(i.AMOUNT) as AMOUNT_REAL 
-                  FROM FIN_EXPENSE_FORM f LEFT JOIN FIN_EXPENSE_ITEM i ON f.EXP_FORM_ID = i.EXP_FORM_ID 
-                  WHERE i.FIN_SUBJECT_ID in (SELECT FIN_SUBJECT_ID FROM FIN_SUBJECT WHERE BUDGET_DAY IS NULL ) 
-                   AND f.STATUS = 30 GROUP BY OCCURRED_YEAR, OCCURRED_MONTH, i.FIN_SUBJECT_ID
-                  )expense ON budget.SUBJECT_ID + CONVERT(varchar, budget.CURRENT_YEAR) + CONVERT(varchar, budget.BUDGET_MONTH) 
-                      = expense.FIN_SUBJECT_ID + CONVERT(varchar, expense.OCCURRED_YEAR) + CONVERT(varchar, expense.OCCURRED_MONTH))r 
-                  GROUP BY r.CURRENT_YEAR,r.BUDGET_MONTH)exp
-                   where exp.AMOUNT <> 0 $WhereCond
+            string sql = @"SELECT CONVERT(char(10),CONVERT(datetime, exp.PAID_DATE , 111), 111) RECORDED_DATE, SUM(exp.AMOUNT) AMOUNT
+                FROM (
+                	SELECT (SELECT TOP 1 PROJECT_NAME FROM TND_PROJECT WHERE PROJECT_ID=v.PROJECT_ID ) as PROJECT_ID
+                   ,(SELECT TOP 1 SUBJECT_NAME FROM FIN_SUBJECT WHERE FIN_SUBJECT_ID=v.SUBJECT_ID ) as SUBJECT_ID
+                   ,PAID_DATE,AMOUNT,AMOUNT_REAL 
+                   FROM vw_BudgetStatus v $WhereCond
+                ) exp GROUP BY PAID_DATE
                 ";
             using (var context = new topmepEntities())
             {
                 //條件篩選
                 if (null != paymentDate && paymentDate != "")
                 {
-                    string sql4Where = @"and CONVERT(char(10), CONVERT(datetime, exp.PaidDate, 111), 111) = @paymentDate and CONVERT(char(10), CONVERT(datetime, exp.PaidDate, 111), 111) >= CONVERT(char(10), GETDATE(), 111) ";
+                    string sql4Where = @"WHERE PAID_DATE = @paymentDate ";
                     sql = sql.Replace("$WhereCond", sql4Where);
                     logger.Debug("sql=" + sql + ",paymentdate=" + paymentDate);
                     lstItem = context.Database.SqlQuery<ExpenseFormFunction>(sql, new SqlParameter("paymentDate", paymentDate)).ToList();
                 }
                 else if (null != duringStart && duringStart != "" && null != duringEnd && duringEnd != "")
                 {
-                    string sql4Where = @"and CONVERT(char(10), CONVERT(datetime, exp.PaidDate, 111), 111) >= @duringStart and CONVERT(char(10), CONVERT(datetime, exp.PaidDate, 111), 111) <= @duringEnd and CONVERT(char(10), CONVERT(datetime, exp.PaidDate, 111), 111) >= CONVERT(char(10), GETDATE(), 111) ";
+                    string sql4Where = @"WHERE PAID_DATE BETWEEN @duringStart AND  @duringEnd";
                     sql = sql.Replace("$WhereCond", sql4Where);
                     logger.Debug("sql=" + sql + ",duringStart=" + duringStart + ",duringEnd=" + duringEnd);
                     lstItem = context.Database.SqlQuery<ExpenseFormFunction>(sql, new SqlParameter("duringStart", duringStart), new SqlParameter("duringEnd", duringEnd)).ToList();
                 }
                 else
                 {
-                    string sql4Where = @" and CONVERT(char(10), CONVERT(datetime, exp.PaidDate, 111), 111) >= CONVERT(char(10), GETDATE(), 111) ";
+                    string sql4Where = @"";
                     sql = sql.Replace("$WhereCond", sql4Where);
                     logger.Debug("sql=" + sql);
                     lstItem = context.Database.SqlQuery<ExpenseFormFunction>(sql).ToList();
@@ -496,7 +458,7 @@ namespace topmeperp.Service
         {
             List<Budget4CashFow> lstItem = new List<Budget4CashFow>();
             string sql = @"SELECT (SELECT TOP 1 PROJECT_NAME FROM TND_PROJECT WHERE PROJECT_ID=v.PROJECT_ID ) as PROJECT_ID
-                        ,(SELECT TOP 1 SUBJECT_NAME FROM FIN_SUBJECT WHERE SUBJECT_ID=v.SUBJECT_ID ) as SUBJECT_ID
+                        ,(SELECT TOP 1 SUBJECT_NAME FROM FIN_SUBJECT WHERE FIN_SUBJECT_ID=v.SUBJECT_ID ) as SUBJECT_ID
                         ,PAID_DATE,AMOUNT,AMOUNT_REAL 
                         FROM vw_BudgetStatus v WHERE  PAID_DATE=@paymentdate";
             using (var context = new topmepEntities())

@@ -631,11 +631,11 @@ namespace topmeperp.Service
             while (rows.MoveNext())
             {
                 row = (IRow)rows.Current;
-                logger.Debug("Excel Value:" + row.Cells[0].ToString() + row.Cells[1] + row.Cells[2]);
                 //將各Row 資料寫入物件內
                 //0.項次	1.圖號	2.棟別	3.一次側位置	4.一次側名稱	5.二次側名稱	6.二次側位置	7.管材名稱	8管數/組	9管組數	10管長度/組數	11管總長
                 if (row.Cells.Count != 0 && row.Cells[0].ToString().ToUpper() != "END")
                 {
+                    logger.Debug("ROW:" + iRowIndex + ",Excel Value:" + row.Cells[0].ToString() + row.Cells[1] + row.Cells[2]);
                     lstMapFW.Add(convertRow2TndMapFW(row, iRowIndex));
                 }
                 else
@@ -654,6 +654,7 @@ namespace topmeperp.Service
          * */
         private TND_MAP_FW convertRow2TndMapFW(IRow row, int excelrow)
         {
+            logger.Debug("get last row no=" + row.LastCellNum);
             TND_MAP_FW item = new TND_MAP_FW();
             item.PROJECT_ID = projId;
             if (row.Cells[0].ToString().Trim() != "")//0.項次
@@ -738,7 +739,7 @@ namespace topmeperp.Service
                 }
             }
 
-
+            string col11 = row.Cells[11].ToString().Trim();
             if (null != row.Cells[11].ToString().Trim() || row.Cells[11].ToString().Trim() != "")// 11管總長
             {
                 try
@@ -1328,12 +1329,14 @@ namespace topmeperp.Service
             while (rows.MoveNext())
             {
                 row = (IRow)rows.Current;
-                logger.Debug("Excel Value:" + row.Cells[0].ToString());
+                logger.Debug("Excel Row=" + iRowIndex + ",Excel Value:" + row.Cells[0].ToString());
                 //將各Row 資料寫入物件內
-                //0.項次	1.圖號	2.棟別	3.一次側位置	4.一次側名稱	5.二次側名稱	6.二次側位置	7.線材名稱	8.條數/組	9.線組數	10.線長度/組數	11.線總長  12.地線名稱	13.地線條數	14.地線總長  15.管材名稱1	16.管長1	17.管組數1   18.管總長1	19.管材名稱2  20.管長2	21.管組數2  22.管總長2
+                //0.項次	1.圖號	2.棟別	3.一次側位置	4.一次側名稱	5.二次側名稱	6.二次側位置	
+                //7.線材名稱	8.條數/組	9.線組數	10.線長度/組數	11.線總長  12.地線名稱	13.地線條數	
+                //14.地線總長  15.管材名稱1	--16.管長1	17.管組數1   18.管總長1	19.管材名稱2  20.管長2	21.管組數2  22.管總長2
                 if (row.Cells.Count != 0 && row.Cells[0].ToString().ToUpper() != "END")
                 {
-                    logger.Debug("Excel Value:" + row.Cells[0].ToString() + row.Cells[1] + row.Cells[2]);
+                    logger.Debug("Excel Value:" + row.Cells[0].ToString() + row.Cells[1]);
                     lstMapLCP.Add(convertRow2TndMapLCP(row, iRowIndex));
                 }
                 else
@@ -1354,236 +1357,140 @@ namespace topmeperp.Service
         {
             TND_MAP_LCP item = new TND_MAP_LCP();
             item.PROJECT_ID = projId;
-            if (row.Cells[0].ToString().Trim() != "")//0.項次
+            int iMax = row.LastCellNum;
+            for (int iCol = 0; iCol < iMax; iCol++)
             {
-                item.EXCEL_ITEM = row.Cells[0].ToString();
-            }
-            if (row.Cells[1].ToString().Trim() != "")//1.圖號
-            {
-                item.MAP_NO = row.Cells[1].ToString();
-            }
-            if (row.Cells[2].ToString().Trim() != "")//2.棟別
-            {
-                item.BUILDING_NO = row.Cells[2].ToString();
-            }
+                logger.Debug("Excel Row:" + excelrow + ",MaxCol=" + iCol);
+                var cell = row.GetCell(iCol);
+                if (null != cell)
+                {
+                    switch (iCol)
+                    {
+                        case 0://0項次
+                            item.EXCEL_ITEM = cell.ToString();
+                            break;
+                        case 1://1圖號
+                            item.MAP_NO = cell.ToString();
+                            break;
+                        case 2://2棟別
+                            item.BUILDING_NO = cell.ToString();
+                            break;
+                        case 3://3一次側位置
+                            item.PRIMARY_SIDE = cell.ToString();
+                            break;
+                        case 4://4一次側	
+                            item.PRIMARY_SIDE_NAME = cell.ToString();
+                            break;
+                        case 5://5二次側
+                            item.SECONDARY_SIDE = cell.ToString();
+                            break;
+                        case 6://6二次側位置
+                            item.SECONDARY_SIDE_NAME = cell.ToString();
+                            break;
+                        case 7://7線徑
+                            item.WIRE_NAME = cell.ToString();
+                            break;
+                        case 8://8數量
+                            try
+                            {
+                                decimal dQty = decimal.Parse(cell.ToString());
+                                logger.Info("excelrow=" + excelrow + ",value=" + cell.ToString());
+                                item.WIRE_QTY_SET = dQty;
+                            }
+                            catch (Exception e)
+                            {
+                                logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Cells[8].value=" + cell.ToString());
+                                logger.Error(e.Message);
+                            }
+                            break;
+                        case 9:// 9組數
+                            try
+                            {
+                                decimal dQty = decimal.Parse(cell.ToString());
+                                logger.Info("excelrow=" + excelrow + ",value=" + cell.ToString());
+                                item.WIRE_SET_CNT = dQty;
+                            }
+                            catch (Exception e)
+                            {
+                                logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Cells[9].value=" + cell.ToString());
+                                //   logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",value=" + row.Cells[3].ToString());
+                                logger.Error(e.Message + "," + e.StackTrace);
+                            }
+                            break;
+                        case 10://10線長
+                            try
+                            {
+                                decimal dQty = decimal.Parse(cell.ToString());
+                                logger.Info("excelrow=" + excelrow + ",value=" + cell.ToString());
+                                item.WIRE_LENGTH = dQty;
+                            }
+                            catch (Exception e)
+                            {
+                                logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Cells[10].value=" + cell.ToString());
+                                logger.Error(e.Message + "," + e.StackTrace);
+                            }
+                            break;
+                        case 11://11線總長
+                            try
+                            {
+                                decimal dQty = decimal.Parse(cell.ToString());
+                                logger.Info("excelrow=" + excelrow + ",value=" + cell.ToString());
+                                item.WIRE_TOTAL_LENGTH = dQty;
+                            }
+                            catch (Exception e)
+                            {
+                                logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Cells[11].value=" + cell.ToString());
+                                logger.Error(e.Message + "," + e.StackTrace);
+                            }
+                            break;
+                        case 12://12導線管徑標稱
+                            item.PIPE_1_NAME = cell.ToString();
+                            break;
+                        case 13://13管長
+                            try
+                            {
+                                decimal dQty = decimal.Parse(cell.ToString());
+                                logger.Info("excelrow=" + excelrow + ",value=" + cell.ToString());
+                                item.PIPE_1_LENGTH = dQty;
+                            }
+                            catch (Exception e)
+                            {
+                                logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Cells[13].value=" + cell.ToString());
+                                logger.Error(e.Message + "," + e.StackTrace);
+                            }
+                            break;
+                        case 14://14數量
+                            try
+                            {
+                                decimal dQty = decimal.Parse(cell.ToString());
+                                logger.Info("excelrow=" + excelrow + ",value=" + cell.ToString());
+                                item.PIPE_1_SET = dQty;
+                            }
+                            catch (Exception e)
+                            {
+                                logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Cells[14].value=" + cell.ToString());
+                                logger.Error(e.Message + "," + e.StackTrace);
+                            }
+                            break;
+                        case 15://15管總長
+                            try
+                            {
+                                decimal dQty = decimal.Parse(cell.ToString());
+                                logger.Info("excelrow=" + excelrow + ",value=" + cell.ToString());
+                                item.PIPE_1_TOTAL_LEN = dQty;
+                            }
+                            catch (FormatException fe)
+                            {
+                                logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Cells[15].value=" + cell.ToString());
+                                logger.Error(fe.Message + "," + fe.StackTrace);
+                            }
+                            catch (Exception e)
+                            {
+                                logger.Error(e.Message + "," + e.StackTrace);
+                            }
+                            break;
+                    }
 
-            if (row.Cells[3].ToString().Trim() != "")//3.一次側位置
-            {
-                item.PRIMARY_SIDE = row.Cells[3].ToString();
-            }
-            if (row.Cells[4].ToString().Trim() != "")//4.一次側名稱
-            {
-                item.PRIMARY_SIDE_NAME = row.Cells[4].ToString();
-            }
-
-            if (row.Cells[5].ToString().Trim() != "")//5.二次側名稱
-            {
-                item.SECONDARY_SIDE = row.Cells[5].ToString();
-            }
-            if (row.Cells[6].ToString().Trim() != "")//6.二次側位置
-            {
-                item.SECONDARY_SIDE_NAME = row.Cells[6].ToString();
-            }
-
-            if (row.Cells[7].ToString().Trim() != "")//7.線材名稱
-            {
-                item.WIRE_NAME = row.Cells[7].ToString();
-            }
-
-            if (row.Cells[8].ToString().Trim() != "")// 8.條數/組
-            {
-                try
-                {
-                    decimal dQty = decimal.Parse(row.Cells[8].ToString());
-                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[8].ToString());
-                    item.WIRE_QTY_SET = dQty;
-                }
-                catch (Exception e)
-                {
-                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Cells[8].value=" + row.Cells[8].ToString());
-                    logger.Error(e.Message);
-                }
-            }
-
-            if (row.Cells[9].ToString().Trim() != "")// 9.線組數
-            {
-                try
-                {
-                    decimal dQty = decimal.Parse(row.Cells[9].ToString());
-                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[9].ToString());
-                    item.WIRE_SET_CNT = dQty;
-                }
-                catch (Exception e)
-                {
-                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Cells[9].value=" + row.Cells[9].ToString());
-                    //   logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",value=" + row.Cells[3].ToString());
-                    logger.Error(e.Message);
-                }
-            }
-
-            if (row.Cells[10].ToString().Trim() != "")// 10.線長度/組數   
-            {
-                try
-                {
-                    decimal dQty = decimal.Parse(row.Cells[10].ToString());
-                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[10].ToString());
-                    item.WIRE_LENGTH = dQty;
-                }
-                catch (Exception e)
-                {
-                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Cells[10].value=" + row.Cells[10].ToString());
-                    logger.Error(e.Message);
-                }
-            }
-
-
-            if (row.Cells[11].ToString().Trim() != "")// 11.線總長  
-            {
-                try
-                {
-                    decimal dQty = decimal.Parse(row.Cells[11].ToString());
-                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[11].ToString());
-                    item.WIRE_TOTAL_LENGTH = dQty;
-                }
-                catch (Exception e)
-                {
-                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Cells[11].value=" + row.Cells[11].ToString());
-                    logger.Error(e.Message);
-                }
-            }
-
-            if (row.Cells[12].ToString().Trim() != "") //12.地線名稱
-            {
-                item.GROUND_WIRE_NAME = row.Cells[12].ToString();
-            }
-
-            if (row.Cells[13].ToString().Trim() != "") // 	13.地線條數	
-            {
-                try
-                {
-                    decimal dQty = decimal.Parse(row.Cells[13].ToString());
-                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[13].ToString());
-                    item.GROUND_WIRE_QTY = dQty;
-                }
-                catch (Exception e)
-                {
-                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Cells[13].value=" + row.Cells[13].ToString());
-                    logger.Error(e.Message);
-                }
-            }
-
-            if (row.Cells[14].ToString().Trim() != "")// 14.地線總長 		  	
-            {
-                try
-                {
-                    decimal dQty = decimal.Parse(row.Cells[14].ToString());
-                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[14].ToString());
-                    item.GROUND_WIRE_TOTAL_LENGTH = dQty;
-                }
-                catch (Exception e)
-                {
-                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Cells[14].value=" + row.Cells[14].ToString());
-                    logger.Error(e.Message);
-                }
-            }
-
-            if (row.Cells[15].ToString().Trim() != "") //15.管材名稱1
-            {
-                item.PIPE_1_NAME = row.Cells[15].ToString();
-            }
-
-            if (row.Cells[16].ToString().Trim() != "")//16.管長1
-            {
-                try
-                {
-                    decimal dQty = decimal.Parse(row.Cells[16].ToString());
-                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[16].ToString());
-                    item.PIPE_1_LENGTH = dQty;
-                }
-                catch (Exception e)
-                {
-                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Cells[16].value=" + row.Cells[16].ToString());
-                    logger.Error(e.Message);
-                }
-            }
-
-            if (row.Cells[17].ToString().Trim() != "")//17.管組數1
-            {
-                try
-                {
-                    decimal dQty = decimal.Parse(row.Cells[17].ToString());
-                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[17].ToString());
-                    item.PIPE_1_SET = dQty;
-                }
-                catch (Exception e)
-                {
-                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Cells[17].value=" + row.Cells[17].ToString());
-                    logger.Error(e.Message);
-                }
-            }
-
-            if (row.Cells[18].ToString().Trim() != "")//18.管總長1
-            {
-                try
-                {
-                    decimal dQty = decimal.Parse(row.Cells[18].ToString());
-                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[18].ToString());
-                    item.PIPE_1_TOTAL_LEN = dQty;
-                }
-                catch (Exception e)
-                {
-                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Cells[18].value=" + row.Cells[18].ToString());
-                    logger.Error(e.Message);
-                }
-            }
-
-            if (row.Cells[19].ToString().Trim() != "") //19.管材名稱2
-            {
-                item.PIPE_2_NAME = row.Cells[19].ToString();
-            }
-
-            if (row.Cells[20].ToString().Trim() != "")//20.管長2	
-            {
-                try
-                {
-                    decimal dQty = decimal.Parse(row.Cells[20].ToString());
-                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[20].ToString());
-                    item.PIPE_2_LENGTH = dQty;
-                }
-                catch (Exception e)
-                {
-                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Cells[20].value=" + row.Cells[20].ToString());
-                    logger.Error(e.Message);
-                }
-            }
-
-            if (row.Cells[21].ToString().Trim() != "")//21.管組數2  
-            {
-                try
-                {
-                    decimal dQty = decimal.Parse(row.Cells[21].ToString());
-                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[21].ToString());
-                    item.PIPE_2_SET = dQty;
-                }
-                catch (Exception e)
-                {
-                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Cells[21].value=" + row.Cells[21].ToString());
-                    logger.Error(e.Message);
-                }
-            }
-
-            if (row.Cells[22].ToString().Trim() != "")//22.管總長2
-            {
-                try
-                {
-                    decimal dQty = decimal.Parse(row.Cells[22].ToString());
-                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[22].ToString());
-                    item.PIPE_2_TOTAL_LEN = dQty;
-                }
-                catch (Exception e)
-                {
-                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Cells[22].value=" + row.Cells[22].ToString());
-                    logger.Error(e.Message);
                 }
             }
 
@@ -2019,8 +1926,8 @@ namespace topmeperp.Service
                 }
                 else
                 {
-                    logErrorMessage("Step1 ;取得工率資料:" + projectItems.Count + "筆");
-                    logger.Info("Finish convert Job : count=" + projectItems.Count);
+                    //logErrorMessage("Step1 ;取得工率資料:" + projectItems.Count + "筆");
+                    //logger.Info("Finish convert Job : count=" + projectItems.Count);
                     return lstWage;
                 }
                 iRowIndex++;
@@ -2296,7 +2203,7 @@ namespace topmeperp.Service
             {
                 row = sheet.GetRow(iRowIndex);
                 logger.Info("excel rowid=" + iRowIndex + ",phyCount=" + row.PhysicalNumberOfCells + ",cells count" + row.Cells.Count);
-                if (null == row || row.Cells[0].ToString().ToUpper()=="END")
+                if (null == row || row.Cells[0].ToString().ToUpper() == "END")
                 {
                     return;
                 }

@@ -14,7 +14,7 @@
     <hr />
     <div class="container">
         <form id="4formName" name="4formName" action="UpdateFormName" method="post">
-            @if (null != Model.wageTemplateWithBudget)
+            @if (null != Model.BudgetSummary.Wage_Budget)
             {
                 <h3>代工預算: @String.Format("{0:#,##}", Model.BudgetSummary.Wage_Budget)</h3>
                 <table class="table table-bordered">
