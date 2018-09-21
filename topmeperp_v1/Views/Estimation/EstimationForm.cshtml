@@ -1,54 +1,44 @@
-﻿
-@{
-    ViewBag.Title = "廠商計價單查詢 :";
+﻿@{
+    ViewBag.Title = "廠商估驗單管理 :";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
+<div class="page-header">
+    <div class="row">
+        <div class="col-sm-2"><h5>@ViewBag.Title</h5></div>
+        <div class="col-sm-6 text-left">
+            <h5>
+                專案名稱:@ViewBag.projectName ( @ViewBag.projectid )
+                <input id="id" name="id" type="hidden" value="@ViewBag.projectid" />
+            </h5>
 
-<h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
-<div class="jumbotron">
+        </div>
+    </div>
+
     <form name="estSearch" id="estSearch" action="SearchEST" method="Post" class="form-inline">
         <div class="row">
-            <div class="col-md-6 form-group">
-                <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
-            </div>
-            <div class="col-md-6">
-                <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc; width:250px;" readonly="readonly" />
-            </div>
-        </div>
-        <hr style="border-top: 1px solid #8c8b8b;" />
-
-        <div class="row">
-            <div class='col-md-4 form-group' style="padding-top:5px">
+            <div class='col-md-3 form-group'>
                 <label for="contractid">發包項目名稱 : </label>
                 <input id="contractid" name="contractid" class="form-control" />
             </div>
-            <div class='col-md-4 form-group' style="padding-top:5px">
+            <div class='col-md-3 form-group'>
                 <label for="payee">供應商名稱 :</label>
                 <input id="payee" name="payee" type="text" value="" class="form-control" />
             </div>
-            <div class='col-md-4 form-group' style="padding-top:5px">
+            <div class='col-md-3 form-group'>
                 <label for="estid">估驗單編號 :</label>
                 <input id="estid" name="estid" type="text" value="" class="form-control" />
             </div>
-            <div class="col-md-6 form-group" style="padding-top:10px">
+            <div class="col-md-3 form-group">
                 <label for="status">狀態 : </label> @Html.DropDownList("status", null, String.Empty, new { @class = "form-control" })
-                <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
             </div>
-            <!--
-            <div class="col-md-8 form-group" style="padding-top:10px">
-                <input type="checkbox" value="20" id="status" name="status" checked />估驗單(已送審)
-                <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
-            </div>
-            <div class="col-md-1">
-                <div id="divProcessing">
-                    <img src="~/Content/ajax-loader.gif">
-                </div>
-
-            </div> -->
-            <div class="col-md-2 form-group" style="padding-top:10px">
+        </div>
+        <div class="row">
+            <input id="Submit1" type="submit" class="btn btn-info" value="查詢" />
+            @**
                 <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("ContractItems", "Estimation", new { projectid = @ViewBag.projectid })'">新增</button>
-                <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "CashFlow")'" value="回上一頁">
-            </div>
+            *@
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("createEstimationOrder", "Estimation", new { projectid = @ViewBag.projectid })'">新增</button>
+            <input type="button" class="btn btn-success" onclick="javascript:window.location='@Url.Action("Index", "CashFlow")'" value="回上一頁">
         </div>
     </form>
 </div>

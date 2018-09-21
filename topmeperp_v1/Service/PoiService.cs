@@ -436,6 +436,7 @@ namespace topmeperp.Service
                 //    Else
                 //        D_dataRow(j) = row.GetCell(j).StringCellValue   '--每一個欄位，都加入同一列 DataRow
                 //    End If
+                ICell cell = row.GetCell(i);
                 try
                 {
                     logger.Debug("for feaure rowID=" + id + ",cell style=" + row.GetCell(i).CellType);
@@ -444,141 +445,98 @@ namespace topmeperp.Service
                 {
                     logger.Warn("for feaure rowID=" + id + ",cell tyle=" + i + "ex:" + ex.Message);
                 }
-                switch (i)
+
+                if (null != cell)
                 {
-                    case 0:
-                        //代碼
-                        if (i < row.PhysicalNumberOfCells && null != row.GetCell(i))
-                        {
-                            planItem.PLAN_ITEM_ID = row.GetCell(i).ToString();
-                        }
-                        break;
-                    case 1:
-                        if (i < row.PhysicalNumberOfCells)
-                        {
-                            planItem.ITEM_ID = row.GetCell(i).ToString();
-                        }
-                        break;
-                    case 2:
-                        if (i < row.PhysicalNumberOfCells)//名稱
-                        {
-                            planItem.ITEM_DESC = row.GetCell(i).ToString();
-                        }
-                        break;
-                    case 3:
-                        if (i < row.PhysicalNumberOfCells)//單位
-                        {
-                            planItem.ITEM_UNIT = row.GetCell(i).ToString();
-                        }
-                        break;
-                    case 4:
-                        if (i < row.PhysicalNumberOfCells) //數量
-                        {
-                            if (null != row.GetCell(i))//&& row.GetCell(i).CellType.Equals(CellType.Blank))
+                    switch (i)
+                    {
+                        case 0:
+                            //代碼
+                            planItem.PLAN_ITEM_ID = cell.ToString();
+                            break;
+                        case 1:
+                            planItem.ITEM_ID = cell.ToString();
+                            break;
+                        case 2://名稱
+                            planItem.ITEM_DESC = cell.ToString();
+                            break;
+                        case 3:
+                            planItem.ITEM_UNIT = cell.ToString();
+                            break;
+                        case 4:
+                            try
                             {
-                                try
-                                {
-                                    decimal dQty = decimal.Parse(row.GetCell(i).ToString());
-                                    logger.Info("excelrow=" + excelrow + ",value=" + row.GetCell(i).ToString());
-                                    planItem.ITEM_QUANTITY = dQty;
-                                }
-                                catch (Exception e)
-                                {
-                                    logger.Error("data format Error on PLAN_ITEM_ID= " + planItem.PLAN_ITEM_ID + ",ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.GetCell(i).ToString());
-                                    logErrorMessage("data format Error on PLAN_ITEM_ID= " + planItem.PLAN_ITEM_ID + ",ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.GetCell(i).ToString());
-                                    logger.Error(e.Message);
-                                }
+                                decimal dQty = decimal.Parse(cell.ToString());
+                                logger.Info("excelrow=" + excelrow + ",value=" + cell.ToString());
+                                planItem.ITEM_QUANTITY = dQty;
                             }
-                        }
-                        break;
-                    case 5:
-                        if (i < row.PhysicalNumberOfCells)//採購數量
-                        {
-                            if (null != row.GetCell(i))//&& row.GetCell(i).CellType.Equals(CellType.Blank))
+                            catch (Exception e)
                             {
-                                try
-                                {
-                                    decimal dQty = decimal.Parse(row.GetCell(i).ToString());
-                                    logger.Info("excelrow=" + excelrow + ",value=" + row.GetCell(i).ToString());
-                                    planItem.ITEM_FORM_QUANTITY = dQty;
-                                }
-                                catch (Exception e)
-                                {
-                                    logger.Error("data format Error on PLAN_ITEM_ID= " + planItem.PLAN_ITEM_ID + ",ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.GetCell(i).ToString());
-                                    logErrorMessage("data format Error on PLAN_ITEM_ID= " + planItem.PLAN_ITEM_ID + ",ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.GetCell(i).ToString());
-                                    logger.Error(e.Message);
-                                }
+                                logger.Error("data format Error on PLAN_ITEM_ID= " + planItem.PLAN_ITEM_ID + ",ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + cell.ToString());
+                                logErrorMessage("data format Error on PLAN_ITEM_ID= " + planItem.PLAN_ITEM_ID + ",ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + cell.ToString());
+                                logger.Error(e.Message + "," + e.StackTrace);
                             }
-                        }
-                        break;
-                    case 6:
-                        if (i < row.PhysicalNumberOfCells)//項目標單單價
-                        {
-                            if (null != row.GetCell(i))//&& row.GetCell(i).CellType.Equals(CellType.Blank))
+
+                            break;
+                        case 5:
+                            try
                             {
-                                try
-                                {
-                                    decimal dQty = decimal.Parse(row.GetCell(i).ToString());
-                                    logger.Info("excelrow=" + excelrow + ",value=" + row.GetCell(i).ToString());
-                                    planItem.ITEM_UNIT_PRICE = dQty;
-                                }
-                                catch (Exception e)
-                                {
-                                    logger.Error("data format Error on PLAN_ITEM_ID= " + planItem.PLAN_ITEM_ID + ",ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.GetCell(i).ToString());
-                                    logErrorMessage("data format Error on PLAN_ITEM_ID= " + planItem.PLAN_ITEM_ID + ",ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + row.GetCell(i).ToString());
-                                    logger.Error(e.Message);
-                                }
+                                decimal dQty = decimal.Parse(cell.ToString());
+                                logger.Info("excelrow=" + excelrow + ",value=" + cell.ToString());
+                                planItem.ITEM_FORM_QUANTITY = dQty;
                             }
-                        }
-                        break;
-                    case 7:  //複價欄位Skip
-                        break;
-                    case 8:
-                        if (i < row.PhysicalNumberOfCells) //備註
-                        {
-                            planItem.ITEM_REMARK = row.GetCell(i).ToString();
-                        }
-                        break;
-                    case 9:
-                        if (i < row.PhysicalNumberOfCells)//九宮格
-                        {
-                            logger.Debug(id + " i index=" + i + "=" + row.GetCell(i));
-                            planItem.TYPE_CODE_1 = row.GetCell(i).ToString();
-                        }
-                        break;
-                    case 10:
-                        if (i < row.PhysicalNumberOfCells)//次九宮格
-                        {
-                            planItem.TYPE_CODE_2 = row.Cells[10].ToString();
-                        }
-                        break;
-                    case 11:
-                        if (i < row.PhysicalNumberOfCells)
-                        {
-                            planItem.SYSTEM_MAIN = row.GetCell(i).ToString();
-                        }
-                        break;
-                    case 12:
-                        if (i < row.PhysicalNumberOfCells)
-                        {
-                            planItem.SYSTEM_SUB = row.GetCell(i).ToString();
-                        }
-                        break;
-                    case 13:
-                        if (i < row.PhysicalNumberOfCells)
-                        {
-                            planItem.EXCEL_ROW_ID = Convert.ToInt32(row.GetCell(i).ToString());
-                        }
-                        break;
-                    case 14:
-                        if (i < row.PhysicalNumberOfCells)
-                        {
-                            planItem.IN_CONTRACT = row.GetCell(i).ToString();
-                        }
-                        break;
+                            catch (Exception e)
+                            {
+                                logger.Error("data format Error on PLAN_ITEM_ID= " + planItem.PLAN_ITEM_ID + ",ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + cell.ToString());
+                                logErrorMessage("data format Error on PLAN_ITEM_ID= " + planItem.PLAN_ITEM_ID + ",ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + cell.ToString());
+                                logger.Error(e.Message);
+                            }
+
+                            break;
+                        case 6://項目標單單價
+                            try
+                            {
+                                decimal dQty = decimal.Parse(cell.ToString());
+                                logger.Info("excelrow=" + excelrow + ",value=" + dQty);
+                                planItem.ITEM_UNIT_PRICE = dQty;
+                            }
+                            catch (Exception e)
+                            {
+                                logger.Error("data format Error on PLAN_ITEM_ID= " + planItem.PLAN_ITEM_ID + ",ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + cell.ToString());
+                                logErrorMessage("data format Error on PLAN_ITEM_ID= " + planItem.PLAN_ITEM_ID + ",ExcelRow=" + excelrow + ",Item_Desc= " + planItem.ITEM_DESC + ",value=" + cell.ToString());
+                                logger.Error(e.Message);
+                            }
+                            break;
+                        case 7:  //複價欄位Skip
+                            break;
+                        case 8://備註
+                            planItem.ITEM_REMARK = cell.ToString();
+                            break;
+                        case 9:
+                            logger.Debug(id + " i index=" + i + "=" + cell.ToString());
+                            planItem.TYPE_CODE_1 = cell.ToString();
+                            break;
+                        case 10:
+                            planItem.TYPE_CODE_2 = cell.ToString();
+                            break;
+                        case 11:
+                            planItem.SYSTEM_MAIN = cell.ToString();
+                            break;
+                        case 12:
+                            planItem.SYSTEM_SUB = cell.ToString();
+                            break;
+                        case 13:
+                            planItem.EXCEL_ROW_ID = Convert.ToInt32(cell.ToString());
+                            break;
+                        case 14:
+                            planItem.IN_CONTRACT = cell.ToString();
+                            break;
+                    }
                 }
             }
-            logger.Info("PlanItem=" + planItem.ToString());
+            System.Web.Script.Serialization.JavaScriptSerializer objSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            string itemJson = objSerializer.Serialize(planItem);
+            logger.Info("PlanItem=" + itemJson);
             return planItem;
         }
         #endregion
@@ -1025,25 +983,17 @@ namespace topmeperp.Service
             {
                 rows.MoveNext();
                 iRowIndex++;
-                //row = (IRow)rows.Current;
-                //logger.Debug("skip data Excel Value:" + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
             }
             //循序處理每一筆資料之欄位!!
             iRowIndex++;
             while (rows.MoveNext())
             {
                 row = (IRow)rows.Current;
-                int i = 0;
-                string slog = "";
-                for (i = 0; i < row.Cells.Count; i++)
-                {
-                    slog = slog + "," + row.Cells[i];
-
-                }
-                logger.Debug("Excel Value:" + slog);
+                ICell cellPk= row.GetCell(0);
+                //ICell CellQty = row.GetCell(11);
                 //將各Row 資料寫入物件內
                 //0.PK	11.設備數量 
-                if (row.Cells.Count != 0 && row.Cells[0].ToString().ToUpper() != "END")
+                if (null== cellPk || cellPk.ToString().ToUpper() != "END")
                 {
                     lstMapDEVICE.Add(convertRow2TndMapDEVICE(row, iRowIndex));
                 }
@@ -1065,21 +1015,23 @@ namespace topmeperp.Service
         {
             TND_MAP_DEVICE item = new TND_MAP_DEVICE();
             item.PROJECT_ID = projId;
+            ICell cellPk = row.GetCell(0);
+            ICell CellQty = row.GetCell(11);
             if (row.Cells[0].ToString().Trim() != "")//0.項次
             {
                 item.PROJECT_ITEM_ID = row.Cells[0].ToString();
             }
-            if (null != row.Cells[row.Cells.Count - 2].ToString().Trim() || row.Cells[row.Cells.Count - 2].ToString().Trim() != "")//1.設備清單
+            if (null != CellQty)//1.設備數量
             {
                 try
                 {
-                    decimal dQty = decimal.Parse(row.Cells[row.Cells.Count - 2].ToString());
-                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[row.Cells.Count - 2].ToString());
+                    decimal dQty = decimal.Parse(CellQty.ToString());
+                    logger.Info("excelrow=" + excelrow + ",value=" + dQty);
                     item.QTY = dQty;
                 }
                 catch (Exception e)
                 {
-                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[11].value=" + row.Cells[row.Cells.Count - 2].ToString());
+                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Cells[11].value=" + CellQty.ToString());
                     logger.Error(e);
                 }
             }

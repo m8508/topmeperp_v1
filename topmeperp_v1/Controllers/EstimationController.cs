@@ -1,7 +1,6 @@
 ﻿using log4net;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -9,8 +8,6 @@ using topmeperp.Models;
 using topmeperp.Service;
 using System.IO;
 using Newtonsoft.Json;
-using System.Reflection;
-using System.Globalization;
 
 namespace topmeperp.Controllers
 {
@@ -34,24 +31,14 @@ namespace topmeperp.Controllers
         {
             logger.Info("valuation index : projectid=" + id);
             ViewBag.projectId = id;
+            EstimationService service = new EstimationService();
             TND_PROJECT p = service.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
             List<plansummary> lstContract = null;
             ContractModels contract = new ContractModels();
-            lstContract = service.getAllPlanContract(id, Request["supplier"], Request["formname"]);
+            lstContract = service.getAllPlanContract(id);
             contract.contractItems = lstContract;
             return View(contract);
-        }
-
-        public ActionResult Search()
-        {
-            ViewBag.projectId = Request["projectId"];
-            TND_PROJECT p = service.getProjectById(Request["projectId"]);
-            ViewBag.projectName = p.PROJECT_NAME;
-            ContractModels contract = new ContractModels();
-            List<plansummary> lstContract = service.getAllPlanContract(Request["projectId"], Request["formname"], Request["supplier"]);
-            contract.contractItems = lstContract;
-            return View("Valuation", contract);
         }
 
         public ActionResult AddEST(string id, string projectid, string type)
@@ -61,8 +48,64 @@ namespace topmeperp.Controllers
             string formid = service.getEstNo();
             return RedirectToAction("ContractItems", "Estimation", new { id = id, formid = formid, projectid = projectid, type = type });
         }
+        /// <summary>
+        /// 新增估驗單
+        /// 1.提供查詢驗收單、選擇其他代付之估驗單等資料
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult createEstimationOrder()
+        {
+            string projectId = Request["projectId"];
+            string contracId = Request["contractId"];
+            string pr_id_s = Request["PR_ID_S"];
+            string pr_id_e = Request["PR_ID_E"];
+            EstimationService service = new EstimationService();
+            ContractModels constract = service.getContrat(projectId,contracId, pr_id_s, pr_id_e);
+            ViewBag.contracId = contracId;
+            ViewBag.prid_s = pr_id_s;
+            ViewBag.prid_e = pr_id_e;          
+            logger.Debug("get estimation Info :project_id" + projectId + ",contract_id="+ contracId +"Estimation ID=" + pr_id_s +"," + pr_id_e);
+            return View(constract);
+        }
+        /// <summary>
+        /// 產生估驗單與相關紀錄
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult saveEstimationOrder()
+        {
+            string s = JsonConvert.SerializeObject(Request.Form).ToString();
+            logger.Debug("Request Data=" + s);
+            //1.取得估價單查詢條件
+            string projectId = Request["projectId"];
+            string contracId = Request["contractId"];
+            string pr_id_s = Request["prid_s"];
+            string pr_id_e = Request["prid_e"];
+            string supplierId = Request["supplierId"];
+            //代付廠商資料
+            string holdflag = Request["holdflag"];
+            //建立估驗單物件
+            PLAN_ESTIMATION_FORM form = new PLAN_ESTIMATION_FORM();
+            form.PROJECT_ID = projectId;
+            form.CONTRACT_ID = contracId;
+            form.STATUS = 0;
+            if (null != holdflag)
+            {
+                form.HOLD_FLAG = "Y";
+                form.HOLD4SUPPLIER = Request["hold4Supplier"]; ;
+                form.HOLD4REMARK = Request["hold4Remark"];
+            }
+            form.PAYEE = supplierId;
+            SYS_USER u = (SYS_USER)Session["user"];
+            form.CREATE_ID = u.USER_ID;
+            form.CREATE_DATE = DateTime.Now;
+            //todo 2.取得代扣款項資料
+            //3.建立估驗單資料
+            EstimationService service = new EstimationService();
+            service.createEstimationOrder(form, pr_id_s, pr_id_e);
+            logger.Debug("saveEstimationOrder");
+            return View("createEstimationOrder");
+        }
 
-        //public ActionResult ContractItems(string id, string formid, string projectid, string type)
         public ActionResult ContractItems(string projectid)
         {
             //logger.Info("Access To Contract Item By Contract Id =" + id);
@@ -316,15 +359,21 @@ namespace topmeperp.Controllers
         {
             logger.Info("Search For Estimation Form !!");
             ViewBag.projectid = id;
-            TnderProjectService tndservice = new TnderProjectService();
-            TND_PROJECT p = tndservice.getProjectById(id);
-            ViewBag.projectName = p.PROJECT_NAME;
+            getProjact(id);
             //取得表單狀態參考資料
             SelectList status = new SelectList(SystemParameter.getSystemPara("ExpenseForm"), "KEY_FIELD", "VALUE_FIELD");
             ViewData.Add("status", status);
             Flow4Estimation s = new Flow4Estimation();
             List<ExpenseFlowTask> lstEST = s.getEstimationFormRequest(Request["contractid"], Request["payee"], Request["estid"], id, Request["status"]);
             return View(lstEST);
+        }
+        //取得專案資料
+        private void getProjact(string id)
+        {
+            TnderProjectService tndservice = new TnderProjectService();
+            TND_PROJECT p = tndservice.getProjectById(id);
+            ViewBag.projectName = p.PROJECT_NAME;
+            ViewBag.projectid = p.PROJECT_ID;
         }
 
         public ActionResult SearchEST()
@@ -397,8 +446,8 @@ namespace topmeperp.Controllers
             //ViewBag.InvoicePieces = service.getInvoicePiecesById(id);
             //ViewBag.paymentkey = id + singleForm.planEST.CONTRACT_ID;
             singleForm.planESTItem = service.ESTItem;
-            singleForm.prj = service.getProjectById(singleForm.planEST.PROJECT_ID);
-            logger.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
+            singleForm.project = service.getProjectById(singleForm.planEST.PROJECT_ID);
+            logger.Debug("Project ID:" + singleForm.project.PROJECT_ID);
             //PaymentDetailsFunction lstSummary = service.getDetailsPayById(id, singleForm.planEST.CONTRACT_ID);
             PaymentDetailsFunction lstSummary = service.getDetailsPayById(id, id);
             PaymentDetailsFunction pay = service.getDetailsPayById(id, id);

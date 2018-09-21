@@ -336,6 +336,9 @@
           <Property Name="PAYEE" Type="varchar" MaxLength="50" />
           <Property Name="PAYMENT_DATE" Type="datetime" />
           <Property Name="INDIRECT_COST_TYPE" Type="varchar" MaxLength="1" />
+          <Property Name="HOLD_FLAG" Type="varchar" MaxLength="2" />
+          <Property Name="HOLD4SUPPLIER" Type="varchar" MaxLength="200" />
+          <Property Name="HOLD4REMARK" Type="varchar" MaxLength="200" />
         </EntityType>
         <EntityType Name="PLAN_ESTIMATION_ITEM">
           <Key>
@@ -346,7 +349,25 @@
           <Property Name="PLAN_ITEM_ID" Type="varchar" MaxLength="50" />
           <Property Name="EST_QTY" Type="decimal" Precision="18" Scale="3" />
           <Property Name="EST_RATIO" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="EST_AMOUNT" Type="decimal" Precision="18" Scale="3" />
           <Property Name="REMARK" Type="nvarchar" MaxLength="1000" />
+        </EntityType>
+        <EntityType Name="PLAN_ESTIMATION_PAYMENT_TRANSFER">
+          <Key>
+            <PropertyRef Name="PAYMENT_ID" />
+          </Key>
+          <Property Name="PAYMENT_ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PAYMENT_FORM_ID" Type="varchar" MaxLength="50" />
+          <Property Name="TRANSFER_FORM_ID" Type="varchar" MaxLength="50" />
+          <Property Name="REMARK" Type="varchar" MaxLength="500" />
+        </EntityType>
+        <EntityType Name="PLAN_ESTIMATION2PURCHASE">
+          <Key>
+            <PropertyRef Name="E2P_ID" />
+          </Key>
+          <Property Name="E2P_ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PR_ID" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="EST_FORM_ID" Type="varchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <EntityType Name="PLAN_INDIRECT_COST">
           <Key>
@@ -1242,6 +1263,8 @@
           <EntitySet Name="PLAN_DR_WORKER" EntityType="Self.PLAN_DR_WORKER" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAN_ESTIMATION_FORM" EntityType="Self.PLAN_ESTIMATION_FORM" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAN_ESTIMATION_ITEM" EntityType="Self.PLAN_ESTIMATION_ITEM" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PLAN_ESTIMATION_PAYMENT_TRANSFER" EntityType="Self.PLAN_ESTIMATION_PAYMENT_TRANSFER" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PLAN_ESTIMATION2PURCHASE" EntityType="Self.PLAN_ESTIMATION2PURCHASE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAN_INDIRECT_COST" EntityType="Self.PLAN_INDIRECT_COST" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAN_INVOICE" EntityType="Self.PLAN_INVOICE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAN_ITEM" EntityType="Self.PLAN_ITEM" Schema="dbo" store:Type="Tables" />
@@ -1325,7 +1348,6 @@
           <EntitySet Name="PLAN_DR_NOTE" EntityType="topmepModel.PLAN_DR_NOTE" />
           <EntitySet Name="PLAN_DR_TASK" EntityType="topmepModel.PLAN_DR_TASK" />
           <EntitySet Name="PLAN_DR_WORKER" EntityType="topmepModel.PLAN_DR_WORKER" />
-          <EntitySet Name="PLAN_ESTIMATION_ITEM" EntityType="topmepModel.PLAN_ESTIMATION_ITEM" />
           <EntitySet Name="PLAN_INDIRECT_COST" EntityType="topmepModel.PLAN_INDIRECT_COST" />
           <EntitySet Name="PLAN_INVOICE" EntityType="topmepModel.PLAN_INVOICE" />
           <EntitySet Name="PLAN_ITEM" EntityType="topmepModel.PLAN_ITEM" />
@@ -1396,6 +1418,9 @@
           <EntitySet Name="PLAN_ESTIMATION_FORM" EntityType="topmepModel.PLAN_ESTIMATION_FORM" />
           <EntitySet Name="PLAN_ITEM2_SUP_INQUIRY" EntityType="topmepModel.PLAN_ITEM2_SUP_INQUIRY" />
           <EntitySet Name="SYS_MESSAGE" EntityType="topmepModel.SYS_MESSAGE" />
+          <EntitySet Name="PLAN_ESTIMATION_PAYMENT_TRANSFER" EntityType="topmepModel.PLAN_ESTIMATION_PAYMENT_TRANSFER" />
+          <EntitySet Name="PLAN_ESTIMATION2PURCHASE" EntityType="topmepModel.PLAN_ESTIMATION2PURCHASE" />
+          <EntitySet Name="PLAN_ESTIMATION_ITEM" EntityType="topmepModel.PLAN_ESTIMATION_ITEM" />
         </EntityContainer>
         <EntityType Name="ENT_DEPARTMENT">
           <Key>
@@ -1590,17 +1615,6 @@
           <Property Name="WORKER_QTY" Type="Decimal" Precision="18" Scale="3" />
           <Property Name="LAST_QTY" Type="Decimal" Precision="18" Scale="3" />
           <Property Name="REMARK" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="PLAN_ESTIMATION_ITEM">
-          <Key>
-            <PropertyRef Name="EST_ITEM_ID" />
-          </Key>
-          <Property Name="EST_ITEM_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="EST_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PLAN_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="EST_QTY" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="EST_RATIO" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="PLAN_INDIRECT_COST">
           <Key>
@@ -2594,6 +2608,9 @@
           <Property Name="PAYEE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="PAYMENT_DATE" Type="DateTime" Precision="3" />
           <Property Name="INDIRECT_COST_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="HOLD_FLAG" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="HOLD4SUPPLIER" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="HOLD4REMARK" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="PLAN_ITEM2_SUP_INQUIRY">
           <Key>
@@ -2622,6 +2639,35 @@
           <Property Name="CREATE_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
           <Property Name="STATUS" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="PLAN_ESTIMATION_PAYMENT_TRANSFER">
+          <Key>
+            <PropertyRef Name="PAYMENT_ID" />
+          </Key>
+          <Property Name="PAYMENT_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PAYMENT_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="TRANSFER_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="REMARK" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="PLAN_ESTIMATION2PURCHASE">
+          <Key>
+            <PropertyRef Name="E2P_ID" />
+          </Key>
+          <Property Name="E2P_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PR_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="EST_FORM_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="PLAN_ESTIMATION_ITEM">
+          <Key>
+            <PropertyRef Name="EST_ITEM_ID" />
+          </Key>
+          <Property Name="EST_ITEM_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="EST_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PLAN_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="EST_QTY" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="EST_RATIO" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="EST_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -2833,18 +2879,6 @@
                 <ScalarProperty Name="PARA_KEY_ID" ColumnName="PARA_KEY_ID" />
                 <ScalarProperty Name="REPORT_ID" ColumnName="REPORT_ID" />
                 <ScalarProperty Name="DR_WORKER_ID" ColumnName="DR_WORKER_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_ESTIMATION_ITEM">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_ESTIMATION_ITEM">
-              <MappingFragment StoreEntitySet="PLAN_ESTIMATION_ITEM">
-                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
-                <ScalarProperty Name="EST_RATIO" ColumnName="EST_RATIO" />
-                <ScalarProperty Name="EST_QTY" ColumnName="EST_QTY" />
-                <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
-                <ScalarProperty Name="EST_FORM_ID" ColumnName="EST_FORM_ID" />
-                <ScalarProperty Name="EST_ITEM_ID" ColumnName="EST_ITEM_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -3793,6 +3827,9 @@
           <EntitySetMapping Name="PLAN_ESTIMATION_FORM">
             <EntityTypeMapping TypeName="topmepModel.PLAN_ESTIMATION_FORM">
               <MappingFragment StoreEntitySet="PLAN_ESTIMATION_FORM">
+                <ScalarProperty Name="HOLD4REMARK" ColumnName="HOLD4REMARK" />
+                <ScalarProperty Name="HOLD4SUPPLIER" ColumnName="HOLD4SUPPLIER" />
+                <ScalarProperty Name="HOLD_FLAG" ColumnName="HOLD_FLAG" />
                 <ScalarProperty Name="INDIRECT_COST_TYPE" ColumnName="INDIRECT_COST_TYPE" />
                 <ScalarProperty Name="PAYMENT_DATE" ColumnName="PAYMENT_DATE" />
                 <ScalarProperty Name="PAYEE" ColumnName="PAYEE" />
@@ -3846,6 +3883,38 @@
                 <ScalarProperty Name="DISPLAY_NAME" ColumnName="DISPLAY_NAME" />
                 <ScalarProperty Name="FROM_ADDRESS" ColumnName="FROM_ADDRESS" />
                 <ScalarProperty Name="MSG_ID" ColumnName="MSG_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_ESTIMATION_PAYMENT_TRANSFER">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_ESTIMATION_PAYMENT_TRANSFER">
+              <MappingFragment StoreEntitySet="PLAN_ESTIMATION_PAYMENT_TRANSFER">
+                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
+                <ScalarProperty Name="TRANSFER_FORM_ID" ColumnName="TRANSFER_FORM_ID" />
+                <ScalarProperty Name="PAYMENT_FORM_ID" ColumnName="PAYMENT_FORM_ID" />
+                <ScalarProperty Name="PAYMENT_ID" ColumnName="PAYMENT_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_ESTIMATION2PURCHASE">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_ESTIMATION2PURCHASE">
+              <MappingFragment StoreEntitySet="PLAN_ESTIMATION2PURCHASE">
+                <ScalarProperty Name="EST_FORM_ID" ColumnName="EST_FORM_ID" />
+                <ScalarProperty Name="PR_ID" ColumnName="PR_ID" />
+                <ScalarProperty Name="E2P_ID" ColumnName="E2P_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_ESTIMATION_ITEM">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_ESTIMATION_ITEM">
+              <MappingFragment StoreEntitySet="PLAN_ESTIMATION_ITEM">
+                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
+                <ScalarProperty Name="EST_AMOUNT" ColumnName="EST_AMOUNT" />
+                <ScalarProperty Name="EST_RATIO" ColumnName="EST_RATIO" />
+                <ScalarProperty Name="EST_QTY" ColumnName="EST_QTY" />
+                <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
+                <ScalarProperty Name="EST_FORM_ID" ColumnName="EST_FORM_ID" />
+                <ScalarProperty Name="EST_ITEM_ID" ColumnName="EST_ITEM_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

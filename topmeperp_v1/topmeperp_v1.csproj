@@ -474,6 +474,7 @@
     <Compile Include="Models\FIN_SUBJECT.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\Model4Estimation.cs" />
     <Compile Include="Models\PLAN_ACCOUNT.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
@@ -504,10 +505,16 @@
     <Compile Include="Models\PLAN_DR_WORKER.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\PLAN_ESTIMATION2PURCHASE.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\PLAN_ESTIMATION_FORM.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\PLAN_ESTIMATION_ITEM.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PLAN_ESTIMATION_PAYMENT_TRANSFER.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\PLAN_INDIRECT_COST.cs">
@@ -668,6 +675,7 @@
     <Compile Include="Service\ContextService4BankInfo.cs" />
     <Compile Include="Service\ContextService4CostChange.cs" />
     <Compile Include="Service\EMailService.cs" />
+    <Compile Include="Service\EstimationService.cs" />
     <Compile Include="Service\poi4CostChangeService.cs" />
     <Compile Include="Service\PoiService4ProjectTask.cs" />
     <Compile Include="Service\ProjectPlanService.cs" />
@@ -1288,6 +1296,7 @@
     <Content Include="Views\ProjectOrganization\Index.cshtml" />
     <Content Include="Views\ProjectOrganization\_TaskAssignItem.cshtml" />
     <Content Include="Views\CashFlow\showBudgetStatus.cshtml" />
+    <Content Include="Views\Estimation\createEstimationOrder.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

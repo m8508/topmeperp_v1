@@ -86,8 +86,8 @@ namespace topmeperp.Service
             {
                 try
                 {
-                    logger.Debug("sql="+ sql);
-                    u = context.SYS_USER.SqlQuery(sql,new SqlParameter("projetId", projectid), new SqlParameter("taskType", tasktype)).ToList();
+                    logger.Debug("sql=" + sql);
+                    u = context.SYS_USER.SqlQuery(sql, new SqlParameter("projetId", projectid), new SqlParameter("taskType", tasktype)).ToList();
                 }
                 catch (Exception e)
                 {
@@ -259,6 +259,7 @@ namespace topmeperp.Service
                 catch (Exception ex)
                 {
                     logger.Error(ex.StackTrace);
+                    logger.Error(ex.InnerException.Message + ":" + ex.InnerException.StackTrace);
                 }
             }
             logger.Info("add plan item count =" + i);
@@ -1224,13 +1225,18 @@ namespace topmeperp.Service
         {
             logger.Info("get map DEVICE info by projectid=" + projectid);
             List<TND_MAP_DEVICE> lstDEVICE = new List<TND_MAP_DEVICE>();
+            //將設備加入與得標標單資訊整合
+            string sql = @"SELECT DEVIVE_ID, PROJECT_ID, MAP_NO, BUILDING_NO, PROJECT_ITEM_ID, CREATE_DATE, CREATE_ID, QTY, 
+                ISNULL(
+                 (SELECT ITEM_DESC FROM TND_PROJECT_ITEM tpi WHERE tpi.PROJECT_ITEM_ID=device.PROJECT_ITEM_ID),
+                 '___' + (SELECT ITEM_DESC FROM PLAN_ITEM tpi WHERE tpi.PLAN_ITEM_ID=device.PROJECT_ITEM_ID)) AS loc_desc,
+                  DEVICE.LOC_DESC A 
+                  FROM TND_MAP_DEVICE device WHERE PROJECT_ID =  @projectid ";
+            logger.Debug("sql=" + sql + ",projectId=" + projectid);
             using (var context = new topmepEntities())
             {
                 //條件篩選
-                lstDEVICE = context.TND_MAP_DEVICE.SqlQuery("SELECT DEVIVE_ID, PROJECT_ID, MAP_NO, BUILDING_NO, PROJECT_ITEM_ID, CREATE_DATE, CREATE_ID, QTY, " +
-                    "(SELECT ITEM_DESC FROM TND_PROJECT_ITEM tpi WHERE tpi.PROJECT_ITEM_ID=device.PROJECT_ITEM_ID) AS loc_desc, DEVICE.LOC_DESC A " +
-                    "FROM TND_MAP_DEVICE device WHERE PROJECT_ID = @projectid AND QTY IS NOT NULL ",
-                new SqlParameter("projectid", projectid)).ToList();
+                lstDEVICE = context.TND_MAP_DEVICE.SqlQuery(sql, new SqlParameter("projectid", projectid)).ToList();
             }
             return lstDEVICE;
         }

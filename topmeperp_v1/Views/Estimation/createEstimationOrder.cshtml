@@ -1,0 +1,236 @@
+﻿@model topmeperp.Models.ContractModels
+@{
+    ViewBag.Title = "估驗請款單";
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+    decimal? CurTotal = 0.0M;
+    decimal? CurAmount = 0.0M;
+}
+<form id="formESTMain" name="formESTMain" action="" method="post" enctype="multipart/form-data" class="form-inline">
+    <div class="page-header">
+        <!--表頭-->
+        <div class="contailer">
+            <div class="row bg-info" style="vertical-align:middle">
+                <div class="col-md-6">
+                    <h4>@ViewBag.Title</h4>
+                </div>
+                <div class="col-md-2">估驗次數:</div>
+                <div class="col-md-2">估驗日期:</div>
+            </div>
+            <div class="row bg-info">
+                <div class="col-md-3">專案名稱:@Model.project.PROJECT_NAME </div>
+                <div class="col-md-3">憑單編號:</div>
+                <div class="col-md-6">請款人:@Model.supplier.COMPANY_NAME </div>
+                <input type="hidden" id="projectId" name="projectId" value="@Model.project.PROJECT_ID" />
+                <input type="hidden" id="contractId" name="contractId" value="@ViewBag.contracId" />
+                <input type="hidden" id="supplierId" name="supplierId" value="@Model.supplier.SUPPLIER_ID" />
+                <input type="hidden" id="prid_s" name="prid_s" value="@ViewBag.prid_s" />
+                <input type="hidden" id="prid_e" name="prid_e" value="@ViewBag.prid_e" />
+            </div>
+        </div>
+    </div>
+    <!--請款明細資料-->
+    <div class="contailer">
+        <!--物料清單-來至驗收單-->
+        <table class="table" align="left">
+            <thead>
+                <tr>
+                    <th>
+                        No.
+                    </th>
+                    <th>
+                        項次
+                    </th>
+                    <th>
+                        項目說明
+                    </th>
+                    <th>
+                        單位
+                    </th>
+                    <th>
+                        合約數量
+                    </th>
+                    <th>
+                        單價
+                    </th>
+                    <th>
+                        前期數量
+                    </th>
+                    <th>
+                        本期數量
+                    </th>
+                    <th>
+                        本期金額
+                    </th>
+                    <th>
+                        累計數量
+                    </th>
+                    <th>
+                        累計金額
+                    </th>
+                    <th>
+                        累計%
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.EstimationItems)
+                {
+                    <tr>
+                        <td>
+                            @item.PLAN_ITEM_ID
+                        </td>
+                        <td>
+                            @item.ITEM_ID
+                        </td>
+                        <td>
+                            @item.ITEM_DESC
+                        </td>
+                        <td>
+                            @item.ITEM_UNIT
+                        </td>
+                        <td>
+                            @String.Format("{0:N2}", item.ITEM_QUANTITY)
+                        </td>
+                        <td>
+                            @String.Format("{0:N0}", item.ITEM_UNIT_PRICE)
+                        </td>
+                        <td>
+                            @String.Format("{0:N2}", item.PriorQty)
+                        </td>
+                        <td>
+                            @String.Format("{0:N2}", item.EstimationQty)
+                            @if (item.EstimationQty != null)
+                            {
+                                CurTotal = CurTotal + item.EstimationQty;
+                            }
+                        </td>
+                        <td>
+                            @String.Format("{0:N0}", item.EstimationAmount)
+                            @if (item.EstimationQty != null)
+                            {
+                                CurAmount = CurAmount + item.EstimationAmount;
+                            }
+                        </td>
+                        <td>
+                            @String.Format("{0:N2}", ((item.PriorQty == null ? 0 : item.PriorQty) + item.EstimationQty))
+                        </td>
+                        <td>
+                            @String.Format("{0:N0}", ((item.PriorQty == null ? 0 : item.PriorQty) + item.EstimationQty) * item.ITEM_UNIT_PRICE)           
+                         </td>
+                        <th>
+                            @String.Format("{0:N2}", ((item.PriorQty == null ? 0 : item.PriorQty) + item.EstimationQty) / item.ITEM_QUANTITY * 100) %
+                        </th>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="7" style="text-align:right">
+                        合計
+                    </th>
+                    <th>
+                        @String.Format("{0:N2}", @CurTotal)
+                    </th>
+                    <th>
+                        @String.Format("{0:N0}", @CurAmount)
+                    </th>
+                    <th colspan="3">
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <!--代付公司資料-->
+    <div class="contailer">
+        <div class="row">
+            <div class="col-md-1 checkbox">
+                <label style="font-size:1em">
+                    <input type="checkbox" id="holdflag" name="holdflag" value="chk">
+                    <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                    代扣
+                </label>
+            </div>
+            <div class="col-md-8">
+                代付廠商:<input type="text" id="hold4Supplier" name="hold4Supplier" class="form-control" />
+                扣款原因:<input type="text" id="hold4Remark" name="hold4Remark" class="form-control" />
+            </div>
+        </div>
+    </div>
+    <!--扣款明細-->
+    <div class="contailer">
+        <div class="row">代付扣回明細：</div>
+        @if (null != Model.Hold4DeductForm && Model.Hold4DeductForm.Count()!=0)
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>功能</th>
+                        <th>憑單編號</th>
+                        <th>次數</th>
+                        <th>估驗日期</th>
+                        <th>請款人</th>
+                        <th>代付金額</th>
+                        <th>手續費</th>
+                        <th>應扣金額</th>
+                        <th>本期扣款</th>
+                        <th>應扣未扣</th>
+                        <th>原因</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Hold4DeductForm)
+                {
+                        <tr>
+                            <td>功能</td>
+                            <td>
+                                <input type="text" id="formId" name="formId" value="@item.EST_FORM_ID" />
+                            </td>
+                            <td>
+                                ?
+                            </td>
+                            <td>@item.CREATE_DATE</td>
+                            <td>@item.HOLD4SUPPLIER</td>
+                            <td>@item.PAID_AMOUNT </td>
+                            <td>?</td>
+                            <td>?</td>
+                            <td>?</td>
+                            <td>flag</td>
+                            <td>@item.HOLD4REMARK</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+    <div class="container">
+        <button class="btn btn-default" type="button" onclick="saveEstimationOrder()">儲存</button>
+    </div>
+</form>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(function () {
+            $('#paymentDate').datetimepicker({
+                format: 'YYYY/MM/DD',
+                locale: 'zh-tw'
+            });
+        });
+    });
+    //建立估驗單資料
+    function saveEstimationOrder() {
+        console.log("send estimation order !!");
+        $.ajax({
+            url: '/Estimation/saveEstimationOrder',
+            data: $('#formESTMain').serialize(),
+            type: "POST",
+            dataType: 'text',
+            success: function (msg) {
+                alert(msg);
+                window.location.reload()
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert(thrownError);
+            }
+        })
+    };
+</script>

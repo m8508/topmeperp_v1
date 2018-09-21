@@ -12,14 +12,10 @@ namespace topmeperp.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class PLAN_ESTIMATION_ITEM
+    public partial class PLAN_ESTIMATION2PURCHASE
     {
-        public long EST_ITEM_ID { get; set; }
+        public long E2P_ID { get; set; }
+        public string PR_ID { get; set; }
         public string EST_FORM_ID { get; set; }
-        public string PLAN_ITEM_ID { get; set; }
-        public Nullable<decimal> EST_QTY { get; set; }
-        public Nullable<decimal> EST_RATIO { get; set; }
-        public Nullable<decimal> EST_AMOUNT { get; set; }
-        public string REMARK { get; set; }
     }
 }

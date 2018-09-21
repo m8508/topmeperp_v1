@@ -37,5 +37,8 @@ namespace topmeperp.Models
         public string PAYEE { get; set; }
         public Nullable<System.DateTime> PAYMENT_DATE { get; set; }
         public string INDIRECT_COST_TYPE { get; set; }
+        public string HOLD_FLAG { get; set; }
+        public string HOLD4SUPPLIER { get; set; }
+        public string HOLD4REMARK { get; set; }
     }
 }

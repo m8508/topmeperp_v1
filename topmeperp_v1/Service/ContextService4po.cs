@@ -292,11 +292,20 @@ namespace topmeperp.Service
         {
             using (var context = new topmepEntities())
             {
-                plan = context.Database.SqlQuery<PlanRevenue>("SELECT p.PROJECT_ID AS CONTRACT_ID, pcp.CONTRACT_PRODUCTION, CONVERT(char(10), pcp.DELIVERY_DATE, 111) AS DELIVERY_DATE, " +
-                    "ISNULL(pcp.MAINTENANCE_BOND, 0) AS MAINTENANCE_BOND, CONVERT(char(10), pcp.MB_DUE_DATE, 111) AS MB_DUE_DATE, " +
-                    "pcp.REMARK AS ConRemark, ppt.PAYMENT_ADVANCE_RATIO, ppt.PAYMENT_RETENTION_RATIO, (SELECT SUM(ITEM_UNIT_PRICE*ITEM_QUANTITY) FROM PLAN_ITEM pi WHERE pi.PROJECT_ID = @pid) AS PLAN_REVENUE " +
-                     "FROM TND_PROJECT p LEFT JOIN PLAN_CONTRACT_PROCESS pcp ON p.PROJECT_ID = pcp.CONTRACT_ID LEFT JOIN PLAN_PAYMENT_TERMS ppt ON p.PROJECT_ID = ppt.CONTRACT_ID WHERE p.PROJECT_ID = @pid "
-                   , new SqlParameter("pid", prjid)).First();
+                string sql = @"SELECT p.PROJECT_ID AS CONTRACT_ID, 
+                pcp.CONTRACT_PRODUCTION, 
+                CONVERT(char(10), pcp.DELIVERY_DATE, 111) AS DELIVERY_DATE, 
+                ISNULL(pcp.MAINTENANCE_BOND, 0) AS MAINTENANCE_BOND,
+                CONVERT(char(10), pcp.MB_DUE_DATE, 111) AS MB_DUE_DATE, 
+                pcp.REMARK AS ConRemark, 
+                ppt.PAYMENT_ADVANCE_RATIO, 
+                ppt.PAYMENT_RETENTION_RATIO, 
+                (SELECT SUM(ITEM_UNIT_PRICE*ITEM_QUANTITY) FROM PLAN_ITEM pi WHERE pi.PROJECT_ID = @pid AND ISNULL(pi.IN_CONTRACT,'Y')='Y') AS PLAN_REVENUE 
+                FROM TND_PROJECT p 
+                LEFT JOIN PLAN_CONTRACT_PROCESS pcp ON p.PROJECT_ID = pcp.CONTRACT_ID 
+                LEFT JOIN PLAN_PAYMENT_TERMS ppt ON p.PROJECT_ID = ppt.CONTRACT_ID WHERE p.PROJECT_ID = @pid ";
+                logger.Debug("sql=" + sql + ",project_id=" + prjid);
+                plan = context.Database.SqlQuery<PlanRevenue>(sql, new SqlParameter("pid", prjid)).First();
             }
             return plan;
         }
@@ -400,6 +409,8 @@ namespace topmeperp.Service
                    TND_WAGE w ON i.PLAN_ITEM_ID = w.PROJECT_ITEM_ID 
                     LEFT OUTER JOIN vw_MAP_MATERLIALIST map ON i.PLAN_ITEM_ID = map.PROJECT_ITEM_ID 
                    WHERE i.project_id = @projectid AND ISNULL(i.DEL_FLAG,'N')='N' ORDER BY i.EXCEL_ROW_ID; ";
+                //加入其他條件供下載
+
                 wageTableItem = context.Database.SqlQuery<PROJECT_ITEM_WITH_WAGE>(sql, new SqlParameter("projectid", projectid)).ToList();
                 logger.Debug("get project item count:" + wageTableItem.Count);
             }
@@ -1120,7 +1131,6 @@ namespace topmeperp.Service
         }
 
         //取得尚未發包之分項詢價單資料(供應商欄位為0)
-        //TODO
         public List<PURCHASE_ORDER> getFormTempOutOfContractByProject(string projectid)
         {
             logger.Info("get purchase template out of contract by projectid=" + projectid);
@@ -2562,6 +2572,7 @@ namespace topmeperp.Service
                 FROM PLAN_PURCHASE_REQUISITION_ITEM pri 
                 JOIN PLAN_ITEM pi ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID 
                 LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID 
+                AND ISNULL(pi.SUPPLIER_ID,'') != ''
                 WHERE pr.PROJECT_ID =@projectid AND pr.SUPPLIER_ID IS NULL AND pr.STATUS > 5 AND pr.PR_ID LIKE 'PR%'
                 ) A 
                 WHERE A.PR_ID + ISNULL(A.SUPPLIER_ID,'') NOT IN (SELECT DISTINCT(pr.PARENT_PR_ID + pr.SUPPLIER_ID) AS ORDER_RECORD 
@@ -3429,108 +3440,6 @@ namespace topmeperp.Service
         public PLAN_ESTIMATION_FORM formEST = null;
         public List<EstimationForm> ESTItem = null;
 
-        //取得個別廠商合約內容(含工資)
-        public List<plansummary> getAllPlanContract(string projectid, string formName, string supplier)
-        {
-            logger.Info("search contract by 採購項目 =" + formName + "search contract by 供應商 =" + supplier);
-            List<plansummary> lst = new List<plansummary>();
-            var parameters = new List<SqlParameter>();
-            parameters.Add(new SqlParameter("projectid", projectid));
-            //處理SQL 預先填入專案代號,設定集合處理參數
-            string sql = "SELECT p.INQUIRY_FORM_ID AS CONTRACT_ID, p.SUPPLIER_ID, p.FORM_NAME, p.PROJECT_ID, p.SUPPLIER_ID + '_' + p.FORM_NAME AS CONTRACT_NAME, 'N' AS TYPE," +
-                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY p.SUPPLIER_ID) AS NO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid AND p.INQUIRY_FORM_ID IS NOT NULL " +
-                    "GROUP BY p.PROJECT_ID, p.SUPPLIER_ID, p.FORM_NAME, p.INQUIRY_FORM_ID ";
-
-            //供應商
-            if (null != supplier && supplier != "")
-            {
-                sql = sql + "AND p.SUPPLIER_ID LIKE @supplier ";
-                parameters.Add(new SqlParameter("supplier", "%" + supplier + "%"));
-            }
-            //採購項目
-            if (null != formName && formName != "")
-            {
-                sql = sql + "AND p.FORM_NAME LIKE @formName ";
-                parameters.Add(new SqlParameter("formName", "%" + formName + "%"));
-            }
-            sql = sql + "UNION SELECT p.MAN_FORM_ID AS CONTRACT_ID, p.MAN_SUPPLIER_ID, p.MAN_FORM_NAME, p.PROJECT_ID, p.MAN_SUPPLIER_ID + '_' + p.MAN_FORM_NAME AS CONTRACT_NAME, 'Y' AS TYPE, " +
-                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY p.MAN_SUPPLIER_ID) AS NO FROM PLAN_ITEM p WHERE p.PROJECT_ID =@projectid AND p.MAN_FORM_ID IS NOT NULL " +
-                    "GROUP BY p.PROJECT_ID, p.MAN_SUPPLIER_ID, p.MAN_FORM_NAME, p.MAN_FORM_ID ";
-            //供應商
-            if (null != supplier && supplier != "")
-            {
-                sql = sql + "AND p.MAN_SUPPLIER_ID LIKE @supplierForWage ";
-                parameters.Add(new SqlParameter("supplierForWage", "%" + supplier + "%"));
-            }
-            //採購項目
-            if (null != formName && formName != "")
-            {
-                sql = sql + "AND p.MAN_FORM_NAME LIKE @formNameForWage ";
-                parameters.Add(new SqlParameter("formNameForWage", "%" + formName + "%"));
-            }
-            using (var context = new topmepEntities())
-            {
-                logger.Debug("get contract sql=" + sql);
-                lst = context.Database.SqlQuery<plansummary>(sql, parameters.ToArray()).ToList();
-            }
-            logger.Info("get contract count=" + lst.Count);
-            return lst;
-        }
-
-        //取得個別合約的明細資料
-        public List<EstimationForm> getContractItemById(string contractid, string projectid)
-        {
-
-            logger.Info("get contract item by contractid  =" + contractid);
-            List<EstimationForm> lstItem = new List<EstimationForm>();
-            //處理SQL 預先填入合約代號,設定集合處理參數
-            using (var context = new topmepEntities())
-            {
-                lstItem = context.Database.SqlQuery<EstimationForm>("SELECT pi.*, psi.ITEM_QTY AS mapQty, A.CUM_QTY AS CUM_EST_QTY, ISNULL(B.CUM_QTY, 0) AS CUM_RECPT_QTY, ISNULL(B.CUM_QTY, 0)-ISNULL(A.CUM_QTY,0) AS Quota FROM PLAN_ITEM pi " +
-                    "LEFT JOIN (SELECT PLAN_ITEM_ID, ITEM_QTY FROM PLAN_SUP_INQUIRY_ITEM WHERE INQUIRY_FORM_ID =@contractid)psi ON pi.PLAN_ITEM_ID = psi.PLAN_ITEM_ID LEFT JOIN (SELECT ei.PLAN_ITEM_ID, SUM(ei.EST_QTY) AS CUM_QTY " +
-                    "FROM PLAN_ESTIMATION_ITEM ei LEFT JOIN PLAN_ESTIMATION_FORM ef ON ei.EST_FORM_ID = ef.EST_FORM_ID " +
-                    "WHERE ef.CONTRACT_ID = @contractid GROUP BY ei.PLAN_ITEM_ID)A ON pi.PLAN_ITEM_ID = A.PLAN_ITEM_ID " +
-                    "LEFT JOIN (SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS CUM_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr " +
-                    "ON pri.PR_ID = pr.PR_ID WHERE pri.PR_ID LIKE 'RP%' AND pr.PROJECT_ID = @projectid GROUP BY pri.PLAN_ITEM_ID)B ON pi.PLAN_ITEM_ID = B.PLAN_ITEM_ID WHERE " +
-                    "pi.INQUIRY_FORM_ID = @contractid OR pi.MAN_FORM_ID = @contractid ; "
-            , new SqlParameter("contractid", contractid), new SqlParameter("projectid", projectid)).ToList();
-            }
-
-            return lstItem;
-        }
-
-        //取得個別材料廠商合約資料與金額
-        public plansummary getPlanContract4Est(string contractid)
-        {
-            plansummary lst = new plansummary();
-            using (var context = new topmepEntities())
-            {
-                lst = context.Database.SqlQuery<plansummary>("SELECT A.INQUIRY_FORM_ID AS CONTRACT_ID, A.SUPPLIER_ID, A.FORM_NAME, " +
-                    "SUM(A.formQty * A.ITEM_UNIT_COST) MATERIAL_COST, SUM(A.formQty * ISNULL(A.MAN_PRICE, 0)) WAGE_COST, " +
-                    "SUM(A.ITEM_QUANTITY * A.ITEM_UNIT_PRICE) REVENUE, SUM(A.mapQty * A.tndPrice * A.BUDGET_RATIO / 100) BUDGET, " +
-                    "(SUM(A.formQty * A.ITEM_UNIT_COST) + SUM(A.formQty * ISNULL(A.MAN_PRICE, 0))) COST, (SUM(A.ITEM_QUANTITY * A.ITEM_UNIT_PRICE) - " +
-                    "SUM(A.formQty * A.ITEM_UNIT_COST) - SUM(A.formQty * ISNULL(A.MAN_PRICE, 0))) PROFIT, " +
-                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.SUPPLIER_ID) AS NO FROM (SELECT pi.*, s.SUPPLIER_ID AS ID, psi.ITEM_QTY AS formQty, map.QTY AS mapQty, tpi.ITEM_UNIT_PRICE AS tndPrice FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON " +
-                    "pi.SUPPLIER_ID = s.COMPANY_NAME LEFT JOIN (SELECT PLAN_ITEM_ID, ITEM_QTY FROM PLAN_SUP_INQUIRY_ITEM WHERE INQUIRY_FORM_ID =@contractid)psi ON pi.PLAN_ITEM_ID = psi.PLAN_ITEM_ID " +
-                    "LEFT JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT JOIN TND_PROJECT_ITEM tpi ON pi.PLAN_ITEM_ID = tpi.PROJECT_ITEM_ID)A GROUP BY A.PROJECT_ID, A.INQUIRY_FORM_ID, A.FORM_NAME, A.SUPPLIER_ID HAVING A.INQUIRY_FORM_ID =@contractid ; "
-                   , new SqlParameter("contractid", contractid)).First();
-            }
-            return lst;
-        }
-        //取得個別工資廠商合約資料與金額
-        public plansummary getPlanContractOfWage4Est(string contractid)
-        {
-            plansummary lst = new plansummary();
-            using (var context = new topmepEntities())
-            {
-                lst = context.Database.SqlQuery<plansummary>("SELECT  A.MAN_FORM_ID AS CONTRACT_ID, A.MAN_SUPPLIER_ID, A.MAN_FORM_NAME, " +
-                    "SUM(A.formQty * ISNULL(A.MAN_PRICE, 0)) WAGE_COST, " +
-                    "count(*) AS ITEM_ROWS, ROW_NUMBER() OVER(ORDER BY A.MAN_SUPPLIER_ID) AS NO FROM(SELECT pi.*, s.SUPPLIER_ID AS ID, psi.ITEM_QTY AS formQty FROM PLAN_ITEM pi LEFT JOIN TND_SUPPLIER s ON " +
-                    "pi.MAN_SUPPLIER_ID = s.COMPANY_NAME LEFT JOIN (SELECT PLAN_ITEM_ID, ITEM_QTY FROM PLAN_SUP_INQUIRY_ITEM WHERE INQUIRY_FORM_ID =@contractid)psi ON pi.PLAN_ITEM_ID = psi.PLAN_ITEM_ID)A GROUP BY A.PROJECT_ID, A.MAN_SUPPLIER_ID, A.MAN_FORM_NAME, A.MAN_FORM_ID HAVING A.MAN_FORM_ID =@contractid ; "
-                   , new SqlParameter("contractid", contractid)).First();
-            }
-            return lst;
-        }
         string sno_key = "EST";
         public string getEstNo()
         {
@@ -4522,7 +4431,6 @@ namespace topmeperp.Service
             //處理SQL 預先填入ID,設定集合處理參數
             using (var context = new topmepEntities())
             {
-                //todo:貸款需要再調整
                 string sql = @"  
     
 --DECLARE @EventDate varchar(10)
