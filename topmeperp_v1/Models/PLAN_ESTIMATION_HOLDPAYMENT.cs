@@ -12,16 +12,15 @@ namespace topmeperp.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class PLAN_ESTIMATION_PAYMENT_TRANSFER
+    public partial class PLAN_ESTIMATION_HOLDPAYMENT
     {
-        public long PAYMENT_ID { get; set; }
-        public string PAYMENT_FORM_ID { get; set; }
-        public string TRANSFER_FORM_ID { get; set; }
-        public Nullable<int> ESTIMATION_COUNT { get; set; }
-        public Nullable<decimal> PAID_AMOUNT { get; set; }
-        public Nullable<decimal> FEE { get; set; }
+        public long HOLD_ID { get; set; }
+        public string EST_FORM_ID { get; set; }
+        public Nullable<long> PAYMENT_ID { get; set; }
+        public string SUPPLIER_ID { get; set; }
         public Nullable<decimal> HOLD_AMOUNT { get; set; }
-        public Nullable<decimal> CUR_HOLDAMOUNT { get; set; }
         public string REMARK { get; set; }
+    
+        public virtual PLAN_ESTIMATION_FORM PLAN_ESTIMATION_FORM { get; set; }
     }
 }

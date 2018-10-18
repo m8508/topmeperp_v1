@@ -1,4 +1,5 @@
 ﻿using log4net;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -16,7 +17,7 @@ namespace topmeperp.Service
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         string sno_key = "EST";
-        //定義驗收單與合約
+        #region 定義驗收單與合約
         string sql4Est = @"with 
 esOrder as --驗收單資料
 ( 
@@ -45,18 +46,161 @@ contract as (--合約資料
    and f.PROJECT_ID=@projectId
 )
 ";
-        public ContractModels getContrat(string projectId, string contractid, string prid_s, string prid_e)
+        #endregion
+        public ContractModels getContract(string projectId, string contractid, string prid_s, string prid_e)
         {
             ContractModels c = new ContractModels();
+
+            PLAN_ESTIMATION_FORM form = new PLAN_ESTIMATION_FORM();
+            c.planEST = form;
             //1.取得專案資料 
+            logger.Debug("get project by project_id=" + projectId);
             c.project = getProjectById(projectId);
             //2.取得合約資料
+            logger.Debug("get EstimationOrder4Expense by project_id=" + contractid + "," + prid_s + "," + prid_e);
             c.EstimationItems = getEstimationOrder4Expense(projectId, contractid, prid_s, prid_e);
             //3.取得供應商資料
+            logger.Debug("get Supplier by SUPPLIER_ID=" + c.EstimationItems.First().SUPPLIER_ID);
             c.supplier = getSupplierInfo(c.EstimationItems.First().SUPPLIER_ID);
             //4.取得代扣資料
-            c.Hold4DeductForm = getPaymentTransfer(projectId,c.supplier.SUPPLIER_ID);
+            logger.Debug("get Hold4DeductForm by SUPPLIER_ID=" + c.supplier.SUPPLIER_ID);
+            c.Hold4DeductForm = getPaymentTransfer(projectId, c.supplier.SUPPLIER_ID);
             return c;
+        }
+        /// <summary>
+        /// 取得估驗單資料
+        /// </summary>
+        /// <param name="estimationOrderId"></param>
+        public ContractModels getEstimationOrder(string formId)
+        {
+            ContractModels c = new ContractModels();
+            //1.取得估驗單資料
+            c.planEST = getForm(formId);
+            //2.取得專案資料 
+            c.project = getProjectById(c.planEST.PROJECT_ID);
+            //3.取得估驗明細資料
+            c.EstimationItems = getItems(c.planEST.EST_FORM_ID);
+            //4.取得供應商資料
+            c.supplier = getSupplierInfo(c.planEST.PAYEE);
+            //4.1 取得憑證資料
+            c.EstimationInvoices = getEstimationInvoice(c.planEST.EST_FORM_ID);
+            //5.取得代付支出
+            c.EstimationHoldPayments = getHoldPayment(formId);
+            //6.取得代扣支出
+            c.Hold4DeductForm = getPaymentTransfer(formId);
+            //7.取得任務清單
+            Flow4EstimationForm wkservice = new Flow4EstimationForm();
+            wkservice.getTask(formId);
+            c.task = wkservice.task.task;
+            return c;
+        }
+        //取得估驗單清單
+        public List<EstimationOrderForm> getFormList(string projectid, string status)
+        {
+            List<EstimationOrderForm> lst = null;
+            string sql = @"
+select p.PROJECT_NAME,c.SUPPLIER_ID SUPPLIER_NAME,c.FORM_NAME CONTRACT_NAME,f.*
+from PLAN_ESTIMATION_FORM f
+inner join TND_PROJECT p on f.project_id=p.project_id
+inner join PLAN_SUP_INQUIRY c on f.CONTRACT_ID=c.INQUIRY_FORM_ID
+WHERE  f.PROJECT_ID=@projectid AND (@status is null or f.STATUS=@status)
+";
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("projectid", projectid));
+            if (null == status)
+            {
+                parameters.Add(new SqlParameter("status", DBNull.Value));
+            }
+            else
+            {
+                parameters.Add(new SqlParameter("status", status));
+            }
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("sql=" + sql);
+                lst = context.Database.SqlQuery<EstimationOrderForm>(sql, parameters.ToArray()).ToList();
+            }
+            return lst;
+        }
+        //取得估驗單主檔
+        public PLAN_ESTIMATION_FORM getForm(string formId)
+        {
+            PLAN_ESTIMATION_FORM form = null;
+            using (var context = new topmepEntities())
+            {
+                form = context.PLAN_ESTIMATION_FORM.Where(f => f.EST_FORM_ID == formId).FirstOrDefault();
+            }
+            return form;
+        }
+        //取得供應商查詢條件
+        private string getSupplierByEstimationOrder(string formId)
+        {
+            List<string> supplierId = new List<string>();
+            string sql = @"
+select Distinct SUPPLIER_ID from PLAN_ESTIMATION2PURCHASE e2p
+inner join PLAN_PURCHASE_REQUISITION  pr
+on e2p.PR_ID=pr.PR_ID
+where e2p.EST_FORM_ID=@formId
+";
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("formId", formId));
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("sql=" + sql);
+                supplierId = context.Database.SqlQuery<string>(sql, parameters.ToArray()).ToList();
+            }
+            if (supplierId.Count > 1)
+            {
+                logger.Error("Data Error :" + formId);
+            }
+            return supplierId[0];
+        }
+        //取得估驗單明細資料
+        public List<EstimationItem> getItems(string formId)
+        {
+            List<EstimationItem> lst = new List<EstimationItem>();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("formId", formId));
+            string sql = @"
+select it.PLAN_ITEM_ID,cit.ITEM_ID,cit.ITEM_DESC,cit.ITEM_UNIT,cit.ITEM_UNIT_PRICE,
+ cit.ITEM_QTY as ITEM_QUANTITY,it.EST_QTY EstimationQty,it.EST_AMOUNT EstimationAmount,
+ it.REMARK,it.EST_ITEM_ID
+from  PLAN_ESTIMATION_FORM f
+inner join PLAN_ESTIMATION_ITEM it
+on f.EST_FORM_ID=it.EST_FORM_ID 
+inner join PLAN_SUP_INQUIRY_ITEM cit
+on it.PLAN_ITEM_ID=cit.PLAN_ITEM_ID 
+and f.CONTRACT_ID=cit.INQUIRY_FORM_ID
+and f.EST_FORM_ID=@formId
+";
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("sql=" + sql);
+                lst = context.Database.SqlQuery<EstimationItem>(sql, parameters.ToArray()).ToList();
+            }
+            return lst;
+        }
+        //取得估驗請款憑證資料
+        public List<PLAN_ESTIMATION_INVOICE> getEstimationInvoice(string formId)
+        {
+            List<PLAN_ESTIMATION_INVOICE> lst = new List<PLAN_ESTIMATION_INVOICE>();
+            using (var context = new topmepEntities())
+            {
+                lst = context.PLAN_ESTIMATION_INVOICE.Where(x => x.EST_FORM_ID == formId).Select(x => x).ToList();
+                logger.Debug("get invoice by formId=" + formId + ",count=" + lst.Count);
+            }
+            return lst;
+        }
+        //取得代付支出明細資料
+        public List<PLAN_ESTIMATION_HOLDPAYMENT> getHoldPayment(string formId)
+        {
+            List<PLAN_ESTIMATION_HOLDPAYMENT> lst = null;
+            logger.Debug("get PLAN_ESTIMATION_HOLDPAYMENT by " + formId);
+            using (var context = new topmepEntities())
+            {
+                lst = context.PLAN_ESTIMATION_HOLDPAYMENT.Where(f => f.EST_FORM_ID == formId).ToList();
+            }
+            return lst;
         }
         //取得驗收單與相關合約資料
         public List<plansummary> getAllPlanContract(string projectid)
@@ -139,7 +283,11 @@ c.ITEM_DESC,c.ITEM_UNIT,c.ITEM_QTY,c.ITEM_UNIT_PRICE,esOrder.REMARK,c.SUPPLIER_I
         /// <param name="form"></param>
         /// <param name="prid_s"></param>
         /// <param name="prid_e"></param>
-        public void createEstimationOrder(PLAN_ESTIMATION_FORM form, string prid_s, string prid_e)
+        public void createEstimationOrder(PLAN_ESTIMATION_FORM form,
+            List<PLAN_ESTIMATION_HOLDPAYMENT> lstHoldPayment,
+            List<PLAN_ESTIMATION_PAYMENT_TRANSFER> listTransferPayment,
+            List<PLAN_ESTIMATION_INVOICE> listInvoice,
+            string prid_s, string prid_e)
         {
             SerialKeyService snoservice = new SerialKeyService();
             form.EST_FORM_ID = snoservice.getSerialKey(sno_key);
@@ -156,7 +304,6 @@ c.ITEM_DESC,c.ITEM_UNIT,c.ITEM_QTY,c.ITEM_UNIT_PRICE,esOrder.REMARK,c.SUPPLIER_I
                 //1,建立主檔
                 context.PLAN_ESTIMATION_FORM.Add(form);
                 //2.建立驗收單關聯
-
                 string sql4ReceiveOrder = @"
 INSERT INTO PLAN_ESTIMATION2PURCHASE
 select DISTINCT esOrder.PR_ID AS PR_ID,@EST_FORM_ID AS EXT_FORM_ID
@@ -172,6 +319,7 @@ and esOrder.PR_ID BETWEEN @prid_s AND @prid_e
                 context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
 
                 //3.建立明細
+                //3.1 更新表單檔頭金額
                 string sql4Detail = @"
 INSERT INTO PLAN_ESTIMATION_ITEM
 select 
@@ -188,31 +336,233 @@ where c.PROJECT_ID=@projectId
 and c.INQUIRY_FORM_ID=@contractId
 and esOrder.PR_ID BETWEEN @prid_s AND @prid_e 
 GROUP BY c.PLAN_ITEM_ID,c.ITEM_UNIT_PRICE;
+UPDATE 
+PLAN_ESTIMATION_FORM
+SET PAID_AMOUNT = 
+(SELECT SUM(EST_AMOUNT) FROM PLAN_ESTIMATION_ITEM  WHERE EST_FORM_ID=@EST_FORM_ID)
+WHERE EST_FORM_ID=@EST_FORM_ID;
 ";
                 sb = new StringBuilder(sql4Est);
                 sql = sb.Append(sql4Detail).Replace("@EST_FORM_ID", "'" + form.EST_FORM_ID + "'").ToString();
                 logger.Debug(sql);
                 context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
-                //4.建立扣款明細 todo
+                //3.1 付款憑證資料
+                modifyEstimationInvoice(form, listInvoice, context);
+                //4.建立代付資料
+                modifyEstimationHold(form, lstHoldPayment, context);
+                logger.Debug("get Hold4Payment=" + JsonConvert.SerializeObject(lstHoldPayment).ToString());
+                //5.建立代付扣款明細 
+                modifyEstimationTransfer(form, listTransferPayment, context);
+                logger.Debug("get TransferPayment=" + JsonConvert.SerializeObject(listTransferPayment).ToString());
+                context.SaveChanges();
+            }
+            //更新估驗單總金額資料
+            SumEstimationForm(form.EST_FORM_ID);
+        }
+        /// <summary>
+        /// 將估驗單明細金額，加入表頭內
+        /// </summary>
+        /// <param name="formId"></param>
+        private void SumEstimationForm(string formId)
+        {
+            string sql = @"
+UPDATE PLAN_ESTIMATION_FORM SET PAID_AMOUNT=
+(select sum(est_amount) PAID_AMOUNT from PLAN_ESTIMATION_ITEM where EST_FORM_ID=@formId)
+WHERE EST_FORM_ID=@formId
+";
+            logger.Debug(sql + ",formId=" + formId);
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("formId", formId));
+            using (var context = new topmepEntities())
+            {
+                context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            }
+        }
+        private static void modifyEstimationInvoice(PLAN_ESTIMATION_FORM form, List<PLAN_ESTIMATION_INVOICE> lstInvoice, topmepEntities context)
+        {
+            string sql = "DELETE PLAN_ESTIMATION_INVOICE WHERE EST_FORM_ID=@formId";
+            logger.Debug("remove estimation invoice:sql=" + sql + ",formId=" + form.EST_FORM_ID);
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("formId", form.EST_FORM_ID));
+            context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            logger.Debug("sql=" + sql + ",formId=" + form.EST_FORM_ID);
+
+            if (null != lstInvoice && lstInvoice.Count > 0)
+            {
+                foreach (PLAN_ESTIMATION_INVOICE inv in lstInvoice)
+                {
+                    inv.EST_FORM_ID = form.EST_FORM_ID;
+                    context.PLAN_ESTIMATION_INVOICE.Add(inv);
+                }
+            }
+        }
+        /// <summary>
+        /// 建立代付扣回資料
+        /// </summary>
+        /// <param name="form"></param>
+        /// <param name="listTransferPayment"></param>
+        /// <param name="context"></param>
+        private static void modifyEstimationTransfer(PLAN_ESTIMATION_FORM form, List<PLAN_ESTIMATION_PAYMENT_TRANSFER> listTransferPayment, topmepEntities context)
+        {
+            string sql = "DELETE PLAN_ESTIMATION_PAYMENT_TRANSFER WHERE PAYMENT_FORM_ID=@formId";
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("formId", form.EST_FORM_ID));
+            context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            logger.Debug("sql=" + sql + ",formId=" + form.EST_FORM_ID);
+
+            if (null != listTransferPayment && listTransferPayment.Count > 0)
+            {
+                foreach (PLAN_ESTIMATION_PAYMENT_TRANSFER trans in listTransferPayment)
+                {
+                    trans.PAYMENT_FORM_ID = form.EST_FORM_ID;
+                    context.PLAN_ESTIMATION_PAYMENT_TRANSFER.Add(trans);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 建立代付款資料
+        /// </summary>
+        /// <param name="form"></param>
+        /// <param name="lstHoldPayment"></param>
+        /// <param name="context"></param>
+        private static void modifyEstimationHold(PLAN_ESTIMATION_FORM form, List<PLAN_ESTIMATION_HOLDPAYMENT> lstHoldPayment, topmepEntities context)
+        {
+            //1.delete exist data
+            string sql = "DELETE PLAN_ESTIMATION_HOLDPAYMENT WHERE EST_FORM_ID=@formId";
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("formId", form.EST_FORM_ID));
+            context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            logger.Debug("sql=" + sql + ",formId=" + form.EST_FORM_ID);
+
+            //2.建立代付款資料
+            if (lstHoldPayment != null && lstHoldPayment.Count > 0)
+            {
+                foreach (PLAN_ESTIMATION_HOLDPAYMENT hold in lstHoldPayment)
+                {
+                    hold.EST_FORM_ID = form.EST_FORM_ID;
+                    context.PLAN_ESTIMATION_HOLDPAYMENT.Add(hold);
+                }
+            }
+        }
+        /// <summary>
+        /// 修改估驗單資料
+        /// </summary>
+        /// <param name="form"></param>
+        /// <param name="lstHoldPayment"></param>
+        /// <param name="listTransferPayment"></param>
+        public void modifyEstimationOrder(PLAN_ESTIMATION_FORM form,
+            List<PLAN_ESTIMATION_HOLDPAYMENT> lstHoldPayment,
+            List<PLAN_ESTIMATION_PAYMENT_TRANSFER> listTransferPayment,
+            List<PLAN_ESTIMATION_INVOICE> listInvoice)
+        {
+            using (var context = new topmepEntities())
+            {
+                modifyEstimationForm(context, form);
+                modifyEstimationInvoice(form, listInvoice, context);
+                modifyEstimationHold(form, lstHoldPayment, context);
+                modifyEstimationTransfer(form, listTransferPayment, context);
                 context.SaveChanges();
             }
         }
-        //取得代付扣款彙整資料
+        /// <summary>
+        /// 刪除估驗單資料
+        /// </summary>
+        /// <param name="formId"></param>
+        public void delEstimationOrder(string formId)
+        {
+            StringBuilder sb = new StringBuilder();
+            //刪除 估驗單明細 PLAN_ESTIMATION_ITEM 
+            sb.Append("DELETE PLAN_ESTIMATION_ITEM WHERE EST_FORM_ID=@formId;");
+            //刪除 代付款紀錄 PLAN_ESTIMATION_HOLDPAYMENT
+            sb.Append("DELETE PLAN_ESTIMATION_HOLDPAYMENT WHERE EST_FORM_ID=@formId;");
+            //刪除 代付扣款紀錄 PLAN_ESTIMATION_PAYMENT_TRANSFER
+            sb.Append("DELETE PLAN_ESTIMATION_PAYMENT_TRANSFER WHERE PAYMENT_FORM_ID=@formId;");
+            //刪除 估驗單資料 PLAN_ESTIMATION_FORM
+            sb.Append("DELETE PLAN_ESTIMATION_FORM WHERE EST_FORM_ID=@formId;");
+            //刪除 驗收單與估驗單對照資料 PLAN_ESTIMATION2PURCHASE
+            sb.Append("DELETE PLAN_ESTIMATION2PURCHASE WHERE EST_FORM_ID=@formId;");
+
+            using (var context = new topmepEntities())
+            {
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("formId", formId));
+                string sql = sb.ToString();
+                logger.Debug("sql=" + sql + ",formId=" + formId);
+                context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            }
+        }
+        //修改基本資料
+        private static void modifyEstimationForm(topmepEntities context, PLAN_ESTIMATION_FORM form)
+        {
+            string sql = @"
+UPDATE PLAN_ESTIMATION_FORM
+   SET PROJECT_ID = @projectid
+      ,CONTRACT_ID = @contractid
+      ,PLUS_TAX = @plustax
+      ,TAX_AMOUNT = @taxamount
+      ,PAYMENT_TRANSFER = @paymenttransfer
+      ,PAID_AMOUNT = @paidamount
+      ,FOREIGN_PAYMENT = @foreignpayment
+      ,RETENTION_PAYMENT = @retentionpayment
+      ,REMARK = @remark
+      ,SETTLEMENT = @settlement
+      ,TYPE = @type
+      ,STATUS = @status
+      ,TAX_RATIO = @taxration
+      ,MODIFY_DATE = getdate()
+      ,INVOICE = @invoice
+      ,REJECT_DESC = @rejectdesc
+      ,PROJECT_NAME = @projectname
+      ,PAYEE = @payee
+      ,PAYMENT_DATE = @paymentDate
+      ,INDIRECT_COST_TYPE = @indirectCostType
+ WHERE EST_FORM_ID = @formId
+                ";
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("formId", form.EST_FORM_ID));
+            parameters.Add(new SqlParameter("projectid", form.PROJECT_ID));
+            parameters.Add(new SqlParameter("contractid", form.CONTRACT_ID));
+            parameters.Add(new SqlParameter("plustax", form.PLUS_TAX ?? (object)DBNull.Value));
+            parameters.Add(new SqlParameter("taxamount", form.TAX_AMOUNT ?? (object)DBNull.Value));
+            parameters.Add(new SqlParameter("paymenttransfer", form.PAYMENT_TRANSFER ?? (object)DBNull.Value));
+            parameters.Add(new SqlParameter("paidamount", form.PAID_AMOUNT ?? (object)DBNull.Value));
+            parameters.Add(new SqlParameter("foreignpayment", form.FOREIGN_PAYMENT ?? (object)DBNull.Value));
+            parameters.Add(new SqlParameter("retentionpayment", form.RETENTION_PAYMENT ?? (object)DBNull.Value));
+            parameters.Add(new SqlParameter("remark", form.REMARK ?? (object)DBNull.Value));
+            parameters.Add(new SqlParameter("settlement", form.SETTLEMENT ?? (object)DBNull.Value));
+            parameters.Add(new SqlParameter("type", form.TYPE ?? (object)DBNull.Value));
+            parameters.Add(new SqlParameter("status", form.STATUS ?? (object)DBNull.Value));
+            parameters.Add(new SqlParameter("taxration", form.TAX_RATIO ?? (object)DBNull.Value));
+            parameters.Add(new SqlParameter("invoice", form.INVOICE ?? (object)DBNull.Value));
+            parameters.Add(new SqlParameter("rejectdesc", form.REJECT_DESC ?? (object)DBNull.Value));
+            parameters.Add(new SqlParameter("projectname", form.PROJECT_NAME ?? (object)DBNull.Value));
+            parameters.Add(new SqlParameter("payee", form.PAYEE ?? (object)DBNull.Value));
+            parameters.Add(new SqlParameter("paymentDate", form.PAYMENT_DATE ?? (object)DBNull.Value));
+            parameters.Add(new SqlParameter("indirectCostType", form.INDIRECT_COST_TYPE ?? (object)DBNull.Value));
+            context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+
+            //   parameters.Add(new SqlParameter("supplierId", supplierId));
+
+        }
+
+        //取得代付扣款彙整資料--依據驗收單相關取得對應的代付資料
         private List<Model4PaymentTransfer> getPaymentTransfer(string projectId, string supplierId)
         {
             List<Model4PaymentTransfer> lstSummary = null;
             string sql = @"
-select f.EST_FORM_ID,
- f.PROJECT_ID,
- f.CONTRACT_ID,
- SUM(it.[EST_AMOUNT]) PAID_AMOUNT,
- f.HOLD4REMARK
-from [PLAN_ESTIMATION_FORM] f
-inner  join PLAN_ESTIMATION_ITEM it
-on f.EST_FORM_ID=it.EST_FORM_ID
-where f.PROJECT_ID=@projectId
-and f.hold4supplier=@supplierId
-group by f.EST_FORM_ID,f.PROJECT_ID,f.CONTRACT_ID,f.HOLD4REMARK
+SELECT 
+*
+ FROM
+(
+--代付資料
+SELECT F.PROJECT_ID,F.CONTRACT_ID,F.PAYEE,H.* FROM 
+PLAN_ESTIMATION_FORM F INNER JOIN
+PLAN_ESTIMATION_HOLDPAYMENT H
+ON F.EST_FORM_ID=H.EST_FORM_ID
+AND F.PROJECT_ID=@projectId
+) A
+WHERE LEFT(SUPPLIER_ID,7) =@supplierId
 ";
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("projectId", projectId));
@@ -222,6 +572,30 @@ group by f.EST_FORM_ID,f.PROJECT_ID,f.CONTRACT_ID,f.HOLD4REMARK
             {
                 lstSummary = context.Database.SqlQuery<Model4PaymentTransfer>(sql, parameters.ToArray()).ToList();
             }
+            return lstSummary;
+        }
+        //取得代付扣款資料
+        private List<Model4PaymentTransfer> getPaymentTransfer(string formId)
+        {
+            List<Model4PaymentTransfer> lstSummary = null;
+            string sql = @"
+select 
+PAYMENT_FORM_ID EST_FORM_ID,f.PROJECT_ID,S.COMPANY_NAME,f.CONTRACT_ID,f.PAYEE,f.CREATE_DATE,
+tf.* from　PLAN_ESTIMATION_PAYMENT_TRANSFER tf
+INNER JOIN PLAN_ESTIMATION_FORM  f
+ON tf.PAYMENT_FORM_ID=f.EST_FORM_ID
+INNER JOIN TND_SUPPLIER S
+ON f.PAYEE=s.SUPPLIER_ID
+WHERE tf.PAYMENT_FORM_ID=@formId
+";
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("formId", formId));
+            logger.Debug("sql=" + sql + ",formId=" + formId);
+            using (var context = new topmepEntities())
+            {
+                lstSummary = context.Database.SqlQuery<Model4PaymentTransfer>(sql, parameters.ToArray()).ToList();
+            }
+
             return lstSummary;
         }
         public List<EstimationForm> getContractItemById(string contractid, string projectid)

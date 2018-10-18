@@ -540,7 +540,7 @@ namespace topmeperp.Service
     public class Flow4Estimation : WorkFlowService
     {
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        public new string FLOW_KEY = "EST01";
+        public string FLOW_KEY = "EST01";
         //處理SQL 預先填入專案代號,設定集合處理參數
         string sql = @"SELECT F.EST_FORM_ID,F.PROJECT_NAME,F.PROJECT_ID,F.PAYEE,F.PAYMENT_DATE, F.PAID_AMOUNT,F.REMARK REQ_DESC,F.REJECT_DESC REJECT_DESC,
                         R.REQ_USER_ID,R.CURENT_STATE,R.PID,
@@ -883,6 +883,245 @@ namespace topmeperp.Service
             }
         }
         */
+        //退件
+        public void Reject(SYS_USER u, DateTime? paymentdate, string reason, string payee)
+        {
+            logger.Debug("EstimationFormRequest Reject:" + task.task.RID);
+            base.Reject(u, reason);
+            if (statusChange != "F")
+            {
+                updateForm(paymentdate, reason, 0, payee, null);
+            }
+        }
+        //中止
+        public void Cancel(SYS_USER u)
+        {
+            user = u;
+            logger.Info("USER :" + user.USER_ID + " Cancel :" + task.task.EST_FORM_ID);
+            base.CancelRequest(u);
+            if (statusChange != "F")
+            {
+                string sql = "DELETE PLAN_ESTIMATION_FORM WHERE EST_FORM_ID=@formId;DELETE PLAN_ESTIMATION_FORM WHERE EST_FORM_ID=@formId;";
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("formId", task.task.EST_FORM_ID));
+                using (var context = new topmepEntities())
+                {
+                    logger.Debug("Cancel EstimationFormRequest Status=" + task.task.EST_FORM_ID);
+                    context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+                }
+            }
+        }
+    }
+    /// <summary>
+    /// 估驗單審核作業
+    /// </summary>
+    public class Flow4EstimationForm : WorkFlowService
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        public string FLOW_KEY = "EST02";
+
+        //處理SQL 預先填入專案代號,設定集合處理參數
+        string sql = @"
+SELECT F.EST_FORM_ID,
+(SELECT Top 1 FORM_NAME FROM PLAN_SUP_INQUIRY C WHERE C.INQUIRY_FORM_ID=F.CONTRACT_ID) FORM_NAME,
+(SELECT Top 1 PROJECT_NAME FROM TND_PROJECT WHERE PROJECT_ID=F.PROJECT_ID) PROJECT_NAME ,
+F.PROJECT_ID,
+(SELECT TOP 1 COMPANY_NAME FROM TND_SUPPLIER WHERE SUPPLIER_ID=F.PAYEE) PAYEE,
+F.PAYMENT_DATE,ISNULL(F.PAID_AMOUNT,0) PAID_AMOUNT,F.REMARK REQ_DESC,F.REJECT_DESC REJECT_DESC,
+R.REQ_USER_ID,R.CURENT_STATE,R.PID,
+(SELECT TOP 1 MANAGER FROM ENT_DEPARTMENT WHERE DEPT_CODE=CT.DEP_CODE) MANAGER,
+CT.* ,M.FORM_URL + METHOD_URL as FORM_URL
+FROM PLAN_ESTIMATION_FORM F,WF_PROCESS_REQUEST R,
+WF_PORCESS_TASK CT , 
+(SELECT P.PID,A.SEQ_ID,FORM_URL,METHOD_URL  FROM WF_PROCESS P,WF_PROCESS_ACTIVITY A WHERE P.PID=A.PID ) M
+WHERE F.EST_FORM_ID= R.DATA_KEY AND R.RID=CT.RID AND R.CURENT_STATE=CT.SEQ_ID
+AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE  
+";
+
+        public Flow4EstimationForm()
+        {
+        }
+        /// <summary>
+        /// 取得廠商計價請款清單
+        /// </summary>
+        public List<ExpenseFlowTask> getEstimationFormRequest(string contractid, string payee, string estid, string projectid, string status)
+        {
+            logger.Info("search est form by 計價單編號 =" + estid + ", 受款人 =" + payee + ", 專案編號 =" + projectid);
+            List<ExpenseFlowTask> lstForm = new List<ExpenseFlowTask>();
+            using (var context = new topmepEntities())
+            {
+                var parameters = new List<SqlParameter>();
+                //廠商名稱(受款人)
+                if (null != payee && payee != "")
+                {
+                    sql = sql + " AND PAYEE Like @payee ";
+                    parameters.Add(new SqlParameter("payee", "%" + payee + "%"));
+                }
+                //申請單號
+                if (null != estid && estid != "")
+                {
+                    sql = sql + " AND  F.EST_FORM_ID Like @expid ";
+                    parameters.Add(new SqlParameter("estid", "%" + estid + "%"));
+                }
+                //專案名稱
+                if (null != projectid && projectid != "")
+                {
+                    sql = sql + " AND  F.PROJECT_ID = @projectid ";
+                    parameters.Add(new SqlParameter("projectid", projectid));
+                }
+                //表單狀態
+                if (null != status && status != "")
+                {
+                    sql = sql + " AND  F.STATUS = @status ";
+                    parameters.Add(new SqlParameter("status", status));
+                }
+                logger.Debug("sql=" + sql);
+                lstForm = context.Database.SqlQuery<ExpenseFlowTask>(sql, parameters.ToArray()).ToList();
+            }
+            logger.Info("get est form count=" + lstForm.Count);
+
+            return lstForm;
+        }
+        /// <summary>
+        /// 取的申請程序表單與相關資料
+        /// </summary>
+        /// <param name="dataKey"></param>
+        public void getTask(string dataKey)
+        {
+            task = new ExpenseTask();
+            sql = sql + " AND R.DATA_KEY=@datakey";
+            using (var context = new topmepEntities())
+            {
+                try
+                {
+                    task.task = context.Database.SqlQuery<ExpenseFlowTask>(sql, new SqlParameter("datakey", dataKey)).First();
+                    //取得申請者部門資料
+                    logger.Debug("sqlDeptInfo=" + sqlDeptInfo + ",Data Key=" + dataKey);
+                    task.DeptInfo = context.Database.SqlQuery<RequestUserDeptInfo>(sqlDeptInfo, new SqlParameter("datakey", dataKey)).First();
+                }
+                catch (Exception ex)
+                {
+                    logger.Warn("not task!! ex=" + ex.Message + "," + ex.StackTrace);
+                }
+            }
+        }
+
+        //表單送審後，啟動對應程序
+        public void iniRequest(SYS_USER u, string DataKey)
+        {
+            getFlowAcivities(FLOW_KEY);
+            task = new ExpenseTask();
+            //建立表單追蹤資料Index
+            task.ProcessRequest = new WF_PROCESS_REQUEST();
+            task.ProcessRequest.PID = process.PID;
+            task.ProcessRequest.REQ_USER_ID = u.USER_ID;
+            task.ProcessRequest.CREATE_DATE = DateTime.Now;
+            task.ProcessRequest.DATA_KEY = DataKey;
+            task.ProcessRequest.CURENT_STATE = 1;
+            //建立簽核任務追蹤要項
+            task.ProcessTask = new List<WF_PORCESS_TASK>();
+            foreach (WF_PROCESS_ACTIVITY activity in activitys)
+            {
+                WF_PORCESS_TASK t = new WF_PORCESS_TASK();
+                t.ACTIVITY_TYPE = activity.ACTIVITY_TYPE;
+                t.CREATE_DATE = DateTime.Now;
+                t.CREATE_USER_ID = u.USER_ID;
+                t.NOTE = activity.ACTIVITY_NAME;
+                t.STATUS = "O";//參考TaskStatus
+                t.SEQ_ID = activity.SEQ_ID;
+                t.DEP_CODE = activity.DEP_CODE;
+                task.ProcessTask.Add(t);
+            }
+            using (var context = new topmepEntities())
+            {
+                context.WF_PROCESS_REQUEST.Add(task.ProcessRequest);
+                int i = context.SaveChanges();
+                foreach (WF_PORCESS_TASK t in task.ProcessTask)
+                {
+                    //t.ID = DBNull.Value;
+                    t.RID = task.ProcessRequest.RID;
+                }
+                context.WF_PORCESS_TASK.AddRange(task.ProcessTask);
+                i = context.SaveChanges();
+                logger.Debug("Create Task Records =" + i);
+            }
+        }
+        //送審
+        public void Send(SYS_USER u, DateTime? paymentdate, string reason, string payee, string remark)
+        {
+            //STATUS  0   退件
+            //STATUS  10  草稿
+            //STATUS  20  審核中
+            //STATUS  30  通過
+            //STATUS  40  中止
+            //
+            logger.Debug("EstimationFormRequest Send" + task.task.ID);
+            base.Send(u);
+            if (statusChange != "F")
+            {
+                int staus = 10;
+                if (statusChange == "M")
+                {
+                    staus = 20;
+                }
+                else if (statusChange == "D")
+                {
+                    staus = 30;
+                }
+                staus = updateForm(paymentdate, reason, staus, payee, remark);
+            }
+        }
+        //更新資料庫資料
+        protected int updateForm(DateTime? paymentdate, string reason, int staus, string payee, string remark)
+        {
+            string sql = "UPDATE PLAN_ESTIMATION_FORM SET STATUS=@status, PAYMENT_DATE=@paymentDate, REJECT_DESC=@rejectDesc, PAYEE=@payee, REMARK=@remark WHERE EST_FORM_ID=@formId";
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("status", staus));
+            if (null != paymentdate)
+            {
+                parameters.Add(new SqlParameter("paymentDate", paymentdate));
+            }
+            else
+            {
+                parameters.Add(new SqlParameter("paymentDate", DBNull.Value));
+            }
+            if (null != reason)
+            {
+                parameters.Add(new SqlParameter("rejectDesc", reason));
+            }
+            else
+            {
+                parameters.Add(new SqlParameter("rejectDesc", DBNull.Value));
+            }
+            if (null != payee)
+            {
+                parameters.Add(new SqlParameter("payee", payee));
+            }
+            else
+            {
+                parameters.Add(new SqlParameter("payee", DBNull.Value));
+            }
+            if (null != remark)
+            {
+                parameters.Add(new SqlParameter("remark", remark));
+            }
+            else
+            {
+                parameters.Add(new SqlParameter("remark", DBNull.Value));
+            }
+            parameters.Add(new SqlParameter("formId", task.task.EST_FORM_ID));
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("Change EstimationFormRequest Status=" + task.task.EST_FORM_ID + "," + staus);
+                context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
+            }
+            if (staus == 30)
+            {
+               // staus = addAccountFromEst(task.task.EST_FORM_ID, task.task.PAYEE, task.task.PAYMENT_DATE, task.task.PROJECT_ID, task.task.PAID_AMOUNT);
+            }
+            return staus;
+        }
+
         //退件
         public void Reject(SYS_USER u, DateTime? paymentdate, string reason, string payee)
         {

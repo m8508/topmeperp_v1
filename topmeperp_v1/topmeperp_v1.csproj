@@ -511,6 +511,12 @@
     <Compile Include="Models\PLAN_ESTIMATION_FORM.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\PLAN_ESTIMATION_HOLDPAYMENT.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PLAN_ESTIMATION_INVOICE.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\PLAN_ESTIMATION_ITEM.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
@@ -1297,6 +1303,9 @@
     <Content Include="Views\ProjectOrganization\_TaskAssignItem.cshtml" />
     <Content Include="Views\CashFlow\showBudgetStatus.cshtml" />
     <Content Include="Views\Estimation\createEstimationOrder.cshtml" />
+    <Content Include="Views\Estimation\_EstimationForm.cshtml" />
+    <Content Include="Views\Estimation\createEstimationOrder_Approve.cshtml" />
+    <Content Include="Views\Estimation\_PaymentDetails.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

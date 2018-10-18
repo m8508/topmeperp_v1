@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using topmeperp.Models;
 
 namespace topmeperp.Service
 {
@@ -51,6 +52,11 @@ namespace topmeperp.Service
             string itemJson = objSerializer.Serialize(obj);
             logger.Debug(itemJson);
             return itemJson;
+        }
+        public static SYS_USER getUserInfoFromSession( HttpSessionStateBase Session )
+        {
+            SYS_USER u = (SYS_USER)Session["user"];
+            return u;
         }
     }
 }
