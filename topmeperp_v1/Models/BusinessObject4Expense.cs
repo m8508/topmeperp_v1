@@ -26,13 +26,18 @@ namespace topmeperp.Models
     {
         //FIN_EXPENSE_FORM
         public string EXP_FORM_ID { get; set; }
+        public string EST_FORM_ID { get; set; }
         public string PROJECT_ID { get; set; }
         public Int32 OCCURRED_YEAR { get; set; }
         public Int32 OCCURRED_MONTH { get; set; }
+        ///廠商編號
         public string PAYEE { get; set; }
+        //廠商名稱
+        public string SUPPLIER_NAME { get; set; }
         public DateTime? PAYMENT_DATE { get; set; }
         public string REQ_DESC { get; set; }
         public string REJECT_DESC { get; set; }
+
         //WF_PROCESS_REQUEST
         public string REQ_USER_ID { get; set; }
         public Int64 CURENT_STATE { get; set; }
@@ -42,7 +47,6 @@ namespace topmeperp.Models
         //DE     
         public string DEPT_CODE { get; set; } //申請者部門
         public string MANAGER { get; set; }//申請部門主管
-        public string EST_FORM_ID { get; set; }
         public decimal PAID_AMOUNT { get; set; }
         public string FORM_NAME { get; set; }
         public string PROJECT_NAME { get; set; }

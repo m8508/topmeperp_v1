@@ -128,7 +128,11 @@
                     {{key.AMOUNT + key.TAX | number }}
                     <br />
                     憑證類型 :
-                    <select style="color:deeppink;font-weight:bold; width:120px" id="invoicetype" name="invoicetype" ng-model="key.TYPE" required><option value="二聯式">二聯式</option><option value="三聯式">三聯式</option><option value="收據">收據</option><option value="工資單">工資單</option><option value="對開發票">對開發票</option><option value="折讓單">折讓單</option><option value="其他扣款">其他扣款</option></select>
+                    <select style="color:deeppink;font-weight:bold; width:120px" id="invoicetype" name="invoicetype" ng-model="key.TYPE" required>
+                    <option value="二聯式">二聯式</option>
+                    <option value="三聯式">三聯式</option>
+                    <option value="收據">收據</option>
+                    <option value="工資單">工資單</option><option value="對開發票">對開發票</option><option value="折讓單">折讓單</option><option value="其他扣款">其他扣款</option></select>
                     <span ng-show="key.TYPE == '折讓單'">
                         <select style="color:cornflowerblue;font-weight:bold; width:120px" id="sub_type" name="sub_type" ng-model="key.SUB_TYPE" required><option value="溢開折讓">溢開折讓</option><option value="扣款折讓">扣款折讓</option><option value="代收代付">代收代付</option></select>
                         品名 :

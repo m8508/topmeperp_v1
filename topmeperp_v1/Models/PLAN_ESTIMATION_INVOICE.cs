@@ -22,6 +22,7 @@ namespace topmeperp.Models
         public Nullable<decimal> AMOUNT { get; set; }
         public Nullable<decimal> TAX { get; set; }
         public string TYPE { get; set; }
+        public string NOTE { get; set; }
         public string SUB_TYPE { get; set; }
         public string PLAN_ITEM_ID { get; set; }
         public Nullable<decimal> DISCOUNT_QTY { get; set; }

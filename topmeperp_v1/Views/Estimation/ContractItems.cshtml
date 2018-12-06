@@ -38,8 +38,9 @@
                 <input type="file" name="file" id="file" />
             </div>
         </div>
+        <!--
         <div class="contailer" ng-controller="myController">
-            @ViewBag.SearchResult
+           @ViewBag.SearchResult
             <table class="table" align="left">
                 <thead>
                     <tr>
@@ -174,9 +175,11 @@
             </div>
 
         </div>
+           -->
         <hr />
-
-        <input type="submit" value="計算" id="saveForm" name="saveForm" class="btn btn-success" />
+        <!--
+        <input type="submit" value="計算" id="saveForm" name="saveForm" class="btn btn-success"/>
+        -->
 
         <div class="row" style="padding-top:10px;">
             @{
@@ -198,9 +201,9 @@
     <div class="row" style="padding-top:10px">
         <div class="col-md-12">
             <input type="button" value="更新" class="btn btn-success" onclick="saveVA()" />
-            <input type="submit" value="計算" id="saveForm" name="saveForm" class="btn btn-success" />
-            <input type="submit" value="儲存" name="SaveEst" class="btn btn-default" onclick="return Confirm_Form()" />
-            <input type="submit" value="提交" name="AddEst" class="btn btn-warning" onclick="return Confirm_Form()" />
+            <!-- <input type="submit" value="計算" id="saveForm" name="saveForm" class="btn btn-success" />-->
+            <!-- <input type="submit" value="儲存" name="SaveEst" class="btn btn-default" onclick="return Confirm_Form()" />
+            <input type="submit" value="提交" name="AddEst" class="btn btn-warning" onclick="return Confirm_Form()" />-->
         </div>
     </div>
 }
@@ -514,13 +517,13 @@
                     $('#total_repayment').val(data.TOTAL_REPAYMENT);
                     $('#total_refund').val(data.TOTAL_REFUND);
 
-                    // if (data.PAYABLE_AMOUNT == null || data.PAYABLE_AMOUNT == '') {
-                    //     alert("目前尚有未核准的估驗單，估驗單編號為" + data + "，待此單核准後再新增估驗單!");
-                    // }
-                    //  else {
+                   // if (data.PAYABLE_AMOUNT == null || data.PAYABLE_AMOUNT == '') {
+                   //     alert("目前尚有未核准的估驗單，估驗單編號為" + data + "，待此單核准後再新增估驗單!");
+                   // }
+                  //  else {
                     //    alert("更新成功，若資料無誤請按下儲存或提交鍵 !");
 
-                    /// }
+                   /// }
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     alert(thrownError);

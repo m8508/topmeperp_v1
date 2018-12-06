@@ -40,7 +40,7 @@
             </td>
             <td data-th="廠商帳款管理">
               <button type="button" class="btn btn-info" onclick="location.href='@Url.Action("ContractItems", "Estimation", new { projectid = item.PROJECT_ID })'; ">廠商計價</button>
-                <button type="button" class="btn btn-info" @ViewBag.F10005 onclick="location.href='@Url.Action("EstimationForm", "Estimation", new { id = item.PROJECT_ID })'">廠商計價單查詢與簽核
+                <button type="button" class="btn btn-info" @ViewBag.F10005 onclick="location.href='@Url.Action("Index", "PaymentManagement", new { id = item.PROJECT_ID })'">付款作業
                 </button>
             </td>
         </tr>

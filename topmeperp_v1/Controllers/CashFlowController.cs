@@ -775,7 +775,6 @@ namespace topmeperp.Controllers
             return View(lstEXP);
         }
 
-
         public ActionResult SearchEXP()
         {
             string id = Request["id"];
@@ -1076,8 +1075,6 @@ namespace topmeperp.Controllers
         }
         public ActionResult SearchCashOutFlow()
         {
-
-
             List<PlanAccountFunction> CashOutFlow = null;
             List<LoanTranactionFunction> LoanOutFlow = null;
             List<PlanAccountFunction> OutFlowBalance = null;

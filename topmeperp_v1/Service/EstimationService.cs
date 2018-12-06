@@ -6,6 +6,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Web;
+using System.Web.Mvc;
 using topmeperp.Models;
 
 namespace topmeperp.Service
@@ -74,21 +75,27 @@ contract as (--合約資料
         public ContractModels getEstimationOrder(string formId)
         {
             ContractModels c = new ContractModels();
-            //1.取得估驗單資料
+            //3.取得估驗單資料
             c.planEST = getForm(formId);
-            //2.取得專案資料 
+            //1.取得專案資料 
             c.project = getProjectById(c.planEST.PROJECT_ID);
-            //3.取得估驗明細資料
+            //2.合約資料 
+            PurchaseFormService s = new PurchaseFormService();
+            s.getInqueryForm(c.planEST.CONTRACT_ID);
+            c.supContract = s.formInquiry;
+            c.supContractItems = s.formInquiryItem;
+
+            //4.取得估驗明細資料
             c.EstimationItems = getItems(c.planEST.EST_FORM_ID);
-            //4.取得供應商資料
+            //5.取得供應商資料
             c.supplier = getSupplierInfo(c.planEST.PAYEE);
-            //4.1 取得憑證資料
+            //5.1 取得憑證資料
             c.EstimationInvoices = getEstimationInvoice(c.planEST.EST_FORM_ID);
-            //5.取得代付支出
+            //6.取得代付支出
             c.EstimationHoldPayments = getHoldPayment(formId);
-            //6.取得代扣支出
+            //7.取得代扣支出
             c.Hold4DeductForm = getPaymentTransfer(formId);
-            //7.取得任務清單
+            //8.取得任務清單
             Flow4EstimationForm wkservice = new Flow4EstimationForm();
             wkservice.getTask(formId);
             c.task = wkservice.task.task;
@@ -162,7 +169,9 @@ where e2p.EST_FORM_ID=@formId
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("formId", formId));
             string sql = @"
-select it.PLAN_ITEM_ID,cit.ITEM_ID,cit.ITEM_DESC,cit.ITEM_UNIT,cit.ITEM_UNIT_PRICE,
+select 
+f.CONTRACT_ID CONTRACT_ID,f.EST_FORM_ID EST_FORM_ID,
+it.PLAN_ITEM_ID,cit.ITEM_ID,cit.ITEM_DESC,cit.ITEM_UNIT,cit.ITEM_UNIT_PRICE,
  cit.ITEM_QTY as ITEM_QUANTITY,it.EST_QTY EstimationQty,it.EST_AMOUNT EstimationAmount,
  it.REMARK,it.EST_ITEM_ID
 from  PLAN_ESTIMATION_FORM f
@@ -180,6 +189,52 @@ and f.EST_FORM_ID=@formId
             }
             return lst;
         }
+        //處理廠商請款表單發票明細資料
+        public static List<PLAN_ESTIMATION_INVOICE> getSellInvoice(FormCollection f, string formId, string contracId, List<PLAN_ESTIMATION_INVOICE> lstInvoice, string Invoices)
+        {
+            string[] aryInvoiceId = Invoices.Split(',');
+            string[] aryInvoiceAmount = (string[])f.GetValue("invoiceAmt").RawValue;
+            string[] aryInvoiceTax = (string[])f.GetValue("invoiceTax").RawValue;
+            string[] aryInvoiceDate = f["invoiceDate"].Split(',');
+            string[] aryInvoiceType = f["invoicetype"].Split(',');
+            string[] aryInvoiceNote = (string[])f.GetValue("invoiceNote").RawValue;
+            if (null != Invoices)
+            {
+                lstInvoice = new List<PLAN_ESTIMATION_INVOICE>();
+                string[] aryInvoiceNo = Invoices.Split(',');
+                for (int i = 0; i < aryInvoiceId.Length; i++)
+                {
+                    PLAN_ESTIMATION_INVOICE invoice = new PLAN_ESTIMATION_INVOICE();
+                    invoice.EST_FORM_ID = formId;
+                    invoice.CONTRACT_ID = contracId;
+                    //發票號碼
+                    invoice.INVOICE_NUMBER = aryInvoiceNo[i];
+                    //發票金額
+                    if (aryInvoiceAmount[i] != "")
+                    {
+                        invoice.AMOUNT = decimal.Parse(aryInvoiceAmount[i]);
+                    }
+                    //發票類型
+                    invoice.TYPE = aryInvoiceType[i];
+                    //發票稅金
+                    if (aryInvoiceTax[i] != "")
+                    {
+                        invoice.TAX = decimal.Parse(aryInvoiceTax[i]);
+                    }
+                    else
+                    {
+                        //若使用這位輸入，依據憑證類型計算稅金
+                        InvoiceService s = new InvoiceService();
+                        invoice.TAX = Convert.ToDecimal(Math.Round(Convert.ToDouble(s.getTaxRate(invoice.TYPE) * invoice.AMOUNT), 0, MidpointRounding.AwayFromZero));
+                    }
+                    invoice.INVOICE_DATE = DateTime.Parse(aryInvoiceDate[i]);
+
+                    invoice.NOTE = aryInvoiceNote[i];
+                    lstInvoice.Add(invoice);
+                }
+            }
+            return lstInvoice;
+        }
         //取得估驗請款憑證資料
         public List<PLAN_ESTIMATION_INVOICE> getEstimationInvoice(string formId)
         {
@@ -194,7 +249,7 @@ and f.EST_FORM_ID=@formId
         //取得代付支出明細資料
         public List<PLAN_ESTIMATION_HOLDPAYMENT> getHoldPayment(string formId)
         {
-            List<PLAN_ESTIMATION_HOLDPAYMENT> lst = null;
+            List<PLAN_ESTIMATION_HOLDPAYMENT> lst = new List<PLAN_ESTIMATION_HOLDPAYMENT>();
             logger.Debug("get PLAN_ESTIMATION_HOLDPAYMENT by " + formId);
             using (var context = new topmepEntities())
             {
@@ -356,29 +411,57 @@ WHERE EST_FORM_ID=@EST_FORM_ID;
                 logger.Debug("get TransferPayment=" + JsonConvert.SerializeObject(listTransferPayment).ToString());
                 context.SaveChanges();
             }
-            //更新估驗單總金額資料
-            SumEstimationForm(form.EST_FORM_ID);
+            //6.建立彙整金額
+            SumEstimationForm(form);
         }
         /// <summary>
-        /// 將估驗單明細金額，加入表頭內
+        /// 將估驗單相關金額，加入表頭內
         /// </summary>
         /// <param name="formId"></param>
-        private void SumEstimationForm(string formId)
+        private void SumEstimationForm(PLAN_ESTIMATION_FORM f)
         {
+            //TODO : 保留款、預付款、其他扣款尚未計算
             string sql = @"
-UPDATE PLAN_ESTIMATION_FORM SET PAID_AMOUNT=
-(select sum(est_amount) PAID_AMOUNT from PLAN_ESTIMATION_ITEM where EST_FORM_ID=@formId)
-WHERE EST_FORM_ID=@formId
+ UPDATE PLAN_ESTIMATION_FORM
+ SET 
+ PAID_AMOUNT=INV_ALL.PAID_AMOUNT-INV_ALL.PAYMENT_TRANSFER ,-- 應付金額(須扣除代付支出)
+ TAX_AMOUNT=INV_ALL.TAX_AMOUNT,--營業稅
+  PAYMENT_TRANSFER=INV_ALL.PAYMENT_TRANSFER,--代付支出
+  PAYMENT_DEDUCTION=INV_ALL.PAYMENT_DEDUCTION,----代付扣回
+  RETENTION_PAYMENT=0,--保留款(需另外計算)
+  OTHER_PAYMENT=0, -- 其他扣款(需另外計算)
+  PREPAY_AMOUNT=0, --預付款(需另外計算)
+  FOREIGN_PAYMENT=0 --外勞款(尚無資料)
+  FROM 
+  (SELECT INV.EST_FORM_ID FORM_ID
+,ISNULL(SUM(HOLD.HOLD_AMOUNT),0) PAYMENT_TRANSFER  --代付支出
+,SUM(INV.AMOUNT) PAID_AMOUNT  -- 應付金額
+,SUM(INV.TAX) TAX_AMOUNT  --營業稅
+,ISNULL(SUM(TRF.PAID_AMOUNT),0) PAYMENT_DEDUCTION   --代付扣回
+FROM PLAN_ESTIMATION_INVOICE INV
+LEFT JOIN PLAN_ESTIMATION_HOLDPAYMENT HOLD
+ON INV.EST_FORM_ID=HOLD.EST_FORM_ID
+LEFT JOIN PLAN_ESTIMATION_PAYMENT_TRANSFER TRF
+ON INV.EST_FORM_ID=TRF.TRANSFER_FORM_ID
+ WHERE INV.EST_FORM_ID = @formId 
+ AND INV.CONTRACT_ID=@contractId
+ GROUP BY INV.EST_FORM_ID
+ ) INV_ALL
+ WHERE INV_ALL.FORM_ID= PLAN_ESTIMATION_FORM.EST_FORM_ID
 ";
-            logger.Debug(sql + ",formId=" + formId);
+            logger.Debug(sql + ",formId=" + f.EST_FORM_ID +",Contract=" + f.CONTRACT_ID);
             var parameters = new List<SqlParameter>();
-            parameters.Add(new SqlParameter("formId", formId));
+            parameters.Add(new SqlParameter("formId", f.EST_FORM_ID));
+            parameters.Add(new SqlParameter("contractId", f.CONTRACT_ID));
             using (var context = new topmepEntities())
             {
                 context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
             }
         }
-        private static void modifyEstimationInvoice(PLAN_ESTIMATION_FORM form, List<PLAN_ESTIMATION_INVOICE> lstInvoice, topmepEntities context)
+        /// <summary>
+        /// 建立發票資料
+        /// </summary>
+        public static void modifyEstimationInvoice(PLAN_ESTIMATION_FORM form, List<PLAN_ESTIMATION_INVOICE> lstInvoice, topmepEntities context)
         {
             string sql = "DELETE PLAN_ESTIMATION_INVOICE WHERE EST_FORM_ID=@formId";
             logger.Debug("remove estimation invoice:sql=" + sql + ",formId=" + form.EST_FORM_ID);
@@ -464,6 +547,8 @@ WHERE EST_FORM_ID=@formId
                 modifyEstimationTransfer(form, listTransferPayment, context);
                 context.SaveChanges();
             }
+            //.建立彙整金額
+            SumEstimationForm(form);
         }
         /// <summary>
         /// 刪除估驗單資料
@@ -650,6 +735,33 @@ WHERE tf.PAYMENT_FORM_ID=@formId
                    , new SqlParameter("contractid", contractid)).First();
             }
             return lst;
+        }
+    }
+    //發票(憑證)邏輯作業服務
+    public class InvoiceService
+    {
+        static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        //憑證類型陣列
+        string[] InvoiceType = { "二聯式", "三聯式", "收據", "工資單", "對開發票", "折讓單-溢開折讓", "折讓單-扣款折讓", "其他扣款" };
+        //對應稅率資料
+        decimal[] TaxRate = { 0.0M, 0.05M, 0.0M, 0.0M, 0.0M, 0.0M, 0.0M, 0.0M };
+        public InvoiceService()
+        {
+
+        }
+        public string[] getInvoiceType()
+        {
+            return InvoiceType;
+        }
+        public decimal getTaxRate(string invoicetype)
+        {
+            int idx = Array.IndexOf(InvoiceType, invoicetype);
+            if (idx > -1)
+            {
+                logger.Debug("get tax Rate Type=" + invoicetype + ",Rate=" + TaxRate[idx]);
+                return TaxRate[idx];
+            }
+            return -1;
         }
     }
 }

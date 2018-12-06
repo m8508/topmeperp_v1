@@ -1,6 +1,6 @@
 ﻿@model topmeperp.Models.EstimationFormApprove
 @{
-    ViewBag.Title = "廠商估驗單管理";
+    ViewBag.Title = "廠商付款管理";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <label class="btn-link">@ViewBag.Title</label>
@@ -15,8 +15,8 @@
     <!--查詢條件區塊-->
     <div class="row">
         <form name="estSearch" id="estSearch" action="/Estimation/EstimationForm" method="Post" class="form-inline">
-            <div class='col-md-4 form-group'>
-                <label for="payee">供應商名稱 :</label>
+            <div class='col-md-3 form-group'>
+                <label for="payee">供應商 :</label>
                 <input id="payee" name="payee" type="text" value="" class="form-control" />
                 <input id="id" name="id" type="hidden" value="@ViewBag.projectid" />
             </div>
@@ -24,7 +24,7 @@
                 <label for="estid">估驗單編號 :</label>
                 <input id="estid" name="estid" type="text" value="" class="form-control" style="width:50%" />
             </div>
-            <div class="col-md-2 form-group">
+            <div class="col-md-3 form-group">
                 <label for="status">狀態 : </label> @Html.DropDownList("status", null, String.Empty, new { @class = "form-control" })
             </div>
             <div class="col-md-3 form-group">
@@ -50,7 +50,9 @@
                                 <th>發包項目名稱</th>
                                 <th>供應商名稱(受款人)</th>
                                 <th>金額</th>
+                                <th>付款日期</th>
                                 <th>備註</th>
+                                <th>狀態</th>
                                 <th>下一步</th>
                             </tr>
                         </thead>
@@ -59,62 +61,16 @@
                             @foreach (var item in Model.lstEstimationFlowTask)
                             {
                                 <tr>
-                                    <td><a href="/Estimation/createEstimationOrderInfo?formid=@item.EST_FORM_ID" target="_blank">@item.EST_FORM_ID</a></td>
+                                    <td>@item.EST_FORM_ID</td>
                                     <td>@item.FORM_NAME</td>
-                                    <td>@item.PAYEE</td>
+                                    <td>@item.SUPPLIER_NAME (@item.PAYEE)</td>
                                     <td>@item.PAID_AMOUNT</td>
+                                    <td>@item.PAYMENT_DATE</td>
                                     <td>@item.REJECT_DESC</td>
                                     <td>
-                                        <a href='@(item.FORM_URL+"formid="+item.EST_FORM_ID)' target="_blank">@item.NOTE</a>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        }
-    </div>
-</div>
-<!--估驗單區域-->
-<div class="container">
-    <div class="row"><label>未受審的估驗單</label> </div>
-    <div class="row">
-        @if (null != Model && null != Model.lstEstimationForm)
-        {
- <!--未受審的估驗單清單-->
-            <div class="container">
-                <div class="row" style="padding-top:5px;">
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr class="bg-info">
-                                <th>編號</th>
-                                <th>發包項目名稱</th>
-                                <th>供應商名稱(受款人)</th>
-                                <th>金額</th>
-                                <th>備註</th>
-                                <th>狀態</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <tbody>
-                            @foreach (var item in Model.lstEstimationForm)
-                            {
-                                <tr>
-                                    <td><a href="/Estimation/createEstimationOrderInfo?formid=@item.EST_FORM_ID" target="_blank">@item.EST_FORM_ID</a></td>
-                                    <td>@item.CONTRACT_NAME</td>
-                                    <td>@item.SUPPLIER_NAME</td>
-                                    <td>@item.PAID_AMOUNT</td>
-                                    <td>@item.REMARK</td>
+                                    @(new HtmlString(_funFormStatus.shwoStatus((item.CURENT_STATE.ToString()))))
                                     <td>
-                                        @if (item.STATUS == 0)
-                                        {
-                                            <label>草稿</label>
-                                        }
-                                        else
-                                        {
-                                            <label>審核中</label>
-                                        }
+                                        <a href='@(item.FORM_URL+"formid="+item.EST_FORM_ID)' target="_blank">@item.NOTE</a>
                                     </td>
                                 </tr>
                             }
@@ -136,3 +92,4 @@
         });
     })
 </script>
+

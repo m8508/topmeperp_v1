@@ -127,10 +127,10 @@
                                 @item.NEED_DATE
                             </td>
                             <td>
-                                <input type="checkbox" id="chkItem" name="chkItem" value="@item.PLAN_ITEM_ID" />
+                                <input type="checkbox" id="chkItem" name="chkItem" value="@item.PLAN_ITEM_ID"  />
                             </td>
                             <td>
-                                @Html.TextBox("receipt_qty", item.RECEIPT_QTY, new { @class = "form-control", style = "width:120px", Name = "receipt_qty" })
+                                @Html.TextBox("receipt_qty", item.RECEIPT_QTY, new { @class = "form-control", style = "width:120px", Name = "receipt_qty" , autocomplete = "off" })
                             </td>
 
                         </tr>

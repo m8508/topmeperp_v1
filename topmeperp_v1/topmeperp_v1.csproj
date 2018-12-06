@@ -428,6 +428,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InquiryController.cs" />
     <Compile Include="Controllers\MaterialManageController.cs" />
+    <Compile Include="Controllers\PaymentManagementController.cs" />
     <Compile Include="Controllers\PlanController.cs" />
     <Compile Include="Controllers\ProjectCompareController.cs" />
     <Compile Include="Controllers\ProjectOrganizationController.cs" />
@@ -684,6 +685,7 @@
     <Compile Include="Service\EstimationService.cs" />
     <Compile Include="Service\poi4CostChangeService.cs" />
     <Compile Include="Service\PoiService4ProjectTask.cs" />
+    <Compile Include="Service\PoiSrevice4Payment.cs" />
     <Compile Include="Service\ProjectPlanService.cs" />
     <Compile Include="Service\ContextService.cs" />
     <Compile Include="Service\ContextService4po.cs" />
@@ -1019,6 +1021,7 @@
     <Content Include="Scripts\respond.matchmedia.addListener.js" />
     <Content Include="Scripts\respond.matchmedia.addListener.min.js" />
     <Content Include="Scripts\respond.min.js" />
+    <Content Include="Scripts\topmep_EstimationFlow.js" />
     <Content Include="Scripts\topmep_payment.js" />
     <Content Include="Scripts\topmep_selecComp.js" />
     <Content Include="Scripts\umd\popper-utils.js" />
@@ -1305,7 +1308,12 @@
     <Content Include="Views\Estimation\createEstimationOrder.cshtml" />
     <Content Include="Views\Estimation\_EstimationForm.cshtml" />
     <Content Include="Views\Estimation\createEstimationOrder_Approve.cshtml" />
-    <Content Include="Views\Estimation\_PaymentDetails.cshtml" />
+    <Content Include="Views\include\_PaymentDetails.cshtml" />
+    <Content Include="Views\include\_PaymentInvoices.cshtml" />
+    <Content Include="Views\include\_PaymentHead.cshtml" />
+    <Content Include="Views\PaymentManagement\Index.cshtml" />
+    <Content Include="Views\PaymentManagement\PaymentForm.cshtml" />
+    <Content Include="App_Code\_funFormStatus.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

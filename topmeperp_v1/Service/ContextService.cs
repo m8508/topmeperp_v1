@@ -884,9 +884,19 @@ namespace topmeperp.Service
             logger.Debug("get supplier by id=" + supplierName);
             using (var context = new topmepEntities())
             {
-                supplier = context.TND_SUPPLIER.SqlQuery("select s.* from TND_SUPPLIER s "
-                    + "where s.COMPANY_NAME = @supplierName OR s.SUPPLIER_ID= @supplierName "
-                   , new SqlParameter("supplierName", supplierName)).First();
+                try
+                {
+                    supplier = context.TND_SUPPLIER.SqlQuery("select s.* from TND_SUPPLIER s "
+                        + "where s.COMPANY_NAME = @supplierName OR s.SUPPLIER_ID= @supplierName "
+                       , new SqlParameter("supplierName", supplierName)).First();
+                }
+                catch (Exception ex)
+                {
+                    //針對查不到的廠商資料，忽略相關錯誤
+                    logger.Error(ex.Message + "," + ex.StackTrace);
+                    supplier = new TND_SUPPLIER();
+                    supplier.COMPANY_NAME = supplierName;
+                }
             }
             return supplier;
         }

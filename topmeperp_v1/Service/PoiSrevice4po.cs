@@ -48,9 +48,7 @@ namespace topmeperp.Service
             }
         }
     }
-
-
-
+    
     //將合約標單品項輸出成Excel
     public class PlanItemForContract : ProjectItem2Excel
     {
@@ -1206,7 +1204,7 @@ namespace topmeperp.Service
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         string expenseFile = ContextService.strUploadPath + "\\expense_form.xlsx";
         string outputPath = ContextService.strUploadPath;
-        IWorkbook hssfworkbook;
+        public IWorkbook hssfworkbook;
         ISheet sheet = null;
         string company_folder = "C001";
 

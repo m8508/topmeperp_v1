@@ -473,4 +473,11 @@ namespace topmeperp.Service
             }
         }
     }
+    /// <summary>
+    /// 支付與估驗服務
+    /// </summary>
+    class Service4Payment: PurchaseFormService
+    {
+
+    }
 }

@@ -3612,8 +3612,7 @@ namespace topmeperp.Service
             using (var context = new topmepEntities())
             {
                 //取得估驗單檔頭資訊
-                string sql = "SELECT EST_FORM_ID, PROJECT_ID, CONTRACT_ID, PLUS_TAX, TAX_AMOUNT, TAX_RATIO, PAYMENT_TRANSFER, FOREIGN_PAYMENT, RETENTION_PAYMENT, MODIFY_DATE, REMARK, INVOICE,INDIRECT_COST_TYPE, " +
-                    "CREATE_ID, CREATE_DATE, SETTLEMENT, STATUS, TYPE, PAID_AMOUNT, REJECT_DESC, PROJECT_NAME, PAYEE, PAYMENT_DATE FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID =@estid ";
+                string sql = "SELECT * FROM PLAN_ESTIMATION_FORM WHERE EST_FORM_ID =@estid ";
 
                 formEST = context.PLAN_ESTIMATION_FORM.SqlQuery(sql, new SqlParameter("estid", estid)).FirstOrDefault();
                 //取得估驗單明細
@@ -4185,15 +4184,16 @@ namespace topmeperp.Service
         //取得估驗單代付支出明細資料
         public List<RePaymentFunction> getRePaymentById(string id)
         {
-
-            logger.Info("get repayment by EST id =" + id);
+            string sql = @"
+SELECT pop.AMOUNT AS AMOUNT, pop.REASON AS REASON, pop.CONTRACT_ID_FOR_REFUND AS CONTRACT_ID_FOR_REFUND, s.SUPPLIER_ID AS COMPANY_NAME 
+FROM PLAN_OTHER_PAYMENT pop LEFT JOIN PLAN_SUP_INQUIRY s ON pop.CONTRACT_ID_FOR_REFUND = s.INQUIRY_FORM_ID WHERE pop.EST_FORM_ID =@id AND pop.TYPE = 'R' 
+";
+            logger.Info("get repayment :"+ sql +" by EST id =" + id);
             List<RePaymentFunction> lstItem = new List<RePaymentFunction>();
             //處理SQL 預先填入ID,設定集合處理參數
             using (var context = new topmepEntities())
             {
-                lstItem = context.Database.SqlQuery<RePaymentFunction>("SELECT pop.AMOUNT AS AMOUNT, pop.REASON AS REASON, pop.CONTRACT_ID_FOR_REFUND AS CONTRACT_ID_FOR_REFUND, s.SUPPLIER_ID AS COMPANY_NAME " +
-                    "FROM PLAN_OTHER_PAYMENT pop LEFT JOIN PLAN_SUP_INQUIRY s ON pop.CONTRACT_ID_FOR_REFUND = s.INQUIRY_FORM_ID WHERE pop.EST_FORM_ID =@id AND pop.TYPE = 'R' ; "
-            , new SqlParameter("id", id)).ToList();
+                lstItem = context.Database.SqlQuery<RePaymentFunction>(sql,new SqlParameter("id", id)).ToList();
             }
 
             return lstItem;

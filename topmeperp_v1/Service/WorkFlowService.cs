@@ -344,7 +344,7 @@ namespace topmeperp.Service
 		                (SELECT P.PID,A.SEQ_ID,FORM_URL,METHOD_URL  FROM WF_PROCESS P,WF_PROCESS_ACTIVITY A WHERE P.PID=A.PID ) M
                         WHERE F.EXP_FORM_ID= R.DATA_KEY AND R.RID=CT.RID AND R.CURENT_STATE=CT.SEQ_ID
 						AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE";
-        
+
         public Flow4CompanyExpense()
         {
 
@@ -491,7 +491,7 @@ namespace topmeperp.Service
             }
             return staus;
         }
-        
+
         //退件
         public void Reject(SYS_USER u, DateTime? paymentdate, string reason)
         {
@@ -542,22 +542,31 @@ namespace topmeperp.Service
         static ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public string FLOW_KEY = "EST01";
         //處理SQL 預先填入專案代號,設定集合處理參數
-        string sql = @"SELECT F.EST_FORM_ID,F.PROJECT_NAME,F.PROJECT_ID,F.PAYEE,F.PAYMENT_DATE, F.PAID_AMOUNT,F.REMARK REQ_DESC,F.REJECT_DESC REJECT_DESC,
-                        R.REQ_USER_ID,R.CURENT_STATE,R.PID,
-                        (SELECT TOP 1 MANAGER FROM ENT_DEPARTMENT WHERE DEPT_CODE=CT.DEP_CODE) MANAGER,
-                        CT.* ,M.FORM_URL + METHOD_URL as FORM_URL
-						FROM PLAN_ESTIMATION_FORM F,WF_PROCESS_REQUEST R,
-                        WF_PORCESS_TASK CT , 
-		                (SELECT P.PID,A.SEQ_ID,FORM_URL,METHOD_URL  FROM WF_PROCESS P,WF_PROCESS_ACTIVITY A WHERE P.PID=A.PID ) M
-                        WHERE F.EST_FORM_ID= R.DATA_KEY AND R.RID=CT.RID AND R.CURENT_STATE=CT.SEQ_ID
-						AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE ";
-        //string sqlDeptInfo = @"SELECT R.REQ_USER_ID REQ_USER_ID,U.USER_NAME REQ_USER_NAME,
-        //U.DEP_CODE DEPT_CODE,D.DEPT_NAME DEPT_NAME,
-        //D.MANAGER,(SELECT TOP 1 USER_NAME FROM SYS_USER  WHERE USER_ID=D.MANAGER) MANAGER_NAME
-        //FROM WF_PROCESS_REQUEST r LEFT JOIN 
-        //SYS_USER u  ON r.REQ_USER_ID=u.USER_ID LEFT OUTER JOIN
-        //ENT_DEPARTMENT D ON u.DEP_CODE=D.DEPT_CODE
-        //WHERE R.DATA_KEY=@datakey";
+        string sql = @"
+SELECT F.EST_FORM_ID,
+(SELECT FORM_NAME  FROM PLAN_SUP_INQUIRY WHERE INQUIRY_FORM_ID=F.CONTRACT_ID) FORM_NAME,
+(SELECT PROJECT_NAME FROM TND_PROJECT WHERE PROJECT_ID=F.PROJECT_ID) PROJECT_NAME,
+F.PROJECT_ID,
+F.PAYEE,
+(SELECT COMPANY_NAME FROM TND_SUPPLIER WHERE SUPPLIER_ID=F.PAYEE) SUPPLIER_NAME ,
+F.PAYMENT_DATE, 
+F.PAID_AMOUNT,
+F.REMARK REQ_DESC,
+F.REJECT_DESC REJECT_DESC,
+R.REQ_USER_ID,R.CURENT_STATE,R.PID,
+   (SELECT TOP 1 MANAGER FROM ENT_DEPARTMENT WHERE DEPT_CODE=CT.DEP_CODE) MANAGER,
+   CT.* ,M.FORM_URL + METHOD_URL as FORM_URL,
+   P.PROCESS_CODE,
+   P.PROCESS_NAME
+FROM PLAN_ESTIMATION_FORM F,
+WF_PROCESS_REQUEST R,
+WF_PROCESS P,
+ WF_PORCESS_TASK CT , 
+   (SELECT P.PID,A.SEQ_ID,FORM_URL,METHOD_URL  FROM WF_PROCESS P,WF_PROCESS_ACTIVITY A WHERE P.PID=A.PID ) M
+   WHERE F.EST_FORM_ID= R.DATA_KEY AND R.RID=CT.RID AND R.CURENT_STATE=CT.SEQ_ID
+AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE  
+AND P.PID=R.PID
+";
         public Flow4Estimation()
         {
             //base.FLOW_KEY = "EST01";
@@ -922,7 +931,7 @@ namespace topmeperp.Service
 
         //處理SQL 預先填入專案代號,設定集合處理參數
         string sql = @"
-SELECT F.EST_FORM_ID,
+SELECT F.EST_FORM_ID EXP_FORM_ID,F.EST_FORM_ID ,
 (SELECT Top 1 FORM_NAME FROM PLAN_SUP_INQUIRY C WHERE C.INQUIRY_FORM_ID=F.CONTRACT_ID) FORM_NAME,
 (SELECT Top 1 PROJECT_NAME FROM TND_PROJECT WHERE PROJECT_ID=F.PROJECT_ID) PROJECT_NAME ,
 F.PROJECT_ID,
@@ -1056,6 +1065,11 @@ AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE
             //STATUS  40  中止
             //
             logger.Debug("EstimationFormRequest Send" + task.task.ID);
+            if (null == task.ProcessTask)
+            {
+                logger.Info("Not Have Task:" + task.task.EXP_FORM_ID);
+                getRequest(task.task.EXP_FORM_ID);
+            }
             base.Send(u);
             if (statusChange != "F")
             {
@@ -1067,6 +1081,10 @@ AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE
                 else if (statusChange == "D")
                 {
                     staus = 30;
+                    //建立付款程序
+                    logger.Info("create payment process:"+ task.task.EXP_FORM_ID);
+                    Flow4Estimation paymentService = new Flow4Estimation();
+                    paymentService.iniRequest(u, task.task.EXP_FORM_ID);
                 }
                 staus = updateForm(paymentdate, reason, staus, payee, remark);
             }
@@ -1117,7 +1135,7 @@ AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE
             }
             if (staus == 30)
             {
-               // staus = addAccountFromEst(task.task.EST_FORM_ID, task.task.PAYEE, task.task.PAYMENT_DATE, task.task.PROJECT_ID, task.task.PAID_AMOUNT);
+                // staus = addAccountFromEst(task.task.EST_FORM_ID, task.task.PAYEE, task.task.PAYMENT_DATE, task.task.PROJECT_ID, task.task.PAID_AMOUNT);
             }
             return staus;
         }
@@ -1130,6 +1148,7 @@ AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE
             if (statusChange != "F")
             {
                 updateForm(paymentdate, reason, 0, payee, null);
+                Cancel(u); //註銷程序資料，送審後再建立
             }
         }
         //中止
@@ -1140,12 +1159,13 @@ AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE
             base.CancelRequest(u);
             if (statusChange != "F")
             {
-                string sql = "DELETE PLAN_ESTIMATION_FORM WHERE EST_FORM_ID=@formId;DELETE PLAN_ESTIMATION_FORM WHERE EST_FORM_ID=@formId;";
+                //中止估驗單
+                string sql = "UPDATE PLAN_ESTIMATION_FORM SET STATUS = '0' WHERE EST_FORM_ID=@formId; ";
                 var parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("formId", task.task.EST_FORM_ID));
                 using (var context = new topmepEntities())
                 {
-                    logger.Debug("Cancel EstimationFormRequest Status=" + task.task.EST_FORM_ID);
+                    logger.Debug("Cancel EstimationFormRequest Status=" + task.task.EST_FORM_ID + ",User ID=" + u.USER_ID);
                     context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
                 }
             }
@@ -1178,7 +1198,7 @@ AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE
             List<CostChangeTask> lstForm = new List<CostChangeTask>();
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("projectid", projectId));
-            if (null!=remark && remark != "")
+            if (null != remark && remark != "")
             {
                 sql = sql + " AND (F.REMARK_ITEM Like @remark OR F.REMARK_QTY Like @remark OR F.REMARK_PRICE Like @remark OR F.REMARK_OTHER Like @remark) ";
                 parameters.Add(new SqlParameter("remark", "%" + remark + "%"));
@@ -1237,7 +1257,7 @@ AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE
         }
 
         //送審
-        public void Send(SYS_USER u, string desc,string reason, string methodCode, DateTime? settlementDate)
+        public void Send(SYS_USER u, string desc, string reason, string methodCode, DateTime? settlementDate)
         {
             logger.Debug("CostChange Request Send" + task.task.ID);
             base.task = task;
@@ -1257,7 +1277,7 @@ AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE
             }
         }
         //更新資料庫資料
-        protected int updateForm(string desc, int staus,string reason, string method, DateTime? settlementDate)
+        protected int updateForm(string desc, int staus, string reason, string method, DateTime? settlementDate)
         {
             string sql = @"UPDATE PLAN_COSTCHANGE_FORM SET STATUS=@status,REJECT_DESC=@rejectDesc,
                            REASON_CODE=@reason,METHOD_CODE=@Methodcode,SETTLEMENT_DATE=@settlementDate 
@@ -1318,7 +1338,7 @@ AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE
             base.Reject(u, reason);
             if (statusChange != "F")
             {
-                updateForm(reason, 0,null, null, null);
+                updateForm(reason, 0, null, null, null);
             }
         }
         //中止

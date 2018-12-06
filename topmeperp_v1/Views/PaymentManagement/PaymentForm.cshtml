@@ -1,6 +1,6 @@
 ﻿@model topmeperp.Models.ContractModels
 @{
-    ViewBag.Title = "估驗請款單";
+    ViewBag.Title = "請款單";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
     decimal? CurTotal = 0.0M;
     decimal? CurAmount = 0.0M;
@@ -10,7 +10,7 @@
 <link href="~/Content/themes/base/jquery-ui.css" rel="stylesheet" />
 <form id="formESTMain" name="formESTMain" action="" method="post" enctype="multipart/form-data" class="form-inline">
     <!--表頭-->
-    @Html.Partial("~/Views/include/_PaymentHead.cshtml")
+    @Html.Partial("~/Views/include/_PaymentHead")
     <!--請款明細資料-->
     <div class="contailer">
         <!--物料清單-->
@@ -124,8 +124,8 @@
         </table>
     </div>
     <!--憑證資料-->
-    @Html.Partial("~/Views/include/_PaymentInvoices.cshtml")
-    @Html.Partial("~/Views/include/_PaymentDetails.cshtml")
+    @Html.Partial("~/Views/include/_PaymentInvoices")
+    @Html.Partial("~/Views/include/_PaymentDetails")
     <hr />
     <div class="row">
         <div class="col-md-2">

@@ -20,7 +20,5 @@ namespace topmeperp.Models
         public string SUPPLIER_ID { get; set; }
         public Nullable<decimal> HOLD_AMOUNT { get; set; }
         public string REMARK { get; set; }
-    
-        public virtual PLAN_ESTIMATION_FORM PLAN_ESTIMATION_FORM { get; set; }
     }
 }
