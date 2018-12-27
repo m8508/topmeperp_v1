@@ -1261,7 +1261,7 @@ namespace topmeperp.Controllers
             log.Info("plan payment terms info=" + itemJson);
             return itemJson;
         }
-        #region 合約付款條件
+
         //寫入合約付款條件
         public String addPaymentTerms(FormCollection form)
         {
@@ -1271,16 +1271,9 @@ namespace topmeperp.Controllers
             PLAN_PAYMENT_TERMS item = new PLAN_PAYMENT_TERMS();
             item.PROJECT_ID = form["project_id"];
             item.CONTRACT_ID = form["contract_id"];
+            //付款方式與日期 : O:每月上下兩期,T:每月付款一次
             item.PAYMENT_FREQUENCY = form["payfrequency"];
-            item.PAYMENT_TERMS = form["payterms"];
-            item.PAYMENT_TYPE = form["paymenttype"];
-            item.PAYMENT_CASH = form["paymentcash"];
-            item.PAYMENT_UP_TO_U_1 = form["payment_1"];
-            item.PAYMENT_UP_TO_U_2 = form["payment_2"];
-            item.USANCE_CASH = form["usancecash"];
-            item.USANCE_UP_TO_U_1 = form["usance_1"];
-            item.USANCE_UP_TO_U_2 = form["usance_2"];
-            item.REMARK = form["remark"];
+            //付款日期定義 O 每月兩次: DATE_1、DATE_2
             try
             {
                 item.DATE_1 = decimal.Parse(form["date1"]);
@@ -1297,6 +1290,7 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not date_2:" + ex.Message);
             }
+            //付款日期定義 T 每月一次: DATE_3
             try
             {
                 item.DATE_3 = decimal.Parse(form["date3"]);
@@ -1305,22 +1299,19 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not date_3:" + ex.Message);
             }
-            try
-            {
-                item.USANCE_UP_TO_U_DATE1 = decimal.Parse(form["usance_date1"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usance_date1:" + ex.Message);
-            }
-            try
-            {
-                item.USANCE_UP_TO_U_DATE2 = decimal.Parse(form["usance_date2"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usance_date2:" + ex.Message);
-            }
+
+            #region 按期估驗 付款方式 P
+            //付款比例與票期 : P:按期估驗 S:階段付款 
+            item.PAYMENT_TERMS = form["payterms"];
+
+            //工資、設備、連工帶料 (for 按期估驗P使用)
+            item.PAYMENT_TYPE = form["paymenttype"];
+            //現金票 : ""、電匯、現金、支票
+            item.PAYMENT_CASH = form["paymentcash"];
+
+            //估驗階段第2階段 付款方式 支票、現金、電匯
+            item.PAYMENT_UP_TO_U_1 = form["payment_1"];
+            //估驗比率，第2部分 開票付款延遲天數
             try
             {
                 item.PAYMENT_UP_TO_U_DATE1 = decimal.Parse(form["payment_date1"]);
@@ -1329,6 +1320,9 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not payment_date1:" + ex.Message);
             }
+            //估驗階段第3階段 付款方式 支票、現金、電匯
+            item.PAYMENT_UP_TO_U_2 = form["payment_2"];
+            //估驗比率，第3部分  開票付款延遲天數
             try
             {
                 item.PAYMENT_UP_TO_U_DATE2 = decimal.Parse(form["payment_date2"]);
@@ -1337,38 +1331,8 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not payment_date2:" + ex.Message);
             }
-            try
-            {
-                item.USANCE_ADVANCE_RATIO = decimal.Parse(form["usanceadvance"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usanceadvance:" + ex.Message);
-            }
-            try
-            {
-                item.USANCE_ADVANCE_CASH_RATIO = decimal.Parse(form["usanceadvance_cash"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usanceadvance_cash:" + ex.Message);
-            }
-            try
-            {
-                item.USANCE_ADVANCE_1_RATIO = decimal.Parse(form["usanceadvance_1"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usanceadvance_1:" + ex.Message);
-            }
-            try
-            {
-                item.USANCE_ADVANCE_2_RATIO = decimal.Parse(form["usanceadvance_2"]);
-            }
-            catch (Exception ex)
-            {
-                log.Error(item.CONTRACT_ID + " not usanceadvance_2:" + ex.Message);
-            }
+
+            //預付款 付款比例
             try
             {
                 item.PAYMENT_ADVANCE_RATIO = decimal.Parse(form["paymentadvance"]);
@@ -1377,6 +1341,8 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not paymentadvance:" + ex.Message);
             }
+
+            //預付款 現金付款比例
             try
             {
                 item.PAYMENT_ADVANCE_CASH_RATIO = decimal.Parse(form["paymentadvance_cash"]);
@@ -1385,6 +1351,7 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not paymentadvance_cash:" + ex.Message);
             }
+            //預付款 2 支票付款比例
             try
             {
                 item.PAYMENT_ADVANCE_1_RATIO = decimal.Parse(form["paymentadvance_1"]);
@@ -1393,6 +1360,7 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not paymentadvance_1:" + ex.Message);
             }
+            //預付款 3 支票付款比例
             try
             {
                 item.PAYMENT_ADVANCE_2_RATIO = decimal.Parse(form["paymentadvance_2"]);
@@ -1401,6 +1369,7 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not paymentadvance_2:" + ex.Message);
             }
+            //估驗款 付款比例
             try
             {
                 item.PAYMENT_ESTIMATED_RATIO = decimal.Parse(form["paymentestimated"]);
@@ -1409,6 +1378,7 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not paymentestimated:" + ex.Message);
             }
+            //估驗款 現金比例
             try
             {
                 item.PAYMENT_ESTIMATED_CASH_RATIO = decimal.Parse(form["paymentestimated_cash"]);
@@ -1417,6 +1387,7 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not paymentestimated_cash:" + ex.Message);
             }
+            //估驗款 2 支票金額比例
             try
             {
                 item.PAYMENT_ESTIMATED_1_RATIO = decimal.Parse(form["paymentestimated_1"]);
@@ -1425,6 +1396,7 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not paymentestimated_1:" + ex.Message);
             }
+            //估驗款 3 支票金額比例
             try
             {
                 item.PAYMENT_ESTIMATED_2_RATIO = decimal.Parse(form["paymentestimated_2"]);
@@ -1433,6 +1405,8 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not paymentestimated_2:" + ex.Message);
             }
+
+            //保留款 保留款比例
             try
             {
                 item.PAYMENT_RETENTION_RATIO = decimal.Parse(form["paymentretention"]);
@@ -1441,6 +1415,7 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not paymentretention:" + ex.Message);
             }
+            //保留款 現金比例
             try
             {
                 item.PAYMENT_RETENTION_CASH_RATIO = decimal.Parse(form["paymentretention_cash"]);
@@ -1449,6 +1424,7 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not paymentretention_cash:" + ex.Message);
             }
+            //保留款 2 支票金額比例
             try
             {
                 item.PAYMENT_RETENTION_1_RATIO = decimal.Parse(form["paymentretention_1"]);
@@ -1457,6 +1433,7 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not paymentretention_1:" + ex.Message);
             }
+            //保留款 3 支票金額比例
             try
             {
                 item.PAYMENT_RETENTION_2_RATIO = decimal.Parse(form["paymentretention_2"]);
@@ -1465,6 +1442,71 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not paymentretention_2:" + ex.Message);
             }
+            #endregion
+
+            #region 階段付款 付款方式 S
+            // 現金付款方式:""、電匯、現金、支票
+            item.USANCE_CASH = form["usancecash"];
+            // 支票付款1:電匯、現金、支票
+            item.USANCE_UP_TO_U_1 = form["usance_1"];
+            // 支票付款1 延遲天數 
+            try
+            {
+                item.USANCE_UP_TO_U_DATE1 = decimal.Parse(form["usance_date1"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usance_date1:" + ex.Message);
+            } 
+            // 支票付款2 延遲天數 
+            try
+            {
+                item.USANCE_UP_TO_U_DATE2 = decimal.Parse(form["usance_date2"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usance_date2:" + ex.Message);
+            }
+
+            // 支票付款2:電匯、現金、支票
+            item.USANCE_UP_TO_U_2 = form["usance_2"];
+            //訂金比例 (合約)
+            try
+            {
+                item.USANCE_ADVANCE_RATIO = decimal.Parse(form["usanceadvance"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usanceadvance:" + ex.Message);
+            }
+            //訂金 現金比例
+            try
+            {
+                item.USANCE_ADVANCE_CASH_RATIO = decimal.Parse(form["usanceadvance_cash"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usanceadvance_cash:" + ex.Message);
+            }
+            //訂金，支票 2 付款比例
+            try
+            {
+                item.USANCE_ADVANCE_1_RATIO = decimal.Parse(form["usanceadvance_1"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usanceadvance_1:" + ex.Message);
+            }
+            //訂金，支票 3 付款比例
+            try
+            {
+                item.USANCE_ADVANCE_2_RATIO = decimal.Parse(form["usanceadvance_2"]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(item.CONTRACT_ID + " not usanceadvance_2:" + ex.Message);
+            }
+            //貨到付款 : 總金額比例(合約)
             try
             {
                 item.USANCE_GOODS_RATIO = decimal.Parse(form["usancegoods"]);
@@ -1473,6 +1515,7 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not usancegoods:" + ex.Message);
             }
+            //貨到付款 : 請款 現金比例
             try
             {
                 item.USANCE_GOODS_CASH_RATIO = decimal.Parse(form["usancegoods_cash"]);
@@ -1481,6 +1524,7 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not usancegoods_cash:" + ex.Message);
             }
+            //貨到付款 : 支票 2 比例
             try
             {
                 item.USANCE_GOODS_1_RATIO = decimal.Parse(form["usancegoods_1"]);
@@ -1489,6 +1533,7 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not usancegoods_1:" + ex.Message);
             }
+            //貨到付款 : 支票 3 比例
             try
             {
                 item.USANCE_GOODS_2_RATIO = decimal.Parse(form["usancegoods_2"]);
@@ -1497,6 +1542,7 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not usancegoods_2:" + ex.Message);
             }
+            //完工 合約金額比例
             try
             {
                 item.USANCE_FINISHED_RATIO = decimal.Parse(form["usancefinished"]);
@@ -1505,6 +1551,7 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not usancefinished:" + ex.Message);
             }
+            //完工 請款 現金比例
             try
             {
                 item.USANCE_FINISHED_CASH_RATIO = decimal.Parse(form["usancefinished_cash"]);
@@ -1513,6 +1560,7 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not usancefinished_cash:" + ex.Message);
             }
+            //完工 請款 支票2比例
             try
             {
                 item.USANCE_FINISHED_1_RATIO = decimal.Parse(form["usancefinished_1"]);
@@ -1521,6 +1569,7 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not usancefinished_1:" + ex.Message);
             }
+            //完工 請款 支票3比例
             try
             {
                 item.USANCE_FINISHED_2_RATIO = decimal.Parse(form["usancefinished_2"]);
@@ -1529,6 +1578,7 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not usancefinished_2:" + ex.Message);
             }
+            // 尾款金額比例(合約)
             try
             {
                 item.USANCE_RETENTION_RATIO = decimal.Parse(form["usanceretention"]);
@@ -1537,6 +1587,7 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not usanceretention:" + ex.Message);
             }
+            //尾款 請款現金比例
             try
             {
                 item.USANCE_RETENTION_CASH_RATIO = decimal.Parse(form["usanceretention_cash"]);
@@ -1545,6 +1596,7 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not usanceretention_cash:" + ex.Message);
             }
+            //尾款 支票 2 比例
             try
             {
                 item.USANCE_RETENTION_1_RATIO = decimal.Parse(form["usanceretention_1"]);
@@ -1553,6 +1605,7 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not usanceretention_1:" + ex.Message);
             }
+            //尾款 支票 3 比例
             try
             {
                 item.USANCE_RETENTION_2_RATIO = decimal.Parse(form["usanceretention_2"]);
@@ -1561,6 +1614,9 @@ namespace topmeperp.Controllers
             {
                 log.Error(item.CONTRACT_ID + " not usanceretention_2:" + ex.Message);
             }
+            #endregion
+
+            item.REMARK = form["remark"];
             SYS_USER loginUser = (SYS_USER)Session["user"];
             item.CREATE_ID = loginUser.USER_ID;
             item.CREATE_DATE = DateTime.Now;
@@ -1569,7 +1625,6 @@ namespace topmeperp.Controllers
             if (i == 0) { msg = service.message; }
             return msg;
         }
-        #endregion
 
         List<PlanItem4Map> planitems = null;
         //取得材料採購遺漏項目

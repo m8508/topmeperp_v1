@@ -503,6 +503,9 @@
     <Compile Include="Models\PLAN_DR_TASK.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\PLAN_DR_TEMPWORK.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\PLAN_DR_WORKER.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>

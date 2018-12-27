@@ -34,7 +34,8 @@ namespace topmeperp.Models
         //發包合約資料主表頭與明細
         public PLAN_SUP_INQUIRY supContract { get; set; }
         public IEnumerable<PLAN_SUP_INQUIRY_ITEM> supContractItems { get; set; }
-        //估驗單表頭資料
+        public PaymentTermsFunction contractPaymentTerms { get; set; }
+        //估驗單表頭資料  PLAN_ESTIMATION_FORM
         public PLAN_ESTIMATION_FORM planEST { get; set; }
         //估驗單表身資料
         public IEnumerable<EstimationForm> planESTItem { get; set; }

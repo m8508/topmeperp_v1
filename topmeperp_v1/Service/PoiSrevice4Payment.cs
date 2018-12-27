@@ -72,7 +72,6 @@ namespace topmeperp.Service
         //將估驗單品項寫入Sheet 內
         protected void writeEstimateItem()
         {
-
             //2.填入項次資料 每15 筆換頁
             //缺換頁
             int intSheetInx = 1;
@@ -132,24 +131,19 @@ namespace topmeperp.Service
                 //累計占比 
                 double priorRatio = double.Parse((((item.PriorQty == null ? 0 : item.PriorQty) + item.EstimationQty) / item.ITEM_QUANTITY).ToString());
                 row.Cells[19].SetCellValue(priorRatio.ToString("#0.##%"));
-
-                //會計科目名稱
-                //logger.Debug("SUBJECT_NAM=" + item.SUBJECT_NAME);
-                //row.Cells[20].SetCellValue(item.SUBJECT_NAME);
-                //logger.Debug("get Site Expense Form cell style rowid=" + idxRow);
-                //if (idxRow == 47)
-                //{
-                //    idxRow = idxRow + 4;
-                //}
+                //寫入標單的項次資料 (項次欄位很多空白，同時填入Plan_item_id)
+                string remark = item.ITEM_ID?? "";
+                logger.Debug("ITEM_ID=" + remark);
+                row.Cells[20].SetCellValue(remark  +"(" + item.PLAN_ITEM_ID + ")");
                 idxRow++;
             }
         }
         //寫入憑證(發票)資料
         protected void writeInvoiceData()
         {
-            //缺換頁
             //Sheet 僅能存放三張憑證
             int intSheetInx = 1;
+            sheet = (XSSFSheet)hssfworkbook.GetSheetAt(intSheetInx);
             int iRow = 21;
             foreach (var item in constract.EstimationInvoices)
             {
@@ -210,8 +204,9 @@ namespace topmeperp.Service
         //寫入代付支出
         protected void writeEstimationHoldPayments()
         {
-            //缺換頁
-            int iRow = 26;
+            int iRow = 27;
+            int intSheetInx = 1;
+            sheet = (XSSFSheet)hssfworkbook.GetSheetAt(intSheetInx);
             foreach (PLAN_ESTIMATION_HOLDPAYMENT item in constract.EstimationHoldPayments)
             {
                 //廠商名稱							
@@ -223,12 +218,24 @@ namespace topmeperp.Service
                 //說明事項
                 sheet.GetRow(iRow).Cells[3].SetCellValue(item.REMARK);
                 iRow++;
+                if (iRow == 30)
+                {
+                    iRow = 27;
+                    intSheetInx++;
+                    sheet = (XSSFSheet)hssfworkbook.GetSheetAt(intSheetInx);
+                }
             }
+        }
+        //TODO : 其他扣款明細
+        protected void writeOtherHoldPayments()
+        {
+
         }
         //寫入代付扣回明細
         protected void writeHold4DeductForm()
         {
-            //缺換頁
+            int intSheetInx = 1;
+            sheet = (XSSFSheet)hssfworkbook.GetSheetAt(intSheetInx);
             int iRow = 34;
             foreach (Model4PaymentTransfer item in constract.Hold4DeductForm)
             {
@@ -253,8 +260,16 @@ namespace topmeperp.Service
                 //扣款原因
                 sheet.GetRow(iRow).Cells[1].SetCellValue(item.REMARK);
                 iRow++;
+                //寫入5筆資料換頁
+                if (iRow == 39)
+                {
+                    iRow = 34;
+                    intSheetInx++;
+                    sheet = (XSSFSheet)hssfworkbook.GetSheetAt(intSheetInx);
+                }
             }
         }
+
         //建立新的Sheet for 寫入
         protected ISheet createSheet(int idx)
         {

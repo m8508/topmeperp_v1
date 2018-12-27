@@ -84,6 +84,7 @@ contract as (--合約資料
             s.getInqueryForm(c.planEST.CONTRACT_ID);
             c.supContract = s.formInquiry;
             c.supContractItems = s.formInquiryItem;
+            c.contractPaymentTerms= getPaymentTerm(c.planEST.CONTRACT_ID, formId);//付款條件
 
             //4.取得估驗明細資料
             c.EstimationItems = getItems(c.planEST.EST_FORM_ID);
@@ -289,11 +290,6 @@ group by c.FORM_NAME,c.SUPPLIER_ID,c.TYPE,c.INQUIRY_FORM_ID
         /// <summary>
         /// 取得驗收單明細彙整供估驗單建立相關資料使用
         /// </summary>
-        /// <param name="projectid"></param>
-        /// <param name="contractId"></param>
-        /// <param name="prid_s"></param>
-        /// <param name="prid_e"></param>
-        /// <returns></returns>
         public List<EstimationItem> getEstimationOrder4Expense(string projectid, string contractId, string prid_s, string prid_e)
         {
             StringBuilder sb = new StringBuilder(sql4Est);
@@ -335,9 +331,6 @@ c.ITEM_DESC,c.ITEM_UNIT,c.ITEM_QTY,c.ITEM_UNIT_PRICE,esOrder.REMARK,c.SUPPLIER_I
         /// <summary>
         /// 建立估驗單與對應的明細資料
         /// </summary>
-        /// <param name="form"></param>
-        /// <param name="prid_s"></param>
-        /// <param name="prid_e"></param>
         public void createEstimationOrder(PLAN_ESTIMATION_FORM form,
             List<PLAN_ESTIMATION_HOLDPAYMENT> lstHoldPayment,
             List<PLAN_ESTIMATION_PAYMENT_TRANSFER> listTransferPayment,
@@ -414,13 +407,53 @@ WHERE EST_FORM_ID=@EST_FORM_ID;
             //6.建立彙整金額
             SumEstimationForm(form);
         }
+        //依據合約內容計算：預付款 扣回、其他扣款尚未計算
+        private void caluateSumByContract(ContractModels contract)
+        {
+            //contract             contractPaymentTerms
+            PaymentTermsFunction payCond = contract.contractPaymentTerms;
+
+            //RETENTION_PAYMENT = 0,--保留款(需另外計算)
+            //OTHER_PAYMENT = 0, --其他扣款(需另外計算)
+            //PREPAY_AMOUNT = 0, --預付款(需另外計算)
+            //FOREIGN_PAYMENT = 0--外勞款(尚無資料)
+
+            //PLAN_ESTIMATION_FORM contract.planEST
+            //估驗請款
+            if (payCond.PAYMENT_TYPE == "P")
+            {
+                //
+                if (contract.planEST.INDIRECT_COST_TYPE == "預付款")
+                {
+                    logger.Info("process for prepay info :");
+                }
+                else
+                {
+                    //預付款攤還金額計算
+                    if (payCond.PAYMENT_ADVANCE_RATIO != null && payCond.PAYMENT_ADVANCE_RATIO != 0)
+                    {
+                        //預付款
+                    }
+                }
+
+                //保留款資訊
+                double retention_payment = 0;//保留款
+            }
+            //階段付款 -- 先不時做
+            if (payCond.PAYMENT_TYPE == "S")
+            {
+
+            }
+
+
+        }
         /// <summary>
         /// 將估驗單相關金額，加入表頭內
         /// </summary>
-        /// <param name="formId"></param>
         private void SumEstimationForm(PLAN_ESTIMATION_FORM f)
         {
-            //TODO : 保留款、預付款、其他扣款尚未計算
+            //計算 : 保留款
+            //計算 :預付款 扣回、其他扣款尚未計算
             string sql = @"
  UPDATE PLAN_ESTIMATION_FORM
  SET 
@@ -482,9 +515,6 @@ ON INV.EST_FORM_ID=TRF.TRANSFER_FORM_ID
         /// <summary>
         /// 建立代付扣回資料
         /// </summary>
-        /// <param name="form"></param>
-        /// <param name="listTransferPayment"></param>
-        /// <param name="context"></param>
         private static void modifyEstimationTransfer(PLAN_ESTIMATION_FORM form, List<PLAN_ESTIMATION_PAYMENT_TRANSFER> listTransferPayment, topmepEntities context)
         {
             string sql = "DELETE PLAN_ESTIMATION_PAYMENT_TRANSFER WHERE PAYMENT_FORM_ID=@formId";
@@ -506,9 +536,6 @@ ON INV.EST_FORM_ID=TRF.TRANSFER_FORM_ID
         /// <summary>
         /// 建立代付款資料
         /// </summary>
-        /// <param name="form"></param>
-        /// <param name="lstHoldPayment"></param>
-        /// <param name="context"></param>
         private static void modifyEstimationHold(PLAN_ESTIMATION_FORM form, List<PLAN_ESTIMATION_HOLDPAYMENT> lstHoldPayment, topmepEntities context)
         {
             //1.delete exist data
@@ -531,9 +558,6 @@ ON INV.EST_FORM_ID=TRF.TRANSFER_FORM_ID
         /// <summary>
         /// 修改估驗單資料
         /// </summary>
-        /// <param name="form"></param>
-        /// <param name="lstHoldPayment"></param>
-        /// <param name="listTransferPayment"></param>
         public void modifyEstimationOrder(PLAN_ESTIMATION_FORM form,
             List<PLAN_ESTIMATION_HOLDPAYMENT> lstHoldPayment,
             List<PLAN_ESTIMATION_PAYMENT_TRANSFER> listTransferPayment,

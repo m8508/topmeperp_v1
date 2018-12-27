@@ -199,9 +199,9 @@ namespace topmeperp.Controllers
                     //poiservice.ConvertDataForTenderProject(prj.PROJECT_ID, (int)prj.START_ROW_NO);
                     ProjectTask2MapService poiservice = new ProjectTask2MapService();
                     poiservice.InitializeWorkbook(path);
-                    poiservice.transAllSheet(projectid); 
+                    poiservice.transAllSheet(projectid);
                     //List<PLAN_TASK2MAPITEM> lstTask2Map = poiservice.ConvertDataForMapFW(projectid);
-                    int i =planService.createTask2Map(poiservice.lstTask2Map);
+                    int i = planService.createTask2Map(poiservice.lstTask2Map);
                     service.strMessage = poiservice.errorMessage;
                     //log.Debug("add PLAN_TASK2MAPITEM =" + i);
                     // service.refreshProjectItem(poiservice.lstProjectItem);
@@ -356,21 +356,21 @@ namespace topmeperp.Controllers
         }
 
         //儲存日報數量紀錄
-        public string saveItemRow(FormCollection f)
+        public void saveItemRow(FormCollection f)
         {
             SYS_USER u = (SYS_USER)Session["user"];
-            log.Debug("projectId=" + f["Projectid"] + ",prjUid=" + f["PrjUid"] + ",ReportId=" + f["ReportID"]);
-            log.Debug("form Data ItemId=" + f["planItemId"]);
-            log.Debug("form Data Qty=planItemQty" + f["planItemQty"]);
+            log.Debug("projectId=" + Request["txtProjectId"] + ",prjUid=" + Request["txtPrjUid"] + ",ReportId=" + Request["reportID"]);
+            log.Debug("form Data ItemId=" + Request["planItemId"]);
+            log.Debug("form Data Qty=planItemQty" + Request["planItemQty"]);
 
-            string projectid = f["Projectid"];
-            int prjuid = int.Parse(f["PrjUid"]);
-            string strWeather = f["selWeather"];
-            string strSummary = f["txtSummary"];
-            string strSenceUser = f["txtSenceUser"];
-            string strSupervision = f["txtSupervision"];
-            string strOwner = f["txtOwner"];
-            string strRptDate = f["RptDate"];
+            string projectid = Request["txtProjectId"];
+            int prjuid = int.Parse(Request["txtPrjUid"]);
+            string strWeather = Request["selWeather"];
+            string strSummary = Request["txtSummary"];
+            string strSenceUser = Request["txtSenceUser"];
+            string strSupervision = Request["txtSupervision"];
+            string strOwner = Request["txtOwner"];
+            string strRptDate = Request["reportDate"];
 
             DailyReport newDailyRpt = new DailyReport();
             PLAN_DALIY_REPORT RptHeader = new PLAN_DALIY_REPORT();
@@ -384,7 +384,7 @@ namespace topmeperp.Controllers
             RptHeader.REPORT_DATE = DateTime.Parse(strRptDate);
             //取得日報編號
             SerialKeyService snService = new SerialKeyService();
-            if (null == f["ReportID"] || "" == f["ReportID"])
+            if (null == Request["reportID"] || "" == Request["reportID"])
             {
                 RptHeader.REPORT_ID = snService.getSerialKey(planService.KEY_ID);
                 RptHeader.CREATE_DATE = DateTime.Now;
@@ -392,9 +392,9 @@ namespace topmeperp.Controllers
             }
             else
             {
-                RptHeader.REPORT_ID = f["ReportID"];
-                RptHeader.CREATE_DATE = DateTime.Parse(f["txtCreateDate"]);
-                RptHeader.CREATE_USER_ID = f["txtCreateUserId"];
+                RptHeader.REPORT_ID = Request["ReportID"];
+                RptHeader.CREATE_DATE = DateTime.Parse(Request["txtCreateDate"]);
+                RptHeader.CREATE_USER_ID = Request["txtCreateUserId"];
                 RptHeader.MODIFY_DATE = DateTime.Now;
                 RptHeader.MODIFY_USER_ID = u.USER_ID;
             }
@@ -408,9 +408,10 @@ namespace topmeperp.Controllers
             newDailyRpt.lstRptTask.Add(RptTask);
             //處理料件
             newDailyRpt.lstRptItem = new List<PLAN_DR_ITEM>();
-            string[] aryPlanItem = f["planItemId"].Split(',');
-            string[] aryPlanItemQty = f["planItemQty"].Split(',');
-            string[] aryAccumulateQty = f["accumulateQty"].Split(',');
+            string[] aryPlanItem = Request["planItemId"].Split(',');
+            string[] aryPlanItemQty = Request["planItemQty"].Split(',');
+            string[] aryAccumulateQty = Request["accumulateQty"].Split(',');
+
             log.Debug("count ItemiD=" + aryPlanItem.Length + ",qty=" + aryPlanItemQty.Length);
             newDailyRpt.lstRptItem = new List<PLAN_DR_ITEM>();
             for (int i = 0; i < aryPlanItem.Length; i++)
@@ -430,25 +431,74 @@ namespace topmeperp.Controllers
                 newDailyRpt.lstRptItem.Add(item);
             }
             //處理出工資料
-            newDailyRpt.lstRptWorkerAndMachine = new List<PLAN_DR_WORKER>();
-            string[] aryWorkerType = f["workerKeyid"].Split(',');
-            string[] aryWorkerQty = f["planWorkerQty"].Split(',');
-            for (int i = 0; i < aryWorkerType.Length; i++)
+            newDailyRpt.lstWokerType4Show = new List<PLAN_DR_WORKER>();
+            if (null != Request["txtSupplierId"])
             {
-                PLAN_DR_WORKER item = new PLAN_DR_WORKER();
-                item.REPORT_ID = RptHeader.REPORT_ID;
-                item.WORKER_TYPE = "WORKER";
-                item.PARA_KEY_ID = aryWorkerType[i];
-
-                if ("" != aryWorkerQty[i].Trim())
+                ///出工廠商
+                string[] arySupplier = Request["txtSupplierId"].Split(',');
+                ///出工人數
+                string[] aryWorkerQty = Request["txtWorkerQty"].Split(',');
+                ///備註
+                string[] aryRemark = Request["txtRemark"].Split(',');
+                for (int i = 0; i < arySupplier.Length; i++)
                 {
-                    item.WORKER_QTY = decimal.Parse(aryWorkerQty[i]);
-                    newDailyRpt.lstRptWorkerAndMachine.Add(item);
+                    PLAN_DR_WORKER item = new PLAN_DR_WORKER();
+                    item.REPORT_ID = RptHeader.REPORT_ID;
+                    item.SUPPLIER_ID = arySupplier[i];
+                    log.Debug("Supplier Info=" + item.SUPPLIER_ID);
+                    if ("" != aryWorkerQty[i].Trim())
+                    {
+                        item.WORKER_QTY = decimal.Parse(aryWorkerQty[i]);
+                        newDailyRpt.lstWokerType4Show.Add(item);
+                    }
+                    item.REMARK = aryRemark[i];
                 }
+                log.Debug("count WorkerD=" + arySupplier.Length);
             }
-            log.Debug("count WorkerD=" + f["workerKeyid"] + ",WorkerQty=" + f["planWorkerQty"]);
+            //處理點工資料
+            newDailyRpt.lstTempWoker4Show = new List<PLAN_DR_TEMPWORK>();
+            string[] aryTempSupplier = Request["txtTempWorkSupplierId"].Split(',');
+            string[] aryTempWorkerQty = Request["txtTempWorkerQty"].Split(',');
+            string[] aryTempChargeSupplier = Request["txtChargeSupplierId"].Split(',');
+            string[] aryTempWarkRemark = Request["txtTempWorkRemark"].Split(',');
+            string[] aryDoc = Request["doc"].Split(',');
+            for (int i = 0; i < aryTempSupplier.Length; i++)
+            {
+                PLAN_DR_TEMPWORK item = new PLAN_DR_TEMPWORK();
+                item.REPORT_ID = RptHeader.REPORT_ID;
+                item.SUPPLIER_ID = aryTempSupplier[i];
+                item.CHARGE_ID = aryTempChargeSupplier[i];
+                ///處理工人名單檔案
+                log.Debug("File Count=" + Request.Files.Count);
+                if (Request.Files[i].ContentLength > 0)
+                {
+                    //存檔路徑
+                    var fileName = Path.GetFileName(Request.Files[i].FileName);
+                    string reportFolder = ContextService.strUploadPath + "\\" + projectid + "\\DailyReport\\";
+                    //check 資料夾是否存在
+                    string folder = reportFolder + RptHeader.REPORT_ID;
+                    ZipFileCreator.CreateDirectory(folder);
+                    var path = Path.Combine(folder, fileName);
+                    Request.Files[i].SaveAs(path);
+                    item.DOC = "DailyReport\\" + RptHeader.REPORT_ID + "\\" + fileName;
+                    log.Debug("Upload Sign List File:" + Request.Files[i].FileName);
+                }
+                else
+                {
+                    item.DOC = aryDoc[i];
+                    log.Error("Not Upload Sign List File!Exist File=" + item.DOC);
+                }
+                log.Debug("Supplier Info=" + item.SUPPLIER_ID);
+                if ("" != aryTempWorkerQty[i].Trim())
+                {
+                    item.WORKER_QTY = decimal.Parse(aryTempWorkerQty[i]);
+                    newDailyRpt.lstTempWoker4Show.Add(item);
+                }
+                item.REMARK = aryTempWarkRemark[i];
+            }
 
             //處理機具資料
+            newDailyRpt.lstRptWorkerAndMachine = new List<PLAN_DR_WORKER>();
             string[] aryMachineType = f["MachineKeyid"].Split(',');
             string[] aryMachineQty = f["planMachineQty"].Split(',');
             for (int i = 0; i < aryMachineType.Length; i++)
@@ -480,7 +530,7 @@ namespace topmeperp.Controllers
             }
             log.Debug("count Note=" + f["planNote"]);
             string msg = planService.createDailyReport(newDailyRpt);
-            return msg;
+            Response.Redirect("~/ProjectPlan/dailyReportItem?rptID=" + RptHeader.REPORT_ID);
         }
         //顯示日報維護畫面
         public ActionResult dailyReportList(string id)

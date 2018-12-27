@@ -877,7 +877,7 @@ namespace topmeperp.Service
             //建立料件資料
             newDailyRpt.lstDailyRptItem4Show = getItem(projectid, prjuid);
             //新報告上無Report ID 用假資料
-            newDailyRpt.lstDailyRptWokerType4Show = getDailyReportRecord4Worker(projectid, "000", "Worker"); //SystemParameter.getSystemPara("ProjectPlanService", "Worker");
+            //newDailyRpt.lstDailyRptWokerType4Show = getDailyReportRecord4Worker(projectid, "000", "Worker"); //SystemParameter.getSystemPara("ProjectPlanService", "Worker");
             newDailyRpt.lstDailyRptMachine4Show = getDailyReportRecord4Worker(projectid, "000", "Machine"); //SystemParameter.getSystemPara("ProjectPlanService", "Machine");
             return newDailyRpt;
         }
@@ -892,7 +892,10 @@ namespace topmeperp.Service
 
                 drDailyRpt.lstDailyRptItem4Show = getItem(reportId);
                 drDailyRpt.lstRptTask = getTaskByReportId(reportId);
-                drDailyRpt.lstDailyRptWokerType4Show = getDailyReportRecord4Worker(drDailyRpt.dailyRpt.PROJECT_ID, reportId, "Worker");
+                //TODO:
+                drDailyRpt.lstWokerType4Show = getWorks(reportId);
+                drDailyRpt.lstTempWoker4Show = getTempWorks(reportId);
+                //drDailyRpt.lstDailyRptWokerType4Show = getDailyReportRecord4Worker(drDailyRpt.dailyRpt.PROJECT_ID, reportId, "Worker");
                 drDailyRpt.lstDailyRptMachine4Show = getDailyReportRecord4Worker(drDailyRpt.dailyRpt.PROJECT_ID, reportId, "Machine");
                 //取得重要事件
                 sql = "SELECT * FROM PLAN_DR_NOTE WHERE REPORT_ID=@reportId";
@@ -910,7 +913,11 @@ namespace topmeperp.Service
                 using (var db = new topmepEntities())
                 {
                     //1.將日報相關資料刪除
-                    string sql = "DELETE FROM PLAN_DR_ITEM WHERE REPORT_ID=@reportId;DELETE FROM PLAN_DR_NOTE WHERE REPORT_ID = @reportId;DELETE FROM PLAN_DR_WORKER WHERE REPORT_ID = @reportId;DELETE FROM PLAN_DR_TASK WHERE REPORT_ID = @reportId;";
+                    string sql = @"DELETE FROM PLAN_DR_ITEM WHERE REPORT_ID=@reportId;
+                                   DELETE FROM PLAN_DR_NOTE WHERE REPORT_ID = @reportId;
+                                   DELETE FROM PLAN_DR_WORKER WHERE REPORT_ID = @reportId;
+                                   DELETE FROM PLAN_DR_TEMPWORK WHERE REPORT_ID = @reportId;
+                                   DELETE FROM PLAN_DR_TASK WHERE REPORT_ID = @reportId;";
                     logger.Info("remove daily Report:" + sql + ",reportid=" + dr.dailyRpt.REPORT_ID);
                     int i = db.Database.ExecuteSqlCommand(sql, new SqlParameter("reportId", dr.dailyRpt.REPORT_ID));
                     logger.Debug("remove daily Report:" + i);
@@ -918,6 +925,9 @@ namespace topmeperp.Service
                     db.PLAN_DALIY_REPORT.AddOrUpdate(dr.dailyRpt);
                     db.PLAN_DR_TASK.AddRange(dr.lstRptTask);
                     db.PLAN_DR_ITEM.AddRange(dr.lstRptItem);
+                    db.PLAN_DR_TEMPWORK.AddRange(dr.lstTempWoker4Show);
+                    db.PLAN_DR_WORKER.AddRange(dr.lstWokerType4Show);
+                    //機具先註銷
                     db.PLAN_DR_WORKER.AddRange(dr.lstRptWorkerAndMachine);
                     db.PLAN_DR_NOTE.AddRange(dr.lstRptNote);
                     db.SaveChanges();
@@ -965,7 +975,37 @@ namespace topmeperp.Service
             }
             return lstDailyRptItem;
         }
-        //取得人工/機具使用數量
+        //取得人工統計資料
+        public List<PLAN_DR_WORKER> getWorks(string reportid)
+        {
+            string sql = @"SELECT * FROM  PLAN_DR_WORKER WHERE REPORT_ID=@reportid AND WORKER_TYPE is null";
+            var parameters = new List<SqlParameter>();
+            //設定專案名編號資料
+            parameters.Add(new SqlParameter("reportid", reportid));
+            List<PLAN_DR_WORKER> lst = new List<PLAN_DR_WORKER>();
+            using (var context = new topmepEntities())
+            {
+                logger.Info("get worker sql:" + sql);
+                lst = context.Database.SqlQuery<PLAN_DR_WORKER>(sql, parameters.ToArray()).ToList();
+            }
+            return lst;
+        }
+        //取得點工資料
+        public List<PLAN_DR_TEMPWORK> getTempWorks(string reportid)
+        {
+            string sql = @"SELECT * FROM  PLAN_DR_TEMPWORK WHERE REPORT_ID=@reportid";
+            var parameters = new List<SqlParameter>();
+            //設定專案名編號資料
+            parameters.Add(new SqlParameter("reportid", reportid));
+            List<PLAN_DR_TEMPWORK> lst = new List<PLAN_DR_TEMPWORK>();
+            using (var context = new topmepEntities())
+            {
+                logger.Info("get worker sql:" + sql);
+                lst = context.Database.SqlQuery<PLAN_DR_TEMPWORK>(sql, parameters.ToArray()).ToList();
+            }
+            return lst;
+        }
+        //取得人工使用數量
         public List<DailyReportRecord4Worker> getDailyReportRecord4Worker(string projectid, string reportid, string type)
         {
             //string sql = "SELECT PA.FUNCTION_ID,PA.KEY_FIELD,PA.VALUE_FIELD,"

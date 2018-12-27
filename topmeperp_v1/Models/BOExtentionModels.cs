@@ -27,8 +27,10 @@ namespace topmeperp.Models
         public PLAN_DALIY_REPORT dailyRpt { get; set; }
         //for display
         public List<DailyReportItem> lstDailyRptItem4Show { get; set; }
-
-        public List<DailyReportRecord4Worker> lstDailyRptWokerType4Show { get; set; }
+        //出工統計
+        public List<PLAN_DR_WORKER> lstWokerType4Show { get; set; }
+        //點工紀錄
+        public List<PLAN_DR_TEMPWORK> lstTempWoker4Show { get; set; }
         public List<DailyReportRecord4Worker> lstDailyRptMachine4Show { get; set; }
         //phyical data
         public List<PLAN_DR_TASK> lstRptTask { get; set; }
@@ -39,9 +41,6 @@ namespace topmeperp.Models
     /// <summary>
     /// 施工日報人工與機具資料物件
     /// </summary>
-    /// <param name="projectid"></param>
-    /// <param name="prjuid"></param>
-    /// <returns></returns>
     public class DailyReportRecord4Worker
     {
         public string FUNCTION_ID { get; set; }

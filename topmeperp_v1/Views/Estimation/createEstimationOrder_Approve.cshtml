@@ -130,6 +130,7 @@
     <div class="row">
         <div class="col-md-2">
             <a href="~/Estimation/createEstimationOrderInfo?formid=@Model.planEST.EST_FORM_ID" class="btn btn-default">明細</a>
+            <a href="~/PaymentManagement/downLoadExpenseForm?formid=@Model.planEST.EST_FORM_ID" class="btn btn-default">下載</a>
         </div>
         <!--依據流程任務與部門設定功能-->
         @Html.Partial("~/Views/include/_WorkFlowFunction.cshtml")
@@ -164,6 +165,22 @@
             counterInvoice -= 1
         });
 
+    });
+    //修改估驗單資料:憑證與彙整資料
+    $("#updateForm").click(function () {
+        console.log("send estimation order !!");
+        //$.ajax({
+        //    url: '/Estimation/saveEstimationOrder',
+        //    data: $('#formESTMain').serialize(),
+        //    type: "POST",
+        //    dataType: 'text',
+        //    success: function (msg) {
+        //        window.location.href = "/Estimation/createEstimationOrderInfo?formid=" + msg;
+        //    },
+        //    error: function (xhr, ajaxOptions, thrownError) {
+        //        alert(thrownError);
+        //    }
+        //})
     });
 </script>
    @Scripts.Render("~/Scripts/topmep_EstimationFlow.js")

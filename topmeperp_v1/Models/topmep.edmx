@@ -297,12 +297,27 @@
           <Property Name="PRJ_UID" Type="int" />
           <Property Name="TASK_NAME" Type="varchar" MaxLength="500" />
         </EntityType>
+        <EntityType Name="PLAN_DR_TEMPWORK">
+          <Key>
+            <PropertyRef Name="ORD_TEMPWORKER_ID" />
+          </Key>
+          <Property Name="ORD_TEMPWORKER_ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="REPORT_ID" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="SUPPLIER_ID" Type="varchar" MaxLength="100" />
+          <Property Name="CHARGE_ID" Type="varchar" MaxLength="100" />
+          <Property Name="WORKER_QTY" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="LAST_QTY" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="REMARK" Type="varchar" MaxLength="200" />
+          <Property Name="DOC" Type="varchar" MaxLength="200" />
+        </EntityType>
         <EntityType Name="PLAN_DR_WORKER">
           <Key>
             <PropertyRef Name="DR_WORKER_ID" />
           </Key>
           <Property Name="DR_WORKER_ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="REPORT_ID" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="SUPPLIER_ID" Type="varchar" MaxLength="100" />
+          <Property Name="CONTRACT_ID" Type="varchar" MaxLength="100" />
           <Property Name="PARA_KEY_ID" Type="varchar" MaxLength="50" />
           <Property Name="WORKER_TYPE" Type="varchar" MaxLength="20" />
           <Property Name="WORKER_QTY" Type="decimal" Precision="18" Scale="3" />
@@ -1295,6 +1310,7 @@
           <EntitySet Name="PLAN_DR_ITEM" EntityType="Self.PLAN_DR_ITEM" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAN_DR_NOTE" EntityType="Self.PLAN_DR_NOTE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAN_DR_TASK" EntityType="Self.PLAN_DR_TASK" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PLAN_DR_TEMPWORK" EntityType="Self.PLAN_DR_TEMPWORK" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAN_DR_WORKER" EntityType="Self.PLAN_DR_WORKER" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAN_ESTIMATION_FORM" EntityType="Self.PLAN_ESTIMATION_FORM" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAN_ESTIMATION_HOLDPAYMENT" EntityType="Self.PLAN_ESTIMATION_HOLDPAYMENT" Schema="dbo" store:Type="Tables" />
@@ -1384,7 +1400,6 @@
           <EntitySet Name="PLAN_DR_ITEM" EntityType="topmepModel.PLAN_DR_ITEM" />
           <EntitySet Name="PLAN_DR_NOTE" EntityType="topmepModel.PLAN_DR_NOTE" />
           <EntitySet Name="PLAN_DR_TASK" EntityType="topmepModel.PLAN_DR_TASK" />
-          <EntitySet Name="PLAN_DR_WORKER" EntityType="topmepModel.PLAN_DR_WORKER" />
           <EntitySet Name="PLAN_INDIRECT_COST" EntityType="topmepModel.PLAN_INDIRECT_COST" />
           <EntitySet Name="PLAN_INVOICE" EntityType="topmepModel.PLAN_INVOICE" />
           <EntitySet Name="PLAN_ITEM" EntityType="topmepModel.PLAN_ITEM" />
@@ -1460,6 +1475,8 @@
           <EntitySet Name="PLAN_ESTIMATION_INVOICE" EntityType="topmepModel.PLAN_ESTIMATION_INVOICE" />
           <EntitySet Name="PLAN_ESTIMATION_FORM" EntityType="topmepModel.PLAN_ESTIMATION_FORM" />
           <EntitySet Name="PLAN_ESTIMATION_HOLDPAYMENT" EntityType="topmepModel.PLAN_ESTIMATION_HOLDPAYMENT" />
+          <EntitySet Name="PLAN_DR_TEMPWORK" EntityType="topmepModel.PLAN_DR_TEMPWORK" />
+          <EntitySet Name="PLAN_DR_WORKER" EntityType="topmepModel.PLAN_DR_WORKER" />
         </EntityContainer>
         <EntityType Name="ENT_DEPARTMENT">
           <Key>
@@ -1642,18 +1659,6 @@
           <Property Name="PROJECT_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="PRJ_UID" Type="Int32" />
           <Property Name="TASK_NAME" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="PLAN_DR_WORKER">
-          <Key>
-            <PropertyRef Name="DR_WORKER_ID" />
-          </Key>
-          <Property Name="DR_WORKER_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="REPORT_ID" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="PARA_KEY_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="WORKER_TYPE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="WORKER_QTY" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="LAST_QTY" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="REMARK" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="PLAN_INDIRECT_COST">
           <Key>
@@ -2743,6 +2748,33 @@
           <Property Name="HOLD_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
           <Property Name="REMARK" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
         </EntityType>
+        <EntityType Name="PLAN_DR_TEMPWORK">
+          <Key>
+            <PropertyRef Name="ORD_TEMPWORKER_ID" />
+          </Key>
+          <Property Name="ORD_TEMPWORKER_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="REPORT_ID" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="SUPPLIER_ID" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CHARGE_ID" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="WORKER_QTY" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="LAST_QTY" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="REMARK" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="DOC" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="PLAN_DR_WORKER">
+          <Key>
+            <PropertyRef Name="DR_WORKER_ID" />
+          </Key>
+          <Property Name="DR_WORKER_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="REPORT_ID" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="SUPPLIER_ID" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CONTRACT_ID" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="PARA_KEY_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="WORKER_TYPE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="WORKER_QTY" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="LAST_QTY" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="REMARK" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2940,19 +2972,6 @@
                 <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
                 <ScalarProperty Name="DR_TASK_ID" ColumnName="DR_TASK_ID" />
                 <ScalarProperty Name="REPORT_ID" ColumnName="REPORT_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_DR_WORKER">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_DR_WORKER">
-              <MappingFragment StoreEntitySet="PLAN_DR_WORKER">
-                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
-                <ScalarProperty Name="LAST_QTY" ColumnName="LAST_QTY" />
-                <ScalarProperty Name="WORKER_QTY" ColumnName="WORKER_QTY" />
-                <ScalarProperty Name="WORKER_TYPE" ColumnName="WORKER_TYPE" />
-                <ScalarProperty Name="PARA_KEY_ID" ColumnName="PARA_KEY_ID" />
-                <ScalarProperty Name="REPORT_ID" ColumnName="REPORT_ID" />
-                <ScalarProperty Name="DR_WORKER_ID" ColumnName="DR_WORKER_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -4026,6 +4045,35 @@
                 <ScalarProperty Name="PAYMENT_ID" ColumnName="PAYMENT_ID" />
                 <ScalarProperty Name="EST_FORM_ID" ColumnName="EST_FORM_ID" />
                 <ScalarProperty Name="HOLD_ID" ColumnName="HOLD_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_DR_TEMPWORK">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_DR_TEMPWORK">
+              <MappingFragment StoreEntitySet="PLAN_DR_TEMPWORK">
+                <ScalarProperty Name="DOC" ColumnName="DOC" />
+                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
+                <ScalarProperty Name="LAST_QTY" ColumnName="LAST_QTY" />
+                <ScalarProperty Name="WORKER_QTY" ColumnName="WORKER_QTY" />
+                <ScalarProperty Name="CHARGE_ID" ColumnName="CHARGE_ID" />
+                <ScalarProperty Name="SUPPLIER_ID" ColumnName="SUPPLIER_ID" />
+                <ScalarProperty Name="REPORT_ID" ColumnName="REPORT_ID" />
+                <ScalarProperty Name="ORD_TEMPWORKER_ID" ColumnName="ORD_TEMPWORKER_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_DR_WORKER">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_DR_WORKER">
+              <MappingFragment StoreEntitySet="PLAN_DR_WORKER">
+                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
+                <ScalarProperty Name="LAST_QTY" ColumnName="LAST_QTY" />
+                <ScalarProperty Name="WORKER_QTY" ColumnName="WORKER_QTY" />
+                <ScalarProperty Name="WORKER_TYPE" ColumnName="WORKER_TYPE" />
+                <ScalarProperty Name="PARA_KEY_ID" ColumnName="PARA_KEY_ID" />
+                <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
+                <ScalarProperty Name="SUPPLIER_ID" ColumnName="SUPPLIER_ID" />
+                <ScalarProperty Name="REPORT_ID" ColumnName="REPORT_ID" />
+                <ScalarProperty Name="DR_WORKER_ID" ColumnName="DR_WORKER_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -12,16 +12,15 @@ namespace topmeperp.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class PLAN_DR_WORKER
+    public partial class PLAN_DR_TEMPWORK
     {
-        public long DR_WORKER_ID { get; set; }
+        public long ORD_TEMPWORKER_ID { get; set; }
         public string REPORT_ID { get; set; }
         public string SUPPLIER_ID { get; set; }
-        public string CONTRACT_ID { get; set; }
-        public string PARA_KEY_ID { get; set; }
-        public string WORKER_TYPE { get; set; }
+        public string CHARGE_ID { get; set; }
         public Nullable<decimal> WORKER_QTY { get; set; }
         public Nullable<decimal> LAST_QTY { get; set; }
         public string REMARK { get; set; }
+        public string DOC { get; set; }
     }
 }

@@ -3641,6 +3641,14 @@ namespace topmeperp.Service
                     context.PLAN_OTHER_PAYMENT.Add(item);
                 }
                 i = context.SaveChanges();
+                //彙整資料至表頭
+                string sql = @"
+UPDATE PLAN_ESTIMATION_FORM SET
+OTHER_PAYMENT=(select SUM(AMOUNT) from PLAN_OTHER_PAYMENT WHERE TYPE='O' AND EST_FORM_ID=@formId)
+WHERE EST_FORM_ID=@formId
+";
+                context.Database.ExecuteSqlCommand(sql, new SqlParameter("formId", lstItem[0].EST_FORM_ID));
+                context.SaveChanges();
             }
             logger.Info("add other payment count =" + i);
             return i;
@@ -3785,10 +3793,15 @@ namespace topmeperp.Service
         {
             //1.新增預付款資料
             int i = 0;
+            string resetSql = "DELETE PLAN_OTHER_PAYMENT WHERE   EST_FORM_ID=@formId AND CONTRACT_ID=@contractId ";
             logger.Info("add advance payment = " + lstItem.Count);
             //2.將預付款資料寫入 
             using (var context = new topmepEntities())
             {
+                var parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("formId", lstItem[0].EST_FORM_ID));
+                parameters.Add(new SqlParameter("contractId", lstItem[0].CONTRACT_ID));
+                context.Database.ExecuteSqlCommand(resetSql, parameters.ToArray());
                 foreach (PLAN_OTHER_PAYMENT item in lstItem)
                 {
                     item.CREATE_DATE = DateTime.Now;
@@ -4300,7 +4313,7 @@ FROM PLAN_OTHER_PAYMENT pop LEFT JOIN PLAN_SUP_INQUIRY s ON pop.CONTRACT_ID_FOR_
             using (var context = new topmepEntities())
             {
                 lstItem = context.Database.SqlQuery<RePaymentFunction>("SELECT pop.AMOUNT AS AMOUNT, pop.REASON AS REASON, pop.CONTRACT_ID AS CONTRACT_ID, pop.EST_FORM_ID AS EST_FORM_ID_REFUND, " +
-                    "pop.OTHER_PAYMENT_ID AS OTHER_PAYMENT_ID, s.SUPPLIER_ID AS COMPANY_NAME FROM PLAN_OTHER_PAYMENT pop LEFT JOIN PLAN_SUP_INQUIRY] s " +
+                    "pop.OTHER_PAYMENT_ID AS OTHER_PAYMENT_ID, s.SUPPLIER_ID AS COMPANY_NAME FROM PLAN_OTHER_PAYMENT pop LEFT JOIN PLAN_SUP_INQUIRY s " +
                     "ON pop.CONTRACT_ID = s.INQUIRY_FORM_ID " +
                     "WHERE pop.CONTRACT_ID_FOR_REFUND =@contractid AND pop.TYPE = 'R' AND pop.CONTRACT_ID + pop.EST_FORM_ID + pop.CONTRACT_ID_FOR_REFUND + pop.REASON NOT IN " +
                     "(SELECT op.CONTRACT_ID_FOR_REFUND + op.EST_FORM_ID_REFUND + op.CONTRACT_ID + op.REASON FROM PLAN_OTHER_PAYMENT op WHERE op.TYPE = 'F'); "
