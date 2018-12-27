@@ -892,7 +892,6 @@ namespace topmeperp.Service
 
                 drDailyRpt.lstDailyRptItem4Show = getItem(reportId);
                 drDailyRpt.lstRptTask = getTaskByReportId(reportId);
-                //TODO:
                 drDailyRpt.lstWokerType4Show = getWorks(reportId);
                 drDailyRpt.lstTempWoker4Show = getTempWorks(reportId);
                 //drDailyRpt.lstDailyRptWokerType4Show = getDailyReportRecord4Worker(drDailyRpt.dailyRpt.PROJECT_ID, reportId, "Worker");
