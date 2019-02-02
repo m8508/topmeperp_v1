@@ -750,8 +750,8 @@ namespace topmeperp.Controllers
                         //增加九宮格、次九宮格、主系統、次系統等條件
                         planService.getMapItem(projectid, devicename, strart_id, end_id, typeCode1, typeCode2, systemMain, systemSub);
                         break;
-                    case "MAP_PEP"://電器管線
-                        logger.Debug("MapType: MAP_PEP(電器管線)");
+                    case "MAP_PEP"://電氣管線
+                        logger.Debug("MapType: MAP_PEP(電氣管線)");
                         //增加一次側名稱、二次側名稱
                         planService.getMapPEP(projectid, mapno, buildno, primeside, primesideName, secondside, secondsideName, devicename);
                         break;
@@ -835,8 +835,8 @@ namespace topmeperp.Controllers
                 {
                     lstItemId.AddRange(getItem("map_device.", f["map_device"].Trim().Split(',')));
                 }
-                //電器管線
-                logger.Debug("MapType: MAP_PEP(電器管線):" + f["map_pep"]);
+                //電氣管線
+                logger.Debug("MapType: MAP_PEP(電氣管線):" + f["map_pep"]);
                 if (null != f["map_pep"])
                 {
                     lstItemId.AddRange(getItem("map_pep.", f["map_pep"].Trim().Split(',')));

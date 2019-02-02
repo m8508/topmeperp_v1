@@ -147,8 +147,8 @@ namespace topmeperp.Controllers
                         //增加九宮格、次九宮格、主系統、次系統等條件
                         planService.getMapItem(projectid, devicename, strart_id, end_id, typeCode1, typeCode2, systemMain, systemSub);
                         break;
-                    case "MAP_PEP"://電器管線
-                        log.Debug("MapType: MAP_PEP(電器管線)");
+                    case "MAP_PEP"://電氣管線
+                        log.Debug("MapType: MAP_PEP(電氣管線)");
                         //增加一次側名稱、二次側名稱
                         planService.getMapPEP(projectid, mapno, buildno, primeside, primesideName, secondside, secondsideName, devicename);
                         break;
@@ -239,7 +239,7 @@ namespace topmeperp.Controllers
             if (null != f["map_pep"])
             {
                 log.Debug("projectId=" + f["projectid"] + ",prjuid=" + f["checkNodeId"] + ",map_pep=" + f["map_pep"]);
-                //電器管線
+                //電氣管線
                 int i = planService.choiceMapItemPEP(f["projectid"], f["checkNodeId"], f["map_pep"]);
                 log.Debug("modify records count=" + i);
             }
@@ -373,6 +373,7 @@ namespace topmeperp.Controllers
             string strRptDate = Request["reportDate"];
 
             DailyReport newDailyRpt = new DailyReport();
+
             PLAN_DALIY_REPORT RptHeader = new PLAN_DALIY_REPORT();
             RptHeader.PROJECT_ID = projectid;
             RptHeader.WEATHER = strWeather;
@@ -408,27 +409,30 @@ namespace topmeperp.Controllers
             newDailyRpt.lstRptTask.Add(RptTask);
             //處理料件
             newDailyRpt.lstRptItem = new List<PLAN_DR_ITEM>();
-            string[] aryPlanItem = Request["planItemId"].Split(',');
-            string[] aryPlanItemQty = Request["planItemQty"].Split(',');
-            string[] aryAccumulateQty = Request["accumulateQty"].Split(',');
-
-            log.Debug("count ItemiD=" + aryPlanItem.Length + ",qty=" + aryPlanItemQty.Length);
-            newDailyRpt.lstRptItem = new List<PLAN_DR_ITEM>();
-            for (int i = 0; i < aryPlanItem.Length; i++)
+            if (null != Request["planItemId"])
             {
-                PLAN_DR_ITEM item = new PLAN_DR_ITEM();
-                item.PLAN_ITEM_ID = aryPlanItem[i];
-                item.PROJECT_ID = projectid;
-                item.REPORT_ID = RptHeader.REPORT_ID;
-                if ("" != aryPlanItemQty[i])
+                string[] aryPlanItem = Request["planItemId"].Split(',');
+                string[] aryPlanItemQty = Request["planItemQty"].Split(',');
+                string[] aryAccumulateQty = Request["accumulateQty"].Split(',');
+
+                log.Debug("count ItemiD=" + aryPlanItem.Length + ",qty=" + aryPlanItemQty.Length);
+                newDailyRpt.lstRptItem = new List<PLAN_DR_ITEM>();
+                for (int i = 0; i < aryPlanItem.Length; i++)
                 {
-                    item.FINISH_QTY = decimal.Parse(aryPlanItemQty[i]);
+                    PLAN_DR_ITEM item = new PLAN_DR_ITEM();
+                    item.PLAN_ITEM_ID = aryPlanItem[i];
+                    item.PROJECT_ID = projectid;
+                    item.REPORT_ID = RptHeader.REPORT_ID;
+                    if ("" != aryPlanItemQty[i])
+                    {
+                        item.FINISH_QTY = decimal.Parse(aryPlanItemQty[i]);
+                    }
+                    if ("" != aryAccumulateQty[i])
+                    {
+                        item.LAST_QTY = decimal.Parse(aryAccumulateQty[i]);
+                    }
+                    newDailyRpt.lstRptItem.Add(item);
                 }
-                if ("" != aryAccumulateQty[i])
-                {
-                    item.LAST_QTY = decimal.Parse(aryAccumulateQty[i]);
-                }
-                newDailyRpt.lstRptItem.Add(item);
             }
             //處理出工資料
             newDailyRpt.lstWokerType4Show = new List<PLAN_DR_WORKER>();
@@ -457,46 +461,48 @@ namespace topmeperp.Controllers
             }
             //處理點工資料
             newDailyRpt.lstTempWoker4Show = new List<PLAN_DR_TEMPWORK>();
-            string[] aryTempSupplier = Request["txtTempWorkSupplierId"].Split(',');
-            string[] aryTempWorkerQty = Request["txtTempWorkerQty"].Split(',');
-            string[] aryTempChargeSupplier = Request["txtChargeSupplierId"].Split(',');
-            string[] aryTempWarkRemark = Request["txtTempWorkRemark"].Split(',');
-            string[] aryDoc = Request["doc"].Split(',');
-            for (int i = 0; i < aryTempSupplier.Length; i++)
+            if (null != Request["txtTempWorkSupplierId"])
             {
-                PLAN_DR_TEMPWORK item = new PLAN_DR_TEMPWORK();
-                item.REPORT_ID = RptHeader.REPORT_ID;
-                item.SUPPLIER_ID = aryTempSupplier[i];
-                item.CHARGE_ID = aryTempChargeSupplier[i];
-                ///處理工人名單檔案
-                log.Debug("File Count=" + Request.Files.Count);
-                if (Request.Files[i].ContentLength > 0)
+                string[] aryTempSupplier = Request["txtTempWorkSupplierId"].Split(',');
+                string[] aryTempWorkerQty = Request["txtTempWorkerQty"].Split(',');
+                string[] aryTempChargeSupplier = Request["txtChargeSupplierId"].Split(',');
+                string[] aryTempWarkRemark = Request["txtTempWorkRemark"].Split(',');
+                string[] aryDoc = Request["doc"].Split(',');
+                for (int i = 0; i < aryTempSupplier.Length; i++)
                 {
-                    //存檔路徑
-                    var fileName = Path.GetFileName(Request.Files[i].FileName);
-                    string reportFolder = ContextService.strUploadPath + "\\" + projectid + "\\DailyReport\\";
-                    //check 資料夾是否存在
-                    string folder = reportFolder + RptHeader.REPORT_ID;
-                    ZipFileCreator.CreateDirectory(folder);
-                    var path = Path.Combine(folder, fileName);
-                    Request.Files[i].SaveAs(path);
-                    item.DOC = "DailyReport\\" + RptHeader.REPORT_ID + "\\" + fileName;
-                    log.Debug("Upload Sign List File:" + Request.Files[i].FileName);
+                    PLAN_DR_TEMPWORK item = new PLAN_DR_TEMPWORK();
+                    item.REPORT_ID = RptHeader.REPORT_ID;
+                    item.SUPPLIER_ID = aryTempSupplier[i];
+                    item.CHARGE_ID = aryTempChargeSupplier[i];
+                    ///處理工人名單檔案
+                    log.Debug("File Count=" + Request.Files.Count);
+                    if (Request.Files[i].ContentLength > 0)
+                    {
+                        //存檔路徑
+                        var fileName = Path.GetFileName(Request.Files[i].FileName);
+                        string reportFolder = ContextService.strUploadPath + "\\" + projectid + "\\DailyReport\\";
+                        //check 資料夾是否存在
+                        string folder = reportFolder + RptHeader.REPORT_ID;
+                        ZipFileCreator.CreateDirectory(folder);
+                        var path = Path.Combine(folder, fileName);
+                        Request.Files[i].SaveAs(path);
+                        item.DOC = "DailyReport\\" + RptHeader.REPORT_ID + "\\" + fileName;
+                        log.Debug("Upload Sign List File:" + Request.Files[i].FileName);
+                    }
+                    else
+                    {
+                        item.DOC = aryDoc[i];
+                        log.Error("Not Upload Sign List File!Exist File=" + item.DOC);
+                    }
+                    log.Debug("Supplier Info=" + item.SUPPLIER_ID);
+                    if ("" != aryTempWorkerQty[i].Trim())
+                    {
+                        item.WORKER_QTY = decimal.Parse(aryTempWorkerQty[i]);
+                        newDailyRpt.lstTempWoker4Show.Add(item);
+                    }
+                    item.REMARK = aryTempWarkRemark[i];
                 }
-                else
-                {
-                    item.DOC = aryDoc[i];
-                    log.Error("Not Upload Sign List File!Exist File=" + item.DOC);
-                }
-                log.Debug("Supplier Info=" + item.SUPPLIER_ID);
-                if ("" != aryTempWorkerQty[i].Trim())
-                {
-                    item.WORKER_QTY = decimal.Parse(aryTempWorkerQty[i]);
-                    newDailyRpt.lstTempWoker4Show.Add(item);
-                }
-                item.REMARK = aryTempWarkRemark[i];
             }
-
             //處理機具資料
             newDailyRpt.lstRptWorkerAndMachine = new List<PLAN_DR_WORKER>();
             string[] aryMachineType = f["MachineKeyid"].Split(',');
@@ -528,9 +534,19 @@ namespace topmeperp.Controllers
                     newDailyRpt.lstRptNote.Add(item);
                 }
             }
+            //註記任務是否完成
+            if (null == Request["taskDone"])
+            {
+                newDailyRpt.isDoneFlag = false;
+            }
+            else
+            {
+                newDailyRpt.isDoneFlag = true;
+            }
             log.Debug("count Note=" + f["planNote"]);
             string msg = planService.createDailyReport(newDailyRpt);
-            Response.Redirect("~/ProjectPlan/dailyReportItem?rptID=" + RptHeader.REPORT_ID);
+            Response.Redirect("~/ProjectPlan/dailyReport/" + projectid);
+            //ProjectPlan/dailyReport/P00061
         }
         //顯示日報維護畫面
         public ActionResult dailyReportList(string id)

@@ -29,7 +29,7 @@
                         <div class="col-md-12">
                             <label class="control-label" for="mapType">項目:</label>
                             <input type="checkbox" name="mapType" id="mapType" value="MAP_DEVICE" title="設備" />設備
-                            <input type="checkbox" name="mapType" id="mapType" value="MAP_PEP" title="電器管線" />電器管線
+                            <input type="checkbox" name="mapType" id="mapType" value="MAP_PEP" title="電氣管線" />電氣管線
                             <input type="checkbox" name="mapType" id="mapType" value="MAP_LCP" title="弱電管線" />弱電管線
                             <input type="checkbox" name="mapType" id="mapType" value="TND_MAP_PLU" title="給排水" />給排水
                             <input type="checkbox" name="mapType" id="mapType" value="MAP_FP" title="消防電" />消防電
@@ -50,7 +50,7 @@
                             @Html.DropDownList("systemSub", (IEnumerable<SelectListItem>)ViewBag.SystemSub, String.Empty, new { @class = "selectpicker" })
                         </div>
                     </div>
-                    <!--電器管線主要依據一次側位置、名稱，二次側位置、名稱-->
+                    <!--電氣管線主要依據一次側位置、名稱，二次側位置、名稱-->
                     <!--給排水管線主要依據一次側位置、名稱-->
                     <div class="row">
                         <div class="col-md-12">

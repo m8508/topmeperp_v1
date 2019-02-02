@@ -17,16 +17,7 @@
             材料預算
         </th>
         <th>
-            材料發包金額
-        </th>
-        <th>
-            工資
-        </th>
-        <th>
-            投標金額
-        </th>
-        <th>
-           總成本
+            發包金額
         </th>
         <th>
             毛利
@@ -63,22 +54,7 @@
                 </td>
                 <td>
                     <span style="color: blue; font-size: 15px;">
-                        @String.Format("{0:N0}", item.WAGE_COST)
-                    </span>
-                </td>
-                <td>
-                    <span style="color: blue; font-size: 15px;">
-                        @String.Format("{0:N0}", item.REVENUE)
-                    </span>
-                </td>
-                <td>
-                    <span style="color: blue; font-size: 15px;">
-                        @String.Format("{0:N0}", item.COST)
-                    </span>
-                </td>
-                <td>
-                    <span style="color: blue; font-size: 15px;">
-                        @String.Format("{0:N0}", item.PROFIT)
+                        @String.Format("{0:N0}", item.BUDGET- item.MATERIAL_COST)
                     </span>
                 </td>
             </tr>

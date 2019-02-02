@@ -569,6 +569,9 @@
     <Compile Include="Models\PLAN_TASK2MAPITEM.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\PLAN_TASK_DONE.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\PLAN_VALUATION_FORM.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>

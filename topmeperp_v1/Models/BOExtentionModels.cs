@@ -37,6 +37,7 @@ namespace topmeperp.Models
         public List<PLAN_DR_ITEM> lstRptItem { get; set; }
         public List<PLAN_DR_WORKER> lstRptWorkerAndMachine { get; set; }
         public List<PLAN_DR_NOTE> lstRptNote { get; set; }
+        public bool isDoneFlag { get; set; }
     }
     /// <summary>
     /// 施工日報人工與機具資料物件

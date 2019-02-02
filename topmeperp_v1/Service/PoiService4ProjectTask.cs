@@ -48,7 +48,7 @@ namespace topmeperp.Service
                 logger.Error(ex.Message + ":" + ex.StackTrace);
                 errorMessage = errorMessage+ "," + ex.Message;
             }
-            //電器管線
+            //電氣管線
             try
             {
                 logger.Debug("Process MapPEP");

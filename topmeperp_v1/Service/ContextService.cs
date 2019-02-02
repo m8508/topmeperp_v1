@@ -154,7 +154,7 @@ namespace topmeperp.Service
                                 and p.FUNCTION_ID = f.FUNCTION_ID
                                 and u.USER_ID = @userid
                                 and u.PASSWORD = @passwd 
-                                Order by MODULE_NAME DESC,SUB_MODULE,FUNCTION_ID;";
+                                Order by MODULE_NAME ,SUB_MODULE,FUNCTION_ID;";
                 userPrivilege = context.SYS_FUNCTION.SqlQuery(sql, new SqlParameter("userid", userid), new SqlParameter("passwd", passwd)).ToList();
             }
             logger.Info("get functions count=" + userPrivilege.Count);
@@ -234,11 +234,11 @@ namespace topmeperp.Service
             }
             return i;
         }
-        public int closeProject(string projectid)
+        public int closeProject(string projectid,string status)
         {
-            logger.Debug("Close Project ID=" + projectid);
+            logger.Debug("Close Project ID=" + projectid +",status="+ status);
             TND_PROJECT p = getProjectById(projectid);
-            p.STATUS = "結案";
+            p.STATUS = status;
             return updateProject(p);
         }
         #region 得標標單項目處理

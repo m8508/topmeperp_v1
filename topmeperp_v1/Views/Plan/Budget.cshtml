@@ -19,8 +19,12 @@
         </form>
         @Html.Raw(TempData["result"])
     </div>
+
+@*
     <div class="col-md-3 alert-danger">
-        @Html.Raw(TempData["wagePrice"])
+
+    @Html.Raw(TempData["wagePrice"])
+
         @if (ViewBag.wageAmount == null)
             {
             <a href="/Tender/Create/@ViewBag.projectid" target="_blank" class="btn btn-link">輸入單日工資</a>
@@ -29,21 +33,21 @@
         {
             <label>單日工資: @ViewBag.wageAmount</label><a href="/Tender/Create/@ViewBag.projectid" target="_blank" class="btn btn-link">修改單日工資</a>
         }
-    </div>
+
+    </div>*@
 </div>
 <div class="page-header">
     <div class="col-md-12 form-group">
         <form id="formBudget" name="formBudget" action="UpdateBudget" method="post">
             <div class="row">
                 <div class="col-md-4 form-group">
-                    <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                    <label for="id">專案編號:</label><input id="id" name="id" type="text" value="@ViewBag.projectid" class="form-control"  readonly="readonly" />
                 </div>
                 <div class="col-md-4">
-                    <label for="name">專案名稱:</label><input id="name" name="name" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
+                    <label for="name">專案名稱:</label><input id="name" name="name" type="text" value="@ViewBag.projectName" class="form-control" readonly="readonly" />
                 </div>
                 <div class="col-md-4 form-group" style="padding-top:22px">
                     <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("BudgetForForm","Plan", new { id = @ViewBag.projectid })'; ">詢價單預算</button>
-                    <input type="button" class="btn btn-warning" onclick="myrefresh()" value="查詢">
                     <input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁">
 
                 </div>
@@ -55,7 +59,7 @@
                         <th>材料預算金額</th>
                         <th>工資預算金額</th>
                         <th>預算金額總計</th>
-                        <th>發包金額總計</th>
+                        <!--h>發包金額總計</!--th>-->
                     </tr>
                 </thead>
                 <tbody>
@@ -93,17 +97,19 @@
                             {
                             }
                         </td>
-                        <td>
-                            @if (ViewBag.p_cost != null)
-                            {
-                                <span style="color: red; font-size: 20px;">
-                                    @String.Format("{0:N0}", ViewBag.p_cost)
-                                </span>
-                            }
-                            else
-                            {
-                            }
-                        </td>
+                        @*
+    <td>
+        @if (ViewBag.p_cost != null)
+        {
+            <span style="color: red; font-size: 20px;">
+                @String.Format("{0:N0}", ViewBag.p_cost)
+            </span>
+        }
+        else
+        {
+        }
+    </td>
+                        *@
                     </tr>
                 </tbody>
             </table>
@@ -129,27 +135,36 @@
             {
 
                         <tr>
-                            <td>@Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })</td>
-                            <td>@Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })</td>
                             <td>
-                                
+                                @Html.TextBox("code1", @item.MAINCODE, new { style = "width:50px", @readonly = "readonly" })
+                            </td>
+                            <td>
+                                @Html.TextBox("code2", @item.SUB_CODE, new { style = "width:50px", @readonly = "readonly" })
+                            </td>
+                            <td>
                                 @item.MAINCODE_DESC _ @item.SUB_DESC
                             </td>
-                            <td>@String.Format("{0:N0}", item.CONTRACT_PRICE)</td>
+                            <td>
+                                @String.Format("{0:N0}", item.CONTRACT_PRICE)
+                            </td>
                             <td>
                                 @String.Format("{0:N0}", item.MATERIAL_COST_INMAP)
                             </td>
                             <td>
                                 <input type="text" style="width:60px" name="inputbudget" id="inputbudget" value="@String.Format("{0:N0}", item.BUDGET)">
                             </td>
-                            <td>@String.Format("{0:N0}", item.MATERIAL_BUDGET_INMAP)</td>
+                            <td>
+                                @String.Format("{0:N0}", item.MATERIAL_BUDGET_INMAP)
+                            </td>
                             <td>
                                 @String.Format("{0:N0}", item.MAN_DAY_INMAP)
                             </td>
                             <td>
                                 <input type="text" style="width:60px" name="inputbudget4wage" id="inputbudget4wage" value="@String.Format("{0:N0}", item.BUDGET_WAGE)">
                             </td>
-                            <td>@String.Format("{0:N0}", item.MAN_DAY_BUDGET_INMAP)</td>
+                            <td>
+                                @String.Format("{0:N0}", item.MAN_DAY_BUDGET_INMAP)
+                            </td>
                             <td>
                                 @String.Format("{0:N0}", item.MATERIAL_BUDGET_INMAP + item.MAN_DAY_BUDGET_INMAP)
                             </td>

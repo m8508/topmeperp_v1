@@ -450,7 +450,7 @@ namespace topmeperp.Service
             viewModel.ProjectItemInMapPLU = lstMapPlu;
             resultMessage = resultMessage + "給排水資料筆數:" + lstMapPlu.Count + ",";
         }
-        //電器管線
+        //電氣管線
         public void getMapPEP(string projectid, string mapno, string buildno, string primeside, string primesidename, string secondside, string secondsidename, string name)
         {
 
@@ -669,7 +669,7 @@ namespace topmeperp.Service
             }
             return i;
         }
-        //設定任務與圖算項目-電器管線
+        //設定任務與圖算項目-電氣管線
         public int choiceMapItemPEP(string projectid, string prjuid, string mapPepIds)
         {
             int i = -1;
@@ -834,12 +834,18 @@ namespace topmeperp.Service
             {
                 try
                 {
-                    string sql = "SELECT [TASK_ID],[PROJECT_ID],[PRJ_ID],[PRJ_UID],[TASK_NAME],[START_DATE],[FINISH_DATE] "
-                             + ",[PARENT_UID], CONVERT(varchar,DATEDIFF (day, START_DATE, FINISH_DATE)) as DURATION,[ROOT_TAG] "
-                             + ",[CREATE_ID],[CREATE_DATE],[MODIFY_ID],[MODIFY_DATE]"
-                             + " FROM PLAN_TASK WHERE PROJECT_ID=@projectid  AND CONVERT(datetime, @dt, 20)  BETWEEN START_DATE AND FINISH_DATE "
-                             + " AND PRJ_ID >= (SELECT PRJ_ID FROM PLAN_TASK WHERE PROJECT_ID=@projectid  AND ROOT_TAG = 'Y') "
-                             + " ORDER BY DATEDIFF(day, START_DATE, FINISH_DATE);";
+                    string sql = @"
+SELECT [TASK_ID],[PROJECT_ID],[PRJ_ID],[PRJ_UID],[TASK_NAME],[START_DATE],[FINISH_DATE] 
+,[PARENT_UID], CONVERT(varchar,DATEDIFF (day, START_DATE, FINISH_DATE)) as DURATION,[ROOT_TAG] 
+,[CREATE_ID],[CREATE_DATE],[MODIFY_ID],[MODIFY_DATE]
+ FROM PLAN_TASK WHERE PROJECT_ID=@projectid  
+ AND CONVERT(datetime, @dt , 20) >= START_DATE 
+ AND PRJ_ID >= (SELECT PRJ_ID FROM PLAN_TASK WHERE PROJECT_ID=@projectid  AND ROOT_TAG = 'Y') 
+ AND (PROJECT_ID + '-' + cast(PRJ_UID as varchar))
+ not in (
+ select (PROJECT_ID + '-' + cast(PRJ_UID as varchar)) FROM PLAN_TASK_DONE
+ )
+ ORDER BY START_DATE;";
                     logger.Debug("sql=" + sql);
                     logger.Debug("dt" + dt.ToString("yyyy-MM-dd"));
                     lstTask = context.PLAN_TASK.SqlQuery(sql, new SqlParameter("projectid", projectid), new SqlParameter("dt", @dt)).ToList();
@@ -900,6 +906,26 @@ namespace topmeperp.Service
                 sql = "SELECT * FROM PLAN_DR_NOTE WHERE REPORT_ID=@reportId";
                 logger.Debug("get notes ,sql=" + sql + ",reportId=" + reportId);
                 drDailyRpt.lstRptNote = context.PLAN_DR_NOTE.SqlQuery(sql, new SqlParameter("reportId", reportId)).ToList();
+                //取得任務完工註記
+                try
+                {
+                    sql = "SELECT *  FROM PLAN_TASK_DONE WHERE PROJECT_ID=@projectId AND PRJ_UID=@prjUid";
+                    var flag = context.PLAN_TASK_DONE.SqlQuery(sql, new SqlParameter("projectId", drDailyRpt.dailyRpt.PROJECT_ID)
+                        , new SqlParameter("prjUid", drDailyRpt.lstRptTask.First().PRJ_UID)).ToList();
+                    logger.Debug("Done Task=" + flag.Count);
+                    if (flag.Count>0)
+                    {
+                        drDailyRpt.isDoneFlag = true;
+                    }
+                    else
+                    {
+                        drDailyRpt.isDoneFlag = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.StackTrace);
+                }
             }
             return drDailyRpt;
         }
@@ -929,6 +955,27 @@ namespace topmeperp.Service
                     //機具先註銷
                     db.PLAN_DR_WORKER.AddRange(dr.lstRptWorkerAndMachine);
                     db.PLAN_DR_NOTE.AddRange(dr.lstRptNote);
+                    //註記專案任務是否完成
+                    if (dr.isDoneFlag)
+                    {
+                        //新增Task done 紀錄
+                        PLAN_TASK_DONE doneflag = new PLAN_TASK_DONE();
+                        doneflag.PROJECT_ID = dr.dailyRpt.PROJECT_ID;
+                        //ISSUE : 先已任務第一個UID 建立相關資料
+                        doneflag.PRJ_UID = dr.lstRptTask.First().PRJ_UID;
+                        doneflag.CREATE_DATE = DateTime.Now;
+                        db.PLAN_TASK_DONE.AddOrUpdate(doneflag);
+                    }
+                    else
+                    {
+                        //刪除Task Done 紀錄
+                        string sqlDelTaskDone = "DELETE PLAN_TASK_DONE WHERE PROJECT_ID=@projectId AND PRJ_UID=@prjUid";
+                        var parameters = new List<SqlParameter>();
+                        parameters.Add(new SqlParameter("projectid", dr.dailyRpt.PROJECT_ID));
+                        parameters.Add(new SqlParameter("prjuid", dr.lstRptTask.First().PRJ_UID));
+                        db.Database.ExecuteSqlCommand(sqlDelTaskDone, parameters.ToArray());
+                    }
+
                     db.SaveChanges();
                 }
             }

@@ -96,7 +96,7 @@ textarea {
 
 .fixed_headers td:nth-child(12),
 .fixed_headers th:nth-child(12) {
-    width: 120px;
+    width: 80px;
 }
 
 .fixed_headers1 thead tr {
@@ -123,17 +123,17 @@ textarea {
 
 .fixed_headers1 td:nth-child(3),
 .fixed_headers1 th:nth-child(3) {
-    width: 200px; /**名稱 */
+    width: 100px; /**名稱 */
 }
 
 .fixed_headers1 td:nth-child(4),
 .fixed_headers1 th:nth-child(4) {
-    width: 130px; /**合約金額 */
+    width: 100px; /**合約金額 */
 }
 
 .fixed_headers1 td:nth-child(5),
 .fixed_headers1 th:nth-child(5) {
-    width: 120px; /**材料成本*/
+    width: 100px; /**材料成本*/
 }
 
 .fixed_headers1 td:nth-child(6),

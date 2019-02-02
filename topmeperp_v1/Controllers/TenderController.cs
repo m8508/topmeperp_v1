@@ -207,9 +207,10 @@ namespace topmeperp.Controllers
         public string closeProject()
         {
             string projectid = Request["projectid"];
+            string status= Request["status"];
             TnderProjectService service = new TnderProjectService();
-            service.closeProject(projectid);
-            return "已結案!!";
+            service.closeProject(projectid, status);
+            return "狀態已變更!!";
         }
         public ActionResult uploadMapInfo(string id)
         {

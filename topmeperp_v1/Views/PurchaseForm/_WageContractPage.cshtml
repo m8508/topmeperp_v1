@@ -19,6 +19,9 @@
         <th>
             發包金額
         </th> 
+        <th>
+            毛利
+        </th> 
     </tr>
 
     @if (ViewBag.Result4Wage > 0)
@@ -51,22 +54,7 @@
                 </td>
                 <td>
                     <span style="color: blue; font-size: 15px;">
-                        @String.Format("{0:N0}", item.WAGE_COST)
-                    </span>
-                </td>
-                <td>
-                    <span style="color: blue; font-size: 15px;">
-                        @String.Format("{0:N0}", item.REVENUE)
-                    </span>
-                </td>
-                <td>
-                    <span style="color: blue; font-size: 15px;">
-                        @String.Format("{0:N0}", item.COST)
-                    </span>
-                </td>
-                <td>
-                    <span style="color: blue; font-size: 15px;">
-                        @String.Format("{0:N0}", item.PROFIT)
+                        @String.Format("{0:N0}", item.BUDGET- item.MATERIAL_COST)
                     </span>
                 </td>
             </tr>

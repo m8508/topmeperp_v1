@@ -20,6 +20,11 @@
                 <div class="col-sm-2">
                     <input class="form-control" type="text" id="reportID" name="reportID" value="@ViewBag.RptId" readonly />
                 </div>
+                <label class="btn btn-info active">
+                    <input type="checkbox" id="taskDone" name="taskDone" value="done" checked=@Model.isDoneFlag />
+                    <span class="glyphicon glyphicon-ok">完成</span>
+                </label>
+
             </div>
 
             <div class="row form-group">

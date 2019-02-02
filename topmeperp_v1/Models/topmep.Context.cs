@@ -94,5 +94,6 @@ namespace topmeperp.Models
         public virtual DbSet<PLAN_ESTIMATION_HOLDPAYMENT> PLAN_ESTIMATION_HOLDPAYMENT { get; set; }
         public virtual DbSet<PLAN_DR_TEMPWORK> PLAN_DR_TEMPWORK { get; set; }
         public virtual DbSet<PLAN_DR_WORKER> PLAN_DR_WORKER { get; set; }
+        public virtual DbSet<PLAN_TASK_DONE> PLAN_TASK_DONE { get; set; }
     }
 }

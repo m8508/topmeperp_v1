@@ -26,7 +26,7 @@
                 @Html.DisplayFor(modelItem => item.FORM_NAME)
             </td>
             <td>
-                <a href="/PurchaseForm/SinglePrjForm/@item.INQUIRY_FORM_ID" target="_blank">@item.INQUIRY_FORM_ID</a>
+                @item.INQUIRY_FORM_ID
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.SUPPLIER_ID)
@@ -53,7 +53,7 @@
                     總經理 :
                 </th>
                 <th>
-                    副總 :
+                    覆核 :
                 </th>
                 <th>
                     業務部主管 :
