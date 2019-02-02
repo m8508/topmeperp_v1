@@ -28,7 +28,7 @@
                     <tr><th>工程地點</th><th colspan="3">@Model.project.LOCATION</th><th>業主名稱</th><th>@Model.project.OWNER_NAME</th><th>專案編號</th><td>@Model.project.PROJECT_ID</td></tr>
                     <tr><th>施工內容</th><th colspan="7">@ViewBag.taskName</th></tr>
                     <!--施作的標單內容-->
-                    <tr><td>編號</td><td>項次</td><td colspan="2">名稱</td><td>圖算數量</td><td>本日施作數量</td><td>累計數量</td><td>完成比例</td></tr>
+                    <tr><td>編號</td><td>項次</td><td colspan="2">名稱</td><td>發包數量</td><td>本日施作數量</td><td>累計數量</td><td>完成比例</td></tr>
 
                     @for (int idx = 0; idx < Model.lstDailyRptItem4Show.Count; idx++)
                     {

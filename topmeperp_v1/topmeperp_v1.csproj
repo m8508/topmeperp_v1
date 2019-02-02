@@ -1317,6 +1317,8 @@
     <Content Include="Views\PaymentManagement\Index.cshtml" />
     <Content Include="Views\PaymentManagement\PaymentForm.cshtml" />
     <Content Include="App_Code\_funFormStatus.cshtml" />
+    <Content Include="Views\Estimation\_SupplierEstimationList.cshtml" />
+    <Content Include="Views\Estimation\_SupplierTempworker.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

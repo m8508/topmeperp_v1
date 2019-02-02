@@ -51,7 +51,7 @@ namespace topmeperp.Service
                     {
                         // loads the DataTable (schema will be fetch automatically)
                         var tb = new DataTable();
-                        tb.Load(reader);
+                        tb.Load(reader);                   
                         result.Tables.Add(tb);
 
                     } while (!reader.IsClosed);
@@ -64,6 +64,23 @@ namespace topmeperp.Service
             }
             // returns the DataSet
             return result;
+        }
+        public DataTable getDataTable(string sql, Dictionary<string, Object> parameters)
+        {
+            DataTable dt = null;
+            using (var context = new topmepEntities())
+            {
+                SqlDataAdapter adapter = new SqlDataAdapter(sql, context.Database.Connection.ConnectionString);
+                foreach (var pr in parameters)
+                {
+                    SqlParameter p = new SqlParameter(pr.Key, pr.Value);
+                    adapter.SelectCommand.Parameters.Add(p);
+                }
+                DataSet ds = new DataSet();
+                adapter.Fill(ds);
+                dt = ds.Tables[0];
+            }       
+            return dt;
         }
     }
     /// <summary>

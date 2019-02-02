@@ -18,8 +18,8 @@
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Create","Tender", new { id = @Model.tndProject.PROJECT_ID})'; ">修改專案基本資料</button>
             <!--<button type="button" class="btn btn-primary" @ViewBag.F00003 onclick="location.href='@Url.Action("Task","Tender", new { id = @Model.tndProject.PROJECT_ID})'; ">任務分派</button>-->
 
-            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("uploadMapInfo","Tender", new { id = @Model.tndProject.PROJECT_ID})'; ">上傳圖算數量</button>
-            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("MapInfoMainPage","Tender", new { id = @Model.tndProject.PROJECT_ID})'; ">圖算數量修改</button>
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("uploadMapInfo","Tender", new { id = @Model.tndProject.PROJECT_ID})'; ">上傳發包數量</button>
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("MapInfoMainPage","Tender", new { id = @Model.tndProject.PROJECT_ID})'; ">發包數量修改</button>
 
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("InquiryMainPage", "Inquiry", new { id = @Model.tndProject.PROJECT_ID})'; ">詢價單新增 / 廠商詢價單查詢 </button>
             <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("ComparisonMain","Inquiry", new { id = @Model.tndProject.PROJECT_ID})'; ">比價作業</button>

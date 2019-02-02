@@ -8,6 +8,7 @@ using topmeperp.Models;
 using topmeperp.Service;
 using System.IO;
 using Newtonsoft.Json;
+using System.Data;
 
 namespace topmeperp.Controllers
 {
@@ -31,16 +32,34 @@ namespace topmeperp.Controllers
         {
             logger.Info("valuation index : projectid=" + id);
             ViewBag.projectId = id;
-            EstimationService service = new EstimationService();
             TND_PROJECT p = service.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
-            List<plansummary> lstContract = null;
-            ContractModels contract = new ContractModels();
-            lstContract = service.getAllPlanContract(id);
-            contract.contractItems = lstContract;
-            return View(contract);
+            return View();
         }
+        public ActionResult queryInfo4Estimation()
+        {
+            ViewBag.projectId = Request["projectId"];
+            ViewBag.projectName = Request["projectName"];
 
+            EstimationService service = new EstimationService();
+            ContractModels contract = new ContractModels();
+            List<plansummary> lstContract = null;
+            lstContract = service.getAllPlanContract(Request["projectId"]);
+            contract.contractItems = lstContract;
+            //由日報彙整材料與人工估驗資料
+            DateTime dtStart = DateTime.Parse(Request["dtDate_S"]);
+            DateTime dtEnd = DateTime.Parse(Request["dtDate_E"]);
+            ViewBag.PR_ID_S = dtStart.ToString("yyyy/MM/dd");
+            ViewBag.PR_ID_E = dtEnd.ToString("yyyy/MM/dd");
+            DataSet dsMat = service.getContractFromReport(Request["projectId"], dtStart, dtEnd, "N");
+            DataSet dsHum = service.getContractFromReport(Request["projectId"], dtStart, dtEnd, "Y");
+            List<DataSet> ds = new List<DataSet>();
+            ds.Add(dsMat);
+            ds.Add(dsHum);
+            contract.lstEstFromDailyReport = ds;
+            contract.dsTempWorkDailyReport = service.getTempWorkFromDailyReport(Request["projectId"], dtStart, dtEnd);
+            return View("Valuation", contract);
+        }
         public ActionResult AddEST(string id, string projectid, string type)
         {
             logger.Info("create EST form id process!  Contract id=" + id);
@@ -60,9 +79,10 @@ namespace topmeperp.Controllers
             string contracId = Request["contractId"];
             string pr_id_s = Request["PR_ID_S"];
             string pr_id_e = Request["PR_ID_E"];
+            string isWage = Request["IsWage"];
             EstimationService service = new EstimationService();
-
-            ContractModels contract = service.getContract(projectId, contracId, pr_id_s, pr_id_e);
+            ContractModels contract = null;
+            contract = service.getContract(projectId, contracId, pr_id_s, pr_id_e, isWage);
 
             ViewBag.contracId = contracId;
             ViewBag.prid_s = pr_id_s;
@@ -71,9 +91,26 @@ namespace topmeperp.Controllers
             return View(contract);
         }
         /// <summary>
+        /// 建立點工的估驗單
+        /// </summary>
+        public ActionResult createEstimationOrder4TmpOrder()
+        {
+            //傳入驗收單建立估驗單
+            string projectId = Request["projectId"];
+            string rtpStartId = Request["rptStartId"];
+            string rtpEndId = Request["rptEndId"];
+            string supplierId = Request["supplierId"];
+            string chargeId = Request["chargeId"];
+            ViewBag.contracId = Request["contractId"];
+            EstimationService service = new EstimationService();
+            ContractModels contract = null;
+            contract = service.getContract4TempWork(projectId, rtpStartId, rtpEndId, supplierId, chargeId);
+            logger.Debug("get estimation Info :" + contract.supplier.COMPANY_NAME);
+            return View("createEstimationOrder", contract);
+        }
+        /// <summary>
         /// 顯示/更新估驗單
         /// </summary>
-        /// <returns></returns>
         public ActionResult createEstimationOrderInfo()
         {
             //取得現有估驗單，產生編輯畫面

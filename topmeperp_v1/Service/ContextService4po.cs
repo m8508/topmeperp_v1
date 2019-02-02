@@ -1334,6 +1334,8 @@ namespace topmeperp.Service
                     i = context.SaveChanges();
                     logger.Debug("Update plan supplier inquiry form =" + i);
                     logger.Info("supplier inquiry form item = " + lstItem.Count);
+                    //1.移除詢價單明細
+                    deletePlanSupInquiryItem(formid);
                     //2.將item資料寫入 
                     foreach (PLAN_SUP_INQUIRY_ITEM item in lstItem)
                     {
@@ -1387,11 +1389,28 @@ namespace topmeperp.Service
                     logger.Error(e.StackTrace);
                     message = e.Message;
                 }
-
             }
             return i;
         }
-
+        //清空詢價單明細資料
+        protected void deletePlanSupInquiryItem(string formid)
+        {
+            string sqlDel = "DELETE PLAN_SUP_INQUIRY_ITEM WHERE INQUIRY_FORM_ID=@formId";
+            logger.Info("sql=" + sqlDel + ",formId=" + formid);
+            try
+            {
+                using (var context = new topmepEntities())
+                {
+                    var parameters = new List<SqlParameter>();
+                    parameters.Add(new SqlParameter("formId", formid));
+                    context.Database.ExecuteSqlCommand(sqlDel, parameters.ToArray());
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex.StackTrace);
+            }
+        }
         //更新採購詢價單單價
         public int refreshSupplierFormItem(string formid, List<PLAN_SUP_INQUIRY_ITEM> lstItem)
         {
@@ -4201,12 +4220,12 @@ WHERE EST_FORM_ID=@formId
 SELECT pop.AMOUNT AS AMOUNT, pop.REASON AS REASON, pop.CONTRACT_ID_FOR_REFUND AS CONTRACT_ID_FOR_REFUND, s.SUPPLIER_ID AS COMPANY_NAME 
 FROM PLAN_OTHER_PAYMENT pop LEFT JOIN PLAN_SUP_INQUIRY s ON pop.CONTRACT_ID_FOR_REFUND = s.INQUIRY_FORM_ID WHERE pop.EST_FORM_ID =@id AND pop.TYPE = 'R' 
 ";
-            logger.Info("get repayment :"+ sql +" by EST id =" + id);
+            logger.Info("get repayment :" + sql + " by EST id =" + id);
             List<RePaymentFunction> lstItem = new List<RePaymentFunction>();
             //處理SQL 預先填入ID,設定集合處理參數
             using (var context = new topmepEntities())
             {
-                lstItem = context.Database.SqlQuery<RePaymentFunction>(sql,new SqlParameter("id", id)).ToList();
+                lstItem = context.Database.SqlQuery<RePaymentFunction>(sql, new SqlParameter("id", id)).ToList();
             }
 
             return lstItem;

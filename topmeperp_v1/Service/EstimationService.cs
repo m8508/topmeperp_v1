@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
@@ -47,8 +48,82 @@ contract as (--合約資料
    and f.PROJECT_ID=@projectId
 )
 ";
+        string sql4EstFromDailyReport = @"
+with 
+SummaryReport as (
+--取得日報數量
+select i.PLAN_ITEM_ID,SUM(i.FINISH_QTY) FINISH_QTY,MAX(i.LAST_QTY) LAST_QTY 
+from PLAN_DALIY_REPORT r
+join PLAN_DR_ITEM i on r.REPORT_ID=i.REPORT_ID
+left join PLAN_ITEM pi on i.PLAN_ITEM_ID=pi.PLAN_ITEM_ID
+WHERE r.REPORT_DATE BETWEEN @reportDateBegin AND @reportDateEnd
+AND r.PROJECT_ID= @projectId
+GROUP BY i.PLAN_ITEM_ID
+),
+SumTempWorkReport as(
+--點工數量
+select 
+i.SUPPLIER_ID,
+i.CHARGE_ID,
+SUM(WORKER_QTY) FINISH_QTY,
+MAX(LAST_QTY) LAST_QTY,
+MIN(ORD_TEMPWORKER_ID) BeginID,
+MAX(ORD_TEMPWORKER_ID) EndID
+from PLAN_DALIY_REPORT r
+join PLAN_DR_TEMPWORK i on r.REPORT_ID=i.REPORT_ID
+WHERE r.REPORT_DATE BETWEEN  @reportDateBegin AND @reportDateEnd
+AND r.PROJECT_ID= @projectId
+GROUP BY SUPPLIER_ID,CHARGE_ID
+),
+ContractInfo as (
+--議約的資料
+select pi.ITEM_ID,pi.ITEM_DESC,pi.INQUIRY_FORM_ID,supItem.SUPPLIER_ID,supItem.FORM_NAME
+,supItem.ISWAGE,supItem.PLAN_ITEM_ID,supItem.ITEM_UNIT
+,pi.ITEM_QUANTITY,supItem.ITEM_QTY,supItem.ITEM_QTY_ORG,supItem.ITEM_UNIT_PRICE
+ from PLAN_ITEM pi
+join 
+(SELECT supI.*,supF.ISWAGE,supF.SUPPLIER_ID,supF.FORM_NAME FROM PLAN_SUP_INQUIRY_ITEM  supI
+,PLAN_SUP_INQUIRY supF where supI.INQUIRY_FORM_ID=supF.INQUIRY_FORM_ID
+and ISNULL(supF.ISWAGE,'N') =@isWage AND isNULL(supF.STATUS, '') = '') supItem
+On pi.PLAN_ITEM_ID=supItem.PLAN_ITEM_ID
+WHERE supItem.INQUIRY_FORM_ID 
+IN (SELECT  INQUIRY_FORM_ID FROM PLAN_ITEM2_SUP_INQUIRY)
+)
+";
+        string sql4TempWorker = @"
+with 
+SumTempWorkReport as(
+--點工數量
+select 
+i.SUPPLIER_ID,
+i.CHARGE_ID,
+SUM(WORKER_QTY) FINISH_QTY,
+MAX(LAST_QTY) LAST_QTY,
+MIN(ORD_TEMPWORKER_ID) BeginID,
+MAX(ORD_TEMPWORKER_ID) EndID
+from PLAN_DALIY_REPORT r
+join PLAN_DR_TEMPWORK i on r.REPORT_ID=i.REPORT_ID
+WHERE i.ORD_TEMPWORKER_ID BETWEEN  @reportIdBegin AND @reportIdEnd
+AND r.PROJECT_ID= @projectId
+GROUP BY SUPPLIER_ID,CHARGE_ID
+),
+contractInfo as (
+select 
+ f.INQUIRY_FORM_ID,
+ f.SUPPLIER_ID,
+ i.ITEM_ID,
+ i.PLAN_ITEM_ID,
+ i.ITEM_DESC,
+ i.ITEM_UNIT,
+ i.ITEM_QTY AS ITEM_QUANTITY,
+ i.ITEM_UNIT_PRICE from PLAN_SUP_INQUIRY f,PLAN_SUP_INQUIRY_ITEM i
+where f.INQUIRY_FORM_ID=i.INQUIRY_FORM_ID
+and f.SUPPLIER_ID=@SupplierId
+and f.FORM_NAME='點工'
+)
+";
         #endregion
-        public ContractModels getContract(string projectId, string contractid, string prid_s, string prid_e)
+        public ContractModels getContract(string projectId, string contractid, string prid_s, string prid_e,string isWage)
         {
             ContractModels c = new ContractModels();
 
@@ -57,9 +132,20 @@ contract as (--合約資料
             //1.取得專案資料 
             logger.Debug("get project by project_id=" + projectId);
             c.project = getProjectById(projectId);
-            //2.取得合約資料
+            //2.取得估驗明細資料
             logger.Debug("get EstimationOrder4Expense by project_id=" + contractid + "," + prid_s + "," + prid_e);
-            c.EstimationItems = getEstimationOrder4Expense(projectId, contractid, prid_s, prid_e);
+            switch (isWage)
+            {
+                case "Y":
+                    c.EstimationItems = getEstimationListByDailyReport(projectId, DateTime.Parse(prid_s), DateTime.Parse(prid_e), isWage);
+                    break;
+                case "N":
+                    c.EstimationItems = getEstimationListByDailyReport(projectId, DateTime.Parse(prid_s), DateTime.Parse(prid_e), isWage);
+                    break;
+                default:
+                    c.EstimationItems = getEstimationOrder4Expense(projectId, contractid, prid_s, prid_e);
+                    break;
+            }
             //3.取得供應商資料
             logger.Debug("get Supplier by SUPPLIER_ID=" + c.EstimationItems.First().SUPPLIER_ID);
             c.supplier = getSupplierInfo(c.EstimationItems.First().SUPPLIER_ID);
@@ -68,10 +154,70 @@ contract as (--合約資料
             c.Hold4DeductForm = getPaymentTransfer(projectId, c.supplier.SUPPLIER_ID);
             return c;
         }
+        //TODO 取得點工相關資料 for 估驗單
+        public ContractModels getContract4TempWork(string projectId,string rptStartId,string rtpEndId,string supplierId,string chargeId)
+        {
+            ContractModels c = new ContractModels();
+
+            PLAN_ESTIMATION_FORM form = new PLAN_ESTIMATION_FORM();
+            c.planEST = form;
+            //1.取得專案資料 
+            logger.Debug("get project by project_id=" + projectId);
+            c.project = getProjectById(projectId);
+            //2.取得合約資料?? 需要點工的單價資料
+            
+            logger.Debug("get getContract4TempWork by project_id=" + projectId + "," + rptStartId + "," + rtpEndId);
+            c.EstimationItems = getEstimationList4TempWorker(projectId,rptStartId, rtpEndId, supplierId, chargeId);
+            //3.取得供應商資料
+            logger.Debug("get Supplier by SUPPLIER_ID=" + c.EstimationItems.First().SUPPLIER_ID);
+            c.supplier = getSupplierInfo(supplierId.Substring(0,8));
+            //4.補上代扣資料
+            List<PLAN_ESTIMATION_HOLDPAYMENT> holdPayment = new List<PLAN_ESTIMATION_HOLDPAYMENT>();
+            PLAN_ESTIMATION_HOLDPAYMENT p = new PLAN_ESTIMATION_HOLDPAYMENT();
+            p.SUPPLIER_ID = chargeId;
+            //p.HOLD_AMOUNT = 0;
+            p.REMARK = "點工";
+            holdPayment.Add(p);
+            c.EstimationHoldPayments = holdPayment;
+            return c;
+        }
+        /// <summary>
+        /// 點工估驗單彙整資料
+        /// </summary>
+        public List<EstimationItem> getEstimationList4TempWorker(string projectId, string rptStartId, string rtpEndId, string supplierId, string chargeId)
+        {
+            StringBuilder sb = new StringBuilder(sql4TempWorker);
+            List<EstimationItem> lst = new List<EstimationItem>();
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("reportIdBegin", rptStartId));
+            parameters.Add(new SqlParameter("reportIdEnd", rtpEndId));
+            parameters.Add(new SqlParameter("projectId", projectId));
+            parameters.Add(new SqlParameter("SupplierId", supplierId));
+
+            string sqlSelet = @"
+select c.SUPPLIER_ID
+,c.INQUIRY_FORM_ID
+,c.ITEM_ID
+,c.ITEM_DESC
+,c.ITEM_UNIT
+,c.ITEM_UNIT_PRICE
+,r.LAST_QTY PriorQty
+,r.FINISH_QTY EstimationQty
+,r.FINISH_QTY*c.ITEM_UNIT_PRICE  EstimationAmount
+ from contractInfo c,SumTempWorkReport r
+where c.SUPPLIER_ID=r.SUPPLIER_ID
+";
+            string sql = sb.Append(sqlSelet).ToString();
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("sql=" + sql);
+                lst = context.Database.SqlQuery<EstimationItem>(sql, parameters.ToArray()).ToList();
+            }
+           return lst;
+        }
         /// <summary>
         /// 取得估驗單資料
         /// </summary>
-        /// <param name="estimationOrderId"></param>
         public ContractModels getEstimationOrder(string formId)
         {
             ContractModels c = new ContractModels();
@@ -84,7 +230,7 @@ contract as (--合約資料
             s.getInqueryForm(c.planEST.CONTRACT_ID);
             c.supContract = s.formInquiry;
             c.supContractItems = s.formInquiryItem;
-            c.contractPaymentTerms= getPaymentTerm(c.planEST.CONTRACT_ID, formId);//付款條件
+            c.contractPaymentTerms = getPaymentTerm(c.planEST.CONTRACT_ID, formId);//付款條件
 
             //4.取得估驗明細資料
             c.EstimationItems = getItems(c.planEST.EST_FORM_ID);
@@ -287,6 +433,87 @@ group by c.FORM_NAME,c.SUPPLIER_ID,c.TYPE,c.INQUIRY_FORM_ID
             logger.Info("get contract count=" + lst.Count);
             return lst;
         }
+        //依據日報取得估驗彙整資料
+        public DataSet getContractFromReport(string projectid, DateTime reportDate_Begin, DateTime reportDate_End, string isWage)
+        {
+            StringBuilder sb = new StringBuilder(sql4EstFromDailyReport);
+            var parameters = new Dictionary<string, Object>();
+            string sqlSelet = @"
+SELECT  ROW_NUMBER() OVER(ORDER BY INQUIRY_FORM_ID DESC) AS NO,INQUIRY_FORM_ID,ISWAGE,
+SUPPLIER_ID,FORM_NAME,count(*) ItemCnt from SummaryReport,ContractInfo
+where SummaryReport.PLAN_ITEM_ID=ContractInfo.PLAN_ITEM_ID
+GROUP BY ISWAGE,INQUIRY_FORM_ID,SUPPLIER_ID,FORM_NAME
+";
+            string sql = sb.Append(sqlSelet).ToString();
+            parameters.Add("projectid", projectid);
+            parameters.Add("reportDateBegin", reportDate_Begin);
+            parameters.Add("reportDateEnd", reportDate_End);
+            parameters.Add("isWage", isWage);
+            logger.Info("get contract from Reaport=" + sql);
+
+            DataSet ds =  ExecuteStoreQuery(sql, CommandType.Text, parameters);
+            return ds;
+        }
+        //依據日報取得估驗單明細資料，用以建立估驗單
+        public List<EstimationItem> getEstimationListByDailyReport(string projectid, DateTime reportDate_Begin, DateTime reportDate_End, string isWage)
+        {
+            StringBuilder sb = new StringBuilder(sql4EstFromDailyReport);
+
+            var parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("reportDateBegin", reportDate_Begin));
+            parameters.Add(new SqlParameter("reportDateEnd", reportDate_End.AddDays(1).AddSeconds(-1)));
+            parameters.Add(new SqlParameter("projectId", projectid));
+            parameters.Add(new SqlParameter("isWage", isWage));
+
+            string sqlSelet = @"
+SELECT 
+c.ITEM_ID,
+c.PLAN_ITEM_ID,
+c.ITEM_DESC,
+c.ITEM_UNIT,
+c.ITEM_QTY AS ITEM_QUANTITY,
+c.ITEM_UNIT_PRICE,
+r.FINISH_QTY as EstimationQty,
+0.0 as EstimationAmount,
+'' as REMARK,
+c.SUPPLIER_ID
+FROM
+SummaryReport r join ContractInfo c
+on r.PLAN_ITEM_ID=c.PLAN_ITEM_ID
+";
+            List<EstimationItem> lst = new List<EstimationItem>();
+            string sql = sb.Append(sqlSelet).ToString();
+            using (var context = new topmepEntities())
+            {
+                logger.Debug("sql=" + sql);
+                lst = context.Database.SqlQuery<EstimationItem>(sql, parameters.ToArray()).ToList();
+            }
+            return lst;
+        }
+        /// <summary>
+        /// 由日報彙整點工資料
+        /// </summary>
+        public DataSet getTempWorkFromDailyReport(string projectid, DateTime reportDate_Begin, DateTime reportDate_End)
+        {
+            StringBuilder sb = new StringBuilder(sql4EstFromDailyReport);
+            var parameters = new Dictionary<string, Object>();
+            string sqlSelet = @"
+select  * from SumTempWorkReport r,PLAN_SUP_INQUIRY f
+where r.SUPPLIER_ID=f.SUPPLIER_ID
+and f.PROJECT_ID=@projectId
+and f.FORM_NAME='點工'
+";
+            string sql = sb.Append(sqlSelet).ToString();
+            parameters.Add("projectid", projectid);
+            parameters.Add("reportDateBegin", reportDate_Begin);
+            parameters.Add("reportDateEnd", reportDate_End);
+            parameters.Add("isWage", "");
+            logger.Info("get contract from Reaport=" + sql);
+
+            DataSet ds = ExecuteStoreQuery(sql, CommandType.Text, parameters);
+            return ds;
+        }
+
         /// <summary>
         /// 取得驗收單明細彙整供估驗單建立相關資料使用
         /// </summary>
@@ -482,7 +709,7 @@ ON INV.EST_FORM_ID=TRF.TRANSFER_FORM_ID
  ) INV_ALL
  WHERE INV_ALL.FORM_ID= PLAN_ESTIMATION_FORM.EST_FORM_ID
 ";
-            logger.Debug(sql + ",formId=" + f.EST_FORM_ID +",Contract=" + f.CONTRACT_ID);
+            logger.Debug(sql + ",formId=" + f.EST_FORM_ID + ",Contract=" + f.CONTRACT_ID);
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("formId", f.EST_FORM_ID));
             parameters.Add(new SqlParameter("contractId", f.CONTRACT_ID));
@@ -650,9 +877,6 @@ UPDATE PLAN_ESTIMATION_FORM
             parameters.Add(new SqlParameter("paymentDate", form.PAYMENT_DATE ?? (object)DBNull.Value));
             parameters.Add(new SqlParameter("indirectCostType", form.INDIRECT_COST_TYPE ?? (object)DBNull.Value));
             context.Database.ExecuteSqlCommand(sql, parameters.ToArray());
-
-            //   parameters.Add(new SqlParameter("supplierId", supplierId));
-
         }
 
         //取得代付扣款彙整資料--依據驗收單相關取得對應的代付資料

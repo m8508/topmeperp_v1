@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 
 namespace topmeperp.Models
 {
@@ -53,14 +54,15 @@ namespace topmeperp.Models
         public EstimationSummary GrandTotalEstimationSummary { get; set; }
         public IEnumerable<plansummary> contractItems { get; set; }
         public IEnumerable<plansummary> wagecontractItems { get; set; }
-        //public IEnumerable<PLAN_PAYMENT_TERMS> paymentTerms { get; set; }
-       // public PaymentTermsFunction planpayment { get; set; }
-       // public IEnumerable<PLAN_ITEM> planItems { get; set; }
 
         public IEnumerable<PURCHASE_ORDER> planOrder { get; set; }
         public IEnumerable<RevenueFromOwner> ownerConFile { get; set; }
         //工作流程定義物件
         public ExpenseFlowTask task { get; set; }
+        //Data Set 材料/人工
+        public List<DataSet> lstEstFromDailyReport { get; set; }
+        //點工資料
+        public DataSet dsTempWorkDailyReport { get; set; }
     }
     //估驗單金額彙整資料
     public class EstimationSummary

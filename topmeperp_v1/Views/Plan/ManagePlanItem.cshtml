@@ -11,12 +11,13 @@
         <div class="container">
             <div class="form-group row">
                 <div class="col-md-12">
-                    <label for="id" class="col-sm-2 col-form-label">專案編號:</label>
-                    <div class="col-sm-3">
+
+                    <div class="col-sm-5">
+                        <label for="id_nouse" class="col-form-label">專案編號:</label>
                         <input id="id_nouse" name="id_nouse" type="text" value="@ViewBag.id" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
                     </div>
-                    <label for="projectName" class="col-sm-2 col-form-label">專案名稱:</label>
-                    <div class="col-sm-4">
+                    <div class="col-sm-6">
+                        <label for="projectName" class="col-form-label">專案名稱:</label>
                         <input id="projectName" name="projectName" type="text" value="@ViewBag.projectName" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
                     </div>
                     <div class="col-sm-1"><input type="button" class="btn btn-success" onclick="history.back()" value="回上一頁"></div>
