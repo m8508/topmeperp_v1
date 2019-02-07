@@ -1531,7 +1531,11 @@ namespace topmeperp.Service
             List<plansummary> lst = new List<plansummary>();
             using (var context = new topmepEntities())
             {
-                string sql4Material = @"SELECT IIF(TYPE='Y','工資','材料') TYPE,VAL.INQUIRY_FORM_ID CONTRACT_ID,VAL.FORM_NAME,VAL.SUPPLIER_ID, MATERIAL_COST
+                string sql4Material = @"SELECT IIF(TYPE='Y','工資','材料') TYPE,VAL.INQUIRY_FORM_ID CONTRACT_ID,
+                 VAL.FORM_NAME,VAL.SUPPLIER_ID, 
+(SELECT BUDGET_AMOUNT  FROM PLAN_BUDGET 
+WHERE PROJECT_ID=@projectid  AND ('('+ TYPE_CODE_1 + ','+TYPE_CODE_2 +')' + BUDGET_NAME)=VAL.FORM_NAME) BUDGET,
+                 MATERIAL_COST
                  FROM  (SELECT  * FROM PLAN_ITEM2_SUP_INQUIRY WHERE PROJECT_ID = @projectid ) IDX 
                  INNER JOIN (
                  SELECT F.INQUIRY_FORM_ID,F.FORM_NAME,F.SUPPLIER_ID,SUM(FI.ITEM_QTY * FI.ITEM_UNIT_PRICE) MATERIAL_COST,
