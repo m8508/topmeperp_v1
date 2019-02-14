@@ -354,7 +354,7 @@
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
-                window.history.go(-1);
+                window.location.href = "PurchaseRequisition/@Model.planPR.PROJECT_ID";
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);

@@ -586,13 +586,6 @@ namespace topmeperp.Controllers
             PurchaseFormService service = new PurchaseFormService();
             TND_PROJECT p = service.getProjectById(id);
             ViewBag.projectName = p.PROJECT_NAME;
-            //取得未決標需議價之詢價單資料
-            //string iswage = "N";
-            //ViewBag.isWage = Request["isWage"];
-            //if (null != Request["isWage"])
-            //{
-            //iswage = Request["isWage"];
-            //}
             List<purchasesummary> lstforms = service.getPurchaseForm4Offer(id, formname, iswage);
             BudgetDataService bs = new BudgetDataService();
             DirectCost iteminfo = bs.getItemBudget(id, Request["textCode1"], Request["textCode2"], Request["textSystemMain"], Request["textSystemSub"], formname);

@@ -326,7 +326,7 @@ namespace topmeperp.Controllers
                 lstItem.Add(items);
             }
             int k = service.refreshPR(prid, pr, lstItem);
-            return Redirect("PurchaseRequisition/" + pr.PROJECT_ID);
+            return Redirect("SinglePR?id=" + prid + "&prjid=" + pr.PROJECT_ID);
         }
         //申購單查詢
         public ActionResult PurchaseRequisition(string id)
