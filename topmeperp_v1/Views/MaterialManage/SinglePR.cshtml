@@ -299,7 +299,7 @@
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
-                window.location.reload()
+                window.location.reload();
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);
@@ -319,7 +319,7 @@
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
-                window.location.reload()
+                window.history.go(-1);
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);
@@ -354,7 +354,7 @@
             dataType: 'text',
             success: function (msg) {
                 alert(msg);
-                window.location.reload()
+                window.history.go(-1);
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(thrownError);

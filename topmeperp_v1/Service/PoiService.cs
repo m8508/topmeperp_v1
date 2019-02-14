@@ -2955,7 +2955,7 @@ namespace topmeperp.Service
                 row.Cells[12].CellStyle = style;
                 row.CreateCell(13).SetCellValue((item.EXCEL_ROW_ID == null ? "" : item.EXCEL_ROW_ID.ToString()));// Excel 排序
                 row.Cells[13].CellStyle = style;
-                row.CreateCell(14).SetCellValue((item.IN_CONTRACT == null ? "" : item.IN_CONTRACT.ToString()));// 合約內品項標記
+                row.CreateCell(14).SetCellValue((item.IN_CONTRACT == null ? "Y" : item.IN_CONTRACT.ToString()));// 合約內品項標記
                 row.Cells[14].CellStyle = style;
                 idxRow++;
             }
@@ -3042,7 +3042,7 @@ namespace topmeperp.Service
             if (row.Cells[0].ToString().Trim() != "")//PK 0
             {
                 projectItem.PROJECT_ITEM_ID = row.Cells[0].ToString();
-                projectItem.EXCEL_ROW_ID = long.Parse(row.Cells[row.Cells.Count - 1].ToString());
+                projectItem.EXCEL_ROW_ID = long.Parse(row.Cells[row.Cells.Count - 2].ToString());
                 projectItem.CREATE_DATE = System.DateTime.Now;
             }
             else

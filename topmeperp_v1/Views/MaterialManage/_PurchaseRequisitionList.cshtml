@@ -7,7 +7,6 @@
             <th>申購單編號</th>
             <th>申購說明</th>
             <th>注意事項</th>
-            <th>物料需求 D~D-3日</th>
             <th>備註</th>
             <th>狀態</th>
         </tr>
@@ -26,13 +25,6 @@
                 </td>
                 <td>@item.REMARK</td>
                 <td>@item.MEMO</td>
-
-                <td>
-                @if (null != item.Dminus3day && item.Dminus3day != "")
-                {
-                  <a href="/MaterialManage/CheckForReceipt?prid=@item.PR_ID&prjid=@item.PROJECT_ID&status=@item.STATUS" target="_blank">查看物料明細</a>
-                }
-                </td>
                 <td>
                     @item.MESSAGE
                 </td>

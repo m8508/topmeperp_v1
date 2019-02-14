@@ -672,7 +672,7 @@ namespace topmeperp.Controllers
             ViewBag.recipient = singleForm.planPR.RECIPIENT;
             ViewBag.location = singleForm.planPR.LOCATION;
             ViewBag.caution = singleForm.planPR.REMARK;
-            ViewBag.status = singleForm.planPR.STATUS;
+            //ViewBag.status = singleForm.planPR.STATUS;
             List<PurchaseRequisition> lstPR = service.getPurchaseItemBySupplier(String.Join("-", ViewBag.parentPrId, ViewBag.supplier), prjid);
             return View(lstPR);
         }

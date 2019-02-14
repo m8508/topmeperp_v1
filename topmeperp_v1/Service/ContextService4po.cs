@@ -2370,7 +2370,7 @@ WHERE PROJECT_ID=@projectid  AND ('('+ TYPE_CODE_1 + ','+TYPE_CODE_2 +')' + BUDG
                     LEFT JOIN PLAN_PURCHASE_REQUISITION CHILD
                     ON P.PR_ID=CHILD.PARENT_PR_ID
                     WHERE P.PROJECT_ID=@projectid 
-                    AND P.PR_ID Like @type + '%'";
+                    AND P.PR_ID Like Concat(@type,'%') ";
             StringBuilder sb = new StringBuilder(sql);
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("type", type));
@@ -2443,7 +2443,7 @@ WHERE PROJECT_ID=@projectid  AND ('('+ TYPE_CODE_1 + ','+TYPE_CODE_2 +')' + BUDG
                                 ROW_NUMBER() OVER(ORDER BY pi.EXCEL_ROW_ID) AS NO 
                                 FROM PLAN_PURCHASE_REQUISITION_ITEM pri 
                                 LEFT JOIN PLAN_ITEM pi ON pri.PLAN_ITEM_ID = pi.PLAN_ITEM_ID 
-                                LEFT JOIN TND_MAP_DEVICE md ON pi.PLAN_ITEM_ID = md.PROJECT_ITEM_ID 
+                                LEFT JOIN vw_MAP_MATERLIALIST md ON pi.PLAN_ITEM_ID = md.PROJECT_ITEM_ID 
                                 LEFT JOIN (
                                 SELECT pri.PLAN_ITEM_ID, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri 
                                 LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID 
