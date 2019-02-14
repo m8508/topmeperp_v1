@@ -134,12 +134,9 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            @if (null != ViewBag.supplier && ViewBag.supplier != "" && ViewBag.status == 10)
+            @if (null != ViewBag.supplier && ViewBag.supplier != "")
                 {
                 <input type="submit" value="採購" class="btn btn-default" onclick="return Confirm_Form()" />
-            }
-            @if (null != ViewBag.supplier && ViewBag.supplier != "" && ViewBag.status == 10)
-            {
                 <input type="button" value="退件" class="btn btn-warning" id="RejectPR" />
             }
         </div>

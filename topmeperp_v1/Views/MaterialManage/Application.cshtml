@@ -4,8 +4,7 @@
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 
-@using (Html.BeginForm())
-{
+<form name="prForm" id="prForm" action="/MaterialManage/SavePR" method="post">
     <div class="row">
         <div class="col-md-8"><h3>@ViewBag.Title</h3></div>
         <div class="col-md-4">
@@ -87,7 +86,7 @@
         </thead>
         <tbody>
             @foreach (var item in Model)
-                {
+            {
                 <tr>
                     <td>
                         @Html.TextBox("planitemid", @String.Format("{0:N0}", item.PLAN_ITEM_ID), new { style = "width:90px", @readonly = "readonly" })
@@ -125,11 +124,11 @@
             <textarea class="form-control" rows="5" id="memo" name="memo" placeholder="注意事項"></textarea>
         </div>
         <div class="col-md-2">
-            <input type="submit" value="建立" name="SavePR" class="btn btn-warning" onclick="return Confirm_Form2()" />
-            <!--<input type="submit" value="申購" name="AddPR" class="btn btn-warning" onclick="return Confirm_Form()" />-->
+            <input type="button" value="建立" name="SavePR" class="btn btn-warning" onclick="Confirm_Form2()" />
         </div>
     </div>
-}
+</form>
+
 
 <script language="javascript" type="text/javascript">
     $(document).ready(function () {
@@ -139,14 +138,26 @@
             } else
                 $("input[name='chkItem']").prop("checked", false);
         });
-    });
-
-    $(function () {
-        var date = { index: new Date().getTime() };
-        $('#Date_${index}').datetimepicker({
-            format: 'YYYY/MM/DD',
-            locale: 'zh-tw'
-        });
+        $(document).keydown(function () {
+            console.log(event.keyCode);
+            var self = $(this)
+              , form = self.parents('form:eq(0)')
+              , focusable
+              , next
+              , prev
+            ;
+            if (event.keyCode == 13) {
+                console.log("focus");
+                focusable = form.find('input,a,select,button,textarea').filter(':visible');
+                next = focusable.eq(focusable.index(this) + 1);
+                if (next.length) {
+                    next.focus();
+                } else {
+                    //form.submit();
+                }
+                return false;
+            }
+        })
     });
 
     function Confirm_Form() {
@@ -197,21 +208,6 @@
             alert("沒有選取要申購的物料，請勾選並檢查數量是否正確！");
             return false;
         }
-        //var boolLost = false;
-        //var i = 0;
-        //
-        //$('table > tbody > tr').each(function () {
-        //    need = parseInt($.trim($(this).find("#need_qty").val()));//抓取每筆記錄申購數量的值
-        //    if (need >= 0)
-        //    { i = i + 1 }
-        //});
-        //if (i != method2) {
-        //    boolLost = true;
-        //}
-        //
-        //if (boolLost == true) {
-        //    alert("勾選的項目沒有填寫申購數量，請重新確認後再進行申購!");
-        //    return false;
-        //}
+        document.getElementById("prForm").submit();
     }
 </script>

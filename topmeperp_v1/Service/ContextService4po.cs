@@ -2719,7 +2719,7 @@ WHERE PROJECT_ID=@projectid  AND ('('+ TYPE_CODE_1 + ','+TYPE_CODE_2 +')' + BUDG
                 var parameters = new List<SqlParameter>();
                 i = context.Database.ExecuteSqlCommand(sql);
                 //更新申購單狀態
-                UpdateStatus(parentid, null, "40", context);
+                ////UpdateStatus(parentid, null, "40", context);
                 return form.PR_ID;
             }
         }
