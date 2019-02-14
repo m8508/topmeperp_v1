@@ -805,6 +805,10 @@ namespace topmeperp.Controllers
             ViewData.Add("methodcode", methodcode);
             return View(wfs.task);
         }
+        public ActionResult costChangeFormPrint()
+        {
+            return View();
+        }
         //建立與修改異動單--加入審核功能
         public string creatOrModifyChangeForm(FormCollection f)
         {

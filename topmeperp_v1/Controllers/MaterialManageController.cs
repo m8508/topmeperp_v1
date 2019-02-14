@@ -326,7 +326,7 @@ namespace topmeperp.Controllers
                 lstItem.Add(items);
             }
             int k = service.refreshPR(prid, pr, lstItem);
-            return Redirect("SinglePR?id=" + prid + "&prjid=" + pr.PROJECT_ID);
+            return Redirect("PurchaseRequisition/" + pr.PROJECT_ID);
         }
         //申購單查詢
         public ActionResult PurchaseRequisition(string id)
@@ -1220,8 +1220,8 @@ namespace topmeperp.Controllers
             string key = Request["key"];
             string[] keys = key.Split('-');
             string projectid = keys[0];
-            string formid = keys[2];
-            string parentId = keys[1]; 
+            string formid = keys[1];
+            string parentId = keys[2]; 
             bool isOrder = false;
             bool isDO = false;
             PlanService pservice = new PlanService();

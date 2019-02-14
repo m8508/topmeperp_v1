@@ -138,26 +138,19 @@
             } else
                 $("input[name='chkItem']").prop("checked", false);
         });
-        $(document).keydown(function () {
-            console.log(event.keyCode);
-            var self = $(this)
-              , form = self.parents('form:eq(0)')
-              , focusable
-              , next
-              , prev
-            ;
-            if (event.keyCode == 13) {
-                console.log("focus");
-                focusable = form.find('input,a,select,button,textarea').filter(':visible');
-                next = focusable.eq(focusable.index(this) + 1);
-                if (next.length) {
-                    next.focus();
-                } else {
-                    //form.submit();
+        $("input").not($(":button")).keypress(function (evt) {
+            if (evt.keyCode == 13) {
+                if ($(this).attr("type") !== 'submit') {
+                    var fields = $(this).parents('form:eq(0),body').find('button, input, textarea, select');
+                    var index = fields.index(this);
+                    if (index > -1 && (index + 1) < fields.length) {
+                        fields.eq(index + 1).focus();
+                    }
+                    $(this).blur();
+                    return false;
                 }
-                return false;
             }
-        })
+        });
     });
 
     function Confirm_Form() {

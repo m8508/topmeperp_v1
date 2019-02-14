@@ -1,9 +1,10 @@
 ﻿@model topmeperp.Models.CostChangeFormTask
 @{
     ViewBag.Title = "專案執行-成本異動單";
-    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+    Layout =null;
 }
 <!--標單項目搜尋區條件區域-->
+<!DOCTYPE html>
 <div class="page-header">
     <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
     <form name="CostChangeForm" id="CostChangeForm" class="form-inline" action="/Plan/creatOrModifyChangeForm" method="post">
