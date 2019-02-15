@@ -5,7 +5,13 @@
 }
 <!--標單項目搜尋區條件區域-->
 <div class="page-header">
-    <h3 style="height:20px;line-height:10px">@ViewBag.Title</h3>
+    <div class="row">
+        <div class="col-sm-8" style="vertical-align:middle"><h3>@ViewBag.Title</h3></div>
+        <div class="col-sm-1" style="vertical-align:middle">
+            <a class="btn btn-success btn-sm" href="javascript:window.close();">關閉</a>
+        </div>
+    </div>
+
     <form name="CostChangeForm" id="CostChangeForm" class="form-inline" action="/Plan/creatOrModifyChangeForm" method="post">
         <div class="container">
             <div class="row">
@@ -92,9 +98,6 @@
         </div>
         <div class="row">
             <!--退件或草稿可進行增修-->
-            <div class="col-sm-1">
-                <a class="btn btn-warning" href="javascript:window.close();">關閉</a>
-            </div>
             @if (Model.FormData.STATUS == "20")
             {
                 <div class="col-sm-2">

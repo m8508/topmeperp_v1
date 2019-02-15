@@ -34,19 +34,6 @@
                 Html.RenderPartial("FormListForOffer");
             }
 </div>
-
-<script language="javascript" type="text/javascript">
-
-    function printpage(printarea) {
-
-        //var newstr = document.all.item(printarea).innerHTML;
-        var newstr = document.getElementById(printarea).innerHTML;
-        var oldstr = document.body.innerHTML;
-        document.body.innerHTML = newstr;
-        window.print();
-        document.body.innerHTML = oldstr;
-        return false;
-    }
-
-</script>
+<!--引進列印功能-->
+<script src="~/Scripts/topmep_selecComp.js"></script>
 

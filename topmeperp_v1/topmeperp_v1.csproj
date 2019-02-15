@@ -1323,6 +1323,8 @@
     <Content Include="Views\Estimation\_SupplierEstimationList.cshtml" />
     <Content Include="Views\Estimation\_SupplierTempworker.cshtml" />
     <Content Include="Views\Plan\costChangeFormPrint.cshtml" />
+    <Content Include="Views\MaterialManage\ReceiptPrint.cshtml" />
+    <None Include="Views\Plan\_ChangeOrderItemListPrint.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

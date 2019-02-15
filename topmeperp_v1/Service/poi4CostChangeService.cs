@@ -53,7 +53,7 @@ namespace topmeperp.Service
             logger.Info("output file=" + file.Name);
             hssfworkbook.Write(file);
             file.Close();
-        }       
+        }
         public void createExcel(TND_PROJECT project, PLAN_COSTCHANGE_FORM form, List<PLAN_COSTCHANGE_ITEM> lstItem)
         {
             InitializeWorkbook();
@@ -145,7 +145,7 @@ namespace topmeperp.Service
                     row.CreateCell(8).SetCellValue("");
                 }
                 //9 追加/轉入標單
-                if (null != item.TRANSFLAG && item.TRANSFLAG.ToString().Trim() != "" && item.TRANSFLAG.ToString()=="1")
+                if (null != item.TRANSFLAG && item.TRANSFLAG.ToString().Trim() != "" && item.TRANSFLAG.ToString() == "1")
                 {
                     row.CreateCell(9).SetCellValue("Y");
                     row.Cells[9].CellStyle = style;
@@ -160,7 +160,7 @@ namespace topmeperp.Service
             logger.Info("InitialQuotation finish!!");
         }
         //由Excel 讀取資料
-        public void getDataFromExcel(string filpath,string projectId,string formId)
+        public void getDataFromExcel(string filpath, string projectId, string formId)
         {
             InitializeWorkbook(filpath);
             SetOpSheet("異動單");
@@ -176,7 +176,7 @@ namespace topmeperp.Service
             costChangeForm.PROJECT_ID = project.PROJECT_ID;
             costChangeForm.FORM_ID = formId;
             //檢查是否為新異動單
-            if (null== costChangeForm.FORM_ID || costChangeForm.FORM_ID == "")
+            if (null == costChangeForm.FORM_ID || costChangeForm.FORM_ID == "")
             {
                 costChangeForm.CREATE_USER_ID = user.USER_ID;
                 costChangeForm.CREATE_DATE = DateTime.Now;
@@ -197,7 +197,7 @@ namespace topmeperp.Service
         {
             lstItem = new List<PLAN_COSTCHANGE_ITEM>();
             logger.Debug(sheet.LastRowNum);
-            for (int idxRow = 4; idxRow < sheet.LastRowNum+1; idxRow++)
+            for (int idxRow = 4; idxRow < sheet.LastRowNum + 1; idxRow++)
             {
                 PLAN_COSTCHANGE_ITEM item = new PLAN_COSTCHANGE_ITEM();
                 if (costChangeForm.FORM_ID != "")
@@ -260,18 +260,21 @@ namespace topmeperp.Service
                     logger.Error(ex.Message + ":" + ex.StackTrace);
                 }
 
-                //異動數量
+                //異動單價
                 cell = row.GetCell(6);
                 string strPrice = "";
-                strPrice = cell.ToString();
-                try
+                if (null != cell)
                 {
-                    item.ITEM_UNIT_PRICE = long.Parse(strPrice);
-                }
-                catch (Exception ex)
-                {
-                    logger.Warn("Excel Row=" + idxRow + " Priec can not covert");
-                    logger.Error(ex.Message + ":" + ex.StackTrace);
+                    strPrice = cell.ToString();
+                    try
+                    {
+                        item.ITEM_UNIT_PRICE = long.Parse(strPrice);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Warn("Excel Row=" + idxRow + " Priec can not covert");
+                        logger.Error(ex.Message + ":" + ex.StackTrace);
+                    }
                 }
                 //複價7
 
@@ -284,10 +287,10 @@ namespace topmeperp.Service
                 }
                 //9 追加/轉入標單row.Cells[8].ToString();
                 cell = row.GetCell(9);
-                string strTransFlag = "Y"; 
+                string strTransFlag = "Y";
                 if (null != cell)
                 {
-                    strTransFlag = cell.ToString(); 
+                    strTransFlag = cell.ToString();
                 }
 
                 if (null != strTransFlag && strTransFlag != "" && strTransFlag != "N")

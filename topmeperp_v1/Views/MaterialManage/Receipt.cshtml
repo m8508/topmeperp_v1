@@ -3,7 +3,6 @@
     ViewBag.Title = "專案執行-驗收作業 ";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
-
 <div class="page-header">
     @using (Html.BeginForm("AddReceipt", "MaterialManage", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-inline", id = "formRP" }))
     {
@@ -12,6 +11,7 @@
                 <h3 class="text-center">協成水電工程事業有限公司-驗收單</h3>
             </div>
             <div class="col-md-4">
+                <a href="~/MaterialManage/ReceiptPrint/@Model.planPR.PR_ID?prjid=@Model.planPR.PROJECT_ID#" target="_blank" class="btn btn-sm btn-info">列印</a>
                 <input type="button" class="btn btn-sm btn-success" onclick="history.back()" value="回上一頁">
             </div>
         </div>

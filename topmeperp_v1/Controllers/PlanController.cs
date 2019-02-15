@@ -784,14 +784,7 @@ namespace topmeperp.Controllers
         {
             string formId = id;
             logger.Debug("formId=" + formId);
-            //先取得資料
-            CostChangeService cs = new CostChangeService();
-            cs.getChangeOrderForm(formId);
-
-            ViewBag.FormId = formId;
-            ViewBag.projectId = cs.project.PROJECT_ID;
-            ViewBag.projectName = cs.project.PROJECT_NAME;
-            ViewBag.settlementDate = cs.form.SETTLEMENT_DATE;
+            CostChangeService cs = getCostChangeForm(formId);
             //取得表單資料存入Session
             Flow4CostChange wfs = new Flow4CostChange();
             wfs.getTask(formId);
@@ -805,9 +798,26 @@ namespace topmeperp.Controllers
             ViewData.Add("methodcode", methodcode);
             return View(wfs.task);
         }
+
         public ActionResult costChangeFormPrint()
         {
-            return View();
+            string formId = Request["formId"];
+            CostChangeService cs = getCostChangeForm(formId);
+            CostChangeFormTask m = (CostChangeFormTask)Session["process"];
+            return View(m);
+        }
+
+        private CostChangeService getCostChangeForm(string formId)
+        {
+            //先取得資料
+            CostChangeService cs = new CostChangeService();
+            cs.getChangeOrderForm(formId);
+
+            ViewBag.FormId = formId;
+            ViewBag.projectId = cs.project.PROJECT_ID;
+            ViewBag.projectName = cs.project.PROJECT_NAME;
+            ViewBag.settlementDate = cs.form.SETTLEMENT_DATE;
+            return cs;
         }
         //建立與修改異動單--加入審核功能
         public string creatOrModifyChangeForm(FormCollection f)

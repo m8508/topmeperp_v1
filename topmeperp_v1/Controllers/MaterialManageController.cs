@@ -755,6 +755,19 @@ namespace topmeperp.Controllers
         public ActionResult Receipt(string id, string prjid)
         {
             log.Info("http get mehtod:" + id);
+            PurchaseRequisitionDetail singleForm = getReceiveForm(id, prjid);
+            return View(singleForm);
+        }
+        //列印驗收單
+        public ActionResult ReceiptPrint(string id, string prjid)
+        {
+            log.Info("http get mehtod:" + id);
+            PurchaseRequisitionDetail singleForm = getReceiveForm(id, prjid);
+            return View(singleForm);
+        }
+        private PurchaseRequisitionDetail getReceiveForm(string id, string prjid)
+        {
+            //取得驗收單資料
             PurchaseRequisitionDetail singleForm = new PurchaseRequisitionDetail();
             service.getPRByPrId(id, id, prjid);
             singleForm.planPR = service.formPR;
@@ -762,8 +775,9 @@ namespace topmeperp.Controllers
             ViewBag.receiptDate = DateTime.Now.ToString("yyyy/MM/dd");
             singleForm.prj = service.getProjectById(singleForm.planPR.PROJECT_ID);
             log.Debug("Project ID:" + singleForm.prj.PROJECT_ID);
-            return View(singleForm);
+            return singleForm;
         }
+
         //新增驗收單資料
         public ActionResult AddReceipt(PLAN_PURCHASE_REQUISITION pr)
         {

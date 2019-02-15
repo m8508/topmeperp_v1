@@ -67,3 +67,13 @@ function checkBoxStatus(that, chkMap) {
         this.checked = checked_status;
     });
 }
+//列印HTML
+function printpage(printarea) {
+    //var newstr = document.all.item(printarea).innerHTML;
+    var newstr = document.getElementById(printarea).innerHTML;
+    var oldstr = document.body.innerHTML;
+    document.body.innerHTML = newstr;
+    window.print();
+    document.body.innerHTML = oldstr;
+    return false;
+}
