@@ -48,7 +48,7 @@ namespace topmeperp.Service
             }
         }
     }
-    
+
     //將合約標單品項輸出成Excel
     public class PlanItemForContract : ProjectItem2Excel
     {
@@ -898,10 +898,17 @@ namespace topmeperp.Service
                 form.INQUIRY_FORM_ID = "";
                 logger.Error("Not Reference ID:" + ex.Message);
             }
-
             //FAX:
-            logger.Debug(sheet.GetRow(7).Cells[1].ToString());
-            form.OWNER_FAX = sheet.GetRow(7).Cells[1].ToString();
+            try
+            {
+                logger.Debug(sheet.GetRow(7).Cells[1].ToString());
+                form.OWNER_FAX = sheet.GetRow(7).Cells[1].ToString();
+            }
+            catch (Exception ex)
+            {
+                form.OWNER_FAX = "";
+                logger.Error("FAX Null :" + ex.StackTrace);
+            }
         }
         //2.填入表頭資料
         private void InitialInquiryForm(PLAN_SUP_INQUIRY form)

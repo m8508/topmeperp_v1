@@ -11,7 +11,10 @@
                 <h3 class="text-center">協成水電工程事業有限公司-驗收單</h3>
             </div>
             <div class="col-md-4">
-                <a href="~/MaterialManage/ReceiptPrint/@Model.planPR.PR_ID?prjid=@Model.planPR.PROJECT_ID#" target="_blank" class="btn btn-sm btn-info">列印</a>
+                @if (ViewBag.EnablePrint != "")
+                {
+                    <a href="~/MaterialManage/ReceiptPrint/@Model.planPR.PR_ID?prjid=@Model.planPR.PROJECT_ID#" target="_blank" class="btn btn-sm btn-info">列印</a>
+                }
                 <input type="button" class="btn btn-sm btn-success" onclick="history.back()" value="回上一頁">
             </div>
         </div>
@@ -94,46 +97,46 @@
                     @foreach (var item in Model.planPRItem)
                 {
 
-                        <tr>
-                            <td>
-                                @Html.TextBox("planitemid", @String.Format("{0:N0}", item.PLAN_ITEM_ID), new { style = "width:90px", @readonly = "readonly" })
-                                @Html.Hidden("pr_item_id", @item.PR_ITEM_ID)
-                            </td>
-                            <td>
-                                @item.ITEM_ID
-                            </td>
-                            <td>
-                                @item.ITEM_DESC
-                            </td>
-                            <td>
-                                @item.REMARK
-                            </td>
-                            <td>
-                                @item.ITEM_UNIT
-                            </td>
-                            <td>
-                                @item.ITEM_FORM_QUANTITY
-                            </td>
-                            <td>
-                                @item.CUMULATIVE_QTY
-                            </td>
-                            <td>
-                                @Html.TextBox("order_qty", item.ORDER_QTY, new { @class = "form-control", style = "width:90px", Name = "order_qty", @readonly = "readonly" })
-                            </td>
-                            <td>
-                                @Html.TextBox("all_receipt_qty", item.RECEIPT_QTY_BY_PO, new { @class = "form-control", style = "width:90px", Name = "all_receipt_qty", @readonly = "readonly" })
-                            </td>
-                            <td>
-                                @item.NEED_DATE
-                            </td>
-                            <td>
-                                <input type="checkbox" id="chkItem" name="chkItem" value="@item.PLAN_ITEM_ID"  />
-                            </td>
-                            <td>
-                                @Html.TextBox("receipt_qty", item.RECEIPT_QTY, new { @class = "form-control", style = "width:120px", Name = "receipt_qty" , autocomplete = "off" })
-                            </td>
+                    <tr>
+                        <td>
+                            @Html.TextBox("planitemid", @String.Format("{0:N0}", item.PLAN_ITEM_ID), new { style = "width:90px", @readonly = "readonly" })
+                            @Html.Hidden("pr_item_id", @item.PR_ITEM_ID)
+                        </td>
+                        <td>
+                            @item.ITEM_ID
+                        </td>
+                        <td>
+                            @item.ITEM_DESC
+                        </td>
+                        <td>
+                            @item.REMARK
+                        </td>
+                        <td>
+                            @item.ITEM_UNIT
+                        </td>
+                        <td>
+                            @item.ITEM_FORM_QUANTITY
+                        </td>
+                        <td>
+                            @item.CUMULATIVE_QTY
+                        </td>
+                        <td>
+                            @Html.TextBox("order_qty", item.ORDER_QTY, new { @class = "form-control", style = "width:90px", Name = "order_qty", @readonly = "readonly" })
+                        </td>
+                        <td>
+                            @Html.TextBox("all_receipt_qty", item.RECEIPT_QTY_BY_PO, new { @class = "form-control", style = "width:90px", Name = "all_receipt_qty", @readonly = "readonly" })
+                        </td>
+                        <td>
+                            @item.NEED_DATE
+                        </td>
+                        <td>
+                            <input type="checkbox" id="chkItem" name="chkItem" value="@item.PLAN_ITEM_ID" />
+                        </td>
+                        <td>
+                            @Html.TextBox("receipt_qty", item.RECEIPT_QTY, new { @class = "form-control", style = "width:120px", Name = "receipt_qty" , autocomplete = "off" })
+                        </td>
 
-                        </tr>
+                    </tr>
                     }
                 </tbody>
                 <tfoot>
@@ -157,7 +160,6 @@
                 <div class="" col-md-12">
                     <input type="checkbox" id="closeFlag" name="closeFlag" value="Y" />結案
                     <input type="submit" value="建立驗收單" class="btn btn-default" onclick="return Confirm_Form()" />
-                    <!-- <input type="button" value="結案" class="btn btn-default" id="updateRP" />-->
                 </div>
             </div>
         }
@@ -212,41 +214,4 @@
             if (r != true) return false;
         }
     }
-
-    //將採購單結案
-    @*$("#updateRP").click(function () {
-        var boolOver = false;
-        $('table > tbody > tr').each(function () {
-            var receipt = 0;
-            var all_receipt = 0;
-            var order = 0;
-            var original_receipt = 0;
-            receipt = parseInt($.trim($(this).find("#receipt_qty").val())); //抓取每筆記錄驗收數量的值
-            all_receipt = parseInt($.trim($(this).find("#all_receipt_qty").val())); //抓取每筆記錄總驗收數量的值
-            order = -parseInt($.trim($(this).find("#order_qty").val())); //抓取每筆記錄採購數量的值
-            original_receipt = -parseInt($.trim($(this).find("#original_receipt_qty").val())); //抓取每筆記錄未修改前驗收數量的值
-            var result = parseInt(all_receipt) + parseInt(receipt) + parseInt(original_receipt) + parseInt(order);
-            if (result > parseInt(0)) {
-                boolOver = true;
-            }
-
-        });
-        if (boolOver == true) {
-            alert("個別項目的總驗收數量大於它的採購數量！");
-            return false;
-        }
-        $.ajax({
-            url: '@Url.Action("RefreshRP", "MaterialManage")',
-            data: $('#formRP').serialize(),
-            type: "POST",
-            dataType: 'text',
-            success: function (msg) {
-                alert(msg);
-                window.location.reload()
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert(thrownError);
-            }
-        });
-    });*@
 </script>

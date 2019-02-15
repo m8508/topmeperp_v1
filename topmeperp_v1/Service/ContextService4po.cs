@@ -525,10 +525,13 @@ namespace topmeperp.Service
         public PurchaseFormModel POFormData = null;
         public List<FIN_SUBJECT> ExpBudgetItem = null;
         public CashFlowModel cashFlowModel = new CashFlowModel();
-        string sql4SupInqueryForm = @"SELECT a.INQUIRY_FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, SUM(b.ITEM_QTY* b.ITEM_UNIT_PRICE) AS TOTAL_PRICE, 
-                ROW_NUMBER() OVER(ORDER BY a.INQUIRY_FORM_ID DESC) AS NO, ISNULL(a.STATUS, '有效') AS STATUS, ISNULL(a.ISWAGE, 'N') ISWAGE 
-                FROM PLAN_SUP_INQUIRY a left JOIN PLAN_SUP_INQUIRY_ITEM b ON a.INQUIRY_FORM_ID = b.INQUIRY_FORM_ID 
-                WHERE ISNULL(a.STATUS,'有效')=@status AND ISNULL(a.ISWAGE,'N')=@type ";
+        string sql4SupInqueryForm = @"
+SELECT a.INQUIRY_FORM_ID, a.SUPPLIER_ID, a.FORM_NAME, SUM(b.ITEM_QTY* b.ITEM_UNIT_PRICE) AS TOTAL_PRICE, 
+ ROW_NUMBER() OVER(ORDER BY a.INQUIRY_FORM_ID DESC) AS NO, ISNULL(a.STATUS, '有效') AS STATUS, ISNULL(a.ISWAGE, 'N') ISWAGE 
+ FROM PLAN_SUP_INQUIRY a left JOIN PLAN_SUP_INQUIRY_ITEM b ON a.INQUIRY_FORM_ID = b.INQUIRY_FORM_ID 
+ WHERE ISNULL(a.STATUS,'有效')=@status AND ISNULL(a.ISWAGE,'N')=@type 
+ AND ISNULL(a.SUPPLIER_ID,'') !='' 
+";
 
         #region 取得得標標單項目內容
         //取得標單品項資料
@@ -984,22 +987,47 @@ namespace topmeperp.Service
                 if (iswage == "N")
                 {
                     //取得詢價單樣本資訊 - 材料預算-圖算數量*報價標單(Project_item)單價 * 預算折扣比率
-                    sql = "SELECT tmp.*,CountPO, (SELECT SUM(v.QTY * tpi.ITEM_UNIT_PRICE * it.BUDGET_RATIO/100 ) as BudgetAmount FROM PLAN_ITEM it LEFT JOIN vw_MAP_MATERLIALIST v ON it.PLAN_ITEM_ID = v.PROJECT_ITEM_ID  "
-                       + "LEFT JOIN TND_PROJECT_ITEM tpi ON it.PLAN_ITEM_ID = tpi.PROJECT_ITEM_ID "
-                       + "WHERE it.PLAN_ITEM_ID in (SELECT  iit.PLAN_ITEM_ID FROM PLAN_SUP_INQUIRY_ITEM iit WHERE iit.INQUIRY_FORM_ID = tmp.INQUIRY_FORM_ID)) AS BudgetAmount "
-                       + "FROM(SELECT * FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID is Null AND PROJECT_ID = @projectid AND ISNULL(STATUS,'有效')=@status AND ISNULL(ISWAGE,'N')='N') tmp LEFT OUTER JOIN "
-                       + "(SELECT COUNT(*) CountPO, FORM_NAME, PROJECT_ID FROM  PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NOT Null GROUP BY FORM_NAME, PROJECT_ID) Quo "
-                       + "ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME ";
+                    sql = @"
+SELECT tmp.*,CountPO, 
+(SELECT SUM(v.QTY * tpi.ITEM_UNIT_PRICE * it.BUDGET_RATIO/100 ) as BudgetAmount 
+FROM PLAN_ITEM it LEFT JOIN vw_MAP_MATERLIALIST v ON it.PLAN_ITEM_ID = v.PROJECT_ITEM_ID  
+LEFT JOIN TND_PROJECT_ITEM tpi ON it.PLAN_ITEM_ID = tpi.PROJECT_ITEM_ID
+ WHERE it.PLAN_ITEM_ID in (SELECT  iit.PLAN_ITEM_ID FROM PLAN_SUP_INQUIRY_ITEM iit 
+ WHERE iit.INQUIRY_FORM_ID = tmp.INQUIRY_FORM_ID)) AS BudgetAmount 
+ FROM(
+ SELECT * FROM PLAN_SUP_INQUIRY 
+ WHERE ISNULL(SUPPLIER_ID,'') ='' AND PROJECT_ID = @projectid AND ISNULL(STATUS,'有效')=@status 
+ AND ISNULL(ISWAGE,'N')='N') tmp 
+ LEFT OUTER JOIN (
+ SELECT COUNT(*) CountPO, FORM_NAME, PROJECT_ID 
+ FROM  PLAN_SUP_INQUIRY 
+ WHERE SUPPLIER_ID IS NOT Null 
+ GROUP BY FORM_NAME, PROJECT_ID
+ ) Quo ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME ";
                 }
                 else
                 {
                     // 取得詢價單樣本資訊 - 工資預算 - 圖算數量 * 工資單(預設2500) * 工率*  預算折扣比率
-                    sql = "SELECT tmp.*,CountPO,(SELECT SUM(v.QTY * w.RATIO * it.BUDGET_WAGE_RATIO / 100 * @wageunitprice) as BudgetAmount FROM PLAN_ITEM it LEFT JOIN "
-                        + "vw_MAP_MATERLIALIST v ON it.PLAN_ITEM_ID = v.PROJECT_ITEM_ID LEFT JOIN TND_WAGE w ON it.PLAN_ITEM_ID = w.PROJECT_ITEM_ID "
-                        + "WHERE it.PLAN_ITEM_ID in (SELECT  iit.PLAN_ITEM_ID FROM PLAN_SUP_INQUIRY_ITEM iit WHERE iit.INQUIRY_FORM_ID = tmp.INQUIRY_FORM_ID)) AS BudgetAmount "
-                        + "FROM(SELECT * FROM PLAN_SUP_INQUIRY WHERE SUPPLIER_ID is Null AND PROJECT_ID = @projectid AND ISNULL(STATUS, '有效')=@status AND ISNULL(ISWAGE, 'N') = 'Y') tmp LEFT OUTER JOIN "
-                        + "(SELECT COUNT(*) CountPO, FORM_NAME, PROJECT_ID FROM  PLAN_SUP_INQUIRY WHERE SUPPLIER_ID IS NOT Null "
-                        + "GROUP BY FORM_NAME, PROJECT_ID) Quo ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME ;";
+                    sql = @"
+SELECT tmp.*,CountPO,(
+SELECT SUM(v.QTY * w.RATIO * it.BUDGET_WAGE_RATIO / 100 * @wageunitprice) as BudgetAmount 
+FROM PLAN_ITEM it 
+LEFT JOIN vw_MAP_MATERLIALIST v 
+ON it.PLAN_ITEM_ID = v.PROJECT_ITEM_ID LEFT JOIN TND_WAGE w 
+ON it.PLAN_ITEM_ID = w.PROJECT_ITEM_ID WHERE it.PLAN_ITEM_ID in (
+SELECT  iit.PLAN_ITEM_ID 
+FROM PLAN_SUP_INQUIRY_ITEM iit 
+WHERE iit.INQUIRY_FORM_ID = tmp.INQUIRY_FORM_ID)) AS BudgetAmount 
+FROM(
+SELECT * FROM PLAN_SUP_INQUIRY 
+WHERE ISNULL(SUPPLIER_ID,'') = '' 
+AND PROJECT_ID = @projectid 
+AND ISNULL(STATUS, '有效')=@status AND ISNULL(ISWAGE, 'N') = 'Y'
+) tmp LEFT OUTER JOIN (
+SELECT COUNT(*) CountPO, FORM_NAME, PROJECT_ID FROM  PLAN_SUP_INQUIRY 
+WHERE SUPPLIER_ID IS NOT Null GROUP BY FORM_NAME, PROJECT_ID
+) Quo ON Quo.PROJECT_ID = tmp.PROJECT_ID AND Quo.FORM_NAME = tmp.FORM_NAME ;
+";
                     if (null != project.WAGE_MULTIPLIER)
                     {
                         wageunitprice = (decimal)project.WAGE_MULTIPLIER;

@@ -3,13 +3,11 @@
     ViewBag.Title = "專案執行-驗收單 ";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
-
 <div class="page-header">
     <form id="formRP" name="formRP" action="RefreshRP" method="post">
         <div class="row">
             <div class="col-md-12"><h3 style="height:30px;line-height:20px" class="text-center">協成水電工程事業有限公司-驗收單</h3></div>
         </div>
-        <!-- Reg-Form new { enctype = "multipart/form-data" } -->
         <div class="row">
             <div class="col-md-3" style="padding-bottom:10px">
                 <label for="projectName">專案名稱:</label><input id="projectName" name="projectName" type="text" value="@Model.prj.PROJECT_NAME" class="form-control" style="background-color:#cccccc;" readonly="readonly" />
