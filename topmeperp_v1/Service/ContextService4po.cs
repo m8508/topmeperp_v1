@@ -1372,11 +1372,18 @@ WHERE SUPPLIER_ID IS NOT Null GROUP BY FORM_NAME, PROJECT_ID
                         if (item.INQUIRY_ITEM_ID != 0)
                         {
                             existItem = context.PLAN_SUP_INQUIRY_ITEM.Find(item.INQUIRY_ITEM_ID);
-                            existItem.ITEM_QTY = item.ITEM_QTY;
-
-                            existItem.ITEM_UNIT_PRICE = item.ITEM_UNIT_PRICE;
-                            existItem.ITEM_REMARK = item.ITEM_REMARK;
-                            context.PLAN_SUP_INQUIRY_ITEM.AddOrUpdate(existItem);
+                            if (existItem != null)
+                            {
+                                existItem.ITEM_QTY = item.ITEM_QTY;
+                                existItem.ITEM_UNIT_PRICE = item.ITEM_UNIT_PRICE;
+                                existItem.ITEM_REMARK = item.ITEM_REMARK;
+                                context.PLAN_SUP_INQUIRY_ITEM.AddOrUpdate(existItem);
+                            }
+                            else
+                            {
+                                item.INQUIRY_FORM_ID = sf.INQUIRY_FORM_ID;
+                                context.PLAN_SUP_INQUIRY_ITEM.AddOrUpdate(item);
+                            }
                         }
                         else
                         {

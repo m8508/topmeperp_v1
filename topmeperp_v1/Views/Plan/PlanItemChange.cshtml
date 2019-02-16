@@ -38,7 +38,7 @@
 <div class="panel panel-info">
     <div class="panel-heading">
         成本異動作業
-        <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("createChangeForm", "Plan", new { action="new",projectId=@ViewBag.projectId})'">新增</button>
+        <a href="@Url.Action("createChangeForm", "Plan", new { action="new",projectId=@ViewBag.projectId})" target="_blank" class="btn btn-primary">新增</a>
     </div>
     <div class="panel-body">
         @ViewBag.SearchResult

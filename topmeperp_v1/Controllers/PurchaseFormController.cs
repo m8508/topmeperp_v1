@@ -346,14 +346,22 @@ namespace topmeperp.Controllers
             string formid = form.Get("inputformnumber").Trim();
 
             string[] lstItemId = form.Get("formitemid").Split(',');
+            string[] lstfItemId = form.Get("fItemId").Split(',');
+            string[] lstfItemDesc = (string[])form.GetValue("fItemDesc").RawValue;
+            string[] lstItemUnit = form.Get("fItemUnit").Split(',');
             string[] lstQty = form.Get("formQty").Split(',');
             string[] lstPrice = form.Get("formunitprice").Split(',');
             string[] lstRemark = form.Get("remark").Split(',');
+            string[] lstPlanItemId = form.Get("plan_item_id").Split(',');
             List<PLAN_SUP_INQUIRY_ITEM> lstItem = new List<PLAN_SUP_INQUIRY_ITEM>();
             for (int j = 0; j < lstItemId.Count(); j++)
             {
                 PLAN_SUP_INQUIRY_ITEM item = new PLAN_SUP_INQUIRY_ITEM();
                 item.INQUIRY_ITEM_ID = int.Parse(lstItemId[j]);
+                item.ITEM_ID = lstfItemId[j];//ITEM_ID
+                item.ITEM_DESC = lstfItemDesc[j];//ITEM_DESC
+                item.ITEM_UNIT = lstItemUnit[j];//ITEM_UNIT
+                item.PLAN_ITEM_ID = lstPlanItemId[j];//PLAN_ITEM_ID
                 if (lstRemark[j].ToString() == "")
                 {
                     item.ITEM_REMARK = null;

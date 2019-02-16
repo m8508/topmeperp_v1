@@ -181,12 +181,15 @@
                         </td>
                         <td>
                             @item.ITEM_ID
+                            <input type="hidden" id="fItemId" name="fItemId" value="@item.ITEM_ID" />
                         </td>
                         <td>
                             @item.ITEM_DESC
+                            <input type="hidden" id="fItemDesc" name="fItemDesc" value="@item.ITEM_DESC" />
                         </td>
                         <td>
                             @item.ITEM_UNIT
+                            <input type="hidden" id="fItemUnit" name="fItemUnit" value="@item.ITEM_UNIT" />
                         </td>
                         <td>
                             @if (@item.ITEM_QTY != null)

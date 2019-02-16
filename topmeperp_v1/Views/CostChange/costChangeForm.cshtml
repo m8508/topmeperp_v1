@@ -71,12 +71,12 @@
         </div>
         <div class="row">
             <!--退件或草稿可進行增修-->
-            @if (Model.FormData.STATUS == "20")
-            {
-                <div class="col-sm-2">
-                    <input name="settlementDate" class="form-control" id="settlementDate" type="text" value="@ViewBag.settlementDate" placeholder="結算日期">
-                </div>
-            }
+            @*if (Model.FormData.STATUS == "20")
+    {
+        <div class="col-sm-2">
+            <input name="settlementDate" class="form-control" id="settlementDate" type="text" value="@ViewBag.settlementDate" placeholder="結算日期">
+        </div>
+    }*@
 
             @Html.Partial("~/Views/include/_WorkFlowFunction.cshtml")
         </div>
