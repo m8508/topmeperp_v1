@@ -233,7 +233,10 @@ namespace topmeperp.Service
                 }
                 else if (row.Cells.Count > 2)
                 {
-                    logger.Debug("skip data Excel Value:" + iRowIndex + "," + row.Cells[0].ToString() + "," + row.Cells[1] + "," + row.Cells[2]);
+                    logger.Debug("skip data Excel Value:" + iRowIndex + ","
+                        + row.GetCell(0) == null ? "not cell" : row.Cells[0].ToString() + ","
+                        + row.GetCell(1) == null ? "not cell" : row.Cells[1].ToString() + ","
+                        + row.GetCell(2) == null ? "not cell" : row.Cells[2].ToString());
                 }
                 else
                 {
@@ -247,18 +250,28 @@ namespace topmeperp.Service
             while (hasMore)
             {
                 row = (IRow)sheet.GetRow(iRowIndex);
-                logger.Debug("Cells Count=" + row.Cells.Count + ",Excel Index:" + iRowIndex);
-                //將各Row 資料寫入物件內
-                //項次,名稱,單位,數量,單價,複價,備註,九宮格,次九宮格,主系統,次系統
-                if (row.Cells[0].ToString().ToUpper() != "END")
+                try
                 {
-                    lstProjectItem.Add(convertRow2TndProjectItem(itemId, row, iRowIndex));
+                    if (row != null)
+                    {
+                        logger.Debug("Cells Count=" + row.Cells.Count + ",Excel Index:" + iRowIndex);
+                    }
+                    //將各Row 資料寫入物件內
+                    //項次,名稱,單位,數量,單價,複價,備註,九宮格,次九宮格,主系統,次系統
+                    if (row.Cells[0].ToString().ToUpper() != "END")
+                    {
+                        lstProjectItem.Add(convertRow2TndProjectItem(itemId, row, iRowIndex));
+                    }
+                    else
+                    {
+                        logger.Info("Finish convert Job : count=" + lstProjectItem.Count);
+                        hasMore = false;
+                        return;
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    logger.Info("Finish convert Job : count=" + lstProjectItem.Count);
-                    hasMore = false;
-                    return;
+                    logger.Error(iRowIndex +",ex:" + ex.Message + "," + ex.StackTrace);
                 }
                 iRowIndex++;
                 itemId++;
@@ -268,6 +281,7 @@ namespace topmeperp.Service
         {
             TND_PROJECT_ITEM projectItem = new TND_PROJECT_ITEM();
             projectItem.PROJECT_ID = projId;
+            logger.Debug("irow=" + excelrow + ",Row=" + row);
             if (row.Cells.Count < 3)
             {
                 foreach (ICell c in row.Cells)
@@ -289,20 +303,20 @@ namespace topmeperp.Service
                 return projectItem;
             }
 
-            if (row.Cells[0].ToString().Trim() != "")//項次
+            if (row.GetCell(0) != null && row.Cells[0].ToString().Trim() != "")//項次
             {
                 projectItem.ITEM_ID = row.Cells[0].ToString();
             }
-            if (row.Cells[1].ToString().Trim() != "")//名稱
+            if (row.GetCell(1) != null && row.Cells[1].ToString().Trim() != "")//名稱
             {
                 projectItem.ITEM_DESC = row.Cells[1].ToString();
             }
 
-            if (row.Cells[2].ToString().Trim() != "")//單位
+            if (row.GetCell(2) != null && row.Cells[2].ToString().Trim() != "")//單位
             {
                 projectItem.ITEM_UNIT = row.Cells[2].ToString();
             }
-            if (row.Cells[3].ToString().Trim() != "")//數量
+            if (row.GetCell(3) != null && row.Cells[3].ToString().Trim() != "")//數量
             {
                 try
                 {
@@ -328,23 +342,23 @@ namespace topmeperp.Service
                 projectItem.CREATE_DATE = System.DateTime.Now;
                 return projectItem;
             }
-            if (row.Cells[6].ToString().Trim() != "")//備註
+            if (row.GetCell(6) != null && row.Cells[6].ToString().Trim() != "")//備註
             {
                 projectItem.ITEM_REMARK = row.Cells[6].ToString();
             }
-            if (row.Cells[7].ToString().Trim() != "")//九宮格
+            if (row.GetCell(7) != null && row.Cells[7].ToString().Trim() != "")//九宮格
             {
                 projectItem.TYPE_CODE_1 = row.Cells[7].ToString();
             }
-            if (row.Cells[8].ToString().Trim() != "")//次九宮格
+            if (row.GetCell(8) != null && row.Cells[8].ToString().Trim() != "")//次九宮格
             {
                 projectItem.TYPE_CODE_2 = row.Cells[8].ToString();
             }
-            if (row.Cells[9].ToString().Trim() != "")//主系統
+            if (row.GetCell(9) != null && row.Cells[9].ToString().Trim() != "")//主系統
             {
                 projectItem.SYSTEM_MAIN = row.Cells[9].ToString();
             }
-            if (row.Cells[10].ToString().Trim() != "")//次系統
+            if (row.GetCell(10) != null && row.Cells[10].ToString().Trim() != "")//次系統
             {
                 projectItem.SYSTEM_SUB = row.Cells[10].ToString();
             }
@@ -989,11 +1003,11 @@ namespace topmeperp.Service
             while (rows.MoveNext())
             {
                 row = (IRow)rows.Current;
-                ICell cellPk= row.GetCell(0);
+                ICell cellPk = row.GetCell(0);
                 //ICell CellQty = row.GetCell(11);
                 //將各Row 資料寫入物件內
                 //0.PK	11.設備數量 
-                if (null== cellPk || cellPk.ToString().ToUpper() != "END")
+                if (null == cellPk || cellPk.ToString().ToUpper() != "END")
                 {
                     lstMapDEVICE.Add(convertRow2TndMapDEVICE(row, iRowIndex));
                 }

@@ -48,23 +48,23 @@
                             </td>
                             <td>@item.CountPO</td>
                             <td>
-                                <a href="/PurchaseForm/downLoadInquiryForm?formid=@item.INQUIRY_FORM_ID&isTemp=N" target="_blank">下載</a>
                                 <a href="/PurchaseForm/SinglePrjForm/@item.INQUIRY_FORM_ID" target="_blank"><span style="color: deeppink; font-size: 15px;">廠商詢價單</span></a>
+                                <a href="/PurchaseForm/downLoadInquiryForm?formid=@item.INQUIRY_FORM_ID&isTemp=N" target="_blank">下載</a>
                             </td>
                         </tr>
                     }
                 </tbody>
             </table>
-                <h3 class="text-left">
-                    分項預算總額: @if (ViewBag.budgetdata != null)
-                    {
-                        @String.Format("{0:#,##}", BudgetAmt);
-                    }
-                    else
-                    {
-                        @ViewBag.budgetmessage;
-                    }
-                </h3>
+            <h3 class="text-left">
+                分項預算總額: @if (ViewBag.budgetdata != null)
+                {
+                    @String.Format("{0:#,##}", BudgetAmt);
+                }
+                else
+                {
+                    @ViewBag.budgetmessage;
+                }
+            </h3>
                         }
                         else
                         {

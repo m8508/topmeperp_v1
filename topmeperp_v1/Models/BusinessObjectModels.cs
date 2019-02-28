@@ -631,22 +631,13 @@ namespace topmeperp.Models
     }
     public class PlanFinanceProfile
     {
-        public Nullable<decimal> directCost { get; set; }
-        public Nullable<decimal> AP { get; set; }
-        public Nullable<decimal> AR { get; set; }
-        public Nullable<decimal> ManagementCost { get; set; }
-        public Nullable<decimal> SalesCost { get; set; }
-        public Nullable<decimal> planProfit { get; set; }
-        public Nullable<decimal> MACost { get; set; }
-        public Nullable<decimal> PLAN_REVENUE { get; set; }
-        public Nullable<decimal> SiteCost { get; set; }
-        public Nullable<decimal> uncollectedAR { get; set; }
-        public Nullable<decimal> unpaidAP { get; set; }
         public string PROJECT_ID { get; set; }
         public string PROJECT_NAME { get; set; }
-        public Nullable<decimal> SiteCostPaid { get; set; }
-        public Nullable<decimal> MACostPaid { get; set; }
-        public Nullable<decimal> OtherCostPaid { get; set; }
+        public Nullable<decimal> CONTRACT_AMOUNT { get; set; }
+        public Nullable<decimal> TENDER_AMOUNT { get; set; }
+        public Nullable<decimal> SITE_BUDGET_AMOUNT { get; set; }
+        public Nullable<decimal> OTHER_COST { get; set; }
+        //public Nullable<decimal> TENDER_AMOUNT { get; set; }
 
     }
     public class LoanTranactionFunction : FIN_LOAN_TRANACTION
