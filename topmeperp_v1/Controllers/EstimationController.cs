@@ -2523,6 +2523,7 @@ namespace topmeperp.Controllers
                 RevenueFromOwner v = service.getVADetailByVAId(formid);
                 ViewBag.vaAmt = v.VALUATION_AMOUNT;
                 ViewBag.advance = v.ADVANCE_PAYMENT;
+                ViewBag.retention = v.RETENTION_PAYMENT;
                 ViewBag.advanceRefund = v.ADVANCE_PAYMENT_REFUND;
                 ViewBag.taxRatio = v.TAX_RATIO;
                 ViewBag.retention = v.RETENTION_PAYMENT;

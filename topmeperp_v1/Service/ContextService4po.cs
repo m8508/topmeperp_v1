@@ -5783,17 +5783,24 @@ Sum(AMOUNT_OUTFLOW) AMOUNT_OUTFLOW,
         public RevenueFromOwner getVASummaryAtmById(string prjid)
         {
             RevenueFromOwner summaryAmt = null;
+            string sql = @"SELECT vf.*, pi.otherPay, pi.taxAmt, vf.Amt + pi.taxAmt - pi.otherPay AS AR , 
+                   (SELECT SUM(ITEM_UNIT_PRICE*ITEM_QUANTITY) FROM PLAN_ITEM pi WHERE pi.PROJECT_ID =@pid) AS contractAtm, 
+                   (SELECT SUM(pa.AMOUNT_PAYABLE) FROM PLAN_ACCOUNT pa WHERE pa.ACCOUNT_TYPE = 'R' 
+                    AND pa.PROJECT_ID =@pid AND pa.STATUS = 10) AS AR_PAID FROM (
+                    SELECT PROJECT_ID, SUM(VALUATION_AMOUNT) AS VALUATION_AMOUNT, SUM(RETENTION_PAYMENT) AS RETENTION_PAYMENT, 
+                   isnull(SUM(ADVANCE_PAYMENT), 0) - isnull(SUM(ADVANCE_PAYMENT_REFUND), 0) AS advancePaymentBalance, 
+                   isnull(SUM(ADVANCE_PAYMENT), 0) + isnull(SUM(VALUATION_AMOUNT), 0) - isnull(SUM(RETENTION_PAYMENT), 0) - isnull(SUM(ADVANCE_PAYMENT_REFUND), 0) AS Amt 
+                   FROM PLAN_VALUATION_FORM WHERE PROJECT_ID =@pid GROUP BY PROJECT_ID
+                   )vf 
+                    LEFT JOIN(
+                    SELECT CONTRACT_ID, ISNULL(SUM(AMOUNT * IIF(TYPE <> '折讓單', 0, 1)), 0) 
+                    + ISNULL(SUM(TAX * IIF(TYPE <> '折讓單', 0, 1)), 0) 
+                    + ISNULL(SUM(AMOUNT * IIF(TYPE <> '其他扣款', 0, 1)), 0) AS otherPay, 
+                   ISNULL(SUM(TAX * IIF(TYPE <> '折讓單', 1, 0)), 0) - ISNULL(SUM(TAX * IIF(TYPE <> '其他扣款', 0, 1)), 0) AS taxAmt 
+                   FROM PLAN_INVOICE WHERE CONTRACT_ID =@pid GROUP BY CONTRACT_ID)pi ON vf.PROJECT_ID = pi.CONTRACT_ID ";
             using (var context = new topmepEntities())
             {
-                summaryAmt = context.Database.SqlQuery<RevenueFromOwner>("SELECT vf.*, pi.otherPay, pi.taxAmt, vf.Amt + pi.taxAmt - pi.otherPay AS AR , " +
-                    "(SELECT SUM(ITEM_UNIT_PRICE*ITEM_QUANTITY) FROM PLAN_ITEM pi WHERE pi.PROJECT_ID =@pid) AS contractAtm, " +
-                    "(SELECT SUM(pa.AMOUNT_PAYABLE) FROM PLAN_ACCOUNT pa WHERE pa.ACCOUNT_TYPE = 'R' AND pa.PROJECT_ID =@pid AND pa.STATUS = 10) AS AR_PAID " +
-                    "FROM (SELECT PROJECT_ID, SUM(VALUATION_AMOUNT) AS VALUATION_AMOUNT, SUM(RETENTION_PAYMENT) AS RETENTION_PAYMENT, " +
-                    "isnull(SUM(ADVANCE_PAYMENT), 0) - isnull(SUM(ADVANCE_PAYMENT_REFUND), 0) AS advancePaymentBalance, " +
-                    "isnull(SUM(ADVANCE_PAYMENT), 0) + isnull(SUM(VALUATION_AMOUNT), 0) - isnull(SUM(RETENTION_PAYMENT), 0) - isnull(SUM(ADVANCE_PAYMENT_REFUND), 0) AS Amt " +
-                    "FROM PLAN_VALUATION_FORM WHERE PROJECT_ID =@pid GROUP BY PROJECT_ID)vf LEFT JOIN(SELECT CONTRACT_ID, ISNULL(SUM(AMOUNT * IIF(TYPE <> '折讓單', 0, 1)), 0) + ISNULL(SUM(TAX * IIF(TYPE <> '折讓單', 0, 1)), 0) + ISNULL(SUM(AMOUNT * IIF(TYPE <> '其他扣款', 0, 1)), 0) AS otherPay, " +
-                    "ISNULL(SUM(TAX * IIF(TYPE <> '折讓單', 1, 0)), 0) - ISNULL(SUM(TAX * IIF(TYPE <> '其他扣款', 0, 1)), 0) AS taxAmt FROM PLAN_INVOICE WHERE CONTRACT_ID =@pid GROUP BY CONTRACT_ID)pi ON vf.PROJECT_ID = pi.CONTRACT_ID "
-                   , new SqlParameter("pid", prjid)).FirstOrDefault();
+                summaryAmt = context.Database.SqlQuery<RevenueFromOwner>(sql , new SqlParameter("pid", prjid)).FirstOrDefault();
             }
             return summaryAmt;
         }

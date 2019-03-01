@@ -225,7 +225,7 @@ namespace topmeperp.Service
             while (iRowIndex < (startrow - 1))
             {
                 iRowIndex++;
-
+                //錯誤控制，補足 Row=null & Cells[0] ==null 情況以利資料匯入
                 row = (IRow)sheet.GetRow(iRowIndex);
                 if (null == row)
                 {
@@ -254,24 +254,34 @@ namespace topmeperp.Service
                 {
                     if (row != null)
                     {
+                        if (null == row.GetCell(0))
+                        {
+                            row.CreateCell(0).SetCellValue("");
+                        }
                         logger.Debug("Cells Count=" + row.Cells.Count + ",Excel Index:" + iRowIndex);
+                    }
+                    else
+                    {
+                        logger.Warn("empty row:" + iRowIndex);
+                        row = sheet.CreateRow(iRowIndex);
+                        row.CreateCell(0).SetCellValue("");
                     }
                     //將各Row 資料寫入物件內
                     //項次,名稱,單位,數量,單價,複價,備註,九宮格,次九宮格,主系統,次系統
-                    if (row.Cells[0].ToString().ToUpper() != "END")
-                    {
-                        lstProjectItem.Add(convertRow2TndProjectItem(itemId, row, iRowIndex));
-                    }
-                    else
+                    if (row.GetCell(0).ToString().ToUpper().Trim() == "END")
                     {
                         logger.Info("Finish convert Job : count=" + lstProjectItem.Count);
                         hasMore = false;
                         return;
                     }
+                    else
+                    {
+                        lstProjectItem.Add(convertRow2TndProjectItem(itemId, row, iRowIndex));
+                    }
                 }
                 catch (Exception ex)
                 {
-                    logger.Error(iRowIndex +",ex:" + ex.Message + "," + ex.StackTrace);
+                    logger.Error(iRowIndex + ",ex:" + ex.Message + "," + ex.StackTrace);
                 }
                 iRowIndex++;
                 itemId++;
@@ -281,86 +291,55 @@ namespace topmeperp.Service
         {
             TND_PROJECT_ITEM projectItem = new TND_PROJECT_ITEM();
             projectItem.PROJECT_ID = projId;
-            logger.Debug("irow=" + excelrow + ",Row=" + row);
-            if (row.Cells.Count < 3)
-            {
-                foreach (ICell c in row.Cells)
-                {
-                    if (c.CellType.Equals(CellType.Blank))
-                    {
-                        logger.Debug("Blank");
-                    }
-                    else
-                    {
-                        projectItem.ITEM_DESC = projectItem.ITEM_DESC + c.StringCellValue;
-                    }
-                }
-                logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
-                logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",欄位不足(" + row.Cells.Count + ")");
-                projectItem.PROJECT_ITEM_ID = projId + "-" + id;
-                projectItem.EXCEL_ROW_ID = excelrow;
-                projectItem.CREATE_DATE = System.DateTime.Now;
-                return projectItem;
-            }
+            logger.Debug("irow=" + excelrow + ",Row=" + row + "," + row.Count());
 
-            if (row.GetCell(0) != null && row.Cells[0].ToString().Trim() != "")//項次
+            if (row.GetCell(0) != null && row.GetCell(0).ToString().Trim() != "")//項次
             {
-                projectItem.ITEM_ID = row.Cells[0].ToString();
+                projectItem.ITEM_ID = row.GetCell(0).ToString();
             }
-            if (row.GetCell(1) != null && row.Cells[1].ToString().Trim() != "")//名稱
+            if (row.GetCell(1) != null && row.GetCell(1).ToString().Trim() != "")//名稱
             {
-                projectItem.ITEM_DESC = row.Cells[1].ToString();
+                projectItem.ITEM_DESC = row.GetCell(1).ToString();
             }
-
-            if (row.GetCell(2) != null && row.Cells[2].ToString().Trim() != "")//單位
+            if (row.GetCell(2) != null && row.GetCell(2).ToString().Trim() != "")//單位
             {
-                projectItem.ITEM_UNIT = row.Cells[2].ToString();
+                projectItem.ITEM_UNIT = row.GetCell(2).ToString();
             }
-            if (row.GetCell(3) != null && row.Cells[3].ToString().Trim() != "")//數量
+            if (row.GetCell(3) != null && row.GetCell(3).ToString().Trim() != "")//數量
             {
                 try
                 {
-                    decimal dQty = decimal.Parse(row.Cells[3].ToString());
-                    logger.Info("excelrow=" + excelrow + ",value=" + row.Cells[3].ToString());
+                    decimal dQty = decimal.Parse(row.GetCell(3).ToString());
+                    logger.Info("excelrow=" + excelrow + ",value=" + row.GetCell(3).ToString());
                     projectItem.ITEM_QUANTITY = dQty;
                 }
                 catch (Exception e)
                 {
-                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",value=" + row.Cells[3].ToString());
-                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",value=" + row.Cells[3].ToString());
+                    logger.Error("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",value=" + row.GetCell(3).ToString());
+                    logErrorMessage("data format Error on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",value=" + row.GetCell(3).ToString());
                     logger.Error(e.Message);
                 }
 
             }
-
-            if (row.Cells.Count < 11)
+            if (row.GetCell(6) != null && row.GetCell(6).ToString().Trim() != "")//備註
             {
-                logErrorMessage("data format warring on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",未分類(" + row.Cells.Count + ")");
-                logger.Error("data format warring on ExcelRow=" + excelrow + ",Item_Desc= " + projectItem.ITEM_DESC + ",未分類(" + row.Cells.Count + ")");
-                projectItem.PROJECT_ITEM_ID = projId + "-" + id;
-                projectItem.EXCEL_ROW_ID = excelrow;
-                projectItem.CREATE_DATE = System.DateTime.Now;
-                return projectItem;
+                projectItem.ITEM_REMARK = row.GetCell(6).ToString();
             }
-            if (row.GetCell(6) != null && row.Cells[6].ToString().Trim() != "")//備註
+            if (row.GetCell(7) != null && row.GetCell(7).ToString().Trim() != "")//九宮格
             {
-                projectItem.ITEM_REMARK = row.Cells[6].ToString();
+                projectItem.TYPE_CODE_1 = row.GetCell(7).ToString();
             }
-            if (row.GetCell(7) != null && row.Cells[7].ToString().Trim() != "")//九宮格
+            if (row.GetCell(8) != null && row.GetCell(8).ToString().Trim() != "")//次九宮格
             {
-                projectItem.TYPE_CODE_1 = row.Cells[7].ToString();
+                projectItem.TYPE_CODE_2 = row.GetCell(8).ToString();
             }
-            if (row.GetCell(8) != null && row.Cells[8].ToString().Trim() != "")//次九宮格
+            if (row.GetCell(9) != null && row.GetCell(9).ToString().Trim() != "")//主系統
             {
-                projectItem.TYPE_CODE_2 = row.Cells[8].ToString();
+                projectItem.SYSTEM_MAIN = row.GetCell(9).ToString();
             }
-            if (row.GetCell(9) != null && row.Cells[9].ToString().Trim() != "")//主系統
+            if (row.GetCell(10) != null && row.GetCell(10).ToString().Trim() != "")//次系統
             {
-                projectItem.SYSTEM_MAIN = row.Cells[9].ToString();
-            }
-            if (row.GetCell(10) != null && row.Cells[10].ToString().Trim() != "")//次系統
-            {
-                projectItem.SYSTEM_SUB = row.Cells[10].ToString();
+                projectItem.SYSTEM_SUB = row.GetCell(10).ToString();
             }
             projectItem.PROJECT_ITEM_ID = projId + "-" + id;
             projectItem.EXCEL_ROW_ID = excelrow;

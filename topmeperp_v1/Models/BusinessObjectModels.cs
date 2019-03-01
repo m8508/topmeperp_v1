@@ -652,7 +652,6 @@ namespace topmeperp.Models
     {
         public IEnumerable<PlanFinanceProfile> finProfile { get; set; }
         public IEnumerable<CashFlowFunction> finFlow { get; set; }
-        public PlanFinanceProfile totalFinProfile { get; set; }
         public CashFlowBalance finBalance { get; set; }
         public IEnumerable<FIN_BANK_LOAN> finLoan { get; set; }
         public IEnumerable<LoanTranactionFunction> finLoanTranaction { get; set; }
