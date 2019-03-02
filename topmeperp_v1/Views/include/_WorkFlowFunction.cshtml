@@ -3,6 +3,7 @@
 <div class="col-md-6">
     @{
         bool privilegeCheck = false;
+        bool isManager = false;
     }
     @if (null != Model.task)
     {
@@ -17,7 +18,6 @@
                 if (u.DEP_CODE == Model.task.DEP_CODE)
                 {
                     privilegeCheck = true;
-                    <input type="button" value="複審" id="SendForm" name="SendForm" class="btn btn-warning" />
                 }
             }
             else
@@ -35,6 +35,7 @@
                 if (Model.DeptInfo.MANAGER == u.USER_ID)
                 {
                     privilegeCheck = true;
+                    isManager = true;
                 }
             }
             //審核任務需要部門審核，則判斷登入者是部門主管
@@ -44,15 +45,20 @@
                 if (u.USER_ID == Model.task.MANAGER)
                 {
                     privilegeCheck = true;
+                    isManager = true;
                 }
             }
         }
-        if (privilegeCheck)
+        if (privilegeCheck && isManager)
         {
             @Html.Raw("退件原因:");
             <textarea id="RejectDesc" name="RejectDesc" cols="30" rows="2" class="form-control"></textarea>
             <input type="button" value="退件" id="RejectForm" name="RejectForm" class="btn btn-warning" />
             <input type="button" value="核可" id="SendForm" name="SendForm" class="btn btn-primary" />
+        }
+        else if (privilegeCheck)
+        {
+            <input type="button" value="複審" id="SendForm" name="SendForm" class="btn btn-warning" />
         }
     <!--中止區塊-->
         if (Model.task.CREATE_USER_ID == ((SYS_USER)Session["user"]).USER_ID && Model.task.CURENT_STATE != -1)

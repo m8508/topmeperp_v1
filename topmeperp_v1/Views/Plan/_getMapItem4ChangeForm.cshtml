@@ -4,7 +4,7 @@
     <label id="Message" class="alert-danger">@ViewBag.Message</label>
     @if (Model != null)
     {
-        if (Model.mapDEVICE != null)//設備
+        if (Model.ProjectItemInDEVICE != null)//設備
         {
             <div class="row">
                 <div class="row panel-heading label-info">設備(MAP_DEVICE)</div>
@@ -15,20 +15,24 @@
                         <th>設備名稱</th>
                         <th>數量</th>
                         <th>異動數量</th>
-
-                        @foreach (var item in Model.mapDEVICE)
+                        </tr>
+                        @foreach (var item in Model.ProjectItemInDEVICE)
                     {
                         <tr>
-                            <td><input type="checkbox" id="map_device" name="map_device" value="@item.PROJECT_ITEM_ID" /></td>
-                            <td>@Html.DisplayFor(modelItem => item.PROJECT_ITEM_ID)</td>
-                            <td style="">@Html.DisplayFor(modelItem => item.LOC_DESC)</td>
-                            <td>@Html.DisplayFor(modelItem => item.QTY)</td>
-                            <td>@Html.TextBox("map_device." + item.PROJECT_ITEM_ID, null, new { @class = "form-control" }) </td>
+                            <td><input type="checkbox" id="map_device" name="map_device" value="@item.PLAN_ITEM_ID" /></td>
+                            <td>@Html.DisplayFor(modelItem => item.PLAN_ITEM_ID)</td>
+                            <td style="">@Html.DisplayFor(modelItem => item.ITEM_DESC)</td>
+                            <td>@Html.DisplayFor(modelItem => item.ITEM_QUANTITY)</td>
+                            <td>@Html.TextBox("map_device." + item.PLAN_ITEM_ID, null, new { @class = "form-control" }) </td>
                         </tr>
                         }
 
                     </table>
                 </div>
+        }
+        else
+        {
+            <span>Device Error</span>
         }
         if (Model.ProjectItemInMapPEP != null)//電氣管線
         {
