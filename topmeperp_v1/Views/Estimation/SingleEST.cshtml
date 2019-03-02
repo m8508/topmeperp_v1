@@ -349,12 +349,13 @@
         </div>
     </div>
 </div>
-<script type="text/javascript">
+<!--
+    script-- type="text/javascript">
 
     function myController($scope, $http) {
 
         //若資料量很多的話，則改用$http的Ajax方法撈資料指派給$scope的items成員
-        $scope.items = @Html.Raw(ViewData["items"])
+        $scope.items = @***@ Html.Raw(ViewData["items"])
         //取得估驗總金額
         $scope.GetTotalNum = function () {
             var sum = 0;
@@ -427,12 +428,12 @@
             });
         };
     }
-</script>
+</!--script
+    -->
 <script type="text/javascript">
 
     function SummaryController($scope) {
         $scope.key = @Html.Raw(ViewData["summary"]);
-
     }
 
     $("#saveQty").click(function () {

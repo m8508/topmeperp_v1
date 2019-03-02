@@ -984,6 +984,9 @@ AND M.PID=R.PID AND M.SEQ_ID=R.CURENT_STATE
                     sql = sql + " AND  F.STATUS = @status ";
                     parameters.Add(new SqlParameter("status", status));
                 }
+                //排除已經進入財行(審核通過之估驗詹
+                sql = sql + " AND  R.PID = 5 ";
+
                 logger.Debug("sql=" + sql);
                 lstForm = context.Database.SqlQuery<ExpenseFlowTask>(sql, parameters.ToArray()).ToList();
             }

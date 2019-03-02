@@ -637,6 +637,9 @@ namespace topmeperp.Models
         public Nullable<decimal> TENDER_AMOUNT { get; set; }
         public Nullable<decimal> SITE_BUDGET_AMOUNT { get; set; }
         public Nullable<decimal> OTHER_COST { get; set; }
+        //累計收入
+        public Nullable<decimal> AR_AMOUNT { get; set; }
+        
         //public Nullable<decimal> TENDER_AMOUNT { get; set; }
 
     }

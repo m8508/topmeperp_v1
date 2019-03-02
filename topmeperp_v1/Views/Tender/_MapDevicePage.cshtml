@@ -14,16 +14,18 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model.mapDEVICE)
+                @if (Model.mapDEVICE != null)
                 {
-                    <tr>
-                        <td>@Html.DisplayFor(modelItem => item.PROJECT_ITEM_ID)</td>
-                        <td 
-                        @if(item.LOC_DESC.StartsWith("___")) { @Html.Raw(" style='background-color:yellow'")  }>
-                            @item.LOC_DESC.Replace("___","")
-                        </td>
-                        <td>@Html.DisplayFor(modelItem => item.QTY)</td>
-                    </tr>
+                    foreach (var item in Model.mapDEVICE)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.PROJECT_ITEM_ID)</td>
+                            <td @if (item.LOC_DESC !=null &&   item.LOC_DESC.StartsWith("___")) { @Html.Raw(" style='background-color:yellow'")   }>
+                                @item.LOC_DESC
+                            </td>
+                            <td>@Html.DisplayFor(modelItem => item.QTY)</td>
+                        </tr>
+                    }
                 }
             </tbody>
         </table>

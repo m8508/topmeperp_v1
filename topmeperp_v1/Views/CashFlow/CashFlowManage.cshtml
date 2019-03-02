@@ -154,7 +154,7 @@
                                 工地預算
                             </th>
                             <th style="width:80px;">
-                                其他費用(維保費用、業務費、公司管理費)
+                                其他費用(維保費用、業務費、工地管理費)
                             </th>
                             <th style="width:100px;">
                                 累計實收
@@ -192,7 +192,9 @@
                             <td>
                                 @String.Format("{0:#,##0.#}", item.OTHER_COST)
                             </td>
-                            <td>實收</td>
+                            <td>
+                                @String.Format("{0:#,##0.#}", item.AR_AMOUNT)
+                            </td>
                             <td>實支</td>
                             <td> 未請款</td>
                             <td>未付金額</td>
