@@ -168,6 +168,10 @@ namespace topmeperp.Controllers
                         planService.getMapFW(projectid, mapno, buildno, primeside, primesideName, secondside, secondsideName, devicename);
                         log.Debug("MapType: MAP_FW(消防水)");
                         break;
+                    case "NOT_MAP"://不在圖算內
+                        planService.getItemNotMap(projectid, mapno, buildno, primeside, primesideName, secondside, secondsideName, devicename);
+                        log.Debug("MapType: MAP_FW(消防水)");
+                        break;
                     default:
                         log.Debug("MapType nothing!!");
                         break;

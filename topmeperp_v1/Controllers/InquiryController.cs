@@ -304,7 +304,9 @@ namespace topmeperp.Controllers
             if (null != file && file.ContentLength != 0)
             {
                 var fileName = Path.GetFileName(file.FileName);
-                var path = Path.Combine(ContextService.strUploadPath + "/" + projectid + "/" + ContextService.quotesFolder, fileName);
+                string dir = ContextService.strUploadPath + "/" + projectid + "/" + ContextService.quotesFolder;
+                ZipFileCreator.CreateDirectory(dir);
+                var path = Path.Combine(dir, fileName);
                 file.SaveAs(path);
                 log.Info("Parser Excel File Begin:" + file.FileName);
                 InquiryFormToExcel quoteFormService = new InquiryFormToExcel();

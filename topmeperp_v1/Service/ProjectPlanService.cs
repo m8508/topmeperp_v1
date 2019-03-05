@@ -206,6 +206,58 @@ namespace topmeperp.Service
                                 P.MAN_FORM_ID,
                                 P.BUDGET_WAGE_RATIO,
                                 P.IN_CONTRACT";
+        //不在圖算數量內
+        public void getItemNotMap(string projectid, string item_name, string startid, string endid, string typecode1, string typecode2, string systemmain, string systemsub)
+        {
+            logger.Info("get map DEVICE info by item_name=" + item_name);
+            string sql = @"SELECT P.* 
+                FROM PLAN_ITEM P 
+                WHERE P.ITEM_DESC Like @item_name
+                AND P.PROJECT_ID = @projectid 
+AND P.PLAN_ITEM_ID NOT 
+IN (SELECT PROJECT_ITEM_ID from vw_MAP_MATERLIALIST_DETAIL
+WHERE  PROJECT_ID = @projectid )
+";
+            //條件篩選
+            var parameters = new List<SqlParameter>();
+            //設定專案名編號資料
+            parameters.Add(new SqlParameter("projectid", projectid));
+            parameters.Add(new SqlParameter("item_name", "%" + item_name + "%"));
+
+            //增加九宮格、次九宮格、主系統、次系統等條件
+            if (null != typecode1 && "" != typecode1)
+            {
+                sql = sql + " AND P.TYPE_CODE_1=@typecode1 ";
+                parameters.Add(new SqlParameter("typecode1", typecode1));
+            }
+            if (null != typecode2 && "" != typecode2)
+            {
+                sql = sql + " AND P.TYPE_CODE_2=@typecode2 ";
+                parameters.Add(new SqlParameter("typecode2", typecode2));
+            }
+            if (null != systemmain && "" != systemmain)
+            {
+                sql = sql + " AND P.SYSTEM_MAIN=@systemmain ";
+                parameters.Add(new SqlParameter("systemmain", systemmain));
+            }
+            if (null != systemsub && "" != systemsub)
+            {
+                sql = sql + " AND P.SYSTEM_SUB=@systemsub ";
+                parameters.Add(new SqlParameter("systemsub", systemsub));
+            }
+
+            sql = sql + "ORDER BY EXCEL_ROW_ID ";
+            List<PLAN_ITEM> lstDEVICE = new List<PLAN_ITEM>();
+            using (var context = new topmepEntities())
+            {
+
+                logger.Info("Plan Item Not In Map:" + sql);
+                lstDEVICE = context.PLAN_ITEM.SqlQuery(sql, parameters.ToArray()).ToList();
+            }
+            viewModel.ProjectItemNotMap = lstDEVICE;
+            resultMessage = resultMessage + "品項資料筆數:" + lstDEVICE.Count + ",";
+        }
+
         //圖算:設備
         public void getMapItem(string projectid, string item_name, string startid, string endid, string typecode1, string typecode2, string systemmain, string systemsub)
         {

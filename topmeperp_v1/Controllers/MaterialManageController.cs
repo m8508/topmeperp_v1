@@ -164,6 +164,7 @@ namespace topmeperp.Controllers
             string[] lcpItemId = null;
             string[] pluItemId = null;
             string[] fwItemId = null;
+            string[] notMapItemId = null;
             List<string> AllItemId = new List<string>();
             //取得使用者勾選任務ID
             //設備資料
@@ -251,8 +252,25 @@ namespace topmeperp.Controllers
                     AllItemId.Add(fwItemId[i]);
                 }
             }
+            //非圖算數量
+            if (null != form["item_not_map"])
+            {
+                log.Info("device not in map list:" + Request["item_not_map"]);
+                notMapItemId = Request["item_not_map"].ToString().Split(',');
 
-            if (null == form["map_device"] && null == form["map_fp"] && null == form["map_fw"] && null == form["map_pep"] && null == form["map_lcp"] && null == form["map_plu"])
+                log.Info("select count:" + notMapItemId.Count());
+                var i = 0;
+                for (i = 0; i < notMapItemId.Count(); i++)
+                {
+                    log.Info("device task_list return No.:" + notMapItemId[i]);
+                    AllItemId.Add(notMapItemId[i]);
+                    //ViewBag.uid = lstItemId[i];
+                }
+            }
+
+            if (null == form["map_device"] && null == form["map_fp"] && null == form["map_fw"] 
+                && null == form["map_pep"] && null == form["map_lcp"] && null == form["map_plu"]
+                && null == form["item_not_map"])
             {
                 TempData["result"] = "沒有選取要申購的項目名稱，請重新查詢後並勾選物料項目!";
                 return Redirect("PlanTask?id=" + form["projectid"]);

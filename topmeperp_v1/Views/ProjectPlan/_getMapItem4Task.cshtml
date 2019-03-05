@@ -164,5 +164,31 @@
                 </div>
             </div>
         }
+
+        if (Model.ProjectItemNotMap != null)//非圖算數量
+        {
+            <div class="row">
+                <div class="row panel-heading label-info">非圖算數量(PLAN_ITEM)</div>
+                <table class="table">
+                    <tr>
+                        <th>全選<input type="checkbox" id="check_device" name="check_device" onclick='checkBoxStatus("check_device", "map_device")' /></th>
+                        <th>編號</th>
+                        <th>設備名稱</th>
+                        <th>合約數量</th>
+                    </tr>
+
+                    @foreach (var item in Model.ProjectItemNotMap)
+                    {
+                        <tr>
+                            <td><input type="checkbox" id="item_not_map" name="item_not_map" value="@item.PLAN_ITEM_ID" /></td>
+                            <td>@Html.DisplayFor(modelItem => item.PLAN_ITEM_ID)</td>
+                            <td style="">@Html.DisplayFor(modelItem => item.ITEM_DESC)</td>
+                            <td>@Html.DisplayFor(modelItem => item.ITEM_QUANTITY)</td>
+                        </tr>
+                    }
+
+                </table>
+            </div>
+        }
     }
 </div>

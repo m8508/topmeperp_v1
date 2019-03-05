@@ -1657,13 +1657,13 @@ WHERE PROJECT_ID=@projectid  AND ('('+ TYPE_CODE_1 + ','+TYPE_CODE_2 +')' + BUDG
                 f.SUPPLIER_ID as SUPPLIER_NAME, 
                 f.FORM_NAME AS FORM_NAME, 
                 ISNULL(f.STATUS,'有效') STATUS,
-                SUM(pfitem.ITEM_UNIT_PRICE*pfitem.ITEM_QTY) as TAmount, 
+                ISNULL(SUM(pfitem.ITEM_UNIT_PRICE*pfitem.ITEM_QTY),0) as TAmount, 
                 ISNULL(CEILING(SUM(pfitem.ITEM_UNIT_PRICE*pfitem.ITEM_QTY) / SUM(w.RATIO*map.QTY*ISNULL(p.WAGE_MULTIPLIER, -1))),0) as AvgMPrice 
                 FROM PLAN_ITEM pItem LEFT OUTER JOIN 
                 PLAN_SUP_INQUIRY_ITEM pfItem ON pItem.PLAN_ITEM_ID = pfItem.PLAN_ITEM_ID 
                 inner join PLAN_SUP_INQUIRY f on pfItem.INQUIRY_FORM_ID = f.INQUIRY_FORM_ID 
-                left join TND_WAGE w on pItem.PLAN_ITEM_ID = w.PROJECT_ITEM_ID 
-                LEFT JOIN vw_MAP_MATERLIALIST map ON pItem.PLAN_ITEM_ID = map.PROJECT_ITEM_ID 
+                left outer join TND_WAGE w on pItem.PLAN_ITEM_ID = w.PROJECT_ITEM_ID 
+                LEFT outer JOIN vw_MAP_MATERLIALIST map ON pItem.PLAN_ITEM_ID = map.PROJECT_ITEM_ID 
                 LEFT JOIN TND_PROJECT p ON pItem.PROJECT_ID = p.PROJECT_ID 
                 WHERE pItem.PROJECT_ID = @projectid AND f.SUPPLIER_ID is not null 
                 AND ISNULL(f.STATUS,'有效') <> '註銷' AND ISNULL(f.ISWAGE,'N')=@iswage  ";
@@ -2265,17 +2265,18 @@ WHERE PROJECT_ID=@projectid  AND ('('+ TYPE_CODE_1 + ','+TYPE_CODE_2 +')' + BUDG
                     }
                 }
 
-                string sql = "SELECT pi.* , map.QTY AS MAP_QTY, B.CUMULATIVE_QTY, C.ALL_RECEIPT_QTY- D.DELIVERY_QTY AS INVENTORY_QTY FROM PLAN_ITEM pi  " +
-                    "JOIN vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID LEFT JOIN PLAN_COSTCHANGE_ITEM pci ON pi.PLAN_ITEM_ID = pci.PLAN_ITEM_ID " +
-                    "LEFT JOIN (SELECT pri.PLAN_ITEM_ID, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY " +
-                    "FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID = @projectid AND " +
-                    "pri.PR_ID LIKE 'PPO%' GROUP BY pri.PLAN_ITEM_ID )B ON pi.PLAN_ITEM_ID = B.PLAN_ITEM_ID " +
-                    "LEFT JOIN(SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS ALL_RECEIPT_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr " +
-                    "ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID = @projectid AND pri.PR_ID LIKE 'RP%' GROUP BY pri.PLAN_ITEM_ID)C " +
-                    "ON pi.PLAN_ITEM_ID = C.PLAN_ITEM_ID LEFT JOIN (SELECT pid.PLAN_ITEM_ID, SUM(pid.DELIVERY_QTY) AS DELIVERY_QTY FROM PLAN_ITEM_DELIVERY pid " +
-                    "LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pid.DELIVERY_ORDER_ID = pr.PR_ID WHERE pr.PROJECT_ID = @projectid " +
-                    "GROUP BY pid.PLAN_ITEM_ID)D ON pi.PLAN_ITEM_ID = D.PLAN_ITEM_ID WHERE pi.PROJECT_ID = @projectid AND pi.PLAN_ITEM_ID IN (" + ItemId + ") ";
-
+                string sql = @"SELECT pi.* , map.QTY AS MAP_QTY, B.CUMULATIVE_QTY, C.ALL_RECEIPT_QTY- D.DELIVERY_QTY AS INVENTORY_QTY 
+FROM PLAN_ITEM pi  LEFT OUTER JOIN  vw_MAP_MATERLIALIST map ON pi.PLAN_ITEM_ID = map.PROJECT_ITEM_ID 
+LEFT JOIN PLAN_COSTCHANGE_ITEM pci ON pi.PLAN_ITEM_ID = pci.PLAN_ITEM_ID 
+LEFT JOIN (SELECT pri.PLAN_ITEM_ID, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY 
+                   FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID = @projectid AND 
+                   pri.PR_ID LIKE 'PPO%' GROUP BY pri.PLAN_ITEM_ID )B ON pi.PLAN_ITEM_ID = B.PLAN_ITEM_ID 
+                   LEFT JOIN(SELECT pri.PLAN_ITEM_ID, SUM(pri.RECEIPT_QTY) AS ALL_RECEIPT_QTY FROM PLAN_PURCHASE_REQUISITION_ITEM pri LEFT JOIN PLAN_PURCHASE_REQUISITION pr 
+                   ON pri.PR_ID = pr.PR_ID WHERE pr.PROJECT_ID = @projectid AND pri.PR_ID LIKE 'RP%' GROUP BY pri.PLAN_ITEM_ID)C 
+                   ON pi.PLAN_ITEM_ID = C.PLAN_ITEM_ID LEFT JOIN (SELECT pid.PLAN_ITEM_ID, SUM(pid.DELIVERY_QTY) AS DELIVERY_QTY FROM PLAN_ITEM_DELIVERY pid 
+                   LEFT JOIN PLAN_PURCHASE_REQUISITION pr ON pid.DELIVERY_ORDER_ID = pr.PR_ID WHERE pr.PROJECT_ID = @projectid 
+                   GROUP BY pid.PLAN_ITEM_ID)D ON pi.PLAN_ITEM_ID = D.PLAN_ITEM_ID WHERE pi.PROJECT_ID = @projectid AND pi.PLAN_ITEM_ID IN ($ItemList)";
+                sql = sql.Replace("$ItemList", ItemId);
                 logger.Info("sql = " + sql);
                 var parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("projectid", projectid));

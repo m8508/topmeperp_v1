@@ -2135,8 +2135,15 @@ namespace topmeperp.Service
             }
 
             //FAX:
-            logger.Debug(sheet.GetRow(7).Cells[0].ToString());
-            form.OWNER_FAX = sheet.GetRow(7).Cells[1].ToString();
+            if (sheet.GetRow(7).GetCell(1) != null)
+            {
+                logger.Debug(sheet.GetRow(7).Cells[0].ToString());
+                form.OWNER_FAX = sheet.GetRow(7).Cells[1].ToString();
+            }
+            else
+            {
+                form.OWNER_FAX = "";
+            }
 
             //3.取得表單明細,逐行讀取資料
             IRow row = null;
