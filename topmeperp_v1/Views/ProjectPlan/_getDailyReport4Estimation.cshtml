@@ -1,0 +1,47 @@
+﻿@model IEnumerable<topmeperp.Models.SummaryDailyReport>
+<div class="container" style="width:auto;height:auto;overflow-x:hidden;overflow-y:auto;padding-top:5px;">
+    @{
+        var supplierid = "";
+    }
+    @if (Model != null)
+    {
+        <div class="row">
+            <label id="Message" class="alert-danger">@ViewBag.Message</label>
+            <label id="Message" class="alert-info">@ViewBag.Result</label>
+            <table class="table" width="100%">
+                @foreach (var item in Model)
+                {
+                    if (supplierid != item.SUPPLIER_ID)
+                    {
+                        <tr style="background-color:dodgerblue">
+                            <td>廠商名稱</td>
+                            <td colspan="5">@item.SUPPLIER_ID</td>
+                        </tr>
+                        <tr>
+                            <td width="5%">編號</td>
+                            <td>合約項次 </td>
+                            <td>品名</td>
+                            <td>估驗數量</td>
+                            <td>前期累計數量</td>
+                            <td width="5%">選擇</td>
+                        </tr>
+                        supplierid = item.SUPPLIER_ID;
+                    }
+                    <tr>
+                        <td>@item.PROJECT_ITEM_ID</td>
+                        <td>@item.ITEM_ID </td>
+                        <td>@Html.DisplayFor(modelItem => item.ITEM_DESC)</td>
+                        <td>@item.QTY</td>
+                        <td>@item.ACCUMULATE_QTY</td>
+                        <td><input type="checkbox" id="choiced" name="choiced" />   </td>
+                    </tr>
+                }
+
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="row alert-danger">查無資料!!</div>
+    }
+</div>

@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "施工日報-維護";
+    ViewBag.Title = "施工日報-估驗用";
     Layout = "~/Views/Shared/_MenuLayout.cshtml";
 }
 <h3>@ViewBag.Title</h3>
@@ -13,7 +13,6 @@
             </div>
             <label class="col-sm-1 control-label">專案名稱:</label>
             <label class="col-sm-8 info">@ViewBag.projectName (<a href='/ProjectPlan/summaryReport?projectid=@ViewBag.projectId' target="_blank">彙總表</a>)</label>
-
         </div>
 
         <div class="row form-group">
@@ -23,18 +22,14 @@
                 <label class="col-sm-1 control-label" for="reportDateEnd">-</label>
                 <input type="text" class="form-control  col-sm-3" name="reportDateEnd" id="reportDateEnd" value="" style="width:30%" />
             </div>
-            <label class="col-sm-1 control-label">摘要說明:</label>
-            <div class="col-sm-3">
-                <input type="text" class="form-control col-sm-3" name="txtSummary" id="txtSummary" value="" />
-            </div>
             <button name="query" id="query" type="button" class="btn btn-info" onclick="getDailyRptList()">查詢</button>
-            <button name="toReport" id="toReport" type="button" class="btn btn-info" onclick="javascript: window.location='/ProjectPlan/dailyReport4Estimation/@ViewBag.projectId'">估驗報表</button>
+            <button name="toReport" id="toReport" type="button" class="btn btn-info" onclick="javascript: window.location='/ProjectPlan/dailyReportList/@ViewBag.projectId'">日報維護</button>
         </div>
         @ViewBag.Message
     </form>
     <div class="container" style="padding-top:5px">
         <div class="panel panel-info">
-            <div class="panel-heading">施工日報列表</div>
+            <div class="panel-heading">施工日報-彙整表</div>
             <div class="panel-body" id="tableDailyReport">
 
             </div>
@@ -44,7 +39,11 @@
 <script>
     function getDailyRptList() {
         //Ajax 功能範例
-        var URLs = "/ProjectPlan/getDailyReportList";
+        var URLs = "/ProjectPlan/getDailyReport4Estimation";
+        if ($('#reportDateStart').val() == "" || $('#reportDateEnd').val() == "" ) {
+            alert('請輸入施工日報日期!!');
+            return;
+        }
         $.ajax({
             url: URLs,
             data: $('#formDailyReport').serialize(),
@@ -70,8 +69,6 @@
                 locale: 'zh-tw'
             });
         });
-        getDailyRptList();
     })
-
 </script>
 

@@ -56,7 +56,7 @@
                                 @string.Format("{0:P}", percentage)
                             <td></td>
                         </tr>
-                                    }
+                    }
 
                     <!--施作的標單內容-->
                     <tr>
@@ -173,7 +173,12 @@
                         <td colspan="2" rowspan="@Model.lstRptNote.Count">
                             <label>本日重要記事</label>
                         </td>
-                        <td colspan="6" style="text-align:left">@Model.lstRptNote[0].REMARK</td>
+                        <td colspan="6" style="text-align:left">
+                            @if (Model.lstRptNote.Count > 0)
+                            {
+                                @Model.lstRptNote[0].REMARK
+                            }
+                        </td>
                     </tr>
                     @for (int idx = 1; idx < Model.lstRptNote.Count; idx++)
                     {

@@ -355,8 +355,11 @@ namespace topmeperp.Models
         public string TYPE_CODE_2 { get; set; }
         public string SYSTEM_MAIN { get; set; }
         public string SYSTEM_SUB { get; set; }
-        public Nullable<decimal> QTY { get; set; } //圖算數量
+        public Nullable<decimal> QTY { get; set; } //圖算數量or 施作數量
         public Nullable<decimal> ACCUMULATE_QTY { get; set; }//累積數量
+        public Nullable<DateTime> REPORT_START_DATE { get; set; }//報表日期 
+        public Nullable<DateTime> REPORT_END_DATE { get; set; }//報表日期 
+        public string SUPPLIER_ID { get; set; }//廠商名稱 
     }
     #endregion
 
@@ -640,7 +643,7 @@ namespace topmeperp.Models
         public Nullable<decimal> OTHER_COST { get; set; }
         //累計收入
         public Nullable<decimal> AR_AMOUNT { get; set; }
-        
+
         //public Nullable<decimal> TENDER_AMOUNT { get; set; }
 
     }

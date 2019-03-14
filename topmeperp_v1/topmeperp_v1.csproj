@@ -28,6 +28,7 @@
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
     <TypeScriptToolsVersion>1.8</TypeScriptToolsVersion>
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -1325,6 +1326,8 @@
     <Content Include="Views\Plan\costChangeFormPrint.cshtml" />
     <Content Include="Views\MaterialManage\ReceiptPrint.cshtml" />
     <None Include="Views\Plan\_ChangeOrderItemListPrint.cshtml" />
+    <Content Include="Views\ProjectPlan\dailyReport4Estimation.cshtml" />
+    <Content Include="Views\ProjectPlan\_getDailyReport4Estimation.cshtml" />
     <None Include="Views\Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

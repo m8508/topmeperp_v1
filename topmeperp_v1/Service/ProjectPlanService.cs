@@ -965,7 +965,7 @@ SELECT [TASK_ID],[PROJECT_ID],[PRJ_ID],[PRJ_UID],[TASK_NAME],[START_DATE],[FINIS
                     var flag = context.PLAN_TASK_DONE.SqlQuery(sql, new SqlParameter("projectId", drDailyRpt.dailyRpt.PROJECT_ID)
                         , new SqlParameter("prjUid", drDailyRpt.lstRptTask.First().PRJ_UID)).ToList();
                     logger.Debug("Done Task=" + flag.Count);
-                    if (flag.Count>0)
+                    if (flag.Count > 0)
                     {
                         drDailyRpt.isDoneFlag = true;
                     }
@@ -1061,10 +1061,14 @@ SELECT [TASK_ID],[PROJECT_ID],[PRJ_ID],[PRJ_UID],[TASK_NAME],[START_DATE],[FINIS
         public List<DailyReportItem> getItem(string reportId)
         {
             List<DailyReportItem> lstDailyRptItem = new List<DailyReportItem>();
-            string sql = "SELECT DR_ITEM_ID AS TASKUID,0 as PRJ_UID,i.PROJECT_ID,PLAN_ITEM_ID as PROJECT_ITEM_ID,QTY,"
-                + "(SELECT ITEM_ID FROM TND_PROJECT_ITEM p WHERE i.PLAN_ITEM_ID = p.PROJECT_ITEM_ID) AS ITEM_ID,"
-                + "(SELECT ITEM_DESC FROM TND_PROJECT_ITEM p WHERE i.PLAN_ITEM_ID = p.PROJECT_ITEM_ID) AS ITEM_DESC, LAST_QTY AS ACCUMULATE_QTY, FINISH_QTY "
-                + "FROM PLAN_DR_ITEM i,vw_MAP_MATERLIALIST_DETAIL Map WHERE REPORT_ID = @reportId AND Map.PROJECT_ITEM_ID=i.PLAN_ITEM_ID; ";
+            string sql =
+@"
+SELECT DR_ITEM_ID AS TASKUID,0 as PRJ_UID,i.PROJECT_ID,PLAN_ITEM_ID as PROJECT_ITEM_ID,QTY,
+(SELECT ITEM_ID FROM TND_PROJECT_ITEM p WHERE i.PLAN_ITEM_ID = p.PROJECT_ITEM_ID) AS ITEM_ID,
+(SELECT ITEM_DESC FROM TND_PROJECT_ITEM p WHERE i.PLAN_ITEM_ID = p.PROJECT_ITEM_ID) AS ITEM_DESC, 
+LAST_QTY AS ACCUMULATE_QTY, FINISH_QTY 
+FROM PLAN_DR_ITEM i,vw_MAP_MATERLIALIST_DETAIL Map WHERE REPORT_ID = @reportId AND Map.PROJECT_ITEM_ID=i.PLAN_ITEM_ID; 
+";
             using (var context = new topmepEntities())
             {
                 logger.Debug("sql=" + sql + ",reportId=" + reportId);
@@ -1149,6 +1153,49 @@ SELECT [TASK_ID],[PROJECT_ID],[PRJ_ID],[PRJ_UID],[TASK_NAME],[START_DATE],[FINIS
             {
                 logger.Info("get task for report sql:" + sql);
                 lst = context.Database.SqlQuery<PLAN_DR_TASK>(sql, parameters.ToArray()).ToList();
+            }
+            return lst;
+        }
+        /// <summary>
+        /// 彙整日報資料For 估驗使用
+        /// </summary>
+        /// <returns></returns>
+        public List<SummaryDailyReport> getDailyReport4Estimation(string projectid, DateTime reportstartdate, DateTime reportenddate)
+        {
+            List<SummaryDailyReport> lst = null;
+            string sql = @"
+SELECT PROJECT_ID,PLAN_ITEM_ID PROJECT_ITEM_ID,ITEM_ID,ITEM_DESC,
+SUM(FINISH_QTY) QTY,SUPPLIER_ID,MIN(REPORT_DATE) REPORT_START_DATE,MAX(REPORT_DATE) REPORT_END_DATE,
+MAX(LAST_QTY) as ACCUMULATE_QTY
+FROM (
+SELECT 
+RPT.PROJECT_ID,DRITEM.PLAN_ITEM_ID,DRITEM.FINISH_QTY,ISNULL(DRITEM.LAST_QTY,0) LAST_QTY,
+SUPITEM.ITEM_ID,SUPITEM.ITEM_DESC,
+SUPFORM.SUPPLIER_ID,RPT.REPORT_DATE,RPT.REPORT_ID
+ FROM PLAN_DALIY_REPORT RPT 
+JOIN PLAN_DR_ITEM DRITEM
+ON RPT.REPORT_ID=DRITEM.REPORT_ID
+JOIN PLAN_SUP_INQUIRY_ITEM SUPITEM 
+ON DRITEM.PLAN_ITEM_ID=SUPITEM.PLAN_ITEM_ID
+JOIN PLAN_ITEM2_SUP_INQUIRY SUPCONTRACT 
+ON SUPCONTRACT.INQUIRY_FORM_ID=SUPITEM.INQUIRY_FORM_ID
+JOIN PLAN_SUP_INQUIRY SUPFORM
+ON SUPCONTRACT.INQUIRY_FORM_ID=SUPFORM.INQUIRY_FORM_ID
+WHERE DRITEM.PROJECT_ID=@projectid
+AND RPT.REPORT_DATE BETWEEN @reportstartdate AND @reportenddate
+) SUMMARYREPORT
+GROUP BY PROJECT_ID,PLAN_ITEM_ID,ITEM_ID,ITEM_DESC,SUPPLIER_ID
+ORDER BY SUPPLIER_ID,ITEM_ID,ITEM_DESC
+";
+            var parameters = new List<SqlParameter>();
+            //設定專案名編號資料
+            parameters.Add(new SqlParameter("projectid", projectid));
+            parameters.Add(new SqlParameter("reportstartdate", reportstartdate));
+            parameters.Add(new SqlParameter("reportenddate", reportenddate));
+            using (var context = new topmepEntities())
+            {
+                logger.Info("get getSummaryReport sql:" + sql + ",projectid=" + projectid + ",report date between:" + reportstartdate + "," + reportenddate);
+                lst = context.Database.SqlQuery<SummaryDailyReport>(sql, parameters.ToArray()).ToList();
             }
             return lst;
         }

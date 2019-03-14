@@ -609,6 +609,28 @@ namespace topmeperp.Controllers
 
             return View(dailyRpt);
         }
+        public ActionResult dailyReport4Estimation(string id)
+        {
+            if (null == id || "" == id)
+            {
+                id = Request["projectid"];
+            }
+            ViewBag.projectName = planService.getProject(id).PROJECT_NAME;
+            ViewBag.projectId = id;
+            return View();
+        }
+        public ActionResult getDailyReport4Estimation(FormCollection f)
+        {
+            //定義查詢條件
+            string strProjectid = f["txtProjectId"];
+            DateTime dtStart= DateTime.Parse(f["reportDateStart"]);
+            DateTime dtEnd = DateTime.Parse(f["reportDateEnd"]);
+
+            List<SummaryDailyReport> lst = planService.getDailyReport4Estimation(strProjectid, dtStart, dtEnd);
+
+            ViewBag.Result = "共" + lst.Count + " 筆估驗紀錄!!";
+            return PartialView("_getDailyReport4Estimation", lst);
+        }
         //彙總報表
         public ActionResult summaryReport()
         {
