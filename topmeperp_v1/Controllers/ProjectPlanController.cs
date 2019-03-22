@@ -619,6 +619,11 @@ namespace topmeperp.Controllers
             ViewBag.projectId = id;
             return View();
         }
+        /// <summary>
+        /// 取得彙整日報表
+        /// </summary>
+        /// <param name="f"></param>
+        /// <returns></returns>
         public ActionResult getDailyReport4Estimation(FormCollection f)
         {
             //定義查詢條件
@@ -627,9 +632,28 @@ namespace topmeperp.Controllers
             DateTime dtEnd = DateTime.Parse(f["reportDateEnd"]);
 
             List<SummaryDailyReport> lst = planService.getDailyReport4Estimation(strProjectid, dtStart, dtEnd);
-
+            Session["dailyReport"] = lst;
             ViewBag.Result = "共" + lst.Count + " 筆估驗紀錄!!";
             return PartialView("_getDailyReport4Estimation", lst);
+        }
+        /// <summary>
+        /// 下載彙整日報表
+        /// </summary>
+        public void downloadSummaryDailyReport()
+        {
+            List<SummaryDailyReport> lst = (List<SummaryDailyReport>)Session["dailyReport"];
+            SummaryDailyReportToExcel poiservice = new SummaryDailyReportToExcel();
+            //產生檔案位置       
+            string fileLocation = poiservice.exportExcel(lst);
+            //檔案名稱 HttpUtility.UrlEncode預設會以UTF8的編碼系統進行QP(Quoted-Printable)編碼，可以直接顯示的7 Bit字元(ASCII)就不用特別轉換。
+            string filename = HttpUtility.UrlEncode(Path.GetFileName(fileLocation));
+            Response.Clear();
+            Response.Charset = "utf-8";
+            Response.ContentType = "text/xls";
+            Response.AddHeader("content-disposition", string.Format("attachment; filename={0}", filename));
+            ///"\\" + form.PROJECT_ID + "\\" + ContextService.quotesFolder + "\\" + form.FORM_ID + ".xlsx"
+            Response.WriteFile(fileLocation);
+            Response.End();
         }
         //彙總報表
         public ActionResult summaryReport()

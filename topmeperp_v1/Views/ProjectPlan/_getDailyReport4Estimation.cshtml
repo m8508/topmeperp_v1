@@ -8,6 +8,7 @@
         <div class="row">
             <label id="Message" class="alert-danger">@ViewBag.Message</label>
             <label id="Message" class="alert-info">@ViewBag.Result</label>
+            <a href="~/ProjectPlan/downloadSummaryDailyReport" class="btn btn-sm btn-warning">下載</a>
             <table class="table" width="100%">
                 @foreach (var item in Model)
                 {
@@ -23,18 +24,18 @@
                             <td>品名</td>
                             <td>估驗數量</td>
                             <td>前期累計數量</td>
-                            <td width="5%">選擇</td>
+                            <!-- td width="5%">選擇</!--td -->
                         </tr>
                         supplierid = item.SUPPLIER_ID;
                     }
-                    <tr>
-                        <td>@item.PROJECT_ITEM_ID</td>
-                        <td>@item.ITEM_ID </td>
-                        <td>@Html.DisplayFor(modelItem => item.ITEM_DESC)</td>
-                        <td>@item.QTY</td>
-                        <td>@item.ACCUMULATE_QTY</td>
-                        <td><input type="checkbox" id="choiced" name="choiced" />   </td>
-                    </tr>
+                        <tr>
+                            <td>@item.PROJECT_ITEM_ID</td>
+                            <td>@item.ITEM_ID </td>
+                            <td>@Html.DisplayFor(modelItem => item.ITEM_DESC)</td>
+                            <td>@item.QTY</td>
+                            <td>@item.ACCUMULATE_QTY</td>
+                            <!-- td><input type="checkbox" id="choiced" name="choiced" />   </!--td-->
+                        </tr>
                 }
 
             </table>

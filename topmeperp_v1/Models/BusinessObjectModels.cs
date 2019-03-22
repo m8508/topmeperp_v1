@@ -359,6 +359,8 @@ namespace topmeperp.Models
         public Nullable<decimal> ACCUMULATE_QTY { get; set; }//累積數量
         public Nullable<DateTime> REPORT_START_DATE { get; set; }//報表日期 
         public Nullable<DateTime> REPORT_END_DATE { get; set; }//報表日期 
+        public string BGN_REPORT_ID { get; set; }//Report ID Begin 
+        public string END_REPORT_ID { get; set; }//Report ID End 
         public string SUPPLIER_ID { get; set; }//廠商名稱 
     }
     #endregion

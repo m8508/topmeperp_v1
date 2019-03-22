@@ -692,6 +692,7 @@
     <Compile Include="Service\EstimationService.cs" />
     <Compile Include="Service\poi4CostChangeService.cs" />
     <Compile Include="Service\PoiService4ProjectTask.cs" />
+    <Compile Include="Service\PoiSrevice4DailyReport.cs" />
     <Compile Include="Service\PoiSrevice4Payment.cs" />
     <Compile Include="Service\ProjectPlanService.cs" />
     <Compile Include="Service\ContextService.cs" />
@@ -1325,6 +1326,11 @@
     <Content Include="Views\Estimation\_SupplierTempworker.cshtml" />
     <Content Include="Views\Plan\costChangeFormPrint.cshtml" />
     <Content Include="Views\MaterialManage\ReceiptPrint.cshtml" />
+    <Content Include="UploadFile\dailyReport_Summary.xlsx" />
+    <Content Include="UploadFile\CostChange_Result_v1.xlsx" />
+    <Content Include="UploadFile\expense_form_Bak.xlsx" />
+    <Content Include="UploadFile\PlanItem_Template_v1.xlsx" />
+    <Content Include="UploadFile\SiteExpSummary_form_Bk.xlsx" />
     <None Include="Views\Plan\_ChangeOrderItemListPrint.cshtml" />
     <Content Include="Views\ProjectPlan\dailyReport4Estimation.cshtml" />
     <Content Include="Views\ProjectPlan\_getDailyReport4Estimation.cshtml" />
