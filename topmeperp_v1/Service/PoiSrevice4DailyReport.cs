@@ -72,10 +72,12 @@ namespace topmeperp.Service
             IRow rowSource = sheet.GetRow(iStartRow);
             //iStartRow++;
             string strSupplier = "";
+            double amount4supplier = 0;
             foreach (SummaryDailyReport dr in dailyReport)
             {
                 IRow rowInsert = sheet.CreateRow(iStartRow);
                 rowInsert.Height = rowSource.Height;
+                //補上小計資料
                 //廠商資料
                 if (strSupplier != dr.SUPPLIER_ID)
                 {
@@ -100,7 +102,7 @@ namespace topmeperp.Service
                 //本期數量
                 rowInsert.CreateCell(12).SetCellValue((double)dr.QTY);
                 //本期金額
-                rowInsert.CreateCell(13).SetCellValue("#");
+                rowInsert.CreateCell(13).SetCellFormula("M" + (iStartRow + 1) + "*" + dr.UNIT_COST);
                 //累計數量
                 rowInsert.CreateCell(14).SetCellFormula("K" + (iStartRow+1) + "+M" + (iStartRow+1));
                 //累計金額
