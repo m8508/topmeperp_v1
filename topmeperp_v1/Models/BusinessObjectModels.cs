@@ -362,6 +362,8 @@ namespace topmeperp.Models
         public string BGN_REPORT_ID { get; set; }//Report ID Begin 
         public string END_REPORT_ID { get; set; }//Report ID End 
         public string SUPPLIER_ID { get; set; }//廠商名稱 
+        public string INQUIRY_FORM_ID { get; set; }//採購單(合約編號-對廠商)
+        public Nullable<decimal> UNIT_COST { get; set; } //採購單價
     }
     #endregion
 
