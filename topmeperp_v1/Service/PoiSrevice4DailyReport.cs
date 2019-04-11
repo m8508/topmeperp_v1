@@ -77,40 +77,36 @@ namespace topmeperp.Service
             {
                 IRow rowInsert = sheet.CreateRow(iStartRow);
                 rowInsert.Height = rowSource.Height;
-                //補上小計資料
-                //廠商資料
-                if (strSupplier != dr.SUPPLIER_ID)
+
+                if (strSupplier != "" && strSupplier != dr.SUPPLIER_ID)
                 {
-                    rowInsert.CreateCell(0).SetCellValue(dr.SUPPLIER_ID);
+                    logger.Debug("Create Summary Row:" + iStartRow);
+                    //補上小計資料
+                    //rowInsert = sheet.CreateRow(iStartRow);
+                    //rowInsert.CreateCell(0).SetCellValue(strSupplier);
+                    rowInsert.CreateCell(12).SetCellValue("小計");
+                    rowInsert.CreateCell(13).SetCellValue(amount4supplier);
+                    //strSupplier = dr.SUPPLIER_ID;
+                    amount4supplier = 0.0;
+                    iStartRow++;
+                    rowInsert = sheet.CreateRow(iStartRow);
+                }
+                if (!strSupplier.Equals(dr.SUPPLIER_ID))
+                {
+                    //廠商資料
+                    logger.Debug("Create Supplier Row:" + iStartRow);
                     strSupplier = dr.SUPPLIER_ID;
+                    rowInsert.CreateCell(0).SetCellValue(strSupplier);
+                    amount4supplier = amount4supplier + FillRow(iStartRow, dr, rowInsert);
                 }
                 else
                 {
+                    //logger.Debug("Create Item Row:" + iStartRow);
+                    logger.Debug("Create Item Row :" + dr.PROJECT_ITEM_ID + " ,iRow=" + iStartRow);
                     rowInsert.CreateCell(0).SetCellValue("");
+                    amount4supplier = amount4supplier + FillRow(iStartRow, dr, rowInsert);
                 }
-                logger.Debug("Create New Row :" + dr.PROJECT_ITEM_ID + " ,iRow=" + iStartRow);
-                //合約項次
-                rowInsert.CreateCell(1).SetCellValue(dr.ITEM_ID);
-                //合約品名
-                rowInsert.CreateCell(2).SetCellValue(dr.ITEM_DESC);
-                //單位
-                rowInsert.CreateCell(8).SetCellValue(dr.ITEM_UNIT);
-                //前期數量
-                rowInsert.CreateCell(10).SetCellValue((double)dr.ACCUMULATE_QTY.Value);
-                //前期金額
-                rowInsert.CreateCell(11).SetCellValue("#");
-                //本期數量
-                rowInsert.CreateCell(12).SetCellValue((double)dr.QTY);
-                //本期金額
-                rowInsert.CreateCell(13).SetCellFormula("M" + (iStartRow + 1) + "*" + dr.UNIT_COST);
-                //累計數量
-                rowInsert.CreateCell(14).SetCellFormula("K" + (iStartRow+1) + "+M" + (iStartRow+1));
-                //累計金額
-                rowInsert.CreateCell(15).SetCellValue("#");
-                //比率
-                rowInsert.CreateCell(16).SetCellValue("#");
-                //備註
-                rowInsert.CreateCell(17).SetCellValue(dr.PROJECT_ITEM_ID);
+
                 iStartRow++;
             }
             //寫入簽核欄位
@@ -120,6 +116,34 @@ namespace topmeperp.Service
             rowEnd.CreateCell(4).SetCellValue("複審");
             rowEnd.CreateCell(9).SetCellValue("初審");
             rowEnd.CreateCell(13).SetCellValue("承辦人");
+        }
+
+        private static double FillRow(int iStartRow, SummaryDailyReport dr, IRow rowInsert)
+        {
+            //合約項次
+            rowInsert.CreateCell(1).SetCellValue(dr.ITEM_ID);
+            //合約品名
+            rowInsert.CreateCell(2).SetCellValue(dr.ITEM_DESC);
+            //單位
+            rowInsert.CreateCell(8).SetCellValue(dr.ITEM_UNIT);
+            //前期數量
+            rowInsert.CreateCell(10).SetCellValue((double)dr.ACCUMULATE_QTY.Value);
+            //前期金額
+            rowInsert.CreateCell(11).SetCellFormula("K" + (iStartRow + 1) + "*" + dr.UNIT_COST);
+            double amount4supplier = (double)dr.QTY * (double)dr.UNIT_COST;
+            //本期數量
+            rowInsert.CreateCell(12).SetCellValue((double)dr.QTY);
+            //本期金額
+            rowInsert.CreateCell(13).SetCellFormula("M" + (iStartRow + 1) + "*" + dr.UNIT_COST);
+            //累計數量
+            rowInsert.CreateCell(14).SetCellFormula("K" + (iStartRow + 1) + "+M" + (iStartRow + 1));
+            //累計金額
+            rowInsert.CreateCell(15).SetCellFormula("L" + (iStartRow + 1) + "+N" + (iStartRow + 1));
+            //比率
+            rowInsert.CreateCell(16).SetCellValue("");
+            //備註
+            rowInsert.CreateCell(17).SetCellValue(dr.PROJECT_ITEM_ID);
+            return amount4supplier;
         }
 
         private void logErrorMessage(string message)
