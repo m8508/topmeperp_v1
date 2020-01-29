@@ -2816,7 +2816,7 @@ LEFT JOIN (SELECT pri.PLAN_ITEM_ID, SUM(pri.ORDER_QTY) AS CUMULATIVE_QTY
             //處理SQL 預先填入專案代號,設定集合處理參數
             string sql = "SELECT CONVERT(char(10), CREATE_DATE, 111) AS CREATE_DATE, PR_ID, PROJECT_ID, SUPPLIER_ID, PARENT_PR_ID, " +
                 "ISNULL(CAUTION,'') + ISNULL(MEMO,'') + ISNULL(MESSAGE,'') AS KEY_NAME, ROW_NUMBER() OVER(ORDER BY PR_ID) AS NO " +
-                "FROM PLAN_PURCHASE_REQUISITION WHERE PROJECT_ID =@projectid AND SUPPLIER_ID IS NOT NULL AND PR_ID NOT LIKE 'RP%' ";
+                "FROM PLAN_PURCHASE_REQUISITION WHERE PROJECT_ID =@projectid AND SUPPLIER_ID IS NOT NULL AND PR_ID NOT LIKE 'RP%' ORDER BY STATUS ";
 
             var parameters = new List<SqlParameter>();
             parameters.Add(new SqlParameter("projectid", projectid));
