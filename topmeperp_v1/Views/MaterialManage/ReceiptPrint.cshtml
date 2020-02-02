@@ -39,32 +39,32 @@
     <div class="">
         <table class="printTable">
             <thead>
-                <tr class="printTh">
-                    <th>
+                <tr>
+                    <th class="printTh">
                         項次
                     </th>
-                    <th>
+                    <th class="printTh">
                         項目說明
                     </th>
-                    <th>
+                    <th class="printTh">
                         單位
                     </th>
-                    <th>
+                    <th class="printTh">
                         備註
                     </th>
-                    <th>
+                    <th class="printTh">
                         合約數量
                     </th>
-                    <th>
+                    <th class="printTh">
                         已訂購數量
                     </th>
-                    <th>
+                    <th class="printTh">
                         採購數量
                     </th>
-                    <th>
+                    <th class="printTh">
                         已驗收數量
                     </th>
-                    <th>
+                    <th class="printTh">
                         驗收數量
                     </th>
                 </tr>
@@ -74,31 +74,31 @@
                 {
 
                     <tr>
-                        <td>
+                        <td class="printTh">
                             @item.ITEM_ID
                         </td>
-                        <td>
+                        <td class="printTh">
                             @item.ITEM_DESC
                         </td>
-                        <td>
+                        <td class="printTh">
                             @item.ITEM_UNIT
                         </td>
-                        <td>
+                        <td class="printTh">
                             @item.REMARK
                         </td>
-                        <td>
+                        <td class="printTh">
                             @item.ITEM_FORM_QUANTITY
                         </td>
-                        <td>
+                        <td class="printTh">
                             @item.CUMULATIVE_QTY
                         </td>
-                        <td>
+                        <td class="printTh">
                             @item.ORDER_QTY
                         </td>
-                        <td>
+                        <td class="printTh">
                             @item.RECEIPT_QTY_BY_PO
                         </td>
-                        <td>
+                        <td class="printTh">
                             @item.RECEIPT_QTY
                         </td>
                     </tr>
@@ -117,7 +117,6 @@
                 </tr>
             </tfoot>
         </table>
-
     </div>
     <!--Print Footer-->
     <div class="">
