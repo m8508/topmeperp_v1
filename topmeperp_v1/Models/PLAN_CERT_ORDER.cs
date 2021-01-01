@@ -12,14 +12,16 @@ namespace topmeperp.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class SYS_PARA
+    public partial class PLAN_CERT_ORDER
     {
-        public long PARA_ID { get; set; }
-        public string FUNCTION_ID { get; set; }
-        public string FUNCTION_DESC { get; set; }
-        public string FIELD_ID { get; set; }
-        public string FIELD_DESC { get; set; }
-        public string KEY_FIELD { get; set; }
-        public string VALUE_FIELD { get; set; }
+        public string CERT_ORD_ID { get; set; }
+        public string INQUIRY_FORM_ID { get; set; }
+        public string SUPPLIER_ID { get; set; }
+        public string PROJECT_ID { get; set; }
+        public string CREATE_ID { get; set; }
+        public Nullable<System.DateTime> CREATE_DATE { get; set; }
+        public string MODIFY_ID { get; set; }
+        public Nullable<System.DateTime> MODIFY_DATE { get; set; }
+        public string STATUS { get; set; }
     }
 }

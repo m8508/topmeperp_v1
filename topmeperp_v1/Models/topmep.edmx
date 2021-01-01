@@ -187,6 +187,42 @@
           <Property Name="SYSTEM_MAIN" Type="varchar" MaxLength="100" />
           <Property Name="SYSTEM_SUB" Type="varchar" MaxLength="100" />
         </EntityType>
+        <!--產生期間發現錯誤:
+警告 6002: 資料表/檢視 'topmep.dbo.PLAN_CERT_ORDER' 未定義主索引鍵。已推斷此索引鍵，並將定義建立成唯讀的資料表/檢視。-->
+        <EntityType Name="PLAN_CERT_ORDER">
+          <Key>
+            <PropertyRef Name="INQUIRY_FORM_ID" />
+          </Key>
+          <Property Name="CERT_ORD_ID" Type="varchar" MaxLength="30" />
+          <Property Name="INQUIRY_FORM_ID" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="SUPPLIER_ID" Type="varchar" MaxLength="200" />
+          <Property Name="PROJECT_ID" Type="varchar" MaxLength="30" />
+          <Property Name="CREATE_ID" Type="varchar" MaxLength="30" />
+          <Property Name="CREATE_DATE" Type="datetime" />
+          <Property Name="MODIFY_ID" Type="varchar" MaxLength="30" />
+          <Property Name="MODIFY_DATE" Type="datetime" />
+          <Property Name="STATUS" Type="varchar" MaxLength="20" />
+        </EntityType>
+        <EntityType Name="PLAN_CERT_ORDER_ITEM">
+          <Key>
+            <PropertyRef Name="CERT_ORD_ITEM_ID" />
+          </Key>
+          <Property Name="CERT_ORD_ITEM_ID" Type="bigint" Nullable="false" />
+          <Property Name="CERT_ORD_ID" Type="varchar" MaxLength="30" />
+          <Property Name="PLAN_ITEM_ID" Type="varchar" MaxLength="50" />
+          <Property Name="TYPE_CODE" Type="varchar" MaxLength="6" />
+          <Property Name="SUB_TYPE_CODE" Type="varchar" MaxLength="6" />
+          <Property Name="ITEM_ID" Type="varchar" MaxLength="50" />
+          <Property Name="ITEM_DESC" Type="nvarchar" MaxLength="1000" />
+          <Property Name="ITEM_UNIT" Type="varchar" MaxLength="10" />
+          <Property Name="ORDER_QTY" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="ORDER_PRICE" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="ACCUMULTATE_QTY" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="ITEM_REMARK" Type="nvarchar" MaxLength="1000" />
+          <Property Name="MODIFY_ID" Type="varchar" MaxLength="30" />
+          <Property Name="MODIFY_DATE" Type="datetime" />
+          <Property Name="WAGE_PRICE" Type="decimal" Precision="18" Scale="3" />
+        </EntityType>
         <EntityType Name="PLAN_CONTRACT_PROCESS">
           <Key>
             <PropertyRef Name="CONTRACT_ID" />
@@ -1245,6 +1281,90 @@
           <Property Name="DATA_KEY" Type="varchar" MaxLength="200" />
           <Property Name="CURENT_STATE" Type="bigint" />
         </EntityType>
+        <!--產生期間發現錯誤:
+警告 6013: 資料表/檢視 'topmep.dbo.View_1' 未定義主索引鍵，也無法推斷有效的主索引鍵。此資料表/檢視已被排除。如果要使用此實體，您必須檢閱您的結構描述，加入正確的索引鍵，並將它取消註解。
+        <EntityType Name="View_1">
+          <Property Name="ROLE_NAME" Type="varchar" MaxLength="50" />
+          <Property Name="USER_NAME" Type="varchar" MaxLength="50" />
+        </EntityType>-->
+        <!--產生期間發現錯誤:
+警告 6013: 資料表/檢視 'topmep.dbo.vw_BudgetStatus' 未定義主索引鍵，也無法推斷有效的主索引鍵。此資料表/檢視已被排除。如果要使用此實體，您必須檢閱您的結構描述，加入正確的索引鍵，並將它取消註解。
+        <EntityType Name="vw_BudgetStatus">
+          <Property Name="PROJECT_ID" Type="varchar" MaxLength="30" />
+          <Property Name="SUBJECT_ID" Type="varchar" MaxLength="20" />
+          <Property Name="PAID_DATE" Type="datetime" />
+          <Property Name="AMOUNT" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="AMOUNT_REAL" Type="decimal" Precision="38" Scale="3" />
+        </EntityType>-->
+        <!--產生期間發現錯誤:
+警告 6002: 資料表/檢視 'topmep.dbo.vw_MAP_FW' 未定義主索引鍵。已推斷此索引鍵，並將定義建立成唯讀的資料表/檢視。-->
+        <EntityType Name="vw_MAP_FW">
+          <Key>
+            <PropertyRef Name="FW_ID" />
+          </Key>
+          <Property Name="FW_ID" Type="bigint" Nullable="false" />
+          <Property Name="PROJECT_ID" Type="varchar" MaxLength="20" />
+          <Property Name="EXCEL_ITEM" Type="varchar" MaxLength="10" />
+          <Property Name="PROJECT_ITEM_ID" Type="varchar" MaxLength="50" />
+          <Property Name="MAP_NO" Type="varchar" MaxLength="20" />
+          <Property Name="BUILDING_NO" Type="varchar" MaxLength="50" />
+          <Property Name="PRIMARY_SIDE" Type="varchar" MaxLength="150" />
+          <Property Name="PRIMARY_SIDE_NAME" Type="varchar" MaxLength="150" />
+          <Property Name="SECONDARY_SIDE" Type="varchar" MaxLength="150" />
+          <Property Name="SECONDARY_SIDE_NAME" Type="varchar" MaxLength="150" />
+          <Property Name="PIPE_NAME" Type="varchar" MaxLength="150" />
+          <Property Name="PIPE_CNT" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="PIPE_SET" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="PIPE_LENGTH" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="PIPE_TOTAL_LENGTH" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="CREATE_DATE" Type="datetime" />
+          <Property Name="CREATE_ID" Type="varchar" MaxLength="30" />
+          <Property Name="ITEM_DESC" Type="nvarchar" MaxLength="1000" />
+        </EntityType>
+        <!--產生期間發現錯誤:
+警告 6013: 資料表/檢視 'topmep.dbo.vw_MAP_MATERLIALIST' 未定義主索引鍵，也無法推斷有效的主索引鍵。此資料表/檢視已被排除。如果要使用此實體，您必須檢閱您的結構描述，加入正確的索引鍵，並將它取消註解。
+        <EntityType Name="vw_MAP_MATERLIALIST">
+          <Property Name="PROJECT_ID" Type="varchar" MaxLength="20" />
+          <Property Name="PROJECT_ITEM_ID" Type="varchar" MaxLength="200" />
+          <Property Name="QTY" Type="decimal" Precision="38" Scale="0" />
+        </EntityType>-->
+        <!--產生期間發現錯誤:
+警告 6013: 資料表/檢視 'topmep.dbo.vw_MAP_MATERLIALIST_DETAIL' 未定義主索引鍵，也無法推斷有效的主索引鍵。此資料表/檢視已被排除。如果要使用此實體，您必須檢閱您的結構描述，加入正確的索引鍵，並將它取消註解。
+        <EntityType Name="vw_MAP_MATERLIALIST_DETAIL">
+          <Property Name="PROJECT_ID" Type="varchar" MaxLength="20" />
+          <Property Name="PROJECT_ITEM_ID" Type="varchar" MaxLength="200" />
+          <Property Name="QTY" Type="decimal" Precision="38" Scale="0" />
+        </EntityType>-->
+        <!--產生期間發現錯誤:
+警告 6002: 資料表/檢視 'topmep.dbo.vw_MAP_PLU' 未定義主索引鍵。已推斷此索引鍵，並將定義建立成唯讀的資料表/檢視。-->
+        <EntityType Name="vw_MAP_PLU">
+          <Key>
+            <PropertyRef Name="PLU_ID" />
+          </Key>
+          <Property Name="PLU_ID" Type="bigint" Nullable="false" />
+          <Property Name="PROJECT_ID" Type="varchar" MaxLength="20" />
+          <Property Name="PROJECT_ITEM_ID" Type="varchar" MaxLength="50" />
+          <Property Name="MAP_NO" Type="varchar" MaxLength="20" />
+          <Property Name="BUILDING_NO" Type="varchar" MaxLength="50" />
+          <Property Name="PRIMARY_SIDE" Type="varchar" MaxLength="150" />
+          <Property Name="PRIMARY_SIDE_NAME" Type="varchar" MaxLength="150" />
+          <Property Name="SECONDARY_SIDE" Type="varchar" MaxLength="150" />
+          <Property Name="SECONDARY_SIDE_NAME" Type="varchar" MaxLength="150" />
+          <Property Name="PIPE_NAME" Type="varchar" MaxLength="150" />
+          <Property Name="PIPE_COUNT_SET" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="PIPE_SET_QTY" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="PIPE_LENGTH" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="PIPE_TOTAL_LENGTH" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="CREATE_DATE" Type="datetime" />
+          <Property Name="CREATE_ID" Type="varchar" MaxLength="30" />
+          <Property Name="EXCEL_ITEM" Type="varchar" MaxLength="10" />
+          <Property Name="ITEM_DESC" Type="nvarchar" MaxLength="1000" />
+        </EntityType>
+        <!--產生期間發現錯誤:
+警告 6013: 資料表/檢視 'topmep.dbo.vw_TimeIndex4CashFlow' 未定義主索引鍵，也無法推斷有效的主索引鍵。此資料表/檢視已被排除。如果要使用此實體，您必須檢閱您的結構描述，加入正確的索引鍵，並將它取消註解。
+        <EntityType Name="vw_TimeIndex4CashFlow">
+          <Property Name="EVENT_DATE" Type="datetime" />
+        </EntityType>-->
         <Association Name="FK_PLAN_COS_REFERENCE_PLAN_COS">
           <End Role="PLAN_COSTCHANGE_FORM" Type="Self.PLAN_COSTCHANGE_FORM" Multiplicity="0..1" />
           <End Role="PLAN_COSTCHANGE_ITEM" Type="Self.PLAN_COSTCHANGE_ITEM" Multiplicity="*" />
@@ -1328,6 +1448,7 @@
           <EntitySet Name="FIN_SUBJECT" EntityType="Self.FIN_SUBJECT" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAN_ACCOUNT" EntityType="Self.PLAN_ACCOUNT" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAN_BUDGET" EntityType="Self.PLAN_BUDGET" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PLAN_CERT_ORDER_ITEM" EntityType="Self.PLAN_CERT_ORDER_ITEM" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAN_CONTRACT_PROCESS" EntityType="Self.PLAN_CONTRACT_PROCESS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAN_COSTCHANGE_FORM" EntityType="Self.PLAN_COSTCHANGE_FORM" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAN_COSTCHANGE_ITEM" EntityType="Self.PLAN_COSTCHANGE_ITEM" Schema="dbo" store:Type="Tables" />
@@ -1388,6 +1509,63 @@
           <EntitySet Name="WF_PROCESS" EntityType="Self.WF_PROCESS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WF_PROCESS_ACTIVITY" EntityType="Self.WF_PROCESS_ACTIVITY" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WF_PROCESS_REQUEST" EntityType="Self.WF_PROCESS_REQUEST" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PLAN_CERT_ORDER" EntityType="Self.PLAN_CERT_ORDER" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [PLAN_CERT_ORDER].[CERT_ORD_ID] AS [CERT_ORD_ID], 
+    [PLAN_CERT_ORDER].[INQUIRY_FORM_ID] AS [INQUIRY_FORM_ID], 
+    [PLAN_CERT_ORDER].[SUPPLIER_ID] AS [SUPPLIER_ID], 
+    [PLAN_CERT_ORDER].[PROJECT_ID] AS [PROJECT_ID], 
+    [PLAN_CERT_ORDER].[CREATE_ID] AS [CREATE_ID], 
+    [PLAN_CERT_ORDER].[CREATE_DATE] AS [CREATE_DATE], 
+    [PLAN_CERT_ORDER].[MODIFY_ID] AS [MODIFY_ID], 
+    [PLAN_CERT_ORDER].[MODIFY_DATE] AS [MODIFY_DATE], 
+    [PLAN_CERT_ORDER].[STATUS] AS [STATUS]
+    FROM [dbo].[PLAN_CERT_ORDER] AS [PLAN_CERT_ORDER]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="vw_MAP_FW" EntityType="Self.vw_MAP_FW" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [vw_MAP_FW].[FW_ID] AS [FW_ID], 
+    [vw_MAP_FW].[PROJECT_ID] AS [PROJECT_ID], 
+    [vw_MAP_FW].[EXCEL_ITEM] AS [EXCEL_ITEM], 
+    [vw_MAP_FW].[PROJECT_ITEM_ID] AS [PROJECT_ITEM_ID], 
+    [vw_MAP_FW].[MAP_NO] AS [MAP_NO], 
+    [vw_MAP_FW].[BUILDING_NO] AS [BUILDING_NO], 
+    [vw_MAP_FW].[PRIMARY_SIDE] AS [PRIMARY_SIDE], 
+    [vw_MAP_FW].[PRIMARY_SIDE_NAME] AS [PRIMARY_SIDE_NAME], 
+    [vw_MAP_FW].[SECONDARY_SIDE] AS [SECONDARY_SIDE], 
+    [vw_MAP_FW].[SECONDARY_SIDE_NAME] AS [SECONDARY_SIDE_NAME], 
+    [vw_MAP_FW].[PIPE_NAME] AS [PIPE_NAME], 
+    [vw_MAP_FW].[PIPE_CNT] AS [PIPE_CNT], 
+    [vw_MAP_FW].[PIPE_SET] AS [PIPE_SET], 
+    [vw_MAP_FW].[PIPE_LENGTH] AS [PIPE_LENGTH], 
+    [vw_MAP_FW].[PIPE_TOTAL_LENGTH] AS [PIPE_TOTAL_LENGTH], 
+    [vw_MAP_FW].[CREATE_DATE] AS [CREATE_DATE], 
+    [vw_MAP_FW].[CREATE_ID] AS [CREATE_ID], 
+    [vw_MAP_FW].[ITEM_DESC] AS [ITEM_DESC]
+    FROM [dbo].[vw_MAP_FW] AS [vw_MAP_FW]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="vw_MAP_PLU" EntityType="Self.vw_MAP_PLU" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [vw_MAP_PLU].[PLU_ID] AS [PLU_ID], 
+    [vw_MAP_PLU].[PROJECT_ID] AS [PROJECT_ID], 
+    [vw_MAP_PLU].[PROJECT_ITEM_ID] AS [PROJECT_ITEM_ID], 
+    [vw_MAP_PLU].[MAP_NO] AS [MAP_NO], 
+    [vw_MAP_PLU].[BUILDING_NO] AS [BUILDING_NO], 
+    [vw_MAP_PLU].[PRIMARY_SIDE] AS [PRIMARY_SIDE], 
+    [vw_MAP_PLU].[PRIMARY_SIDE_NAME] AS [PRIMARY_SIDE_NAME], 
+    [vw_MAP_PLU].[SECONDARY_SIDE] AS [SECONDARY_SIDE], 
+    [vw_MAP_PLU].[SECONDARY_SIDE_NAME] AS [SECONDARY_SIDE_NAME], 
+    [vw_MAP_PLU].[PIPE_NAME] AS [PIPE_NAME], 
+    [vw_MAP_PLU].[PIPE_COUNT_SET] AS [PIPE_COUNT_SET], 
+    [vw_MAP_PLU].[PIPE_SET_QTY] AS [PIPE_SET_QTY], 
+    [vw_MAP_PLU].[PIPE_LENGTH] AS [PIPE_LENGTH], 
+    [vw_MAP_PLU].[PIPE_TOTAL_LENGTH] AS [PIPE_TOTAL_LENGTH], 
+    [vw_MAP_PLU].[CREATE_DATE] AS [CREATE_DATE], 
+    [vw_MAP_PLU].[CREATE_ID] AS [CREATE_ID], 
+    [vw_MAP_PLU].[EXCEL_ITEM] AS [EXCEL_ITEM], 
+    [vw_MAP_PLU].[ITEM_DESC] AS [ITEM_DESC]
+    FROM [dbo].[vw_MAP_PLU] AS [vw_MAP_PLU]</DefiningQuery>
+          </EntitySet>
           <AssociationSet Name="FK_PLAN_COS_REFERENCE_PLAN_COS" Association="Self.FK_PLAN_COS_REFERENCE_PLAN_COS">
             <End Role="PLAN_COSTCHANGE_FORM" EntitySet="PLAN_COSTCHANGE_FORM" />
             <End Role="PLAN_COSTCHANGE_ITEM" EntitySet="PLAN_COSTCHANGE_ITEM" />
@@ -1420,20 +1598,35 @@
         <EntityContainer Name="topmepEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="ENT_DEPARTMENT" EntityType="topmepModel.ENT_DEPARTMENT" />
           <EntitySet Name="FIN_BANK_ACCOUNT" EntityType="topmepModel.FIN_BANK_ACCOUNT" />
+          <EntitySet Name="FIN_BANK_LOAN" EntityType="topmepModel.FIN_BANK_LOAN" />
           <EntitySet Name="FIN_EXPENSE_BUDGET" EntityType="topmepModel.FIN_EXPENSE_BUDGET" />
           <EntitySet Name="FIN_EXPENSE_FORM" EntityType="topmepModel.FIN_EXPENSE_FORM" />
           <EntitySet Name="FIN_EXPENSE_ITEM" EntityType="topmepModel.FIN_EXPENSE_ITEM" />
+          <EntitySet Name="FIN_LOAN_TRANACTION" EntityType="topmepModel.FIN_LOAN_TRANACTION" />
           <EntitySet Name="FIN_SUBJECT" EntityType="topmepModel.FIN_SUBJECT" />
+          <EntitySet Name="PLAN_ACCOUNT" EntityType="topmepModel.PLAN_ACCOUNT" />
           <EntitySet Name="PLAN_BUDGET" EntityType="topmepModel.PLAN_BUDGET" />
+          <EntitySet Name="PLAN_CERT_ORDER_ITEM" EntityType="topmepModel.PLAN_CERT_ORDER_ITEM" />
           <EntitySet Name="PLAN_CONTRACT_PROCESS" EntityType="topmepModel.PLAN_CONTRACT_PROCESS" />
+          <EntitySet Name="PLAN_COSTCHANGE_FORM" EntityType="topmepModel.PLAN_COSTCHANGE_FORM" />
+          <EntitySet Name="PLAN_COSTCHANGE_ITEM" EntityType="topmepModel.PLAN_COSTCHANGE_ITEM" />
           <EntitySet Name="PLAN_DALIY_REPORT" EntityType="topmepModel.PLAN_DALIY_REPORT" />
           <EntitySet Name="PLAN_DR_ITEM" EntityType="topmepModel.PLAN_DR_ITEM" />
           <EntitySet Name="PLAN_DR_NOTE" EntityType="topmepModel.PLAN_DR_NOTE" />
           <EntitySet Name="PLAN_DR_TASK" EntityType="topmepModel.PLAN_DR_TASK" />
+          <EntitySet Name="PLAN_DR_TEMPWORK" EntityType="topmepModel.PLAN_DR_TEMPWORK" />
+          <EntitySet Name="PLAN_DR_WORKER" EntityType="topmepModel.PLAN_DR_WORKER" />
+          <EntitySet Name="PLAN_ESTIMATION_FORM" EntityType="topmepModel.PLAN_ESTIMATION_FORM" />
+          <EntitySet Name="PLAN_ESTIMATION_HOLDPAYMENT" EntityType="topmepModel.PLAN_ESTIMATION_HOLDPAYMENT" />
+          <EntitySet Name="PLAN_ESTIMATION_INVOICE" EntityType="topmepModel.PLAN_ESTIMATION_INVOICE" />
+          <EntitySet Name="PLAN_ESTIMATION_ITEM" EntityType="topmepModel.PLAN_ESTIMATION_ITEM" />
+          <EntitySet Name="PLAN_ESTIMATION_PAYMENT_TRANSFER" EntityType="topmepModel.PLAN_ESTIMATION_PAYMENT_TRANSFER" />
+          <EntitySet Name="PLAN_ESTIMATION2PURCHASE" EntityType="topmepModel.PLAN_ESTIMATION2PURCHASE" />
           <EntitySet Name="PLAN_INDIRECT_COST" EntityType="topmepModel.PLAN_INDIRECT_COST" />
           <EntitySet Name="PLAN_INVOICE" EntityType="topmepModel.PLAN_INVOICE" />
           <EntitySet Name="PLAN_ITEM" EntityType="topmepModel.PLAN_ITEM" />
           <EntitySet Name="PLAN_ITEM_DELIVERY" EntityType="topmepModel.PLAN_ITEM_DELIVERY" />
+          <EntitySet Name="PLAN_ITEM2_SUP_INQUIRY" EntityType="topmepModel.PLAN_ITEM2_SUP_INQUIRY" />
           <EntitySet Name="PLAN_OTHER_PAYMENT" EntityType="topmepModel.PLAN_OTHER_PAYMENT" />
           <EntitySet Name="PLAN_PAYMENT_TERMS" EntityType="topmepModel.PLAN_PAYMENT_TERMS" />
           <EntitySet Name="PLAN_PURCHASE_REQUISITION" EntityType="topmepModel.PLAN_PURCHASE_REQUISITION" />
@@ -1442,12 +1635,14 @@
           <EntitySet Name="PLAN_SUP_INQUIRY" EntityType="topmepModel.PLAN_SUP_INQUIRY" />
           <EntitySet Name="PLAN_SUP_INQUIRY_ITEM" EntityType="topmepModel.PLAN_SUP_INQUIRY_ITEM" />
           <EntitySet Name="PLAN_TASK" EntityType="topmepModel.PLAN_TASK" />
+          <EntitySet Name="PLAN_TASK_DONE" EntityType="topmepModel.PLAN_TASK_DONE" />
           <EntitySet Name="PLAN_TASK2MAPITEM" EntityType="topmepModel.PLAN_TASK2MAPITEM" />
           <EntitySet Name="PLAN_VALUATION_FORM" EntityType="topmepModel.PLAN_VALUATION_FORM" />
           <EntitySet Name="REF_TYPE_MAIN" EntityType="topmepModel.REF_TYPE_MAIN" />
           <EntitySet Name="REF_TYPE_SUB" EntityType="topmepModel.REF_TYPE_SUB" />
           <EntitySet Name="SYS_FUNCTION" EntityType="topmepModel.SYS_FUNCTION" />
           <EntitySet Name="SYS_KEY_SERIAL" EntityType="topmepModel.SYS_KEY_SERIAL" />
+          <EntitySet Name="SYS_MESSAGE" EntityType="topmepModel.SYS_MESSAGE" />
           <EntitySet Name="SYS_PARA" EntityType="topmepModel.SYS_PARA" />
           <EntitySet Name="SYS_PRIVILEGE" EntityType="topmepModel.SYS_PRIVILEGE" />
           <EntitySet Name="SYS_ROLE" EntityType="topmepModel.SYS_ROLE" />
@@ -1472,6 +1667,17 @@
           <EntitySet Name="WF_PROCESS" EntityType="topmepModel.WF_PROCESS" />
           <EntitySet Name="WF_PROCESS_ACTIVITY" EntityType="topmepModel.WF_PROCESS_ACTIVITY" />
           <EntitySet Name="WF_PROCESS_REQUEST" EntityType="topmepModel.WF_PROCESS_REQUEST" />
+          <EntitySet Name="PLAN_CERT_ORDER" EntityType="topmepModel.PLAN_CERT_ORDER" />
+          <EntitySet Name="vw_MAP_FW" EntityType="topmepModel.vw_MAP_FW" />
+          <EntitySet Name="vw_MAP_PLU" EntityType="topmepModel.vw_MAP_PLU" />
+          <AssociationSet Name="FK_PLAN_COS_REFERENCE_PLAN_COS" Association="topmepModel.FK_PLAN_COS_REFERENCE_PLAN_COS">
+            <End Role="PLAN_COSTCHANGE_FORM" EntitySet="PLAN_COSTCHANGE_FORM" />
+            <End Role="PLAN_COSTCHANGE_ITEM" EntitySet="PLAN_COSTCHANGE_ITEM" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PLAN_EST_REFERENCE_PLAN_EST" Association="topmepModel.FK_PLAN_EST_REFERENCE_PLAN_EST">
+            <End Role="PLAN_ESTIMATION_FORM" EntitySet="PLAN_ESTIMATION_FORM" />
+            <End Role="PLAN_ESTIMATION_HOLDPAYMENT" EntitySet="PLAN_ESTIMATION_HOLDPAYMENT" />
+          </AssociationSet>
           <AssociationSet Name="FK_PLAN_IND_REFERENCE_TND_PROJ" Association="topmepModel.FK_PLAN_IND_REFERENCE_TND_PROJ">
             <End Role="TND_PROJECT" EntitySet="TND_PROJECT" />
             <End Role="PLAN_INDIRECT_COST" EntitySet="PLAN_INDIRECT_COST" />
@@ -1487,30 +1693,6 @@
           <AssociationSet Name="FK_SYS_USER_SYS_ROLE" Association="topmepModel.FK_SYS_USER_SYS_ROLE">
             <End Role="SYS_ROLE" EntitySet="SYS_ROLE" />
             <End Role="SYS_USER" EntitySet="SYS_USER" />
-          </AssociationSet>
-          <EntitySet Name="PLAN_COSTCHANGE_FORM" EntityType="topmepModel.PLAN_COSTCHANGE_FORM" />
-          <EntitySet Name="PLAN_COSTCHANGE_ITEM" EntityType="topmepModel.PLAN_COSTCHANGE_ITEM" />
-          <AssociationSet Name="FK_PLAN_COS_REFERENCE_PLAN_COS" Association="topmepModel.FK_PLAN_COS_REFERENCE_PLAN_COS">
-            <End Role="PLAN_COSTCHANGE_FORM" EntitySet="PLAN_COSTCHANGE_FORM" />
-            <End Role="PLAN_COSTCHANGE_ITEM" EntitySet="PLAN_COSTCHANGE_ITEM" />
-          </AssociationSet>
-          <EntitySet Name="FIN_BANK_LOAN" EntityType="topmepModel.FIN_BANK_LOAN" />
-          <EntitySet Name="PLAN_ACCOUNT" EntityType="topmepModel.PLAN_ACCOUNT" />
-          <EntitySet Name="FIN_LOAN_TRANACTION" EntityType="topmepModel.FIN_LOAN_TRANACTION" />
-          <EntitySet Name="PLAN_ITEM2_SUP_INQUIRY" EntityType="topmepModel.PLAN_ITEM2_SUP_INQUIRY" />
-          <EntitySet Name="SYS_MESSAGE" EntityType="topmepModel.SYS_MESSAGE" />
-          <EntitySet Name="PLAN_ESTIMATION2PURCHASE" EntityType="topmepModel.PLAN_ESTIMATION2PURCHASE" />
-          <EntitySet Name="PLAN_ESTIMATION_ITEM" EntityType="topmepModel.PLAN_ESTIMATION_ITEM" />
-          <EntitySet Name="PLAN_ESTIMATION_PAYMENT_TRANSFER" EntityType="topmepModel.PLAN_ESTIMATION_PAYMENT_TRANSFER" />
-          <EntitySet Name="PLAN_ESTIMATION_INVOICE" EntityType="topmepModel.PLAN_ESTIMATION_INVOICE" />
-          <EntitySet Name="PLAN_ESTIMATION_FORM" EntityType="topmepModel.PLAN_ESTIMATION_FORM" />
-          <EntitySet Name="PLAN_ESTIMATION_HOLDPAYMENT" EntityType="topmepModel.PLAN_ESTIMATION_HOLDPAYMENT" />
-          <EntitySet Name="PLAN_DR_TEMPWORK" EntityType="topmepModel.PLAN_DR_TEMPWORK" />
-          <EntitySet Name="PLAN_DR_WORKER" EntityType="topmepModel.PLAN_DR_WORKER" />
-          <EntitySet Name="PLAN_TASK_DONE" EntityType="topmepModel.PLAN_TASK_DONE" />
-          <AssociationSet Name="FK_PLAN_EST_REFERENCE_PLAN_EST" Association="topmepModel.FK_PLAN_EST_REFERENCE_PLAN_EST">
-            <End Role="PLAN_ESTIMATION_FORM" EntitySet="PLAN_ESTIMATION_FORM" />
-            <End Role="PLAN_ESTIMATION_HOLDPAYMENT" EntitySet="PLAN_ESTIMATION_HOLDPAYMENT" />
           </AssociationSet>
         </EntityContainer>
         <EntityType Name="ENT_DEPARTMENT">
@@ -1545,6 +1727,33 @@
           <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
           <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="FIN_BANK_LOAN">
+          <Key>
+            <PropertyRef Name="BL_ID" />
+          </Key>
+          <Property Name="BL_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="BANK_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="BANK_NAME" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="BRANCH_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="ACCOUNT_NO" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="ACCOUNT_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="REF_ACCOUNT_CODE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="START_DATE" Type="DateTime" Precision="3" />
+          <Property Name="DUE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="PERIOD_COUNT" Type="Int32" />
+          <Property Name="QUOTA" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="AR_PAYBACK_RATIO" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="CUM_AR_RATIO" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="QUOTA_AVAILABLE_RATIO" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="QUOTA_RECYCLABLE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="IS_SUPPLIER" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="FIN_EXPENSE_BUDGET">
           <Key>
@@ -1597,6 +1806,24 @@
           <Property Name="ITEM_UNIT_PRICE" Type="Decimal" Precision="18" Scale="3" />
           <Property Name="ITEM_QUANTITY" Type="Decimal" Precision="18" Scale="3" />
         </EntityType>
+        <EntityType Name="FIN_LOAN_TRANACTION">
+          <Key>
+            <PropertyRef Name="TID" />
+          </Key>
+          <Property Name="TID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="BL_ID" Type="Int64" />
+          <Property Name="TRANSACTION_TYPE" Type="Int32" />
+          <Property Name="PERIOD" Type="Int32" />
+          <Property Name="AMOUNT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="EVENT_DATE" Type="DateTime" Precision="3" />
+          <Property Name="PAYBACK_DATE" Type="DateTime" Precision="3" />
+          <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="VA_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
         <EntityType Name="FIN_SUBJECT">
           <Key>
             <PropertyRef Name="FIN_SUBJECT_ID" />
@@ -1606,6 +1833,28 @@
           <Property Name="CATEGORY" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="BUDGET_DAY" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
         </EntityType>
+        <EntityType Name="PLAN_ACCOUNT">
+          <Key>
+            <PropertyRef Name="PLAN_ACCOUNT_ID" />
+          </Key>
+          <Property Name="PLAN_ACCOUNT_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="CONTRACT_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ACCOUNT_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PAYMENT_DATE" Type="DateTime" Precision="3" />
+          <Property Name="AMOUNT_PAID" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="ACCOUNT_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="ISDEBIT" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="STATUS" Type="Int32" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="CHECK_NO" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="AMOUNT_PAYABLE" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="BANKING_FEE" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="PAYEE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="REMARK" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+        </EntityType>
         <EntityType Name="PLAN_BUDGET">
           <Key>
             <PropertyRef Name="PLAN_BUDGET_ID" />
@@ -1614,8 +1863,12 @@
           <Property Name="PROJECT_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="TYPE_CODE_1" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
           <Property Name="TYPE_CODE_2" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="BUDGET_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="TND_RATIO" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="CONTRACT_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="BUDGET_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
           <Property Name="BUDGET_RATIO" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="BUDGET_WAGE_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
           <Property Name="BUDGET_WAGE_RATIO" Type="Decimal" Precision="18" Scale="3" />
           <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
@@ -1623,10 +1876,26 @@
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
           <Property Name="SYSTEM_MAIN" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="SYSTEM_SUB" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="BUDGET_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="CONTRACT_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="BUDGET_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="BUDGET_WAGE_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
+        </EntityType>
+        <EntityType Name="PLAN_CERT_ORDER_ITEM">
+          <Key>
+            <PropertyRef Name="CERT_ORD_ITEM_ID" />
+          </Key>
+          <Property Name="CERT_ORD_ITEM_ID" Type="Int64" Nullable="false" />
+          <Property Name="CERT_ORD_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="PLAN_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="TYPE_CODE" Type="String" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="SUB_TYPE_CODE" Type="String" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ITEM_DESC" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="ITEM_UNIT" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="ORDER_QTY" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="ORDER_PRICE" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="ACCUMULTATE_QTY" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="ITEM_REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="WAGE_PRICE" Type="Decimal" Precision="18" Scale="3" />
         </EntityType>
         <EntityType Name="PLAN_CONTRACT_PROCESS">
           <Key>
@@ -1646,6 +1915,51 @@
           <Property Name="PERFORMANCE_BOND" Type="Decimal" Precision="18" Scale="3" />
           <Property Name="PB_DUE_DATE" Type="DateTime" Precision="3" />
           <Property Name="PB_REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="PLAN_COSTCHANGE_FORM">
+          <Key>
+            <PropertyRef Name="FORM_ID" />
+          </Key>
+          <Property Name="FORM_ID" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="REMARK_ITEM" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="REMARK_QTY" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="REMARK_PRICE" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="REMARK_OTHER" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="REASON_CODE" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="METHOD_CODE" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="SETTLEMENT_DATE" Type="DateTime" Precision="3" />
+          <Property Name="REJECT_DESC" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="CREATE_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="STATUS" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="INQUIRY_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="PLAN_COSTCHANGE_ITEM" Relationship="topmepModel.FK_PLAN_COS_REFERENCE_PLAN_COS" FromRole="PLAN_COSTCHANGE_FORM" ToRole="PLAN_COSTCHANGE_ITEM" />
+        </EntityType>
+        <EntityType Name="PLAN_COSTCHANGE_ITEM">
+          <Key>
+            <PropertyRef Name="ITEM_UID" />
+          </Key>
+          <Property Name="ITEM_UID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FORM_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="PLAN_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PROJECT_ID" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ITEM_DESC" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="ITEM_UNIT" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="ITEM_QUANTITY" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="ITEM_UNIT_PRICE" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="ITEM_UNIT_COST" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="ITEM_REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="CREATE_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="EXCEL_ROW_ID" Type="Int64" />
+          <Property Name="TRANSFLAG" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="PLAN_COSTCHANGE_FORM" Relationship="topmepModel.FK_PLAN_COS_REFERENCE_PLAN_COS" FromRole="PLAN_COSTCHANGE_ITEM" ToRole="PLAN_COSTCHANGE_FORM" />
         </EntityType>
         <EntityType Name="PLAN_DALIY_REPORT">
           <Key>
@@ -1694,6 +2008,130 @@
           <Property Name="PROJECT_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="PRJ_UID" Type="Int32" />
           <Property Name="TASK_NAME" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="PLAN_DR_TEMPWORK">
+          <Key>
+            <PropertyRef Name="ORD_TEMPWORKER_ID" />
+          </Key>
+          <Property Name="ORD_TEMPWORKER_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="REPORT_ID" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="SUPPLIER_ID" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CHARGE_ID" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="WORKER_QTY" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="LAST_QTY" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="REMARK" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="DOC" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="PLAN_DR_WORKER">
+          <Key>
+            <PropertyRef Name="DR_WORKER_ID" />
+          </Key>
+          <Property Name="DR_WORKER_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="REPORT_ID" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="SUPPLIER_ID" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CONTRACT_ID" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="PARA_KEY_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="WORKER_TYPE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="WORKER_QTY" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="LAST_QTY" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="REMARK" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="PLAN_ESTIMATION_FORM">
+          <Key>
+            <PropertyRef Name="EST_FORM_ID" />
+          </Key>
+          <Property Name="EST_FORM_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="CONTRACT_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PLUS_TAX" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="TAX_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="PAYMENT_TRANSFER" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="PAYMENT_DEDUCTION" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="PAID_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="FOREIGN_PAYMENT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="RETENTION_PAYMENT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="OTHER_PAYMENT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="PREPAY_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="SETTLEMENT" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="STATUS" Type="Int32" />
+          <Property Name="TAX_RATIO" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="INVOICE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="REJECT_DESC" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="PROJECT_NAME" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="PAYEE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PAYMENT_DATE" Type="DateTime" Precision="3" />
+          <Property Name="INDIRECT_COST_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="PLAN_ESTIMATION_HOLDPAYMENT" Relationship="topmepModel.FK_PLAN_EST_REFERENCE_PLAN_EST" FromRole="PLAN_ESTIMATION_FORM" ToRole="PLAN_ESTIMATION_HOLDPAYMENT" />
+        </EntityType>
+        <EntityType Name="PLAN_ESTIMATION_HOLDPAYMENT">
+          <Key>
+            <PropertyRef Name="HOLD_ID" />
+          </Key>
+          <Property Name="HOLD_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="EST_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PAYMENT_ID" Type="Int64" />
+          <Property Name="SUPPLIER_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="HOLD_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="REMARK" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="PLAN_ESTIMATION_FORM" Relationship="topmepModel.FK_PLAN_EST_REFERENCE_PLAN_EST" FromRole="PLAN_ESTIMATION_HOLDPAYMENT" ToRole="PLAN_ESTIMATION_FORM" />
+        </EntityType>
+        <EntityType Name="PLAN_ESTIMATION_INVOICE">
+          <Key>
+            <PropertyRef Name="INVOICE_ID" />
+          </Key>
+          <Property Name="INVOICE_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="EST_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="CONTRACT_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="INVOICE_NUMBER" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="INVOICE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="AMOUNT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="TAX" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="TYPE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="NOTE" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="SUB_TYPE" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="PLAN_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DISCOUNT_QTY" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="DISCOUNT_UNIT_PRICE" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="PLAN_ESTIMATION_ITEM">
+          <Key>
+            <PropertyRef Name="EST_ITEM_ID" />
+          </Key>
+          <Property Name="EST_ITEM_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="EST_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PLAN_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="EST_QTY" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="EST_RATIO" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="EST_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="PLAN_ESTIMATION_PAYMENT_TRANSFER">
+          <Key>
+            <PropertyRef Name="PAYMENT_ID" />
+          </Key>
+          <Property Name="PAYMENT_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PAYMENT_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="TRANSFER_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ESTIMATION_COUNT" Type="Int32" />
+          <Property Name="PAID_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="FEE" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="HOLD_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="CUR_HOLDAMOUNT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="REMARK" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="PLAN_ESTIMATION2PURCHASE">
+          <Key>
+            <PropertyRef Name="E2P_ID" />
+          </Key>
+          <Property Name="E2P_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PR_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="EST_FORM_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="PLAN_INDIRECT_COST">
           <Key>
@@ -1780,6 +2218,17 @@
           <Property Name="CREATE_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
           <Property Name="MODIFY_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="PLAN_ITEM2_SUP_INQUIRY">
+          <Key>
+            <PropertyRef Name="UID" />
+          </Key>
+          <Property Name="UID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="INQUIRY_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ISWAGE" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="PLAN_OTHER_PAYMENT">
           <Key>
@@ -1966,6 +2415,19 @@
           <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
         </EntityType>
+        <EntityType Name="PLAN_TASK_DONE">
+          <Key>
+            <PropertyRef Name="TASK_ID" />
+          </Key>
+          <Property Name="TASK_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="PRJ_ID" Type="Int32" />
+          <Property Name="PRJ_UID" Type="Int32" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+        </EntityType>
         <EntityType Name="PLAN_TASK2MAPITEM">
           <Key>
             <PropertyRef Name="TASKUID" />
@@ -2026,6 +2488,7 @@
           <Property Name="FUNCTION_ID" Type="String" Nullable="false" MaxLength="32" FixedLength="false" Unicode="false" />
           <Property Name="FUNCTION_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="MODULE_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="SUB_MODULE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="FUNCTION_URI" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
           <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
@@ -2033,7 +2496,6 @@
           <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="ISMENU" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="SYS_PRIVILEGE" Relationship="topmepModel.FK_SYS_PRIVILEGE_SYS_FUNCTION" FromRole="SYS_FUNCTION" ToRole="SYS_PRIVILEGE" />
-          <Property Name="SUB_MODULE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="SYS_KEY_SERIAL">
           <Key>
@@ -2046,17 +2508,34 @@
           <Property Name="KEY_NO" Type="Int64" />
           <Property Name="QUICK_LEN" Type="Int32" />
         </EntityType>
+        <EntityType Name="SYS_MESSAGE">
+          <Key>
+            <PropertyRef Name="MSG_ID" />
+          </Key>
+          <Property Name="MSG_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FROM_ADDRESS" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DISPLAY_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="MAIL_LIST" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="BCC_MAIL_LIST" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="SUBJECT" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="MSG_BODY" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="FILE_PATH" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="SEND_TIME" Type="DateTime" Precision="3" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="STATUS" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+        </EntityType>
         <EntityType Name="SYS_PARA">
           <Key>
             <PropertyRef Name="PARA_ID" />
           </Key>
           <Property Name="PARA_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="FUNCTION_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="FUNCTION_DESC" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="FIELD_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="FIELD_DESC" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="KEY_FIELD" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
           <Property Name="VALUE_FIELD" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="FUNCTION_DESC" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="FIELD_DESC" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="SYS_PRIVILEGE">
           <Key>
@@ -2488,6 +2967,90 @@
           <Property Name="DATA_KEY" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Name="CURENT_STATE" Type="Int64" />
         </EntityType>
+        <EntityType Name="PLAN_CERT_ORDER">
+          <Key>
+            <PropertyRef Name="INQUIRY_FORM_ID" />
+          </Key>
+          <Property Name="CERT_ORD_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="INQUIRY_FORM_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="SUPPLIER_ID" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
+          <Property Name="STATUS" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="vw_MAP_FW">
+          <Key>
+            <PropertyRef Name="FW_ID" />
+          </Key>
+          <Property Name="FW_ID" Type="Int64" Nullable="false" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="EXCEL_ITEM" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="PROJECT_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="MAP_NO" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="BUILDING_NO" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PRIMARY_SIDE" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="PRIMARY_SIDE_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="SECONDARY_SIDE" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="SECONDARY_SIDE_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="PIPE_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="PIPE_CNT" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="PIPE_SET" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="PIPE_LENGTH" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="PIPE_TOTAL_LENGTH" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="ITEM_DESC" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="vw_MAP_PLU">
+          <Key>
+            <PropertyRef Name="PLU_ID" />
+          </Key>
+          <Property Name="PLU_ID" Type="Int64" Nullable="false" />
+          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="PROJECT_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="MAP_NO" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="BUILDING_NO" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PRIMARY_SIDE" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="PRIMARY_SIDE_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="SECONDARY_SIDE" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="SECONDARY_SIDE_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="PIPE_NAME" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="PIPE_COUNT_SET" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="PIPE_SET_QTY" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="PIPE_LENGTH" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="PIPE_TOTAL_LENGTH" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="EXCEL_ITEM" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="ITEM_DESC" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <Association Name="FK_PLAN_COS_REFERENCE_PLAN_COS">
+          <End Type="topmepModel.PLAN_COSTCHANGE_FORM" Role="PLAN_COSTCHANGE_FORM" Multiplicity="0..1" />
+          <End Type="topmepModel.PLAN_COSTCHANGE_ITEM" Role="PLAN_COSTCHANGE_ITEM" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAN_COSTCHANGE_FORM">
+              <PropertyRef Name="FORM_ID" />
+            </Principal>
+            <Dependent Role="PLAN_COSTCHANGE_ITEM">
+              <PropertyRef Name="FORM_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PLAN_EST_REFERENCE_PLAN_EST">
+          <End Type="topmepModel.PLAN_ESTIMATION_FORM" Role="PLAN_ESTIMATION_FORM" Multiplicity="0..1" />
+          <End Type="topmepModel.PLAN_ESTIMATION_HOLDPAYMENT" Role="PLAN_ESTIMATION_HOLDPAYMENT" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAN_ESTIMATION_FORM">
+              <PropertyRef Name="EST_FORM_ID" />
+            </Principal>
+            <Dependent Role="PLAN_ESTIMATION_HOLDPAYMENT">
+              <PropertyRef Name="EST_FORM_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_PLAN_IND_REFERENCE_TND_PROJ">
           <End Type="topmepModel.TND_PROJECT" Role="TND_PROJECT" Multiplicity="0..1" />
           <End Type="topmepModel.PLAN_INDIRECT_COST" Role="PLAN_INDIRECT_COST" Multiplicity="*" />
@@ -2536,307 +3099,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="PLAN_COSTCHANGE_FORM">
-          <Key>
-            <PropertyRef Name="FORM_ID" />
-          </Key>
-          <Property Name="FORM_ID" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="REMARK_ITEM" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="REMARK_QTY" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="REMARK_PRICE" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="REMARK_OTHER" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="REASON_CODE" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
-          <Property Name="METHOD_CODE" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
-          <Property Name="SETTLEMENT_DATE" Type="DateTime" Precision="3" />
-          <Property Name="REJECT_DESC" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
-          <Property Name="CREATE_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="STATUS" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="PLAN_COSTCHANGE_ITEM" Relationship="topmepModel.FK_PLAN_COS_REFERENCE_PLAN_COS" FromRole="PLAN_COSTCHANGE_FORM" ToRole="PLAN_COSTCHANGE_ITEM" />
-          <Property Name="INQUIRY_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="PLAN_COSTCHANGE_ITEM">
-          <Key>
-            <PropertyRef Name="ITEM_UID" />
-          </Key>
-          <Property Name="ITEM_UID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="FORM_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="PLAN_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="ITEM_DESC" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="ITEM_UNIT" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="ITEM_QUANTITY" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="ITEM_UNIT_PRICE" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="ITEM_REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
-          <Property Name="CREATE_USER_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="EXCEL_ROW_ID" Type="Int64" />
-          <Property Name="TRANSFLAG" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="PLAN_COSTCHANGE_FORM" Relationship="topmepModel.FK_PLAN_COS_REFERENCE_PLAN_COS" FromRole="PLAN_COSTCHANGE_ITEM" ToRole="PLAN_COSTCHANGE_FORM" />
-          <Property Name="ITEM_UNIT_COST" Type="Decimal" Precision="18" Scale="3" />
-        </EntityType>
-        <Association Name="FK_PLAN_COS_REFERENCE_PLAN_COS">
-          <End Type="topmepModel.PLAN_COSTCHANGE_FORM" Role="PLAN_COSTCHANGE_FORM" Multiplicity="0..1" />
-          <End Type="topmepModel.PLAN_COSTCHANGE_ITEM" Role="PLAN_COSTCHANGE_ITEM" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="PLAN_COSTCHANGE_FORM">
-              <PropertyRef Name="FORM_ID" />
-            </Principal>
-            <Dependent Role="PLAN_COSTCHANGE_ITEM">
-              <PropertyRef Name="FORM_ID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <EntityType Name="FIN_BANK_LOAN">
-          <Key>
-            <PropertyRef Name="BL_ID" />
-          </Key>
-          <Property Name="BL_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="BANK_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="BANK_NAME" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="BRANCH_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="ACCOUNT_NO" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="ACCOUNT_NAME" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="REF_ACCOUNT_CODE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="START_DATE" Type="DateTime" Precision="3" />
-          <Property Name="DUE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="PERIOD_COUNT" Type="Int32" />
-          <Property Name="QUOTA" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
-          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="AR_PAYBACK_RATIO" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="CUM_AR_RATIO" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="QUOTA_AVAILABLE_RATIO" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="QUOTA_RECYCLABLE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
-          <Property Name="IS_SUPPLIER" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="PLAN_ACCOUNT">
-          <Key>
-            <PropertyRef Name="PLAN_ACCOUNT_ID" />
-          </Key>
-          <Property Name="PLAN_ACCOUNT_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="CONTRACT_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="ACCOUNT_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PAYMENT_DATE" Type="DateTime" Precision="3" />
-          <Property Name="AMOUNT_PAID" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="ACCOUNT_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
-          <Property Name="ISDEBIT" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
-          <Property Name="STATUS" Type="Int32" />
-          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
-          <Property Name="CHECK_NO" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="AMOUNT_PAYABLE" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="BANKING_FEE" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="PAYEE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="REMARK" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="FIN_LOAN_TRANACTION">
-          <Key>
-            <PropertyRef Name="TID" />
-          </Key>
-          <Property Name="TID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="BL_ID" Type="Int64" />
-          <Property Name="TRANSACTION_TYPE" Type="Int32" />
-          <Property Name="PERIOD" Type="Int32" />
-          <Property Name="AMOUNT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="EVENT_DATE" Type="DateTime" Precision="3" />
-          <Property Name="PAYBACK_DATE" Type="DateTime" Precision="3" />
-          <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
-          <Property Name="VA_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="PLAN_ITEM2_SUP_INQUIRY">
-          <Key>
-            <PropertyRef Name="UID" />
-          </Key>
-          <Property Name="UID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="INQUIRY_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="ISWAGE" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-        </EntityType>
-        <EntityType Name="SYS_MESSAGE">
-          <Key>
-            <PropertyRef Name="MSG_ID" />
-          </Key>
-          <Property Name="MSG_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="FROM_ADDRESS" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="DISPLAY_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="MAIL_LIST" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="BCC_MAIL_LIST" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="SUBJECT" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="MSG_BODY" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="FILE_PATH" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="SEND_TIME" Type="DateTime" Precision="3" />
-          <Property Name="CREATE_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="STATUS" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="PLAN_ESTIMATION2PURCHASE">
-          <Key>
-            <PropertyRef Name="E2P_ID" />
-          </Key>
-          <Property Name="E2P_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="PR_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="EST_FORM_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="PLAN_ESTIMATION_ITEM">
-          <Key>
-            <PropertyRef Name="EST_ITEM_ID" />
-          </Key>
-          <Property Name="EST_ITEM_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="EST_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PLAN_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="EST_QTY" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="EST_RATIO" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="EST_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
-        </EntityType>
-        <EntityType Name="PLAN_ESTIMATION_PAYMENT_TRANSFER">
-          <Key>
-            <PropertyRef Name="PAYMENT_ID" />
-          </Key>
-          <Property Name="PAYMENT_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="PAYMENT_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="TRANSFER_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="ESTIMATION_COUNT" Type="Int32" />
-          <Property Name="PAID_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="FEE" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="HOLD_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="CUR_HOLDAMOUNT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="REMARK" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="PLAN_ESTIMATION_INVOICE">
-          <Key>
-            <PropertyRef Name="INVOICE_ID" />
-          </Key>
-          <Property Name="INVOICE_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="EST_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="CONTRACT_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="INVOICE_NUMBER" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="INVOICE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="AMOUNT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="TAX" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="TYPE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="NOTE" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="SUB_TYPE" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="PLAN_ITEM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="DISCOUNT_QTY" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="DISCOUNT_UNIT_PRICE" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-        </EntityType>
-        <EntityType Name="PLAN_ESTIMATION_FORM">
-          <Key>
-            <PropertyRef Name="EST_FORM_ID" />
-          </Key>
-          <Property Name="EST_FORM_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PROJECT_ID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="CONTRACT_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PLUS_TAX" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
-          <Property Name="TAX_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="PAYMENT_TRANSFER" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="PAYMENT_DEDUCTION" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="PAID_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="FOREIGN_PAYMENT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="RETENTION_PAYMENT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="OTHER_PAYMENT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="PREPAY_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="REMARK" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="SETTLEMENT" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
-          <Property Name="TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
-          <Property Name="STATUS" Type="Int32" />
-          <Property Name="TAX_RATIO" Type="Decimal" Precision="5" Scale="2" />
-          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
-          <Property Name="INVOICE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
-          <Property Name="REJECT_DESC" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="PROJECT_NAME" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="PAYEE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PAYMENT_DATE" Type="DateTime" Precision="3" />
-          <Property Name="INDIRECT_COST_TYPE" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="PLAN_ESTIMATION_HOLDPAYMENT" Relationship="topmepModel.FK_PLAN_EST_REFERENCE_PLAN_EST" FromRole="PLAN_ESTIMATION_FORM" ToRole="PLAN_ESTIMATION_HOLDPAYMENT" />
-        </EntityType>
-        <EntityType Name="PLAN_ESTIMATION_HOLDPAYMENT">
-          <Key>
-            <PropertyRef Name="HOLD_ID" />
-          </Key>
-          <Property Name="HOLD_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="EST_FORM_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PAYMENT_ID" Type="Int64" />
-          <Property Name="SUPPLIER_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="HOLD_AMOUNT" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="REMARK" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="PLAN_ESTIMATION_FORM" Relationship="topmepModel.FK_PLAN_EST_REFERENCE_PLAN_EST" FromRole="PLAN_ESTIMATION_HOLDPAYMENT" ToRole="PLAN_ESTIMATION_FORM" />
-        </EntityType>
-        <EntityType Name="PLAN_DR_TEMPWORK">
-          <Key>
-            <PropertyRef Name="ORD_TEMPWORKER_ID" />
-          </Key>
-          <Property Name="ORD_TEMPWORKER_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="REPORT_ID" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="SUPPLIER_ID" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="CHARGE_ID" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="WORKER_QTY" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="LAST_QTY" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="REMARK" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="DOC" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="PLAN_DR_WORKER">
-          <Key>
-            <PropertyRef Name="DR_WORKER_ID" />
-          </Key>
-          <Property Name="DR_WORKER_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="REPORT_ID" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="SUPPLIER_ID" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="CONTRACT_ID" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="PARA_KEY_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="WORKER_TYPE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="WORKER_QTY" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="LAST_QTY" Type="Decimal" Precision="18" Scale="3" />
-          <Property Name="REMARK" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="PLAN_TASK_DONE">
-          <Key>
-            <PropertyRef Name="TASK_ID" />
-          </Key>
-          <Property Name="TASK_ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="PROJECT_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="PRJ_ID" Type="Int32" />
-          <Property Name="PRJ_UID" Type="Int32" />
-          <Property Name="CREATE_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="CREATE_DATE" Type="DateTime" Precision="3" />
-          <Property Name="MODIFY_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="MODIFY_DATE" Type="DateTime" Precision="3" />
-        </EntityType>
-        <Association Name="FK_PLAN_EST_REFERENCE_PLAN_EST">
-          <End Type="topmepModel.PLAN_ESTIMATION_FORM" Role="PLAN_ESTIMATION_FORM" Multiplicity="0..1" />
-          <End Type="topmepModel.PLAN_ESTIMATION_HOLDPAYMENT" Role="PLAN_ESTIMATION_HOLDPAYMENT" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="PLAN_ESTIMATION_FORM">
-              <PropertyRef Name="EST_FORM_ID" />
-            </Principal>
-            <Dependent Role="PLAN_ESTIMATION_HOLDPAYMENT">
-              <PropertyRef Name="EST_FORM_ID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2875,6 +3137,34 @@
                 <ScalarProperty Name="BANK_NAME" ColumnName="BANK_NAME" />
                 <ScalarProperty Name="BANK_ID" ColumnName="BANK_ID" />
                 <ScalarProperty Name="BANK_ACCOUNT_ID" ColumnName="BANK_ACCOUNT_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="FIN_BANK_LOAN">
+            <EntityTypeMapping TypeName="topmepModel.FIN_BANK_LOAN">
+              <MappingFragment StoreEntitySet="FIN_BANK_LOAN">
+                <ScalarProperty Name="IS_SUPPLIER" ColumnName="IS_SUPPLIER" />
+                <ScalarProperty Name="QUOTA_RECYCLABLE" ColumnName="QUOTA_RECYCLABLE" />
+                <ScalarProperty Name="QUOTA_AVAILABLE_RATIO" ColumnName="QUOTA_AVAILABLE_RATIO" />
+                <ScalarProperty Name="CUM_AR_RATIO" ColumnName="CUM_AR_RATIO" />
+                <ScalarProperty Name="AR_PAYBACK_RATIO" ColumnName="AR_PAYBACK_RATIO" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
+                <ScalarProperty Name="QUOTA" ColumnName="QUOTA" />
+                <ScalarProperty Name="PERIOD_COUNT" ColumnName="PERIOD_COUNT" />
+                <ScalarProperty Name="DUE_DATE" ColumnName="DUE_DATE" />
+                <ScalarProperty Name="START_DATE" ColumnName="START_DATE" />
+                <ScalarProperty Name="REF_ACCOUNT_CODE" ColumnName="REF_ACCOUNT_CODE" />
+                <ScalarProperty Name="ACCOUNT_NAME" ColumnName="ACCOUNT_NAME" />
+                <ScalarProperty Name="ACCOUNT_NO" ColumnName="ACCOUNT_NO" />
+                <ScalarProperty Name="BRANCH_NAME" ColumnName="BRANCH_NAME" />
+                <ScalarProperty Name="BANK_NAME" ColumnName="BANK_NAME" />
+                <ScalarProperty Name="BANK_ID" ColumnName="BANK_ID" />
+                <ScalarProperty Name="BL_ID" ColumnName="BL_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -2932,6 +3222,25 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="FIN_LOAN_TRANACTION">
+            <EntityTypeMapping TypeName="topmepModel.FIN_LOAN_TRANACTION">
+              <MappingFragment StoreEntitySet="FIN_LOAN_TRANACTION">
+                <ScalarProperty Name="VA_FORM_ID" ColumnName="VA_FORM_ID" />
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
+                <ScalarProperty Name="PAYBACK_DATE" ColumnName="PAYBACK_DATE" />
+                <ScalarProperty Name="EVENT_DATE" ColumnName="EVENT_DATE" />
+                <ScalarProperty Name="AMOUNT" ColumnName="AMOUNT" />
+                <ScalarProperty Name="PERIOD" ColumnName="PERIOD" />
+                <ScalarProperty Name="TRANSACTION_TYPE" ColumnName="TRANSACTION_TYPE" />
+                <ScalarProperty Name="BL_ID" ColumnName="BL_ID" />
+                <ScalarProperty Name="TID" ColumnName="TID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="FIN_SUBJECT">
             <EntityTypeMapping TypeName="topmepModel.FIN_SUBJECT">
               <MappingFragment StoreEntitySet="FIN_SUBJECT">
@@ -2942,13 +3251,32 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_ACCOUNT">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_ACCOUNT">
+              <MappingFragment StoreEntitySet="PLAN_ACCOUNT">
+                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
+                <ScalarProperty Name="PAYEE" ColumnName="PAYEE" />
+                <ScalarProperty Name="BANKING_FEE" ColumnName="BANKING_FEE" />
+                <ScalarProperty Name="AMOUNT_PAYABLE" ColumnName="AMOUNT_PAYABLE" />
+                <ScalarProperty Name="CHECK_NO" ColumnName="CHECK_NO" />
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+                <ScalarProperty Name="STATUS" ColumnName="STATUS" />
+                <ScalarProperty Name="ISDEBIT" ColumnName="ISDEBIT" />
+                <ScalarProperty Name="ACCOUNT_TYPE" ColumnName="ACCOUNT_TYPE" />
+                <ScalarProperty Name="AMOUNT_PAID" ColumnName="AMOUNT_PAID" />
+                <ScalarProperty Name="PAYMENT_DATE" ColumnName="PAYMENT_DATE" />
+                <ScalarProperty Name="ACCOUNT_FORM_ID" ColumnName="ACCOUNT_FORM_ID" />
+                <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
+                <ScalarProperty Name="PLAN_ACCOUNT_ID" ColumnName="PLAN_ACCOUNT_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="PLAN_BUDGET">
             <EntityTypeMapping TypeName="topmepModel.PLAN_BUDGET">
               <MappingFragment StoreEntitySet="PLAN_BUDGET">
-                <ScalarProperty Name="BUDGET_WAGE_AMOUNT" ColumnName="BUDGET_WAGE_AMOUNT" />
-                <ScalarProperty Name="BUDGET_AMOUNT" ColumnName="BUDGET_AMOUNT" />
-                <ScalarProperty Name="CONTRACT_AMOUNT" ColumnName="CONTRACT_AMOUNT" />
-                <ScalarProperty Name="BUDGET_NAME" ColumnName="BUDGET_NAME" />
                 <ScalarProperty Name="SYSTEM_SUB" ColumnName="SYSTEM_SUB" />
                 <ScalarProperty Name="SYSTEM_MAIN" ColumnName="SYSTEM_MAIN" />
                 <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
@@ -2956,12 +3284,37 @@
                 <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
                 <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
                 <ScalarProperty Name="BUDGET_WAGE_RATIO" ColumnName="BUDGET_WAGE_RATIO" />
+                <ScalarProperty Name="BUDGET_WAGE_AMOUNT" ColumnName="BUDGET_WAGE_AMOUNT" />
                 <ScalarProperty Name="BUDGET_RATIO" ColumnName="BUDGET_RATIO" />
+                <ScalarProperty Name="BUDGET_AMOUNT" ColumnName="BUDGET_AMOUNT" />
+                <ScalarProperty Name="CONTRACT_AMOUNT" ColumnName="CONTRACT_AMOUNT" />
                 <ScalarProperty Name="TND_RATIO" ColumnName="TND_RATIO" />
+                <ScalarProperty Name="BUDGET_NAME" ColumnName="BUDGET_NAME" />
                 <ScalarProperty Name="TYPE_CODE_2" ColumnName="TYPE_CODE_2" />
                 <ScalarProperty Name="TYPE_CODE_1" ColumnName="TYPE_CODE_1" />
                 <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
                 <ScalarProperty Name="PLAN_BUDGET_ID" ColumnName="PLAN_BUDGET_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_CERT_ORDER_ITEM">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_CERT_ORDER_ITEM">
+              <MappingFragment StoreEntitySet="PLAN_CERT_ORDER_ITEM">
+                <ScalarProperty Name="WAGE_PRICE" ColumnName="WAGE_PRICE" />
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
+                <ScalarProperty Name="ITEM_REMARK" ColumnName="ITEM_REMARK" />
+                <ScalarProperty Name="ACCUMULTATE_QTY" ColumnName="ACCUMULTATE_QTY" />
+                <ScalarProperty Name="ORDER_PRICE" ColumnName="ORDER_PRICE" />
+                <ScalarProperty Name="ORDER_QTY" ColumnName="ORDER_QTY" />
+                <ScalarProperty Name="ITEM_UNIT" ColumnName="ITEM_UNIT" />
+                <ScalarProperty Name="ITEM_DESC" ColumnName="ITEM_DESC" />
+                <ScalarProperty Name="ITEM_ID" ColumnName="ITEM_ID" />
+                <ScalarProperty Name="SUB_TYPE_CODE" ColumnName="SUB_TYPE_CODE" />
+                <ScalarProperty Name="TYPE_CODE" ColumnName="TYPE_CODE" />
+                <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
+                <ScalarProperty Name="CERT_ORD_ID" ColumnName="CERT_ORD_ID" />
+                <ScalarProperty Name="CERT_ORD_ITEM_ID" ColumnName="CERT_ORD_ITEM_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -2982,6 +3335,51 @@
                 <ScalarProperty Name="MATERIAL_BRAND" ColumnName="MATERIAL_BRAND" />
                 <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
                 <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_COSTCHANGE_FORM">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_COSTCHANGE_FORM">
+              <MappingFragment StoreEntitySet="PLAN_COSTCHANGE_FORM">
+                <ScalarProperty Name="INQUIRY_FORM_ID" ColumnName="INQUIRY_FORM_ID" />
+                <ScalarProperty Name="STATUS" ColumnName="STATUS" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_USER_ID" ColumnName="CREATE_USER_ID" />
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="MODIFY_USER_ID" ColumnName="MODIFY_USER_ID" />
+                <ScalarProperty Name="REJECT_DESC" ColumnName="REJECT_DESC" />
+                <ScalarProperty Name="SETTLEMENT_DATE" ColumnName="SETTLEMENT_DATE" />
+                <ScalarProperty Name="METHOD_CODE" ColumnName="METHOD_CODE" />
+                <ScalarProperty Name="REASON_CODE" ColumnName="REASON_CODE" />
+                <ScalarProperty Name="REMARK_OTHER" ColumnName="REMARK_OTHER" />
+                <ScalarProperty Name="REMARK_PRICE" ColumnName="REMARK_PRICE" />
+                <ScalarProperty Name="REMARK_QTY" ColumnName="REMARK_QTY" />
+                <ScalarProperty Name="REMARK_ITEM" ColumnName="REMARK_ITEM" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
+                <ScalarProperty Name="FORM_ID" ColumnName="FORM_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_COSTCHANGE_ITEM">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_COSTCHANGE_ITEM">
+              <MappingFragment StoreEntitySet="PLAN_COSTCHANGE_ITEM">
+                <ScalarProperty Name="TRANSFLAG" ColumnName="TRANSFLAG" />
+                <ScalarProperty Name="EXCEL_ROW_ID" ColumnName="EXCEL_ROW_ID" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_USER_ID" ColumnName="CREATE_USER_ID" />
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="MODIFY_USER_ID" ColumnName="MODIFY_USER_ID" />
+                <ScalarProperty Name="ITEM_REMARK" ColumnName="ITEM_REMARK" />
+                <ScalarProperty Name="ITEM_UNIT_COST" ColumnName="ITEM_UNIT_COST" />
+                <ScalarProperty Name="ITEM_UNIT_PRICE" ColumnName="ITEM_UNIT_PRICE" />
+                <ScalarProperty Name="ITEM_QUANTITY" ColumnName="ITEM_QUANTITY" />
+                <ScalarProperty Name="ITEM_UNIT" ColumnName="ITEM_UNIT" />
+                <ScalarProperty Name="ITEM_DESC" ColumnName="ITEM_DESC" />
+                <ScalarProperty Name="ITEM_ID" ColumnName="ITEM_ID" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
+                <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
+                <ScalarProperty Name="FORM_ID" ColumnName="FORM_ID" />
+                <ScalarProperty Name="ITEM_UID" ColumnName="ITEM_UID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -3034,6 +3432,136 @@
                 <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
                 <ScalarProperty Name="DR_TASK_ID" ColumnName="DR_TASK_ID" />
                 <ScalarProperty Name="REPORT_ID" ColumnName="REPORT_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_DR_TEMPWORK">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_DR_TEMPWORK">
+              <MappingFragment StoreEntitySet="PLAN_DR_TEMPWORK">
+                <ScalarProperty Name="DOC" ColumnName="DOC" />
+                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
+                <ScalarProperty Name="LAST_QTY" ColumnName="LAST_QTY" />
+                <ScalarProperty Name="WORKER_QTY" ColumnName="WORKER_QTY" />
+                <ScalarProperty Name="CHARGE_ID" ColumnName="CHARGE_ID" />
+                <ScalarProperty Name="SUPPLIER_ID" ColumnName="SUPPLIER_ID" />
+                <ScalarProperty Name="REPORT_ID" ColumnName="REPORT_ID" />
+                <ScalarProperty Name="ORD_TEMPWORKER_ID" ColumnName="ORD_TEMPWORKER_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_DR_WORKER">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_DR_WORKER">
+              <MappingFragment StoreEntitySet="PLAN_DR_WORKER">
+                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
+                <ScalarProperty Name="LAST_QTY" ColumnName="LAST_QTY" />
+                <ScalarProperty Name="WORKER_QTY" ColumnName="WORKER_QTY" />
+                <ScalarProperty Name="WORKER_TYPE" ColumnName="WORKER_TYPE" />
+                <ScalarProperty Name="PARA_KEY_ID" ColumnName="PARA_KEY_ID" />
+                <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
+                <ScalarProperty Name="SUPPLIER_ID" ColumnName="SUPPLIER_ID" />
+                <ScalarProperty Name="REPORT_ID" ColumnName="REPORT_ID" />
+                <ScalarProperty Name="DR_WORKER_ID" ColumnName="DR_WORKER_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_ESTIMATION_FORM">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_ESTIMATION_FORM">
+              <MappingFragment StoreEntitySet="PLAN_ESTIMATION_FORM">
+                <ScalarProperty Name="INDIRECT_COST_TYPE" ColumnName="INDIRECT_COST_TYPE" />
+                <ScalarProperty Name="PAYMENT_DATE" ColumnName="PAYMENT_DATE" />
+                <ScalarProperty Name="PAYEE" ColumnName="PAYEE" />
+                <ScalarProperty Name="PROJECT_NAME" ColumnName="PROJECT_NAME" />
+                <ScalarProperty Name="REJECT_DESC" ColumnName="REJECT_DESC" />
+                <ScalarProperty Name="INVOICE" ColumnName="INVOICE" />
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="TAX_RATIO" ColumnName="TAX_RATIO" />
+                <ScalarProperty Name="STATUS" ColumnName="STATUS" />
+                <ScalarProperty Name="TYPE" ColumnName="TYPE" />
+                <ScalarProperty Name="SETTLEMENT" ColumnName="SETTLEMENT" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
+                <ScalarProperty Name="PREPAY_AMOUNT" ColumnName="PREPAY_AMOUNT" />
+                <ScalarProperty Name="OTHER_PAYMENT" ColumnName="OTHER_PAYMENT" />
+                <ScalarProperty Name="RETENTION_PAYMENT" ColumnName="RETENTION_PAYMENT" />
+                <ScalarProperty Name="FOREIGN_PAYMENT" ColumnName="FOREIGN_PAYMENT" />
+                <ScalarProperty Name="PAID_AMOUNT" ColumnName="PAID_AMOUNT" />
+                <ScalarProperty Name="PAYMENT_DEDUCTION" ColumnName="PAYMENT_DEDUCTION" />
+                <ScalarProperty Name="PAYMENT_TRANSFER" ColumnName="PAYMENT_TRANSFER" />
+                <ScalarProperty Name="TAX_AMOUNT" ColumnName="TAX_AMOUNT" />
+                <ScalarProperty Name="PLUS_TAX" ColumnName="PLUS_TAX" />
+                <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
+                <ScalarProperty Name="EST_FORM_ID" ColumnName="EST_FORM_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_ESTIMATION_HOLDPAYMENT">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_ESTIMATION_HOLDPAYMENT">
+              <MappingFragment StoreEntitySet="PLAN_ESTIMATION_HOLDPAYMENT">
+                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
+                <ScalarProperty Name="HOLD_AMOUNT" ColumnName="HOLD_AMOUNT" />
+                <ScalarProperty Name="SUPPLIER_ID" ColumnName="SUPPLIER_ID" />
+                <ScalarProperty Name="PAYMENT_ID" ColumnName="PAYMENT_ID" />
+                <ScalarProperty Name="EST_FORM_ID" ColumnName="EST_FORM_ID" />
+                <ScalarProperty Name="HOLD_ID" ColumnName="HOLD_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_ESTIMATION_INVOICE">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_ESTIMATION_INVOICE">
+              <MappingFragment StoreEntitySet="PLAN_ESTIMATION_INVOICE">
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="DISCOUNT_UNIT_PRICE" ColumnName="DISCOUNT_UNIT_PRICE" />
+                <ScalarProperty Name="DISCOUNT_QTY" ColumnName="DISCOUNT_QTY" />
+                <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
+                <ScalarProperty Name="SUB_TYPE" ColumnName="SUB_TYPE" />
+                <ScalarProperty Name="NOTE" ColumnName="NOTE" />
+                <ScalarProperty Name="TYPE" ColumnName="TYPE" />
+                <ScalarProperty Name="TAX" ColumnName="TAX" />
+                <ScalarProperty Name="AMOUNT" ColumnName="AMOUNT" />
+                <ScalarProperty Name="INVOICE_DATE" ColumnName="INVOICE_DATE" />
+                <ScalarProperty Name="INVOICE_NUMBER" ColumnName="INVOICE_NUMBER" />
+                <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
+                <ScalarProperty Name="EST_FORM_ID" ColumnName="EST_FORM_ID" />
+                <ScalarProperty Name="INVOICE_ID" ColumnName="INVOICE_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_ESTIMATION_ITEM">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_ESTIMATION_ITEM">
+              <MappingFragment StoreEntitySet="PLAN_ESTIMATION_ITEM">
+                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
+                <ScalarProperty Name="EST_AMOUNT" ColumnName="EST_AMOUNT" />
+                <ScalarProperty Name="EST_RATIO" ColumnName="EST_RATIO" />
+                <ScalarProperty Name="EST_QTY" ColumnName="EST_QTY" />
+                <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
+                <ScalarProperty Name="EST_FORM_ID" ColumnName="EST_FORM_ID" />
+                <ScalarProperty Name="EST_ITEM_ID" ColumnName="EST_ITEM_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_ESTIMATION_PAYMENT_TRANSFER">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_ESTIMATION_PAYMENT_TRANSFER">
+              <MappingFragment StoreEntitySet="PLAN_ESTIMATION_PAYMENT_TRANSFER">
+                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
+                <ScalarProperty Name="CUR_HOLDAMOUNT" ColumnName="CUR_HOLDAMOUNT" />
+                <ScalarProperty Name="HOLD_AMOUNT" ColumnName="HOLD_AMOUNT" />
+                <ScalarProperty Name="FEE" ColumnName="FEE" />
+                <ScalarProperty Name="PAID_AMOUNT" ColumnName="PAID_AMOUNT" />
+                <ScalarProperty Name="ESTIMATION_COUNT" ColumnName="ESTIMATION_COUNT" />
+                <ScalarProperty Name="TRANSFER_FORM_ID" ColumnName="TRANSFER_FORM_ID" />
+                <ScalarProperty Name="PAYMENT_FORM_ID" ColumnName="PAYMENT_FORM_ID" />
+                <ScalarProperty Name="PAYMENT_ID" ColumnName="PAYMENT_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_ESTIMATION2PURCHASE">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_ESTIMATION2PURCHASE">
+              <MappingFragment StoreEntitySet="PLAN_ESTIMATION2PURCHASE">
+                <ScalarProperty Name="EST_FORM_ID" ColumnName="EST_FORM_ID" />
+                <ScalarProperty Name="PR_ID" ColumnName="PR_ID" />
+                <ScalarProperty Name="E2P_ID" ColumnName="E2P_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -3123,6 +3651,18 @@
                 <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
                 <ScalarProperty Name="DELIVERY_ORDER_ID" ColumnName="DELIVERY_ORDER_ID" />
                 <ScalarProperty Name="DELIVERY_ID" ColumnName="DELIVERY_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_ITEM2_SUP_INQUIRY">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_ITEM2_SUP_INQUIRY">
+              <MappingFragment StoreEntitySet="PLAN_ITEM2_SUP_INQUIRY">
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+                <ScalarProperty Name="ISWAGE" ColumnName="ISWAGE" />
+                <ScalarProperty Name="INQUIRY_FORM_ID" ColumnName="INQUIRY_FORM_ID" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
+                <ScalarProperty Name="UID" ColumnName="UID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -3319,6 +3859,20 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="PLAN_TASK_DONE">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_TASK_DONE">
+              <MappingFragment StoreEntitySet="PLAN_TASK_DONE">
+                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
+                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+                <ScalarProperty Name="PRJ_UID" ColumnName="PRJ_UID" />
+                <ScalarProperty Name="PRJ_ID" ColumnName="PRJ_ID" />
+                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
+                <ScalarProperty Name="TASK_ID" ColumnName="TASK_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="PLAN_TASK2MAPITEM">
             <EntityTypeMapping TypeName="topmepModel.PLAN_TASK2MAPITEM">
               <MappingFragment StoreEntitySet="PLAN_TASK2MAPITEM">
@@ -3379,13 +3933,13 @@
           <EntitySetMapping Name="SYS_FUNCTION">
             <EntityTypeMapping TypeName="topmepModel.SYS_FUNCTION">
               <MappingFragment StoreEntitySet="SYS_FUNCTION">
-                <ScalarProperty Name="SUB_MODULE" ColumnName="SUB_MODULE" />
                 <ScalarProperty Name="ISMENU" ColumnName="ISMENU" />
                 <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
                 <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
                 <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
                 <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
                 <ScalarProperty Name="FUNCTION_URI" ColumnName="FUNCTION_URI" />
+                <ScalarProperty Name="SUB_MODULE" ColumnName="SUB_MODULE" />
                 <ScalarProperty Name="MODULE_NAME" ColumnName="MODULE_NAME" />
                 <ScalarProperty Name="FUNCTION_NAME" ColumnName="FUNCTION_NAME" />
                 <ScalarProperty Name="FUNCTION_ID" ColumnName="FUNCTION_ID" />
@@ -3404,14 +3958,32 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="SYS_MESSAGE">
+            <EntityTypeMapping TypeName="topmepModel.SYS_MESSAGE">
+              <MappingFragment StoreEntitySet="SYS_MESSAGE">
+                <ScalarProperty Name="STATUS" ColumnName="STATUS" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+                <ScalarProperty Name="SEND_TIME" ColumnName="SEND_TIME" />
+                <ScalarProperty Name="FILE_PATH" ColumnName="FILE_PATH" />
+                <ScalarProperty Name="MSG_BODY" ColumnName="MSG_BODY" />
+                <ScalarProperty Name="SUBJECT" ColumnName="SUBJECT" />
+                <ScalarProperty Name="BCC_MAIL_LIST" ColumnName="BCC_MAIL_LIST" />
+                <ScalarProperty Name="MAIL_LIST" ColumnName="MAIL_LIST" />
+                <ScalarProperty Name="DISPLAY_NAME" ColumnName="DISPLAY_NAME" />
+                <ScalarProperty Name="FROM_ADDRESS" ColumnName="FROM_ADDRESS" />
+                <ScalarProperty Name="MSG_ID" ColumnName="MSG_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="SYS_PARA">
             <EntityTypeMapping TypeName="topmepModel.SYS_PARA">
               <MappingFragment StoreEntitySet="SYS_PARA">
-                <ScalarProperty Name="FIELD_DESC" ColumnName="FIELD_DESC" />
-                <ScalarProperty Name="FUNCTION_DESC" ColumnName="FUNCTION_DESC" />
                 <ScalarProperty Name="VALUE_FIELD" ColumnName="VALUE_FIELD" />
                 <ScalarProperty Name="KEY_FIELD" ColumnName="KEY_FIELD" />
+                <ScalarProperty Name="FIELD_DESC" ColumnName="FIELD_DESC" />
                 <ScalarProperty Name="FIELD_ID" ColumnName="FIELD_ID" />
+                <ScalarProperty Name="FUNCTION_DESC" ColumnName="FUNCTION_DESC" />
                 <ScalarProperty Name="FUNCTION_ID" ColumnName="FUNCTION_ID" />
                 <ScalarProperty Name="PARA_ID" ColumnName="PARA_ID" />
               </MappingFragment>
@@ -3864,296 +4436,70 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_COSTCHANGE_FORM">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_COSTCHANGE_FORM">
-              <MappingFragment StoreEntitySet="PLAN_COSTCHANGE_FORM">
-                <ScalarProperty Name="INQUIRY_FORM_ID" ColumnName="INQUIRY_FORM_ID" />
+          <EntitySetMapping Name="PLAN_CERT_ORDER">
+            <EntityTypeMapping TypeName="topmepModel.PLAN_CERT_ORDER">
+              <MappingFragment StoreEntitySet="PLAN_CERT_ORDER">
                 <ScalarProperty Name="STATUS" ColumnName="STATUS" />
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="CREATE_USER_ID" ColumnName="CREATE_USER_ID" />
                 <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
-                <ScalarProperty Name="MODIFY_USER_ID" ColumnName="MODIFY_USER_ID" />
-                <ScalarProperty Name="REJECT_DESC" ColumnName="REJECT_DESC" />
-                <ScalarProperty Name="SETTLEMENT_DATE" ColumnName="SETTLEMENT_DATE" />
-                <ScalarProperty Name="METHOD_CODE" ColumnName="METHOD_CODE" />
-                <ScalarProperty Name="REASON_CODE" ColumnName="REASON_CODE" />
-                <ScalarProperty Name="REMARK_OTHER" ColumnName="REMARK_OTHER" />
-                <ScalarProperty Name="REMARK_PRICE" ColumnName="REMARK_PRICE" />
-                <ScalarProperty Name="REMARK_QTY" ColumnName="REMARK_QTY" />
-                <ScalarProperty Name="REMARK_ITEM" ColumnName="REMARK_ITEM" />
+                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
                 <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
-                <ScalarProperty Name="FORM_ID" ColumnName="FORM_ID" />
+                <ScalarProperty Name="SUPPLIER_ID" ColumnName="SUPPLIER_ID" />
+                <ScalarProperty Name="INQUIRY_FORM_ID" ColumnName="INQUIRY_FORM_ID" />
+                <ScalarProperty Name="CERT_ORD_ID" ColumnName="CERT_ORD_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_COSTCHANGE_ITEM">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_COSTCHANGE_ITEM">
-              <MappingFragment StoreEntitySet="PLAN_COSTCHANGE_ITEM">
-                <ScalarProperty Name="ITEM_UNIT_COST" ColumnName="ITEM_UNIT_COST" />
-                <ScalarProperty Name="TRANSFLAG" ColumnName="TRANSFLAG" />
-                <ScalarProperty Name="EXCEL_ROW_ID" ColumnName="EXCEL_ROW_ID" />
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="CREATE_USER_ID" ColumnName="CREATE_USER_ID" />
-                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
-                <ScalarProperty Name="MODIFY_USER_ID" ColumnName="MODIFY_USER_ID" />
-                <ScalarProperty Name="ITEM_REMARK" ColumnName="ITEM_REMARK" />
-                <ScalarProperty Name="ITEM_UNIT_PRICE" ColumnName="ITEM_UNIT_PRICE" />
-                <ScalarProperty Name="ITEM_QUANTITY" ColumnName="ITEM_QUANTITY" />
-                <ScalarProperty Name="ITEM_UNIT" ColumnName="ITEM_UNIT" />
+          <EntitySetMapping Name="vw_MAP_FW">
+            <EntityTypeMapping TypeName="topmepModel.vw_MAP_FW">
+              <MappingFragment StoreEntitySet="vw_MAP_FW">
                 <ScalarProperty Name="ITEM_DESC" ColumnName="ITEM_DESC" />
-                <ScalarProperty Name="ITEM_ID" ColumnName="ITEM_ID" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="PIPE_TOTAL_LENGTH" ColumnName="PIPE_TOTAL_LENGTH" />
+                <ScalarProperty Name="PIPE_LENGTH" ColumnName="PIPE_LENGTH" />
+                <ScalarProperty Name="PIPE_SET" ColumnName="PIPE_SET" />
+                <ScalarProperty Name="PIPE_CNT" ColumnName="PIPE_CNT" />
+                <ScalarProperty Name="PIPE_NAME" ColumnName="PIPE_NAME" />
+                <ScalarProperty Name="SECONDARY_SIDE_NAME" ColumnName="SECONDARY_SIDE_NAME" />
+                <ScalarProperty Name="SECONDARY_SIDE" ColumnName="SECONDARY_SIDE" />
+                <ScalarProperty Name="PRIMARY_SIDE_NAME" ColumnName="PRIMARY_SIDE_NAME" />
+                <ScalarProperty Name="PRIMARY_SIDE" ColumnName="PRIMARY_SIDE" />
+                <ScalarProperty Name="BUILDING_NO" ColumnName="BUILDING_NO" />
+                <ScalarProperty Name="MAP_NO" ColumnName="MAP_NO" />
+                <ScalarProperty Name="PROJECT_ITEM_ID" ColumnName="PROJECT_ITEM_ID" />
+                <ScalarProperty Name="EXCEL_ITEM" ColumnName="EXCEL_ITEM" />
                 <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
-                <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
-                <ScalarProperty Name="FORM_ID" ColumnName="FORM_ID" />
-                <ScalarProperty Name="ITEM_UID" ColumnName="ITEM_UID" />
+                <ScalarProperty Name="FW_ID" ColumnName="FW_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="FIN_BANK_LOAN">
-            <EntityTypeMapping TypeName="topmepModel.FIN_BANK_LOAN">
-              <MappingFragment StoreEntitySet="FIN_BANK_LOAN">
-                <ScalarProperty Name="IS_SUPPLIER" ColumnName="IS_SUPPLIER" />
-                <ScalarProperty Name="QUOTA_RECYCLABLE" ColumnName="QUOTA_RECYCLABLE" />
-                <ScalarProperty Name="QUOTA_AVAILABLE_RATIO" ColumnName="QUOTA_AVAILABLE_RATIO" />
-                <ScalarProperty Name="CUM_AR_RATIO" ColumnName="CUM_AR_RATIO" />
-                <ScalarProperty Name="AR_PAYBACK_RATIO" ColumnName="AR_PAYBACK_RATIO" />
+          <EntitySetMapping Name="vw_MAP_PLU">
+            <EntityTypeMapping TypeName="topmepModel.vw_MAP_PLU">
+              <MappingFragment StoreEntitySet="vw_MAP_PLU">
+                <ScalarProperty Name="ITEM_DESC" ColumnName="ITEM_DESC" />
+                <ScalarProperty Name="EXCEL_ITEM" ColumnName="EXCEL_ITEM" />
+                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
+                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
+                <ScalarProperty Name="PIPE_TOTAL_LENGTH" ColumnName="PIPE_TOTAL_LENGTH" />
+                <ScalarProperty Name="PIPE_LENGTH" ColumnName="PIPE_LENGTH" />
+                <ScalarProperty Name="PIPE_SET_QTY" ColumnName="PIPE_SET_QTY" />
+                <ScalarProperty Name="PIPE_COUNT_SET" ColumnName="PIPE_COUNT_SET" />
+                <ScalarProperty Name="PIPE_NAME" ColumnName="PIPE_NAME" />
+                <ScalarProperty Name="SECONDARY_SIDE_NAME" ColumnName="SECONDARY_SIDE_NAME" />
+                <ScalarProperty Name="SECONDARY_SIDE" ColumnName="SECONDARY_SIDE" />
+                <ScalarProperty Name="PRIMARY_SIDE_NAME" ColumnName="PRIMARY_SIDE_NAME" />
+                <ScalarProperty Name="PRIMARY_SIDE" ColumnName="PRIMARY_SIDE" />
+                <ScalarProperty Name="BUILDING_NO" ColumnName="BUILDING_NO" />
+                <ScalarProperty Name="MAP_NO" ColumnName="MAP_NO" />
+                <ScalarProperty Name="PROJECT_ITEM_ID" ColumnName="PROJECT_ITEM_ID" />
                 <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
-                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
-                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
-                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
-                <ScalarProperty Name="QUOTA" ColumnName="QUOTA" />
-                <ScalarProperty Name="PERIOD_COUNT" ColumnName="PERIOD_COUNT" />
-                <ScalarProperty Name="DUE_DATE" ColumnName="DUE_DATE" />
-                <ScalarProperty Name="START_DATE" ColumnName="START_DATE" />
-                <ScalarProperty Name="REF_ACCOUNT_CODE" ColumnName="REF_ACCOUNT_CODE" />
-                <ScalarProperty Name="ACCOUNT_NAME" ColumnName="ACCOUNT_NAME" />
-                <ScalarProperty Name="ACCOUNT_NO" ColumnName="ACCOUNT_NO" />
-                <ScalarProperty Name="BRANCH_NAME" ColumnName="BRANCH_NAME" />
-                <ScalarProperty Name="BANK_NAME" ColumnName="BANK_NAME" />
-                <ScalarProperty Name="BANK_ID" ColumnName="BANK_ID" />
-                <ScalarProperty Name="BL_ID" ColumnName="BL_ID" />
+                <ScalarProperty Name="PLU_ID" ColumnName="PLU_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_ACCOUNT">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_ACCOUNT">
-              <MappingFragment StoreEntitySet="PLAN_ACCOUNT">
-                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
-                <ScalarProperty Name="PAYEE" ColumnName="PAYEE" />
-                <ScalarProperty Name="BANKING_FEE" ColumnName="BANKING_FEE" />
-                <ScalarProperty Name="AMOUNT_PAYABLE" ColumnName="AMOUNT_PAYABLE" />
-                <ScalarProperty Name="CHECK_NO" ColumnName="CHECK_NO" />
-                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
-                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
-                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
-                <ScalarProperty Name="STATUS" ColumnName="STATUS" />
-                <ScalarProperty Name="ISDEBIT" ColumnName="ISDEBIT" />
-                <ScalarProperty Name="ACCOUNT_TYPE" ColumnName="ACCOUNT_TYPE" />
-                <ScalarProperty Name="AMOUNT_PAID" ColumnName="AMOUNT_PAID" />
-                <ScalarProperty Name="PAYMENT_DATE" ColumnName="PAYMENT_DATE" />
-                <ScalarProperty Name="ACCOUNT_FORM_ID" ColumnName="ACCOUNT_FORM_ID" />
-                <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
-                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
-                <ScalarProperty Name="PLAN_ACCOUNT_ID" ColumnName="PLAN_ACCOUNT_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="FIN_LOAN_TRANACTION">
-            <EntityTypeMapping TypeName="topmepModel.FIN_LOAN_TRANACTION">
-              <MappingFragment StoreEntitySet="FIN_LOAN_TRANACTION">
-                <ScalarProperty Name="VA_FORM_ID" ColumnName="VA_FORM_ID" />
-                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
-                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
-                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
-                <ScalarProperty Name="PAYBACK_DATE" ColumnName="PAYBACK_DATE" />
-                <ScalarProperty Name="EVENT_DATE" ColumnName="EVENT_DATE" />
-                <ScalarProperty Name="AMOUNT" ColumnName="AMOUNT" />
-                <ScalarProperty Name="PERIOD" ColumnName="PERIOD" />
-                <ScalarProperty Name="TRANSACTION_TYPE" ColumnName="TRANSACTION_TYPE" />
-                <ScalarProperty Name="BL_ID" ColumnName="BL_ID" />
-                <ScalarProperty Name="TID" ColumnName="TID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_ITEM2_SUP_INQUIRY">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_ITEM2_SUP_INQUIRY">
-              <MappingFragment StoreEntitySet="PLAN_ITEM2_SUP_INQUIRY">
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
-                <ScalarProperty Name="ISWAGE" ColumnName="ISWAGE" />
-                <ScalarProperty Name="INQUIRY_FORM_ID" ColumnName="INQUIRY_FORM_ID" />
-                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
-                <ScalarProperty Name="UID" ColumnName="UID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="SYS_MESSAGE">
-            <EntityTypeMapping TypeName="topmepModel.SYS_MESSAGE">
-              <MappingFragment StoreEntitySet="SYS_MESSAGE">
-                <ScalarProperty Name="STATUS" ColumnName="STATUS" />
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
-                <ScalarProperty Name="SEND_TIME" ColumnName="SEND_TIME" />
-                <ScalarProperty Name="FILE_PATH" ColumnName="FILE_PATH" />
-                <ScalarProperty Name="MSG_BODY" ColumnName="MSG_BODY" />
-                <ScalarProperty Name="SUBJECT" ColumnName="SUBJECT" />
-                <ScalarProperty Name="BCC_MAIL_LIST" ColumnName="BCC_MAIL_LIST" />
-                <ScalarProperty Name="MAIL_LIST" ColumnName="MAIL_LIST" />
-                <ScalarProperty Name="DISPLAY_NAME" ColumnName="DISPLAY_NAME" />
-                <ScalarProperty Name="FROM_ADDRESS" ColumnName="FROM_ADDRESS" />
-                <ScalarProperty Name="MSG_ID" ColumnName="MSG_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_ESTIMATION2PURCHASE">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_ESTIMATION2PURCHASE">
-              <MappingFragment StoreEntitySet="PLAN_ESTIMATION2PURCHASE">
-                <ScalarProperty Name="EST_FORM_ID" ColumnName="EST_FORM_ID" />
-                <ScalarProperty Name="PR_ID" ColumnName="PR_ID" />
-                <ScalarProperty Name="E2P_ID" ColumnName="E2P_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_ESTIMATION_ITEM">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_ESTIMATION_ITEM">
-              <MappingFragment StoreEntitySet="PLAN_ESTIMATION_ITEM">
-                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
-                <ScalarProperty Name="EST_AMOUNT" ColumnName="EST_AMOUNT" />
-                <ScalarProperty Name="EST_RATIO" ColumnName="EST_RATIO" />
-                <ScalarProperty Name="EST_QTY" ColumnName="EST_QTY" />
-                <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
-                <ScalarProperty Name="EST_FORM_ID" ColumnName="EST_FORM_ID" />
-                <ScalarProperty Name="EST_ITEM_ID" ColumnName="EST_ITEM_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_ESTIMATION_PAYMENT_TRANSFER">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_ESTIMATION_PAYMENT_TRANSFER">
-              <MappingFragment StoreEntitySet="PLAN_ESTIMATION_PAYMENT_TRANSFER">
-                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
-                <ScalarProperty Name="CUR_HOLDAMOUNT" ColumnName="CUR_HOLDAMOUNT" />
-                <ScalarProperty Name="HOLD_AMOUNT" ColumnName="HOLD_AMOUNT" />
-                <ScalarProperty Name="FEE" ColumnName="FEE" />
-                <ScalarProperty Name="PAID_AMOUNT" ColumnName="PAID_AMOUNT" />
-                <ScalarProperty Name="ESTIMATION_COUNT" ColumnName="ESTIMATION_COUNT" />
-                <ScalarProperty Name="TRANSFER_FORM_ID" ColumnName="TRANSFER_FORM_ID" />
-                <ScalarProperty Name="PAYMENT_FORM_ID" ColumnName="PAYMENT_FORM_ID" />
-                <ScalarProperty Name="PAYMENT_ID" ColumnName="PAYMENT_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_ESTIMATION_INVOICE">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_ESTIMATION_INVOICE">
-              <MappingFragment StoreEntitySet="PLAN_ESTIMATION_INVOICE">
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="DISCOUNT_UNIT_PRICE" ColumnName="DISCOUNT_UNIT_PRICE" />
-                <ScalarProperty Name="DISCOUNT_QTY" ColumnName="DISCOUNT_QTY" />
-                <ScalarProperty Name="PLAN_ITEM_ID" ColumnName="PLAN_ITEM_ID" />
-                <ScalarProperty Name="SUB_TYPE" ColumnName="SUB_TYPE" />
-                <ScalarProperty Name="NOTE" ColumnName="NOTE" />
-                <ScalarProperty Name="TYPE" ColumnName="TYPE" />
-                <ScalarProperty Name="TAX" ColumnName="TAX" />
-                <ScalarProperty Name="AMOUNT" ColumnName="AMOUNT" />
-                <ScalarProperty Name="INVOICE_DATE" ColumnName="INVOICE_DATE" />
-                <ScalarProperty Name="INVOICE_NUMBER" ColumnName="INVOICE_NUMBER" />
-                <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
-                <ScalarProperty Name="EST_FORM_ID" ColumnName="EST_FORM_ID" />
-                <ScalarProperty Name="INVOICE_ID" ColumnName="INVOICE_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_ESTIMATION_FORM">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_ESTIMATION_FORM">
-              <MappingFragment StoreEntitySet="PLAN_ESTIMATION_FORM">
-                <ScalarProperty Name="INDIRECT_COST_TYPE" ColumnName="INDIRECT_COST_TYPE" />
-                <ScalarProperty Name="PAYMENT_DATE" ColumnName="PAYMENT_DATE" />
-                <ScalarProperty Name="PAYEE" ColumnName="PAYEE" />
-                <ScalarProperty Name="PROJECT_NAME" ColumnName="PROJECT_NAME" />
-                <ScalarProperty Name="REJECT_DESC" ColumnName="REJECT_DESC" />
-                <ScalarProperty Name="INVOICE" ColumnName="INVOICE" />
-                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
-                <ScalarProperty Name="TAX_RATIO" ColumnName="TAX_RATIO" />
-                <ScalarProperty Name="STATUS" ColumnName="STATUS" />
-                <ScalarProperty Name="TYPE" ColumnName="TYPE" />
-                <ScalarProperty Name="SETTLEMENT" ColumnName="SETTLEMENT" />
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
-                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
-                <ScalarProperty Name="PREPAY_AMOUNT" ColumnName="PREPAY_AMOUNT" />
-                <ScalarProperty Name="OTHER_PAYMENT" ColumnName="OTHER_PAYMENT" />
-                <ScalarProperty Name="RETENTION_PAYMENT" ColumnName="RETENTION_PAYMENT" />
-                <ScalarProperty Name="FOREIGN_PAYMENT" ColumnName="FOREIGN_PAYMENT" />
-                <ScalarProperty Name="PAID_AMOUNT" ColumnName="PAID_AMOUNT" />
-                <ScalarProperty Name="PAYMENT_DEDUCTION" ColumnName="PAYMENT_DEDUCTION" />
-                <ScalarProperty Name="PAYMENT_TRANSFER" ColumnName="PAYMENT_TRANSFER" />
-                <ScalarProperty Name="TAX_AMOUNT" ColumnName="TAX_AMOUNT" />
-                <ScalarProperty Name="PLUS_TAX" ColumnName="PLUS_TAX" />
-                <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
-                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
-                <ScalarProperty Name="EST_FORM_ID" ColumnName="EST_FORM_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_ESTIMATION_HOLDPAYMENT">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_ESTIMATION_HOLDPAYMENT">
-              <MappingFragment StoreEntitySet="PLAN_ESTIMATION_HOLDPAYMENT">
-                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
-                <ScalarProperty Name="HOLD_AMOUNT" ColumnName="HOLD_AMOUNT" />
-                <ScalarProperty Name="SUPPLIER_ID" ColumnName="SUPPLIER_ID" />
-                <ScalarProperty Name="PAYMENT_ID" ColumnName="PAYMENT_ID" />
-                <ScalarProperty Name="EST_FORM_ID" ColumnName="EST_FORM_ID" />
-                <ScalarProperty Name="HOLD_ID" ColumnName="HOLD_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_DR_TEMPWORK">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_DR_TEMPWORK">
-              <MappingFragment StoreEntitySet="PLAN_DR_TEMPWORK">
-                <ScalarProperty Name="DOC" ColumnName="DOC" />
-                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
-                <ScalarProperty Name="LAST_QTY" ColumnName="LAST_QTY" />
-                <ScalarProperty Name="WORKER_QTY" ColumnName="WORKER_QTY" />
-                <ScalarProperty Name="CHARGE_ID" ColumnName="CHARGE_ID" />
-                <ScalarProperty Name="SUPPLIER_ID" ColumnName="SUPPLIER_ID" />
-                <ScalarProperty Name="REPORT_ID" ColumnName="REPORT_ID" />
-                <ScalarProperty Name="ORD_TEMPWORKER_ID" ColumnName="ORD_TEMPWORKER_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_DR_WORKER">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_DR_WORKER">
-              <MappingFragment StoreEntitySet="PLAN_DR_WORKER">
-                <ScalarProperty Name="REMARK" ColumnName="REMARK" />
-                <ScalarProperty Name="LAST_QTY" ColumnName="LAST_QTY" />
-                <ScalarProperty Name="WORKER_QTY" ColumnName="WORKER_QTY" />
-                <ScalarProperty Name="WORKER_TYPE" ColumnName="WORKER_TYPE" />
-                <ScalarProperty Name="PARA_KEY_ID" ColumnName="PARA_KEY_ID" />
-                <ScalarProperty Name="CONTRACT_ID" ColumnName="CONTRACT_ID" />
-                <ScalarProperty Name="SUPPLIER_ID" ColumnName="SUPPLIER_ID" />
-                <ScalarProperty Name="REPORT_ID" ColumnName="REPORT_ID" />
-                <ScalarProperty Name="DR_WORKER_ID" ColumnName="DR_WORKER_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="PLAN_TASK_DONE">
-            <EntityTypeMapping TypeName="topmepModel.PLAN_TASK_DONE">
-              <MappingFragment StoreEntitySet="PLAN_TASK_DONE">
-                <ScalarProperty Name="MODIFY_DATE" ColumnName="MODIFY_DATE" />
-                <ScalarProperty Name="MODIFY_ID" ColumnName="MODIFY_ID" />
-                <ScalarProperty Name="CREATE_DATE" ColumnName="CREATE_DATE" />
-                <ScalarProperty Name="CREATE_ID" ColumnName="CREATE_ID" />
-                <ScalarProperty Name="PRJ_UID" ColumnName="PRJ_UID" />
-                <ScalarProperty Name="PRJ_ID" ColumnName="PRJ_ID" />
-                <ScalarProperty Name="PROJECT_ID" ColumnName="PROJECT_ID" />
-                <ScalarProperty Name="TASK_ID" ColumnName="TASK_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          </EntityContainerMapping>
+        </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>
   </edmx:Runtime>

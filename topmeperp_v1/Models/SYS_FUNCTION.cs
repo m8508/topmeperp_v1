@@ -23,13 +23,13 @@ namespace topmeperp.Models
         public string FUNCTION_ID { get; set; }
         public string FUNCTION_NAME { get; set; }
         public string MODULE_NAME { get; set; }
+        public string SUB_MODULE { get; set; }
         public string FUNCTION_URI { get; set; }
         public Nullable<System.DateTime> CREATE_DATE { get; set; }
         public string CREATE_ID { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
         public string MODIFY_ID { get; set; }
         public string ISMENU { get; set; }
-        public string SUB_MODULE { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SYS_PRIVILEGE> SYS_PRIVILEGE { get; set; }

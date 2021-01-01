@@ -12,26 +12,22 @@ namespace topmeperp.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class PLAN_COSTCHANGE_ITEM
+    public partial class PLAN_CERT_ORDER_ITEM
     {
-        public long ITEM_UID { get; set; }
-        public string FORM_ID { get; set; }
+        public long CERT_ORD_ITEM_ID { get; set; }
+        public string CERT_ORD_ID { get; set; }
         public string PLAN_ITEM_ID { get; set; }
-        public string PROJECT_ID { get; set; }
+        public string TYPE_CODE { get; set; }
+        public string SUB_TYPE_CODE { get; set; }
         public string ITEM_ID { get; set; }
         public string ITEM_DESC { get; set; }
         public string ITEM_UNIT { get; set; }
-        public Nullable<decimal> ITEM_QUANTITY { get; set; }
-        public Nullable<decimal> ITEM_UNIT_PRICE { get; set; }
-        public Nullable<decimal> ITEM_UNIT_COST { get; set; }
+        public Nullable<decimal> ORDER_QTY { get; set; }
+        public Nullable<decimal> ORDER_PRICE { get; set; }
+        public Nullable<decimal> ACCUMULTATE_QTY { get; set; }
         public string ITEM_REMARK { get; set; }
-        public string MODIFY_USER_ID { get; set; }
+        public string MODIFY_ID { get; set; }
         public Nullable<System.DateTime> MODIFY_DATE { get; set; }
-        public string CREATE_USER_ID { get; set; }
-        public Nullable<System.DateTime> CREATE_DATE { get; set; }
-        public Nullable<long> EXCEL_ROW_ID { get; set; }
-        public string TRANSFLAG { get; set; }
-    
-        public virtual PLAN_COSTCHANGE_FORM PLAN_COSTCHANGE_FORM { get; set; }
+        public Nullable<decimal> WAGE_PRICE { get; set; }
     }
 }

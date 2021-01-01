@@ -473,6 +473,12 @@
     <Compile Include="Models\PLAN_BUDGET.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\PLAN_CERT_ORDER.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PLAN_CERT_ORDER_ITEM.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\PLAN_CONTRACT_PROCESS.cs">
       <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
@@ -659,6 +665,12 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>topmep.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Models\vw_MAP_FW.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\vw_MAP_PLU.cs">
+      <DependentUpon>topmep.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\WF_PORCESS_TASK.cs">
       <DependentUpon>topmep.tt</DependentUpon>

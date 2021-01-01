@@ -27,20 +27,35 @@ namespace topmeperp.Models
     
         public virtual DbSet<ENT_DEPARTMENT> ENT_DEPARTMENT { get; set; }
         public virtual DbSet<FIN_BANK_ACCOUNT> FIN_BANK_ACCOUNT { get; set; }
+        public virtual DbSet<FIN_BANK_LOAN> FIN_BANK_LOAN { get; set; }
         public virtual DbSet<FIN_EXPENSE_BUDGET> FIN_EXPENSE_BUDGET { get; set; }
         public virtual DbSet<FIN_EXPENSE_FORM> FIN_EXPENSE_FORM { get; set; }
         public virtual DbSet<FIN_EXPENSE_ITEM> FIN_EXPENSE_ITEM { get; set; }
+        public virtual DbSet<FIN_LOAN_TRANACTION> FIN_LOAN_TRANACTION { get; set; }
         public virtual DbSet<FIN_SUBJECT> FIN_SUBJECT { get; set; }
+        public virtual DbSet<PLAN_ACCOUNT> PLAN_ACCOUNT { get; set; }
         public virtual DbSet<PLAN_BUDGET> PLAN_BUDGET { get; set; }
+        public virtual DbSet<PLAN_CERT_ORDER_ITEM> PLAN_CERT_ORDER_ITEM { get; set; }
         public virtual DbSet<PLAN_CONTRACT_PROCESS> PLAN_CONTRACT_PROCESS { get; set; }
+        public virtual DbSet<PLAN_COSTCHANGE_FORM> PLAN_COSTCHANGE_FORM { get; set; }
+        public virtual DbSet<PLAN_COSTCHANGE_ITEM> PLAN_COSTCHANGE_ITEM { get; set; }
         public virtual DbSet<PLAN_DALIY_REPORT> PLAN_DALIY_REPORT { get; set; }
         public virtual DbSet<PLAN_DR_ITEM> PLAN_DR_ITEM { get; set; }
         public virtual DbSet<PLAN_DR_NOTE> PLAN_DR_NOTE { get; set; }
         public virtual DbSet<PLAN_DR_TASK> PLAN_DR_TASK { get; set; }
+        public virtual DbSet<PLAN_DR_TEMPWORK> PLAN_DR_TEMPWORK { get; set; }
+        public virtual DbSet<PLAN_DR_WORKER> PLAN_DR_WORKER { get; set; }
+        public virtual DbSet<PLAN_ESTIMATION_FORM> PLAN_ESTIMATION_FORM { get; set; }
+        public virtual DbSet<PLAN_ESTIMATION_HOLDPAYMENT> PLAN_ESTIMATION_HOLDPAYMENT { get; set; }
+        public virtual DbSet<PLAN_ESTIMATION_INVOICE> PLAN_ESTIMATION_INVOICE { get; set; }
+        public virtual DbSet<PLAN_ESTIMATION_ITEM> PLAN_ESTIMATION_ITEM { get; set; }
+        public virtual DbSet<PLAN_ESTIMATION_PAYMENT_TRANSFER> PLAN_ESTIMATION_PAYMENT_TRANSFER { get; set; }
+        public virtual DbSet<PLAN_ESTIMATION2PURCHASE> PLAN_ESTIMATION2PURCHASE { get; set; }
         public virtual DbSet<PLAN_INDIRECT_COST> PLAN_INDIRECT_COST { get; set; }
         public virtual DbSet<PLAN_INVOICE> PLAN_INVOICE { get; set; }
         public virtual DbSet<PLAN_ITEM> PLAN_ITEM { get; set; }
         public virtual DbSet<PLAN_ITEM_DELIVERY> PLAN_ITEM_DELIVERY { get; set; }
+        public virtual DbSet<PLAN_ITEM2_SUP_INQUIRY> PLAN_ITEM2_SUP_INQUIRY { get; set; }
         public virtual DbSet<PLAN_OTHER_PAYMENT> PLAN_OTHER_PAYMENT { get; set; }
         public virtual DbSet<PLAN_PAYMENT_TERMS> PLAN_PAYMENT_TERMS { get; set; }
         public virtual DbSet<PLAN_PURCHASE_REQUISITION> PLAN_PURCHASE_REQUISITION { get; set; }
@@ -49,12 +64,14 @@ namespace topmeperp.Models
         public virtual DbSet<PLAN_SUP_INQUIRY> PLAN_SUP_INQUIRY { get; set; }
         public virtual DbSet<PLAN_SUP_INQUIRY_ITEM> PLAN_SUP_INQUIRY_ITEM { get; set; }
         public virtual DbSet<PLAN_TASK> PLAN_TASK { get; set; }
+        public virtual DbSet<PLAN_TASK_DONE> PLAN_TASK_DONE { get; set; }
         public virtual DbSet<PLAN_TASK2MAPITEM> PLAN_TASK2MAPITEM { get; set; }
         public virtual DbSet<PLAN_VALUATION_FORM> PLAN_VALUATION_FORM { get; set; }
         public virtual DbSet<REF_TYPE_MAIN> REF_TYPE_MAIN { get; set; }
         public virtual DbSet<REF_TYPE_SUB> REF_TYPE_SUB { get; set; }
         public virtual DbSet<SYS_FUNCTION> SYS_FUNCTION { get; set; }
         public virtual DbSet<SYS_KEY_SERIAL> SYS_KEY_SERIAL { get; set; }
+        public virtual DbSet<SYS_MESSAGE> SYS_MESSAGE { get; set; }
         public virtual DbSet<SYS_PARA> SYS_PARA { get; set; }
         public virtual DbSet<SYS_PRIVILEGE> SYS_PRIVILEGE { get; set; }
         public virtual DbSet<SYS_ROLE> SYS_ROLE { get; set; }
@@ -79,21 +96,8 @@ namespace topmeperp.Models
         public virtual DbSet<WF_PROCESS> WF_PROCESS { get; set; }
         public virtual DbSet<WF_PROCESS_ACTIVITY> WF_PROCESS_ACTIVITY { get; set; }
         public virtual DbSet<WF_PROCESS_REQUEST> WF_PROCESS_REQUEST { get; set; }
-        public virtual DbSet<PLAN_COSTCHANGE_FORM> PLAN_COSTCHANGE_FORM { get; set; }
-        public virtual DbSet<PLAN_COSTCHANGE_ITEM> PLAN_COSTCHANGE_ITEM { get; set; }
-        public virtual DbSet<FIN_BANK_LOAN> FIN_BANK_LOAN { get; set; }
-        public virtual DbSet<PLAN_ACCOUNT> PLAN_ACCOUNT { get; set; }
-        public virtual DbSet<FIN_LOAN_TRANACTION> FIN_LOAN_TRANACTION { get; set; }
-        public virtual DbSet<PLAN_ITEM2_SUP_INQUIRY> PLAN_ITEM2_SUP_INQUIRY { get; set; }
-        public virtual DbSet<SYS_MESSAGE> SYS_MESSAGE { get; set; }
-        public virtual DbSet<PLAN_ESTIMATION2PURCHASE> PLAN_ESTIMATION2PURCHASE { get; set; }
-        public virtual DbSet<PLAN_ESTIMATION_ITEM> PLAN_ESTIMATION_ITEM { get; set; }
-        public virtual DbSet<PLAN_ESTIMATION_PAYMENT_TRANSFER> PLAN_ESTIMATION_PAYMENT_TRANSFER { get; set; }
-        public virtual DbSet<PLAN_ESTIMATION_INVOICE> PLAN_ESTIMATION_INVOICE { get; set; }
-        public virtual DbSet<PLAN_ESTIMATION_FORM> PLAN_ESTIMATION_FORM { get; set; }
-        public virtual DbSet<PLAN_ESTIMATION_HOLDPAYMENT> PLAN_ESTIMATION_HOLDPAYMENT { get; set; }
-        public virtual DbSet<PLAN_DR_TEMPWORK> PLAN_DR_TEMPWORK { get; set; }
-        public virtual DbSet<PLAN_DR_WORKER> PLAN_DR_WORKER { get; set; }
-        public virtual DbSet<PLAN_TASK_DONE> PLAN_TASK_DONE { get; set; }
+        public virtual DbSet<PLAN_CERT_ORDER> PLAN_CERT_ORDER { get; set; }
+        public virtual DbSet<vw_MAP_FW> vw_MAP_FW { get; set; }
+        public virtual DbSet<vw_MAP_PLU> vw_MAP_PLU { get; set; }
     }
 }
